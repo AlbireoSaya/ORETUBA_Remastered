@@ -1,0 +1,27 @@
+function RVMFStore(s, q, b)
+{
+    var aligned = q & 0xfffffffc;
+    var k = "" + aligned;
+    var old = s.words[k];
+    if (typeof old !== "Integer") throw new Exception("RVMFStore: s.words[" + k + "] is not Integer");
+    var shift = (q & 3) * 8;
+    var mask = (255 << shift) & 0xffffffff;
+    s.words[k] = ((old & (0xffffffff ^ mask)) | ((b & 255) << shift)) & 0xffffffff;
+}
+
+function RVMFWB(q, v)
+{
+    RVMFRange(this, q, 1, true);
+    v &= 255;
+    this.writes.add([1, q, v]);
+    RVMFStore(this, q, v);
+}
+
+function RVMFWR(q, v)
+{
+    RVMFRange(this, q, 4, true);
+    v &= 0xffffffff;
+    this.writes.add([4, q, v]);
+    for (var i = 0; i < 4; i++)
+        RVMFStore(this, q + i, (v >> (i * 8)) & 255);
+}

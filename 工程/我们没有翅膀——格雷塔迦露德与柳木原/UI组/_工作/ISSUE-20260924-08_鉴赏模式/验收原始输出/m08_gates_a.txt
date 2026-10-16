@@ -1,0 +1,61 @@
+=== [1] gen_layout ===
+
+[OK] 已生成：
+  layout\ui_layout.json  (18 屏)
+  krkr\game\ui_layout.tjs
+  复刻\ui_layout.js
+EXIT=0
+
+=== [2] verify_ui ===
+==============================================================================
+verify_ui.py · UI 组 M1 一致性校验
+  layout : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout
+  assets : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\assets\ui
+  game   : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\game
+  canvas : 1920x1080（canvas_baseline=1920x1080）  ← 读自 layout/_root.json
+==============================================================================
+  [1] 引用完整性      ：2644 条引用 / 952 条唯一（其中可再生产物命名空间缺失跳过 0 条）→ 通过
+  [2] 尺寸一致性      ：330 个 image（其中九宫格 233）＋3 个 item_buttons ＋705 个 item_variants 件 ＋10 条 slider rail → 通过
+  [3] 三处数据一致    ：json 22567 键 / tjs 22567 键 / js 22567 键 → 通过
+  [4] 硬编码坐标扫描  ：扫 13 个 .tjs（排除自动生成的 ui_layout.tjs）→ 可疑清单为空，通过
+      白名单：W1 值∈{0,1,2,3} ｜ W2 值==255 ｜ W3 行含 interval/Timer/period ｜ W4 疑似数组下标 ｜ W5 十六进制字面量 ｜ W6 行含 UILayout/uiTheme/uiAsset
+  [5] PNG 合法性      ：1229 件 → 通过
+      P 模式（索引色）清单：无
+      L 模式（灰度）清单  ：无
+  [6] 体积预算        ：1229 件 / 87.57 MB（56 MB 预算）→ **超出**
+      !! 资产总体积 87.57 MB 超出 56 MB 预算（91826630 字节）
+[7] opacity 范围      ：检查 808 个 opacity 字段 → 通过
+------------------------------------------------------------------------------
+汇总：引用 0 ｜ 尺寸 0 ｜ 三处一致 0 ｜ 硬编码可疑 0 行 ｜ PNG 0 ｜ 预算 1 处 ｜ opacity 0 处
+资产：1229 件 / 87.57 MB
+结果：**不通过**（退出码 1）
+==============================================================================
+EXIT=1
+
+=== [3] test_gen_sync ===
+    · m33_rebuild_screens.patch_flowchart —— 作用于 `flow.tab*`——该结构已由 m34 的 `fc.*` 重建取代（死代码）
+  盘上仍会被它改坏的屏（清单）：
+    · [22_loading.json] 元素 `ld.bg` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 120, 't': 0, 'r': 120, 'b': 0}
+    · [22_loading.json] 元素 `ld.plate` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 34, 'r': 0, 'b': 34}
+    · [22_loading.json] 与失效生成器有 7 处值差异
+
+### 无 build 函数的屏（不会被任何生成器重跑抹掉）
+  10_dialog.json       来源：M23_gen.py（系统条改通用 hit 扫描 + 对话框换图）＋ migrate_1920.py
+  25_config.json       来源：_工作/M47_设置屏重设/复现脚本/m47_build_config.py（**一次性脚手架**；此后手工维护）
+  26_backlog.json      来源：_工作/ISSUE-20260924-06_回想屏重排/复现脚本/m06_build_backlog.py（**一次性脚手架**；此后手工维护。生成器 `m34_build_screens.build_backlog()` 已退休删除）
+  27_gallery.json      来源：_工作/M14_gen_screens.py
+  28_music.json        来源：_工作/ISSUE-20260924-08_鉴赏模式/M3_BGM/m51_build_music.py（**一次性脚手架**；此后手工维护。生成器 `m34_build_screens.build_music()` 已退休删除）
+  29_ending.json       来源：早期直接写盘（无生成器；改动无回写对象）
+  31_fragment.json     来源：_工作/M14_gen_screens.py
+  33_sysicons.json     来源：_工作/M23_gen.py
+  39_gal_shell.json    ⚠ 未登记来源（生成器没有它、NO_GEN 也没写它）
+
+------------------------------------------------------------------------------
+覆盖：生成器产出屏 9 个 ｜ 登记表 ACK 命中 4 条 ｜ 失效生成器待处置 3 条
+警告（不致命）：
+  ~ [23_save.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+  ~ [24_load.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+  ~ [39_gal_shell.json] 未登记来源（既无 build 函数也未在 NO_GEN 说明）
+落盘自证：运行前后 layout/screens/*.json 的 md5 **完全一致** ✓（19 个文件）
+结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）
+EXIT=0

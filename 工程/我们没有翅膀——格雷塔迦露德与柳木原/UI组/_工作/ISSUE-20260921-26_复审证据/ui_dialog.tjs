@@ -1,0 +1,397 @@
+// ============================================================
+// ui_dialog.tjs —— 对话框屏逻辑（M2 · UI 组）
+//
+// 职责：
+//   * 名字框 / 正文 / 光标 / 系统条 / 选择肢 的**状态机**；
+//   * 打字机逐字显示、点击推进、选择肢显示与点选；
+//   * 把状态翻译成 ui_widget.tjs 需要的 ctx（文本覆盖 / 隐藏 / 高亮 / 动画相位）。
+//
+// 边界：
+//   * 本文件**不画任何东西**——绘制全部交给 ui_widget.tjs；
+//   * 本文件**不含坐标/尺寸/字号/颜色**——几何一律从 el（UILayoutData）来；
+//   * 演示台词来自 ui_demo_script.tjs（由 scene_ot.jsonl 生成，非自造）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 状态
+// ------------------------------------------------------------
+var UIDlgLine        = 0;      // 当前台词下标（0 起）
+var UIDlgTyped       = 0;      // 已显示字符数
+var UIDlgTyping      = false;  // 是否正在逐字显示
+var UIDlgCursorOn    = true;   // 光标闪烁相位
+var UIDlgChoicesOpen = false;  // 选择肢是否展开
+var UIDlgChoiceFocus = 0;      // 选择肢高亮项
+var UIDlgAutoMode    = false;
+var UIDlgSkipMode    = false;
+var UIDlgReadLog     = [];     // 已读台词（回想屏用；演示层只累计条数）
+var UIDlgCharStep    = 1;      // 每个 tick 显示几个字
+var UIDlgLastMsg     = "就绪";
+
+function uiDialogReset()
+{
+	UIDlgLine = 0; UIDlgTyped = 0; UIDlgTyping = true;
+	UIDlgChoicesOpen = false; UIDlgChoiceFocus = 0;
+	UIDlgReadLog = [];
+	UIDlgLastMsg = "从第 1 条台词开始（" + UIDemoLineCount + " 条真实语料）";
+}
+
+function uiDialogLineCount() { return UIDemoLineCount; }
+
+function uiDialogCurrentSpeaker()
+{
+	if(UIDlgLine < 0 || UIDlgLine >= UIDemoLineCount) return "";
+	return "" + UIDemoSpeaker[UIDlgLine];
+}
+
+function uiDialogCurrentText()
+{
+	if(UIDlgLine < 0 || UIDlgLine >= UIDemoLineCount) return "";
+	return "" + UIDemoText[UIDlgLine];
+}
+
+function uiDialogCurrentScene()
+{
+	if(UIDlgLine < 0 || UIDlgLine >= UIDemoLineCount) return "";
+	return "" + UIDemoSceneId[UIDlgLine];
+}
+
+function uiDialogCurrentLineno()
+{
+	if(UIDlgLine < 0 || UIDlgLine >= UIDemoLineCount) return 0;
+	return UIDemoLineno[UIDlgLine];
+}
+
+// 当前台词的溯源串（日志/巡演用）
+function uiDialogLineTag()
+{
+	return "line " + (UIDlgLine + 1) + "/" + UIDemoLineCount
+		+ " [" + uiDialogCurrentScene() + " L" + uiDialogCurrentLineno() + "]";
+}
+
+// ------------------------------------------------------------
+// 打字机
+// ------------------------------------------------------------
+function uiDialogStartTyping()
+{
+	UIDlgTyped = 0;
+	UIDlgTyping = true;
+}
+
+function uiDialogTickType()
+{
+	if(!UIDlgTyping) return false;
+	UIDlgTyped += UIDlgCharStep;
+	if(UIDlgTyped >= uiDialogCurrentText().length)
+	{
+		UIDlgTyped = uiDialogCurrentText().length;
+		UIDlgTyping = false;
+		UIDlgLastMsg = "本行显示完毕：" + uiDialogLineTag();
+		// 读完一条就记账（回想屏数据源）
+		UIDlgReadLog.push(uiDialogCurrentScene() + " L" + uiDialogCurrentLineno());
+	}
+	return true;
+}
+
+function uiDialogCompleteTyping()
+{
+	UIDlgTyped = uiDialogCurrentText().length;
+	if(UIDlgTyping) UIDlgReadLog.push(uiDialogCurrentScene() + " L" + uiDialogCurrentLineno());
+	UIDlgTyping = false;
+}
+
+// ------------------------------------------------------------
+// 推进
+// ------------------------------------------------------------
+// 返回 %[ action: "typed"|"next"|"choices"|"end", msg: string ]
+function uiDialogAdvance()
+{
+	if(UIDlgTyping)
+	{
+		uiDialogCompleteTyping();
+		UIDlgLastMsg = "跳过打字机，整行显示";
+		return %[ action: "typed", msg: UIDlgLastMsg ];
+	}
+	if(UIDlgChoicesOpen)
+	{
+		UIDlgLastMsg = "选择肢展开中，请点选（当前高亮第 " + (UIDlgChoiceFocus + 1) + " 项）";
+		return %[ action: "choices", msg: UIDlgLastMsg ];
+	}
+	if(UIDlgLine + 1 >= UIDemoLineCount)
+	{
+		UIDlgLastMsg = "已到演示台词末尾（" + UIDemoLineCount + " 条）";
+		return %[ action: "end", msg: UIDlgLastMsg ];
+	}
+	UIDlgLine++;
+	uiDialogStartTyping();
+	UIDlgLastMsg = "推进到 " + uiDialogLineTag();
+	return %[ action: "next", msg: UIDlgLastMsg ];
+}
+
+// 展开选择肢（示例选择肢文本来自 layout 的 dlg.choices.labels，出自 ot_s01_02c）
+function uiDialogOpenChoices()
+{
+	UIDlgChoicesOpen = true;
+	UIDlgChoiceFocus = 0;
+	UIDlgLastMsg = "选择肢展开";
+}
+
+function uiDialogCloseChoices()
+{
+	UIDlgChoicesOpen = false;
+	UIDlgLastMsg = "选择肢关闭";
+}
+
+function uiDialogChoiceMove(delta, n)
+{
+	if(!UIDlgChoicesOpen) return;
+	if(n <= 0) return;
+	UIDlgChoiceFocus += delta;
+	while(UIDlgChoiceFocus < 0) UIDlgChoiceFocus += n;
+	while(UIDlgChoiceFocus >= n) UIDlgChoiceFocus -= n;
+	UIDlgLastMsg = "选择肢高亮 -> " + (UIDlgChoiceFocus + 1);
+}
+
+// 选择肢项数（从 layout 的 dlg.choices.labels 取；不硬编码）
+function uiDialogChoiceCount(screen)
+{
+	if(screen === void || screen.elements === void) return 0;
+	var els = screen.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null || el.id === void) continue;   // ★ M8：缺数据跳过
+		if(("" + el.id).indexOf(".choices") < 0) continue;
+		if(el.labels !== void) return el.labels.count;
+	}
+	return 0;
+}
+
+// 点选第 i 项（0 起）
+function uiDialogChoiceCommit(i)
+{
+	UIDlgChoicesOpen = false;
+	UIDlgLastMsg = "选择了第 " + (i + 1) + " 项";
+	UIDlgReadLog.push("choice#" + (i + 1));
+	return UIDlgLastMsg;
+}
+
+// ------------------------------------------------------------
+// 排版：把"完整台词"按 max_lines 折行后，只取前 n 个字符
+//   —— 先折整行再截字，保证打字机过程中换行位置不跳动
+// ------------------------------------------------------------
+function uiDialogPartialLines(stage, el, fullText, n)
+{
+	// ★ M8 修复（D3）：el 的几何/行数缺失（void）时不得抛，按缺数据给安全默认值
+	var w = (el.w === void) ? uiThemeCanvasW() : el.w;
+	var ml = (el.max_lines === void) ? 1 : el.max_lines;
+	if(ml <= 0) ml = 1;
+	// ★ M25 修复（实机实测发现）：折行**必须用本元素的字号**度量。
+	//   原先直接 uiThemeWrap(stage, …) 用的是 stage.font —— 那是上一帧最后一个元素
+	//   留下的字号（对话框屏是 dlg.hint 的 24），并非 dlg.text 的 42；于是这里算出的
+	//   折行位置（w=1224 下约 51 字/行）与实际渲染器（uiThemeLayoutText 会先
+	//   uiThemeApplyFont 再折行，约 31 字/行）**不一致**，渲染器把这里产出的每一「段」
+	//   再折成 2 行，总行数翻倍并超过 max_lines → 长台词尾部被静默截断
+	//   （实测：113 字最长语料行旧行为被截到 77 字）。补一次 uiThemeApplyFont 使
+	//   两次折行度量一致（uiThemeApplyFont 只写 layer.font，渲染器每元素都会重设，无副作用）。
+	uiThemeApplyFont(stage, el.font, el);
+	var wrapped = uiThemeWrap(stage, fullText, w, ml);
+	if(wrapped === void || wrapped.lines === void)
+		return %[ lines: [ "" + fullText ], truncated: false ];
+	var lines = wrapped.lines;
+	var out = [];
+	var remain = n;
+	for(var i = 0; i < lines.count; i++)
+	{
+		if(remain <= 0) break;
+		var s = (lines[i] === void) ? "" : ("" + lines[i]);
+		if(remain >= s.length) { out.push(s); remain -= s.length; }
+		else { out.push(s.substring(0, remain)); remain = 0; }
+	}
+	if(out.count == 0) out.push("");
+	return %[ lines: out, truncated: wrapped.truncated ];
+}
+
+// ------------------------------------------------------------
+// 构造绘制上下文
+//   screen 必须是在 UILayoutData.screens["dialog"]
+// ------------------------------------------------------------
+function uiDialogBuildCtx(stage, screen)
+{
+	// ★ M8 修复（D3）：原先漏了 forceShow 键，导致选择肢展开时
+	//   `ctx.forceShow[id] = true` 对 void 取成员 → 抛「不能将 (void) 转换为 Object 类型」，
+	//   整屏（含选择肢）全黑。TJS2 的 Dictionary 取不存在的键返回 void，**不抛**，
+	//   所以这类"漏键"错误在静态检查里查不出来，只能在实机跑到该分支时暴露。
+	//   ctx 各键必须与 uiWidget* 的读取点一一对应（见 ui_widget.tjs 的 ctx.xxx 用法）。
+	var ctx = %[ page: %[], focus: %[], hide: %[], forceShow: %[],
+	             textOverride: %[], boxOverride: %[], opacityOverride: %[],
+	             phase: (UIDlgCursorOn ? 0.0 : 1.0),
+	             // ★ M35b：补齐状态检测四键，**取值口径与 uiScreenCtx 完全一致**。
+	             //   ⚠️ 二审 Major-3 订正：初版这里写的是四个 **恒空串**（`hoverHit: ""` …），
+	             //   那是**空实现** —— uiWidgetStateFlags 恒判 false ⇒ 该屏态图永远停 normal，
+	             //   与 HTML 侧（DOM 事件驱动）分叉；而记录 -06 曾把它记成「已修」，不成立。
+	             //   现按 uiScreenCtx（ui_screens.tjs:254-263）的同一表达式接线。
+	             hoverHit: UIScrHoverHit,
+	             pressHit: ((UIScrPressProbe != "") ? UIScrPressProbe : UIScrPressHit),
+	             hoverGroup: uiScreenStateGroupOf(screen, UIScrHoverHit),
+	             pressGroup: uiScreenStateGroupOf(screen,
+	                 (UIScrPressProbe != "") ? UIScrPressProbe : UIScrPressHit) ];
+
+	if(screen === void || screen.elements === void) return ctx;   // 缺屏数据 → 空 ctx，不抛
+	var els = screen.elements;
+	var speaker = uiDialogCurrentSpeaker();
+	var full = uiDialogCurrentText();
+
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;                  // 缺元素数据 → 跳过，不抛
+		if(el.id === void) continue;
+		var id = "" + el.id;
+
+		// 名字框 / 名字：无说话人时隐藏（schema：空说话人时隐藏名字框与名字）
+		if(id.indexOf(".namebox") >= 0 || id.indexOf(".name") >= 0)
+		{
+			if(speaker == "") ctx.hide[id] = true;
+			else ctx.textOverride[id] = speaker;
+			continue;
+		}
+
+		// 正文：打字机部分文本
+		if(id.indexOf(".text") >= 0 && el.kind == "text")
+		{
+			var part = uiDialogPartialLines(stage, el, full, UIDlgTyped);
+			ctx.textOverride[id] = part.lines.join("\n");
+			continue;
+		}
+
+		// 选择肢：默认隐藏（visible_default=false），展开时显示并给高亮
+		if(id.indexOf(".choices") >= 0)
+		{
+			if(UIDlgChoicesOpen)
+			{
+				ctx.forceShow[id] = true;
+				ctx.focus[id] = UIDlgChoiceFocus;
+			}
+			continue;
+		}
+
+		// 状态标签：自动/快进时才显示
+		if(id.indexOf(".mode_tag") >= 0)
+		{
+			if(UIDlgAutoMode || UIDlgSkipMode)
+			{
+				ctx.forceShow[id] = true;
+				ctx.textOverride[id] = UIDlgSkipMode ? "快进中" : "自动播放中";
+			}
+			continue;
+		}
+
+		// ★ M25：原「系统条 .sysbar 高亮」分支已删除 —— dlg.sysbar（系统条 9 键）按用户
+		//   要求整体移除，布局里已无该元素；此处不再保留针对它的死代码。
+		//   本屏新增的九宫格 9 图标为 kind=image + 独立 kind=hit 元素，无状态机需求，
+		//   由 uiWidgetDrawScreen 直接绘制（hit 无 state_assets 故不参与悬停）。
+	}
+	return ctx;
+}
+
+// 把当前状态渲染成一屏（供 ui_screens.tjs / 巡演调用）
+//   ★ M8 修复（D3）：本函数**不得把异常外溢**——出错时退化为"无状态机的普通绘制"
+//     （uiScreenCtx），仍保证对话框屏可见；两步都失败才返回 0 并记一行日志。
+function uiDialogDraw(stage, screen)
+{
+	if(screen === void || screen.elements === void) return 0;
+	var ctx = null;
+	try
+	{
+		ctx = uiDialogBuildCtx(stage, screen);
+		return uiWidgetDrawScreen(stage, screen, ctx);
+	}
+	catch(e)
+	{
+		Debug.message("[UI][DLG][ERR] uiDialogBuildCtx 异常：" + e.message
+			+ " | trace = " + (("" + e.trace).substring(0, 160)) + " → 回落无状态机绘制");
+	}
+	try
+	{
+		return uiWidgetDrawScreen(stage, screen, uiScreenCtx(screen));
+	}
+	catch(e2)
+	{
+		Debug.message("[UI][DLG][ERR] 回落绘制也失败：" + e2.message);
+		return 0;
+	}
+}
+
+// 对话框屏上的点击处理：返回被触发的 action 名（"" = 未命中）
+// 命中规则：先选择肢（若展开），再 kind=hit 元素（取最高 z；★ M25 起为九宫格 9 功能图标），
+//           最后正文区（推进）
+function uiDialogClick(stage, screen, x, y)
+{
+	var els = screen.elements;
+
+	if(UIDlgChoicesOpen)
+	{
+		for(var i = 0; i < els.count; i++)
+		{
+			var el = els[i];
+			if(el === void || el === null || el.id === void) continue;   // ★ M8：缺数据跳过
+			if(("" + el.id).indexOf(".choices") < 0) continue;
+			var hit = uiWidgetListHit(el, x, y, 0);
+			if(hit >= 0) return %[ action: "select_choice", index: hit, hit: true ];
+		}
+	}
+
+	// ★ M25：原「系统条 .sysbar 命中扫描」已替换为**通用 hit 扫描**。
+	//   原因：dlg.sysbar 已按用户要求删除，本屏新增的九宫格 9 功能图标是
+	//   kind=image + 独立 kind=hit 元素（action 与 33_sysicons.json 同序一致），
+	//   而 ui_screens.tjs 对 dialog 屏的点击一律路由到本函数，故必须在此扫描 hit。
+	//   命中规则与 ui_screens.tjs 的通用分支一致：取**最高 z** 的命中元素。
+	var bestZ = -1, bestEl = null;
+	for(var j = 0; j < els.count; j++)
+	{
+		var e2 = els[j];
+		if(e2 === void || e2 === null || e2.id === void) continue;   // ★ M8：缺数据跳过
+		if(e2.kind != "hit") continue;
+		if(e2.visible_default === false) continue;
+		var r2 = uiWidgetRect(e2);
+		if(x < r2.x || x >= r2.x + r2.w || y < r2.y || y >= r2.y + r2.h) continue;
+		var z2 = uiWidgetNum(e2, "z", 0);
+		if(z2 < bestZ) continue;
+		bestZ = z2; bestEl = e2;
+	}
+	if(bestEl !== null)
+	{
+		if(bestEl.action !== void && bestEl.action != "")
+			return %[ action: "" + bestEl.action, index: -1, hit: true ];
+	}
+
+	// 其余区域 = 推进对话
+	return %[ action: "advance_dialog", index: -1, hit: false ];
+}
+
+// 对话框屏上的按键处理：返回 %[ handled: bool, action: string ]
+function uiDialogKey(screen, key)
+{
+	var nChoices = uiDialogChoiceCount(screen);
+
+	// 空格 / Enter / 下方向 → 推进
+	if(key == 32 || key == 13 || key == 40)
+	{
+		if(UIDlgChoicesOpen) { uiDialogChoiceMove(1, nChoices); return %[ handled: true, action: "choice_move" ]; }
+		var r = uiDialogAdvance();
+		return %[ handled: true, action: r.action ];
+	}
+	// 上方向 → 选择肢上移
+	if(key == 38)
+	{
+		if(UIDlgChoicesOpen) { uiDialogChoiceMove(-1, nChoices); return %[ handled: true, action: "choice_move" ]; }
+		return %[ handled: false, action: "" ];
+	}
+	// C / c → 展开选择肢（演示用；正式由剧本数据驱动）
+	if(key == 67 || key == 99)
+	{
+		uiDialogOpenChoices();
+		return %[ handled: true, action: "open_choices" ];
+	}
+	return %[ handled: false, action: "" ];
+}

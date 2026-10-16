@@ -1,0 +1,130 @@
+{
+  "source_EXE_SHA256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "selector": 21,
+  "jump_table_address": 4265460,
+  "target": 4265434,
+  "not_a_standalone_function_entry": true,
+  "path": {
+    "edges": [],
+    "entry": 4265434,
+    "unresolved": [],
+    "diagnostics": [],
+    "instruction_count": 5,
+    "instructions": [
+      {
+        "site": 4265434,
+        "size": 6,
+        "mnemonic": "mov",
+        "op_str": "ecx, dword ptr [0x5357e4]",
+        "operands": [
+          {
+            "size": 4,
+            "access": 2,
+            "type": "reg",
+            "reg": "ecx"
+          },
+          {
+            "size": 4,
+            "access": 1,
+            "type": "mem",
+            "segment": "",
+            "base": "",
+            "index": "",
+            "scale": 1,
+            "disp": 5461988
+          }
+        ],
+        "regs_read": [],
+        "regs_write": [
+          "ecx"
+        ]
+      },
+      {
+        "site": 4265440,
+        "size": 2,
+        "mnemonic": "xor",
+        "op_str": "eax, eax",
+        "operands": [
+          {
+            "size": 4,
+            "access": 3,
+            "type": "reg",
+            "reg": "eax"
+          },
+          {
+            "size": 4,
+            "access": 1,
+            "type": "reg",
+            "reg": "eax"
+          }
+        ],
+        "regs_read": [
+          "eax"
+        ],
+        "regs_write": [
+          "eflags",
+          "eax"
+        ]
+      },
+      {
+        "site": 4265442,
+        "size": 2,
+        "mnemonic": "test",
+        "op_str": "ecx, ecx",
+        "operands": [
+          {
+            "size": 4,
+            "access": 1,
+            "type": "reg",
+            "reg": "ecx"
+          },
+          {
+            "size": 4,
+            "access": 1,
+            "type": "reg",
+            "reg": "ecx"
+          }
+        ],
+        "regs_read": [
+          "ecx"
+        ],
+        "regs_write": [
+          "eflags"
+        ]
+      },
+      {
+        "site": 4265444,
+        "size": 3,
+        "mnemonic": "setne",
+        "op_str": "al",
+        "operands": [
+          {
+            "size": 1,
+            "access": 2,
+            "type": "reg",
+            "reg": "al"
+          }
+        ],
+        "regs_read": [
+          "eflags"
+        ],
+        "regs_write": [
+          "al"
+        ]
+      },
+      {
+        "site": 4265447,
+        "size": 1,
+        "mnemonic": "ret",
+        "op_str": "",
+        "operands": [],
+        "regs_read": [
+          "esp"
+        ],
+        "regs_write": [
+          "esp"
+        ]
+      }
+    ]
+  }
+}

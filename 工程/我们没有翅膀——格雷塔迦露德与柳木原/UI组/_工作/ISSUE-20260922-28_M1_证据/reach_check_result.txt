@@ -1,0 +1,32 @@
+==============================================================================
+修复 A 自证：quick.hit_toggle 与 12 项热区的可达性（读 layout/screens/35_quickbar.json）
+==============================================================================
+—— 收起态（flags_default 原值） ——
+  flags: {'quickbar': 'collapsed', 'qbar_tip': '', 'qbar_pin': ''}
+  12 项可见：可见 [] / 不可见 ['lock', 'save', 'load', 'qsave', 'qload', 'auto', 'skip', 'next', 'prev', 'log', 'chart', 'option']
+  竖条区域 1px 全扫描：命中点 70044
+    胜者分布：{'quick.hit_toggle': 70044}
+    12 项胜出 0 ／ 把手热区胜出 70044 ／ 其它 0
+  若把手热区在本态可见：它会以 z=96 压住 0 个可见项 []
+
+—— 展开态（quickbar=expanded） ——
+  flags: {'quickbar': 'expanded', 'qbar_tip': '', 'qbar_pin': ''}
+  12 项可见：全部可见
+  竖条区域 1px 全扫描：命中点 65700
+    胜者分布：{'quick.hit_auto': 5475, 'quick.hit_chart': 5475, 'quick.hit_load': 5475, 'quick.hit_lock': 5475, 'quick.hit_log': 5475, 'quick.hit_next': 5475, 'quick.hit_option': 5475, 'quick.hit_prev': 5475, 'quick.hit_qload': 5475, 'quick.hit_qsave': 5475, 'quick.hit_save': 5475, 'quick.hit_skip': 5475}
+    12 项胜出 65700 ／ 把手热区胜出 0 ／ 其它 0
+  若把手热区在本态可见：它会以 z=96 压住 12 个可见项 ['lock', 'save', 'load', 'qsave', 'qload', 'auto', 'skip', 'next', 'prev', 'log', 'chart', 'option']
+
+—— 展开态 + 气泡 + 钉住（全开） ——
+  flags: {'quickbar': 'expanded', 'qbar_tip': 'lock', 'qbar_pin': '1'}
+  12 项可见：全部可见
+  竖条区域 1px 全扫描：命中点 65700
+    胜者分布：{'quick.hit_auto': 5475, 'quick.hit_chart': 5475, 'quick.hit_load': 5475, 'quick.hit_lock': 5475, 'quick.hit_log': 5475, 'quick.hit_next': 5475, 'quick.hit_option': 5475, 'quick.hit_prev': 5475, 'quick.hit_qload': 5475, 'quick.hit_qsave': 5475, 'quick.hit_save': 5475, 'quick.hit_skip': 5475}
+    12 项胜出 65700 ／ 把手热区胜出 0 ／ 其它 0
+  若把手热区在本态可见：它会以 z=96 压住 12 个可见项 ['lock', 'save', 'load', 'qsave', 'qload', 'auto', 'skip', 'next', 'prev', 'log', 'chart', 'option']
+
+==============================================================================
+结论判据：
+  · 展开态：12 项全部可见；胜者中必须出现 12 个 quick.hit_*，且 quick.hit_toggle 胜出 0 点
+  · 收起态：只有 quick.hit_toggle 胜出（12 项不可见，自然不可达）
+==============================================================================

@@ -1,0 +1,66 @@
+{
+  "original_request": {
+    "security_attributes": 0,
+    "stack_size": 0,
+    "start_address": 5271290,
+    "parameter": 119480448,
+    "creation_flags": 0,
+    "thread_id_out": 33569996
+  },
+  "original_return_address": 5271254,
+  "original_CRT_parameter": 119480448,
+  "original_business_start": 5213520,
+  "original_business_parameter": 33569988,
+  "parent_fs0": "8c750002",
+  "source_thread_exit_not_executed": true,
+  "source_CreateThread_consumer_not_resumed": true,
+  "scope": "bounded original worker prefix on actual owned host thread; not a complete Windows loader/TEB model",
+  "actual_owned_thread_handle": 1252,
+  "actual_returned_tid": 28908,
+  "guest_TID_out_not_written_until_full_request_receipt": true,
+  "original_guest_start_pointer_not_passed_to_OS": true,
+  "actual_host_worker_tid": 28908,
+  "WUV_DLL_THREAD_ATTACH": {
+    "entry": 285289965,
+    "reason": 2,
+    "next_EIP": 57802736,
+    "return_value": 1,
+    "failure": null,
+    "new_API_events": []
+  },
+  "CRT_prefix": {
+    "next_EIP": 5271379,
+    "failure": null,
+    "original_parameter_tid": 28908,
+    "new_API_events": [
+      {
+        "api": "TlsSetValue",
+        "args": [
+          13,
+          119480448
+        ],
+        "native_return_address": 5271344,
+        "actual_Windows_API": true,
+        "guest_result": 1,
+        "actual_host_pointer": 112242712
+      },
+      {
+        "api": "GetCurrentThreadId",
+        "args": [],
+        "native_return_address": 5271362,
+        "actual_Windows_API": true,
+        "guest_result": 28908
+      }
+    ],
+    "FS0": "ecff7003",
+    "source_business_call_not_executed": true
+  },
+  "original_CRT_TLS_pointer_verified": true,
+  "original_CRT_tid_matches_OS": true,
+  "actual_host_guard_exit_code": 2702180352,
+  "host_guard_exit_is_not_original_exit_code": true,
+  "owned_thread_handle_closed": true,
+  "worker_errors": [],
+  "parent_context_and_FS0_restored": true,
+  "all_worker_permissions_revoked": true
+}

@@ -1,0 +1,98 @@
+{
+  "actual_API_rows": [
+    {
+      "api": "GetModuleHandleA",
+      "original_return_address": 4559427,
+      "name": "imm32.dll",
+      "actual_existing_host_module_nonnull": true,
+      "guest_module": 1777860608,
+      "borrowed_no_LoadLibrary_or_FreeLibrary": true,
+      "actual_error": 0
+    },
+    {
+      "api": "GetProcAddress",
+      "original_return_address": 4559434,
+      "name": "ImmAssociateContextEx",
+      "actual_system_export_nonnull": true,
+      "host_pointer_not_truncated": true,
+      "guest_export_stub": 33614240,
+      "actual_error": 0
+    },
+    {
+      "api": "ImmAssociateContextEx",
+      "original_dynamic_export_not_invoked": true,
+      "original_requested_enable": 0,
+      "original_parent_flag_before": 1,
+      "original_disable_branch_executed": [
+        {
+          "site": 4559447,
+          "EAX": 33614240
+        },
+        {
+          "site": 4559498,
+          "EAX": 33614240
+        }
+      ],
+      "no_forced_Ex_API_call_or_success": true
+    },
+    {
+      "api": "ImmAssociateContext",
+      "original_return_address": 4559522,
+      "original_arguments": [
+        1777664000,
+        0
+      ],
+      "actual_previous_HIMC_nonnull": true,
+      "mapped_borrowed_HIMC": 1777926144,
+      "actual_system_GetProcAddress_error": 0,
+      "actual_call_error": 0,
+      "actual_call_only_after_emu_stop": true,
+      "borrowed_context_not_destroyed": true,
+      "no_fake_HIMC": true
+    }
+  ],
+  "original_parent_IME_flag_after": 0,
+  "next_EIP": 1209164,
+  "next_import": "joyGetNumDevs",
+  "next_failure": "UcError",
+  "next_stack_words": [
+    4699552,
+    33569940,
+    33569940,
+    33566720,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "callback_errors": [],
+  "pending_IME_requests": [],
+  "pending_window_API_requests": [],
+  "original_WinMain_returned": false,
+  "actual_window_still_alive": true,
+  "actual_existing_system_imm_module_borrowed": true,
+  "native_window_object_vtable": [
+    4742192,
+    4723888,
+    4741216,
+    4741632,
+    4741648,
+    4741104,
+    4741280,
+    4741440,
+    4741472,
+    4741312,
+    4741408,
+    4741248
+  ],
+  "not_complete_IME_messages_or_Japanese_input_behavior": true,
+  "not_full_game_render_or_original_shutdown_proof": true
+}

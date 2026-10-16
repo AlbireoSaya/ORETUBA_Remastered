@@ -1,0 +1,1 @@
+[{"file":"r_vm_step.tjs","old":"\telse\n\t\tthrow new Exception(\"UNSUPPORTED_VM_OPCODE \" + op);","new":"\telse if(op==14||op==15||op==21||op==22||op==24||op==25||op==42||op==43||op==46)\n\t\tglobal.RVMExtraValueStep(rd,wr,ctx,op,p);\n\telse\n\t\tthrow new Exception(\"UNSUPPORTED_VM_OPCODE \" + op);","count":1}]

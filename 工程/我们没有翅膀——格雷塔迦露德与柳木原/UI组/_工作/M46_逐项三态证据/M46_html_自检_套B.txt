@@ -1,0 +1,42 @@
+■ 套 B 复刻\index.html?selftest=1 —— 判定：RESULT=OK
+  PASS	canvas-1920	1920pxx1080px
+  PASS	dialog.screen	dialog
+  PASS	dialog.under=null	null
+  PASS	dialog.overlay-empty	0
+  PASS	sysicons.open	sysicons
+  PASS	sysicons.under=dialog	dialog
+  PASS	sysicons.base-painted	59
+  PASS	sysicons.base-DOM-preserved
+  PASS	sysicons.overlay-children	20
+  PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+  PASS	sysicons.icons-9	9
+  PASS	sysicons.dismiss-click	dialog
+  PASS	sysicons.overlay-cleared	0
+  PASS	sysicons.back-to-dialog-DOM-preserved
+  PASS	sysicons.reopen	sysicons
+  PASS	sysicons.icon-dispatch	save
+  PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 15 件（数据推导）
+  PASS	zeronine.img-not-borderimage	15/15（主语 = 数据推导的全集）
+  PASS	zeronine.no-placeholder
+  PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+  SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+  PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+  PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+  PASS	overlay.close-overlay	dialog
+  PASS	flags.attach-rendered-on-dialog	attachId=quickbar，quick.ic_lock/hit_lock/pin_mark 齐备=true/true/true
+  PASS	flags.old-structure-gone	M37 退场四件都不在 DOM：tgl/btn/tips/hit_toggle = false/false/false/false
+  PASS	flags.collapsed-by-default	quickbar=collapsed，ic_lock.display=none，hit_lock.display=none，pin_mark.display=none
+  PASS	flags.expanded-shows-icons-and-items-not-pin	ic_lock=，hit_lock=，pin_mark=none
+  PASS	flags.tip-follows-item	hit_lock 中心→"lock"，hit_option 中心→"option"，项外空白→""
+  PASS	flags.icon-hover-material-via-group	悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=x_ui_qbicon_save_on.png/x_ui_qbicon_load.png；移出后=x_ui_qbicon_save.png
+  PASS	flags.open_sysmenu-expands-not-navigates	screen dialog → dialog（未换屏），quickbar=expanded，20_sysmenu 已废除=true
+  PASS	flags.pin-toggle	钉住 flag 名（reveal.pin_flag）=qbar_pin，解除后 pin_mark.display=none
+  PASS	flags.attach-absent-on-title	title 上 attachId=null，quick.ic_lock 存在=false
+  PASS	flags.item-subject-count	快捷条「项」热区（quick.hit_&lt;key&gt; 且有 action）12 件（应为 12）
+  PASS	flags.item-N-click-dispatch-N	12/12 项：命中该项 且 该 action 的可辨副作用出现
+  PASS	flags.tip-halfopen-boundary	x=w-1→"lock" / x=w→"" / y=h-1→"lock" / y=h→""（半开区间，项=lock）
+  PASS	esc.back-to-previous-screen	save（history=1）→ Esc → screen=dialog（应 dialog），提示=""（应无）
+  PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+  PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+  PASS	zeronine.all-subjects-stretched-to-element-box	15/15（主语 = ⑤ 的全集）
+  PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制

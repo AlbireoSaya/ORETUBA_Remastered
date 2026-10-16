@@ -1,0 +1,66 @@
+// ============================================================
+// ui_verify16.tjs —— 存/读档翻页与「继续」的机检（ISSUE-20261003-06，纯逻辑断言）
+//
+// 装载门槛与 verify15 同：`game\verify15.txt` 存在时由 `ui_boot.tjs` 一并装载并立即执行。
+// 判词：`★PAGER★ PASS n/n`（任一条不过即 FAIL，并逐条打印期望 vs 实际）。
+//
+// ⚠️ TJS2 坑（本轮实测）：**嵌套函数不能读写外层函数的局部变量**——
+//   在函数体内再声明 `function chk(){ all++; }` 会在 `all++` 处抛「未找到 Member "all"」。
+//   故计分状态一律放**模块级变量**，断言器放**顶层函数**。
+// ============================================================
+
+var VP16_ok = 0, VP16_all = 0;
+var VP16_fails = [];
+
+function vp16chk(name, cond, got)
+{
+	VP16_all++;
+	if(cond === true) VP16_ok++;
+	else VP16_fails.push(name + "（实际=" + got + "）");
+}
+
+function uiVerify16Start()
+{
+	VP16_ok = 0; VP16_all = 0; VP16_fails = [];
+	try
+	{
+		var oldPage = UISavePage;
+
+		vp16chk("每页槽数=12", UISavePerPage == 12, UISavePerPage);
+		vp16chk("页数=10", UISavePages == 10, UISavePages);
+		vp16chk("总槽数=120", UISaveSlots == 120, UISaveSlots);
+
+		uiSaveSetPage(3);
+		vp16chk("切页后 UISavePage=3", UISavePage == 3, UISavePage);
+		vp16chk("第3页首格槽号=25", uiSaveSlotOf(1) == 25, uiSaveSlotOf(1));
+		vp16chk("第3页末格槽号=36", uiSaveSlotOf(12) == 36, uiSaveSlotOf(12));
+		vp16chk("屏级 flag sv_page=3", ("" + uiScreenFlagGet("sv_page")) == "3", "" + uiScreenFlagGet("sv_page"));
+
+		vp16chk("槽1→第1页", uiSavePageOf(1) == 1, uiSavePageOf(1));
+		vp16chk("槽12→第1页", uiSavePageOf(12) == 1, uiSavePageOf(12));
+		vp16chk("槽13→第2页", uiSavePageOf(13) == 2, uiSavePageOf(13));
+		vp16chk("槽120→第10页", uiSavePageOf(120) == 10, uiSavePageOf(120));
+
+		uiSaveSetPage(0);
+		vp16chk("page_0 被拒（仍第3页）", UISavePage == 3, UISavePage);
+		uiSaveSetPage(11);
+		vp16chk("page_11 被拒（仍第3页）", UISavePage == 3, UISavePage);
+
+		var w = uiSaveLastMarkerWrite(7);
+		vp16chk("标记写入成功", w === true, w);
+		vp16chk("标记读回=7", uiSaveLastMarkerRead() == 7, uiSaveLastMarkerRead());
+
+		uiSaveSetPage(oldPage);
+		vp16chk("复原为初始页", UISavePage == oldPage, UISavePage);
+	}
+	catch(e)
+	{
+		VP16_all++;
+		VP16_fails.push("抛异常：" + e.message);
+	}
+	if(VP16_fails.count == 0)
+		Debug.message("★PAGER★ PASS " + VP16_ok + "/" + VP16_all);
+	else
+		Debug.message("★PAGER★ FAIL " + VP16_ok + "/" + VP16_all + " ｜ " + VP16_fails.join(" ｜ "));
+	Debug.message("★PAGER-DONE★");
+}

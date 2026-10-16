@@ -1,0 +1,508 @@
+{
+  "id": "replay",
+  "title_cn": "情景回想",
+  "owner": "M4",
+  "attach": "gal_shell",
+  "note": "**ISSUE-20260924-08 · M4 新建（2026-09-24）**：按主代理冻结的接口书新建**情景回想**页（用户指令「新建『情景回想』页，标准同参考作」；本作此前无此页）。\n★ **两页 5×5 = 50 栏**（`rp.list`，`orientation:\"h\"` + `max_cols:5` + `scroll.page_size:25`，M1 网格机制）：第一页 25 情景栏**全部占位**（labels 占位文本 / actions 空串 / frames 空数组，**内容待填**）；第二页放 **10 件动画**（`replay_play:<行号>` 派发即止留编程组）+ 15 空栏。详见 `rp.list` note 的逐条口径。\n★ **结构照参考作 idx75 §2.3 情景回想 19 条**：caption → 归外壳（页签=切屏裁决）；preview 预览板 → `rp.preview`；#sample 网格 + item:normal 栏位 + item:thumb → `rp.list`（几何逐条取 `layers_75.json` 实测）；page 页码键 ×6 → `rp.pg_*`（取 M2/M3 三件式位置，有意差异）；**`big` 版式（opmovie/edmovie 大图位）不承接**—— 冻结书把第二页定为 25 栏动画网格，**有意差异**（参考件原版只有 OP/ED 两个大图位）。\n★ **如实登记**：①第一页内容占位待填（情景清单/跳转口径待主代理与编程组）；②动画 **10 件**（主代理 2026-09-24 已追认：派单 11 件之差 = `ota_bg.txt` 是 data 文本非动画，ot 2 / ota 3 / otp 1 / otv 2 / np 2）；③`replay_play:<行号>` 动作名已由 M8 一审 R2 补进 `_schema.md` 动作名表（语义 = **派发即止**，音频/跳转生效留编程组）；④页码文本已接线（M8 一审 R3：`rp.pg_tx_1/2` 两件互斥 + `replay_page` flag，重进归零由 push 路径 `uiScreenPageVariantClearFor` 承担）；⑤「播放中」标记属运行期，本版为静态 ▶ 占位图形。\n★ 配色我方冰蓝霜白族（`layout\\palette.json` 唯一色值来源）；**文字一律引擎绘制**（本工程铁律）；素材 `ui/x_ui_rp_*.png` 11 件由 `工具\\m52_make_replay_assets.py` 程序化生成（幂等、自带自证）。\n★ **旧素材一件不删**；本屏为新增屏，`_index.json` 已登记（owner = M4）。\n★ **PSV 深度换皮（2026-09-26 · ISSUE-20260926-06 · D 组）**：① 底图换 `ui/x_ui_psv_replay_bg.png`（PSV MOVIE 屏区，1:1，含 4 个带框空槽 542×309 与页脚）；删 `rp.dim`。② `rp.preview` → **PSV 影像槽原址 (88,215,542,309)**（与底图左上槽框同位 ⇒ 不留双框）。③ `rp.list` 单元取 PSV 影像槽 1× 口径 **271×152**（= 542×304 @2× ÷ 2）、隙 **21**（PSV 缩略网格实测）、**4 列 × 4 行 = 16 栏/页 ⇒ 4 页**（原 5×5 = 25 栏/页 · 2 页），网格外框 1147×671 @ (680,208)。④ `item_variants` 保持：`frames` 35 行（第 0..24 行显式空数组、25..34 行 10 件动画 `replay_play:25..34`、35..49 行索引越界留空）、`thumb` (2,2,265,121) + 全零 nine、`prev`/`next` 26×34、`edge:\"clamp\"`；`item_text` 占位标签槽随格体放大到 (5,125,261,25)；栏位底板 `x_ui_rp_cell_*.png`（234×133）随格体改 271×152（全零 nine 1.16×/1.14×）。⑤ 页码互斥文本 2 → 4 件（`rp.pg_tx_1..4`）。⑥ 如实登记：`list` 的 `gap` 是**单一值**（横纵同隙），而 PSV 槽框横隙 58 / 纵隙 84 不等 ⇒ **我方网格与底图槽框无法逐格对齐**（本屏取「1× 槽尺寸 + 网格隙 21」的观感口径），底图槽框线与「?」占位会在格间露出，属已知观感差异。",
+  "elements": [
+    {
+      "id": "rp.bg",
+      "kind": "image",
+      "z": 0,
+      "visible_default": true,
+      "asset": "ui/x_ui_psv_replay_bg.png",
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "opacity": 255,
+      "source": "PSV系统UI参考\\超分2x\\x_ui_psv_replay_bg.png（经 工具\\m53_psv_ui_assets.py 屏区裁切入库，1:1）",
+      "note": "38 情景回想页底（PSV mv_bg 屏区：MOVIE + 4 个带框空槽 542×309）。★ **PSV 换皮（2026-09-26 · ISSUE-20260926-06 · D 组）**：本屏原为「透明浮层 + `rp.dim` 薄压暗」，本轮按用户裁决「深度换皮：底图换 PSV 件」改为**不透明全屏 PSV 底图**（逐像素 alpha=255，实测）⇒ 原压暗遮罩随本轮删除。底图与元素同为 1920×1080 ⇒ **1:1 无 nine**（`verify_ui [2]` 直接成立）。英文题字（ALBUM/MUSIC/MOVIE）与页脚按用户裁决**保留原样**（页脚属待定区，本轮不处理）。"
+    },
+    {
+      "id": "rp.preview",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_ui_rp_preview.png",
+      "x": 88,
+      "y": 215,
+      "w": 542,
+      "h": 702,
+      "opacity": 255,
+      "source": "程序化生成：工具\\m52_make_replay_assets.py（冰蓝磨砂占位底板，575×715，1:1 无 nine）",
+      "note": "**选中情景预览板**（几何 = 参考作 `Replay/small/preview` (57,187,575,715) 实测矩形；参考作为青底预览板 `p75_c059`，我方改冰蓝磨砂占位底板 `x_ui_rp_preview.png`，**配色差异属有意**——我方冰蓝霜白族）。**运行期由编程组贴选中情景的画面/播放器**，本版为空占位底板（内容占位口径的一部分）。",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      }
+    },
+    {
+      "id": "rp.list",
+      "kind": "list",
+      "z": 20,
+      "visible_default": true,
+      "orientation": "h",
+      "x": 680,
+      "y": 208,
+      "w": 1147,
+      "h": 671,
+      "item_w": 271,
+      "item_h": 152,
+      "gap": 21,
+      "max_cols": 4,
+      "max_rows": 4,
+      "scroll": {
+        "mode": "page",
+        "page_size": 16,
+        "pager": false
+      },
+      "labels": [
+        "情景 001",
+        "情景 002",
+        "情景 003",
+        "情景 004",
+        "情景 005",
+        "情景 006",
+        "情景 007",
+        "情景 008",
+        "情景 009",
+        "情景 010",
+        "情景 011",
+        "情景 012",
+        "情景 013",
+        "情景 014",
+        "情景 015",
+        "情景 016",
+        "情景 017",
+        "情景 018",
+        "情景 019",
+        "情景 020",
+        "情景 021",
+        "情景 022",
+        "情景 023",
+        "情景 024",
+        "情景 025",
+        "动画 01",
+        "动画 02",
+        "动画 03",
+        "动画 04",
+        "动画 05",
+        "动画 06",
+        "动画 07",
+        "动画 08",
+        "动画 09",
+        "动画 10",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "actions": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "replay_play:25",
+        "replay_play:26",
+        "replay_play:27",
+        "replay_play:28",
+        "replay_play:29",
+        "replay_play:30",
+        "replay_play:31",
+        "replay_play:32",
+        "replay_play:33",
+        "replay_play:34",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "item_frame": {
+        "asset": "ui/x_ui_rp_cell_off.png",
+        "opacity": 255,
+        "state_assets": {
+          "normal": "ui/x_ui_rp_cell_off.png",
+          "hover": "ui/x_ui_rp_cell_over.png",
+          "pressed": "ui/x_ui_rp_cell_on.png"
+        },
+        "nine": {
+          "l": 0,
+          "t": 0,
+          "r": 0,
+          "b": 0
+        }
+      },
+      "item_variants": {
+        "frames": [
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ],
+          [
+            "ui/x_ui_rp_mv_thumb.png"
+          ]
+        ],
+        "thumb": {
+          "x": 2,
+          "y": 2,
+          "w": 265,
+          "h": 121,
+          "nine": {
+            "l": 0,
+            "t": 0,
+            "r": 0,
+            "b": 0
+          }
+        },
+        "prev": {
+          "key": "vprev",
+          "x": 5,
+          "y": 45,
+          "w": 26,
+          "h": 34,
+          "asset": "ui/x_ui_gal_vprev_off.png",
+          "state_assets": {
+            "normal": "ui/x_ui_gal_vprev_off.png",
+            "hover": "ui/x_ui_gal_vprev_over.png",
+            "pressed": "ui/x_ui_gal_vprev_on.png"
+          },
+          "action": "gallery_prev:%row%",
+          "note": "栏位内「上一张差分」键（复用 M2 的 x_ui_gal_vprev 三态件，26×34，1:1 无 nine）；块内局部 (4,38) 纵向居中。仅落在 frames 非空的栏（本屏 = 10 个动画栏）；N=1 ⇒ 按 edge:\"clamp\" 钳制、n/N 恒 1/1，不回绕。"
+        },
+        "next": {
+          "key": "vnext",
+          "x": 240,
+          "y": 45,
+          "w": 26,
+          "h": 34,
+          "asset": "ui/x_ui_gal_vnext_off.png",
+          "state_assets": {
+            "normal": "ui/x_ui_gal_vnext_off.png",
+            "hover": "ui/x_ui_gal_vnext_over.png",
+            "pressed": "ui/x_ui_gal_vnext_on.png"
+          },
+          "action": "gallery_next:%row%",
+          "note": "栏位内「下一张差分」键（复用 M2 的 x_ui_gal_vnext 三态件）；块内局部 (204,38)。其余同 vprev。"
+        },
+        "edge": "clamp"
+      },
+      "source": "栏位底板/占位缩略图/预览板 = 工具\\m52_make_replay_assets.py；差分键复用 M2 的 x_ui_gal_vprev/vnext_*",
+      "note": "★ **情景回想两页 5×5（逐项 list + 网格折行）** —— ISSUE-20260924-08 · M4（新建屏，`_index.json` 已登记）。\n★ 几何逐条取自参考作《交汇协奏曲》`locale_cn.xp3` idx75 情景回想页台账（`layers_75.json` 实测）：网格外框 = `Replay/small/#sample` (645,187,1218,715)；栏位 = `item:normal` 234×133；`max_cols:5`×`max_rows:5` + `gap:12` ⇒ 外框宽 5×234+4×12 = **1218 恰好等于** #sample 宽、高 713（参考 715，2px 余量）。参考作选中位 `#pos11` (891,333) = 第 2 列第 2 行 ⇒ 列步进 246 与本屏一致、行步进 146（本屏 145，差 1px —— 参考作列/行步进本身不一致 246/146，本屏统一 gap 12，**登记为有意差异**）。\n★ **横向折行 = 网格**（M1 机制，行优先）：`orientation:\"h\"` + `max_cols:5` + `scroll.page_size:25` ⇒ 每页 25 栏、共 **2 页 50 栏**（`gallery_page_prev/next` 翻页，翻页键/页码在屏内，同 M2/M3 口径；`scroll.pager:false` = **明确关闭 HTML 侧 replica 的自动 `ui-list-pager`**（本屏已自带页码三件式，留着即重复控件且两端不一致——同 M2 在 27_gallery 的口径；该字段与 M2 同款「本屏提出、待 M1 纳入 `_schema.md`」。★ **M4 首版截图实测**：replica.js 当前**尚未读该字段**（自动分页器仍渲染，显示 2/2 与屏内页码三件式重复）—— M2 的 `m50_html_gallery_shots.py` 已登记同款 pending ⇒ **待 M1 在 replica.js 读取 `scroll.pager:false`**（一行判断），或按「屏内已有页码控件即自动关闭」实现。）\n★ **第一页（全局行 0..24）＝ 25 情景栏，内容全部占位**（用户明确「先做结构，内容占位」）：`labels` = 占位文本「情景 001」…「情景 025」，`actions` 全空串（情景回放的跳转动作待编程组定义，按 M5 裁决「动作表未覆盖的控件允许空串 + note 标注」），`item_variants.frames` 该 25 行为**空数组**（合法留空：不画缩略图/差分键/`n/N`，只画栏位底板 + 标签）——**内容待填**，情景清单与跳转口径待主代理/编程组。\n★ **第二页（全局行 25..49）＝ 动画页（与参考作原版有意不同**：参考作该页只有 `big` 版式的 opmovie/edmovie 两个大图位 + `small` 列表版式，本屏按冻结书统一为 25 栏网格）。\n　· **10 件动画**（全局行 25..34）：`frames` = 各 1 张占位缩略图 `ui/x_ui_rp_mv_thumb.png`（胶片齿孔 + ▶ 纯图形占位标记；真缩略图待定）、`labels` = 占位文本「动画 01」…「动画 10」、`actions` = `replay_play:<全局行号>`（replay_play:25 … replay_play:34）。\n　· ★ **件数差异如实登记（需主代理裁决）**：派单/冻结书说「11 件动画（np 2 / ot 2 / ota 4 / otp 1 / otv 2）」，实测清单与物理文件只有 **10 件 movie**——`ota` 的 `movie/` 目录第 4 件 `ota_bg.txt` 在 `_清单.json` 里 `kind=\"data\"`（文本数据，非动画），不应占播放栏 ⇒ 本屏放 10 件、其余 15 栏留空。\n　· ★ **`replay_play:<行号>` 为本屏提出的新动作名（派单授权「之类」）**：语义 = **派发即止**——本作无音频/视频播放机制（M47 已登记），引擎 `uiActionDispatch` 对未实现动作返回 `handled:false` + 日志「未实现的动作：…」，**不臆造已生效**；真正的播放接线留编程组。**待 M1 把该动作名补进 `layout\\_schema.md` 动作名表**。\n　· 其余 15 栏（全局行 35..49）：`labels`/`actions` 空串，且**不写进 `frames`**（索引越界 = 留空，合法路径之二——与第一页的显式空数组并存，两条合法路径都有数据佐证）。\n★ **`item_variants`（M1 冻结契约）**：`thumb` = 块内局部 (2,2,230,105)（栏位内缩 2px；**不满幅**——底部留 22px 说明条给引擎绘制的占位标签，画序 = `item_text` 先画、variants 后画，满幅缩略图会把标签压住——M4 首版 230×129 截图实测标签不可读，已订正）；`prev`/`next` = 复用 M2 的 `x_ui_gal_vprev/vnext_*`（26×34 三态，块内局部 (4,50)/(204,50)，纵向居中）——**只落在 10 个动画栏**（非空 frames 才画；N=1 ⇒ 两键按 `edge:\"clamp\"` 钳制、`n/N` 恒 1/1，不回绕）；**`text`（n/N 区）本屏省略**（可选键）：动画栏 N 恒 1（`clamp`），「1/1」无信息量，首版实测后去掉）。\n★ **播放标记/缩略图口径**：参考作该页的「播放中」标记属运行期（参考件 §6.3-5 缺口已登记，容器内无对应件）⇒ 我方**自绘静态 ▶ 占位**（烘在 `x_ui_rp_mv_thumb.png` 上的图形，非文字）＝「这是可播项」的静态标记；「播放中」态标记与真缩略图（视频截帧）留编程组。\n★ **栏位底板** `ui/x_ui_rp_cell_{off,over,on}.png`（234×133，**直角**，冰蓝霜白族）走 `item_frame.state_assets` ⇒ 逐项三态（M46 机制）；素材由 `工具\\m52_make_replay_assets.py` 程序化生成。\n★ **页签条 / 大标题 / 返回键不在本屏** —— 主代理 2026-09-24 裁决「页签 = 切屏」，本屏 `attach` M1 的浮层屏 `39_gal_shell.json`（第 4 页「情景回想」）。本屏元素一律不带页 flag。\n★ **占位标签走 `item_text`（M06 逐块文案区）**：全部 50 栏的标签改画在**块内底部说明条** (4,109,226,22)（字号 18 引擎绘制）——与缩略图互不重叠；第一页空栏同样是「底板 + 底部说明条」观感。\n★ **页码文本**：单件静态 `rp.pg_tx`（M3 同款），实际页码由机制/编程组写入 —— **未接线，如实登记**（参考作 `Replay/page` 本只有 2 个页码键无文本槽；本屏取 M2/M3 的「上一页 / x / 2 / 下一页」三件式，位置 790/858..1062/1074 —— **有意差异**，为四页统一）。",
+      "item_text": {
+        "x": 5,
+        "y": 125,
+        "w": 261,
+        "h": 25,
+        "wrap": false,
+        "max_lines": 1,
+        "align": "center",
+        "valign": "middle",
+        "font": {
+          "size": 18,
+          "bold": false,
+          "color": "@palette.node_locked",
+          "shadow": false,
+          "shadow_color": "@palette.shadow",
+          "shadow_ofs": 0
+        }
+      }
+    },
+    {
+      "id": "rp.pg_prev",
+      "kind": "image",
+      "z": 30,
+      "visible_default": true,
+      "asset": "ui/x_ui_rp_pgprev_off.png",
+      "x": 790,
+      "y": 939,
+      "w": 56,
+      "h": 56,
+      "opacity": 255,
+      "state_assets": {
+        "normal": "ui/x_ui_rp_pgprev_off.png",
+        "hover": "ui/x_ui_rp_pgprev_over.png",
+        "pressed": "ui/x_ui_rp_pgprev_on.png"
+      },
+      "state_group": "rp.pgprev",
+      "source": "程序化生成：工具\\m52_make_replay_assets.py（复用 m50 的 build_pg_btn 绘制，56×56 三态，1:1 无 nine）",
+      "note": "**页码控件**（屏内，非外壳）：与 M2/M3 同口径三件式（790/858..1062/1074，居中对齐 x=960）。键件 `ui/x_ui_rp_pgprev_*.png`（56×56 三态，1:1 无 nine，双三角字形——复用 m50 的 build_pg_btn 绘制）。★ 参考作 `Replay/page` 页码键在 (885,939)/(975,939) 且**无页码文本**；本屏按 M2/M3 口径左移到 790/1074 并加文本槽 ⇒ **有意差异（四页统一）**。热区 70×72 比键件大一圈（参考作 オン 65×65 > オフ 53×53 的「按到就大」意图），**热区带 `state_group`**（与同组 image 联动换三态，M3 的改良口径）。"
+    },
+    {
+      "id": "rp.pg_prev_hit",
+      "kind": "hit",
+      "z": 32,
+      "visible_default": true,
+      "x": 783,
+      "y": 931,
+      "w": 70,
+      "h": 72,
+      "action": "gallery_page_prev",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "state_group": "rp.pgprev",
+      "note": "「上一页」热区（70×72，比键件大一圈）。动作 `gallery_page_prev`（冻结书 §5 冻结名）。带 `state_group`：与同组 image 一起换三态 ⇒ 按下态可达（M3 改良口径）。"
+    },
+    {
+      "id": "rp.pg_next",
+      "kind": "image",
+      "z": 30,
+      "visible_default": true,
+      "asset": "ui/x_ui_rp_pgnext_off.png",
+      "x": 1074,
+      "y": 939,
+      "w": 56,
+      "h": 56,
+      "opacity": 255,
+      "state_assets": {
+        "normal": "ui/x_ui_rp_pgnext_off.png",
+        "hover": "ui/x_ui_rp_pgnext_over.png",
+        "pressed": "ui/x_ui_rp_pgnext_on.png"
+      },
+      "state_group": "rp.pgnext",
+      "source": "程序化生成：工具\\m52_make_replay_assets.py（56×56 三态，1:1 无 nine）",
+      "note": "**页码控件**（屏内，非外壳）：与 M2/M3 同口径三件式（790/858..1062/1074，居中对齐 x=960）。键件 `ui/x_ui_rp_pgnext_*.png`（56×56 三态，1:1 无 nine，双三角字形——复用 m50 的 build_pg_btn 绘制）。★ 参考作 `Replay/page` 页码键在 (885,939)/(975,939) 且**无页码文本**；本屏按 M2/M3 口径左移到 790/1074 并加文本槽 ⇒ **有意差异（四页统一）**。热区 70×72 比键件大一圈（参考作 オン 65×65 > オフ 53×53 的「按到就大」意图），**热区带 `state_group`**（与同组 image 联动换三态，M3 的改良口径）。"
+    },
+    {
+      "id": "rp.pg_next_hit",
+      "kind": "hit",
+      "z": 32,
+      "visible_default": true,
+      "x": 1067,
+      "y": 931,
+      "w": 70,
+      "h": 72,
+      "action": "gallery_page_next",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "state_group": "rp.pgnext",
+      "note": "「下一页」热区（70×72）。动作 `gallery_page_next`。带 `state_group`，同 `rp.pg_prev_hit`。"
+    },
+    {
+      "id": "rp.pg_tx_1",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "1 / 4",
+      "note": "页码指示（引擎绘制，几何 858,939,204×56 与四页统一）。★ PSV 换皮（2026-09-26 · D 组）：本屏共 **4 页**，本件 = 第 1 页（`vis_flag` 与屏级 `page_flag` 不变）；文字色改深墨 `@palette.node_locked`（PSV 霜页为浅底）。",
+      "vis_flag": "replay_page",
+      "vis_when": "1"
+    },
+    {
+      "id": "rp.pg_tx_2",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "2 / 4",
+      "note": "页码指示（引擎绘制，几何 858,939,204×56 与四页统一）。★ PSV 换皮（2026-09-26 · D 组）：本屏共 **4 页**，本件 = 第 2 页（`vis_flag` 与屏级 `page_flag` 不变）；文字色改深墨 `@palette.node_locked`（PSV 霜页为浅底）。",
+      "vis_flag": "replay_page",
+      "vis_when": "2"
+    },
+    {
+      "id": "rp.pg_tx_4",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "4 / 4",
+      "note": "页码指示（引擎绘制，几何 858,939,204×56 与四页统一）。★ PSV 换皮（2026-09-26 · D 组）：本屏共 **4 页**，本件 = 第 4 页（`vis_flag` 与屏级 `page_flag` 不变）；文字色改深墨 `@palette.node_locked`（PSV 霜页为浅底）。",
+      "vis_flag": "replay_page",
+      "vis_when": "4"
+    },
+    {
+      "id": "rp.pg_tx_3",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "3 / 4",
+      "note": "页码指示（引擎绘制，几何 858,939,204×56 与四页统一）。★ PSV 换皮（2026-09-26 · D 组）：本屏共 **4 页**，本件 = 第 3 页（`vis_flag` 与屏级 `page_flag` 不变）；文字色改深墨 `@palette.node_locked`（PSV 霜页为浅底）。",
+      "vis_flag": "replay_page",
+      "vis_when": "3"
+    }
+  ],
+  "page_flag": "replay_page",
+  "flags_default": {
+    "replay_page": "1"
+  }
+}

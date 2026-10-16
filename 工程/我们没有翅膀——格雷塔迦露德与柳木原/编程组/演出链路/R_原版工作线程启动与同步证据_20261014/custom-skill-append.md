@@ -1,0 +1,25 @@
+## 2026-10-14 原作线程与同步桥接约束（ISSUE-20261011-02）
+
+- 线程语义仍分两层：Windows 真实线程由自有 helper 在 host 侧创建，入口只落到自有 HOST_THREADPROC 守卫；guest 指令在自有工作线程的模拟 CPU 上按序执行，两层不得混为一体。
+- 不把 guest 地址交给操作系统；全宽句柄、DWORD 线程标识、真实线程局部隔离均在 host 侧取证，禁止用进程级全局槽冒充线程局部存储。
+- CRT 原线程前缀由 canonical74 定位；canonical76 复现出空目标：ECX/ESI=531188、EDX/vtable=0，原对象前 16 个 DWORD 全为 0，next_import 已修正为 null（75 的误 #17 不采信为真实 import）。
+- 源静态初始化表 slot 52804C=40E180，40E180 调用 40E190，后者对 global 531188 调用原 ctor 402DF0，再做原 atexit 注册；canonical77 实执原 initializer 与原 atexit 登记，原对象首 DWORD=5199F0（5347824），虚表 8 项均为真实源函数。
+- 对象与虚表均未手工填充，亦不据此声称完整 CRT 启动已执行；构造链仅此一段可实证路径。
+- canonical77 已越过原 business 402F1D，停在 CreateFontIndirectA 原 RA45C697，LOGFONT 指针 531194；此前"停在业务调用之前"的描述已作废。
+- canonical78 经 14 个 SDK 实际调用 CreateFontIndirectA，复制原 60 字节 LF，guard 保留；原 height=-14、weight=400、charSet=128、quality=3，其余关键标志为 0。
+- 输入 SHA 6d2c34e67c1217593b92747b4186d8120ca243ce79b769bdb60f984656825037；真实 GetObjectA 返回 60 且 SHA 与原输入一致；OS 侧 font/fullwidth 真实非空，未把 guest 指针交给 OS。
+- 源非空分支执行到 45C6CB 停下；原 font 后续储存/选择/实际 glyph/pixel 尚未验证；自有 font 的 DeleteObject 成功。
+- native 原创建 RA506ED6，wrapper 506EFA，TlsSetValue RA506F30，GetCurrentThreadId RA506F42 匹配真实 hostworker，参数 +48/+4C 业务 4F8D50；同一实际 worker 中 WUV source DLL_THREAD_ATTACH reason=2 原返回 1，其他 3 模块沿用有限通知禁用模型。
+- CRT43 静态/业务 87 条指令 CFG 无 diagnostics；75/76 源 business 66 条 API 及 2 个 SetEvent（RA50526D/4F8D97）已证为原实际自有 event。
+- native 源 CreateThread 消费者仍未消费 HANDLE/TID；Root hostguard 有限结束码 A1100000 不是 sourceThreadExit；parentcontext/FS0 已恢复，worker 授权与资源清理通过。
+- 一个 Unicorn 不并发运行，FS0 为有限模型、非完整 TEB/OS loader；SharedCS/TLS 是"有限已授权线程 + 串行 guestCPU"契约，不标无条件通用并发模型。
+- 阻塞 CS 必须在 VM 锁外进行，SDK fixture 已证明；SharedEvents 状态 RLock 在 Wait 之前释放，waiter 保护 close，未授权 wait 拒绝。
+- 线程创建、退出码读取、优先级设置与查询、恢复执行、句柄回收各走真实系统调用；入口静态指令不含诊断注入，仅建立 FS:[0] 有限异常头模型，完整 TEB 与系统加载器不在本轮范围。
+- 临界区按递归语义实际等待与唤醒，错误线程释放被拒；事件自动/手动重置分别验证，等待者集合与未授权等待同样拒绝。
+- 完整 goal 100% 的 OT/OTA/OTV/OTR 保留；正常 GameInit/原素材 VM 帧、画面音频、忠实可执行目标剧本、fullscheduler/原 Exit/原 DLL detach/全量对照均未完成。
+- 源完整性本批已真实复验通过：EXE1/LPK8/原 DLL3 + 既有参照 DLL2/446 脚本/418IR/原 USER.CFG 111 字节哈希一致；通过不等于完整 100%。
+- 全部取证仅本地 guestCPU + system DLL，原 DLL 绝不 OS LoadLibrary；峰值实际 13 个独立 API，未设固定人数，不用截断回合计完成。
+- 目录内六份 SDK 证据 sdk-thread-32/64.json、sdk-events-32/64.json、sdk-font-32/64.json，与 canonical74/76/78/original-thread-prefix.json、canonical78/original-static-531188-initializer.json、host-fixture-cleanup.json（每 canon 独立子目录）并存。
+- 另有 original-thread-entry-CFG.json、original-business-thread-CFG.json、global-531188-constructor-CFG.json、global-531188-literal-xrefs.json、source-integrity.json、editor-helper-provenance.json。
+- 正式 root 平台装配把 verification recipe 候选 import 路径改为编程组/工具，仅路径搬运，不技术改 helper。
+- 下一阶段：从 45C6CB 继续字体选择/显示与真实窗口调度，建立源 CreateThread 消费者/工作线程生命周期与业务任务循环；沿 EXE CRT initializer table 系统性收齐静态对象，避免零对象假失败；阶段 root 批审后合并。

@@ -1,0 +1,177 @@
+{
+ "V1": {
+  "manifest_rows": 1652,
+  "products": 1652,
+  "groups": 1647,
+  "alt_products": 5,
+  "unique_names": 1652,
+  "dup_names": [],
+  "manifest_eq_products": true,
+  "one_product_per_group": true,
+  "ok": true
+ },
+ "V2": {
+  "sum_of_group_candidates": 3751,
+  "expected_total": 3751,
+  "per_source_disk": {
+   "ot": 989,
+   "ota": 1264,
+   "otp": 591,
+   "otr": 353,
+   "otv": 253,
+   "np": 301
+  },
+  "conservation_ok": true,
+  "note": "组内候选数之和 == 磁盘实数 == 3751（chr 3741 + np\\pic 10）"
+ },
+ "V3": {
+  "groups_recomputed": 1652,
+  "expected_groups": 1647,
+  "selected_mismatch": 0,
+  "examples": [],
+  "names_only_in_expect": [],
+  "names_only_in_pick": [],
+  "manifest_size_byte_mismatch": 0,
+  "examples2": [],
+  "ok": true
+ },
+ "V3c": {
+  "old_vs_new_selection_differ": 231,
+  "by_source": {
+   "otv->ota": 57,
+   "otv->ot": 124,
+   "otv->otp": 30,
+   "otv->otr": 20
+  },
+  "np_priority_violation": 0,
+  "note": "V3 的 expect 由 pick_rule(np 优先 + 内容面积最大) 独立重算并与 _pick_chr.tsv 逐组比对；old_vs_new_selection_differ = 相对 W11a 旧规则（画布 w*h 最大）发生改选的产物数"
+ },
+ "V4": {
+  "gate": 0.05,
+  "groups_over_gate": 30,
+  "over_gate_examples": [
+   [
+    "cit001.png",
+    0.9018,
+    2
+   ],
+   [
+    "lr201e.png",
+    0.3915,
+    3
+   ],
+   [
+    "chi01i.png",
+    0.2341,
+    3
+   ],
+   [
+    "mis01.png",
+    0.2012,
+    3
+   ],
+   [
+    "mis01a.png",
+    0.2012,
+    3
+   ],
+   [
+    "mis01b.png",
+    0.2012,
+    3
+   ],
+   [
+    "mis01c.png",
+    0.2012,
+    3
+   ],
+   [
+    "cin_blk2.png",
+    0.1899,
+    3
+   ],
+   [
+    "cin008.png",
+    0.1667,
+    4
+   ],
+   [
+    "miy02a.png",
+    0.1105,
+    4
+   ],
+   [
+    "kur01a.png",
+    0.0879,
+    5
+   ],
+   [
+    "kur01b.png",
+    0.0879,
+    5
+   ]
+  ],
+  "alt_products_expected": 5,
+  "alt_products_in_manifest": 5,
+  "alt_match": true,
+  "under_gate_wrongly_split": [],
+  "over_gate_not_split": [],
+  "chi01_spread": 0.0228,
+  "force_merge_groups": 25,
+  "chi01_split": false,
+  "ok": true
+ },
+ "V5": {
+  "empty_new_columns": 0,
+  "examples": [],
+  "sampled": 20,
+  "field_mismatch": 0,
+  "examples2": [],
+  "ok": true
+ },
+ "V6": {
+  "changed_expected": 33,
+  "changed_rows": 33,
+  "missing": [],
+  "extra": [],
+  "avg_area_gain_pct": -56.04,
+  "max_area_gain_pct": 88.0,
+  "min_area_gain_pct": -100.0,
+  "ok": true
+ },
+ "V7": {
+  "sampled": 20,
+  "mismatch": 0,
+  "examples": [],
+  "ok": true
+ },
+ "V8": {
+  "unidentified_groups": 182,
+  "np_unpaired": 224,
+  "np_rejected": 32,
+  "split_groups": 5,
+  "note": "无法判定者一律标「未识别」或列入待复核；门控超阈值者拆分为独立产物而非猜测合并",
+  "ok": true
+ },
+ "_summary": {
+  "all_ok": true,
+  "failed": [],
+  "selected_by_source": {
+   "ot": 956,
+   "np": 259,
+   "otv": 8,
+   "ota": 285,
+   "otp": 77,
+   "otr": 67
+  },
+  "old_selected_by_source": {
+   "ot": 832,
+   "otv": 239,
+   "np": 259,
+   "ota": 223,
+   "otp": 47,
+   "otr": 47
+  },
+  "np_win_products": 259
+ }
+}

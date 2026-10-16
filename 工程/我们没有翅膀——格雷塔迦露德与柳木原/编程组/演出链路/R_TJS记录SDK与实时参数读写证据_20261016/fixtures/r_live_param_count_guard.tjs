@@ -1,0 +1,20 @@
+function RLNForbiddenIO(q) {
+    throw new Exception("UNEXPECTED_NEGATIVE_IO");
+}
+
+function RLiveCountGuard() {
+    var counts = [-1, 256];
+    for (var i = 0; i < counts.count; i++) {
+        var q = counts[i];
+        var msg = "";
+        try {
+            RRecordLiveParameters(RLNForbiddenIO, RLNForbiddenIO, RLNForbiddenIO, RLNForbiddenIO, 0, 0, q, RLNForbiddenIO, RLNForbiddenIO);
+        } catch (e) {
+            msg = e.message;
+        }
+        if (msg != "INVALID_LIVE_PARAMETER_COUNT") {
+            throw new Exception("RLN_COUNT_REJECTION");
+        }
+    }
+    return 2;
+}

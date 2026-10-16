@@ -1,0 +1,15 @@
+var RRecordRejectCount = 0;
+function RRecordFixtureReject(data, start, limit, expectedMessage) {
+    var rb = RRecordFixtureByte incontextof (%["data" => data, "base" => start]);
+    var message = null;
+    try {
+        RParseRecord(rb, limit, start);
+    } catch (e) {
+        message = e.message;
+    }
+    if (message === expectedMessage) {
+        RRecordRejectCount++;
+    } else {
+        throw new Exception("WRONG_RECORD_REJECTION " + message);
+    }
+}

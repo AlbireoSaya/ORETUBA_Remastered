@@ -1,0 +1,13 @@
+from pathlib import Path
+import hashlib,json,subprocess,sys
+r=Path.cwd().resolve();w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS十项内存栈指令扩展证据_20261016';bits,kind=int(sys.argv[1]),sys.argv[2];files={'operand-order':'r_vm_mem_33.tjs','extra-sp-read':'r_vm_mem_37.tjs','missing-deref':'r_vm_mem_38.tjs','stale-pc':'r_vm_mem_27.tjs'};assert bits in(32,64)and kind in files
+out=r/'临时/ISSUE-20261011-02'/f'r-vm-memory-fault-input-{kind}-{bits}-20261016-01';assert not out.exists();out.mkdir();src=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R'/files[kind];t=src.read_text(encoding='utf-8');before=hashlib.sha256(src.read_bytes()).hexdigest()
+if kind=='operand-order':
+ old='    var ptrSlot = rd((p + 4) & 0xffffffff);\n    var value = rd(p & 0xffffffff);';new='    var value = rd(p & 0xffffffff);\n    var ptrSlot = rd((p + 4) & 0xffffffff);'
+elif kind=='extra-sp-read':old='var dest = (sp - destOff) & 0xffffffff;';new='var dest = (rd((ctx + 12) & 0xffffffff) - destOff) & 0xffffffff;'
+elif kind=='missing-deref':old='var value = rd(ptr);';new='var value = ptr;'
+else:
+ old='    wr(ptr & 0xffffffff, (v - 1) & 0xffffffff);\n    var pc = rd((ctx + 8) & 0xffffffff) & 0xffffffff;';new='    var pc = rd((ctx + 8) & 0xffffffff) & 0xffffffff;\n    wr(ptr & 0xffffffff, (v - 1) & 0xffffffff);'
+assert t.count(old)==1;(out/src.name).write_text(t.replace(old,new),encoding='utf-8');manifest=w/'self-authored-inputs/micro/manifest.json';tag=f'r-vm-memory-fault-{kind}-{bits}-20261016-01'
+p=subprocess.run([sys.executable,'-X','utf8','-B',str(w/'verify-memory-runtime.txt'),str(bits),tag,str(manifest),'60',str(out)],capture_output=True,timeout=80);ev=r/'临时/ISSUE-20261011-02'/tag/'evidence';v=json.loads((ev/'verdict.json').read_text());console=(ev/'console.utf8.txt').read_text();passed=p.returncode==1 and not v['passed']and('RVM_COMPARE'in console or'EXTRA_MICRO_FINAL'in console)and v['process']['returncode']==0 and v['process']['cleanup_ok'];assert hashlib.sha256(src.read_bytes()).hexdigest()==before
+verdict=dict(passed=passed,fault=kind,bits=bits,failed_test_receipt=(ev/'verdict.json').relative_to(r).as_posix(),candidate_unchanged_sha256=before,private_mutation_only=True);(ev/'fault-verdict.json').write_text(json.dumps(verdict,indent=2),encoding='utf-8');print(json.dumps(verdict));sys.exit(0 if passed else 1)

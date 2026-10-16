@@ -1,0 +1,84 @@
+==============================================================================
+自检 ① 像素尺寸（应与原件一致）
+   x_ui_node_section_off.png        (236, 65) -> (236, 65)  OK
+   x_ui_node_section_on.png         (236, 65) -> (236, 65)  OK
+   x_ui_node_select_off.png         (263, 65) -> (263, 65)  OK
+   x_ui_node_select_on.png          (263, 65) -> (263, 65)  OK
+   x_ui_node_frag_off.png           (228, 65) -> (228, 65)  OK
+   x_ui_node_frag_on.png            (228, 65) -> (228, 65)  OK
+自检 ② alpha 通道（① 六件 alpha == 轮廓解析化的解析结果；② 与原件 alpha 已不同）
+   x_ui_node_section_off.png        解析 alpha md5 a7295b7fb6a620c6 == 盘上 a7295b7fb6a620c6  OK(逐字节一致)  ｜ 与原件 alpha 已不同(解析化生效)
+   x_ui_node_section_on.png         解析 alpha md5 f5c86136385b6aed == 盘上 f5c86136385b6aed  OK(逐字节一致)  ｜ 与原件 alpha 已不同(解析化生效)
+   x_ui_node_select_off.png         解析 alpha md5 85a8ff80597babd5 == 盘上 85a8ff80597babd5  OK(逐字节一致)  ｜ 与原件 alpha 已不同(解析化生效)
+   x_ui_node_select_on.png          解析 alpha md5 001408b03d756561 == 盘上 001408b03d756561  OK(逐字节一致)  ｜ 与原件 alpha 已不同(解析化生效)
+   x_ui_node_frag_off.png           解析 alpha md5 9d4fdd940a81cdf3 == 盘上 9d4fdd940a81cdf3  OK(逐字节一致)  ｜ 与原件 alpha 已不同(解析化生效)
+   x_ui_node_frag_on.png            解析 alpha md5 348ed2e07d764902 == 盘上 348ed2e07d764902  OK(逐字节一致)  ｜ 与原件 alpha 已不同(解析化生效)
+自检 ③ _off 与 _on 仍不同（状态区分力）
+   section    off 15da4d894a39 / on b32f43bb0dd0  OK(不同)
+   select     off 16c7d5a7e13b / on e0e01b18b979  OK(不同)
+   frag       off 5ed971d28ec6 / on c07469d399c7  OK(不同)
+自检 ④ 实测 fill 色 @ (148, 10)（容差 ±3，仅 _off 有期望值）
+   section    off #DEE9F5 -> #C4D6F5  期望 #C4D6F5 偏差 0/255  OK
+   section    on  #D7E9FA -> #DCE7FA
+   select     off #E9F1F9 -> #61AED6  期望 #60ADD5 偏差 1/255  OK
+   select     on  #E7F1F9 -> #6BB7DF
+   frag       off #D6E6F6 -> #D2B2F6  期望 #D1B1F5 偏差 1/255  OK
+   frag       on  #C9E2FA -> #E2CDFA
+自检 ⑤ md5：**六件都必须已变（解析化生效）**，并与 GOLD_MD5 锁定值一致
+   x_ui_node_section_off.png        改前 f3e1d3b9c765  改后 15da4d894a39  OK  | GOLD 待填
+   x_ui_node_section_on.png         改前 f6aa12a31c53  改后 b32f43bb0dd0  OK  | GOLD 待填
+   x_ui_node_select_off.png         改前 0b5526d1cd50  改后 16c7d5a7e13b  OK  | GOLD 待填
+   x_ui_node_select_on.png          改前 c0ae4c58af3d  改后 e0e01b18b979  OK  | GOLD 待填
+   x_ui_node_frag_off.png           改前 f724354b35c5  改后 5ed971d28ec6  OK  | GOLD 待填
+   x_ui_node_frag_on.png            改前 d4b03394e248  改后 c07469d399c7  OK  | GOLD 待填
+自检 ⑥ RGB 一致性 / 描边只改环带（口径：alpha 不参与 recolor ⇒ 两张同 RGB 不同 alpha 的图 必得同一 RGB）
+   x_ui_node_section_off.png        无描边 ｜ RGB == recolor(原件) 第 0 px 不符 OK(逐字节)
+   x_ui_node_section_on.png         无描边 ｜ RGB == recolor(原件) 第 0 px 不符 OK(逐字节)
+   x_ui_node_select_off.png         环带 1172 px ｜ 环带外 RGB 改动 0 px OK ｜ alpha == 同档无描边件 OK(逐字节)
+   x_ui_node_select_on.png          环带 1172 px ｜ 环带外 RGB 改动 0 px OK ｜ alpha == 同档无描边件 OK(逐字节)
+   x_ui_node_frag_off.png           无描边 ｜ RGB == recolor(原件) 第 0 px 不符 OK(逐字节)
+   x_ui_node_frag_on.png            无描边 ｜ RGB == recolor(原件) 第 0 px 不符 OK(逐字节)
+自检 ⑦ 半径实测（相切一维搜索口径，非 45°）—— 四角应 ≈ 16.0（容差 ±0.2）
+   x_ui_node_section_off.png        r=TL15.99 TR16.00 BR16.01 BL15.98 ｜ 最大偏差 0.020 OK ｜ 45°(有偏仪器，仅相对比较) TL14.28 TR15.95 BR17.78 BL16.01
+   x_ui_node_section_on.png         r=TL15.90 TR15.94 BR15.97 BL15.91 ｜ 最大偏差 0.100 OK ｜ 45°(有偏仪器，仅相对比较) TL14.10 TR15.91 BR17.64 BL15.93
+   x_ui_node_select_off.png         r=TL15.99 TR16.02 BR15.97 BL15.96 ｜ 最大偏差 0.040 OK ｜ 45°(有偏仪器，仅相对比较) TL14.23 TR15.95 BR17.66 BL16.01
+   x_ui_node_select_on.png          r=TL15.98 TR16.01 BR15.99 BL15.96 ｜ 最大偏差 0.040 OK ｜ 45°(有偏仪器，仅相对比较) TL14.24 TR16.05 BR17.72 BL15.99
+   x_ui_node_frag_off.png           r=TL16.00 TR15.96 BR15.89 BL16.00 ｜ 最大偏差 0.110 OK ｜ 45°(有偏仪器，仅相对比较) TL14.29 TR15.84 BR17.50 BL16.03
+   x_ui_node_frag_on.png            r=TL15.95 TR15.99 BR16.04 BL15.99 ｜ 最大偏差 0.050 OK ｜ 45°(有偏仪器，仅相对比较) TL14.19 TR16.01 BR17.74 BL16.00
+自检 ⑧ 底边缺口：末端实体行（该行中央带 alpha 中位 >= 230 的最后一行）逐列无缺口
+   x_ui_node_section_off.png        改前 y=55 min=254 ｜ 改后 y=55 min=255 缺口列=0 OK
+   x_ui_node_section_on.png         改前 y=56 min=252 ｜ 改后 y=56 min=253 缺口列=0 OK
+   x_ui_node_select_off.png         改前 y=56 min=229 ｜ 改后 y=56 min=235 缺口列=0 OK ｜ ★ x=167：改前 229 ⇒ 改后 235
+   x_ui_node_select_on.png          改前 y=56 min=243 ｜ 改后 y=56 min=246 缺口列=0 OK
+   x_ui_node_frag_off.png           改前 y=55 min=255 ｜ 改后 y=55 min=255 缺口列=0 OK
+   x_ui_node_frag_on.png            改前 y=56 min=251 ｜ 改后 y=56 min=253 缺口列=0 OK
+自检 ⑨ 解析化回归：直边带内 |Δalpha| 统计（带 = 去角 rmax+3 的中央区；应 ≥85% 像素 |Δ|≤2）
+   x_ui_node_section_off.png        |Δ|max= 12@(82, 56) mean=0.35 ｜ >2  502 / >4  194 / >8  22 / n=12008 ｜ |Δ|≤2 占  95.8% OK
+   x_ui_node_section_on.png         |Δ|max= 25@(174, 6) mean=0.84 ｜ >2 1415 / >4  780 / >8 257 / n=12840 ｜ |Δ|≤2 占  89.0% OK
+   x_ui_node_select_off.png         |Δ|max= 18@(147, 7) mean=0.74 ｜ >2 1343 / >4  732 / >8 203 / n=14006 ｜ |Δ|≤2 占  90.4% OK
+   x_ui_node_select_on.png          |Δ|max= 23@(196, 6) mean=0.69 ｜ >2 1374 / >4  686 / >8 150 / n=14645 ｜ |Δ|≤2 占  90.6% OK
+   x_ui_node_frag_off.png           |Δ|max= 22@(33, 7) mean=0.87 ｜ >2 1403 / >4  768 / >8 205 / n=12028 ｜ |Δ|≤2 占  88.3% OK
+   x_ui_node_frag_on.png            |Δ|max= 25@(38, 6) mean=1.21 ｜ >2 1568 / >4  876 / >8 247 / n=12370 ｜ |Δ|≤2 占  87.3% OK
+自检 ⑩ 描边几何（select 件：覆盖率级数 / 实体面厚度 / 沿解析轮廓法线的径向宽度）
+   select_off 覆盖率非零像素= 1172  取值级数=  5  最大覆盖=1.00 ｜ 顶边中段（x80-180）实体面内带厚 min=2 max=2 极差=0（目标 2/2/0）
+              径向宽度 直边 p05/med/p95/max=1.875/2.000/2.000/2.612（>3 的 0/584） ｜ 圆角弧 1.967/2.140/2.409/2.647（>3 的 0/96）  OK
+   select_on  覆盖率非零像素= 1172  取值级数=  5  最大覆盖=1.00 ｜ 顶边中段（x80-180）实体面内带厚 min=2 max=2 极差=0（目标 2/2/0）
+              径向宽度 直边 p05/med/p95/max=1.897/2.000/2.000/2.667（>3 的 0/586） ｜ 圆角弧 1.858/2.107/2.408/2.573（>3 的 0/96）  OK
+自检 ⑪ 两态差 ΔRGB（掩码：两态 alpha 均 >211；均=逐像素三通道均差，最大=逐像素单通道最大差）
+   section  n=10636  改前   3.34 /  71  →  改后  13.70 /  26   目标 均≥8 且 最大≥20  OK
+            _on 不透明区单通道==255 的像素：0/10922 (0.00%)
+   select   n=11952  改前   2.46 /  54  →  改后   9.97 / 100   目标 均≥8 且 最大≥20  OK
+            _on 不透明区单通道==255 的像素：0/12029 (0.00%)
+   frag     n=10253  改前   4.26 /  41  →  改后  14.09 /  29   目标 均≥8 且 最大≥20  OK
+            _on 不透明区单通道==255 的像素：0/10713 (0.00%)
+自检 ⑫ 幂等：重建一遍（仍从 原形备份 读，同一 PNG 编码参数）⇒ 六件应与本次落盘**逐字节相同**
+   x_ui_node_section_off.png        重建 PNG md5 15da4d894a39bd1e == 落盘 md5 15da4d894a39bd1e  OK
+   x_ui_node_section_on.png         重建 PNG md5 b32f43bb0dd007f3 == 落盘 md5 b32f43bb0dd007f3  OK
+   x_ui_node_select_off.png         重建 PNG md5 16c7d5a7e13b89e3 == 落盘 md5 16c7d5a7e13b89e3  OK
+   x_ui_node_select_on.png          重建 PNG md5 e0e01b18b979f4d5 == 落盘 md5 e0e01b18b979f4d5  OK
+   x_ui_node_frag_off.png           重建 PNG md5 5ed971d28ec6e19c == 落盘 md5 5ed971d28ec6e19c  OK
+   x_ui_node_frag_on.png            重建 PNG md5 c07469d399c726c2 == 落盘 md5 c07469d399c726c2  OK
+   对照图写出：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-07_节点描边与系统按钮\取证\正式落地\节点素材_正式链_管线前后对照.png  (1608, 1079)
+对照图： E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-07_节点描边与系统按钮\取证\正式落地\节点素材_正式链_管线前后对照.png
+==============================================================================
+结果：**全部自检通过**

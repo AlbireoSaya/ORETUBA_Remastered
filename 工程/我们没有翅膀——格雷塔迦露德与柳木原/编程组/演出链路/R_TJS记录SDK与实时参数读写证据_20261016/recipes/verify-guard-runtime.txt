@@ -1,0 +1,58 @@
+"""Root validation recipe; executes only the named editor-authored synthetic checks."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import sys
+import time
+import uuid
+
+root = Path.cwd()
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015"
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+sys.path.insert(0, str(group / "工具"))
+from performance_runtime import execute
+
+bits, tag, guard, function, checks = int(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4], int(sys.argv[5])
+assert bits in (32, 64) and checks > 0
+assert all("/" not in s and "\\" not in s for s in (tag, guard, function))
+out = root / "临时/ISSUE-20261011-02" / tag
+assert not out.exists()
+game, save, evidence = out / "game", out / "savedata", out / "evidence"
+for path in (game, save, evidence):
+    path.mkdir(parents=True)
+core = ["r_u32.tjs", "r_vm_entry.tjs", "r_vm_memory.tjs", "r_vm_control.tjs", "r_vm_value.tjs",
+        "r_vm_step.tjs", "r_vm_run.tjs", "r_relocation_pair.tjs", "r_relocation_writes.tjs", "r_record_value.tjs"]
+owned = ["r_apply_relocations.tjs", "r_bind_expression.tjs", "r_parameter_evaluate.tjs", "r_write_record_item.tjs",
+         "r_run_record.tjs", "r_memory_region.tjs", "r_memory_create.tjs", "r_memory_access.tjs", "r_memory_find.tjs",
+         "r_memory_read.tjs", "r_memory_write8.tjs", "r_memory_write32.tjs", "r_memory_callbacks.tjs"]
+sources = []
+names = core + owned + [guard]
+assert len(names) == len(set(names))
+for name in names:
+    src = group / "原作忠实层/R" / name if name in core else work / name
+    shutil.copyfile(src, game / name)
+    sources.append({"name": name, "path": src.relative_to(root).as_posix(), "sha256": hashlib.sha256(src.read_bytes()).hexdigest()})
+nonce = uuid.uuid4().hex
+commands = ["Debug.startLogToFile();", "try {", f'Debug.message("RGS_BEGIN {nonce}");']
+commands += [f'Scripts.execStorage("{name}");' for name in names]
+commands += [f'var n={function}();', f'if(n!=={checks})throw new Exception("WRONG_GUARD_COUNT "+n);',
+             f'Debug.message("RGS_PASS {nonce} "+n);', "} catch(e) {",
+             f'Debug.message("RGS_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));', "}", "System.exit();"]
+(game / "startup.tjs").write_text("\n".join(commands) + "\n", encoding="utf-8")
+engine = root / f"工具/krkrz/krkrz_20171225/tvpwin{bits}.exe"
+start = time.time_ns()
+process = execute([str(engine), str(game), "-datapath=" + str(save) + "/", "-readencoding=UTF-8", "-startup=startup.tjs", "-userconf=no"], out, 45, evidence)
+log = save / "krkr.console.log"
+raw = log.read_bytes() if log.exists() else b""
+text = raw.decode("utf-16") if raw.startswith(b"\xff\xfe") else raw.decode("utf-16-le", errors="replace")
+fresh = log.exists() and log.stat().st_mtime_ns >= start
+passed = process["returncode"] == 0 and not process["timed_out"] and process["cleanup_ok"] and fresh and f"RGS_PASS {nonce} {checks}" in text and f"RGS_EXCEPTION {nonce}" not in text
+verdict = {"passed": passed, "bits": bits, "checks": checks, "nonce": nonce, "fresh_log": fresh, "process": process,
+           "sources": sources, "engine_sha256": hashlib.sha256(engine.read_bytes()).hexdigest(), "console_sha256": hashlib.sha256(raw).hexdigest(),
+           "scope": "synthetic named guard only; no full record matrix or game fidelity claim"}
+(evidence / "verdict.json").write_text(json.dumps(verdict, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+(evidence / "console.utf8.txt").write_text(text, encoding="utf-8")
+print(json.dumps({key: verdict[key] for key in ("passed", "bits", "checks", "process")}))
+print("\n".join(line for line in text.splitlines() if "RGS_" in line)[-1200:])
+sys.exit(0 if passed else 1)

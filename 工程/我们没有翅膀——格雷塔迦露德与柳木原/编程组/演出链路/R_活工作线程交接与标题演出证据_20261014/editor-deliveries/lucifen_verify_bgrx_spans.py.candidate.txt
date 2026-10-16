@@ -1,0 +1,30 @@
+from lucifen_verify_span_input import validate_span_input
+import hashlib
+
+
+def compare_bgrx_spans(expected, actual, width, height, spans):
+    validated = validate_span_input(expected, actual, width, height, spans)
+    exp = bytearray()
+    act = bytearray()
+    compared = 0
+    diff_px = 0
+    diff_bytes = 0
+    for y, left, right in validated:
+        for x in range(left, right):
+            o = (y * width + x) * 4
+            e0, e1, e2 = expected[o], expected[o + 1], expected[o + 2]
+            a0, a1, a2 = actual[o], actual[o + 1], actual[o + 2]
+            exp += bytes((e0, e1, e2))
+            act += bytes((a0, a1, a2))
+            compared += 1
+            if e0 != a0 or e1 != a1 or e2 != a2:
+                diff_px += 1
+            diff_bytes += (e0 != a0) + (e1 != a1) + (e2 != a2)
+    return {
+        "matches": diff_bytes == 0,
+        "compared_pixels": compared,
+        "differing_pixels": diff_px,
+        "differing_color_bytes": diff_bytes,
+        "expected_RGB_SHA256": hashlib.sha256(exp).hexdigest(),
+        "actual_RGB_SHA256": hashlib.sha256(act).hexdigest(),
+    }

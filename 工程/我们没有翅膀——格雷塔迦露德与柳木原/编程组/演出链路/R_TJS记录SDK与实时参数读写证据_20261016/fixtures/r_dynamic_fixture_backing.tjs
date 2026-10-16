@@ -1,0 +1,7 @@
+function RDynamicBackingByte(off) {
+    var addr = this.base + off;
+    var v = this.words["" + (addr & 0xfffffffc)];
+    if (typeof v != "Integer")
+        throw new Exception("MISSING_INITIAL_FIXTURE_WORD");
+    return (v >> ((addr & 3) * 8)) & 255;
+}

@@ -1,0 +1,126 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=g/'演出链路/R_TOB动态绑定与无损IR证据_20261011';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EIP,UC_X86_REG_ESP,UC_X86_REG_EAX
+stage=root/'临时/ISSUE-20261011-02/r-expression-vm-replay-01'
+table=json.loads((g/'演出链路/R接口证据_20261011/R_注册顺序.json').read_text(encoding='utf-8'))['static_vector_candidate']
+native={int(row['handler_va']):i for i,row in enumerate(table)}
+sb,app,kbd,parent=0x1028000,0x10e0000,0x10e4000,0x100a000
+states=[
+ {'id':0,'vars':'zero','setting':0,'flags':[0,0],'keymode':0,'active':0,'pressed':[],'wrong':[],'parent':True},
+ {'id':1,'vars':'ones','setting':1,'flags':[1,0],'keymode':1,'active':1,'pressed':[0x9d],'wrong':[],'parent':True},
+ {'id':2,'vars':'linear','setting':255,'flags':[0,255],'keymode':0,'active':1,'pressed':[0x2a],'wrong':[],'parent':True},
+ {'id':3,'vars':'alternate','setting':2,'flags':[255,128],'keymode':1,'active':0,'pressed':[],'wrong':[0x1d],'parent':True},
+ {'id':4,'vars':'one','setting':0,'flags':[0,0],'keymode':0,'active':1,'pressed':[0x36],'wrong':[],'parent':True},
+ {'id':5,'vars':'xor','setting':127,'flags':[0,0],'keymode':1,'active':0,'pressed':[0x1d],'wrong':[],'parent':False}]
+def varvalue(i,s):
+ return 0 if s['vars']=='zero' else 0xffffffff if s['vars']=='ones' else (i*11+3) if s['vars']=='linear' else (0x80000000 if i&1 else 0) if s['vars']=='alternate' else 1 if s['vars']=='one' else (i^0x55)
+def initialize(u,maps,data,s):
+ u.mem_write(buffer,data);u.mem_write(ctx,b'\0'*64);u.mem_write(ctx+4,struct.pack('<I',sb));u.mem_write(ctx+12,struct.pack('<I',sb));u.mem_write(sb,b'\x92'*4096)
+ for i,a in maps[0].items():u.mem_write(a,struct.pack('<I',varvalue(i,s))+b'\x85'*12)
+ for a in maps[2].values():u.mem_write(a,b'\x55'*16)
+ u.mem_write(app,b'\0'*0x2000);u.mem_write(app+0xf1f,bytes([s['setting']]));u.mem_write(app+0xf92,bytes([s['keymode']]))
+ u.mem_write(parent,b'\0'*0x8000);u.mem_write(parent+0x4f4,bytes(s['flags']))
+ u.mem_write(kbd,b'\0'*0x210);u.mem_write(kbd,struct.pack('<I',0x518704));u.mem_write(kbd+4,bytes([s['active']]))
+ for key in s['pressed']:u.mem_write(kbd+5+((s['active']^1)<<8)+key,b'\x80')
+ for key in s['wrong']:u.mem_write(kbd+5+(s['active']<<8)+key,b'\xff')
+ u.mem_write(0x530c94,struct.pack('<I',app));u.mem_write(0x530ca4,struct.pack('<I',kbd));u.mem_write(0x530eb4,struct.pack('<I',parent if s['parent'] else 0))
+def vectorize(u,maps):
+ for i,row in enumerate(table):u.mem_write(0x1075000+i*4,struct.pack('<I',int(row['handler_va'])));maps[1][i]=int(row['handler_va'])
+
+sys.path.insert(0,str(stage))
+from lucifen_expression_reference import expression_native,value_op,step_memory,run_vm
+from lucifen_cdecl_observer import observe_cdecl_until
+from unicorn.x86_const import UC_X86_REG_ECX
+u,maps=prepare(b'\0'*16,0);vectorize(u,maps)
+frame=0x1026000
+def rd(a):return struct.unpack('<I',u.mem_read(a&0xffffffff,4))[0]
+def rb(a):return bytes(u.mem_read(a&0xffffffff,1))[0]
+ctor_entry=0x47a390;ctorstop=[]
+u.mem_map(0,0x1000);u.mem_write(0,struct.pack('<I',0x12345678));u.mem_write(kbd-16,b'\xa9'*16+b'\xbb'*0x210+b'\xa9'*16)
+def chook(uc,a,n,x):
+ if a==ctor_entry:ctorstop.append(a);uc.emu_stop()
+obs=observe_cdecl_until(u,0x47a1d0,frame,ctor_entry,0,{'ecx':kbd},timeout=0)
+expected=bytearray(b'\xbb'*0x210);struct.pack_into('<I',expected,0,0x51a054);expected[4:0x205]=b'\0'*0x201;expected[0x208]=1;struct.pack_into('<I',expected,0x20c,0)
+assert obs['stop_reached'] and not obs['error'] and obs['eip']==ctor_entry
+assert bytes(u.mem_read(kbd-16,0x230))==b'\xa9'*16+expected+b'\xa9'*16
+rows=[{'kind':'keyboard_constructor_boundary','stop':ctor_entry,'passed':True,'scope':'preallocated original constructor until before actual GetKeyState helper, 512 state bytes initialized; no Windows calls or complete constructor'}]
+def cdecl(entry):
+ o=observe_cdecl_until(u,entry,frame,0x200f000,0,timeout=0)
+ assert o['returned'] and not o['error'] and o['esp']==0x2008004,o
+ return o['eax']
+for val in range(256):
+ initialize(u,maps,b'\0'*16,states[0]);u.mem_write(app+0xf1f,bytes([val]));u.mem_write(frame,struct.pack('<4I',0,0xabcd000d,0,0))
+ assert cdecl(0x411c40)==expression_native(rd,rb,0x411c40,frame)==val
+rows.append({'kind':'setting_byte','cases':256,'low_byte_selector':True,'passed':True})
+n=0
+for null in (False,True):
+ for a in (0,1,2,128,255):
+  for z in (0,1,2,128,255):
+   initialize(u,maps,b'\0'*16,states[0]);u.mem_write(parent+0x4f4,bytes([a,z]));u.mem_write(0x530eb4,struct.pack('<I',0 if null else parent));u.mem_write(frame,struct.pack('<4I',9,3,0,0))
+   assert cdecl(0x418650)==expression_native(rd,rb,0x418650,frame)==(0 if null else a|z);n+=1
+rows.append({'kind':'module_flags_or','cases':n,'null_parent':True,'passed':True})
+n=0
+for vtable in (0x518704,0x519610,0x51a054):
+ assert rd(vtable+4)==0x47a230
+ for active in (0,1):
+  for key in range(256):
+   for val in (0,1,127,128,255):
+    initialize(u,maps,b'\0'*16,states[0]);u.mem_write(kbd,struct.pack('<I',vtable));u.mem_write(kbd+4,bytes([active]))
+    u.mem_write(kbd+5+((active^1)<<8)+key,bytes([val]));u.mem_write(kbd+5+(active<<8)+key,bytes([val^0xff]))
+    got=invoke_thiscall_args(u,0x47a230,kbd,[0xabcd0000|key],timeout=0)
+    assert (got&255)==val>>7
+    assert got==(((active^1)<<8)|(val>>7));n+=1
+rows.append({'kind':'actual_key_getter','cases':n,'all_key_codes':256,'active_buffers':2,'vtable_variants':3,'low8_query_mask':True,'opposite_buffer_and_highbit':True,'passed':True})
+u,maps=prepare(b'\0'*16,0);vectorize(u,maps)
+n=0;keytrace=[]
+def khook(uc,a,size,x):
+ if a==0x47a230:
+  esp=uc.reg_read(UC_X86_REG_ESP);keytrace.append(rd(esp+4)&255)
+h=u.hook_add(UC_HOOK_CODE,khook)
+for vtable in (0x518704,0x519610,0x51a054):
+ for active in (0,1):
+  for mode in (0,1,255):
+   keys=(0x1d,0x9d) if mode else (0x2a,0x36)
+   for mask in range(4):
+    for val in (1,127,128,255):
+     for wrong in (False,True):
+      initialize(u,maps,b'\0'*16,states[0]);u.mem_write(kbd,struct.pack('<I',vtable));u.mem_write(kbd+4,bytes([active]));u.mem_write(app+0xf92,bytes([mode]))
+      for i,k in enumerate(keys):
+       if mask&(1<<i):u.mem_write(kbd+5+((active^1)<<8)+k,bytes([val]))
+       if wrong:u.mem_write(kbd+5+(active<<8)+k,b'\xff')
+      u.mem_write(frame,b'\x77'*16);keytrace.clear();got=cdecl(0x414160);first=bool(mask&1 and val&0x80);pred=int(bool(mask and val&0x80))
+      assert got==expression_native(rd,rb,0x414160,frame)==pred
+      assert keytrace==([keys[0]] if first else list(keys)),(vtable,active,mode,mask,val,wrong,got,keytrace,list(keys),first)
+      n+=1
+u.hook_del(h)
+rows.append({'kind':'actual_modifier_predicate','cases':n,'modes_control_shift':True,'short_circuit_key_calls':True,'non80_values_false':True,'wrong_buffer_negative_control':True,'passed':True})
+unsupported=0
+for fun,args in [(value_op,(14,1,1)),(expression_native,(rd,rb,0x411c40,frame)),(expression_native,(rd,rb,0x418650,frame)),(expression_native,(rd,rb,0x12345,frame))]:
+ try:fun(*args)
+ except (ValueError,NotImplementedError):unsupported+=1
+ else:raise AssertionError('unsupported accepted')
+assert unsupported==4
+rows.append({'kind':'explicit_unproved_rejections','cases':unsupported,'passed':True})
+(stage/'native-and-boundary-fixtures.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps({'groups':len(rows),'setting':256,'module_flags':50,'key_getter':7680,'modifiers':n,'unsupported_rejections':unsupported,'passed':True}),flush=True)

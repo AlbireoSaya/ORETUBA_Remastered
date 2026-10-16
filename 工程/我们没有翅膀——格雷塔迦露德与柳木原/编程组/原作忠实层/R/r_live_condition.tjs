@@ -1,0 +1,15 @@
+// r_live_condition.tjs —— 实时条件 tag 分派（本工程 R 忠实层）
+// 契约：tag 由调用者读出后传入；本模块不写 flags、不调用严格 parser、不做 opcode0 反转。
+function RLiveCondition(rd, tag, p, readArray, evaluateExpr) {
+    switch (tag) {
+    case 0:
+        return [rd(p & 0xffffffff) & 0xffffffff, (p + 4) & 0xffffffff];
+    case 1:
+        return [1, p & 0xffffffff];
+    case 2:
+        return readArray(p);
+    case 3:
+        return evaluateExpr(p);
+    }
+    throw new Exception("UNSUPPORTED_LIVE_CONDITION_TAG");
+}

@@ -1,0 +1,166 @@
+==============================================================================
+verify_e3.py · ISSUE-20260929-02 · E3（载入屏 + 文档）交付自检
+  UI组 = E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组
+==============================================================================
+
+### A. `layout/screens/22_loading.json`
+  PASS  元素恰为 ['ld.dim','ld.text']（实测 ['ld.dim', 'ld.text']）
+  PASS  `ld.bg` 已删除
+  PASS  能取到 HEAD 版本的 22_loading.json（供逐字段比对）
+  PASS  相对 HEAD：**唯一被删的元素是 ld.bg**（差集 {'ld.bg'}）
+  PASS  相对 HEAD：**没有新增元素**（差集 set()）
+  PASS  `ld.dim` 与 HEAD **逐字段完全相同**（一个字段未改）
+  PASS  `ld.text` 与 HEAD **逐字段完全相同**（一个字段未改）
+
+### B. 文档 ↔ 数据 逐条对照（两源：生成器 STATIC_ELEMENTS_JSON ＋ 屏数据 32_flowchart.json）
+  （屏数据落盘状态：**已落盘**；元素 136 件）
+  （注：**交付样例 `screen1` 应为 280 件**；当前 136 ≠ 280 ⇒ 屏文件处于**预设态**〔`screen2` 124 / `ref150` 103 / `states` 117 / `frag` 136〕—— 右栏四段是**各预设共用的舞台**⇒ 本节的元素断言仍成立；但**三处产物若在此刻落盘会固化该预设**，须以「默认 screen1 ⇒ gen_layout」的最后一次落盘为准）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.play_win`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.play_win` 几何＝文档所记 (1448, 214, 380, 300, 6)（实取 (1448, 214, 380, 300, 6)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.play_view`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.play_view` 几何＝文档所记 (1454, 220, 368, 288, 7)（实取 (1454, 220, 368, 288, 7)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.p_title`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.p_title` 几何＝文档所记 (1416, 536, 443, 73, 6)（实取 (1416, 536, 443, 73, 6)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.p_title_tx`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.p_title_tx` 几何＝文档所记 (1428, 546, 419, 40, 25)（实取 (1428, 546, 419, 40, 25)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.p_text`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.p_text` 几何＝文档所记 (1425, 631, 422, 171, 6)（实取 (1425, 631, 422, 171, 6)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.p_text_tx`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.p_text_tx` 几何＝文档所记 (1437, 637, 398, 159, 25)（实取 (1437, 637, 398, 159, 25)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.p_message`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.p_message` 几何＝文档所记 (1425, 824, 422, 171, 6)（实取 (1425, 824, 422, 171, 6)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.p_message_tx`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.p_message_tx` 几何＝文档所记 (1437, 830, 398, 159, 25)（实取 (1437, 830, 398, 159, 25)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.pbkick`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.pbkick` 几何＝文档所记 (1578, 304, 119, 119, 20)（实取 (1578, 304, 119, 119, 20)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.pbkick_pause`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.pbkick_pause` 几何＝文档所记 (1578, 304, 119, 119, 20)（实取 (1578, 304, 119, 119, 20)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.pbkick_hit`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.pbkick_hit` 几何＝文档所记 (1575, 301, 125, 125, 95)（实取 (1575, 301, 125, 125, 95)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 存在 `fc.smallmap`
+  PASS  [生成器 STATIC_ELEMENTS_JSON] `fc.smallmap` 几何＝文档所记 (1416, 190, 443, 829, 5)（实取 (1416, 190, 443, 829, 5)）
+  PASS  [生成器 STATIC_ELEMENTS_JSON] 12 件退场元素零残留（残留 []）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.play_win`
+  PASS  [屏数据 32_flowchart.json] `fc.play_win` 几何＝文档所记 (1448, 214, 380, 300, 6)（实取 (1448, 214, 380, 300, 6)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.play_view`
+  PASS  [屏数据 32_flowchart.json] `fc.play_view` 几何＝文档所记 (1454, 220, 368, 288, 7)（实取 (1454, 220, 368, 288, 7)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.p_title`
+  PASS  [屏数据 32_flowchart.json] `fc.p_title` 几何＝文档所记 (1416, 536, 443, 73, 6)（实取 (1416, 536, 443, 73, 6)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.p_title_tx`
+  PASS  [屏数据 32_flowchart.json] `fc.p_title_tx` 几何＝文档所记 (1428, 546, 419, 40, 25)（实取 (1428, 546, 419, 40, 25)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.p_text`
+  PASS  [屏数据 32_flowchart.json] `fc.p_text` 几何＝文档所记 (1425, 631, 422, 171, 6)（实取 (1425, 631, 422, 171, 6)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.p_text_tx`
+  PASS  [屏数据 32_flowchart.json] `fc.p_text_tx` 几何＝文档所记 (1437, 637, 398, 159, 25)（实取 (1437, 637, 398, 159, 25)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.p_message`
+  PASS  [屏数据 32_flowchart.json] `fc.p_message` 几何＝文档所记 (1425, 824, 422, 171, 6)（实取 (1425, 824, 422, 171, 6)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.p_message_tx`
+  PASS  [屏数据 32_flowchart.json] `fc.p_message_tx` 几何＝文档所记 (1437, 830, 398, 159, 25)（实取 (1437, 830, 398, 159, 25)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.pbkick`
+  PASS  [屏数据 32_flowchart.json] `fc.pbkick` 几何＝文档所记 (1578, 304, 119, 119, 20)（实取 (1578, 304, 119, 119, 20)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.pbkick_pause`
+  PASS  [屏数据 32_flowchart.json] `fc.pbkick_pause` 几何＝文档所记 (1578, 304, 119, 119, 20)（实取 (1578, 304, 119, 119, 20)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.pbkick_hit`
+  PASS  [屏数据 32_flowchart.json] `fc.pbkick_hit` 几何＝文档所记 (1575, 301, 125, 125, 95)（实取 (1575, 301, 125, 125, 95)）
+  PASS  [屏数据 32_flowchart.json] 存在 `fc.smallmap`
+  PASS  [屏数据 32_flowchart.json] `fc.smallmap` 几何＝文档所记 (1416, 190, 443, 829, 5)（实取 (1416, 190, 443, 829, 5)）
+  PASS  [屏数据 32_flowchart.json] 12 件退场元素零残留（残留 []）
+  PASS  两源逐字段一致：`fc.play_win`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.play_view`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.p_title`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.p_title_tx`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.p_text`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.p_text_tx`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.p_message`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.p_message_tx`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.pbkick`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.pbkick_pause`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.pbkick_hit`（生成器 vs 屏数据）
+  PASS  两源逐字段一致：`fc.smallmap`（生成器 vs 屏数据）
+  PASS  屏级 `flags_default.fc_replay` = "play"（屏数据实测）
+  PASS  屏级 `flags_default.fc_layer` = "main"（保留）
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1448, 214, 380×300)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1454, 220, 368×288)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1416, 536, 443×73)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1428, 546, 419×40)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1425, 631, 422×171)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1437, 637, 398×159)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1425, 824, 422×171)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1437, 830, 398×159)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1578, 304, 119×119)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1578, 304, 119×119)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1575, 301, 125×125)`
+  PASS  文档（编程组交接 §四·补）含该几何字符串 `(1416, 190, 443×829)`
+  PASS  `fc.p_title_tx` 字色 = @palette.text_primary（白字）
+  PASS  `fc.p_title_tx` 描边 = outline:true / #000000 / 2px / shadow:false
+  PASS  `fc.p_title_tx` 字号 24 / bold 保持
+  PASS  `fc.p_title_tx` valign/wrap = middle/False
+  PASS  `fc.p_text_tx` 字色 = @palette.text_primary（白字）
+  PASS  `fc.p_text_tx` 描边 = outline:true / #000000 / 2px / shadow:false
+  PASS  `fc.p_text_tx` 字号 24 / bold 保持
+  PASS  `fc.p_text_tx` valign/wrap = top/True
+  PASS  `fc.p_message_tx` 字色 = @palette.text_primary（白字）
+  PASS  `fc.p_message_tx` 描边 = outline:true / #000000 / 2px / shadow:false
+  PASS  `fc.p_message_tx` 字号 24 / bold 保持
+  PASS  `fc.p_message_tx` valign/wrap = top/True
+  PASS  `fc.pbkick` vis_flag/vis_when = fc_replay/play
+  PASS  `fc.pbkick_pause` vis_flag/vis_when = fc_replay/pause
+  PASS  `fc.pbkick` state_assets 三槽 = x_ui_pbkick_{off,over,on}
+  PASS  `fc.pbkick_pause` state_assets 三槽 = x_ui_pbkick_pause_{off,over,on}
+  PASS  `fc.pbkick_hit` action = flow_replay_toggle
+  （`max_lines` 裁决值 = 4：全局行距 1.4 ⇒ 行盒 33px；4 行 132px ✓ / 5 行 165px ✗）
+  PEND  `fc.p_text_tx` max_lines 数据仍为 5（文档＝裁决值 4）⇒ **E2 尚未落盘**；落盘后本项应自动转 PASS
+  PASS  `fc.p_message_tx` max_lines = 4（＝裁决值／文档值）
+  PASS  文档（编程组交接 §四·补.4）两处均为 `max_lines:4`
+  PASS  版式规范 §〇.2 ⑤ 已订正为 `max_lines:4`
+  PASS  文档 4·补.4 的容量依据已改为「行盒 33px（全局 1.4）」、**旧式「× 1.3 行距 ＝ 31.2px」已删**
+  PASS  生成器 REPLAY_FLAG = "fc_replay"
+  PASS  生成器 REPLAY_PLAY = "play"
+  PASS  生成器 flags_default = {fc_layer: main, fc_replay: play}
+  PASS  生成器 STATIC_FLAG_EXEMPT = {"fc.pbkick","fc.pbkick_pause"}（与文档同名）
+  PASS  文档用 `fc.pbkick_pause` 且**未出现** `fc.play_btn_pause`（与生成器一致；冻结书 §B.2 的写法未采用）
+  PASS  `fc.play_view` asset:null + dynamic:"flow_scene_frames"
+  PASS  文档写明 dynamic 名与 contain 适配提醒
+
+### C. 退场 12 件
+  PASS  12 件退场元素**均不在**主源（屏数据）里（残留 []）
+  PASS  文档列全 12 件退场 id
+  PASS  退场件素材仍在库：x_ui_replay_panel.png
+
+### D. 新增素材（E1 落盘）
+  PASS  素材已在库：x_ui_playwin_bg.png
+  PASS  x_ui_playwin_bg.png 尺寸 = (380, 300)（期望 (380, 300)）
+  PASS  x_ui_playwin_bg.png 模式 = RGBA（真 alpha）
+  PASS  素材已在库：x_ui_pbkick_pause_off.png
+  PASS  x_ui_pbkick_pause_off.png 尺寸 = (119, 119)（期望 (119, 119)）
+  PASS  x_ui_pbkick_pause_off.png 模式 = RGBA（真 alpha）
+  PASS  素材已在库：x_ui_pbkick_pause_over.png
+  PASS  x_ui_pbkick_pause_over.png 尺寸 = (119, 119)（期望 (119, 119)）
+  PASS  x_ui_pbkick_pause_over.png 模式 = RGBA（真 alpha）
+  PASS  素材已在库：x_ui_pbkick_pause_on.png
+  PASS  x_ui_pbkick_pause_on.png 尺寸 = (119, 119)（期望 (119, 119)）
+  PASS  x_ui_pbkick_pause_on.png 模式 = RGBA（真 alpha）
+
+### E. `ui/x_ui_backlog_bg.png`
+  PASS  素材仍在库（保留不删）
+  PASS  全 screens/*.json 的**元素字段中零引用**（实测命中 []；注：屏级 note 里的说明文字不计）
+  PASS  `26_backlog` 底图 = ui/x_ui_psv_backlog_bg.png（冻结书「仍被 26_backlog 引用」不成立）
+  PASS  文档已写入该勘误
+
+### F. `流程图系统_版式规范.md` 订正痕迹
+  PASS  新增 §〇.2 我方版本订正块
+  PASS  就地订正标记 【订正 · 20260929】 出现 7 处（≥5）
+  PASS  版式规范含 `fc.play_win`
+  PASS  版式规范含 `fc.play_view`
+  PASS  版式规范含 `fc.pbkick_pause`
+  PASS  版式规范含 `fc_replay`
+  PASS  版式规范含 `flow_replay_toggle`
+  PASS  版式规范含 `x_ui_playwin_bg.png`
+  PASS  ★ 变异自证（负向对照）：强制 max_lines=5 ⇒ PENDING 必须报出
+
+==============================================================================
+PASS 139 ｜ PENDING 1 ｜ FAIL 0
+  ⏳ PENDING  `fc.p_text_tx` max_lines 数据仍为 5（文档＝裁决值 4）⇒ **E2 尚未落盘**；落盘后本项应自动转 PASS
+结果：**全部通过**
+（PENDING ＝ 已知「E2 第二轮尚未落盘」的中间态，不计 FAIL；落盘后复跑应变 PASS）
+==============================================================================

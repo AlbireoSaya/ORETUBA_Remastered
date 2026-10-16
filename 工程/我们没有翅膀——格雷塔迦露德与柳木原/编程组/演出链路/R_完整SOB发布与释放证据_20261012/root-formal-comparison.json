@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "JSON_pairs_equal": 7,
+  "checks": [
+    {
+      "evidence": "controller-ctor-summary.json",
+      "formal": "r-real-controller-registration-formal-01/controller-ctor-summary.json",
+      "parsed_content_equal": true
+    },
+    {
+      "evidence": "controller-ctor-API-results.json",
+      "formal": "r-real-controller-registration-formal-01/controller-ctor-API-results.json",
+      "parsed_content_equal": true
+    },
+    {
+      "evidence": "missing-initialization-exception-summary.json",
+      "formal": "r-full-SOB-exception-boundary-formal-01/missing-initialization-exception-summary.json",
+      "parsed_content_equal": true
+    },
+    {
+      "evidence": "missing-initialization-API-results.json",
+      "formal": "r-full-SOB-exception-boundary-formal-01/boot-API-results.json",
+      "parsed_content_equal": true
+    },
+    {
+      "evidence": "sob-publication-summary.json",
+      "formal": "r-full-SOB-publication-formal-01/sob-publication-summary.json",
+      "parsed_content_equal": true
+    },
+    {
+      "evidence": "sob-publication-API-results.json",
+      "formal": "r-full-SOB-publication-formal-01/boot-API-results.json",
+      "parsed_content_equal": true
+    },
+    {
+      "evidence": "ascii-api-fixtures.json",
+      "formal": "r-sob-ascii-fixtures-formal-01/ascii-api-fixtures.json",
+      "parsed_content_equal": true
+    }
+  ],
+  "scope": "all7 initial/formal parsed JSON equality; no text whitespace equality claim"
+}

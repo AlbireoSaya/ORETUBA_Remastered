@@ -1,0 +1,18 @@
+from pathlib import Path
+import json,os,sys,subprocess
+r=Path.cwd();d=(r/(sys.argv[1]if len(sys.argv)>1 else '临时/ISSUE-20261011-02/r-storage-map-replay-02')).resolve();assert d.is_relative_to((r/'临时/ISSUE-20261011-02').resolve());d.mkdir(exist_ok=False);target=d/'target';target.mkdir();link=d/'junction'
+command="New-Item -ItemType Junction -Path '"+str(link).replace("'","''")+"' -Target '"+str(target).replace("'","''")+"' | Out-Null"
+subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-Command',command],cwd=r,check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+s={};p=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_guest_storage_exact.py';exec(compile(p.read_text(encoding='utf-8'),str(p),'exec'),s);f=s['resolve_exact_guest_path'];a={b'C:\\AppData\\save':target}
+assert f(b'C:\\AppData\\save',a,r)==target.resolve()
+cases=[('unknown',b'C:\\AppData\\other',a),('case_change_not_whitelisted',b'c:\\AppData\\save',a),('embedded_nul',b'C:\\AppData\\save\0',a),('wrong_type','C:\\AppData\\save',a),('outside_host_target',b'x',{b'x':Path('E:/not-workspace-target')})]
+for name,q,m in cases:
+ try:f(q,m,r)
+ except ValueError:pass
+ else:raise AssertionError(name)
+link=d/'junction';assert link.is_junction()
+try:f(b'x',{b'x':link/'child'},r)
+except ValueError:pass
+else:raise AssertionError('junction')
+out={'passed':True,'cases':['exact_accepted']+[x[0]for x in cases]+['in_workspace_junction_rejected'],'mapping_does_not_write_or_generalize':True,'no_OS_sandbox_claim':True,'symlink_live_fixture_not_performed':True,'earlier_attempt_WinError1314':True}
+(d/'result.json').write_text(json.dumps(out,indent=2),encoding='utf-8');print(json.dumps(out))

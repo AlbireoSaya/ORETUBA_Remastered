@@ -1,0 +1,8 @@
+[
+  {
+    "file": "r_live_record_fixture_execute.tjs",
+    "count": 1,
+    "old": "\treturn global.RLiveRecord(rd, wr, rh, rb, spec.ctx, spec.source, arr, cond, param);",
+    "new": "\tvar start=(typeof spec.start==\"Integer\")?spec.start:spec.source;\n\treturn global.RLiveRecord(rd, wr, rh, rb, spec.ctx, start, arr, cond, param);"
+  }
+]

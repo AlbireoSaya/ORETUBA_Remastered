@@ -1,0 +1,25 @@
+PNG      : E2_巡演图_positive_shot_84_flowchart.png
+size     : 1920x1080  mode=RGBA
+色值来源 : fixture_effective_mutated.json（4 条）
+判据     : |实测 − 数据色| 逐通道 ≤ 2（连线直接呈现自身色，不过任何叠加层）
+数据色   : #FFE040A0
+
+link            form     段号     数据色        实测色(3x3内最优)        判定
+fix.link.01     fixture  0/3(+3遮) #FFE040A0  (106, 106, 122, 255) FAIL
+   箭头 true  : 平直处线宽 0 px ｜ 底边处最宽 0 px → INCONCLUSIVE（末段平直处探针均未取到线宽：被遮挡或末段过短）
+fix.link.02     fixture  0/9(+9遮) #FFE040A0  (74, 134, 200, 255) FAIL
+   箭头 true  : 平直处线宽 0 px ｜ 底边处最宽 0 px → INCONCLUSIVE（末段平直处探针均未取到线宽：被遮挡或末段过短）
+fix.link.03     fixture  0/6(+6遮) #FFE040A0  (90, 160, 106, 255) FAIL
+   箭头 true  : 平直处线宽 0 px ｜ 底边处最宽 0 px → INCONCLUSIVE（末段平直处探针均未取到线宽：被遮挡或末段过短）
+fix.link.04     fixture  0/3(+3遮) #FFE040A0  (216, 168, 60, 255) FAIL
+   箭头 false : 平直处线宽 0 px ｜ 底边处最宽 0 px → INCONCLUSIVE（末段平直处探针均未取到线宽：被遮挡或末段过短）
+
+[FAIL] 8 项不符：
+   fix.link.01 线段判定失败：命中 0 / 采样 3（被遮 3）
+   fix.link.01 箭头判定失败：arrow_run=0 line_run=0
+   fix.link.02 线段判定失败：命中 0 / 采样 9（被遮 9）
+   fix.link.02 箭头判定失败：arrow_run=0 line_run=0
+   fix.link.03 线段判定失败：命中 0 / 采样 6（被遮 6）
+   fix.link.03 箭头判定失败：arrow_run=0 line_run=0
+   fix.link.04 线段判定失败：命中 0 / 采样 3（被遮 3）
+   fix.link.04 箭头判定失败：arrow_run=0 line_run=0

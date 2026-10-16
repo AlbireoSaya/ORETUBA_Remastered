@@ -1,0 +1,172 @@
+{
+  "passed": true,
+  "successful_checks": 6,
+  "rejected_checks": 28,
+  "results": [
+    {
+      "label": "actual CreateFileA and GetFileSize stale error cleared",
+      "passed": true
+    },
+    {
+      "label": "actual short ReadFile uses transferred count",
+      "passed": true
+    },
+    {
+      "label": "actual seek and reread",
+      "passed": true
+    },
+    {
+      "label": "payload str",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "payload bytearray",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "payload empty",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "payload nul",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "payload nonascii",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "payload overlong",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "parameter 0",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "bool parameter 0",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "parameter 1",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "bool parameter 1",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "parameter 2",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "bool parameter 2",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "parameter 3",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "bool parameter 3",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "parameter 4",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "bool parameter 4",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "parameter 5",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "bool parameter 5",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "non-whitelist regular file",
+      "rejected": true,
+      "class": "PermissionError"
+    },
+    {
+      "label": "high pointer 1",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "high pointer True",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "high pointer -1",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "high pointer '0'",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "non-live token True",
+      "rejected": true,
+      "class": "TypeError"
+    },
+    {
+      "label": "non-live token 4294967295",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "non-live token -1",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "actual CloseHandle",
+      "passed": true
+    },
+    {
+      "label": "closed token size",
+      "rejected": true,
+      "class": "ValueError"
+    },
+    {
+      "label": "last valid token admitted",
+      "passed": true
+    },
+    {
+      "label": "exhaustion before API",
+      "rejected": true,
+      "class": "OverflowError"
+    },
+    {
+      "label": "exhaustion retains existing handle ownership",
+      "passed": true
+    }
+  ],
+  "scope": "actual host64 CreateFileA/GetFileSize(NULL high)/ReadFile/SetFilePointer/CloseHandle; ASCII whitelisted existing two-byte fixture. No GetFileSize 4GiB boundary, forced OS errors, Win7, original OS startup, Unicode CreateFileA or OS sandbox claim."
+}

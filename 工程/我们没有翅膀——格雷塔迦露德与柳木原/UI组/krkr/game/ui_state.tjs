@@ -1,0 +1,231 @@
+// ============================================================
+// ui_state.tjs —— UI 状态持久化（M2 · UI 组）
+//
+// 为什么单独一个文件：持久化与「渲染」「布局」「屏幕导航」是不同职责。
+//   （M2 交付文件清单允许微调，但要求职责分离——本文件即为此而拆。）
+//
+// 关键技术点（引擎工作原理.md §3.3，POC 已实测）：
+//   * **写档必须用绝对存储名** `file://./<盘符>/…`；相对名会被拼到「当前目录」，
+//     而当前目录通常是工程根（松散模式是目录、归档模式是归档内部），写必失败；
+//   * 绝对形式必须是 `file://./e/...`（`./` + 单个小写盘符 + `/`），
+//     写成 `file://e:/...` 会被当成 UNC 而失败；
+//   * 取 datapath 用 Debug.logLocation（规范化后的可写绝对名，默认 <exe>\savedata\）；
+//   * 序列化用 Array.save(name,"w") 写、Array.load(name) 读（TJS2 内建，非 KAG 专有）。
+//
+// 落点：<datapath>\ui_state.txt  →  本工程由 run_loose.bat 用 -datapath= 指到
+//       UI组\_工作\M2_证据\ ，因此存档与日志都落在证据目录里，便于无人值守取证。
+// ============================================================
+
+var UIStateVersion  = 1;
+var UIStateName     = "ui_state.txt";
+var UIStatePaths    = [];    // 候选存储名（按优先级）
+var UIStateSavePath = "";    // 实际写入成功的位置
+var UIStateReport   = "";    // 每次存/读的结果说明
+var UIStateLoadedOK = false;
+var UIStateSeen     = %[];   // 跨启动累计：见过的屏 id
+var UIStateSeenList = [];
+var UIStateTourRuns = 0;     // 跨启动累计：巡演跑过几次（跨启动读回的直接证据）
+var UIStateDialogLine = 0;
+var UIStateLastScreen = "";
+// ★ M47：本次读档是否解析到过 `settings=` 行（诊断用；旧档没有该行属正常）
+var UIStateSettingsRead = false;
+
+// 把 "file://./e/zcode workspace/.../savedata/" 变成 "E:\zcode workspace\...\savedata\"
+function uiStateNativeFromStorage(dir)
+{
+	var pfx = "file://./";
+	if(dir.length <= pfx.length) return "";
+	if(dir.indexOf(pfx) != 0) return "";
+	var rest = dir.substring(pfx.length);
+	if(rest.length < 2) return "";
+	var drive = rest.substring(0, 1).toUpperCase();
+	var tail = rest.substring(1).split("/").join("\\");
+	return drive + ":" + tail;
+}
+
+function uiStateInit()
+{
+	UIStatePaths = [];
+	var dir = "";
+	try { dir = "" + Debug.logLocation; } catch(e) { dir = ""; }
+	if(dir != "")
+	{
+		var last = dir.charAt(dir.length - 1);
+		if(last != "/" && last != "\\" && last != "#") dir += "/";
+		UIStatePaths.push(dir + UIStateName);
+		var native = uiStateNativeFromStorage(dir);
+		if(native != "" && native != dir) UIStatePaths.push(native + UIStateName);
+	}
+	else
+	{
+		uiThemeWarn("Debug.logLocation 为空，状态文件只能试项目根相对名");
+	}
+	UIStatePaths.push(UIStateName);      // 兜底（归档模式下会失败，属预期）
+	Debug.message("[UI][STATE] 候选存储名 = " + UIStatePaths.join(" | "));
+}
+
+function uiStateSeenJoin()
+{
+	var a = [];
+	for(var i = 0; i < UIStateSeenList.count; i++) a.push(UIStateSeenList[i]);
+	return a.join(",");
+}
+
+function uiStateMarkSeen(id)
+{
+	var k = "" + id;
+	if(UIStateSeen[k] === true) return false;
+	UIStateSeen[k] = true;
+	UIStateSeenList.push(k);
+	return true;
+}
+
+function uiStateSave()
+{
+	var lines = [
+		"# ui_state v" + UIStateVersion + " : M2 krkr UI 状态（跨启动读回用）",
+		"# written by Array.save() (UTF-16LE+BOM); read back by Array.load()",
+		"version=" + UIStateVersion,
+		"tour_runs=" + UIStateTourRuns,
+		"last_screen=" + UIStateLastScreen,
+		"dialog_line=" + UIDlgLine,
+		// ★ M47（方案 §三.3 持久化）：设置仓整行落盘（`键:值,键:值,…`）。
+		//   ⚠️ 持久化是**三处齐改**（本行 + uiStateLoad 的解析分支 + 收尾的 applyAll），
+		//   漏掉任何一处都会「静默不保存 / 静默不生效」——这正是方案里点名的坑。
+		"settings=" + uiSettingSerialize(),
+		"seen=" + uiStateSeenJoin()
+	];
+
+	var ok = false, report = "", winner = "";
+	for(var i = 0; i < UIStatePaths.count; i++)
+	{
+		var p = UIStatePaths[i];
+		try
+		{
+			var a = new Array();
+			for(var k = 0; k < lines.count; k++) a.push(lines[k]);
+			a.save(p, "w");
+			ok = true; winner = p;
+			report += "[OK] " + p + "  ";
+			break;    // 第一个能写的即正式位置，避免两份状态互相矛盾
+		}
+		catch(e)
+		{
+			report += "[FAIL] " + p + " (" + e.message + ")  ";
+		}
+	}
+	UIStateSavePath = winner;
+	UIStateReport = report;
+	Debug.message("[UI][STATE] save -> " + (ok ? "OK" : "FAILED") + " : " + report);
+	return ok;
+}
+
+// ★ M8 修复：TJS2 **没有全局 parseInt**（实机抛「未找到 Member "parseInt"」）；
+//   且 String **没有 charCodeAt**（实机抛「未找到 Member "charCodeAt"」）。
+//   故数字反查用 "0123456789".indexOf(c)。
+function uiStateDigit(c)
+{
+	return "0123456789".indexOf(c);
+}
+
+function uiStateAtoi(s)
+{
+	var t = "" + s;
+	var i = 0, n = 0, seen = false;
+	while(i < t.length)
+	{
+		var d = uiStateDigit(t.charAt(i));
+		if(d < 0) break;
+		n = n * 10 + d;
+		seen = true;
+		i++;
+	}
+	return seen ? n : 0;
+}
+
+// 文件是否存在（避免"文件不存在"也走 load 而触发引擎级异常 dump）
+function uiStateExists(p)
+{
+	try { return Storages.isExistentStorage(p); }
+	catch(e) { return false; }
+}
+
+function uiStateLoad()
+{
+	var report = "";
+	for(var i = 0; i < UIStatePaths.count; i++)
+	{
+		var p = UIStatePaths[i];
+		var a = null;
+		// ★ M8 修复：`Array.load(p)`（静态写法）在 TJS2 抛「无效的 object context」
+		//   —— Array.load 是**实例方法**，必须挂在一个数组实例上调用；
+		//   原写法让"跨启动读回"从来没成功过（每次都是首次运行）。
+		//   又：文件不存在时直接跳过（不再触发引擎的异常 dump，日志才干净）。
+		if(!uiStateExists(p)) { report += "[NONE] " + p + "  "; continue; }
+		try { a = new Array(); a.load(p); }
+		catch(e) { report += "[FAIL] " + p + " (" + e.message + ")  "; continue; }
+		if(a === null || a === void || a.count === void) { report += "[EMPTY] " + p + "  "; continue; }
+
+		for(var j = 0; j < a.count; j++)
+		{
+			var line = "" + a[j];
+			if(line == "" || line.charAt(0) == "#") continue;
+			var eq = line.indexOf("=");
+			if(eq < 0) continue;
+			var key = line.substring(0, eq);
+			var val = line.substring(eq + 1);
+
+			if(key == "tour_runs")         UIStateTourRuns = uiStateAtoi(val);
+			else if(key == "dialog_line")  UIStateDialogLine = uiStateAtoi(val);
+			else if(key == "last_screen")  UIStateLastScreen = val;
+			else if(key == "settings")     // ★ M47：设置仓（解析阶段只存值，生效见下方 applyAll）
+			{
+				var nset = uiSettingDeserialize(val);
+				UIStateSettingsRead = (nset > 0);
+			}
+			else if(key == "seen")
+			{
+				var parts = (val == "") ? [] : val.split(",");
+				for(var m = 0; m < parts.count; m++)
+				{
+					if(parts[m] == "") continue;
+					UIStateSeen[parts[m]] = true;
+					UIStateSeenList.push(parts[m]);
+				}
+			}
+		}
+		UIStateLoadedOK = true;
+		// ★ M47：设置项解析时一律 noApply=true（只存值）⇒ **在这里统一生效一次**
+		//   （方案 §三.3 明写此口径）。引擎侧的「生效」= 把值对齐并同步进滑块运行值仓；
+		//   画面读取本就在每帧的 ctx 里（见 ui_settings.tjs §3），故无需重建任何层。
+		uiSettingApplyAll();
+		// ★ M47 追补：读档后**清空切页值记忆**（UIScrCfgVarMemo）—— 记忆是「上一次会话内的
+		//   临时选择」，而档里已有权威值；不清会出现「档里 display=window、记忆里 full」
+		//   而显示 full 的错位。清理语义详见 ui_screens.tjs 的 uiScreenConfigVarMemo 区块注释。
+		//   （跨文件前向调用：ui_state.tjs 装载在 ui_screens.tjs 之前，但本函数在**窗口构造期**
+		//     才被调用，那时全部脚本已装载完毕 —— 与 ui_dialog.tjs 调用 ui_screens 函数的
+		//     既有口径一致。）
+		uiScreenConfigMemoClear();
+		report += "[OK] " + p + "  ";
+		UIStateReport = report;
+		Debug.message("[UI][STATE] load -> OK : " + p
+			+ " | tour_runs=" + UIStateTourRuns
+			+ " | seen=" + UIStateSeenList.count
+			+ " | last_screen=" + UIStateLastScreen
+			+ " | dialog_line=" + UIStateDialogLine
+			+ " | settings_read=" + (UIStateSettingsRead ? 1 : 0)
+			+ " | settings=" + uiSettingSerialize());
+		return true;
+	}
+	UIStateReport = report;
+	Debug.message("[UI][STATE] load -> 没有可读的存档（首次运行属正常）: " + report);
+	return false;
+}
+
+function uiStateSummary()
+{
+	return "state=" + ((UIStateSavePath != "") ? UIStateSavePath : "(未写)")
+		+ " | tour_runs=" + UIStateTourRuns
+		+ " | seen=" + UIStateSeenList.count + "[" + uiStateSeenJoin() + "]"
+		+ " | settings=" + uiSettingSerialize();     // ★ M47
+}

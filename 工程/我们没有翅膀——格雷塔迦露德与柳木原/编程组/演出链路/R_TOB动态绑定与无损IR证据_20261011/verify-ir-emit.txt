@@ -1,0 +1,4 @@
+from pathlib import Path
+import sys,json
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-tob-dynamic-replay-01';sys.path[:0]=[str(root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'),str(b)];from lucifen_tob_dynamic_structure import emit
+out=b/'lossless-ir';print(json.dumps(emit(root,out)))

@@ -1,0 +1,94 @@
+// r_parameter_pause_guard.tjs — 极小受控检查：参数暂停与惰性绑定守卫（region 只读 0 回调）
+// 仅使用 RG 前缀夹具；不定义 RVM / RMemory / RParameter 任何生产函数。
+// 通过：返回 4；任一子项失败：抛出带 label 的 Exception。
+
+function RGParamZero(offset)
+{
+	return 0;
+}
+
+function RGParamRD(q)
+{
+	return RMemoryRead32(this.mem, q);
+}
+
+function RGParamWR(q, v)
+{
+	RMemoryWrite32(this.mem, q, v);
+}
+
+function RGParamRB(q)
+{
+	return RMemoryRead8(this.mem, q);
+}
+
+function RGParamWB(q, v)
+{
+	RMemoryWrite8(this.mem, q, v);
+}
+
+function RGParamNative(h, f)
+{
+	throw new Exception("UNEXPECTED_NATIVE");
+}
+
+function RGParameterPause()
+{
+	var region = %[
+		"base" => 0x1000,
+		"size" => 0x2000,
+		"read_byte" => RGParamZero,
+		"writable" => 1
+	];
+
+	var mem = RMemoryCreate([region]);
+
+	var rd = RGParamRD incontextof (%["mem" => mem]);
+	var wr = RGParamWR incontextof (%["mem" => mem]);
+	var rb = RGParamRB incontextof (%["mem" => mem]);
+	var wb = RGParamWB incontextof (%["mem" => mem]);
+
+	var ctx = 0x1000;
+	var sourceBase = 0x2000;
+	var flagAddr = sourceBase + 0;
+	var codeAddr = sourceBase + 4;
+
+	RMemoryWrite32(mem, ctx + 12, 0x1800);
+	RMemoryWrite32(mem, ctx + 20, 0);
+	RMemoryWrite8(mem, ctx + 24, 0);
+	RMemoryWrite32(mem, codeAddr, 0);
+	RMemoryWrite32(mem, 0x1c00, 0x87654321);
+
+	var expr = %[
+		"flag_offset" => 0,
+		"code_start" => 4,
+		"relocations" => []
+	];
+	var maps = [%[], %[], %["0" => 0x1c00]];
+
+	var r1 = RParameterEvaluate(rd, wr, rb, wb, ctx, sourceBase, expr, maps, 0, RGParamNative, 8);
+
+	if(r1.value != 0x87654321 || r1.vm.return_code != 1)
+	{
+		throw new Exception("RGPP_FAIL_1_VALUE_RETURNCODE");
+	}
+
+	if(r1.bound != true || RMemoryRead8(mem, flagAddr) != 1)
+	{
+		throw new Exception("RGPP_FAIL_2_BOUND_FLAG");
+	}
+
+	var r2 = RParameterEvaluate(rd, wr, rb, wb, ctx, sourceBase, expr, maps, 0, RGParamNative, 8);
+
+	if(r2.value != 0x87654321 || r2.vm.return_code != 1)
+	{
+		throw new Exception("RGPP_FAIL_3_VALUE_RETURNCODE_SECOND");
+	}
+
+	if(r2.bound != false || RMemoryRead32(mem, ctx + 12) != 0x1808)
+	{
+		throw new Exception("RGPP_FAIL_4_BOUND_FALSE_CTX12");
+	}
+
+	return 4;
+}

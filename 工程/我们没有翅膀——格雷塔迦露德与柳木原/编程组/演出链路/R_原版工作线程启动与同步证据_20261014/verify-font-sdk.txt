@@ -1,0 +1,25 @@
+import ctypes as C,pathlib,sys,json,struct,hashlib
+r=pathlib.Path(r'E:\ZCode Workspace\Galgame');w=r/'临时/ISSUE-20261011-02'/('font-sdk-'+__import__('uuid').uuid4().hex);w.mkdir(exist_ok=False);sys.path.insert(0,str(r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from lucifen_host_logfont_a import LOGFONTA
+from lucifen_host_font_create import CreateFontIndirectA
+from lucifen_host_gdi_object_query import GetObjectA
+g=C.WinDLL('gdi32',use_last_error=True);g.DeleteObject.argtypes=[C.c_void_p];g.DeleteObject.restype=C.c_int
+lf=LOGFONTA();lf.lfHeight=-24;lf.lfWeight=400;lf.lfCharSet=1;lf.lfFaceName=b'Tahoma'
+raw=C.string_at(C.byref(lf),C.sizeof(lf));guard=b'\xa5'*32;before=C.create_string_buffer(guard+raw+guard,124)
+font=None;report={'bits':C.sizeof(C.c_void_p)*8,'scope':'owned SDK font only; no source glyph or pixel comparison'}
+try:
+    assert C.sizeof(LOGFONTA)==60 and LOGFONTA.lfFaceName.offset==28
+    assert struct.unpack_from('<i',raw)[0]==-24
+    C.set_last_error(0);font=CreateFontIndirectA(C.cast(C.byref(before,32),C.POINTER(LOGFONTA)));assert font
+    report['font_handle']=int(font);report['actual_CreateFontIndirectA_error']=C.get_last_error()
+    assert before.raw==guard+raw+guard
+    query=C.create_string_buffer(guard+bytes(60)+guard,124)
+    count=GetObjectA(font,60,C.byref(query,32));assert count==60
+    assert query.raw[:32]==query.raw[-32:]==guard
+    report['query_bytes']=count;report['actual_query_SHA256']=hashlib.sha256(query.raw[32:-32]).hexdigest()
+    report['layout_and_guards_pass']=True
+finally:
+    report['DeleteObject_pass']=bool(font and g.DeleteObject(font))
+report['pass']=report['layout_and_guards_pass'] and report['DeleteObject_pass']
+(w/('sdk-font-%s.json'%report['bits'])).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+print(json.dumps(report));assert report['pass']

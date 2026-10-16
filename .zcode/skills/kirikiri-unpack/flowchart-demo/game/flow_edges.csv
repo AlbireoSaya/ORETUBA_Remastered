@@ -1,0 +1,39 @@
+# flow_edges.csv -- 边表（同时是「分支选项」表）/ flowchart demo edge table (ISSUE-20260917-02)
+# 编码 encoding : UTF-8 ; 分隔符 separator : 半角逗号 ; 行首 '#' 与空行被忽略
+# 本表内容由本工作区自拟，不含任何既有作品的素材、文本或角色名。
+#
+# 列 columns:
+#   id      | from | to  | label  | reqFlag | setFlag  | key
+#   id      边唯一 id
+#   from    源节点 id
+#   to      目标节点 id
+#   label   分支选项的文字（剧情视图里显示，流程图里显示为 key 徽标）
+#   reqFlag 只有该标记已置位时这条边才成立（空 = 恒成立）
+#   setFlag 走过这条边时置位的标记（空 = 不置位）
+#   key     剧情视图里选择这条边所用的数字键（1..9）
+#
+# 解锁规则（flow_lib.tjs 实现）：
+#   目标节点已解锁  <=>  该节点没有入边，或者存在一条入边 e 满足
+#                       visited[e.from] 且 (e.reqFlag 为空或已置位)
+# 点击节点跳转时会「走掉」一条已成立的入边（记为已走 + 置位它的 setFlag），
+# 所以只靠鼠标点击也能把整张图的 flag 链走通。
+#
+# 表头：flow_lib.tjs 会显式跳过「id 列恰为字面量 id / from 列恰为 from」的行。
+id,from,to,label,reqFlag,setFlag,key
+E01,N01,N02,继续,,,1
+E02,N02,N03,去图书室,,,1
+E03,N02,N04,去旧校舍,,,2
+E04,N03,N05,,F_ROUTE_A,,1
+E05,N04,N06,,F_ROUTE_B,,1
+E06,N05,N07,摊牌,,F_LEAD,1
+E07,N05,N08,先暂停,,,2
+E08,N06,N07,摊牌,,F_LEAD,1
+E09,N06,N08,先暂停,,,2
+E10,N07,N09,说出真相,F_LEAD,F_TRUTH,1
+E11,N07,N10,保持沉默,F_LEAD,F_SILENCE,2
+E12,N08,N13,接受日常,,,1
+E13,N09,N11,,F_TRUTH,,1
+E14,N10,N12,,F_SILENCE,,1
+E15,N11,N14,,F_END_ANY,,1
+E16,N12,N14,,F_END_ANY,,1
+E17,N13,N14,,F_END_ANY,,1

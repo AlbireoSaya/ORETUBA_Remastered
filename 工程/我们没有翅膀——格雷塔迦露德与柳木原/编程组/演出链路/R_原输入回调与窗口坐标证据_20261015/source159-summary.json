@@ -1,0 +1,209 @@
+{
+  "actual_host_worker_tid": 14900,
+  "worker_errors_after_release": [],
+  "owned_thread_handle_closed": true,
+  "actual_original_paint_calls": [
+    {
+      "api": "BeginPaint",
+      "original_return_address": 4249283,
+      "actual_HDC_nonnull": true,
+      "mapped_guest_HDC": 1764753408,
+      "native_bytes": 64,
+      "guest_bytes": 64,
+      "actual_rcPaint": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_fErase": 0,
+      "guards_preserved": true,
+      "EndPaint_pair_required": true
+    },
+    {
+      "api": "EndPaint",
+      "original_return_address": 4249700,
+      "actual_BOOL": 1,
+      "same_actual_acquiring_thread": true,
+      "source_EndPaint_not_ReleaseDC": true
+    }
+  ],
+  "explicit_controlled_START_mouse_inputs": [
+    {
+      "logical_parent_round": 10,
+      "owner_generation": 11,
+      "explicit_owned_window_only": true,
+      "message": 512,
+      "wparam": 0,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    },
+    {
+      "logical_parent_round": 11,
+      "owner_generation": 12,
+      "explicit_owned_window_only": true,
+      "message": 513,
+      "wparam": 1,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    },
+    {
+      "logical_parent_round": 12,
+      "owner_generation": 13,
+      "explicit_owned_window_only": true,
+      "message": 514,
+      "wparam": 0,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    }
+  ],
+  "actual_rect_calls_and_finite_cap": {
+    "count": 1273,
+    "cap": 8192,
+    "root_verification_budget_not_game_limit": true
+  },
+  "cooperative_parent_CS_waits": [
+    {
+      "key": 33569872,
+      "holder_before": 14900,
+      "requester": 15576,
+      "generation_before": 9,
+      "generation_after": 10,
+      "wait_worker_slices": 1,
+      "parent_CPU_and_FS0_restored": true,
+      "actual_parent_enter_after_actual_worker_leave": true,
+      "worker_still_parked_at_parent_enter": true,
+      "not_complete_original_Windows_scheduler": true
+    }
+  ],
+  "reserved_worker_budget_not_actual_instruction_count": {
+    "used_slices": 14,
+    "reserved_instructions": 56000000,
+    "max_slices": 128,
+    "max_instructions": 512000000
+  },
+  "source_completed_presentation_captures_after_parent": [
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 860,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "275668b84126fca1f8862a5271f69f64752859362ec642f403519c7a27957aeb",
+      "actual_RGB_sha256": "8bf798ec49eaf227fe92bf018f5dc81721d16847cbdf3ffa77d840542e2b6e50",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 1107455,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 917,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "4abb77b5b1d7765ae310e1850c90af6aff5d89f21c2d7071b01c8f4783ec25fc",
+      "actual_RGB_sha256": "258d41a3e254a23c449df0b07fda31ca2aec9b8f5c8bb737ed167669cd74211a",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 974,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "635bd9e2e4554fcfc8a98bf1f4be03d675e37f1f9477da32bb463c02392d8805",
+      "actual_RGB_sha256": "93856be9ead863131fcd43df83a287cd4df7ba716b074f6b535cd4df55359034",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1031,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "620325ccda5f2950d2f0d64180b5c5d36095c5004d2d8584fc10205a104cd189",
+      "actual_RGB_sha256": "d211a66f23eda29f8d637f85af5032a39be775add0318d29751081ef01e97d86",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1088,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "5c1139de6a5e964812833870f034677111eba2724ffaca260233406bd903a815",
+      "actual_RGB_sha256": "f2ad93640fbea3ca8c4561beed4805d8f2408ac1bf66329b1c9cc7ecef15970c",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1145,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "3f1b0971069d3d90fd4a1e389940fdcd8e90aefa02147dcbe15f20c065fb7468",
+      "actual_RGB_sha256": "e302fd0cde9bc39c8800cef67b239dc7ad5da9a89a58cb28c63c3fc2f97f6051",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1202,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "8cbbf2d38bcf6302f411345c5b0bf8a84428cb5d2315b451b55b26942937d969",
+      "actual_RGB_sha256": "35f9efb9bc94a5b4eb5676fe7a70c407b72961a956c362069f37814751d8d55c",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1259,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "5f45ec36515ae81cb144e7d96084745f99b86a17534c6f613105929a81157ac0",
+      "actual_RGB_sha256": "5674908f04033ea35595851f41ffec5dfb6308408f8a066104b374e5f217834c",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    }
+  ],
+  "worker_resume": {
+    "from_EIP": 302236416,
+    "next_EIP": 1207278,
+    "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+    "actual_worker_tid": 14900,
+    "same_original_OS_tid": true,
+    "instruction_budget_per_slice": 4000000,
+    "not_full_original_exit": true
+  },
+  "round_count": 13,
+  "full_trace_local_path": "\u4e34\u65f6/ISSUE-20261011-02/r-original-input-cursor-canonical-159/original-thread-prefix.json",
+  "full_trace_SHA256": "8f4480c8ace4d37a7f031d95db854fd7eca6889078725528308860ffb274fad5",
+  "not_original_complete_shutdown": true
+}

@@ -1,0 +1,74 @@
+"""Root local CPU witness: self-authored arithmetic programs and handler microstates."""
+from pathlib import Path
+import hashlib,itertools,json,struct,sys
+r=Path.cwd().resolve();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(r/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_MEM_READ,UC_HOOK_MEM_WRITE,UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EIP,UC_X86_REG_ESI,UC_X86_REG_EDI,UC_X86_REG_EBP,UC_X86_REG_EBX
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+exe=r/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE';pe=PE(exe);digest=hashlib.sha256(pe.data).hexdigest();assert digest=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+u=map_pe(pe);source=0x3000000;u.mem_map(source,4096);ctx=0x1002000;sb=0x1028000;dst=0x102f000;ops=[14,15,21,22,24,25,42,43,46];pack=lambda v:struct.pack('<I',v&0xffffffff)
+values=[0,1,2,0x7fffffff,0x80000000,0xffffffff,0xffff,0x10000,0xaaaa5555,0x5555aaaa,0xdeadbeef,0xffff0001]
+baseline=bytearray(0x100000);baseline[ctx-0x1000000+4:ctx-0x1000000+8]=pack(sb);baseline[ctx-0x1000000+12:ctx-0x1000000+16]=pack(sb);baseline[sb-0x1000000:sb-0x1000000+4096]=b'\x92'*4096
+baseline=bytes(baseline)
+state={};initial_heap=b'';initial_source=b''
+def watched(a):return 0x1000000<=a<0x1100000 or source<=a<source+4096
+def remember(a,n):
+ if watched(a):state['touched'].update(range(a&~3,(a+n+3)&~3,4))
+def rd(uc,access,a,n,value,user):
+ if not watched(a):return
+ remember(a,n)
+ if state['micro']:state['events'].append(['r',a,n,int.from_bytes(uc.mem_read(a,n),'little')])
+def wr(uc,access,a,n,value,user):
+ if not watched(a):return
+ remember(a,n);value&=(1<<(8*n))-1;state['writes'].append([n,a,value])
+ if state['micro']:state['events'].append(['w',a,n,value])
+def code(uc,a,n,user):
+ if a==0x4a7a75 and state['micro']:
+  uc.emu_stop();return
+ if a==0x4a7a75 and not state['micro']:
+  pc=int.from_bytes(uc.mem_read(ctx+8,4),'little');state['trace'].append([pc,int.from_bytes(uc.mem_read(pc,4),'little')])
+handles=[u.hook_add(UC_HOOK_MEM_READ,rd),u.hook_add(UC_HOOK_MEM_WRITE,wr),u.hook_add(UC_HOOK_CODE,code)]
+def pairs(initial=False):
+ rows=[]
+ for a in sorted(state['touched']):
+  raw=(initial_heap[a-0x1000000:a-0x1000000+4]if a<source else initial_source[a-source:a-source+4])if initial else u.mem_read(a,4)
+  assert len(raw)==4;rows.append([a,int.from_bytes(raw,'little')])
+ return rows
+def expected(op,a,b):
+ a&=0xffffffff;b&=0xffffffff;sa=a if a<0x80000000 else a-0x100000000;sbv=b if b<0x80000000 else b-0x100000000
+ return {14:lambda:a-b,15:lambda:a*b,21:lambda:a^b,22:lambda:~a,24:lambda:sa>>(b&31),25:lambda:a<<(b&31),42:lambda:int(sa<=sbv),43:lambda:int(sa>sbv),46:lambda:int(a!=b)}[op]()&0xffffffff
+full=[];micro=[]
+for op in ops:
+ inputs=[(a,0)for a in values]if op==22 else list(itertools.product(values,values))
+ if op in(24,25):inputs.extend(itertools.product(values,[32,33,63,64,65,255]))
+ aliases=[source+4,source+8,dst+1]if op==22 else[source+4,source+8,source+12,dst+1]
+ trials=[(a,b,dst,'edge')for a,b in inputs]+[(0xdeadbeef,0x80000001,d,'alias')for d in aliases]
+ for i,(a,b,d,kind)in enumerate(trials):
+  u.mem_write(0x1000000,baseline);u.mem_write(source,bytes(4096));words=[op,a,d,1]if op==22 else[op,a,b,d,1];u.mem_write(source,b''.join(pack(x)for x in words));initial_heap=bytes(u.mem_read(0x1000000,0x100000));initial_source=bytes(u.mem_read(source,4096));state=dict(micro=False,touched=set(),events=[],writes=[],trace=[])
+  result=invoke_thiscall_args(u,0x4a7a30,ctx,[source],count=1000,timeout=0);assert result==0 and len(state['trace'])==2
+  assert int.from_bytes(u.mem_read(d,4),'little')==expected(op,a,b),(op,a,b,d)
+  segment=dict(resume=0,return_code=result,steps=len(state['trace']),trace=state['trace'],writes=state['writes'],calls=[],final=pairs(),pc=int.from_bytes(u.mem_read(ctx+8,4),'little'),sp=int.from_bytes(u.mem_read(ctx+12,4),'little'))
+  full.append(dict(id=f'extra-{op}-{i}-{kind}',ctx=ctx,entry=source,ranges=[[0x1000000,0x1100000],[source,source+4096]],write_ranges=[[0x1000000,0x1100000],[source,source+4096]],initial=pairs(True),segments=[segment]))
+ for i,(a,b)in enumerate([(0,0),(0xffffffff,1),(0x80000000,32),(0x12345678,0xffffffff)]):
+  p=source+(i&1)
+  for j,d in enumerate([dst,dst+1,ctx+8,p,p+4,p+8]):
+   u.mem_write(0x1000000,baseline);u.mem_write(source,bytes(4096));u.mem_write(ctx+8,pack(p));words=[a,d]if op==22 else[a,b,d];u.mem_write(p,b''.join(pack(x)for x in words));initial_heap=bytes(u.mem_read(0x1000000,0x100000));initial_source=bytes(u.mem_read(source,4096));state=dict(micro=True,touched=set(),events=[],writes=[],trace=[])
+   handler=struct.unpack_from('<I',pe.data,pe.rva_to_off(0x4a7f54+op*4-pe.image_base))[0];u.reg_write(UC_X86_REG_ESI,ctx);u.reg_write(UC_X86_REG_EDI,p);u.reg_write(UC_X86_REG_EBP,4);u.reg_write(UC_X86_REG_EBX,12)
+   try:u.emu_start(handler,0x4a7a75,count=100,timeout=0)
+   except Exception as exc:raise RuntimeError((op,i,j,d,hex(u.reg_read(UC_X86_REG_EIP)),state['events']))from exc
+   assert u.reg_read(UC_X86_REG_EIP)==0x4a7a75
+   assert len(state['writes'])==2
+   micro.append(dict(id=f'micro-{op}-{i}-{j}',ctx=ctx,op=op,p=p,ranges=[[0x1000000,0x1100000],[source,source+4096]],write_ranges=[[0x1000000,0x1100000],[source,source+4096]],initial=pairs(True),events=state['events'],final=pairs()))
+for h in handles:u.hook_del(h)
+assert exe.read_bytes()==pe.data
+for kind,rows,call in [('full',full,'RVMFRunCase'),('micro',micro,'RExtraMicroCheck')]:
+ folder=out/kind;folder.mkdir();files=[]
+ for i,start in enumerate(range(0,len(rows),32)):
+  batch=rows[start:start+32];p=folder/f'cases-{i:03d}.tjs';p.write_text('\n'.join(call+'('+lit(spec)+');'for spec in batch)+'\n',encoding='utf-8');files.append(dict(source=p.relative_to(r).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest(),cases=len(batch),segments=len(batch)))
+ manifest=dict(passed=True,kind=kind,cases=len(rows),segments=len(rows),ops=ops,original_exe_sha256=digest,self_authored_inputs=True,CPU_writes_and_final_words=True,operand_reads_compared=kind=='micro',files=files)
+ (folder/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
+print(json.dumps(dict(passed=True,full_cases=len(full),micro_cases=len(micro),ops=ops)))

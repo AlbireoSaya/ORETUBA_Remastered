@@ -1,0 +1,60 @@
+E3 ㉔ 断言的变异自证（ISSUE-20260928-02 · HTML 侧）
+脚本：e3_run_mutations.py
+自检页：E:/ZCode Workspace/Galgame/临时/wt-qbicons/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/ISSUE-20260928-02_HTML/证据/_shadow\_selftest_states.html
+★ 本次实际使用的自检页指纹（防陈旧副本）：自检页 E:/ZCode Workspace/Galgame/临时/wt-qbicons/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/ISSUE-20260928-02_HTML/证据/_shadow\_selftest_states.html 原始 6758011f773e470df75984c6924ae4a0（含 CRLF）｜ LF df9611efe9452aab26bcc05069471511 ｜ CRLF 6758011f773e470df75984c6924ae4a0
+模式数（从 MODES 推导，**不写死**）：非基线 9 个；另有基线 1 个
+断言编号全集（从 KEYS 推导）：㉔a、㉔b、㉔c、㉔d、㉔e、㉔f、㉔g
+判定口径：基线须 ALL PASS 且 ㉔a、㉔b、㉔c、㉔d、㉔e、㉔f、㉔g 全 OK；每个非基线的目标断言须 FAIL、其余断言须全 OK（定向、不连累）
+
+─ 模式 (baseline) ｜ （基线：不打废任何东西）
+   目标断言：（基线：不打废任何东西）
+   实际 FAIL 的断言集合：（空）
+   其余断言是否仍 OK：是（㉔a、㉔b、㉔c、㉔d、㉔e、㉔f、㉔g 全 OK）
+   汇总判定：ALL PASS ｜ 该模式是否符合期望：符合 ✓
+─ 模式 stale      ｜ 切层只改 flag、不重画 canvas
+   目标断言：㉔a
+   实际 FAIL 的断言集合：㉔a
+   其余断言是否仍 OK：否（仍非 OK：㉔a）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 noaction   ｜ 抹掉首个入口热区的 action（点击不再派发）
+   目标断言：㉔b
+   实际 FAIL 的断言集合：㉔b
+   其余断言是否仍 OK：否（仍非 OK：㉔b）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 noaction6  ｜ 抹掉**最后一层**入口热区的 action（前几层仍正常）
+   目标断言：㉔b
+   实际 FAIL 的断言集合：㉔b
+   其余断言是否仍 OK：否（仍非 OK：㉔b）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 noback     ｜ 最后一层「返回主干」热区打成永不显示
+   目标断言：㉔f
+   实际 FAIL 的断言集合：㉔f
+   其余断言是否仍 OK：否（仍非 OK：㉔f）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 badgeom    ｜ FLOW_RING.r 16 → 4
+   目标断言：㉔c
+   实际 FAIL 的断言集合：㉔c
+   其余断言是否仍 OK：否（仍非 OK：㉔c）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 noexist    ｜ 元素 asset 改指不存在的文件
+   目标断言：㉔d
+   实际 FAIL 的断言集合：㉔d
+   其余断言是否仍 OK：否（仍非 OK：㉔d）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 foldhover  ｜ 删掉 state_assets.hover（回落常态）
+   目标断言：㉔d
+   实际 FAIL 的断言集合：㉔d
+   其余断言是否仍 OK：否（仍非 OK：㉔d）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 stalehover ｜ 悬停后把态图内联样式还原成初态（模拟修前的无组路径）
+   目标断言：㉔e
+   实际 FAIL 的断言集合：㉔e
+   其余断言是否仍 OK：否（仍非 OK：㉔e）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+─ 模式 nofromhit  ｜ 导出的 flowLayerValues 摘掉夹具层（＝模拟来源③ 未实现）
+   目标断言：㉔g
+   实际 FAIL 的断言集合：㉔g
+   其余断言是否仍 OK：否（仍非 OK：㉔g）
+   汇总判定：FAILED 1 项 ｜ 该模式是否符合期望：符合 ✓
+
+总体判定：全部通过：9 个非基线模式各自精确打废其目标断言、其余断言不受连累；基线 ALL PASS

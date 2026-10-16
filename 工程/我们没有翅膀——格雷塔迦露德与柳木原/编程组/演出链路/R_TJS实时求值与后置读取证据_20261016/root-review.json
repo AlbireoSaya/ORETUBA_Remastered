@@ -1,0 +1,120 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "date": "2026-10-16",
+  "root_approved": true,
+  "sdk": 2,
+  "fixtures": 9,
+  "original_cases": 18,
+  "original_records": 33,
+  "per_architecture": {
+    "cases": 18,
+    "records": 33,
+    "caller_events": 735,
+    "vm_writes": 248,
+    "vm_steps": 62
+  },
+  "positive_receipts": [
+    {
+      "bits": 32,
+      "path": "receipts/r-live-eval-32-20261016-01.json",
+      "sha256": "cd50896737ab6c640297c8836cdee55846771dcf6fdf2f6b4c1d9664a6f9350d"
+    },
+    {
+      "bits": 32,
+      "path": "receipts/r-installed-live-eval-32-20261016-01.json",
+      "sha256": "354b21549d64539cc5c25859efa80943307f3d646b4a6784aee589de20a3f5b5"
+    },
+    {
+      "bits": 64,
+      "path": "receipts/r-live-eval-64-20261016-01.json",
+      "sha256": "1b7a64eaf4a1369f19b5e469e5773a8dd03ae02162196082d8d55d84d2ba7261"
+    },
+    {
+      "bits": 64,
+      "path": "receipts/r-installed-live-eval-64-20261016-01.json",
+      "sha256": "8cc9b1fc688b5f267c8ad5712d7fd045fa405648020bb32b36a0be2af44dd083"
+    }
+  ],
+  "fault_detections": [
+    {
+      "kind": "early-result",
+      "bits": 32,
+      "detected": true
+    },
+    {
+      "kind": "stale-result-pointer",
+      "bits": 32,
+      "detected": true
+    },
+    {
+      "kind": "ignore-return-one",
+      "bits": 32,
+      "detected": true
+    },
+    {
+      "kind": "wrong-size-width",
+      "bits": 32,
+      "detected": true
+    },
+    {
+      "kind": "early-result",
+      "bits": 64,
+      "detected": true
+    },
+    {
+      "kind": "stale-result-pointer",
+      "bits": 64,
+      "detected": true
+    },
+    {
+      "kind": "ignore-return-one",
+      "bits": 64,
+      "detected": true
+    },
+    {
+      "kind": "wrong-size-width",
+      "bits": 64,
+      "detected": true
+    }
+  ],
+  "opcode_histogram": {
+    "0": 4,
+    "1": 29,
+    "26": 2,
+    "31": 23,
+    "32": 2,
+    "40": 2
+  },
+  "binding_calls": 19,
+  "actual_vm_core_lf_sha256": {
+    "r_u32.tjs": "e3f806c1ff9d53a4fe05d86a19856158a88e8b9a2d1ea27795c5d2db8f6c026d",
+    "r_vm_entry.tjs": "9a5dbc9292ef1cc4dc04393e87148d5f2d1b677957df7e21fa0b58993d8c7254",
+    "r_vm_memory.tjs": "99cde9bf4b0697270625e26b86a18a213b520cd2f437acf95d9d2ae3ee464f57",
+    "r_vm_control.tjs": "416093b0b160f89fb1c0095cd2041deb4067e54f0d1d65e33078add3bc95b3e6",
+    "r_vm_value.tjs": "8a3abb53baabf68f00e897a8a8208c20f153a44e25187c793b32cf6388ba1509",
+    "r_vm_step.tjs": "9cadcd40bfb190a37cfa6d6fc70e8d58c438d93aa406f131345ffab0dbdc1f85",
+    "r_vm_run.tjs": "306f24e68b6a2906877c966b0d64d070bf4086ff0840fd132ca0b4d319d9b9cc"
+  },
+  "transparent_vm_adapter": "RVEVM delegates actual unchanged global.RVMRun with caller resume argument, only separates logging and saves trace/return",
+  "segment_preparation": "reset only original native cursor temporary initial word; guest VM ctx/SP, source/global/heap persist across segments",
+  "api": {
+    "requests": 20,
+    "stop": 19,
+    "length_no_candidate": 1
+  },
+  "rejected_drafts": "VM fixture class lacked required globals, fixed before execution; document formula/return-argument/scope/count wording fixed by editor; 10-item patch truncated and split",
+  "limits": [
+    "VM reads/internal native stack not compared",
+    "only six opcode types this phase; existing kernel17/47 unchanged",
+    "no arbitrary native argument-frame aliases",
+    "existing bank fixture, no real growth/native lifecycle",
+    "TOB u16 parameter format, no inline live header/live condition composition",
+    "ctx434 publication/129dispatch/full game staging/audio/four-version100% incomplete"
+  ],
+  "all_eleven_sources_and_docs_admin_reviewed": true,
+  "index_rows": [
+    23,
+    32
+  ],
+  "original_pe_unchanged": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33"
+}

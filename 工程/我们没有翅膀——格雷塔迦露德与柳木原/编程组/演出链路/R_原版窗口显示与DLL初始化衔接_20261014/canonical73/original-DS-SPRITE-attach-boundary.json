@@ -1,0 +1,78 @@
+{
+  "source_SHA256": "8d02ffd1ab33b7f68c8dbe30607ead11d45c1b35774bd3a4d4293840ae0fc433",
+  "original_WinMain_actual_LoadLibrary_request": true,
+  "original_request_basename": "DS_SPRITE.DLL",
+  "original_LoadLibrary_return_address": 4700713,
+  "guest_base": 1610612736,
+  "source_entry": 1610629163,
+  "source_DLL_PROCESS_ATTACH_args": [
+    1610612736,
+    1,
+    0
+  ],
+  "DLL_entry_returned": true,
+  "DLL_entry_return_value": 1,
+  "next_EIP": 55705584,
+  "next_import": null,
+  "failure": null,
+  "stack8": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "CRT_API_counts": {
+    "GetVersion": 1,
+    "HeapCreate": 1,
+    "GetVersionExA": 1,
+    "InitializeCriticalSection": 5,
+    "TlsAlloc": 1,
+    "HeapAlloc": 87,
+    "TlsSetValue": 1,
+    "GetCurrentThreadId": 1,
+    "GetCommandLineA": 1,
+    "GetEnvironmentStringsW": 1,
+    "WideCharToMultiByte": 4,
+    "FreeEnvironmentStringsW": 1,
+    "GetStartupInfoA": 1,
+    "GetStdHandle": 3,
+    "GetFileType": 3,
+    "SetHandleCount": 1,
+    "EnterCriticalSection": 2,
+    "LeaveCriticalSection": 2,
+    "GetACP": 1,
+    "GetCPInfo": 1,
+    "GetStringTypeW": 2,
+    "MultiByteToWideChar": 6,
+    "LCMapStringW": 5,
+    "GetModuleFileNameA": 1,
+    "HeapFree": 1,
+    "GetModuleHandleA": 1,
+    "GetProcAddress": 1,
+    "IsProcessorFeaturePresent": 1,
+    "SetUnhandledExceptionFilter": 1
+  },
+  "environment_and_commandline_content_not_persisted": true,
+  "no_original_source_DLL_OS_LoadLibrary": true,
+  "guest_loader_model_not_full_OS_loader": true,
+  "normal_VM_or_render_not_proven": true,
+  "thread_notification_policy": {
+    "1610612736": {
+      "static_tls_active": false,
+      "thread_notifications_disabled": true
+    }
+  },
+  "thread_policy_events": [
+    {
+      "original_return_address": 1610627042,
+      "registered_guest_module": 1610612736,
+      "result": 1,
+      "static_TLS_directory_absent": true,
+      "metadata_policy_not_OS_DisableThreadLibraryCalls": true
+    }
+  ]
+}

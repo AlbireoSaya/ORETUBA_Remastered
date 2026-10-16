@@ -1,0 +1,28 @@
+function RVMFCompareSegment(s, spec, seg, got)
+{
+    if (got.return_code !== seg.return_code || got.steps !== seg.steps)
+        throw new Exception("RVM_CASE " + spec.id);
+
+    var tr = [];
+    for (var i = 0; i < got.trace.count; i++)
+    {
+        var e = got.trace[i];
+        tr.add([e.pc, e.opcode]);
+    }
+
+    RVMFCompareRows(tr, seg.trace, "trace");
+    RVMFCompareRows(s.writes, seg.writes, "writes");
+    RVMFCompareRows(s.calls, seg.calls, "calls");
+
+    for (var k = 0; k < seg.final.count; k++)
+    {
+        var addr = seg.final[k][0];
+        if (s.words["" + addr] !== seg.final[k][1])
+            throw new Exception("RVM_FINAL " + addr);
+    }
+
+    if (s.rd(spec.ctx + 8) !== seg.pc)
+        throw new Exception("RVM_PC " + spec.id);
+    if (s.rd(spec.ctx + 12) !== seg.sp)
+        throw new Exception("RVM_SP " + spec.id);
+}

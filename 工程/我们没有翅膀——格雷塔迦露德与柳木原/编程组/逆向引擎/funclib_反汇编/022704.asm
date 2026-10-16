@@ -1,0 +1,21 @@
+; V=0x22704  core=0x22704..0x227AC（17 条）  过程=0x22704..0x227AC（1 块/17 条，段数 1）
+; native=[4, 4, 461]
+; 内嵌串 core=['']
+; 库内 CALL -> ['0x21b50']
+00022704  CALL          0x1860320[L_21B50]                       ★ V 入口
+0002270C  STORE_RETVAL  0x1869F06[str@""]                        
+00022714  LEA_STK       0x0[-] 0x1860F08[L_22738]                
+00022720  PUSH          0x8[-]                                   
+00022728  PUSH          0x0[-]                                   
+00022730  CALLNATIVE    0x5[native#4] 0x0[-] 0x1869F06[str@""]   
+00022740  SP_DROP       0x8[-]                                   
+00022748  LEA_STK       0x0[-] 0x1860F3C[L_2276C]                
+00022754  PUSH          0xA[-]                                   
+0002275C  PUSH          0x0[-]                                   
+00022764  CALLNATIVE    0x5[native#4] 0x0[-] 0x1869F06[str@""]   
+00022774  SP_DROP       0x8[-]                                   
+0002277C  LEA_STK       0x0[-] 0x1860F68[L_22798]                
+00022788  PUSH          0x0[-]                                   
+00022790  CALLNATIVE    0x1CE[native#461] 0x0[-] 0x1869F06[str@""] 
+000227A0  SP_DROP       0x4[-]                                   
+000227A8  RET                                                    

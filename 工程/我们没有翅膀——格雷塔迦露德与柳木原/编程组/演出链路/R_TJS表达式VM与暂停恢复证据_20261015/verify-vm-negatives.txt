@@ -1,0 +1,31 @@
+from pathlib import Path
+import sys,json,hashlib
+r=Path.cwd();w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015';sys.path.insert(0,str(r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from r_vm_tjs_literal import tjs_literal
+ctx,sb,bc=0x1002000,0x1028000,0x3000000
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+lines=['var RVMNegState=void;','var RVMNegNoAccessCount=0;',
+'function RVMNegNoAccess(q,v){RVMNegNoAccessCount++;throw new Exception("UNEXPECTED_ACCESS");}',
+'function RVMNegZero(q){return 0;}','function RVMNegOne(q){return 1;}',
+'function RVMNegExpect(label,callback,expected){var rejected=false;try{callback();}catch(e){var msg=(typeof e=="Object")?e.message:(""+e);if(msg.indexOf(expected)<0)throw new Exception("WRONG_NEGATIVE_ERROR "+label+" "+msg);rejected=true;Debug.message("RVM_NEGATIVE "+label+" "+msg);}if(!rejected)throw new Exception("NEGATIVE_WAS_ACCEPTED "+label);RVMFCaseCount++;}',
+'function RVMNegRelease(){if(typeof RVMNegState=="Object"&&RVMNegState!=null){RVMNegState.rd=void;RVMNegState.rb=void;RVMNegState.wr=void;RVMNegState.wb=void;RVMNegState.native_cb=void;}RVMNegState=void;}']
+labels=[]
+def expect(label,body,error):
+    lines.append('RVMNegExpect('+tjs_literal(label)+',function(){'+body+'},'+tjs_literal(error)+');');labels.append(label)
+for budget in[0,-1,1.5]:expect('invalid-budget-'+str(budget),f'RVMRun(RVMNegNoAccess,RVMNegNoAccess,RVMNegNoAccess,{ctx},{bc},RVMNegNoAccess,{budget},false);','INVALID_VM_STEP_BUDGET')
+for resume in['2','1.5','"x"']:expect('invalid-resume-'+resume,f'RVMRun(RVMNegNoAccess,RVMNegNoAccess,RVMNegZero,{ctx},{bc},RVMNegNoAccess,10000,{resume});','resume')
+expect('unsupported-context',f'RVMRun(RVMNegOne,RVMNegNoAccess,RVMNegOne,{ctx},{bc},RVMNegNoAccess,10000,false);','UNSUPPORTED_VM_CONTEXT')
+lines.append('if(RVMNegNoAccessCount!=0)throw new Exception("INVALID_CALL_CHANGED_STATE");')
+def state(code,extra=None):
+    words={ctx+8:0,ctx+12:sb,ctx+20:0,ctx+24:0,sb:0};words.update({bc+i*4:v for i,v in enumerate(code)});words.update(extra or{})
+    spec={'initial':[[q,v]for q,v in sorted(words.items())],'ranges':[[0x1000000,0x1100000],[bc,bc+4096],[0x530000,0x536000]],'write_ranges':[[0x1000000,0x1100000],[bc,bc+4096],[0x5354bc,0x5355c4]]}
+    lines.append('RVMNegRelease();RVMNegState=RVMFState('+tjs_literal(spec)+');')
+state([2]);expect('unimplemented-opcode-2',f'RVMRun(RVMNegState.rd,RVMNegState.wr,RVMNegState.rb,{ctx},{bc},RVMNegState.native_cb,10000,false);','UNSUPPORTED_VM_OPCODE')
+lines.append(f'if(RVMNegState.rd({ctx+8})!={bc+4}||RVMNegState.rd({ctx+12})!={sb+4}||RVMNegState.writes.count!=4)throw new Exception("BAD_UNSUPPORTED_OPCODE_BOUNDARY");')
+state([30,0,bc]);expect('bounded-loop',f'RVMRun(RVMNegState.rd,RVMNegState.wr,RVMNegState.rb,{ctx},{bc},RVMNegState.native_cb,2,false);','VM_STEP_BUDGET')
+lines.append(f'if(RVMNegState.rd({ctx+8})!={bc}||RVMNegState.rd({ctx+12})!={sb+4}||RVMNegState.writes.count!=7)throw new Exception("BAD_BUDGET_BOUNDARY");')
+state([1]);expect('unmapped-read','RVMNegState.rd(0);','UNMAPPED_RANGE');expect('unmapped-write','RVMNegState.wr(0,1);','UNMAPPED_RANGE')
+state([1],{0x531098:0x10ec000,0x10ec1f4:1,0x1029000:0});expect('valid-channel-not-faked','RVMNChannel(RVMNegState.rd,0x1029000);','VALID_CHANNEL_LIFECYCLE_UNSUPPORTED')
+expect('unknown-native-not-faked','RVMNDispatch(RVMNegState.rd,RVMNegState.wr,RVMNegState.rb,RVMNegState.wb,0xdeadbeef,0x1029000);','RVMNDispatch: unsupported h')
+state([1],{0x530c94:0x10e0000,0x530ca4:0x10e4000,0x10e0f90:0,0x10e4000:0xdeadbeef});expect('keyboard-unknown-vtable','RVMNKeyboard(RVMNegState.rd,RVMNegState.rb,0x1029000);','unknown keyboard vtable')
+lines.append('RVMNegRelease();');p=out/'negatives.tjs';p.write_text('\n'.join(lines)+'\n',encoding='utf8');manifest={'kind':'explicit-guard-negatives-not-original-game-cases','cases':len(labels),'segments':0,'labels':labels,'files':[{'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'cases':len(labels),'segments':0}],'scope':'tool/API guards and explicitly unsupported native fixture lifecycle; not comparison to original unsupported-op behavior'};(out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf8');print(json.dumps({k:v for k,v in manifest.items()if k!='files'}))

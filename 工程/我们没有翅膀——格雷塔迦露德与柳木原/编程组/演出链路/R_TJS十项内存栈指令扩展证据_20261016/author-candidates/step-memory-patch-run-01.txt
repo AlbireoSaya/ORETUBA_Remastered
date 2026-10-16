@@ -1,0 +1,14 @@
+[
+  {
+    "file": "r_vm_step.tjs",
+    "old": "\telse if(op==14||op==15||op==21||op==22||op==24||op==25||op==42||op==43||op==46)\n\t\tglobal.RVMExtraValueStep(rd,wr,ctx,op,p);\n\telse\n\t\tthrow new Exception(\"UNSUPPORTED_VM_OPCODE \" + op);",
+    "new": "\telse if(op==14||op==15||op==21||op==22||op==24||op==25||op==42||op==43||op==46)\n\t\tglobal.RVMExtraValueStep(rd,wr,ctx,op,p);\n\telse if(op==27||op==28||op==29||op==33||op==34||op==35||op==36||op==37||op==38||op==39)\n\t\tglobal.RVMExtraMemoryStep(rd,wr,ctx,op,p);\n\telse\n\t\tthrow new Exception(\"UNSUPPORTED_VM_OPCODE \" + op);",
+    "count": 1
+  },
+  {
+    "file": "r_vm_step.tjs",
+    "old": "// 约束：原 17 路径保持原分派；仅新增 9 项由 RVMExtraValueStep 分派；未支持 op 仍抛异常，绝不静默返回成功。\n//       既有 RValueOp 13/19/20/23/41/44/45 与既有控制/内存操作码继续走原分派，不交给 RVMExtraValueStep。",
+    "new": "// 约束：原 26 路径保持原分派；原 17 路径与 RVMExtraValueStep 9 项不变；新增 10 项内存/栈指令由 RVMExtraMemoryStep 分派；未知 11 项仍抛异常，绝不静默返回成功。\n//       既有 RValueOp 13/19/20/23/41/44/45 与既有控制/内存操作码继续走原分派，不交给 RVMExtraValueStep；新 10 项由 RVMExtraMemoryStep 分派。",
+    "count": 1
+  }
+]

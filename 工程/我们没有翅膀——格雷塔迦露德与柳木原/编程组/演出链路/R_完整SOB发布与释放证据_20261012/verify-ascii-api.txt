@@ -1,0 +1,33 @@
+from pathlib import Path
+import sys,json,ctypes,hashlib
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(g/'工具')]
+from lucifen_readonly_ascii_io import ReadOnlyAsciiFiles
+from lucifen_readonly_io_bridge import TOKEN_LIMIT
+d=r/'临时/ISSUE-20261011-02/r-sob-ascii-fixtures-formal-01';d.mkdir();f=r/'_game_ascii/ISSUE-20261011-02-sob-api-fixture-01';f.mkdir(exist_ok=True);a=f/'allowed.dat';b=f/'unlisted.dat';assert a.read_bytes()==b'\0\0' and b.read_bytes()==b'unlisted'
+args=(0x80000000,1,0,3,0x80,0);payload=str(a).encode('ascii');results=[]
+def reject(label,func,classes=(TypeError,ValueError,PermissionError,OverflowError)):
+ try:func()
+ except classes as e:results.append({'label':label,'rejected':True,'class':type(e).__name__})
+ else:raise AssertionError(label)
+with ReadOnlyAsciiFiles([a])as files:
+ token,err=files.open_ascii(payload,*args);assert err==0 and token!=0xffffffff
+ ctypes.set_last_error(4321);assert files.size(token)==(2,0);results.append({'label':'actual CreateFileA and GetFileSize stale error cleared','passed':True})
+ assert files.read(token,32)==(True,b'\0\0',0);results.append({'label':'actual short ReadFile uses transferred count','passed':True})
+ assert files.seek(token,0,0)==(0,0) and files.read(token,2)==(True,b'\0\0',0);results.append({'label':'actual seek and reread','passed':True})
+ for label,data in [('str',str(a)),('bytearray',bytearray(payload)),('empty',b''),('nul',payload+b'\0'),('nonascii',b'\xff'),('overlong',b'x'*260)]:
+  reject('payload '+label,lambda data=data:files.open_ascii(data,*args))
+ for i in range(6):
+  invalid=list(args);invalid[i]=args[i]+1;reject('parameter '+str(i),lambda invalid=invalid:files.open_ascii(payload,*invalid))
+  invalid=list(args);invalid[i]=True;reject('bool parameter '+str(i),lambda invalid=invalid:files.open_ascii(payload,*invalid))
+ reject('non-whitelist regular file',lambda:files.open_ascii(str(b).encode('ascii'),*args))
+ for v in [1,True,-1,'0']:reject('high pointer '+repr(v),lambda v=v:files.size(token,v))
+ for v in [True,0xffffffff,-1]:reject('non-live token '+repr(v),lambda v=v:files.size(v))
+ assert files.close(token)==(True,0);results.append({'label':'actual CloseHandle','passed':True})
+ reject('closed token size',lambda:files.size(token))
+ files._next_token=TOKEN_LIMIT;t,err=files.open_ascii(payload,*args);assert t==TOKEN_LIMIT and err==0 and files.size(t)==(2,0);results.append({'label':'last valid token admitted','passed':True})
+ reject('exhaustion before API',lambda:files.open_ascii(payload,*args))
+ assert list(files._handles)==[TOKEN_LIMIT];assert files.close(t)==(True,0) and not files._handles;results.append({'label':'exhaustion retains existing handle ownership','passed':True})
+summary={'passed':True,'successful_checks':sum(x.get('passed',False)for x in results),'rejected_checks':sum(x.get('rejected',False)for x in results),'results':results,'scope':'actual host64 CreateFileA/GetFileSize(NULL high)/ReadFile/SetFilePointer/CloseHandle; ASCII whitelisted existing two-byte fixture. No GetFileSize 4GiB boundary, forced OS errors, Win7, original OS startup, Unicode CreateFileA or OS sandbox claim.'}
+(d/'ascii-api-fixtures.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps({k:v for k,v in summary.items()if k!='results'}),flush=True)
+

@@ -1,0 +1,492 @@
+//======================================================================
+//  flow_draw.tjs -- 流程图界面 / 剧情界面 的全部绘制
+//  ISSUE-20260917-02 / KiriKiri Z 自建「流程图（フローチャート）」演示
+//
+//  由 startup.tjs 通过 Scripts.execStorage("flow_draw.tjs") 加载。
+//
+//  重要实测约束（来自本工作区 POC 的实机结论，务必遵守）：
+//    ① 绘于子层（new Layer(this, primaryLayer)）的内容不显示，引擎无报错；
+//       因此本文件的所有绘制都画在传进来的 lay（= primaryLayer）上。
+//    ② drawText 采用 POC 已验证的参数组合：
+//       drawText(x, y, text, color, 255, true, 0, 0x000000, 2, 1, 1)
+//       （签名见 visual/LayerIntf.h 的 DrawText(x,y,text,color,opa,aa,
+//         shadowlevel,shadowcolor,shadowwidth,shadowofsx,shadowofsy)）
+//    ③ 每帧先把整块画布用不透明色填掉（colorRect），避免上一帧残留；
+//       真实绘制动作只发生在按键/点击之后，不是每帧重画。
+//    ④ 节点几何全部用 flow_lib.tjs 已经转成数值的 x/y（CSV 里是字符串，
+//       TJS2 的 '+' 遇字符串会拼接，直接用会画错位置）。
+//
+//  本文件不含任何既有作品的素材或角色名。
+//======================================================================
+
+//----------------------------------------------------------------------
+// 0. 配色
+//----------------------------------------------------------------------
+var FCOL_BG_TOP      = 0x0a1120;
+var FCOL_BG_BOTTOM   = 0x1a2a48;
+var FCOL_PANEL       = 0x0e1728;
+var FCOL_PANEL_LINE  = 0x3c6f96;
+var FCOL_FRAME       = 0x7fd4ff;
+var FCOL_ACCENT      = 0xffd479;
+var FCOL_TEXT        = 0xeef4ff;
+var FCOL_TEXT_DIM    = 0x9fb0cc;
+var FCOL_TEXT_WARN   = 0xff9c8a;
+
+// 节点三态（要求 2：已到达 / 已解锁可跳转 / 未解锁灰）
+var FCOL_VIS_FILL    = 0x1b4030;   // 已到达：绿
+var FCOL_VIS_LINE    = 0x6ee7a8;
+var FCOL_VIS_TEXT    = 0xd9ffe9;
+var FCOL_UNL_FILL    = 0x123047;   // 已解锁（可跳转）：蓝
+var FCOL_UNL_LINE    = 0x5fd0ff;
+var FCOL_UNL_TEXT    = 0xd8f0ff;
+var FCOL_LCK_FILL    = 0x232833;   // 未解锁：灰
+var FCOL_LCK_LINE    = 0x4a5260;
+var FCOL_LCK_TEXT    = 0x848b99;
+var FCOL_CURSOR      = 0xffffff;
+
+// 连线
+var FCOL_E_TAKEN     = 0x6ee7a8;   // 已走过
+var FCOL_E_OPEN      = 0x3f8fb8;   // 已成立（可走）
+var FCOL_E_LOCK      = 0x39404d;   // 尚未成立
+
+//----------------------------------------------------------------------
+// 1. 画图小工具
+//----------------------------------------------------------------------
+function flowRect(lay, x, y, w, h, color, opa)
+{
+	if(w <= 0 || h <= 0) return;
+	if(opa === void || opa === null) opa = 255;
+	try { lay.colorRect(x, y, w, h, color, opa); } catch(e) { }
+}
+
+function flowFrame(lay, x, y, w, h, color, t, opa)
+{
+	if(t < 1) t = 1;
+	flowRect(lay, x, y, w, t, color, opa);
+	flowRect(lay, x, y + h - t, w, t, color, opa);
+	flowRect(lay, x, y, t, h, color, opa);
+	flowRect(lay, x + w - t, y, t, h, color, opa);
+}
+
+function flowSetFont(lay, height, bold)
+{
+	var f = lay.font;
+	f.height = height;
+	f.bold = bold;
+	return f;
+}
+
+// 文字（POC 已验证的参数组合）
+function flowText(lay, x, y, s, color, height, bold)
+{
+	flowSetFont(lay, height, bold);
+	try { lay.drawText(x, y, "" + s, color, 255, true, 0, 0x000000, 2, 1, 1); }
+	catch(e) { }
+}
+
+function flowTextWidth(lay, s, height, bold)
+{
+	try
+	{
+		flowSetFont(lay, height, bold);
+		return lay.font.getTextWidth("" + s);
+	}
+	catch(e)
+	{
+		return ("" + s).length * height;
+	}
+}
+
+// 以 cx 为水平中心画文字
+function flowTextCenter(lay, cx, y, s, color, height, bold)
+{
+	var w = flowTextWidth(lay, s, height, bold);
+	flowText(lay, cx - Math.floor(w / 2), y, s, color, height, bold);
+}
+
+// 向右的实心三角箭头
+function flowArrowRight(lay, x, y, color)
+{
+	for(var i = 0; i < 5; i++)
+		flowRect(lay, x - i, y - i, 1, 1 + i * 2, color, 255);
+}
+
+function flowRouteColor(route)
+{
+	if(route == "A")   return 0x8ff2b0;
+	if(route == "B")   return 0xf2a3c7;
+	if(route == "END") return 0xffd479;
+	if(route == "OMK") return 0xc9a8ff;
+	return 0x7fd4ff;   // main 及其它
+}
+
+function flowRouteName(route)
+{
+	if(route == "A")   return "路线A";
+	if(route == "B")   return "路线B";
+	if(route == "END") return "结局";
+	if(route == "OMK") return "后日谈";
+	return "主线";
+}
+
+// 颜色插值（与 POC 同款实现）
+function flowMixColor(c1, c2, t)
+{
+	var r1 = (c1 >> 16) & 0xff, g1 = (c1 >> 8) & 0xff, b1 = c1 & 0xff;
+	var r2 = (c2 >> 16) & 0xff, g2 = (c2 >> 8) & 0xff, b2 = c2 & 0xff;
+	var r = Math.floor(r1 + (r2 - r1) * t);
+	var g = Math.floor(g1 + (g2 - g1) * t);
+	var b = Math.floor(b1 + (b2 - b1) * t);
+	return (r << 16) | (g << 8) | b;
+}
+
+//----------------------------------------------------------------------
+// 2. 背景 / 抬头 / 底部面板
+//----------------------------------------------------------------------
+function flowDrawBackground(lay, w, h)
+{
+	// 竖向渐变（逐行色带）
+	for(var y = 0; y < h; y++)
+	{
+		var t = y / (h - 1);
+		flowRect(lay, 0, y, w, 1, flowMixColor(FCOL_BG_TOP, FCOL_BG_BOTTOM, t), 255);
+	}
+	// 外框
+	flowFrame(lay, 0, 0, w, h, FCOL_FRAME, 2, 255);
+}
+
+function flowDrawHeader(lay, w, h, view)
+{
+	flowRect(lay, 2, 2, w - 4, 52, 0x0b1526, 235);
+	flowRect(lay, 2, 54, w - 4, 2, FCOL_ACCENT, 210);
+
+	flowText(lay, 18, 8, "流程图（フローチャート）系统演示 · KiriKiri Z 自建",
+		FCOL_TEXT, 22, true);
+	flowText(lay, 18, 34,
+		"数据表驱动：flow_nodes.csv / flow_edges.csv　｜　进度持久化：flow_state.txt（引擎 datapath）",
+		FCOL_TEXT_DIM, 13, false);
+
+	var tag = (view == "flow") ? "当前视图：流程图" : "当前视图：剧情";
+	flowText(lay, w - 268, 8, tag, FCOL_ACCENT, 18, true);
+
+	var right = "F 键切换两个视图";
+	if(flowMuted()) right = "输入静默中，还剩 " + (FLOW_IGNORE_INPUT_SEC - flowElapsedSec()) + " 秒";
+	else            right = "自动退出倒计时 " + flowSecondsLeft() + " 秒";
+	flowText(lay, w - 268, 32, right, FCOL_TEXT_DIM, 13, false);
+}
+
+// 底部面板：图例 + 状态摘要 + 最近动作 + 操作说明 + 持久化诊断
+function flowDrawPanel(lay, w, h, view)
+{
+	var top = 474;
+	flowRect(lay, 2, top, w - 4, h - top - 2, FCOL_PANEL, 235);
+	flowRect(lay, 2, top, w - 4, 1, FCOL_PANEL_LINE, 255);
+
+	// 图例：三种节点状态 + 三种连线状态 + 当前节点
+	var lx = 18, ly = top + 10, sw = 16;
+	flowRect(lay, lx, ly, sw, sw, FCOL_VIS_FILL, 255);
+	flowFrame(lay, lx, ly, sw, sw, FCOL_VIS_LINE, 1, 255);
+	flowText(lay, lx + sw + 6, ly + 1, "已到达", FCOL_VIS_TEXT, 14, false);
+
+	lx = 100;
+	flowRect(lay, lx, ly, sw, sw, FCOL_UNL_FILL, 255);
+	flowFrame(lay, lx, ly, sw, sw, FCOL_UNL_LINE, 1, 255);
+	flowText(lay, lx + sw + 6, ly + 1, "已解锁（可跳转）", FCOL_UNL_TEXT, 14, false);
+
+	lx = 244;
+	flowRect(lay, lx, ly, sw, sw, FCOL_LCK_FILL, 255);
+	flowFrame(lay, lx, ly, sw, sw, FCOL_LCK_LINE, 1, 255);
+	flowText(lay, lx + sw + 6, ly + 1, "未解锁（灰）", FCOL_LCK_TEXT, 14, false);
+
+	lx = 380;
+	flowRect(lay, lx, ly, sw, sw, FCOL_E_TAKEN, 255);
+	flowText(lay, lx + sw + 6, ly + 1, "已走分支", FCOL_E_TAKEN, 14, false);
+
+	lx = 480;
+	flowRect(lay, lx, ly, sw, sw, FCOL_E_OPEN, 255);
+	flowText(lay, lx + sw + 6, ly + 1, "成立分支", FCOL_E_OPEN, 14, false);
+
+	lx = 580;
+	flowRect(lay, lx, ly, sw, sw, FCOL_E_LOCK, 255);
+	flowText(lay, lx + sw + 6, ly + 1, "未成立分支", FCOL_E_LOCK, 14, false);
+
+	lx = 700;
+	flowRect(lay, lx, ly, sw, sw, 0x000000, 255);
+	flowFrame(lay, lx, ly, sw, sw, FCOL_ACCENT, 2, 255);
+	flowText(lay, lx + sw + 6, ly + 1, "当前节点", FCOL_ACCENT, 14, false);
+
+	// 状态摘要
+	flowText(lay, 18, top + 36, flowStateSummary(), FCOL_TEXT, 16, true);
+
+	// 最近一次动作（跳转 / 到达 / 恢复 / 无效点击）
+	flowText(lay, 18, top + 60, flowLastMessage, FCOL_ACCENT, 17, false);
+
+	// 操作说明
+	if(view == "flow")
+	{
+		flowText(lay, 18, top + 88,
+			"鼠标：点击「已到达 / 已解锁」节点 = 跳转到该节点（点击未解锁节点无效，会给出原因）"
+			+ "　｜　键盘：方向键移动选中框、Enter 跳转、数字键 1..N 选中第 N 个节点",
+			FCOL_TEXT_DIM, 14, false);
+		flowText(lay, 18, top + 110,
+			"Esc 关闭流程图回到剧情　｜　F 切换视图　｜　C 清空进度并写状态文件　｜　"
+			+ "Q 退出程序　｜　窗口 " + FLOW_AUTO_EXIT_SEC + " 秒后自动退出（不留残留进程）",
+			FCOL_TEXT_DIM, 14, false);
+	}
+	else
+	{
+		flowText(lay, 18, top + 88,
+			"数字键 1..9 = 选择本节点的分支（会置位该分支的标记）　｜　F 打开流程图　｜　"
+			+ "C 清空进度　｜　Esc / Q 退出程序",
+			FCOL_TEXT_DIM, 14, false);
+		flowText(lay, 18, top + 110,
+			"存档模型：每次到达节点 / 走分支 / 跳转后立即写状态文件，重启自动读回（解锁进度跨存档）。",
+			FCOL_TEXT_DIM, 14, false);
+	}
+
+	// 持久化诊断（状态文件路径 / 读回结果 / 保存结果）
+	flowText(lay, 18, top + 134, flowDiagLine(), FCOL_FRAME, 13, false);
+
+	if(flowWarnings.count > 0)
+	{
+		flowText(lay, w - 420, top + 36,
+			"数据表/状态告警 " + flowWarnings.count + " 条（详见 krkrz.console.log）",
+			FCOL_TEXT_WARN, 14, false);
+	}
+}
+
+//----------------------------------------------------------------------
+// 3. 流程图视图
+//----------------------------------------------------------------------
+function flowPointInNode(node, px, py)
+{
+	var x = node["x"], y = node["y"];
+	if(x === void || y === void) return false;
+	return (px >= x && px < x + FLOW_BOX_W && py >= y && py < y + FLOW_BOX_H);
+}
+
+// 命中测试：返回被点到的节点 id（没点到返回空串）
+function flowHitTest(px, py)
+{
+	for(var i = 0; i < flowNodeTable.count; i++)
+	{
+		var n = flowNodeTable[i];
+		if(flowPointInNode(n, px, py)) return n["id"];
+	}
+	return "";
+}
+
+// 方向键移动选中框：找该方向上最合适的节点（主方向权重更高）
+// fromId = 当前选中节点，key = 37/38/39/40（左/上/右/下）；返回新的选中 id
+function flowMoveCursor(fromId, key)
+{
+	if(!flowExists(flowNodeIndex, fromId)) return fromId;
+	var cur = flowNodeIndex[fromId];
+	var cx = cur["x"] + Math.floor(FLOW_BOX_W / 2);
+	var cy = cur["y"] + Math.floor(FLOW_BOX_H / 2);
+
+	var best = null, bestScore = 0;
+	for(var i = 0; i < flowNodeTable.count; i++)
+	{
+		var n = flowNodeTable[i];
+		if(n["id"] == fromId) continue;
+		var nx = n["x"] + Math.floor(FLOW_BOX_W / 2);
+		var ny = n["y"] + Math.floor(FLOW_BOX_H / 2);
+		var dx = nx - cx, dy = ny - cy;
+		var adx = (dx < 0) ? -dx : dx;
+		var ady = (dy < 0) ? -dy : dy;
+		var primary = 0, secondary = 0;
+
+		if(key == 37)      { if(dx >= 0) continue; primary = adx; secondary = ady; }
+		else if(key == 39) { if(dx <= 0) continue; primary = adx; secondary = ady; }
+		else if(key == 38) { if(dy >= 0) continue; primary = ady; secondary = adx; }
+		else if(key == 40) { if(dy <= 0) continue; primary = ady; secondary = adx; }
+		else return fromId;
+
+		var score = primary * 4 + secondary;
+		if(best === null || score < bestScore) { best = n["id"]; bestScore = score; }
+	}
+	if(best === null) return fromId;
+	return best;
+}
+
+// 一条连线：折线 + 箭头 + 选择键徽标
+function flowDrawEdge(lay, e, color)
+{
+	var n1 = flowNodeIndex[e["from"]];
+	var n2 = flowNodeIndex[e["to"]];
+	if(n1 === void || n2 === void || n1 === null || n2 === null) return;
+	var x1 = n1["x"] + FLOW_BOX_W, y1 = n1["y"] + Math.floor(FLOW_BOX_H / 2);
+	var x2 = n2["x"],              y2 = n2["y"] + Math.floor(FLOW_BOX_H / 2);
+	var mx = Math.floor((x1 + x2) / 2);
+
+	// 横向 → 纵向 → 横向（逐点 colorRect 画折线）
+	flowRect(lay, x1, y1 - 1, mx - x1 + 1, 2, color, 255);
+	if(y1 != y2)
+	{
+		var ty = (y1 < y2) ? y1 : y2;
+		var bh = (y1 < y2) ? (y2 - y1) : (y1 - y2);
+		flowRect(lay, mx - 1, ty, 2, bh, color, 255);
+	}
+	flowRect(lay, mx, y2 - 1, x2 - mx, 2, color, 255);
+	flowArrowRight(lay, x2, y2, color);
+
+	// 选择键徽标（画在起点右侧；剧情视图里按这个数字键走这条分支）
+	var k = e["key"];
+	if(k != "")
+	{
+		flowRect(lay, x1 + 1, y1 - 17, 13, 14, 0x0b1526, 235);
+		flowFrame(lay, x1 + 1, y1 - 17, 13, 14, color, 1, 255);
+		flowTextCenter(lay, x1 + 8, y1 - 16, k, color, 11, true);
+	}
+}
+
+// 节点盒：三态着色 + 路线色条 + 当前节点强调 + 键盘选中框
+function flowDrawNodeBox(lay, node, isCursor)
+{
+	var id = node["id"];
+	var x = node["x"], y = node["y"];
+
+	var fill = FCOL_LCK_FILL, line = FCOL_LCK_LINE, text = FCOL_LCK_TEXT;
+	var stateTag = "未解锁";
+	if(flowVisited[id] === true)      { fill = FCOL_VIS_FILL; line = FCOL_VIS_LINE; text = FCOL_VIS_TEXT; stateTag = "已到达"; }
+	else if(flowIsUnlocked(id))       { fill = FCOL_UNL_FILL; line = FCOL_UNL_LINE; text = FCOL_UNL_TEXT; stateTag = "可跳转"; }
+
+	flowRect(lay, x, y, FLOW_BOX_W, FLOW_BOX_H, fill, 255);
+	flowFrame(lay, x, y, FLOW_BOX_W, FLOW_BOX_H, line, 1, 255);
+
+	// 路线色条
+	flowRect(lay, x + 1, y + 1, 4, FLOW_BOX_H - 2, flowRouteColor(node["route"]), 255);
+
+	// 当前节点：外圈强调框
+	if(id == flowCurrent)
+		flowFrame(lay, x - 2, y - 2, FLOW_BOX_W + 4, FLOW_BOX_H + 4, FCOL_ACCENT, 2, 255);
+
+	// 键盘选中框
+	if(isCursor)
+		flowFrame(lay, x - 5, y - 5, FLOW_BOX_W + 10, FLOW_BOX_H + 10, FCOL_CURSOR, 1, 255);
+
+	flowText(lay, x + 9, y + 4, id, text, 11, false);
+	flowTextCenter(lay, x + FLOW_BOX_W - 26, y + 4, stateTag, line, 11, false);
+	flowTextCenter(lay, x + Math.floor(FLOW_BOX_W / 2) + 2, y + 21, node["title"], text, 13, true);
+}
+
+function flowDrawChart(lay, w, h, cursorId)
+{
+	flowText(lay, 18, 62,
+		"点击「已到达 / 已解锁」的节点即可跳转（未解锁的点击无效）　｜　方向键移动选中框、Enter 跳转",
+		FCOL_TEXT_DIM, 13, false);
+
+	// 先画连线，再画节点盒（盒子盖住线头）
+	for(var i = 0; i < flowEdgeTable.count; i++)
+	{
+		var e = flowEdgeTable[i];
+		var color = FCOL_E_LOCK;
+		if(flowTaken[e["id"]] === true)  color = FCOL_E_TAKEN;
+		else if(flowEdgeSatisfied(e))    color = FCOL_E_OPEN;
+		flowDrawEdge(lay, e, color);
+	}
+	for(var i = 0; i < flowNodeTable.count; i++)
+	{
+		flowDrawNodeBox(lay, flowNodeTable[i], flowNodeTable[i]["id"] == cursorId);
+	}
+}
+
+//----------------------------------------------------------------------
+// 4. 剧情视图（模拟的游戏画面）
+//----------------------------------------------------------------------
+function flowDrawStory(lay, w, h)
+{
+	var node = null;
+	if(flowExists(flowNodeIndex, flowCurrent)) node = flowNodeIndex[flowCurrent];
+	if(node === null || node === void)
+	{
+		flowText(lay, 18, 80, "【异常】当前节点 " + flowCurrent + " 不在节点表内", FCOL_TEXT_WARN, 20, true);
+		return;
+	}
+
+	var id = node["id"];
+	var st = "已到达";
+	if(flowVisited[id] !== true) st = (flowIsUnlocked(id) ? "已解锁" : "未解锁");
+
+	flowText(lay, 18, 66, id + "　" + node["title"], FCOL_TEXT, 26, true);
+	flowText(lay, 18, 102,
+		"路线 " + flowRouteName(node["route"])
+		+ "　｜　位置 (" + node["x"] + "," + node["y"] + ")"
+		+ "　｜　跳转目标 " + node["storage"] + " *" + node["label"]
+		+ "　｜　状态 " + st,
+		FCOL_TEXT_DIM, 14, false);
+
+	// 正文
+	var lines = flowStoryLines(node["story"]);
+	var y = 134;
+	for(var i = 0; i < lines.count; i++)
+	{
+		flowText(lay, 18, y, lines[i], FCOL_TEXT, 20, false);
+		y += 28;
+	}
+
+	flowRect(lay, 18, 206, w - 36, 1, FCOL_PANEL_LINE, 200);
+
+	// 场景文本：来自 (storage, label) 指向的脚本文件
+	flowText(lay, 18, 216,
+		"下面这段文本来自跳转目标 " + node["storage"] + " 的标签 *" + node["label"] + "：",
+		FCOL_TEXT_DIM, 14, false);
+	var scene = flowSceneGet(node["label"]);
+	var slines = flowStoryLines(scene);
+	y = 242;
+	for(var i = 0; i < slines.count; i++)
+	{
+		flowText(lay, 18, y, slines[i], 0xd7e3ff, 18, false);
+		y += 26;
+	}
+
+	flowRect(lay, 18, 306, w - 36, 1, FCOL_PANEL_LINE, 200);
+
+	// 分支
+	var ch = flowChoicesOf(id);
+	flowText(lay, 18, 316, "本节点的分支（按对应的数字键选择，选择后会置位该分支的标记）：",
+		FCOL_ACCENT, 16, true);
+	y = 344;
+	if(ch.count == 0)
+	{
+		flowText(lay, 18, y, "（没有可选分支：本节点是终点，或分支的标记条件尚未满足）",
+			FCOL_TEXT_DIM, 16, false);
+	}
+	for(var i = 0; i < ch.count; i++)
+	{
+		var e = ch[i];
+		var t = "[" + e["key"] + "] " + e["label"] + "　→　" + e["to"];
+		if(flowExists(flowNodeIndex, e["to"])) t += " " + flowNodeIndex[e["to"]]["title"];
+		t += "　（边 " + e["id"];
+		if(e["reqFlag"] != "") t += "，需要标记 " + e["reqFlag"];
+		if(e["setFlag"] != "") t += "，置位标记 " + e["setFlag"];
+		t += "）";
+		flowText(lay, 18, y, t, FCOL_TEXT, 17, false);
+		y += 26;
+	}
+
+	flowText(lay, 18, 436, "按 F 打开流程图，可以看到全部节点、连线与解锁进度。",
+		FCOL_TEXT_DIM, 15, false);
+}
+
+//----------------------------------------------------------------------
+// 5. 总入口：一次画完整帧
+//----------------------------------------------------------------------
+function flowDrawAll(lay, w, h, view, cursorId)
+{
+	try
+	{
+		// 整个画布先填掉，避免上一帧残留
+		flowRect(lay, 0, 0, w, h, FCOL_BG_TOP, 255);
+		flowDrawBackground(lay, w, h);
+		flowDrawHeader(lay, w, h, view);
+		if(view == "flow") flowDrawChart(lay, w, h, cursorId);
+		else               flowDrawStory(lay, w, h);
+		flowDrawPanel(lay, w, h, view);
+	}
+	catch(e)
+	{
+		Debug.message("[FLOW] flowDrawAll EXCEPTION : " + e.message);
+	}
+}

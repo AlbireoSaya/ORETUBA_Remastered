@@ -1,0 +1,13 @@
+function RRPrepare(p, kind) {
+    if (this.eval_index >= this.expr_preps.count) {
+        throw new global.Exception("EXPR_PREP");
+    }
+    var prep = this.expr_preps[this.eval_index];
+    if (prep[0] !== kind || prep[1] !== p) {
+        throw new global.Exception("EXPR_PREP");
+    }
+    this.eval_index++;
+    global.RMemoryWrite32(this.memory, prep[2], prep[3]);
+    this.current_kind = kind;
+    return prep[2];
+}

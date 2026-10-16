@@ -1,0 +1,51 @@
+// r_vm_memory.tjs
+// R 原作忠实层 —— VM 内存类 opcode 子集（逐句移植自有 reference step_memory）
+// 覆盖：op 26 / 31 / 32 / 40（地址逻辑与读写顺序按 reference 保持）
+// 契约：已知 op 返回 true；其余一律抛异常，不返回 false、不做 noop
+// 边界：不调用控制层 / native 层，不定义其他模块；wr 负责 u32 存储
+
+function RVMStepMemory(rd, wr, ctx, op, p)
+{
+    var ptr;
+    var a;
+    var d;
+    var sp;
+
+    if (op == 26)
+    {
+        ptr = rd(p) & 0xffffffff;
+        wr(ptr, (rd(ptr) + 1) & 0xffffffff);
+        wr(ctx + 8, (rd(ctx + 8) + 4) & 0xffffffff);
+        return true;
+    }
+
+    if (op == 31)
+    {
+        a = rd(p) & 0xffffffff;
+        d = rd(p + 4) & 0xffffffff;
+        wr(d, a);
+        wr(ctx + 8, (rd(ctx + 8) + 8) & 0xffffffff);
+        return true;
+    }
+
+    if (op == 32)
+    {
+        a = rd(p) & 0xffffffff;
+        d = rd(p + 4) & 0xffffffff;
+        wr(d, rd(a) & 0xffffffff);
+        wr(ctx + 8, (rd(ctx + 8) + 8) & 0xffffffff);
+        return true;
+    }
+
+    if (op == 40)
+    {
+        sp = rd(ctx + 12) & 0xffffffff;
+        a = rd(p) & 0xffffffff;
+        d = rd(p + 4) & 0xffffffff;
+        wr(d, (sp - a) & 0xffffffff);
+        wr(ctx + 8, (rd(ctx + 8) + 8) & 0xffffffff);
+        return true;
+    }
+
+    throw new Exception("UNSUPPORTED_MEMORY_OPCODE " + op);
+}

@@ -1,0 +1,24 @@
+@'
+from pathlib import Path
+import sys,importlib.util,json
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path.insert(0,str(g/'工具'))
+spec=importlib.util.spec_from_file_location('rows',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_instruction_evidence.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+cases=[]
+def run(name,data,check,limit=100):
+ base=0x1000
+ def read(a,n):return data[a-base:a-base+n]
+ r=m.collect_function_rows(read,[(base,base+len(data))],base,limit=limit);check(r);cases.append({'name':name,'rows':len(r['instructions']),'diagnostics':r['diagnostics']})
+run('mem_sib_write_read',bytes.fromhex('8b448b10c3'),lambda r: (r['instructions'][0]['operands'][1]['base']=='ebx' and r['instructions'][0]['operands'][1]['index']=='ecx' and r['instructions'][0]['operands'][1]['scale']==4) or (_ for _ in ()).throw(AssertionError()))
+run('signed_imm_minus1',bytes.fromhex('6affc3'),lambda r: r['instructions'][0]['operands'][0]['imm']==-1 or (_ for _ in ()).throw(AssertionError()))
+run('conditional_two_arms',bytes.fromhex('740390eb01c390c3'),lambda r: {v['site'] for v in r['instructions']}=={0x1000,0x1002,0x1003,0x1005,0x1006,0x1007} or (_ for _ in ()).throw(AssertionError()))
+run('loop_two_arms',bytes.fromhex('e200c3'),lambda r: len(r['instructions'])==2 or (_ for _ in ()).throw(AssertionError()))
+run('indirect_call_continues',bytes.fromhex('ffd0c3'),lambda r: len(r['instructions'])==2 and r['unresolved'][0]['kind']=='indirect_call' or (_ for _ in ()).throw(AssertionError()))
+run('indirect_jump_stops',bytes.fromhex('ffe0c3'),lambda r: len(r['instructions'])==1 and r['unresolved'][0]['kind']=='indirect_jump' or (_ for _ in ()).throw(AssertionError()))
+run('decode_error',bytes.fromhex('0f'),lambda r: r['diagnostics'][0]['kind']=='decode_error' or (_ for _ in ()).throw(AssertionError()))
+run('limit_not_complete',bytes.fromhex('9090c3'),lambda r: r['diagnostics'][0]['kind']=='limit' and len(r['instructions'])==1 or (_ for _ in ()).throw(AssertionError()),limit=1)
+class Fake:
+ address=1;size=1;mnemonic='nop';op_str='';operands=[]
+ def regs_access(self):raise RuntimeError('synthetic regs failure')
+row=m.describe_instruction(Fake());assert row['regs_read'] is None and row['regs_write'] is None and row['regs_access_error']=='synthetic regs failure';cases.append({'name':'regs_failure_preserved'})
+p=b/'instruction-helper-check.json';assert not p.exists();p.write_text(json.dumps({'cases':cases,'scope':'synthetic formatter/collector tests; full control walker already separate20'},indent=2),encoding='utf-8');print('PASS',len(cases),'instruction evidence cases')
+'@ | python -X utf8 -B -

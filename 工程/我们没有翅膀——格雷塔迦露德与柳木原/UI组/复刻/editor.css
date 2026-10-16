@@ -1,0 +1,208 @@
+/* ==========================================================================
+   editor.css —— UI 布局编辑器（M35）样式
+   只作用于编辑器外壳与编辑叠加层，**不改动 replica.css 的任何规则**
+   ========================================================================== */
+
+html, body { height: 100%; }
+body.editor { overflow: hidden; }
+
+.ed-shell {
+  display: grid;
+  grid-template-columns: 268px 1fr 320px;
+  grid-template-rows: 46px 1fr 30px;
+  gap: 0;
+  height: 100vh;
+  background: #14181f;
+  color: #d8e2f0;
+  font: 12px/1.5 "微软雅黑", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------------ 顶栏 */
+.ed-top {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 10px;
+  background: #1b222c;
+  border-bottom: 1px solid #2b3644;
+  overflow-x: auto; white-space: nowrap;
+}
+.ed-top .ttl { font-weight: 700; color: #9fd0ff; margin-right: 6px; }
+.ed-top .sp { flex: 1; }
+
+.ed-btn {
+  background: #243040; color: #cfe0f5; border: 1px solid #33465c;
+  border-radius: 5px; padding: 4px 10px; cursor: pointer; font-size: 12px;
+}
+.ed-btn:hover { background: #2d3d51; border-color: #4a6a92; }
+.ed-btn.on { background: #2b5c8a; border-color: #63a8e8; color: #fff; }
+.ed-btn.danger:hover { background: #5c2b2b; border-color: #a86060; }
+.ed-btn:disabled { opacity: .4; cursor: default; }
+
+.ed-sel {
+  background: #243040; color: #cfe0f5; border: 1px solid #33465c;
+  border-radius: 5px; padding: 4px 6px; font-size: 12px;
+}
+.ed-num {
+  background: #131a23; color: #d8e2f0; border: 1px solid #33465c;
+  border-radius: 4px; padding: 3px 6px; width: 100%; font-size: 12px;
+  font-family: Consolas, monospace;
+}
+.ed-num:focus { outline: none; border-color: #63a8e8; }
+.ed-num.bad { border-color: #c05a5a; background: #2a1a1a; }
+
+/* ------------------------------------------------------------- 左右侧栏 */
+.ed-side {
+  background: #1b222c; overflow-y: auto; overflow-x: hidden;
+  border-right: 1px solid #2b3644;
+}
+.ed-side.right { border-right: none; border-left: 1px solid #2b3644; }
+.ed-sec { border-bottom: 1px solid #2b3644; }
+.ed-sec > h3 {
+  margin: 0; padding: 7px 10px; font-size: 12px; color: #8fb4dc;
+  background: #1f2833; cursor: pointer; user-select: none;
+  display: flex; justify-content: space-between;
+}
+.ed-sec > h3 .fold { color: #5b7a9e; }
+.ed-sec > .body { padding: 8px 10px; }
+.ed-sec.folded > .body { display: none; }
+
+/* ------------------------------------------------------------ 资料库 */
+.ed-lib-search { width: 100%; margin-bottom: 6px; }
+.ed-lib-cats { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.ed-lib-cats button {
+  font-size: 11px; padding: 2px 7px; border-radius: 10px; cursor: pointer;
+  background: #232e3b; color: #9fb6d0; border: 1px solid #33465c;
+}
+.ed-lib-cats button.on { background: #2b5c8a; color: #fff; border-color: #63a8e8; }
+.ed-lib-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+}
+.ed-lib-item {
+  background: #131a23; border: 1px solid #2b3644; border-radius: 4px;
+  padding: 3px; cursor: grab; text-align: center; overflow: hidden;
+}
+.ed-lib-item:hover { border-color: #63a8e8; background: #1c2735; }
+.ed-lib-item img {
+  width: 100%; height: 46px; object-fit: contain; display: block;
+  background: repeating-conic-gradient(#20262e 0 25%, #262e38 0 50%) 0 0/8px 8px;
+}
+.ed-lib-item .nm {
+  font-size: 10px; color: #8ea6c0; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ed-lib-item .sz { font-size: 10px; color: #6b8098; }
+.ed-lib-more { color: #6b8098; font-size: 11px; padding: 6px 2px; text-align: center; }
+
+/* ------------------------------------------------------------ 属性面板 */
+.ed-row { display: grid; grid-template-columns: 62px 1fr; gap: 6px; align-items: center; margin-bottom: 5px; }
+.ed-row > label { color: #8ea6c0; font-size: 11px; }
+.ed-row.wide { grid-template-columns: 62px 1fr 62px 1fr; }
+.ed-multi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.ed-hint { color: #6b8098; font-size: 11px; padding: 4px 0; }
+.ed-warn { color: #e0a050; font-size: 11px; padding: 3px 0; }
+.ed-err  { color: #e07a7a; font-size: 11px; padding: 3px 0; }
+.ed-chk { display: flex; align-items: center; gap: 5px; color: #9fb6d0; font-size: 11px; }
+.ed-el-list { max-height: 260px; overflow-y: auto; }
+.ed-el-item {
+  display: flex; gap: 6px; align-items: center; padding: 2px 5px;
+  font-size: 11px; border-radius: 3px; cursor: pointer; color: #a8bdd4;
+}
+.ed-el-item:hover { background: #232e3b; }
+.ed-el-item.on { background: #2b5c8a; color: #fff; }
+.ed-el-item .k { color: #6b8098; font-size: 10px; }
+.ed-el-item.on .k { color: #cfe6ff; }
+
+/* ------------------------------------------------------------ 画布区 */
+.ed-stage {
+  position: relative; overflow: hidden; background: #0d1117;
+  display: flex; align-items: center; justify-content: center;
+}
+.ed-stage #stage-wrap { position: absolute; inset: 0; }
+.ed-stage #stage { position: absolute; left: 0; top: 0; }
+.ed-stage #canvas { position: absolute; }
+
+/* 编辑叠加层：盖在 #canvas 之上，接管全部指针事件（从而屏蔽 replica 的交互） */
+.ed-overlay {
+  position: absolute; left: 0; top: 0; transform-origin: top left;
+  z-index: 9000;
+}
+.ed-overlay .box {
+  position: absolute; border: 1px solid #63a8e8; pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.55) inset;
+}
+.ed-overlay .box.sel { border-color: #ffd060; border-width: 2px; }
+.ed-overlay .tag {
+  position: absolute; font-size: 11px; line-height: 14px; padding: 0 4px;
+  background: #ffd060; color: #23292f; white-space: nowrap; pointer-events: none;
+  border-radius: 2px 2px 0 0;
+}
+.ed-overlay .hd {
+  position: absolute; width: 9px; height: 9px; margin: -5px 0 0 -5px;
+  background: #ffd060; border: 1px solid #6b5a20; border-radius: 2px;
+  pointer-events: auto; cursor: nwse-resize;
+}
+.ed-overlay .hd.n, .ed-overlay .hd.s { cursor: ns-resize; }
+.ed-overlay .hd.e, .ed-overlay .hd.w { cursor: ew-resize; }
+.ed-overlay .snap {
+  position: absolute; background: #ff4080; pointer-events: none; opacity: .9;
+}
+.ed-overlay .marquee {
+  position: absolute; border: 1px dashed #63a8e8;
+  background: rgba(99,168,232,.12); pointer-events: none;
+}
+
+/* ------------------------------------------------------------ 底栏 */
+.ed-foot {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 12px;
+  padding: 0 10px; background: #1b222c; border-top: 1px solid #2b3644;
+  color: #8ea6c0; font-size: 11px; overflow-x: auto; white-space: nowrap;
+}
+.ed-foot b { color: #cfe0f5; }
+.ed-foot .ok { color: #7ed08a; }
+.ed-foot .bad { color: #e07a7a; }
+
+/* ------------------------------------------------------------ 导出弹窗 */
+.ed-modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 10000;
+  display: none; align-items: center; justify-content: center;
+}
+.ed-modal.on { display: flex; }
+.ed-modal .panel {
+  background: #1b222c; border: 1px solid #33465c; border-radius: 8px;
+  width: min(900px, 92vw); max-height: 86vh; display: flex; flex-direction: column;
+}
+.ed-modal .panel > h3 {
+  margin: 0; padding: 10px 14px; font-size: 13px; color: #9fd0ff;
+  border-bottom: 1px solid #2b3644;
+}
+.ed-modal .panel > .mbody { padding: 10px 14px; overflow: auto; }
+.ed-modal textarea {
+  width: 100%; height: 46vh; background: #0d1117; color: #b8cde4;
+  border: 1px solid #33465c; border-radius: 5px; padding: 8px;
+  font: 11px/1.5 Consolas, monospace; resize: vertical;
+}
+.ed-modal .mfoot { padding: 10px 14px; border-top: 1px solid #2b3644; display: flex; gap: 8px; }
+
+/* ------------------------------------------------------- 全屏网格层
+   用一个 div 的 repeating-linear-gradient 画网格：**不产生任何 DOM 子节点**，
+   拖拽时零开销；随 #canvas 一起缩放（transform 与外层一致）。
+   主刻度每 5 格加粗一次；中心十字单独两层。 */
+.ed-gridlayer {
+  position: absolute; left: 0; top: 0; transform-origin: top left;
+  pointer-events: none; z-index: 8000; display: none;
+}
+.ed-gridlayer.on { display: block; }
+.ed-gridlayer .cross {
+  position: absolute; background: #ff4080; opacity: .55; pointer-events: none;
+}
+.ed-gridlayer .tick {
+  position: absolute; font: 10px/1 Consolas, monospace; color: #7fa8d0;
+  white-space: nowrap; pointer-events: none;
+}
+.ed-gridlayer .tick.h { top: 2px; transform: translateX(2px); }
+.ed-gridlayer .tick.v { left: 2px; transform: translateY(2px); }
+.ed-gridlayer .frame {
+  position: absolute; left: 0; top: 0; border: 1px solid rgba(255,64,128,.7);
+  pointer-events: none;
+}
+.ed-grid-step { width: auto; }

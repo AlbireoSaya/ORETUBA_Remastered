@@ -1,0 +1,495 @@
+# krkr run_loose 完整日志（真人鼠标会话，UTF-16LE → UTF-8 转存）
+# 源：临时/ui_run/runtime/savedata/krkr.console.log
+# 说明：本文件是运行产物转存，仅作本轮「真人鼠标」实证留档
+#
+# ⚠️ 本文件**不是单次运行**的日志：krkr 的 krkr.console.log 是**追加式**的，
+#    而本目录的 runtime 是从主工作树复制来的（里面已积累过其它会话的运行记录）。
+#    实测内含至少两个**无关**的启动块，例如 15:24:50 那一块：
+#      「触发脚本异常 / 不能找到文件 …/临时/wt-ui/工程/…/UI组/krkr/game」
+#      —— 那是**另一个 worktree（临时/wt-ui）**的一次失败启动，**与本轮改动无关**；
+#      它同时用了 `-autotour=1` 命令行参数（本项目已实测该机制在本引擎版本不生效）。
+#    本轮真人鼠标会话的启动块在 **17:22 之后**，判读请只取该段。
+
+﻿
+
+
+==============================================================================
+==============================================================================
+
+Logging to e:\zcode workspace\galgame\临时\wt-ui\工程\我们没有翅膀——格雷塔迦露德与柳木原\ui组\krkr\runtime\savedata\\krkr.console.log started on Saturday, September 19, 2026 15:24:50
+15:24:50 ! （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\runtime\tvpwin32.cf" 失败（已忽略）：未找到文件。
+15:24:50 ! （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\runtime\savedata\tvpwin32.cfu" 失败（已忽略）：未找到文件。
+15:24:50 ! （info）Data 路径：file://./e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/runtime/savedata/
+15:24:50 ! 吉里吉里Z 核心可执行文件 /1.4.0.8 （编译日期 Dec 25 2017 03:47:15）TJS2 2.4.28 Copyright (C) 1997-2013 W.Dee 及其贡献者 All rights reserved.
+15:24:50 ! 详细版本信息可以通过添加 -about 参数来启动查看。
+15:24:50 ! 程序已在 Windows NT 10.0.2141 （Win64）上启动。
+15:24:50 ! （info）总物理内存：17099161600
+15:24:50 ! （info）已选择项目的目录：file://./e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/game
+/e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/game>
+15:24:50 ! （info）CPU #0 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=000C0800
+15:24:50 ! （info）CPU #1 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=010C0800
+15:24:50 ! （info）CPU #2 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=020C0800
+15:24:50 ! （info）CPU #3 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=030C0800
+15:24:50 ! （info）CPU #4 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=040C0800
+15:24:50 ! （info）CPU #5 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=050C0800
+15:24:50 ! （info）CPU #6 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=060C0800
+15:24:50 ! （info）CPU #7 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=070C0800
+15:24:50 ! （info）CPU #8 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=080C0800
+15:24:50 ! （info）CPU #9 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=090C0800
+15:24:50 ! （info）CPU #10 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0A0C0800
+15:24:50 ! （info）CPU #11 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0B0C0800
+15:24:50 ! （info）最终检测出 CPU 所支持的特性：  FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes
+15:24:50 ! （info）已声明设置（越早声明的优先级更高）： -autotour=1
+15:24:50 ! （info）Data 路径不存在，尝试新建... 成功。
+
+
+------------------------------------------------------------------------------
+
+15:24:50 （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\runtime\tvpwin32.cf" 失败（已忽略）：未找到文件。
+15:24:50 （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\runtime\savedata\tvpwin32.cfu" 失败（已忽略）：未找到文件。
+15:24:50 （info）Data 路径：file://./e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/runtime/savedata/
+15:24:50 吉里吉里Z 核心可执行文件 /1.4.0.8 （编译日期 Dec 25 2017 03:47:15）TJS2 2.4.28 Copyright (C) 1997-2013 W.Dee 及其贡献者 All rights reserved.
+15:24:50 详细版本信息可以通过添加 -about 参数来启动查看。
+15:24:50 程序已在 Windows NT 10.0.2141 （Win64）上启动。
+15:24:50 （info）自动路径再构建中...
+15:24:50 (info) Total 0 file(s) found, 0 file(s) activated. (0ms)
+15:24:50 （info）总物理内存：17099161600
+15:24:50 （info）已选择项目的目录：file://./e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/game
+/e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/game>
+15:24:50 （info）CPU #0 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=000C0800
+15:24:50 （info）CPU #1 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=010C0800
+15:24:50 （info）CPU #2 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=020C0800
+15:24:50 （info）CPU #3 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=030C0800
+15:24:50 （info）CPU #4 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=040C0800
+15:24:50 （info）CPU #5 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=050C0800
+15:24:50 （info）CPU #6 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=060C0800
+15:24:50 （info）CPU #7 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=070C0800
+15:24:50 （info）CPU #8 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=080C0800
+15:24:50 （info）CPU #9 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=090C0800
+15:24:50 （info）CPU #10 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0A0C0800
+15:24:50 （info）CPU #11 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0B0C0800
+15:24:50 （info）最终检测出 CPU 所支持的特性：  FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes
+15:24:50 （info）已声明设置（越早声明的优先级更高）： -autotour=1
+15:24:50 指点数位设备可用。
+15:24:50 当前机器有集成数位设备。
+15:24:50 当前机器支持多点触控。
+15:24:50 触控数位设备已准备就绪。
+15:24:50 （info）读取启动脚本中：startup.tjs
+15:24:50 （info）Data 路径不存在，尝试新建... 成功。
+
+15:24:50 触发脚本异常
+不能找到文件 file://./e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/game
+/e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/game
+15:24:50 （info）CPU 时钟频率（大致数值）：3457MHz
+15:25:11 （info）CPU 时钟频率：3493.2MHz
+
+
+
+==============================================================================
+==============================================================================
+
+Logging to e:\zcode workspace\galgame\临时\wt-ui26\临时\ui_run\runtime\savedata\\krkr.console.log started on Tuesday, September 22, 2026 17:22:14
+17:22:14 ! （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui26\临时\ui_run\runtime\tvpwin32.cf" 失败（已忽略）：未找到文件。
+17:22:14 ! （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui26\临时\ui_run\runtime\savedata\tvpwin32.cfu" 失败（已忽略）：未找到文件。
+17:22:14 ! （info）Data 路径：file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/
+17:22:14 ! 吉里吉里Z 核心可执行文件 /1.4.0.8 （编译日期 Dec 25 2017 03:47:15）TJS2 2.4.28 Copyright (C) 1997-2013 W.Dee 及其贡献者 All rights reserved.
+17:22:14 ! 详细版本信息可以通过添加 -about 参数来启动查看。
+17:22:14 ! 程序已在 Windows NT 10.0.2141 （Win64）上启动。
+17:22:14 ! （info）总物理内存：17099161600
+17:22:14 ! （info）已选择项目的目录：file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/game/
+17:22:14 ! （info）CPU #0 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=000C0800
+17:22:14 ! （info）CPU #1 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=010C0800
+17:22:14 ! （info）CPU #2 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=020C0800
+17:22:14 ! （info）CPU #3 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=030C0800
+17:22:14 ! （info）CPU #4 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=040C0800
+17:22:14 ! （info）CPU #5 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=050C0800
+17:22:14 ! （info）CPU #6 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=060C0800
+17:22:14 ! （info）CPU #7 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=070C0800
+17:22:14 ! （info）CPU #8 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=080C0800
+17:22:14 ! （info）CPU #9 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=090C0800
+17:22:14 ! （info）CPU #10 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0A0C0800
+17:22:14 ! （info）CPU #11 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0B0C0800
+17:22:14 ! （info）最终检测出 CPU 所支持的特性：  FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes
+17:22:14 ! （info）已声明设置（越早声明的优先级更高）：（无）
+
+
+------------------------------------------------------------------------------
+
+17:22:14 （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui26\临时\ui_run\runtime\tvpwin32.cf" 失败（已忽略）：未找到文件。
+17:22:14 （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-ui26\临时\ui_run\runtime\savedata\tvpwin32.cfu" 失败（已忽略）：未找到文件。
+17:22:14 （info）Data 路径：file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/
+17:22:14 吉里吉里Z 核心可执行文件 /1.4.0.8 （编译日期 Dec 25 2017 03:47:15）TJS2 2.4.28 Copyright (C) 1997-2013 W.Dee 及其贡献者 All rights reserved.
+17:22:14 详细版本信息可以通过添加 -about 参数来启动查看。
+17:22:14 程序已在 Windows NT 10.0.2141 （Win64）上启动。
+17:22:14 （info）自动路径再构建中...
+17:22:14 (info) Total 0 file(s) found, 0 file(s) activated. (0ms)
+17:22:14 （info）总物理内存：17099161600
+17:22:14 （info）已选择项目的目录：file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/game/
+17:22:14 （info）CPU #0 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=000C0800
+17:22:14 （info）CPU #1 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=010C0800
+17:22:14 （info）CPU #2 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=020C0800
+17:22:14 （info）CPU #3 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=030C0800
+17:22:14 （info）CPU #4 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=040C0800
+17:22:14 （info）CPU #5 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=050C0800
+17:22:14 （info）CPU #6 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=060C0800
+17:22:14 （info）CPU #7 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=070C0800
+17:22:14 （info）CPU #8 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=080C0800
+17:22:14 （info）CPU #9 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=090C0800
+17:22:14 （info）CPU #10 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0A0C0800
+17:22:14 （info）CPU #11 :   FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes  AMD(AuthenticAMD) [AMD Ryzen 5 5600 6-Core Processor              ]  CPUID(1)/EAX=00A20F12 CPUID(1)/EBX=0B0C0800
+17:22:14 （info）最终检测出 CPU 所支持的特性：  FPU:yes  MMX:yes  3DN:no  SSE:yes  CMOVcc:yes  E3DN:no  EMMX:yes  SSE2:yes  TSC:yes  TSCP:yes  SSE3:yes  SSSE3:yes  SSE41:yes  SSE42:yes  SSE4A:yes  AVX:yes  AVX2:yes  FMA3:yes  AES:yes  RDRAND:yes  RDSEED:yes
+17:22:14 （info）已声明设置（越早声明的优先级更高）：（无）
+17:22:14 指点数位设备可用。
+17:22:14 当前机器有集成数位设备。
+17:22:14 当前机器支持多点触控。
+17:22:14 触控数位设备已准备就绪。
+17:22:14 （info）读取启动脚本中：startup.tjs
+
+17:22:14 [UI] ================================================
+17:22:14 [UI] startup.tjs begin  (M2 · UI 组 · ISSUE-20260919-11)
+17:22:14 [UI] Debug.logLocation = file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/
+17:22:14 [UI] System.dataPath    = file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/
+17:22:14 [UI] execStorage OK   : ui_layout.tjs
+17:22:14 [UI] execStorage OK   : ui_theme.tjs
+17:22:14 [UI] execStorage OK   : ui_asset.tjs
+17:22:14 [UI] execStorage OK   : ui_widget.tjs
+17:22:14 [UI][DEMO] 演示背景已填入：ui/tl2_bg1.png 框位 360,90 1200x900（1:1，未缩放）｜角标 id=dlg.bg_tag
+17:22:14 [UI] execStorage OK   : ui_demo_script.tjs
+17:22:14 [UI] execStorage OK   : ui_dialog.tjs
+17:22:14 [UI] execStorage OK   : ui_state.tjs
+17:22:14 [UI] execStorage OK   : ui_transition.tjs
+17:22:14 [UI] execStorage OK   : ui_screens.tjs
+17:22:14 [UI] execStorage OK   : ui_flow_data.tjs
+17:22:14 [UI][FLOW] (已安装：uiScreenDraw / uiActionDispatch / uiScreenKey 已包装)
+17:22:14 [UI] execStorage OK   : ui_flow.tjs
+17:22:14 [UI][FLOW] ui_fragment.tjs：uiScreenClick 已包装（补记被点格子）
+17:22:14 [UI][FLOW] ui_fragment.tjs 已装载（M14 40 格版）：hook 已填入（draw/key/dispatch/init）+ click 已包装
+17:22:14 [UI] execStorage OK   : ui_fragment.tjs
+17:22:14 [UI] canvas = 1920x1080
+17:22:14 [UI] Window.caption = 我们没有翅膀——格雷塔迦露德与柳木原 来自个人汉化者AlbireoSaya 模型&工具:Deepseek v4.1 flash+ZCode
+17:22:14 (info) Use Process HeadAlloc allocater for Bitmap
+17:22:14 [UI] client size = 1280x720  (canvas 1920x1080, zoom 2/3)
+17:22:14 [UI][FONT] Font.getList(0) -> 236 faces | 选用 = [微软雅黑] | 依据 = fallback_faces[0] 命中
+17:22:14 [UI][ASSET] 未给 -assetdir，只试项目根内的 ui/ 与 assets/ui/
+17:22:14 [UI][STATE] 候选存储名 = file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/ui_state.txt | E:\zcode workspace\galgame\临时\wt-ui26\临时\ui_run\runtime\savedata\ui_state.txt | ui_state.txt
+17:22:14 （info）自动路径再构建中...
+17:22:14 (info) Total 0 file(s) found, 0 file(s) activated. (0ms)
+17:22:14 [UI][STATE] load -> 没有可读的存档（首次运行属正常）: [NONE] file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/ui_state.txt  [NONE] E:\zcode workspace\galgame\临时\wt-ui26\临时\ui_run\runtime\savedata\ui_state.txt  [NONE] ui_state.txt  
+17:22:14 [UI][SCREENS] layout 已登记屏数 = 20 [title, dialog, sysmenu, confirm, loading, save, load, config, backlog, gallery, music, ending, chapter, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+17:22:14 [UI][STATE] save -> OK : [OK] file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/ui_state.txt  
+17:22:14 [UI][MOUSE] UIScrMouseSink 已登记 = 窗口实例
+17:22:14 （info）自动路径再构建中...
+17:22:14 (info) Total 0 file(s) found, 0 file(s) activated. (0ms)
+17:22:14 [UI][TOUR] autotour = OFF | 触发方式见 README_运行方式.md
+17:22:14 [UI][PRESS] pressprobe = (关闭：项目根无 press_probe.tjs)
+17:22:14 [UI][FLOW] 节点 13 ｜ 边 16 ｜ 总线 2 ｜ 幕 11
+17:22:14 [UI][FLOW] 滚动就绪：视口 0–0 ｜ 滚动元素 0 件 ｜ 内容底 0 ｜ 最大偏移 0 ｜ 翻页步长 24 ｜ ★ M18 单屏总览：内容全在视口内，滚动为惰性（PageUp/PageDown 不吞键）
+17:22:14 [UI][FLOW] 状态候选名 = file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/ui_flow_state.txt | E:\zcode workspace\galgame\临时\wt-ui26\临时\ui_run\runtime\savedata\ui_flow_state.txt | ui_flow_state.txt
+17:22:14 [UI][FLOW] load miss : file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/ui_flow_state.txt (不存在)
+17:22:14 [UI][FLOW] load miss : E:\zcode workspace\galgame\临时\wt-ui26\临时\ui_run\runtime\savedata\ui_flow_state.txt (不存在)
+17:22:14 [UI][FLOW] load miss : ui_flow_state.txt (不存在)
+17:22:14 [UI][FLOW] load -> 首次运行，无状态文件
+17:22:14 [UI][FLOW] save -> OK : [OK] file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run/runtime/savedata/ui_flow_state.txt  
+17:22:14 [UI][FLOW] ready : current=N01 已读 1 / 13
+17:22:14 （info）自动路径再构建中...
+17:22:14 (info) Total 0 file(s) found, 0 file(s) activated. (0ms)
+17:22:14 [UI][ASSET] OK   ui/x_bg_system.png  <-  assets/ui/x_bg_system.png  (1920x1080)
+17:22:14 [UI][ASSET] OK   ui/x_gen_logo.png  <-  assets/ui/x_gen_logo.png  (900x317)
+17:22:14 [UI][ASSET] OK   ui/x_ui_menuicon_start.png  <-  assets/ui/x_ui_menuicon_start.png  (96x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_menuicon_continue.png  <-  assets/ui/x_ui_menuicon_continue.png  (96x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_menuicon_load.png  <-  assets/ui/x_ui_menuicon_load.png  (96x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_menuicon_flowchart.png  <-  assets/ui/x_ui_menuicon_flowchart.png  (96x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_menuicon_config.png  <-  assets/ui/x_ui_menuicon_config.png  (96x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_menuicon_gallery.png  <-  assets/ui/x_ui_menuicon_gallery.png  (96x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_menuicon_exit.png  <-  assets/ui/x_ui_menuicon_exit.png  (96x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_btntxt2c_start.png  <-  assets/ui/x_ui_btntxt2c_start.png  (252x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_btntxt2c_continue.png  <-  assets/ui/x_ui_btntxt2c_continue.png  (252x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_btntxt2c_load.png  <-  assets/ui/x_ui_btntxt2c_load.png  (252x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_btntxt2c_flowchart.png  <-  assets/ui/x_ui_btntxt2c_flowchart.png  (200x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_btntxt2c_config.png  <-  assets/ui/x_ui_btntxt2c_config.png  (148x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_btntxt2c_gallery.png  <-  assets/ui/x_ui_btntxt2c_gallery.png  (148x96)
+17:22:14 [UI][ASSET] OK   ui/x_ui_btntxt2c_exit.png  <-  assets/ui/x_ui_btntxt2c_exit.png  (252x96)
+17:22:15 [UI] window visible = 1 | 输入静默期 8000 ms
+17:22:15 [UI] ===== startup.tjs finished =====
+17:22:15 （info）启动脚本读取完毕！
+17:22:15 [UI] onResize x（画面按固定画布绘制，不随窗口缩放）
+17:22:15 （info）载入 Direct3D...
+17:22:15 （info）CPU 时钟频率（大致数值）：3400MHz
+17:22:16 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 391.5,454.5
+17:22:16 [UI][ASSET] OK   ui/x_ui_menuicon_start_on.png  <-  assets/ui/x_ui_menuicon_start_on.png  (96x96)
+17:22:16 [UI][ASSET] OK   ui/x_ui_btntxt2c_start_on.png  <-  assets/ui/x_ui_btntxt2c_start_on.png  (252x96)
+17:22:16 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 291,456
+17:22:16 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 288,462
+17:22:16 [UI][ASSET] OK   ui/x_ui_menuicon_continue_on.png  <-  assets/ui/x_ui_menuicon_continue_on.png  (96x96)
+17:22:16 [UI][ASSET] OK   ui/x_ui_btntxt2c_continue_on.png  <-  assets/ui/x_ui_btntxt2c_continue_on.png  (252x96)
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 262.5,556.5
+17:22:17 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 261,562.5
+17:22:17 [UI][ASSET] OK   ui/x_ui_menuicon_load_on.png  <-  assets/ui/x_ui_menuicon_load_on.png  (96x96)
+17:22:17 [UI][ASSET] OK   ui/x_ui_btntxt2c_load_on.png  <-  assets/ui/x_ui_btntxt2c_load_on.png  (252x96)
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 261,657
+17:22:17 [UI][HOVER] 悬停 (无) -> title.menu_txt_flowchart  @ 261,661.5
+17:22:17 [UI][ASSET] OK   ui/x_ui_menuicon_flowchart_on.png  <-  assets/ui/x_ui_menuicon_flowchart_on.png  (96x96)
+17:22:17 [UI][ASSET] OK   ui/x_ui_btntxt2c_flowchart_on.png  <-  assets/ui/x_ui_btntxt2c_flowchart_on.png  (200x96)
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_flowchart -> (无)  @ 247.5,756
+17:22:17 [UI][HOVER] 悬停 (无) -> title.menu_txt_config  @ 246,762
+17:22:17 [UI][ASSET] OK   ui/x_ui_menuicon_config_on.png  <-  assets/ui/x_ui_menuicon_config_on.png  (96x96)
+17:22:17 [UI][ASSET] OK   ui/x_ui_btntxt2c_config_on.png  <-  assets/ui/x_ui_btntxt2c_config_on.png  (148x96)
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_config -> (无)  @ 238.5,856.5
+17:22:17 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 238.5,865.5
+17:22:17 [UI][ASSET] OK   ui/x_ui_menuicon_gallery_on.png  <-  assets/ui/x_ui_menuicon_gallery_on.png  (96x96)
+17:22:17 [UI][ASSET] OK   ui/x_ui_btntxt2c_gallery_on.png  <-  assets/ui/x_ui_btntxt2c_gallery_on.png  (148x96)
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_gallery -> (无)  @ 232.5,957
+17:22:17 [UI][HOVER] 悬停 (无) -> title.menu_txt_exit  @ 232.5,963
+17:22:17 [UI][ASSET] OK   ui/x_ui_menuicon_exit_on.png  <-  assets/ui/x_ui_menuicon_exit_on.png  (96x96)
+17:22:17 [UI][ASSET] OK   ui/x_ui_btntxt2c_exit_on.png  <-  assets/ui/x_ui_btntxt2c_exit_on.png  (252x96)
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_exit -> (无)  @ 271.5,957
+17:22:17 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 280.5,922.5
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_gallery -> (无)  @ 291,874.5
+17:22:17 [UI][HOVER] 悬停 (无) -> title.menu_txt_flowchart  @ 306,753
+17:22:17 [UI][HOVER] 悬停 title.menu_txt_flowchart -> title.menu_txt_load  @ 309,652.5
+17:22:18 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 306,558
+17:22:18 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 303,535.5
+17:22:18 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 303,459
+17:22:18 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 304.5,451.5
+17:22:18 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 360,358.5
+17:22:20 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 259.5,360
+17:22:20 [UI][HOVER] 悬停 title.menu_txt_start -> title.menu_hit_1  @ 114,412.5
+17:22:20 [UI][HOVER] 悬停 title.menu_hit_1 -> (无)  @ 51,438
+17:22:27 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 384,594
+17:22:27 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 328.5,559.5
+17:22:27 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 321,555
+17:22:27 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 297,459
+17:22:27 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 298.5,454.5
+17:22:28 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 388.5,456
+17:22:35 （info）CPU 时钟频率：3493.9MHz
+17:22:36 [UI] onKeyDown key=45 shift=0
+17:22:36 [UI] key 45 ignored
+17:22:37 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 391.5,400.5
+17:22:38 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 288,456
+17:22:38 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 288,460.5
+17:22:38 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 283.5,556.5
+17:22:38 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 283.5,564
+17:22:39 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 265.5,657
+17:22:39 [UI][HOVER] 悬停 (无) -> title.menu_txt_flowchart  @ 259.5,673.5
+17:22:39 [UI][HOVER] 悬停 title.menu_txt_flowchart -> (无)  @ 241.5,756
+17:22:39 [UI][HOVER] 悬停 (无) -> title.menu_txt_config  @ 241.5,762
+17:22:39 [UI][HOVER] 悬停 title.menu_txt_config -> (无)  @ 219,856.5
+17:22:39 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 216,871.5
+17:22:40 [UI][HOVER] 悬停 title.menu_txt_gallery -> (无)  @ 234,957
+17:22:40 [UI][HOVER] 悬停 (无) -> title.menu_txt_exit  @ 237,964.5
+17:22:40 [UI][HOVER] 悬停 title.menu_txt_exit -> (无)  @ 261,957
+17:22:40 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 261,931.5
+17:22:40 [UI][HOVER] 悬停 title.menu_txt_gallery -> (无)  @ 262.5,859.5
+17:22:40 [UI][HOVER] 悬停 (无) -> title.menu_txt_config  @ 262.5,814.5
+17:22:40 [UI][HOVER] 悬停 title.menu_txt_config -> title.menu_txt_flowchart  @ 262.5,747
+17:22:40 [UI][HOVER] 悬停 title.menu_txt_flowchart -> title.menu_txt_load  @ 249,651
+17:22:40 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 223.5,559.5
+17:22:40 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 220.5,543
+17:22:40 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 220.5,459
+17:22:40 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 223.5,451.5
+17:22:41 [UI][MOUSE] onMouseDown x=258 y=394.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:41 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 258,394.5
+17:22:41 （info）自动路径再构建中...
+17:22:41 (info) Total 0 file(s) found, 0 file(s) activated. (0ms)
+17:22:41 [UI][ASSET] OK   ui/x_ui_btntxt2c_start_press.png  <-  assets/ui/x_ui_btntxt2c_start_press.png  (252x96)
+17:22:41 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:41 [UI] click 258,394.5 -> 空区域（当前屏 title）
+17:22:41 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 259.5,456
+17:22:41 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 259.5,462
+17:22:42 [UI][MOUSE] onMouseDown x=250.5 y=535.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:42 [UI][MOUSE] 按下态：按下 -> title.menu_txt_continue  @ 250.5,535.5
+17:22:42 [UI][ASSET] OK   ui/x_ui_btntxt2c_continue_press.png  <-  assets/ui/x_ui_btntxt2c_continue_press.png  (252x96)
+17:22:42 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_continue）
+17:22:42 [UI] click 250.5,535.5 -> 空区域（当前屏 title）
+17:22:42 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 247.5,556.5
+17:22:42 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 246,567
+17:22:42 [UI][MOUSE] onMouseDown x=241.5 y=598.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:42 [UI][MOUSE] 按下态：按下 -> title.menu_txt_load  @ 241.5,598.5
+17:22:42 [UI][ASSET] OK   ui/x_ui_btntxt2c_load_press.png  <-  assets/ui/x_ui_btntxt2c_load_press.png  (252x96)
+17:22:42 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_load）
+17:22:42 [UI] click 241.5,598.5 -> 空区域（当前屏 title）
+17:22:42 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 237,657
+17:22:42 [UI][HOVER] 悬停 (无) -> title.menu_txt_flowchart  @ 235.5,667.5
+17:22:42 [UI][MOUSE] onMouseDown x=229.5 y=712.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:42 [UI][MOUSE] 按下态：按下 -> title.menu_txt_flowchart  @ 229.5,712.5
+17:22:42 [UI][ASSET] OK   ui/x_ui_btntxt2c_flowchart_press.png  <-  assets/ui/x_ui_btntxt2c_flowchart_press.png  (200x96)
+17:22:43 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_flowchart）
+17:22:43 [UI] click 229.5,712.5 -> 空区域（当前屏 title）
+17:22:43 [UI][HOVER] 悬停 title.menu_txt_flowchart -> (无)  @ 214.5,756
+17:22:43 [UI][HOVER] 悬停 (无) -> title.menu_txt_config  @ 213,760.5
+17:22:43 [UI][MOUSE] onMouseDown x=207 y=811.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:43 [UI][MOUSE] 按下态：按下 -> title.menu_txt_config  @ 207,811.5
+17:22:43 [UI][ASSET] OK   ui/x_ui_btntxt2c_config_press.png  <-  assets/ui/x_ui_btntxt2c_config_press.png  (148x96)
+17:22:43 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_config）
+17:22:43 [UI] click 207,811.5 -> 空区域（当前屏 title）
+17:22:43 [UI][HOVER] 悬停 title.menu_txt_config -> (无)  @ 207,856.5
+17:22:43 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 207,865.5
+17:22:43 [UI][MOUSE] onMouseDown x=208.5 y=909 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:43 [UI][MOUSE] 按下态：按下 -> title.menu_txt_gallery  @ 208.5,909
+17:22:43 [UI][ASSET] OK   ui/x_ui_btntxt2c_gallery_press.png  <-  assets/ui/x_ui_btntxt2c_gallery_press.png  (148x96)
+17:22:43 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_gallery）
+17:22:43 [UI] click 208.5,909 -> 空区域（当前屏 title）
+17:22:43 [UI][HOVER] 悬停 title.menu_txt_gallery -> (无)  @ 214.5,957
+17:22:43 [UI][HOVER] 悬停 (无) -> title.menu_txt_exit  @ 216,964.5
+17:22:44 [UI][MOUSE] onMouseDown x=229.5 y=1015.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:44 [UI][MOUSE] 按下态：按下 -> title.menu_txt_exit  @ 229.5,1015.5
+17:22:44 [UI][ASSET] OK   ui/x_ui_btntxt2c_exit_press.png  <-  assets/ui/x_ui_btntxt2c_exit_press.png  (252x96)
+17:22:44 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_exit）
+17:22:44 [UI] click 229.5,1015.5 -> 空区域（当前屏 title）
+17:22:46 [UI] onKeyDown key=46 shift=0
+17:22:46 [UI] key 46 ignored
+17:22:47 [UI][HOVER] 悬停 title.menu_txt_exit -> (无)  @ 276,958.5
+17:22:47 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 282,951
+17:22:47 [UI][HOVER] 悬停 title.menu_txt_gallery -> (无)  @ 288,940.5
+17:22:47 [UI][HOVER] 悬停 (无) -> title.menu_txt_flowchart  @ 313.5,754.5
+17:22:47 [UI][HOVER] 悬停 title.menu_txt_flowchart -> (无)  @ 318,658.5
+17:22:47 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 321,646.5
+17:22:47 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 370.5,559.5
+17:22:47 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 379.5,549
+17:22:47 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 393,534
+17:22:47 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 391.5,411
+17:22:47 [UI][MOUSE] onMouseDown x=343.5 y=415.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:47 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 343.5,415.5
+17:22:48 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:48 [UI] click 343.5,415.5 -> 空区域（当前屏 title）
+17:22:48 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 328.5,456
+17:22:48 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 325.5,460.5
+17:22:48 [UI][MOUSE] onMouseDown x=312 y=483 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:48 [UI][MOUSE] 按下态：按下 -> title.menu_txt_continue  @ 312,483
+17:22:48 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_continue）
+17:22:48 [UI] click 312,483 -> 空区域（当前屏 title）
+17:22:48 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 304.5,556.5
+17:22:48 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 303,564
+17:22:48 [UI][MOUSE] onMouseDown x=298.5 y=595.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:48 [UI][MOUSE] 按下态：按下 -> title.menu_txt_load  @ 298.5,595.5
+17:22:48 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_load）
+17:22:48 [UI] click 298.5,595.5 -> 空区域（当前屏 title）
+17:22:48 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 276,657
+17:22:48 [UI][HOVER] 悬停 (无) -> title.menu_txt_flowchart  @ 273,666
+17:22:48 [UI][MOUSE] onMouseDown x=264 y=694.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:48 [UI][MOUSE] 按下态：按下 -> title.menu_txt_flowchart  @ 264,694.5
+17:22:48 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_flowchart）
+17:22:48 [UI] click 264,694.5 -> 空区域（当前屏 title）
+17:22:49 [UI][HOVER] 悬停 title.menu_txt_flowchart -> (无)  @ 264,756
+17:22:49 [UI][HOVER] 悬停 (无) -> title.menu_txt_config  @ 264,763.5
+17:22:49 [UI][MOUSE] onMouseDown x=252 y=831 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:49 [UI][MOUSE] 按下态：按下 -> title.menu_txt_config  @ 252,831
+17:22:49 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_config）
+17:22:49 [UI] click 252,831 -> 空区域（当前屏 title）
+17:22:49 [UI][HOVER] 悬停 title.menu_txt_config -> (无)  @ 240,856.5
+17:22:49 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 237,861
+17:22:49 [UI][MOUSE] onMouseDown x=216 y=927 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:49 [UI][MOUSE] 按下态：按下 -> title.menu_txt_gallery  @ 216,927
+17:22:49 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_gallery）
+17:22:49 [UI] click 216,927 -> 空区域（当前屏 title）
+17:22:49 [UI][HOVER] 悬停 title.menu_txt_gallery -> (无)  @ 208.5,957
+17:22:49 [UI][HOVER] 悬停 (无) -> title.menu_txt_exit  @ 207,964.5
+17:22:49 [UI][MOUSE] onMouseDown x=207 y=990 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:49 [UI][MOUSE] 按下态：按下 -> title.menu_txt_exit  @ 207,990
+17:22:49 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_exit）
+17:22:49 [UI] click 207,990 -> 空区域（当前屏 title）
+17:22:49 [UI][MOUSE] onMouseDown x=202.5 y=1009.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:49 [UI][MOUSE] 按下态：按下 -> title.menu_txt_exit  @ 202.5,1009.5
+17:22:49 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_exit）
+17:22:49 [UI] click 202.5,1009.5 -> 空区域（当前屏 title）
+17:22:49 [UI][HOVER] 悬停 title.menu_txt_exit -> (无)  @ 216,958.5
+17:22:49 [UI][HOVER] 悬停 (无) -> title.menu_txt_gallery  @ 219,951
+17:22:49 [UI][MOUSE] onMouseDown x=228 y=903 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:49 [UI][MOUSE] 按下态：按下 -> title.menu_txt_gallery  @ 228,903
+17:22:49 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_gallery）
+17:22:49 [UI] click 228,903 -> 空区域（当前屏 title）
+17:22:50 [UI][HOVER] 悬停 title.menu_txt_gallery -> title.menu_txt_config  @ 237,855
+17:22:50 [UI][HOVER] 悬停 title.menu_txt_config -> (无)  @ 246,756
+17:22:50 [UI][HOVER] 悬停 (无) -> title.menu_txt_flowchart  @ 247.5,732
+17:22:50 [UI][HOVER] 悬停 title.menu_txt_flowchart -> (无)  @ 253.5,658.5
+17:22:50 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 255,631.5
+17:22:50 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 268.5,558
+17:22:50 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 270,549
+17:22:50 [UI][MOUSE] onMouseDown x=274.5 y=517.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:50 [UI][MOUSE] 按下态：按下 -> title.menu_txt_continue  @ 274.5,517.5
+17:22:50 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_continue）
+17:22:50 [UI] click 274.5,517.5 -> 空区域（当前屏 title）
+17:22:50 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 292.5,459
+17:22:50 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 294,451.5
+17:22:50 [UI][MOUSE] onMouseDown x=297 y=421.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:50 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 297,421.5
+17:22:50 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:50 [UI] click 297,421.5 -> 空区域（当前屏 title）
+17:22:50 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 394.5,372
+17:22:52 [UI][MOUSE] onMouseDown x=846 y=219 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:52 [UI] click 846,219 -> 空区域（当前屏 title）
+17:22:53 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 390,466.5
+17:22:53 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 339,459
+17:22:53 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 336,454.5
+17:22:54 [UI][MOUSE] onMouseDown x=298.5 y=435 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:54 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 298.5,435
+17:22:54 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:54 [UI] click 298.5,435 -> 空区域（当前屏 title）
+17:22:54 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 303,456
+17:22:54 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 306,466.5
+17:22:54 [UI][MOUSE] onMouseDown x=327 y=541.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:54 [UI][MOUSE] 按下态：按下 -> title.menu_txt_continue  @ 327,541.5
+17:22:54 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_continue）
+17:22:54 [UI] click 327,541.5 -> 空区域（当前屏 title）
+17:22:54 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 333,556.5
+17:22:54 [UI][HOVER] 悬停 (无) -> title.menu_txt_load  @ 337.5,564
+17:22:54 [UI][HOVER] 悬停 title.menu_txt_load -> (无)  @ 393,621
+17:22:54 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 391.5,550.5
+17:22:54 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 313.5,457.5
+17:22:54 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 307.5,451.5
+17:22:54 [UI][MOUSE] onMouseDown x=250.5 y=403.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:54 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 250.5,403.5
+17:22:55 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:55 [UI] click 250.5,403.5 -> 空区域（当前屏 title）
+17:22:55 [UI][MOUSE] onMouseDown x=250.5 y=403.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:55 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 250.5,403.5
+17:22:55 [UI][MOUSE] onMouseDown x=250.5 y=403.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:55 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:55 [UI] click 250.5,403.5 -> 空区域（当前屏 title）
+17:22:55 [UI][MOUSE] onMouseDown x=250.5 y=399 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:55 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 250.5,399
+17:22:55 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:55 [UI] click 250.5,399 -> 空区域（当前屏 title）
+17:22:55 [UI][HOVER] 悬停 title.menu_txt_start -> (无)  @ 259.5,456
+17:22:55 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 261,472.5
+17:22:55 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 268.5,556.5
+17:22:55 [UI][MOUSE] onMouseDown x=268.5 y=556.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:55 [UI][HOVER] 悬停 (无) -> title.menu_txt_continue  @ 268.5,555
+17:22:55 [UI] click 268.5,556.5 -> 空区域（当前屏 title）
+17:22:55 [UI][HOVER] 悬停 title.menu_txt_continue -> (无)  @ 273,457.5
+17:22:55 [UI][HOVER] 悬停 (无) -> title.menu_txt_start  @ 273,453
+17:22:56 [UI][MOUSE] onMouseDown x=268.5 y=417 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:56 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 268.5,417
+17:22:56 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:56 [UI] click 268.5,417 -> 空区域（当前屏 title）
+17:22:56 [UI][MOUSE] onMouseDown x=220.5 y=402 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:56 [UI][MOUSE] 按下态：按下 -> title.menu_txt_start  @ 220.5,402
+17:22:56 [UI][MOUSE] 抬起 -> 清除（原 title.menu_txt_start）
+17:22:56 [UI] click 220.5,402 -> 空区域（当前屏 title）
+17:22:56 [UI][HOVER] 悬停 title.menu_txt_start -> title.menu_hit_1  @ 139.5,408
+17:22:56 [UI][MOUSE] onMouseDown x=108 y=414 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:56 [UI][MOUSE] 按下态：按下 -> title.menu_hit_1  @ 108,414
+17:22:56 [UI][MOUSE] 抬起 -> 清除（原 title.menu_hit_1）
+17:22:56 [UI] click 108,414 -> game_start idx=-1
+17:22:56 [UI][ASSET] OK   ui/tl2_bg1.png  <-  assets/ui/tl2_bg1.png  (1200x900)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dialog2.png  <-  assets/ui/x_gen_dialog2.png  (1628x319)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_01_qsave.png  <-  assets/ui/x_gen_dicon_01_qsave.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_02_qload.png  <-  assets/ui/x_gen_dicon_02_qload.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_03_config.png  <-  assets/ui/x_gen_dicon_03_config.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_04_skip.png  <-  assets/ui/x_gen_dicon_04_skip.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_05_prev.png  <-  assets/ui/x_gen_dicon_05_prev.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_06_close.png  <-  assets/ui/x_gen_dicon_06_close.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_07_save.png  <-  assets/ui/x_gen_dicon_07_save.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_08_load.png  <-  assets/ui/x_gen_dicon_08_load.png  (80x75)
+17:22:56 [UI][ASSET] OK   ui/x_gen_dicon_09_repeat.png  <-  assets/ui/x_gen_dicon_09_repeat.png  (80x75)
+17:22:56 [UI][TRANS] universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64
+17:22:56 [UI][MOUSE] onMouseDown x=108 y=414 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:57 [UI][MOUSE] onMouseDown x=307.5 y=406.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:57 [UI] click 307.5,406.5 -> advance_dialog idx=-1
+17:22:58 [UI][MOUSE] onMouseDown x=271.5 y=499.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:22:58 [UI] click 271.5,499.5 -> advance_dialog idx=-1
+17:27:05 [UI][MOUSE] onMouseDown x=276 y=511.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:27:05 [UI] click 276,511.5 -> advance_dialog idx=-1
+17:27:05 [UI][MOUSE] onMouseDown x=1107 y=142.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）
+17:27:05 [UI] click 1107,142.5 -> advance_dialog idx=-1
+17:27:06 [UI][MOUSE] onMouseDown x=1107 y=142.5 mb=0 flags=8（键码表 mbLeft=0 mbRight=1 mbMiddle=2）

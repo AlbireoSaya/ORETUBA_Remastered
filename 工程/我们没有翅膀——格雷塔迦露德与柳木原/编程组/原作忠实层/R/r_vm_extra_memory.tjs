@@ -1,0 +1,26 @@
+function RVMExtraMemoryStep(rd, wr, ctx, op, p) {
+    switch (op) {
+    case 27:
+        return global.RVMExtraMem27(rd, wr, ctx, p);
+    case 28:
+        return global.RVMExtraMem28(rd, wr, ctx, p);
+    case 29:
+        return global.RVMExtraMem29(rd, wr, ctx, p);
+    case 33:
+        return global.RVMExtraMem33(rd, wr, ctx, p);
+    case 34:
+        return global.RVMExtraMem34(rd, wr, ctx, p);
+    case 35:
+        return global.RVMExtraMem35(rd, wr, ctx, p);
+    case 36:
+        return global.RVMExtraMem36(rd, wr, ctx, p);
+    case 37:
+        return global.RVMExtraMem37(rd, wr, ctx, p);
+    case 38:
+        return global.RVMExtraMem38(rd, wr, ctx, p);
+    case 39:
+        return global.RVMExtraMem39(rd, wr, ctx, p);
+    default:
+        throw new global.Exception("UNSUPPORTED_EXTRA_MEMORY_OPCODE");
+    }
+}

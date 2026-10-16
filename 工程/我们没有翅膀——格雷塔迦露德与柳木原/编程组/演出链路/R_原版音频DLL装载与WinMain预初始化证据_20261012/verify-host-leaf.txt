@@ -1,0 +1,58 @@
+from pathlib import Path
+from types import SimpleNamespace
+import sys,ctypes,struct,json
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具'),str(root/'工具/unicorn-2.1.4-py314')]
+from unicorn import Uc,UC_ARCH_X86,UC_MODE_32,UcError
+from lucifen_guest_pe_sections import map_sections
+from lucifen_guest_exception_filter import GuestExceptionFilter
+from lucifen_host_fileenum_bindings import FindFirstFileA,FindNextFileA,FindClose
+from lucifen_host_crt_bootstrap_bindings import GetACP,GetModuleHandleA,GetProcAddress,IsProcessorFeaturePresent
+from lucifen_host_encoding_bindings import WideCharToMultiByte,MultiByteToWideChar
+from lucifen_host_case_bindings import CharLowerA,CharUpperA
+stage=(root/(sys.argv[1]if len(sys.argv)>1 else '临时/ISSUE-20261011-02/r-wuvorbis-leaf-final02')).resolve();assert stage.is_relative_to((root/'临时/ISSUE-20261011-02').resolve());stage.mkdir(exist_ok=False);results=[]
+pe=SimpleNamespace(image_base=0x12000000,size_image=0x3000,size_headers=0x200,data=b'H'*512+bytes(range(256)),sections=[{'vaddr':0x1000,'rawsize':0x100,'rawptr':0x200,'vsize':0x180},{'vaddr':0x2000,'rawsize':0,'rawptr':0,'vsize':0x100}])
+u=Uc(UC_ARCH_X86,UC_MODE_32);assert map_sections(u,pe)==0x3000;assert bytes(u.mem_read(pe.image_base,512))==b'H'*512;assert bytes(u.mem_read(pe.image_base+0x1000,256))==bytes(range(256));assert bytes(u.mem_read(pe.image_base+0x1100,128))==b'\0'*128 and bytes(u.mem_read(pe.image_base+0x2000,256))==b'\0'*256
+results.append({'test':'map_actual_Uc_exact_header_raw_and_zero_BSS','passed':True})
+before=bytes(u.mem_read(pe.image_base,pe.size_image))
+try:map_sections(u,pe)
+except UcError:pass
+else:raise AssertionError('overlap accepted')
+assert bytes(u.mem_read(pe.image_base,pe.size_image))==before;results.append({'test':'overlap_mem_map_rejected_existing_image_preserved','passed':True})
+v=Uc(UC_ARCH_X86,UC_MODE_32)
+class FailWrite:
+ def __init__(self):self.calls=0
+ def mem_map(self,*a):return v.mem_map(*a)
+ def mem_write(self,*a):
+  self.calls+=1
+  if self.calls==2:raise RuntimeError('injected write failure')
+  return v.mem_write(*a)
+ def mem_unmap(self,*a):return v.mem_unmap(*a)
+try:map_sections(FailWrite(),pe)
+except RuntimeError as e:assert str(e)=='injected write failure'
+else:raise AssertionError('injected failure missed')
+assert list(v.mem_regions())==[];results.append({'test':'post_map_write_failure_rolls_back_real_Uc','passed':True})
+f=GuestExceptionFilter();assert f.current==0 and f.exchange(0x11015424)==0 and f.exchange(0)==0x11015424
+for bad in(True,1.0,-1,1<<32,'0',None):
+ try:f.exchange(bad)
+ except (TypeError,ValueError):pass
+ else:raise AssertionError('invalid guest pointer accepted')
+ assert f.current==0
+results.append({'test':'controlled_filter_exchange_and_6_invalid_nonmutation_cases','passed':True,'not_host_exception_filter':True})
+guard=b'\xa5'*32
+def guarded(data):return ctypes.create_string_buffer(guard+data+guard,len(data)+64)
+def check(buf):assert buf.raw[:32]==guard and buf.raw[-32:]==guard
+text='AbC_路径';wide=text.encode('utf-16-le');ib=guarded(wide);ob=guarded(b'\xa5'*128);units=len(wide)//2;ret=int(WideCharToMultiByte(936,0,ctypes.byref(ib,32),units,ctypes.byref(ob,32),128,None,None));assert ret>0;check(ib);check(ob);encoded=ob.raw[32:32+ret];assert encoded==text.encode('cp936')
+ib2=guarded(encoded);ob2=guarded(b'\xa5'*256);n=int(MultiByteToWideChar(936,0,ctypes.byref(ib2,32),len(encoded),ctypes.byref(ob2,32),128));assert n==units and ob2.raw[32:32+n*2]==wide;check(ib2);check(ob2);results.append({'test':'real_CP936_UTF16_roundtrip_with_host_buffer_guards','passed':True})
+for fn,expected in[(CharLowerA,text.lower()),(CharUpperA,text.upper())]:
+ blob=text.encode('mbcs')+b'\0';buf=guarded(blob+b'\xa5'*(256-len(blob)));p=ctypes.addressof(buf)+32;ret=fn(ctypes.c_void_p(p));assert ret==p;check(buf);assert buf.raw[32:-32].split(b'\0')[0].decode('mbcs')==expected
+results.append({'test':'real_ANSI_case_ascii_and_DBCS_guarded_preserves_full_host_pointer','passed':True,'host_ACP':int(GetACP()),'not_original_locale_claim':True})
+host=GetModuleHandleA(b'KERNEL32');assert host and host>0xffffffff;ptr=GetProcAddress(ctypes.c_void_p(host),b'IsProcessorFeaturePresent');assert ptr and ptr>0xffffffff;assert int(IsProcessorFeaturePresent(0))in(0,1);results.append({'test':'system_HMODULE_and_proc_full64_pointers_preserved','passed':True,'original_modules_not_OS_loaded':True})
+fixture=stage/'fixture.txt';fixture.write_bytes(b'owned fixture');data=guarded(b'\xa5'*320);handle=FindFirstFileA(str(fixture).encode('mbcs'),ctypes.byref(data,32));assert handle and handle!=ctypes.c_void_p(-1).value;check(data)
+try:
+ ctypes.set_last_error(0);more=int(FindNextFileA(ctypes.c_void_p(handle),ctypes.byref(data,32)));assert more==0 and ctypes.get_last_error()==18;check(data)
+finally:assert int(FindClose(ctypes.c_void_p(handle)))==1
+missing=stage/'missing-directory'/'*.gll';buf=guarded(b'\xa5'*320);ctypes.set_last_error(0);handle=FindFirstFileA(str(missing).encode('mbcs'),ctypes.byref(buf,32));assert handle==ctypes.c_void_p(-1).value and ctypes.get_last_error()==3;check(buf)
+results.append({'test':'actual_FindFirst_Next_EOF_Close_and_missing_directory_guards','passed':True})
+out={'passed':True,'tests':results,'caller_prevalidated_PE32_only_no_imports_reloc_or_entry_invocation':True,'no_original_bytes_or_environment_content_written':True}
+(stage/'host-leaf-fixtures.json').write_text(json.dumps(out,indent=2),encoding='utf-8');print('LEAF_FIXTURES_PASS',len(results))
+

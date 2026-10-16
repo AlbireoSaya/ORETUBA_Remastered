@@ -1,0 +1,24 @@
+function RExprHeader(rb, limit, p) {
+    if (typeof p != "Integer" || p < 0) {
+        throw new Exception("BAD_EXPRESSION_OFFSET");
+    }
+    var n = RExprU16(rb, limit, p);
+    var code_start = p + 2;
+    RExprNeed(limit, code_start, n);
+    var flag_offset = code_start + n;
+    var flag = RExprByte(rb, limit, flag_offset);
+    var reloc_start = flag_offset + 1;
+    var size = RExprU16(rb, limit, reloc_start);
+    if (size < 7) {
+        throw new Exception("EXPRESSION_TABLE_TOO_SMALL");
+    }
+    RExprNeed(limit, reloc_start, size);
+    return %[
+        "code_start" => code_start,
+        "code_size" => n,
+        "flag_offset" => flag_offset,
+        "compiled_flag" => flag,
+        "reloc_start" => reloc_start,
+        "reloc_size" => size
+    ];
+}

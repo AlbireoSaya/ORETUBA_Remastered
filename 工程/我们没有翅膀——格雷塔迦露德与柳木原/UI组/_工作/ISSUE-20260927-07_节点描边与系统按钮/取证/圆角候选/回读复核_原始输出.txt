@@ -1,0 +1,48 @@
+================================================================================================================
+回读复核：候选件（磁盘文件）
+================================================================================================================
+  section  r原件    size=(236, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=0 ｜ 末实体行 y=55 缺口=[]
+  section  r12    size=(236, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=0 ｜ 末实体行 y=55 缺口=[]
+  section  r16    size=(236, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=0 ｜ 末实体行 y=55 缺口=[]
+  section  r20    size=(236, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=1 ｜ 末实体行 y=55 缺口=[]
+  select   r原件    size=(263, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=7 ｜ 末实体行 y=56 缺口=[]
+  select   r12    size=(263, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=4 ｜ 末实体行 y=56 缺口=[]
+  select   r16    size=(263, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=4 ｜ 末实体行 y=56 缺口=[]
+  select   r20    size=(263, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=7 ｜ 末实体行 y=56 缺口=[]
+  frag     r原件    size=(228, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=8 ｜ 末实体行 y=55 缺口=[]
+  frag     r12    size=(228, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=4 ｜ 末实体行 y=55 缺口=[]
+  frag     r16    size=(228, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=6 ｜ 末实体行 y=55 缺口=[]
+  frag     r20    size=(228, 65) mode=True RGB==原件:True ｜ alpha[0..255] alpha=60 的像素=9 ｜ 末实体行 y=55 缺口=[]
+
+================================================================================================================
+回读复核：select 描边件（只应改环带 RGB；alpha 必须逐字节等于同档候选件）
+================================================================================================================
+  r原件    alpha 逐字节相同=True ｜ 描边改动像素 1172（全部落在环带 cov>0 内=True，环带外改动 0） ｜ 环带像素数 cov>0 = 1172 ｜ 生效色件 alpha 相同=True
+  r12    alpha 逐字节相同=True ｜ 描边改动像素 1172（全部落在环带 cov>0 内=True，环带外改动 0） ｜ 环带像素数 cov>0 = 1172 ｜ 生效色件 alpha 相同=True
+  r16    alpha 逐字节相同=True ｜ 描边改动像素 1172（全部落在环带 cov>0 内=True，环带外改动 0） ｜ 环带像素数 cov>0 = 1172 ｜ 生效色件 alpha 相同=True
+  r20    alpha 逐字节相同=True ｜ 描边改动像素 1172（全部落在环带 cov>0 内=True，环带外改动 0） ｜ 环带像素数 cov>0 = 1172 ｜ 生效色件 alpha 相同=True
+  对照：正式件 x_ui_node_select_off.png 的环带像素数 cov>0 = 1176
+
+================================================================================================================
+对照：上一轮（min 削减式）与正式件的 md5（应与本轮前保持不变）
+================================================================================================================
+  候选_x_ui_node_section_off_r8.png            7f7c300cf59b2c26b92d5ee922eb82ee
+  候选_x_ui_node_section_off_r12.png           575a1c6c2898b5dad984d5aac812c2a7
+  候选_x_ui_node_section_off_r16.png           aa76ff863f9902a2a40a022d4d7540d0
+  候选_x_ui_node_select_off_r8.png             8fe1abfef05ae999e3cb5eabc9b3a750
+  候选_x_ui_node_select_off_r8_描边.png          65045ff7f63bbf4c08dffa3f781dba40
+  候选_x_ui_node_select_off_r8_生效色_描边.png      56a36cba4ceb74aa7703efed885ebdb6
+  候选_x_ui_node_select_off_r12.png            7eb0b2b4f59f410763df587a58b48137
+  候选_x_ui_node_select_off_r12_描边.png         4617c9b6b9ee4e96be78dc94ed006dce
+  候选_x_ui_node_select_off_r12_生效色_描边.png     b3e94e879a0d1f1f0acf01c493a864a7
+  候选_x_ui_node_select_off_r16.png            50a669177d2fe887c363d9c608630d3a
+  候选_x_ui_node_select_off_r16_描边.png         db9d7115bd6cc8cbfbea2a6dbca4cf22
+  候选_x_ui_node_select_off_r16_生效色_描边.png     3943a7393c18d18f84cc696ce34be477
+  候选_x_ui_node_frag_off_r8.png               c46bbd05b60308ea823d689c31b7978b
+  候选_x_ui_node_frag_off_r12.png              9a284b165936d40d77936833901e0421
+  候选_x_ui_node_frag_off_r16.png              d2953aa51f3a322e52abe426cf37cabc
+  x_ui_node_section_off.png                  f3e1d3b9c765d2deaec57ccde6128fef  (正式件，只读)
+  x_ui_node_select_off.png                   0b5526d1cd502645c0c914ca3e994396  (正式件，只读)
+  x_ui_node_frag_off.png                     f724354b35c5cd1a585ccccc1ae86421  (正式件，只读)
+
+全部候选件尺寸/RGB 检查：通过

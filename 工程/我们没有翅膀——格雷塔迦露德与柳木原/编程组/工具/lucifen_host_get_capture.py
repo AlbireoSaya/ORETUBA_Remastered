@@ -1,0 +1,6 @@
+import ctypes
+
+system = ctypes.WinDLL("user32", use_last_error=True)
+GetCapture = system.GetCapture
+GetCapture.argtypes = []
+GetCapture.restype = ctypes.c_void_p

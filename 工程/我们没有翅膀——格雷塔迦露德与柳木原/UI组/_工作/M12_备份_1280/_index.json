@@ -1,0 +1,20 @@
+{
+  "_comment": "屏清单（主代理维护）。owner = 写权限归属模块；file = 相对 layout/screens/ 的文件名。",
+  "screens": [
+    { "id": "title",     "file": "01_title.json",       "title_cn": "标题画面",                 "owner": "M0", "required": ["标题文字", "副标题", "主菜单 6 项", "版权行", "背景图"] },
+    { "id": "dialog",    "file": "10_dialog.json",      "title_cn": "对话框/名字框/系统条/选择肢", "owner": "M0", "required": ["对话窗底", "名字框", "正文文本区", "系统条 8 键", "选择肢列表", "文本光标"] },
+    { "id": "sysmenu",   "file": "20_sysmenu.json",     "title_cn": "系统菜单",                 "owner": "M5", "required": ["面板", "菜单项 10 条", "关闭键"] },
+    { "id": "confirm",   "file": "21_confirm.json",     "title_cn": "确认框",                   "owner": "M5", "required": ["九宫格边框", "提示文本", "是/否 按钮"] },
+    { "id": "loading",   "file": "22_loading.json",     "title_cn": "加载提示",                 "owner": "M5", "required": ["居中提示图 320×120", "全屏遮罩"] },
+    { "id": "save",      "file": "23_save.json",        "title_cn": "存档",                     "owner": "M5", "required": ["底图", "槽列表 8 槽", "槽内缩略图/日期/摘要", "翻页", "返回"] },
+    { "id": "load",      "file": "24_load.json",        "title_cn": "读档",                     "owner": "M5", "required": ["底图", "槽列表 8 槽", "翻页", "返回"] },
+    { "id": "config",    "file": "25_config.json",      "title_cn": "配置",                     "owner": "M5", "required": ["底图", "设置项列表 ≥12 项", "说明栏", "返回"] },
+    { "id": "backlog",   "file": "26_backlog.json",     "title_cn": "回想",                     "owner": "M5", "required": ["底板", "文本列表", "滚动条", "返回"] },
+    { "id": "gallery",   "file": "27_gallery.json",     "title_cn": "CG 画廊",                  "owner": "M5", "required": ["底板", "缩略图网格", "页码", "返回"] },
+    { "id": "music",     "file": "28_music.json",       "title_cn": "音乐鉴赏",                 "owner": "M5", "required": ["底板", "曲目条列表", "播放控制", "返回"] },
+    { "id": "ending",    "file": "29_ending.json",      "title_cn": "片尾（STAFF/歌词）",        "owner": "M5", "required": ["滚动区", "歌词条", "跳过"] },
+    { "id": "chapter",   "file": "30_chapter.json",     "title_cn": "主线·章节选择",             "owner": "M4", "required": ["幕/章卡片列表", "选中态", "进入键", "返回"] },
+    { "id": "fragment",  "file": "31_fragment.json",    "title_cn": "番外（Fragment）选择",      "owner": "M4", "required": ["碎片格阵", "未解锁态", "收集计数", "详情栏", "进入键", "返回"] },
+    { "id": "flowchart", "file": "32_flowchart.json",   "title_cn": "剧情流程图",               "owner": "M4", "required": ["节点三态（已读/可去/未解锁）", "连线", "当前节点标记", "图例", "返回"] }
+  ]
+}

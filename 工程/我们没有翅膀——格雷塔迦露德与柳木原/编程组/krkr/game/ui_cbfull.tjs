@@ -1,0 +1,40 @@
+// ============================================================
+// ui_cbfull.tjs —— 【诊断专用】把内容区四源临时改成全画布
+//
+// 用途：**模拟 D-04 落地后的状态**（`content_boxes` 的 ot/otr/ota/otp 由 `360,90,1200,900`
+//   改为 `0,0,1920,1080`），用于：
+//     · 画幅补边样张的**三格实机对照**（ISSUE-20261002-09 之后的对照实验）；
+//     · D-04 由 UI 组正式落地前的**预演**。
+//
+// ★ 开关：`game\cbfull.txt`（由 `ui_boot.tjs` 的窗口交接末尾读取并装载）。
+//   成品不含该开关 ⇒ 零开销、零行为改变（与 uidiag.txt / verify14.txt / verify15.txt 同套路）。
+// ★ **只改运行期内存里的布局数据**，不写回任何文件；UI 组正式落地 D-04 后本模块自然失效（值相同则无变化）。
+// ============================================================
+
+var UICbFullDone = false;
+
+function uiCbFullApply()
+{
+	if(UICbFullDone) return true;
+	if(UILayoutData === void || UILayoutData.content_boxes === void)
+	{
+		Debug.message("[CBFULL][ERR] 布局未就绪或无 content_boxes —— 未生效");
+		return false;
+	}
+	var w = 1920, h = 1080;
+	try { if(UI_W > 0) w = UI_W; if(UI_H > 0) h = UI_H; } catch(eW) { }
+	var cb = UILayoutData.content_boxes;
+	// TJS2 无 for...in ⇒ 固定名单逐项处理
+	var srcs = ["ot", "otr", "ota", "otp"];
+	for(var i = 0; i < srcs.count; i++)
+	{
+		var b = cb[srcs[i]];
+		if(b === void || b === null) { Debug.message("[CBFULL] 缺源：" + srcs[i]); continue; }
+		Debug.message("[CBFULL] " + srcs[i] + " 原 " + b.x + "," + b.y + "," + b.w + "," + b.h
+			+ " → 0,0," + w + "," + h);
+		b.x = 0; b.y = 0; b.w = w; b.h = h;
+	}
+	UICbFullDone = true;
+	Debug.message("[CBFULL] 已把内容区四源改成全画布（模拟 D-04）");
+	return true;
+}

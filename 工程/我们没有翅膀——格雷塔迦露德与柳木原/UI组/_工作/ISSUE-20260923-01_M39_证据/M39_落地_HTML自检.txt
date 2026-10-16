@@ -1,0 +1,97 @@
+==============================================================================
+[A] 复刻\_selftest_states.html（状态机自测，期望 SELFTEST ALL PASS）
+==============================================================================
+  SELFTEST`。
+  SELFTEST OK   初态 = normal  —— x_ui_choice_off.png
+  SELFTEST OK   ① 左键按下 -&gt; pressed  —— x_ui_choice_press.png
+  SELFTEST OK   ② 元素内抬起 -&gt; 离开 pressed（本 bug 的正身）  —— x_ui_choice_off.png
+  SELFTEST OK   ② document 抬起兜底复位  —— x_ui_choice_press.png -&gt; x_ui_choice_off.png
+  SELFTEST OK   ② 按住期间保持 pressed  —— x_ui_choice_press.png
+  SELFTEST OK   ③ 按住移出 -&gt; 取消按下态  —— x_ui_choice_off.png
+  SELFTEST OK   ⑤ pressed 优先于 hover  —— x_ui_choice_over.png -&gt; x_ui_choice_press.png
+  SELFTEST OK   ⑤ 抬起后回落 hover（仍在悬停）  —— x_ui_choice_over.png
+  SELFTEST OK   ⑤ 移出后回落 normal  —— x_ui_choice_off.png
+  SELFTEST OK   ④ 换屏后旧节点已销毁（pressHolder 随之复位）  —— 旧元素在 DOM 中=已移除
+  SELFTEST OK   ⑥a 悬停**图标** -&gt; 图标与文字同步换态  —— 图标 x_ui_menuicon_start.png→x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start.png→x_ui_btntxt2c_start_on.png
+  SELFTEST OK   ⑥b 悬停**文字** -&gt; 与悬停图标结果逐项相同  —— 图标 x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start_on.png
+  SELFTEST OK   ⑥c 其它组不受影响  —— 另一组 = x_ui_menuicon_continue.png
+  SELFTEST OK   ⑥d 移出后全组回落常态  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png
+  SELFTEST OK   ⑥e 悬停中换屏再回来 -&gt; 悬停移出后仍能回落常态（原 Critical 的回归）  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png
+  SELFTEST OK   ⑦ 重叠带确实存在（前置）  —— 8×66
+  SELFTEST OK   ⑦ 重叠带点击 -&gt; 触发动作（原为死区；实机本来就会触发）  —— title → dialog
+  SELFTEST OK   ⑧ 附加层只在 dialog 上出现（title 上不出现）  —— dialog: icon/hit/pin/pill=true/true/true/true，attachScreen=quickbar；title: icon=false
+  SELFTEST OK   ⑧b M37 退场四件（整条/把手/高面板/整条把手热区）均不在数据与 DOM 中  —— 四件全部已退场 ✓
+  SELFTEST OK   ⑨ 初始态 collapsed：整列**不绘制**（24 件 quickbar flag 元素全隐藏、0 个可见 hit）  —— quickbar=collapsed，quickbar-flag 元素 24/24 隐藏，可见 hit 数=0（应为 0）
+  SELFTEST OK   ⑩ x ≥ in_x → 展开  —— x=1846（in_x=1842）⇒ quickbar=expanded
+  SELFTEST OK   ⑪a 指针移到 x &lt; out_x → 仅起计时（delay_ms 内**未**收起）  —— out_x=1780，x=1740，排入 400ms 计时=1 个，quickbar=expanded
+  SELFTEST OK   ⑪b 期间指针回到 x ≥ in_x → 撤销收起计时（clearTimeout 命中）  —— clearTimeout(900001) 已调用=true，quickbar=expanded
+  SELFTEST OK   ⑪c 延时未到前保持展开（重复移动不叠加计时器）  —— 在途 400ms 计时=1 个，quickbar=expanded
+  SELFTEST OK   ⑪d 延时到期 → 才收起，并清空气泡  —— quickbar=collapsed，qbar_tip=""
+  SELFTEST OK   ⑫a 点「锁定」→ 钉住且保持展开（action=quick_pin）  —— qbar_pin=1，quickbar=expanded
+  SELFTEST OK   ⑫b 钉住后指针移到 out_x 之外 → **不起计时、不收起**  —— quickbar=expanded，在途计时=0 个
+  SELFTEST OK   ⑫c 钉住时指针离开画布 → 仍不收起  —— quickbar=expanded，在途计时=0 个
+  SELFTEST OK   ⑬ 名称浮出跟随悬停项：hit_save→save、hit_chart→chart、项间空隙→空  —— save→"save"，chart→"chart"，项外→""
+  SELFTEST OK   ⑬b 白字与药丸随 flag 同步显隐（save 时 tx_save+pl_save 亮 → 切 chart 后双双灭）  —— save 时 tx_save 显示=true / pl_save 显示=true；切到 chart 后 tx_save 隐藏=true / pl_save 隐藏=true
+  SELFTEST OK   ⑬c 悬停第 N 项热区 → 第 N 个 icon 换 `_on` 图、其它保持常态、移出后复位（组绑定）  —— 悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档后=x_ui_qbicon_save_on.png/x_ui_qbicon_load.png；移出后=x_ui_qbicon_save.png
+  SELFTEST OK   ⑭ 收起态整列不可点（12 项中心处**没有任何 quick.* 命中** —— 整条把手已随 M37 退场）  —— quickbar=collapsed，命中到快捷条元素的点：无 ✓，screen=dialog
+  SELFTEST OK   ⑭b 收起态下状态未被改变（未换屏、无动作派发）  —— screen dialog → dialog
+  SELFTEST OK   ⑭c 展开态 12 项 × 5 点全部命中**该项热区自己**（圆形 icon 不参与点击，不吃命中）  —— 60/60 点命中该项
+  SELFTEST OK   ⑭d 收起态同一批 60 点**命中不到任何快捷条元素**（整列被 flag 挡掉 ⇒ 完全不绘制）  —— 0/60 点命中项；其中命中快捷条元素的=0（应为 0）；首例：quick.hit_lock@1883,44→(无)
+  SELFTEST OK   ⑮ 展开态逐项派发（spy 计数）：quick_pin 两次切换=1/空，next_choice 有反馈，open_config 换屏  —— quick_pin 派发 2 次 → 1→；next_choice 提示="前进到下一选择点（演示：不实际前进）"（screen 仍 dialog）；open_config → config
+  SELFTEST OK   ⑯ open_sysmenu 不再换屏，改为展开竖条（20_sysmenu 数据保留但不可达）  —— screen dialog → dialog，quickbar=expanded，sysmenu 数据存在=true
+  SELFTEST OK   ⑰ 前置：主语确为纯热区（无 state_assets / state_group）  —— cfg.hit_reset 带 ui-hit-hasstate=false
+  SELFTEST OK   ⑰ ?chrome=0 压掉纯热区的点击瞬闪叠色（computedStyle 实测）  —— 默认=rgba(122, 176, 232, 0.34)　→　chrome=0=rgba(0, 0, 0, 0)
+  SELFTEST ALL PASS
+  SELFTEST OK   ' : 'SELFTEST FAIL ') + name + (detail ? '  —— ' + detail : ''));
+  SELFTEST ' + (fails ? ('FAILED ' + fails + ' 项') : 'ALL PASS'));
+
+  判定：ALL PASS ｜ 原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260923-01_M39_证据\M39_selftest_A_dump.html ｜ edge rc=0
+
+==============================================================================
+[B] 复刻\index.html?selftest=1（DOM 级自检，期望 RESULT=OK）
+==============================================================================
+  PASS	canvas-1920	1920pxx1080px
+  PASS	dialog.screen	dialog
+  PASS	dialog.under=null	null
+  PASS	dialog.overlay-empty	0
+  PASS	sysicons.open	sysicons
+  PASS	sysicons.under=dialog	dialog
+  PASS	sysicons.base-painted	57
+  PASS	sysicons.base-DOM-preserved
+  PASS	sysicons.overlay-children	20
+  PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+  PASS	sysicons.icons-9	9
+  PASS	sysicons.dismiss-click	dialog
+  PASS	sysicons.overlay-cleared	0
+  PASS	sysicons.back-to-dialog-DOM-preserved
+  PASS	sysicons.reopen	sysicons
+  PASS	sysicons.icon-dispatch	save
+  PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 15 件（数据推导）
+  PASS	zeronine.img-not-borderimage	15/15（主语 = 数据推导的全集）
+  PASS	zeronine.no-placeholder
+  PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+  SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+  PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+  PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+  PASS	overlay.close-overlay	dialog
+  PASS	flags.attach-rendered-on-dialog	attachId=quickbar，quick.ic_lock/hit_lock/pin_mark 齐备=true/true/true
+  PASS	flags.old-structure-gone	M37 退场四件都不在 DOM：tgl/btn/tips/hit_toggle = false/false/false/false
+  PASS	flags.collapsed-by-default	quickbar=collapsed，ic_lock.display=none，hit_lock.display=none，pin_mark.display=none
+  PASS	flags.expanded-shows-icons-and-items-not-pin	ic_lock=，hit_lock=，pin_mark=none
+  PASS	flags.tip-follows-item	hit_lock 中心→"lock"，hit_option 中心→"option"，项外空白→""
+  PASS	flags.icon-hover-material-via-group	悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=x_ui_qbicon_save_on.png/x_ui_qbicon_load.png；移出后=x_ui_qbicon_save.png
+  PASS	flags.open_sysmenu-expands-not-navigates	screen dialog → dialog（未换屏），quickbar=expanded，20_sysmenu 数据保留=true
+  PASS	flags.pin-toggle	钉住 flag 名（reveal.pin_flag）=qbar_pin，解除后 pin_mark.display=none
+  PASS	flags.attach-absent-on-title	title 上 attachId=null，quick.ic_lock 存在=false
+  PASS	flags.item-subject-count	快捷条「项」热区（quick.hit_&lt;key&gt; 且有 action）12 件（应为 12）
+  PASS	flags.item-N-click-dispatch-N	12/12 项：命中该项 且 该 action 的可辨副作用出现
+  PASS	flags.tip-halfopen-boundary	x=w-1→"lock" / x=w→"" / y=h-1→"lock" / y=h→""（半开区间，项=lock）
+  PASS	esc.back-to-previous-screen	save（history=1）→ Esc → screen=dialog（应 dialog），提示=""（应无）
+  PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+  PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+  PASS	zeronine.all-subjects-stretched-to-element-box	15/15（主语 = ⑤ 的全集）
+  PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+
+  判定：RESULT=OK ｜ 原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260923-01_M39_证据\M39_selftest_B_dump.html ｜ edge rc=0
+
+（已清理无头 Edge 的 user-data-dir：E:/ZCode Workspace/Galgame/临时/edge_m39）

@@ -1,0 +1,139 @@
+可AI生图替代素材评估.md:25:| 系统屏满幅背景 | 1（`x_bg_system.png`，来自 `bg63.png`） | title / save / load / config / backlog / music 等（★ **M45**：`sysmenu` 屏已废除，从本列移除） | 用户指定用 `bg63.png` 铺满、不留黑边 |
+会话交接_20260922_按钮文字生成.md:5:> **★ M45 后注（2026-09-23）**：本文提到的 `sysmenu`（系统菜单）屏已于 2026-09-23 按用户裁定
+会话交接_20260922_按钮文字生成.md:148:| **已重建 13 屏** | title（竖排条）/ sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 经素材重映射的 sysmenu |
+会话交接_20260922_按钮文字生成.md:173:| 3 | `sysmenu` 仍是「素材重映射」态，未按 PSB 精修 | 待办（《交汇协奏曲》无对应容器，拟沿用现有设计改配色） |
+UI清单.md:586:| ~~`sysmenu_base`~~ | ~~2~~ | ~~182×348（1 件）; 182×265（1 件）~~ | ~~`ui_sm*`~~（**★ M45：`sysmenu` 屏已废除；该族**从未接入资产集**，`krkr/assets/ui/` 内无 `ui_sm*` 件；`工具\make_assets.py` 的取件条目已就地停用**） |
+UI清单.md:610:| ~~`sysmenu_base`~~ | ~~2~~ | ~~273×522（1 件）; 273×398（1 件）~~ | ~~`sm_base*`~~（**★ M45：`sysmenu` 屏已废除；该族**从未接入资产集**，`krkr/assets/ui/` 内无 `sm_base*` 件；`工具\make_assets.py` 的取件条目已就地停用**） |
+会话交接_20260920_UI组.md:102:**16 屏**：`title` / `dialog` / `sysicons`（右键图标浮层）/ `sysmenu` / `confirm` / `loading` / `save` / `load` / `config` / `backlog` / `gallery` / `music` / ~~`chapter`~~ / `fragment` / `flowchart` / `ending`
+会话交接_20260920_UI组.md:105:> **★ M45 后注（2026-09-23）**：`sysmenu`（系统菜单）屏亦已按用户裁定（「已有药丸按钮系统」）**整体废除**（屏文件 / `_index.json` 条目 / 两端活引用全清，19 → 18 屏），系统功能由右端竖排快捷条 `quickbar` 承担；`open_sysmenu` **动作**保留。故上句「16 屏」的历史清单里 `sysmenu` 已不存在（本行按「历史保留不改」原则不划改）。
+会话交接_20260920_UI组.md:172:| **U8** | **用户已明确：11 个系统屏「未来重做、深度引入 AI 内容」，现在搁置** | 已搁置（~~`sysmenu`~~/`confirm`/`loading`/`save`/`load`/`config`/`backlog`/`gallery`/`music`/`ending`/~~`chapter`~~/`flowchart`）**★ M43 后注：`chapter` 屏已于 2026-09-23 删除**；**★ M45 后注：`sysmenu` 屏已于 2026-09-23 废除**（用户裁定「已有药丸按钮系统」） |
+会话交接_20260921_系统屏重置.md:10:> **★ M45 后注（2026-09-23）**：本文重建的九个系统屏之一 `20_sysmenu.json`（系统菜单）
+会话交接_20260921_系统屏重置.md:11:> 已于 2026-09-23 按用户裁定**整体废除**（用户原话「现在废除『系统菜单 sysmenu』页，因为我们已有
+会话交接_20260921_系统屏重置.md:12:> 药丸按钮系统」，19 → 18 屏）⇒ 本文 §三.0 的逐屏要点与 §3.2 表格里的 `20_sysmenu` 行
+会话交接_20260921_系统屏重置.md:75:**逐屏要点**：`20_sysmenu` 8 项 408×58、x=756（中心 960）· `21_confirm` 两键以面板中心对称（原整体左偏 69px）·
+会话交接_20260921_系统屏重置.md:100:| 系统菜单 | `20_sysmenu.json` | M31 | 29 | `SD-2-1` 菜单项 14 态 + `SD-1-1` 返回 + `SD-9-1` 底图 |
+to-do-list.md:33:| **M5** | 系统界面布局（系统菜单/确认/加载/存档/读档/配置/回想/画廊/音乐/片尾） | editor | `layout\screens\2x_*.json`（10 屏 / **188 元素**）、`_工作\M5_布局报告.md` | M0 | **✅ 完成**（引用 13 件既有资产、**未新增资产**；`loading` 的「提示图」因含日文烘焙不可用改判为「引擎绘字 + 320×120 框」，偏离已登记）<br>🔁 **M45 后注（2026-09-23）**：`20_sysmenu.json` **已废除** ⇒ `2x_*.json` 现为 **9 屏**（本条为 M5 当时的历史记录，数字不改） |
+to-do-list.md:84:  🔁 **M45 后注（2026-09-23）**：`20_sysmenu.json` 已废除 ⇒ 现为 **9 屏**（`21_confirm` / `22_loading` / `23_save` / `24_load` / `25_config` / `26_backlog` / `27_gallery` / `28_music` / `29_ending`）。
+会话交接_20260922-02_按钮文字素材交付.md:5:> **★ M45 后注（2026-09-23）**：本文提到的 `sysmenu`（系统菜单）屏已于 2026-09-23 按用户裁定
+会话交接_20260922-02_按钮文字素材交付.md:201:| **已重建 13 屏** | title / sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 素材重映射的 sysmenu |
+会话交接_20260922-02_按钮文字素材交付.md:238:| 5 | `sysmenu` 仍是「素材重映射」态，未按 PSB 精修 | 待办（《交汇协奏曲》无对应容器，拟沿用现有设计改配色） |
+会话交接_20260922-03_按钮文字与组绑定.md:27:> **替换**原传统系统菜单屏 `sysmenu`。工程记录：`工程记录\2026-09-22_对于我们没有翅膀格雷塔迦露德与柳木原UI组右端竖排快捷条的修改.md`。
+会话交接_20260922-03_按钮文字与组绑定.md:30:> **把 `sysmenu` 屏彻底废除**（屏文件与 `_index.json` 条目删除、活引用清理），见 §4之8。
+会话交接_20260922-03_按钮文字与组绑定.md:47:时不自动收起；`open_sysmenu`（含点收起态把手）＝展开不钉住；Esc 两端＝关浮层 → 返回上一层 → 退到标题。
+会话交接_20260922-03_按钮文字与组绑定.md:76:6. ~~`sysmenu` 屏**数据与素材保留但不可达**（`_index.json` 仍登记；巡演步表与白名单已剔除）~~；
+会话交接_20260922-03_按钮文字与组绑定.md:78:   屏文件 / `_index.json` 条目 / 两端活引用全清（19 → 18 屏）；`open_sysmenu` 动作保留。见 §4之8。
+会话交接_20260922-03_按钮文字与组绑定.md:81:8. `m33_rebuild_screens.py` 的产物（`20_sysmenu`/`22_loading`）**已整体失效**（引用不存在的素材）⇒ **不得再运行**。
+会话交接_20260922-03_按钮文字与组绑定.md:82:   ★ **M45（2026-09-23）后注**：其中 `20_sysmenu` **已随屏废除而删除**，`build_sysmenu()` 与 `__main__` 的
+会话交接_20260922-03_按钮文字与组绑定.md:265:### 4之8. M45：**废除「系统菜单 `sysmenu`」屏**（`ISSUE-20260923-08`，用户裁定）
+会话交接_20260922-03_按钮文字与组绑定.md:267:用户指令（2026-09-23）：「**现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统。**」
+会话交接_20260922-03_按钮文字与组绑定.md:270:**① `sysmenu` 屏已整体废除（19 → 18 屏）**：屏数据 `layout/screens/20_sysmenu.json`（**29 元素**）/
+会话交接_20260922-03_按钮文字与组绑定.md:277:**② 动作 `open_sysmenu` 一字未动（★ 这是本轮的边界）**：它的语义自 M2 起即
+会话交接_20260922-03_按钮文字与组绑定.md:279:**从来不是**「打开传统系统菜单屏」；本次只清理「`open_sysmenu` → `sysmenu` 屏」这条
+会话交接_20260922-03_按钮文字与组绑定.md:284:  巡演步注释、`uiTourCollectScreenIds` 白名单注释）——**无逻辑改动**，`probe` 白名单本就不含 `sysmenu`。
+会话交接_20260922-03_按钮文字与组绑定.md:285:- `复刻\replica.js`：删 `SCREEN_CATALOG` 的 `sysmenu` 条目；**断言主语收窄 + 新增废除自证** ——
+会话交接_20260922-03_按钮文字与组绑定.md:286:  `flags.open_sysmenu-expands-not-navigates` 的末项由 `!!SCREENS.sysmenu`（「屏数据仍保留」）
+会话交接_20260922-03_按钮文字与组绑定.md:287:  改为 `!SCREENS.sysmenu`（「屏已真废除」），动作语义断言不变。
+会话交接_20260922-03_按钮文字与组绑定.md:288:- `复刻\_selftest_states.html` ⑯：同样改为 `!LAY.screens.sysmenu`。
+会话交接_20260922-03_按钮文字与组绑定.md:289:- 工具：`test_gen_sync.py` 的 GENERATORS 移除 `("build_sysmenu", "20_sysmenu.json")`；
+会话交接_20260922-03_按钮文字与组绑定.md:290:  `m33_rebuild_screens.py` 删 `build_sysmenu()` 与 `__main__` 的 write 调用；
+会话交接_20260922-03_按钮文字与组绑定.md:291:  `make_assets.py` 的 A 类取件条目 `("sysmenu_base", ["sm_base","sm_base2"])` 就地停用
+会话交接_20260922-03_按钮文字与组绑定.md:299:——**序列里没有 `sysmenu`**；快捷条（药丸系统）**不受影响**：收起态巡演 `quickbar 实绘元素=0`、
+会话交接_20260922-03_按钮文字与组绑定.md:510:| 1 | 与现有传统菜单 `sysmenu` 的关系 | **竖条替换传统菜单**（游戏内改右端呼出；标题屏保留标题自己的菜单；旧 `sysmenu` 素材保留不删；需改动作接线与巡演步骤，并重跑 23 屏验收） |
+00_UI组认知与接口契约.md:172:| 4 | ~~`sysmenu`~~ | ~~系统菜单~~ | **★ M45（2026-09-23，用户裁定）已废除**：用户原话「现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统」⇒ 屏数据 / `_index.json` 条目 / 巡演白名单 / 两端活引用 / 文档屏清单全清（19 → **18 屏**）；**系统功能改由右端竖排快捷条 `quickbar` 承担**（M34–M37 落地）。依据（原版 `sm_base`/`sm_*` 族）保留作溯源；该族**从未接入资产集**（`krkr/assets/ui/` 内无 `sm_*` 件）。快照归档 `_工作\M45_旧素材归档\` |
+素材裁决与图片化日文风险上报.md:61:| `sm_save/load/cfg/skip/auto/win/log/ret/title/end/s_s_ret` | 11 | 612×26（`sm_auto` 1224×26） | 菜单条日文（セーブ / ロード / 環境設定 / スキップ / オート / ウィンドウ消去 / バックログ / タイトルに戻る / ゲーム終了 / キャンセル） | **引擎绘字**（`dlg.sysbar` 8 键 + `sysmenu` 10 项）。★ **M45（2026-09-23）**：`sysmenu` 屏**已废除**（用户裁定「已有药丸按钮系统」）⇒ 本族的**消费方只剩 `dlg.sysbar`**（且 M38 无框化后 `dlg.sysbar` 已退场，功能改由右端快捷条 `quickbar` 承担）；**本族处理口径（引擎绘字、不作文字层）不变**，仅消费方数量减少 |
+krkr\README_运行方式.md:76:★ M45（2026-09-23，用户裁定）：「系统菜单 `sysmenu`」屏**已废除**（用户原话「现在废除『系统菜单
+krkr\README_运行方式.md:77:sysmenu』页，因为我们已有药丸按钮系统」）⇒ 上句「另有 `sysmenu`（数据保留、已不可达）」的旧口径
+krkr\README_运行方式.md:86:（★ M45：`sysmenu` 系统菜单**已废除**，不再是「保留不删」；`open_sysmenu` **动作**保留，
+krkr\README_运行方式.md:90:**本次实测（2026-09-23，M45 废除 `sysmenu` 后重跑）：25 屏记账 / 24 步 / 25 张 PNG
+krkr\README_运行方式.md:94:历史：M2 实测 26 屏记账 / 25 步 / 26 张 PNG；移除 `sysmenu` 步之前为 27 屏。
+krkr\README_运行方式.md:309:`open_sysmenu` 动作本身保留为**编程入口**（深链 / 附加层里 action 留空的 hit 兜底），
+krkr\README_运行方式.md:311:★ **M45（2026-09-23，用户裁定）**：`open_sysmenu` 曾指向的传统系统菜单屏 `sysmenu`
+工具\test_click_reach.py:4: ★ M43 删 `chapter` 屏后为 19 屏；★ M45 废除 `sysmenu` 屏后为 **18 屏**）
+layout\screens\_index.json:2:  "_comment": "屏清单（主代理维护）。owner = 写权限归属模块；file = 相对 layout/screens/ 的文件名。 ★ M45（2026-09-23，用户裁定）：`sysmenu`（系统菜单，20_sysmenu.json）**已废除**（19 → 18 屏）—— 系统功能由右端竖排快捷条（quickbar，「药丸按钮系统」）承担；屏数据快照见 _工作\\M45_旧素材归档\\。",
+复刻\_selftest_states.html:485:    /* ⑯ open_sysmenu（**动作本身**）不再打开传统系统菜单屏，而是「展开竖条」。
+复刻\_selftest_states.html:490:       ★ M45（2026-09-23，用户裁定）：原断言末项 `!!LAY.screens.sysmenu`（「屏数据仍保留」）
+复刻\_selftest_states.html:491:       随 `sysmenu` 屏**整体废除**已不成立 ⇒ 改为断言其**已不存在**（`!LAY.screens.sysmenu`）：
+复刻\_selftest_states.html:495:    RPC.doAction('open_sysmenu');
+复刻\_selftest_states.html:496:    say(RPC.state.screen === sc0 && flagOf('quickbar') === 'expanded' && !LAY.screens.sysmenu,
+复刻\_selftest_states.html:497:        '⑯ open_sysmenu 不再换屏，改为展开竖条（20_sysmenu 已废除）',
+复刻\_selftest_states.html:499:        + '，20_sysmenu 已废除=' + !LAY.screens.sysmenu);
+krkr\game\ui_screens.tjs:96://   · 整条开关（把手）动作名 = 动作表里的 `open_sysmenu`（schema §六 的动作名契约，**不是**
+krkr\game\ui_screens.tjs:99://     本兜底路径**当前无数据可达**；`open_sysmenu` 动作本身**保留**（= 「展开竖条（不钉住）」的
+krkr\game\ui_screens.tjs:102:var UIScrQuickToggleAct = "open_sysmenu";
+krkr\game\ui_screens.tjs:451://     曾显式写 action="open_sysmenu"；★ **M37 起该元素已随「整条带」退场**，
+krkr\game\ui_screens.tjs:695:// ★ M2 契约④：`open_sysmenu` 的新语义 = **展开竖条（不钉住）**。
+krkr\game\ui_screens.tjs:696://   ★ M45（2026-09-23，用户裁定）：传统系统菜单屏 `sysmenu`（`20_sysmenu.json`）**已废除** ——
+krkr\game\ui_screens.tjs:699://   `open_sysmenu` 动作**保留不动**（uiScreenMapOpen 早已移除 open_sysmenu -> sysmenu 这条映射）。
+krkr\game\ui_screens.tjs:704:	if(rv === null) return "当前屏无竖排快捷条（layout 无 reveal 数据），open_sysmenu 忽略";
+krkr\game\ui_screens.tjs:706:	if(flagName == "") return "reveal.flag 为空，open_sysmenu 忽略";
+krkr\game\ui_screens.tjs:709:	UIScrRevealMsg = "open_sysmenu -> 展开竖条（" + flagName + "=expanded，未钉住）";
+krkr\game\ui_screens.tjs:1065:	// ★ M2（契约④）：「open_sysmenu -> sysmenu」这条映射**已移除** —— 该动作的语义改为
+krkr\game\ui_screens.tjs:1066:	//   「展开竖排快捷条（不钉住）」，由 uiActionDispatch 直接处理（见 open_sysmenu 分支）。
+krkr\game\ui_screens.tjs:1067:	//   ★ M45（2026-09-23，用户裁定）：传统系统菜单屏 `sysmenu` **已废除**（不再是「保留不删」）——
+krkr\game\ui_screens.tjs:1069:	//   快照归档 `_工作\M45_旧素材归档\`。全库唯一曾能打开它的动作 `open_sysmenu` 语义早已改变。
+krkr\game\ui_screens.tjs:1138:	//   open_sysmenu：**不再打开传统菜单屏**，改为「展开竖条（不钉住、撤销收起计时）」。
+krkr\game\ui_screens.tjs:1425:	// ★ M2（契约⑥）：原「系统菜单 sysmenu」一步已**移除** —— 该屏不再是可达界面
+krkr\game\ui_screens.tjs:1426:	//   （open_sysmenu 改为展开竖排快捷条，见 uiScreenMapOpen / uiQuickbarOpen）；
+krkr\game\ui_screens.tjs:1429:	//   ⇒ 巡演序列里不会再出现 `sysmenu`（白名单本就不含它）。
+krkr\game\ui_screens.tjs:1476:	// ★ M2（契约⑥）：`sysmenu` 已从白名单移除 —— 该屏不再是可达界面，不参与巡演与
+krkr\game\ui_screens.tjs:1478:	//   ★ M45（2026-09-23，用户裁定）：`sysmenu` 屏**已整体废除** ⇒ 白名单不含它、屏文件亦已删除。
+复刻\ui_layout.js:16553:      "note": "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 81 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V2 裁决（用户 2026-09-21）**：与右键 9 图标浮层（`sysicons`）**并存**，`sysicons` 屏与其素材保留不动。\n★ 本屏为**新增**。\n★ **M1（ISSUE-20260922-28）**：接线屏级 `flags_default`/`reveal` 与元素级 `vis_flag`/`vis_when`；12 项热区 `action` 由派单契约指定；新增 `quick.pin_mark`。\n★ **M37（ISSUE-20260923-01，用户裁定 2026-09-23）· 形态重构**：\n  · 退场四件：`quick.btn`（展开整条 63×888）/`quick.tgl`（slim 把手 63×513）/ `quick.tips`（高面板 197×876）/`quick.hit_toggle`（整条把手热区，曾 action=open_sysmenu）；  7 件旧素材**移入** `_工作\\M37_旧素材归档\\`（不删，含旧 JSON 快照）。\n  · 新增 12 个**圆形 icon 徽章** `quick.ic_<key>`（image 64×64 画布 / 圆径 56，`state_assets{normal,hover}`，`state_group=quick.<key>`）+ 12 个**名称药丸** `quick.pl_<key>`（image，九宫格 l=r=22/t=b=0，按字数各自定宽）+ 12 条白字 `quick.tx_<key>`（字号 28，颜色 @palette.text_primary）；12 个热区 `quick.hit_<key>` 几何与 action **不变**，仅新增 `state_group` 以驱动图标/气泡同步。\n  · `quick.pin_mark` 由「引擎绘制矩形」改为**复用锁定 icon 悬停态图** （`x_ui_qbicon_lock_on.png` 叠加，**opacity 255**（L2 订正，原 200 会读作重影），z=93）。\n  · 「完全隐藏」由 flag 值实现：`collapsed` 时 12 icon + 12 药丸 + 12 文字全不绘制 ⇒ **收起态右端无任何可点热区**（整条把手退场）；展开入口 = 指针移到 x ≥ `reveal.in_x`。\n  · **机制侧未新增任何字段**：全部复用既有 `vis_flag`/`state_assets`/`state_group`/`qbar_tip`/`attach`（两端落点见 `layout/_schema.md` §四）。\n  · 素材：24 件 icon 由 G1 AI 直出（本轮为 G2 程序化占位件）；  · ★ **P1（2026-09-23）药丸重做**：vision 判定旧丸底（#3A5A9A×0.85 纯平实色 + 1px 浅边、无渐变/无外晕）与圆徽章「不是一套材质」⇒ 改为**竖向渐变 #6FA8E8→#3F6FB4 + 1px 描边 #A0C9F7 + 约 3px 青蓝外晕**（源画布 64 高、丸体居中，九宫格只横向拉伸）；**不新增色板键**（配色烘进 PNG；palette.json 未改）。\n  · ★ **Q1/Q2（2026-09-23，vision 非阻断精修）**：① 12 条白字加 **1px 深藏青描边**（`font.outline=true` / `#16305A` / 宽 1，用 M38 的既有机制，不动引擎）；② 丸体高 **44 → 40**（形态由「与徽章同重」收到「细标签」一档；纯丸体 40 / 徽章 54 = 0.74），字号 **24 → 21**（三标签墨高 21/22/21，最大 22 / 丸高 40 = 55%，参照 50%），宽度公式随之 `24n+60` → `21n+56`（内边距 24 不变、左右仍对称），九宫格端点 25 → 23。",
+layout\_schema.md:232:| ~~`sysmenu`~~ | ~~系统菜单~~ | ~~M5~~ | ~~`20_sysmenu.json`~~ | **★ M45（2026-09-23）已废除**（用户裁定「现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统」）：屏文件 / `_index.json` 条目 / 巡演白名单 / 两端活引用 / 文档屏清单全清（19 → **18 屏**）；系统功能由右端竖排快捷条 `quickbar` 承担；屏数据快照归档 `_工作\M45_旧素材归档\`。**动作 `open_sysmenu` 保留**（语义自 M2 起＝「展开竖排快捷条（不钉住）」） |
+layout\_schema.md:256:| `open_sysmenu` | **展开右端竖排快捷条（不钉住）** —— ★ **M45 起本名不再指任何屏**：`sysmenu` 屏已废除，动作语义自 M2 起即为「展开竖条」（`uiQuickbarOpen()` ／ `expandQuickbar()`），数据里已无元素指向它 ⇒ 现为**编程入口**（深链 / 附加层里 `action` 留空的 hit 兜底） | `open_flowchart` | 打开流程图 |
+layout\_schema.md:299:| `quick.hit_toggle` 的 action + 可见性 | ★ **M37 已退场**（整条带 → 一排独立圆形 icon，见下文「M37 追加」）：该元素**已从数据中删除**，其 `action=open_sysmenu` 由 `quick_pin` 等 12 个项热区取代；`open_sysmenu` 动作本身保留为**编程入口**（★ **M45**：它指向的 `sysmenu` 屏已废除，动作语义不变）。以下为 M1–M36 的历史口径：`action=open_sysmenu`：收起把手热区点一下即**展开竖条（不钉住）**；`open_sysmenu` 的语义由 M2/M3 **重定义**（不再是「打开传统系统菜单屏」）。自动收起由屏级 `reveal` 的 `in_x`/`out_x` 滞回 + `delay_ms` 驱动；「钉住」由 `quick_pin` / `reveal.pin_flag` 负责。**★ 该热区 `vis_when=collapsed`（仅收起态存在）** —— 修复 A：它与 12 项热区矩形重叠（w78 z96 覆盖 w75 z95），两态都可见会使 12 项全部不可达（见上文「重叠的覆盖式热区」铁律）。（主代理 2026-09-22 裁决 B、修复 A） |
+layout\_schema.md:316:| 6 | `open_sysmenu` 保留但**无数据落点** | 整条把手退场后，数据里没有元素再指向它 ⇒ 它成为**编程入口**（深链 / 附加层里 `action` 留空的热区兜底，`UIScrQuickToggleAct`）。展开的**唯一鼠标入口** = 指针移到 `x ≥ reveal.in_x`。Esc 不挂它（H1 裁决）。<br>★ **M45（2026-09-23）补记**：它曾指向的 `sysmenu` 屏**已整体废除**（用户裁定「已有药丸按钮系统」）⇒ 本动作**不再有任何屏语义**，仅剩上述编程入口；两端实现（`uiQuickbarOpen()` / `expandQuickbar()`）**一字未改**。 |
+工具\make_assets.py:133:    # ★ M45（2026-09-23，用户裁定）：`sysmenu`（系统菜单）屏**已整体废除**
+工具\make_assets.py:135:    #     实测 `ls krkr/assets/ui/ | grep -i "sm_\|sysmenu"` 为空）。
+工具\make_assets.py:138:    # ("sysmenu_base",    ["sm_base", "sm_base2"]),   ← M45 已停用
+krkr\game\ui_layout.tjs:15763:      note: "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 81 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V2 裁决（用户 2026-09-21）**：与右键 9 图标浮层（`sysicons`）**并存**，`sysicons` 屏与其素材保留不动。\n★ 本屏为**新增**。\n★ **M1（ISSUE-20260922-28）**：接线屏级 `flags_default`/`reveal` 与元素级 `vis_flag`/`vis_when`；12 项热区 `action` 由派单契约指定；新增 `quick.pin_mark`。\n★ **M37（ISSUE-20260923-01，用户裁定 2026-09-23）· 形态重构**：\n  · 退场四件：`quick.btn`（展开整条 63×888）/`quick.tgl`（slim 把手 63×513）/ `quick.tips`（高面板 197×876）/`quick.hit_toggle`（整条把手热区，曾 action=open_sysmenu）；  7 件旧素材**移入** `_工作\\M37_旧素材归档\\`（不删，含旧 JSON 快照）。\n  · 新增 12 个**圆形 icon 徽章** `quick.ic_<key>`（image 64×64 画布 / 圆径 56，`state_assets{normal,hover}`，`state_group=quick.<key>`）+ 12 个**名称药丸** `quick.pl_<key>`（image，九宫格 l=r=22/t=b=0，按字数各自定宽）+ 12 条白字 `quick.tx_<key>`（字号 28，颜色 @palette.text_primary）；12 个热区 `quick.hit_<key>` 几何与 action **不变**，仅新增 `state_group` 以驱动图标/气泡同步。\n  · `quick.pin_mark` 由「引擎绘制矩形」改为**复用锁定 icon 悬停态图** （`x_ui_qbicon_lock_on.png` 叠加，**opacity 255**（L2 订正，原 200 会读作重影），z=93）。\n  · 「完全隐藏」由 flag 值实现：`collapsed` 时 12 icon + 12 药丸 + 12 文字全不绘制 ⇒ **收起态右端无任何可点热区**（整条把手退场）；展开入口 = 指针移到 x ≥ `reveal.in_x`。\n  · **机制侧未新增任何字段**：全部复用既有 `vis_flag`/`state_assets`/`state_group`/`qbar_tip`/`attach`（两端落点见 `layout/_schema.md` §四）。\n  · 素材：24 件 icon 由 G1 AI 直出（本轮为 G2 程序化占位件）；  · ★ **P1（2026-09-23）药丸重做**：vision 判定旧丸底（#3A5A9A×0.85 纯平实色 + 1px 浅边、无渐变/无外晕）与圆徽章「不是一套材质」⇒ 改为**竖向渐变 #6FA8E8→#3F6FB4 + 1px 描边 #A0C9F7 + 约 3px 青蓝外晕**（源画布 64 高、丸体居中，九宫格只横向拉伸）；**不新增色板键**（配色烘进 PNG；palette.json 未改）。\n  · ★ **Q1/Q2（2026-09-23，vision 非阻断精修）**：① 12 条白字加 **1px 深藏青描边**（`font.outline=true` / `#16305A` / 宽 1，用 M38 的既有机制，不动引擎）；② 丸体高 **44 → 40**（形态由「与徽章同重」收到「细标签」一档；纯丸体 40 / 徽章 54 = 0.74），字号 **24 → 21**（三标签墨高 21/22/21，最大 22 / 丸高 40 = 55%，参照 50%），宽度公式随之 `24n+60` → `21n+56`（内边距 24 不变、左右仍对称），九宫格端点 25 → 23。",
+复刻\README_复刻说明.md:65:| `Esc` | **返回上一层／退出（与 krkr 一致）**：浮层打开 → 先收起浮层；否则还能返回上一层 → 返回上一层；已无上一层（栈底）→ 复刻端退到标题屏并给一行提示（真机是 `quit_game`，见 §五.20）。**不再触发 `open_sysmenu`** |
+复刻\README_复刻说明.md:69:| **点竖条把手**（M3 新增） | ~~展开竖条~~ ★ **M37 已作废**：整条把手 `quick.hit_toggle` 随「整条带」退场（收起态不再有任何可点热区）；`open_sysmenu` 动作**保留**为编程入口（深链等），不挂 Esc |
+复刻\README_复刻说明.md:83:`title / dialog / sysicons / confirm / loading / save / load / config / backlog / gallery / music / ending / fragment / flowchart`（★ M45：`sysmenu` 已从本列表移除）。
+复刻\README_复刻说明.md:87:★ **M45（2026-09-23，用户裁定）**：`sysmenu`（系统菜单）屏**已整体废除**（「已有药丸按钮系统」）⇒
+复刻\README_复刻说明.md:89:`open_sysmenu` **动作保留**（语义＝「展开竖排快捷条（不钉住）」，不是换屏动作）。
+复刻\README_复刻说明.md:187:| 16 | ~~**系统菜单屏本轮不可达（M3，有意为之）**~~ → **★ M45：该屏已整体废除，不再存在** | 历史口径（M3–M44）：**`open_sysmenu`** ＝「展开右端快捷条」，不再进入 `sysmenu` 屏（`Esc` 见 §五.20，已改为「返回上一层／退出」）。★ **M37 起该动作在数据里无落点**（整条把手退场）⇒ 只剩**深链**这一入口；`20_sysmenu.json` 数据与素材**保留不删**，复核页仍可用第二行「系统菜单」按钮直接查看该屏。<br>★ **M45（2026-09-23，用户裁定：「现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统」）**：该屏**已废除** —— `20_sysmenu.json` 与 `_index.json` 条目已删除、复核页的 `SCREEN_CATALOG` 条目与导航按钮已移除 ⇒ **深链与复核页都不再有该屏**（「数据保留不删」的旧口径作废；快照归档 `_工作\M45_旧素材归档\`）。`open_sysmenu` **动作保留**（语义＝展开竖条，非换屏） |
+复刻\README_复刻说明.md:253:| 4 | **动作**：`open_sysmenu` 改为「展开竖条」（撤销计时、不钉住）；新增 `quick_pin`（钉住切换）与 `next_choice`（`prev_choice` 的镜像）；其余 10 项走既有实现 | `doAction()` 的 `switch` 前置三个 case；`NAV` 删除 `open_sysmenu`；`expandQuickbar()` / `toggleQuickPin()`。**`open_sysmenu` 动作本身保留**（★ M37 后数据里**已无元素指向它** —— 整条把手退场 ⇒ 它成为**编程入口**：附加层里 action 留空的 hit 兜底；★ **M45 补注**：它曾指向的 `sysmenu` 屏**已废除** ⇒ 「深链进该屏」这一入口随之消失，动作语义不变），且 **Esc 不挂该动作** —— Esc 改为「返回上一层／退出」（主代理 2026-09-22 裁决 H1，见 `escBack()` 与 §五.20） |
+复刻\README_复刻说明.md:319:| **H1** | Esc 两端统一为「返回上一层／退出」 | `replica.js` 新增 `escBack()`（浮层 → 返回上一层 → 栈底退标题+提示）；keydown 的 Esc 分支改调 `escBack()`，**不再调 `doAction('open_sysmenu')`**；`open_sysmenu` 动作保留（把手仍指向它）。README 键位表与 §五.20 同步；断言 `esc.closes-overlay` / `esc.back-to-previous-screen` / `esc.bottom-goes-title-with-toast`（3 条，全部走真实 `keydown` 路径） |
+复刻\README_复刻说明.md:320:| **H3** | Esc 断言的反向验证 | `make_rev_fixture.py` 追加生成 `replica_rev_esc.js`（把 Esc 映射换回旧行为 `doAction('open_sysmenu')`）+ `rev_esc.html`；跑同一套 `?selftest=1` ⇒ **三条 `esc.*` 全部 FAIL**（实测：`screen=save` 未返回、并弹出"当前屏没有快捷条"提示），证明断言不是恒真 |
+工具\m34_build_screens.py:512:    #   ★ `open_sysmenu` 动作**保留**（Esc 已不用它；它仍是「展开竖条（不钉住）」的**编程入口**，
+工具\m34_build_screens.py:524:          "`quick.tips`（高面板 197×876）/`quick.hit_toggle`（整条把手热区，曾 action=open_sysmenu）；"
+layout\ui_layout.json:16548:      "note": "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 81 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V2 裁决（用户 2026-09-21）**：与右键 9 图标浮层（`sysicons`）**并存**，`sysicons` 屏与其素材保留不动。\n★ 本屏为**新增**。\n★ **M1（ISSUE-20260922-28）**：接线屏级 `flags_default`/`reveal` 与元素级 `vis_flag`/`vis_when`；12 项热区 `action` 由派单契约指定；新增 `quick.pin_mark`。\n★ **M37（ISSUE-20260923-01，用户裁定 2026-09-23）· 形态重构**：\n  · 退场四件：`quick.btn`（展开整条 63×888）/`quick.tgl`（slim 把手 63×513）/ `quick.tips`（高面板 197×876）/`quick.hit_toggle`（整条把手热区，曾 action=open_sysmenu）；  7 件旧素材**移入** `_工作\\M37_旧素材归档\\`（不删，含旧 JSON 快照）。\n  · 新增 12 个**圆形 icon 徽章** `quick.ic_<key>`（image 64×64 画布 / 圆径 56，`state_assets{normal,hover}`，`state_group=quick.<key>`）+ 12 个**名称药丸** `quick.pl_<key>`（image，九宫格 l=r=22/t=b=0，按字数各自定宽）+ 12 条白字 `quick.tx_<key>`（字号 28，颜色 @palette.text_primary）；12 个热区 `quick.hit_<key>` 几何与 action **不变**，仅新增 `state_group` 以驱动图标/气泡同步。\n  · `quick.pin_mark` 由「引擎绘制矩形」改为**复用锁定 icon 悬停态图** （`x_ui_qbicon_lock_on.png` 叠加，**opacity 255**（L2 订正，原 200 会读作重影），z=93）。\n  · 「完全隐藏」由 flag 值实现：`collapsed` 时 12 icon + 12 药丸 + 12 文字全不绘制 ⇒ **收起态右端无任何可点热区**（整条把手退场）；展开入口 = 指针移到 x ≥ `reveal.in_x`。\n  · **机制侧未新增任何字段**：全部复用既有 `vis_flag`/`state_assets`/`state_group`/`qbar_tip`/`attach`（两端落点见 `layout/_schema.md` §四）。\n  · 素材：24 件 icon 由 G1 AI 直出（本轮为 G2 程序化占位件）；  · ★ **P1（2026-09-23）药丸重做**：vision 判定旧丸底（#3A5A9A×0.85 纯平实色 + 1px 浅边、无渐变/无外晕）与圆徽章「不是一套材质」⇒ 改为**竖向渐变 #6FA8E8→#3F6FB4 + 1px 描边 #A0C9F7 + 约 3px 青蓝外晕**（源画布 64 高、丸体居中，九宫格只横向拉伸）；**不新增色板键**（配色烘进 PNG；palette.json 未改）。\n  · ★ **Q1/Q2（2026-09-23，vision 非阻断精修）**：① 12 条白字加 **1px 深藏青描边**（`font.outline=true` / `#16305A` / 宽 1，用 M38 的既有机制，不动引擎）；② 丸体高 **44 → 40**（形态由「与徽章同重」收到「细标签」一档；纯丸体 40 / 徽章 54 = 0.74），字号 **24 → 21**（三标签墨高 21/22/21，最大 22 / 丸高 40 = 55%，参照 50%），宽度公式随之 `24n+60` → `21n+56`（内边距 24 不变、左右仍对称），九宫格端点 25 → 23。",
+复刻\index.html:31:       ③ `open_sysmenu`（收起态把手）改为「展开竖条」，不再换屏；
+复刻\index.html:32:          **Esc = 返回上一层／退出**（与 krkr 一致，H1 裁决后**不再**触发 `open_sysmenu`）；
+复刻\index.html:37:     M45 变更（2026-09-23，用户裁定）：`sysmenu`（系统菜单）屏**已整体废除**（用户原话：
+复刻\index.html:38:       「现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统」）—— `20_sysmenu.json`
+复刻\index.html:40:       `open_sysmenu` **动作保留**（语义＝展开竖排快捷条，非换屏）。
+layout\screens\35_quickbar.json:5:  "note": "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 81 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V2 裁决（用户 2026-09-21）**：与右键 9 图标浮层（`sysicons`）**并存**，`sysicons` 屏与其素材保留不动。\n★ 本屏为**新增**。\n★ **M1（ISSUE-20260922-28）**：接线屏级 `flags_default`/`reveal` 与元素级 `vis_flag`/`vis_when`；12 项热区 `action` 由派单契约指定；新增 `quick.pin_mark`。\n★ **M37（ISSUE-20260923-01，用户裁定 2026-09-23）· 形态重构**：\n  · 退场四件：`quick.btn`（展开整条 63×888）/`quick.tgl`（slim 把手 63×513）/ `quick.tips`（高面板 197×876）/`quick.hit_toggle`（整条把手热区，曾 action=open_sysmenu）；  7 件旧素材**移入** `_工作\\M37_旧素材归档\\`（不删，含旧 JSON 快照）。\n  · 新增 12 个**圆形 icon 徽章** `quick.ic_<key>`（image 64×64 画布 / 圆径 56，`state_assets{normal,hover}`，`state_group=quick.<key>`）+ 12 个**名称药丸** `quick.pl_<key>`（image，九宫格 l=r=22/t=b=0，按字数各自定宽）+ 12 条白字 `quick.tx_<key>`（字号 28，颜色 @palette.text_primary）；12 个热区 `quick.hit_<key>` 几何与 action **不变**，仅新增 `state_group` 以驱动图标/气泡同步。\n  · `quick.pin_mark` 由「引擎绘制矩形」改为**复用锁定 icon 悬停态图** （`x_ui_qbicon_lock_on.png` 叠加，**opacity 255**（L2 订正，原 200 会读作重影），z=93）。\n  · 「完全隐藏」由 flag 值实现：`collapsed` 时 12 icon + 12 药丸 + 12 文字全不绘制 ⇒ **收起态右端无任何可点热区**（整条把手退场）；展开入口 = 指针移到 x ≥ `reveal.in_x`。\n  · **机制侧未新增任何字段**：全部复用既有 `vis_flag`/`state_assets`/`state_group`/`qbar_tip`/`attach`（两端落点见 `layout/_schema.md` §四）。\n  · 素材：24 件 icon 由 G1 AI 直出（本轮为 G2 程序化占位件）；  · ★ **P1（2026-09-23）药丸重做**：vision 判定旧丸底（#3A5A9A×0.85 纯平实色 + 1px 浅边、无渐变/无外晕）与圆徽章「不是一套材质」⇒ 改为**竖向渐变 #6FA8E8→#3F6FB4 + 1px 描边 #A0C9F7 + 约 3px 青蓝外晕**（源画布 64 高、丸体居中，九宫格只横向拉伸）；**不新增色板键**（配色烘进 PNG；palette.json 未改）。\n  · ★ **Q1/Q2（2026-09-23，vision 非阻断精修）**：① 12 条白字加 **1px 深藏青描边**（`font.outline=true` / `#16305A` / 宽 1，用 M38 的既有机制，不动引擎）；② 丸体高 **44 → 40**（形态由「与徽章同重」收到「细标签」一档；纯丸体 40 / 徽章 54 = 0.74），字号 **24 → 21**（三标签墨高 21/22/21，最大 22 / 丸高 40 = 55%，参照 50%），宽度公式随之 `24n+60` → `21n+56`（内边距 24 不变、左右仍对称），九宫格端点 25 → 23。",
+工具\test_state_targets.py:291:                               "action": "open_sysmenu", "label": "", "note": "自证注入",
+复刻\replica.js:46:     ③ `open_sysmenu` 不再换屏，改为「展开竖条」；新增 `quick_pin` / `next_choice`；
+复刻\replica.js:91:    /* ★ M45：`sysmenu`（系统菜单）条目**已删除** —— 该屏已整体废除（用户 2026-09-23 裁定：
+复刻\replica.js:92:       「现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统」）。系统功能由右端竖排
+复刻\replica.js:93:       快捷条（`quickbar`）承担；`open_sysmenu` **动作**保留（语义＝展开竖条），但不再有屏。 */
+复刻\replica.js:1440:  /* 展开竖条（`open_sysmenu` 的新语义）：撤销收起计时、置 expanded、**不钉住**。
+复刻\replica.js:2574:    /* ★ M3（ISSUE-20260922-28）：`open_sysmenu` **不再是换屏动作** —— 系统菜单已改为
+复刻\replica.js:2576:       ★ M45（2026-09-23，用户裁定）：`sysmenu` 屏**已整体废除** —— `20_sysmenu.json`
+复刻\replica.js:2578:       快照归档 `_工作\M45_旧素材归档\`。`open_sysmenu` 动作保留（语义＝展开竖条）。 */
+复刻\replica.js:2651:      case 'open_sysmenu': expandQuickbar(); return;
+复刻\replica.js:2704:     注：`open_sysmenu` 动作**保留**（= 「展开竖条（不钉住）」的**编程入口**，
+复刻\replica.js:2708:     ★ M45（2026-09-23）：它指向的 `sysmenu` 屏**已废除**，本动作**语义不变**（展开竖条）。 */
+复刻\replica.js:2968:           （栈深>1 → close＝返回上一层；栈底 → quit_game）。**不再触发 open_sysmenu**。 */
+复刻\replica.js:3310:       与 krkr 侧同契约：附加层画进同一画布并压在上层、默认收起、`open_sysmenu` 不再换屏而是展开竖条、
+复刻\replica.js:3393:    doAction('open_sysmenu');
+复刻\replica.js:3395:       原断言末项 `!!SCREENS.sysmenu`（「屏数据仍保留」）随本屏废除**已不成立**，
+复刻\replica.js:3396:       故改为断言其**已不存在**（`!SCREENS.sysmenu`）：动作语义（展开竖条、不换屏）保持不变，
+复刻\replica.js:3398:    chk('flags.open_sysmenu-expands-not-navigates',
+复刻\replica.js:3399:        state.screen === scBefore && getFlag('quickbar') === 'expanded' && !SCREENS.sysmenu,
+复刻\replica.js:3401:        + '，20_sysmenu 已废除=' + !SCREENS.sysmenu);
+复刻\replica.js:3420:       把手动作（`open_sysmenu`）。数据已修（M37 起整条把手**整体退场**），但**接线正确性**
+复刻\replica.js:3864:    expandQuickbar: expandQuickbar,                         // open_sysmenu 的新语义
+工具\test_quickbar_reach.py:385:            els.append({"id": "quick.zz_occluder", "kind": "hit", "z": 999, "action": "open_sysmenu",
+工具\m33_rebuild_screens.py:89:# ---------------------------------------------------------------- 20 sysmenu（★ M45 已废除）
+工具\m33_rebuild_screens.py:90:# ★ M45（2026-09-23，用户裁定）：「现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统。」
+工具\m33_rebuild_screens.py:91:#   ⇒ `sysmenu` 屏**已整体废除**：`layout/screens/20_sysmenu.json` 与 `_index.json` 条目已删除，
+工具\m33_rebuild_screens.py:93:#     屏数据快照归档 `_工作\M45_旧素材归档\20_sysmenu.json.snapshot`。
+工具\m33_rebuild_screens.py:94:#   ⇒ 本模块的 `build_sysmenu()` 与 `__main__` 里对应的 write 调用**一并删除**
+工具\m33_rebuild_screens.py:96:#   ⇒ `工具\test_gen_sync.py` 的 GENERATORS 里 `("build_sysmenu", "20_sysmenu.json")` 条目同步移除。
+工具\m33_rebuild_screens.py:321:    # ★ M45（2026-09-23）：`write("20_sysmenu.json", build_sysmenu())` 已删除 —— 该屏已整体废除。
+工具\test_gen_sync.py:76:        # ★ M45（2026-09-23，用户裁定）：`("build_sysmenu", "20_sysmenu.json")` 条目**已移除** ——
+工具\test_gen_sync.py:77:        #   `sysmenu` 屏已整体废除（屏文件删除、`_index.json` 条目移除、两端活引用清理），
+工具\test_gen_sync.py:78:        #   生成器侧的 `build_sysmenu()` 与 `__main__` 的 write 调用亦已删除 ⇒ 无产物可比。

@@ -1,0 +1,7592 @@
+{
+  "original_request": {
+    "security_attributes": 0,
+    "stack_size": 0,
+    "start_address": 5271290,
+    "parameter": 119533696,
+    "creation_flags": 0,
+    "thread_id_out": 33569996
+  },
+  "original_return_address": 5271254,
+  "original_CRT_parameter": 119533696,
+  "original_business_start": 5213520,
+  "original_business_parameter": 33569988,
+  "parent_fs0": "8c750002",
+  "source_thread_exit_not_executed": true,
+  "source_CreateThread_consumer_not_resumed": false,
+  "scope": "bounded original worker prefix on actual owned host thread; not a complete Windows loader/TEB model",
+  "worker_guest_reservation": {
+    "source_PE_reserve": 1048576,
+    "source_PE_commit": 4096,
+    "mapped_low_high": [
+      56754176,
+      57802752
+    ],
+    "OS_guard_pages_commit_growth_TEB_not_modeled": true
+  },
+  "actual_owned_thread_handle": 1484,
+  "actual_returned_tid": 18412,
+  "guest_TID_out_not_written_until_full_request_receipt": true,
+  "original_guest_start_pointer_not_passed_to_OS": true,
+  "actual_host_worker_tid": 18412,
+  "WUV_DLL_THREAD_ATTACH": {
+    "entry": 285289965,
+    "reason": 2,
+    "next_EIP": 57802736,
+    "return_value": 1,
+    "failure": null,
+    "new_API_events": []
+  },
+  "CRT_prefix": {
+    "next_EIP": 5271379,
+    "failure": null,
+    "original_parameter_tid": 18412,
+    "new_API_events": [
+      {
+        "api": "TlsSetValue",
+        "args": [
+          13,
+          119533696
+        ],
+        "native_return_address": 5271344,
+        "actual_Windows_API": true,
+        "guest_result": 1,
+        "actual_host_pointer": 139114976
+      },
+      {
+        "api": "GetCurrentThreadId",
+        "args": [],
+        "native_return_address": 5271362,
+        "actual_Windows_API": true,
+        "guest_result": 18412
+      }
+    ],
+    "FS0": "ecff7003",
+    "source_business_call_not_executed": true
+  },
+  "original_CRT_TLS_pointer_verified": true,
+  "original_CRT_tid_matches_OS": true,
+  "park_before_resource_cleanup": {
+    "source_EIP": 302236407,
+    "actual_worker_tid": 18412,
+    "live_font_count": 5,
+    "live_selected_font_DCs": 5
+  },
+  "actual_STILL_ACTIVE_during_parent_consumers": 259,
+  "host_guard_exit_is_not_original_exit_code": true,
+  "worker_errors": [],
+  "owned_thread_handle_retained_for_parent_consumers": true,
+  "parent_context_and_FS0_restored": true,
+  "worker_permissions_retained_while_parked": true,
+  "original_font_handles_live_during_parent_consumers": [
+    {
+      "guest_font": 1777729536,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "6d2c34e67c1217593b92747b4186d8120ca243ce79b769bdb60f984656825037",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729537,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "67d4f73b68eef4bd7c21bcced13c03a639fd824a0564042399e1d0b401a61cfd",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729538,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "2fd09ae96e9e994f2718a43e9f903a03c82a8abf9f020aafe4f2accf054d603c",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729539,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "fa31ea0a8f5e3203b15c5f7877f3fc56c3fa0ef32d70221f7915b39f82e686e1",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729540,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "0f2adefaed6eb381f7d42bbf594af5c29cdfb56951311c8a22c74303a2278abe",
+      "guards_pass": true
+    }
+  ],
+  "worker_context_and_FS0_restored_on_original_OS_tid_after_release": true,
+  "repeated_original_parent_rounds": [
+    {
+      "generation": 2,
+      "worker_still_active": 259,
+      "worker_payload": {
+        "source_EIP": 4541096,
+        "actual_worker_tid": 18412,
+        "resume_failure": null,
+        "live_font_count": 5
+      },
+      "parent": {
+        "real_parent_message_queue": {
+          "original_GetMessage_return_address": 4533591,
+          "guest_MSG_pointer": 33587172,
+          "native_MSG_bytes": 32,
+          "source_filter": [
+            0,
+            0,
+            0
+          ],
+          "real_PeekMessage_NOREMOVE": 1,
+          "no_message_injected": true,
+          "no_source_DispatchMessage_executed": false,
+          "preview_wParam_lParam": [
+            0,
+            0
+          ],
+          "preview_message_id": 49445,
+          "preview_own_window_or_thread_message": true,
+          "actual_GetMessageA_result": 1,
+          "actual_error": 0,
+          "actual_message_id": 49445,
+          "explicit_HWND_mapping": 1777664000,
+          "guest_MSG_bytes": 32,
+          "guest_MSG_hex": "0000f56925c10000000000000000000036843f020c0600001a02000000000000",
+          "both_output_guards_preserved": true,
+          "after_source_MSG_consumer": {
+            "next_EIP": 1211206,
+            "next_import": "TranslateAcceleratorA",
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+            "stack12": [
+              4533654,
+              1777664000,
+              1777795072,
+              33587172,
+              0,
+              0,
+              0,
+              0,
+              1777664000,
+              49445,
+              0,
+              0
+            ]
+          },
+          "actual_accelerator_consumer": {
+            "original_return_address": 4533654,
+            "actual_OS_result": 0,
+            "actual_non_key_message_id": 49445,
+            "next_EIP": 1211244,
+            "next_import": "TranslateMessage",
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+            "stack12": [
+              4533665,
+              33587172,
+              0,
+              0,
+              0,
+              0,
+              1777664000,
+              49445,
+              0,
+              0,
+              37717046,
+              1548
+            ]
+          },
+          "actual_TranslateMessage_consumer": {
+            "original_return_address": 4533665,
+            "actual_OS_BOOL": 0,
+            "message_id": 49445,
+            "next_EIP": 1211186,
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)"
+          },
+          "actual_DispatchMessage_and_original_WNDPROC": {
+            "original_return_address": 4533676,
+            "actual_OS_LRESULT": 0,
+            "actual_message_id": 49445,
+            "native_callbacks": [
+              {
+                "original_WNDPROC": 4847712,
+                "actual_host_message": 49445,
+                "original_stdcall_stack_bytes": 20,
+                "original_return_value": 0,
+                "guest_HWND_token": 1777664000,
+                "original_window_object": 33567052,
+                "before_guest_object_HWND": 1777664000,
+                "after_guest_object_HWND": 1777664000,
+                "message_buffer_bytes": 0,
+                "message_input_SHA256": null,
+                "exact_CREATESTRUCT_pointer_fields_mapped": false,
+                "API_events": [
+                  {
+                    "original_API": "GetWindowLongA",
+                    "original_return_address": 4847769,
+                    "original_API_args": [
+                      1777664000,
+                      4294967275
+                    ],
+                    "actual_host_API": true,
+                    "mapped_guest_result": 33567052,
+                    "actual_error": 0,
+                    "host_API_called_only_after_outer_emu_stop": true
+                  },
+                  {
+                    "original_API": "DefWindowProcA",
+                    "original_return_address": 4847955,
+                    "original_API_args": [
+                      1777664000,
+                      49445,
+                      0,
+                      0
+                    ],
+                    "actual_host_API": true,
+                    "mapped_guest_result": 0,
+                    "actual_error": 0,
+                    "host_API_called_only_after_outer_emu_stop": true
+                  }
+                ],
+                "no_guest_function_registered_with_OS": true,
+                "no_outer_emu_start_active_on_host_API": true
+              }
+            ],
+            "next_EIP": 1211230,
+            "next_import": "GetMessageA",
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+            "original_WNDPROC_called_without_outer_emu_active": true,
+            "other_messages_and_live_worker_scheduler_not_proven": true
+          }
+        }
+      },
+      "root_verification_failure": null
+    },
+    {
+      "generation": 3,
+      "worker_still_active": 259,
+      "worker_payload": {
+        "source_EIP": 5089741,
+        "actual_worker_tid": 18412,
+        "resume_failure": null,
+        "live_font_count": 5
+      },
+      "parent": {},
+      "root_verification_failure": {
+        "error": "AssertionError: ",
+        "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 2578, in <module>\nAssertionError\n",
+        "wp_errors": [
+          {
+            "type": "AssertionError",
+            "detail": "",
+            "host_HWND": 986778,
+            "pos_hwnd": null,
+            "pos_insert": null,
+            "message": 32,
+            "wParam": 986778,
+            "lParam": 33554433,
+            "stack12": [
+              4533591,
+              33587172,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1777664000,
+              49445,
+              0
+            ],
+            "EIP": 1211230,
+            "pending": [],
+            "original_guest_object_HWND": 1777664000,
+            "native_API_events": []
+          }
+        ],
+        "wp_pending": [],
+        "wp_poisoned": true,
+        "current_EIP": 1211230,
+        "last_window_events": [
+          {
+            "original_WNDPROC": 4847712,
+            "actual_host_message": 134,
+            "original_stdcall_stack_bytes": 20,
+            "original_return_value": 1,
+            "guest_HWND_token": 1777664000,
+            "original_window_object": 33567052,
+            "before_guest_object_HWND": 1777664000,
+            "after_guest_object_HWND": 1777664000,
+            "message_buffer_bytes": 0,
+            "message_input_SHA256": null,
+            "exact_CREATESTRUCT_pointer_fields_mapped": false,
+            "API_events": [
+              {
+                "original_API": "GetWindowLongA",
+                "original_return_address": 4847769,
+                "original_API_args": [
+                  1777664000,
+                  4294967275
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 33567052,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              },
+              {
+                "original_API": "DefWindowProcA",
+                "original_return_address": 4847955,
+                "original_API_args": [
+                  1777664000,
+                  134,
+                  1,
+                  0
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 1,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              }
+            ],
+            "no_guest_function_registered_with_OS": true,
+            "no_outer_emu_start_active_on_host_API": true
+          },
+          {
+            "original_WNDPROC": 4847712,
+            "actual_host_message": 70,
+            "original_stdcall_stack_bytes": 20,
+            "original_return_value": 0,
+            "guest_HWND_token": 1777664000,
+            "original_window_object": 33567052,
+            "before_guest_object_HWND": 1777664000,
+            "after_guest_object_HWND": 1777664000,
+            "message_buffer_bytes": 28,
+            "message_input_SHA256": "e46319714a526f1d6b002604dcc388ca869f64e57bd34a23d28a8de228ed7529",
+            "exact_CREATESTRUCT_pointer_fields_mapped": false,
+            "API_events": [
+              {
+                "original_API": "GetWindowLongA",
+                "original_return_address": 4847769,
+                "original_API_args": [
+                  1777664000,
+                  4294967275
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 33567052,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              },
+              {
+                "original_API": "DefWindowProcA",
+                "original_return_address": 4847955,
+                "original_API_args": [
+                  1777664000,
+                  70,
+                  0,
+                  54531072
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 0,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              }
+            ],
+            "no_guest_function_registered_with_OS": true,
+            "no_outer_emu_start_active_on_host_API": true
+          },
+          {
+            "original_WNDPROC": 4847712,
+            "actual_host_message": 132,
+            "original_stdcall_stack_bytes": 20,
+            "original_return_value": 1,
+            "guest_HWND_token": 1777664000,
+            "original_window_object": 33567052,
+            "before_guest_object_HWND": 1777664000,
+            "after_guest_object_HWND": 1777664000,
+            "message_buffer_bytes": 0,
+            "message_input_SHA256": null,
+            "exact_CREATESTRUCT_pointer_fields_mapped": false,
+            "API_events": [
+              {
+                "original_API": "GetWindowLongA",
+                "original_return_address": 4847769,
+                "original_API_args": [
+                  1777664000,
+                  4294967275
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 33567052,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              },
+              {
+                "original_API": "DefWindowProcA",
+                "original_return_address": 4847955,
+                "original_API_args": [
+                  1777664000,
+                  132,
+                  0,
+                  33817536
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 1,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              }
+            ],
+            "no_guest_function_registered_with_OS": true,
+            "no_outer_emu_start_active_on_host_API": true
+          },
+          {
+            "original_WNDPROC": 4847712,
+            "actual_host_message": 132,
+            "original_stdcall_stack_bytes": 20,
+            "original_return_value": 1,
+            "guest_HWND_token": 1777664000,
+            "original_window_object": 33567052,
+            "before_guest_object_HWND": 1777664000,
+            "after_guest_object_HWND": 1777664000,
+            "message_buffer_bytes": 0,
+            "message_input_SHA256": null,
+            "exact_CREATESTRUCT_pointer_fields_mapped": false,
+            "API_events": [
+              {
+                "original_API": "GetWindowLongA",
+                "original_return_address": 4847769,
+                "original_API_args": [
+                  1777664000,
+                  4294967275
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 33567052,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              },
+              {
+                "original_API": "DefWindowProcA",
+                "original_return_address": 4847955,
+                "original_API_args": [
+                  1777664000,
+                  132,
+                  0,
+                  33817536
+                ],
+                "actual_host_API": true,
+                "mapped_guest_result": 1,
+                "actual_error": 0,
+                "host_API_called_only_after_outer_emu_stop": true
+              }
+            ],
+            "no_guest_function_registered_with_OS": true,
+            "no_outer_emu_start_active_on_host_API": true
+          }
+        ]
+      }
+    }
+  ],
+  "source_completed_presentation_captures_after_parent": [
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 856,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "96640bb821440ec2b2f85d3953926ebf90a6db91295f4df066503dc427520b9e",
+      "actual_RGB_sha256": "ddc64adc0e1c197b7b906199cd079538a93af298f8a97789591709a677ac02ca",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 1315895,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 913,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "33437e03007f8bb7168c066ee865fed30e1876112a44a8d5a0056999148e625c",
+      "actual_RGB_sha256": "edc5a1058b748c543eb3d544a5e28f8fbe331ae2d00821788072f5701aebc45b",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    }
+  ],
+  "source_text_actual_OS_calls": [],
+  "business_boundary_registers": {
+    "EAX": 0,
+    "ECX": 71,
+    "EDX": 1,
+    "ESI": 131177760,
+    "EDI": 806898848,
+    "EBX": 131153280
+  },
+  "business_recent_instructions": [
+    {
+      "pc": 4794193,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 4794200,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265780,
+      "esp": 57736032,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265781,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265783,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265786,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265789,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265790,
+      "esp": 57735992,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265791,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265793,
+      "esp": 57735984,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265794,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265799,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 7
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 6
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 5
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 4
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 3
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 2
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 1
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265804,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265807,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265810,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265813,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265816,
+      "esp": 57735988,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265817,
+      "esp": 57735984,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265820,
+      "esp": 57735980,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265823,
+      "esp": 57735976,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265826,
+      "esp": 57735972,
+      "eax": 57736016,
+      "ecx": 0
+    }
+  ],
+  "actual_host_guard_exit_code_after_release": 2702180352,
+  "owned_thread_handle_closed": true,
+  "worker_errors_after_release": [],
+  "source_worker_resume": {
+    "from_EIP": 302236407,
+    "next_EIP": 5089741,
+    "failure": null,
+    "actual_worker_tid": 18412,
+    "same_original_OS_tid": true,
+    "instruction_budget_per_slice": 4000000,
+    "rounds": [
+      {
+        "source_EIP": 4541096,
+        "actual_worker_tid": 18412,
+        "resume_failure": null,
+        "live_font_count": 5
+      },
+      {
+        "source_EIP": 5089741,
+        "actual_worker_tid": 18412,
+        "resume_failure": null,
+        "live_font_count": 5
+      }
+    ],
+    "not_full_original_exit": true
+  },
+  "post_parent_BitBlt_calls": [
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        498,
+        800,
+        8,
+        1776287744,
+        0,
+        498,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "70c8468b819b6eab8da0ddea309a383e2890e9a9df98236a72806c8b54e574cf",
+      "sample_positions": [
+        [
+          0,
+          498
+        ],
+        [
+          400,
+          502
+        ],
+        [
+          799,
+          505
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        5925705,
+        9011331,
+        8361380
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5925705,
+        9011331,
+        8361380
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        506,
+        800,
+        8,
+        1776287744,
+        0,
+        506,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "cc570522e55393e374793a647d2632ebf185583beb3fbaf5347091a1ec6b4f68",
+      "sample_positions": [
+        [
+          0,
+          506
+        ],
+        [
+          400,
+          510
+        ],
+        [
+          799,
+          513
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        6123591,
+        8288635,
+        8953001
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        6123591,
+        8288635,
+        8953001
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        514,
+        800,
+        8,
+        1776287744,
+        0,
+        514,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "bc8d8da7c7429ae5f5bebee62ad3592a4212d044dbf6a17ff2feec8a94fd6b7f",
+      "sample_positions": [
+        [
+          0,
+          514
+        ],
+        [
+          400,
+          518
+        ],
+        [
+          799,
+          521
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        5462600,
+        8353913,
+        7765375
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5462600,
+        8353913,
+        7765375
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        522,
+        800,
+        8,
+        1776287744,
+        0,
+        522,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "ace7e442d875d752d1e1ccd2f318477f2cee33d807dd9201c8bcc577464e4bfc",
+      "sample_positions": [
+        [
+          0,
+          522
+        ],
+        [
+          400,
+          526
+        ],
+        [
+          799,
+          529
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        5859145,
+        8682104,
+        8027003
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5859145,
+        8682104,
+        8027003
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        530,
+        800,
+        8,
+        1776287744,
+        0,
+        530,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "8970da648e259d20343da1420080928ed7d0f1f75476a6d2cf2c52b5dbb77ce4",
+      "sample_positions": [
+        [
+          0,
+          530
+        ],
+        [
+          400,
+          534
+        ],
+        [
+          799,
+          537
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        6846284,
+        10194315,
+        8683394
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        6846284,
+        10194315,
+        8683394
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        538,
+        800,
+        2,
+        1776287744,
+        0,
+        538,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "b923a739b333ef5237c0042bc6a3420c394f831c40eae1f0137d79b4c7e9fd3f",
+      "sample_positions": [
+        [
+          0,
+          538
+        ],
+        [
+          400,
+          539
+        ],
+        [
+          799,
+          539
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8816502,
+        14996946,
+        13485766
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8816502,
+        14996946,
+        13485766
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        90,
+        800,
+        8,
+        1776287744,
+        0,
+        90,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "baaf66a955138d6d2bf17692c66acd0be990e15ec1fe690cf6693b10470c6aea",
+      "sample_positions": [
+        [
+          0,
+          90
+        ],
+        [
+          400,
+          94
+        ],
+        [
+          799,
+          97
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        14994885,
+        14203277,
+        10255204
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        14994885,
+        14203277,
+        10255204
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        98,
+        800,
+        8,
+        1776287744,
+        0,
+        98,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "2c29786123a8ea48745e102f25ca726330c406a42818ce57b6e53753ac756e90",
+      "sample_positions": [
+        [
+          0,
+          98
+        ],
+        [
+          400,
+          102
+        ],
+        [
+          799,
+          105
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12162673,
+        14005128,
+        10578775
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12162673,
+        14005128,
+        10578775
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        106,
+        800,
+        8,
+        1776287744,
+        0,
+        106,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "cc428fb92785fb8d493a5e4273fbe9c6bba1d63acd357a5f64fc5397ebb3b532",
+      "sample_positions": [
+        [
+          0,
+          106
+        ],
+        [
+          400,
+          110
+        ],
+        [
+          799,
+          113
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        11570796,
+        14070920,
+        10385505
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11570796,
+        14070920,
+        10385505
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        114,
+        800,
+        8,
+        1776287744,
+        0,
+        114,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "992a47df2558a1799dcffcf78d5d024135f7630ce619820ca6ac77443a350433",
+      "sample_positions": [
+        [
+          0,
+          114
+        ],
+        [
+          400,
+          118
+        ],
+        [
+          799,
+          121
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12819073,
+        11174260,
+        9005401
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12819073,
+        11174260,
+        9005401
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        122,
+        800,
+        8,
+        1776287744,
+        0,
+        122,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "109d24493bc2b15d35c60391621d1c846aee46221b85268c4e119c8e68defdc3",
+      "sample_positions": [
+        [
+          0,
+          122
+        ],
+        [
+          400,
+          126
+        ],
+        [
+          799,
+          129
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12686975,
+        10330235,
+        10453347
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12686975,
+        10330235,
+        10453347
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        130,
+        800,
+        8,
+        1776287744,
+        0,
+        130,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "189e7700069bc59ab38569c12e6a49855a6182581d8b096c5d99fbf1c298ba04",
+      "sample_positions": [
+        [
+          0,
+          130
+        ],
+        [
+          400,
+          134
+        ],
+        [
+          799,
+          137
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        13541764,
+        13614978,
+        9924693
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        13541764,
+        13614978,
+        9924693
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        138,
+        800,
+        8,
+        1776287744,
+        0,
+        138,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3e55c6fde989931174b298d9decb5455f28c091808354a8d1c67e9a58840add3",
+      "sample_positions": [
+        [
+          0,
+          138
+        ],
+        [
+          400,
+          142
+        ],
+        [
+          799,
+          145
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        13740427,
+        14005384,
+        10511952
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        13740427,
+        14005384,
+        10511952
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        146,
+        800,
+        8,
+        1776287744,
+        0,
+        146,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "fbc5b65d70555ad6c640794ebfe8f1cb67f6e4d4da15f8bc77724095c41b9ece",
+      "sample_positions": [
+        [
+          0,
+          146
+        ],
+        [
+          400,
+          150
+        ],
+        [
+          799,
+          153
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10777697,
+        14337972,
+        12288620
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10777697,
+        14337972,
+        12288620
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        154,
+        800,
+        8,
+        1776287744,
+        0,
+        154,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "feeef18821f0e8d5f9c11d55198f57c691b4be30fa65ff201e6811a727f1e481",
+      "sample_positions": [
+        [
+          0,
+          154
+        ],
+        [
+          400,
+          158
+        ],
+        [
+          799,
+          161
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10250326,
+        12812619,
+        12422777
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10250326,
+        12812619,
+        12422777
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        162,
+        800,
+        8,
+        1776287744,
+        0,
+        162,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "2396ba30ab32bdb6e5d164a50865704af5d1d57e8feb711d7edc93e9d32145a1",
+      "sample_positions": [
+        [
+          0,
+          162
+        ],
+        [
+          400,
+          166
+        ],
+        [
+          799,
+          169
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10188622,
+        12879960,
+        10267008
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10188622,
+        12879960,
+        10267008
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        170,
+        800,
+        8,
+        1776287744,
+        0,
+        170,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "221952d5a9419767b71f76568c36cb009a0681be2fc34ef32e957c860cd4a1b1",
+      "sample_positions": [
+        [
+          0,
+          170
+        ],
+        [
+          400,
+          174
+        ],
+        [
+          799,
+          177
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10123091,
+        9267282,
+        14266738
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10123091,
+        9267282,
+        14266738
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        178,
+        800,
+        8,
+        1776287744,
+        0,
+        178,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "a2a8c76aa433557a80c60771a3d986425d33fc6b4af86c52a50e8109145ce532",
+      "sample_positions": [
+        [
+          0,
+          178
+        ],
+        [
+          400,
+          182
+        ],
+        [
+          799,
+          185
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9605279,
+        8542795,
+        12747599
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9605279,
+        8542795,
+        12747599
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        186,
+        800,
+        8,
+        1776287744,
+        0,
+        186,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "fe0bc148d64a34718686d875b594a8360ea90cee621e56e7a4e7887e663d7500",
+      "sample_positions": [
+        [
+          0,
+          186
+        ],
+        [
+          400,
+          190
+        ],
+        [
+          799,
+          193
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7563394,
+        8873289,
+        12746828
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7563394,
+        8873289,
+        12746828
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        194,
+        800,
+        8,
+        1776287744,
+        0,
+        194,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "b533ea1f2dc9346a7fde88f4828ddc28d87199ef94d8d034d248db5e008dbf0f",
+      "sample_positions": [
+        [
+          0,
+          194
+        ],
+        [
+          400,
+          198
+        ],
+        [
+          799,
+          201
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9197648,
+        9137483,
+        12089672
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9197648,
+        9137483,
+        12089672
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        202,
+        800,
+        8,
+        1776287744,
+        0,
+        202,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "e862dee9f881787a496f9757c52b7bb1864a1487264756a92a983f1d144aa7a7",
+      "sample_positions": [
+        [
+          0,
+          202
+        ],
+        [
+          400,
+          206
+        ],
+        [
+          799,
+          209
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8803661,
+        10320995,
+        12090444
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8803661,
+        10320995,
+        12090444
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        210,
+        800,
+        8,
+        1776287744,
+        0,
+        210,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "92486ef8ac3a525484bef842b64db48c4e6a2a31cfd8101914eb59153c515bab",
+      "sample_positions": [
+        [
+          0,
+          210
+        ],
+        [
+          400,
+          214
+        ],
+        [
+          799,
+          217
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8543053,
+        8544591,
+        9005127
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8543053,
+        8544591,
+        9005127
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        218,
+        800,
+        8,
+        1776287744,
+        0,
+        218,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "31e5cb25ac647f6b75ef709db68f2fb33a2ee1070b031cdf1060b93f92058500",
+      "sample_positions": [
+        [
+          0,
+          218
+        ],
+        [
+          400,
+          222
+        ],
+        [
+          799,
+          225
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8674123,
+        6446176,
+        8411971
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8674123,
+        6446176,
+        8411971
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        226,
+        800,
+        8,
+        1776287744,
+        0,
+        226,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "48cc39b1301eb60b3e218e0994af86d66e5dd0d89d58be7638e7a238e500028a",
+      "sample_positions": [
+        [
+          0,
+          226
+        ],
+        [
+          400,
+          230
+        ],
+        [
+          799,
+          233
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7296071,
+        10787235,
+        8935495
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7296071,
+        10787235,
+        8935495
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        234,
+        800,
+        8,
+        1776287744,
+        0,
+        234,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "a750dfe0a7938891979c76a61aa7716769dd004f6d3d8212a3745b88102ccbc5",
+      "sample_positions": [
+        [
+          0,
+          234
+        ],
+        [
+          400,
+          238
+        ],
+        [
+          799,
+          241
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7559494,
+        12433586,
+        8089667
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7559494,
+        12433586,
+        8089667
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        242,
+        800,
+        8,
+        1776287744,
+        0,
+        242,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "ce553ca377dab7c2bd0a128c6d45c1b12f6f1729920ab2167b388bb428f65300",
+      "sample_positions": [
+        [
+          0,
+          242
+        ],
+        [
+          400,
+          246
+        ],
+        [
+          799,
+          249
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8084549,
+        9078161,
+        8748361
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8084549,
+        9078161,
+        8748361
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        250,
+        800,
+        8,
+        1776287744,
+        0,
+        250,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "ed94b4c2475399ed400f2f8aedaf9b68f553b47de3492fa6c7724e834d8b78d4",
+      "sample_positions": [
+        [
+          0,
+          250
+        ],
+        [
+          400,
+          254
+        ],
+        [
+          799,
+          257
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9929113,
+        14210510,
+        8545606
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9929113,
+        14210510,
+        8545606
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        258,
+        800,
+        8,
+        1776287744,
+        0,
+        258,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "0ee2079945b18ea6c57a924fa9f8b2d66f02f445c7120f06f4fe1d08fc1b7c86",
+      "sample_positions": [
+        [
+          0,
+          258
+        ],
+        [
+          400,
+          262
+        ],
+        [
+          799,
+          265
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10586275,
+        8685207,
+        8877899
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10586275,
+        8685207,
+        8877899
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        266,
+        800,
+        8,
+        1776287744,
+        0,
+        266,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "f26403c21cb67aab8d7cd9bfd7445f58680ec89aab417e0ed9a98e04a1776005",
+      "sample_positions": [
+        [
+          0,
+          266
+        ],
+        [
+          400,
+          270
+        ],
+        [
+          799,
+          273
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7232885,
+        12301507,
+        8344902
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7232885,
+        12301507,
+        8344902
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        274,
+        800,
+        8,
+        1776287744,
+        0,
+        274,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "01d513473c14550a6a99e20afadc085b11bd731af2cb6f4a8574dd0134f71daf",
+      "sample_positions": [
+        [
+          0,
+          274
+        ],
+        [
+          400,
+          278
+        ],
+        [
+          799,
+          281
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12231832,
+        9544109,
+        9135947
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12231832,
+        9544109,
+        9135947
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        282,
+        800,
+        8,
+        1776287744,
+        0,
+        282,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "a97ae7739941f6b550e471628e6d9178fe2c1efeb1f623df4ad900012e1e9013",
+      "sample_positions": [
+        [
+          0,
+          282
+        ],
+        [
+          400,
+          286
+        ],
+        [
+          799,
+          289
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        11376517,
+        8947603,
+        8876359
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11376517,
+        8947603,
+        8876359
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        290,
+        800,
+        8,
+        1776287744,
+        0,
+        290,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "217a73c3838b477f6ff94ab6e2203d72e19614f332dd36ff17c7db90d8c5446a",
+      "sample_positions": [
+        [
+          0,
+          290
+        ],
+        [
+          400,
+          294
+        ],
+        [
+          799,
+          297
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9864556,
+        13618629,
+        11105107
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9864556,
+        13618629,
+        11105107
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        298,
+        800,
+        8,
+        1776287744,
+        0,
+        298,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "cd54dfd6ab1814757a31037cf051487555b350337c9902a5795a00b280bbbc1b",
+      "sample_positions": [
+        [
+          0,
+          298
+        ],
+        [
+          400,
+          302
+        ],
+        [
+          799,
+          305
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        15392463,
+        14736101,
+        14668748
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        15392463,
+        14736101,
+        14668748
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        306,
+        800,
+        8,
+        1776287744,
+        0,
+        306,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "90314b7a0d06efe92f3627984cf1eb2e310346ca1040aa6bcb3be36b71772009",
+      "sample_positions": [
+        [
+          0,
+          306
+        ],
+        [
+          400,
+          310
+        ],
+        [
+          799,
+          313
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        14275275,
+        15065829,
+        11639695
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        14275275,
+        15065829,
+        11639695
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        314,
+        800,
+        8,
+        1776287744,
+        0,
+        314,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "0818935a5f1f9eb7a08eac188408eed2e0162d9bd8a07e9a14f908ee982f3d80",
+      "sample_positions": [
+        [
+          0,
+          314
+        ],
+        [
+          400,
+          318
+        ],
+        [
+          799,
+          321
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        11973808,
+        11779779,
+        11837331
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11973808,
+        11779779,
+        11837331
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        322,
+        800,
+        8,
+        1776287744,
+        0,
+        322,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "ca28a261051f95b398e54d6c292e5cff7bd126040ebc90202e846cd57f508c4c",
+      "sample_positions": [
+        [
+          0,
+          322
+        ],
+        [
+          400,
+          326
+        ],
+        [
+          799,
+          329
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        11846601,
+        9134675,
+        8085597
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11846601,
+        9134675,
+        8085597
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        330,
+        800,
+        8,
+        1776287744,
+        0,
+        330,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "5c97d6cc413d2ce681e97057019b01fbccaf0471d5a4306b8cd02ce18ba45713",
+      "sample_positions": [
+        [
+          0,
+          330
+        ],
+        [
+          400,
+          334
+        ],
+        [
+          799,
+          337
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7821389,
+        9199955,
+        8021345
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7821389,
+        9199955,
+        8021345
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        338,
+        800,
+        8,
+        1776287744,
+        0,
+        338,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "aa37c613e27369ab583fe8c99800553b6a63464241fccf4db492e31715bdcd13",
+      "sample_positions": [
+        [
+          0,
+          338
+        ],
+        [
+          400,
+          342
+        ],
+        [
+          799,
+          345
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8153169,
+        7826504,
+        12568773
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8153169,
+        7826504,
+        12568773
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        346,
+        800,
+        8,
+        1776287744,
+        0,
+        346,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "8b1ca9902bbb273d9713e41b09f0083683b6d5b053e528cbf53d6ddfa245b6c9",
+      "sample_positions": [
+        [
+          0,
+          346
+        ],
+        [
+          400,
+          350
+        ],
+        [
+          799,
+          353
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7624013,
+        7363397,
+        15789287
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7624013,
+        7363397,
+        15789287
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        354,
+        800,
+        8,
+        1776287744,
+        0,
+        354,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "673473243851caf45336d85b5f022063f99d6774e6a4fe8f1c09d9cc9fe723a8",
+      "sample_positions": [
+        [
+          0,
+          354
+        ],
+        [
+          400,
+          358
+        ],
+        [
+          799,
+          361
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9004624,
+        8017481,
+        12433843
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9004624,
+        8017481,
+        12433843
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        362,
+        800,
+        8,
+        1776287744,
+        0,
+        362,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "5bdbf105f3846d696b36364612313f2ac5e5a840ef6aaa5bb4a18bff70de463a",
+      "sample_positions": [
+        [
+          0,
+          362
+        ],
+        [
+          400,
+          366
+        ],
+        [
+          799,
+          369
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9662295,
+        8217695,
+        12500665
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9662295,
+        8217695,
+        12500665
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        370,
+        800,
+        8,
+        1776287744,
+        0,
+        370,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "b658d1a11a704417ef7678758756dcc1e48d9428a3037068c350d1c498a47e99",
+      "sample_positions": [
+        [
+          0,
+          370
+        ],
+        [
+          400,
+          374
+        ],
+        [
+          799,
+          377
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8094099,
+        10005168,
+        11775660
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8094099,
+        10005168,
+        11775660
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        378,
+        800,
+        8,
+        1776287744,
+        0,
+        378,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "45c3936688c7892261a7e79676bd9ec1e8ae761eb7865ec6732ee1eae7e8e6be",
+      "sample_positions": [
+        [
+          0,
+          378
+        ],
+        [
+          400,
+          382
+        ],
+        [
+          799,
+          385
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8948887,
+        10993097,
+        12828858
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8948887,
+        10993097,
+        12828858
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        386,
+        800,
+        8,
+        1776287744,
+        0,
+        386,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "e488d65a11d57401b2c7ef7f562b910e296664e433fb8a20c4ef8c7172986446",
+      "sample_positions": [
+        [
+          0,
+          386
+        ],
+        [
+          400,
+          390
+        ],
+        [
+          799,
+          393
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9733769,
+        9283507,
+        11249055
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9733769,
+        9283507,
+        11249055
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        394,
+        800,
+        8,
+        1776287744,
+        0,
+        394,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "b52a855401f80e9087b7ed2cfddd610ede99e4ce2ef6872756ba838f0343cfee",
+      "sample_positions": [
+        [
+          0,
+          394
+        ],
+        [
+          400,
+          398
+        ],
+        [
+          799,
+          401
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7823955,
+        9547451,
+        10987681
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7823955,
+        9547451,
+        10987681
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        402,
+        800,
+        8,
+        1776287744,
+        0,
+        402,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "c6889357a7babe63aa05bbc2c8a4f10f2f87e44aa3cbc373584aab7bf82e2a87",
+      "sample_positions": [
+        [
+          0,
+          402
+        ],
+        [
+          400,
+          406
+        ],
+        [
+          799,
+          409
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7495248,
+        9349557,
+        10527131
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7495248,
+        9349557,
+        10527131
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        410,
+        800,
+        8,
+        1776287744,
+        0,
+        410,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "dff5b1955923811f260570ce7385341e506b0ca4b745cbf17cc4b00647521bca",
+      "sample_positions": [
+        [
+          0,
+          410
+        ],
+        [
+          400,
+          414
+        ],
+        [
+          799,
+          417
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        7365716,
+        9480373,
+        11712434
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7365716,
+        9480373,
+        11712434
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        418,
+        800,
+        8,
+        1776287744,
+        0,
+        418,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "aa563103222fb986b151522860422364a92514122a5f1cb6fbae83ffabded381",
+      "sample_positions": [
+        [
+          0,
+          418
+        ],
+        [
+          400,
+          422
+        ],
+        [
+          799,
+          425
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8022365,
+        10594734,
+        12503236
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8022365,
+        10594734,
+        12503236
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        426,
+        800,
+        8,
+        1776287744,
+        0,
+        426,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "6a886f1b34261e2150c353a929c4bdf60d12f98f67a9bc8ec66284e8ff958a80",
+      "sample_positions": [
+        [
+          0,
+          426
+        ],
+        [
+          400,
+          430
+        ],
+        [
+          799,
+          433
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        8679009,
+        10528172,
+        10920861
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8679009,
+        10528172,
+        10920861
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        434,
+        800,
+        8,
+        1776287744,
+        0,
+        434,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "f4ddc5252cf304481aa284f0fdd561bfc73b3fbaa3b8f45e40bf52d3cbf9753b",
+      "sample_positions": [
+        [
+          0,
+          434
+        ],
+        [
+          400,
+          438
+        ],
+        [
+          799,
+          441
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        4603449,
+        10661042,
+        11909560
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        4603449,
+        10661042,
+        11909560
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        442,
+        800,
+        8,
+        1776287744,
+        0,
+        442,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "809c9821a39025904b699d9bc26d98df170f5bcf15e0e5201f300be6fb9b1553",
+      "sample_positions": [
+        [
+          0,
+          442
+        ],
+        [
+          400,
+          446
+        ],
+        [
+          799,
+          449
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        4735291,
+        10857649,
+        11776683
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        4735291,
+        10857649,
+        11776683
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        450,
+        800,
+        8,
+        1776287744,
+        0,
+        450,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "75600f8477f3ac7e1d0aeec754d43a7c6f65e57bdae8140877e70c50d4f7b8fe",
+      "sample_positions": [
+        [
+          0,
+          450
+        ],
+        [
+          400,
+          454
+        ],
+        [
+          799,
+          457
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        4011827,
+        12766668,
+        11379617
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        4011827,
+        12766668,
+        11379617
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        458,
+        800,
+        8,
+        1776287744,
+        0,
+        458,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "4d9031f805d3b2004337bc815589eea1789f430b2ea149be58fd525483b9d70e",
+      "sample_positions": [
+        [
+          0,
+          458
+        ],
+        [
+          400,
+          462
+        ],
+        [
+          799,
+          465
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        6971219,
+        13818327,
+        11182237
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        6971219,
+        13818327,
+        11182237
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        466,
+        800,
+        8,
+        1776287744,
+        0,
+        466,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "74d86412b72196a92bbab6532c9a392aca0a6b0d45f40ed74b18f4ab2c59d7fc",
+      "sample_positions": [
+        [
+          0,
+          466
+        ],
+        [
+          400,
+          470
+        ],
+        [
+          799,
+          473
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        5919047,
+        12831941,
+        12756129
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5919047,
+        12831941,
+        12756129
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        474,
+        800,
+        8,
+        1776287744,
+        0,
+        474,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "92973b9d9fe69454bdda05e7a6cc194d911b59d5d8eb2a0e0338cc694dd27d03",
+      "sample_positions": [
+        [
+          0,
+          474
+        ],
+        [
+          400,
+          478
+        ],
+        [
+          799,
+          481
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        4670011,
+        6710893,
+        7106156
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        4670011,
+        6710893,
+        7106156
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        482,
+        800,
+        8,
+        1776287744,
+        0,
+        482,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "1ef7bf10542882527c59cc08a016492dfc163524f258f30f24800ef479eb37f3",
+      "sample_positions": [
+        [
+          0,
+          482
+        ],
+        [
+          400,
+          486
+        ],
+        [
+          799,
+          489
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        5129792,
+        7763833,
+        8486788
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5129792,
+        7763833,
+        8486788
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        490,
+        800,
+        8,
+        1776287744,
+        0,
+        490,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "513bda1bc705a73f3a2eaa65c0c3abf5999000dd07169bf224aaffc8acb8f81d",
+      "sample_positions": [
+        [
+          0,
+          490
+        ],
+        [
+          400,
+          494
+        ],
+        [
+          799,
+          497
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        4670016,
+        8025208,
+        7897221
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        4670016,
+        8025208,
+        7897221
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        498,
+        800,
+        8,
+        1776287744,
+        0,
+        498,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "2f815f391ae4e14cf5e3242007f5c25daec98faa212d7bea4c4cfda30802966c",
+      "sample_positions": [
+        [
+          0,
+          498
+        ],
+        [
+          400,
+          502
+        ],
+        [
+          799,
+          505
+        ]
+      ],
+      "before_COLORREF": [
+        5925705,
+        9011331,
+        8361380
+      ],
+      "after_COLORREF": [
+        4735801,
+        8091514,
+        8820902
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        4735801,
+        8091514,
+        8820902
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        506,
+        800,
+        8,
+        1776287744,
+        0,
+        506,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3e9df6583ab42c309d6e33c8411c4870fced3c2411fdd602209120613e4c06e2",
+      "sample_positions": [
+        [
+          0,
+          506
+        ],
+        [
+          400,
+          510
+        ],
+        [
+          799,
+          513
+        ]
+      ],
+      "before_COLORREF": [
+        6123591,
+        8288635,
+        8953001
+      ],
+      "after_COLORREF": [
+        6123085,
+        7828598,
+        7106676
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        6123085,
+        7828598,
+        7106676
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        514,
+        800,
+        8,
+        1776287744,
+        0,
+        514,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "92b8ebdc873f7d74241b6a67872d16bc6e0f77e9e932545ffec89a244f82ff62",
+      "sample_positions": [
+        [
+          0,
+          514
+        ],
+        [
+          400,
+          518
+        ],
+        [
+          799,
+          521
+        ]
+      ],
+      "before_COLORREF": [
+        5462600,
+        8353913,
+        7765375
+      ],
+      "after_COLORREF": [
+        5925451,
+        7827826,
+        7432556
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5925451,
+        7827826,
+        7432556
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        522,
+        800,
+        8,
+        1776287744,
+        0,
+        522,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3a9899114d4c164601b1cfb64f90e3c330d83f0a8df93c38ee257e9e4268c636",
+      "sample_positions": [
+        [
+          0,
+          522
+        ],
+        [
+          400,
+          526
+        ],
+        [
+          799,
+          529
+        ]
+      ],
+      "before_COLORREF": [
+        5859145,
+        8682104,
+        8027003
+      ],
+      "after_COLORREF": [
+        6122320,
+        8682619,
+        11051677
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        6122320,
+        8682619,
+        11051677
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        530,
+        800,
+        8,
+        1776287744,
+        0,
+        530,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3aef9800feb2d6fa6abcd8c351f5960b0ec2442dea35550223f5503907ad7ffb",
+      "sample_positions": [
+        [
+          0,
+          530
+        ],
+        [
+          400,
+          534
+        ],
+        [
+          799,
+          537
+        ]
+      ],
+      "before_COLORREF": [
+        6846284,
+        10194315,
+        8683394
+      ],
+      "after_COLORREF": [
+        5396804,
+        9667458,
+        13425114
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5396804,
+        9667458,
+        13425114
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        538,
+        800,
+        2,
+        1776287744,
+        0,
+        538,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "8b6631efd97c550ba8d10ac396d3b77d1de22a24758fcb4840be555039cb7b97",
+      "sample_positions": [
+        [
+          0,
+          538
+        ],
+        [
+          400,
+          539
+        ],
+        [
+          799,
+          539
+        ]
+      ],
+      "before_COLORREF": [
+        8816502,
+        14996946,
+        13485766
+      ],
+      "after_COLORREF": [
+        9411711,
+        15260119,
+        15461098
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9411711,
+        15260119,
+        15461098
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        90,
+        800,
+        8,
+        1776287744,
+        0,
+        90,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "5e20f892f8a872ec199b9803e3288c47e590eb54011ad53944c48f2b34fcc386",
+      "sample_positions": [
+        [
+          0,
+          90
+        ],
+        [
+          400,
+          94
+        ],
+        [
+          799,
+          97
+        ]
+      ],
+      "before_COLORREF": [
+        14994885,
+        14203277,
+        10255204
+      ],
+      "after_COLORREF": [
+        15192775,
+        14203277,
+        12358271
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        15192775,
+        14203277,
+        12358271
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        98,
+        800,
+        8,
+        1776287744,
+        0,
+        98,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "c2f068324245b6323f6de836ba82c8e37e0007cb747558a2546dc22c93bfc5a1",
+      "sample_positions": [
+        [
+          0,
+          98
+        ],
+        [
+          400,
+          102
+        ],
+        [
+          799,
+          105
+        ]
+      ],
+      "before_COLORREF": [
+        12162673,
+        14005128,
+        10578775
+      ],
+      "after_COLORREF": [
+        12030827,
+        14005128,
+        10058846
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12030827,
+        14005128,
+        10058846
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        106,
+        800,
+        8,
+        1776287744,
+        0,
+        106,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "1c19131c9dd386cc8fabf5bc33f3baf44fd2e98e8736c31a61886b1b5216f3b9",
+      "sample_positions": [
+        [
+          0,
+          106
+        ],
+        [
+          400,
+          110
+        ],
+        [
+          799,
+          113
+        ]
+      ],
+      "before_COLORREF": [
+        11570796,
+        14070920,
+        10385505
+      ],
+      "after_COLORREF": [
+        11503215,
+        14070920,
+        10451040
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11503215,
+        14070920,
+        10451040
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        114,
+        800,
+        8,
+        1776287744,
+        0,
+        114,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3690d4abf7bb6ce3a765d8b630c35f3ee6b200ff8b27f076975b189248fef422",
+      "sample_positions": [
+        [
+          0,
+          114
+        ],
+        [
+          400,
+          118
+        ],
+        [
+          799,
+          121
+        ]
+      ],
+      "before_COLORREF": [
+        12819073,
+        11174260,
+        9005401
+      ],
+      "after_COLORREF": [
+        12951428,
+        10064506,
+        9532505
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12951428,
+        10064506,
+        9532505
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        122,
+        800,
+        8,
+        1776287744,
+        0,
+        122,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "132c057bbba1d1868c83c225003fdad0b2de7a840e76227a479819ba1d34c2c5",
+      "sample_positions": [
+        [
+          0,
+          122
+        ],
+        [
+          400,
+          126
+        ],
+        [
+          799,
+          129
+        ]
+      ],
+      "before_COLORREF": [
+        12686975,
+        10330235,
+        10453347
+      ],
+      "after_COLORREF": [
+        14331281,
+        13015930,
+        9988690
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        14331281,
+        13015930,
+        9988690
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        130,
+        800,
+        8,
+        1776287744,
+        0,
+        130,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "5e280b636bfff2feb8a9a5b4f4c08610501675d0404edbab9aa7feb9b749fad8",
+      "sample_positions": [
+        [
+          0,
+          130
+        ],
+        [
+          400,
+          134
+        ],
+        [
+          799,
+          137
+        ]
+      ],
+      "before_COLORREF": [
+        13541764,
+        13614978,
+        9924693
+      ],
+      "after_COLORREF": [
+        13275000,
+        13614978,
+        10451551
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        13275000,
+        13614978,
+        10451551
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        138,
+        800,
+        8,
+        1776287744,
+        0,
+        138,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "a9da7d4eae22401ff4e6f47202925f2ceb4b2ee1e4e2365ad121d4e3fcf7835c",
+      "sample_positions": [
+        [
+          0,
+          138
+        ],
+        [
+          400,
+          142
+        ],
+        [
+          799,
+          145
+        ]
+      ],
+      "before_COLORREF": [
+        13740427,
+        14005384,
+        10511952
+      ],
+      "after_COLORREF": [
+        10518110,
+        14005384,
+        9592910
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10518110,
+        14005384,
+        9592910
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        146,
+        800,
+        8,
+        1776287744,
+        0,
+        146,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "44b259c09fe984535c814cd57d17a57ae3f3b31294fdb984e1ada2d914a82d67",
+      "sample_positions": [
+        [
+          0,
+          146
+        ],
+        [
+          400,
+          150
+        ],
+        [
+          799,
+          153
+        ]
+      ],
+      "before_COLORREF": [
+        10777697,
+        14337972,
+        12288620
+      ],
+      "after_COLORREF": [
+        10122583,
+        13877940,
+        10380625
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10122583,
+        13877940,
+        10380625
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        154,
+        800,
+        8,
+        1776287744,
+        0,
+        154,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "ad93c0cf29a3ded76b3eaaf0f763e70d9499f91712fd227be602e3d6b61c980b",
+      "sample_positions": [
+        [
+          0,
+          154
+        ],
+        [
+          400,
+          158
+        ],
+        [
+          799,
+          161
+        ]
+      ],
+      "before_COLORREF": [
+        10250326,
+        12812619,
+        12422777
+      ],
+      "after_COLORREF": [
+        11119493,
+        9135697,
+        10724989
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11119493,
+        9135697,
+        10724989
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        162,
+        800,
+        8,
+        1776287744,
+        0,
+        162,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "d5c6149fed773c88a81be99d0d68fbf1d072619395d057a7c49f35635f993031",
+      "sample_positions": [
+        [
+          0,
+          162
+        ],
+        [
+          400,
+          166
+        ],
+        [
+          799,
+          169
+        ]
+      ],
+      "before_COLORREF": [
+        10188622,
+        12879960,
+        10267008
+      ],
+      "after_COLORREF": [
+        10256215,
+        9791061,
+        13353625
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10256215,
+        9791061,
+        13353625
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        170,
+        800,
+        8,
+        1776287744,
+        0,
+        170,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "e5f58aaa4dca27f8f048f8cc30740f2e04452640383182c0cb5d8c7d53294cce",
+      "sample_positions": [
+        [
+          0,
+          170
+        ],
+        [
+          400,
+          174
+        ],
+        [
+          799,
+          177
+        ]
+      ],
+      "before_COLORREF": [
+        10123091,
+        9267282,
+        14266738
+      ],
+      "after_COLORREF": [
+        10057562,
+        9532756,
+        15188352
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10057562,
+        9532756,
+        15188352
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        178,
+        800,
+        8,
+        1776287744,
+        0,
+        178,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "287675b47ab8a4c4eac7f3fceadd8556eb92a96f7733e3c3bf4e5c19e951984b",
+      "sample_positions": [
+        [
+          0,
+          178
+        ],
+        [
+          400,
+          182
+        ],
+        [
+          799,
+          185
+        ]
+      ],
+      "before_COLORREF": [
+        9605279,
+        8542795,
+        12747599
+      ],
+      "after_COLORREF": [
+        9726294,
+        9862230,
+        13536854
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9726294,
+        9862230,
+        13536854
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        186,
+        800,
+        8,
+        1776287744,
+        0,
+        186,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "67c1766b77e1ae52d82ad3dceca217a8969af627d46d5fe2f14e68eef44f5c60",
+      "sample_positions": [
+        [
+          0,
+          186
+        ],
+        [
+          400,
+          190
+        ],
+        [
+          799,
+          193
+        ]
+      ],
+      "before_COLORREF": [
+        7563394,
+        8873289,
+        12746828
+      ],
+      "after_COLORREF": [
+        8350556,
+        9728347,
+        13800285
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8350556,
+        9728347,
+        13800285
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        194,
+        800,
+        8,
+        1776287744,
+        0,
+        194,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "f3bf4aa392c3ce2cb7f15e9519195ace548c809d50280bc2e649307e8d7f5c5d",
+      "sample_positions": [
+        [
+          0,
+          194
+        ],
+        [
+          400,
+          198
+        ],
+        [
+          799,
+          201
+        ]
+      ],
+      "before_COLORREF": [
+        9197648,
+        9137483,
+        12089672
+      ],
+      "after_COLORREF": [
+        9534314,
+        9925724,
+        13010772
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9534314,
+        9925724,
+        13010772
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        202,
+        800,
+        8,
+        1776287744,
+        0,
+        202,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "e0d579552f8adf34fddfefe6a9cc23ea0c75ba5d3645217a1852ef99b19bdf5a",
+      "sample_positions": [
+        [
+          0,
+          202
+        ],
+        [
+          400,
+          206
+        ],
+        [
+          799,
+          209
+        ]
+      ],
+      "before_COLORREF": [
+        8803661,
+        10320995,
+        12090444
+      ],
+      "after_COLORREF": [
+        10914675,
+        10849933,
+        12879440
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10914675,
+        10849933,
+        12879440
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        210,
+        800,
+        8,
+        1776287744,
+        0,
+        210,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3a57c505797a186aca79e3cad67d47ecdd7141eadcaadf0a06d7bcaa9b20ced6",
+      "sample_positions": [
+        [
+          0,
+          210
+        ],
+        [
+          400,
+          214
+        ],
+        [
+          799,
+          217
+        ]
+      ],
+      "before_COLORREF": [
+        8543053,
+        8544591,
+        9005127
+      ],
+      "after_COLORREF": [
+        9140119,
+        6969696,
+        9865297
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9140119,
+        6969696,
+        9865297
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        218,
+        800,
+        8,
+        1776287744,
+        0,
+        218,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "adaabf9c97f41774a26c1a126781fe2eebd3a58f4993d2cb2d571bb34ec06e4f",
+      "sample_positions": [
+        [
+          0,
+          218
+        ],
+        [
+          400,
+          222
+        ],
+        [
+          799,
+          225
+        ]
+      ],
+      "before_COLORREF": [
+        8674123,
+        6446176,
+        8411971
+      ],
+      "after_COLORREF": [
+        10057566,
+        11381672,
+        9140302
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10057566,
+        11381672,
+        9140302
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        226,
+        800,
+        8,
+        1776287744,
+        0,
+        226,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "8b1f8c09eab556c1d8d9ba8ed2ec78ffc5ab029eb3e047f04208054c36dc7a83",
+      "sample_positions": [
+        [
+          0,
+          226
+        ],
+        [
+          400,
+          230
+        ],
+        [
+          799,
+          233
+        ]
+      ],
+      "before_COLORREF": [
+        7296071,
+        10787235,
+        8935495
+      ],
+      "after_COLORREF": [
+        8808277,
+        7102582,
+        8413256
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8808277,
+        7102582,
+        8413256
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        234,
+        800,
+        8,
+        1776287744,
+        0,
+        234,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "5f5408fd770d033d9f6666fcd77adfd92bda2635a5d23bf40d4a96ee2d5818d0",
+      "sample_positions": [
+        [
+          0,
+          234
+        ],
+        [
+          400,
+          238
+        ],
+        [
+          799,
+          241
+        ]
+      ],
+      "before_COLORREF": [
+        7559494,
+        12433586,
+        8089667
+      ],
+      "after_COLORREF": [
+        8217925,
+        8286847,
+        9590599
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8217925,
+        8286847,
+        9590599
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        242,
+        800,
+        8,
+        1776287744,
+        0,
+        242,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "795e1a6258fbf4221c6a94099ce794d448ca252c4b20a34a3b1bb9b8c36b37fc",
+      "sample_positions": [
+        [
+          0,
+          242
+        ],
+        [
+          400,
+          246
+        ],
+        [
+          799,
+          249
+        ]
+      ],
+      "before_COLORREF": [
+        8084549,
+        9078161,
+        8748361
+      ],
+      "after_COLORREF": [
+        8283725,
+        9145235,
+        8934988
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8283725,
+        9145235,
+        8934988
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        250,
+        800,
+        8,
+        1776287744,
+        0,
+        250,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "62c487204a77e498995d6087b7d33c61cb8fb0610751088f7641fd2f9c725413",
+      "sample_positions": [
+        [
+          0,
+          250
+        ],
+        [
+          400,
+          254
+        ],
+        [
+          799,
+          257
+        ]
+      ],
+      "before_COLORREF": [
+        9929113,
+        14210510,
+        8545606
+      ],
+      "after_COLORREF": [
+        8870992,
+        7105657,
+        9001548
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8870992,
+        7105657,
+        9001548
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        258,
+        800,
+        8,
+        1776287744,
+        0,
+        258,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "b6a6c333a4032efd462691f0276673d48ad27ac5c36bf77b5716ce4e53f93931",
+      "sample_positions": [
+        [
+          0,
+          258
+        ],
+        [
+          400,
+          262
+        ],
+        [
+          799,
+          265
+        ]
+      ],
+      "before_COLORREF": [
+        10586275,
+        8685207,
+        8877899
+      ],
+      "after_COLORREF": [
+        8751005,
+        13549519,
+        8411206
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8751005,
+        13549519,
+        8411206
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        266,
+        800,
+        8,
+        1776287744,
+        0,
+        266,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "d77dbdcc55a2ff4598db9487783204b2bc0b457cc8dec930eed04a8c7ce351db",
+      "sample_positions": [
+        [
+          0,
+          266
+        ],
+        [
+          400,
+          270
+        ],
+        [
+          799,
+          273
+        ]
+      ],
+      "before_COLORREF": [
+        7232885,
+        12301507,
+        8344902
+      ],
+      "after_COLORREF": [
+        7303309,
+        11112869,
+        8476743
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        7303309,
+        11112869,
+        8476743
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        274,
+        800,
+        8,
+        1776287744,
+        0,
+        274,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "b9bc462baa8b33f4a314df6263e058207a532dfe45b22c357bbf784c5f4cdee9",
+      "sample_positions": [
+        [
+          0,
+          274
+        ],
+        [
+          400,
+          278
+        ],
+        [
+          799,
+          281
+        ]
+      ],
+      "before_COLORREF": [
+        12231832,
+        9544109,
+        9135947
+      ],
+      "after_COLORREF": [
+        13156033,
+        7434377,
+        9394764
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        13156033,
+        7434377,
+        9394764
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        282,
+        800,
+        8,
+        1776287744,
+        0,
+        282,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "da0613811a5d0a8ebf8d2d479ae32c37dc08f9524e789cd3b35291f2169957cb",
+      "sample_positions": [
+        [
+          0,
+          282
+        ],
+        [
+          400,
+          286
+        ],
+        [
+          799,
+          289
+        ]
+      ],
+      "before_COLORREF": [
+        11376517,
+        8947603,
+        8876359
+      ],
+      "after_COLORREF": [
+        10654850,
+        6710392,
+        9002320
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10654850,
+        6710392,
+        9002320
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        290,
+        800,
+        8,
+        1776287744,
+        0,
+        290,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "a53e6191822d56f6c65f0802d85bf95d0155f5c34f58f5ec15b5d49731bdf4aa",
+      "sample_positions": [
+        [
+          0,
+          290
+        ],
+        [
+          400,
+          294
+        ],
+        [
+          799,
+          297
+        ]
+      ],
+      "before_COLORREF": [
+        9864556,
+        13618629,
+        11105107
+      ],
+      "after_COLORREF": [
+        10320491,
+        10650781,
+        12222041
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10320491,
+        10650781,
+        12222041
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        298,
+        800,
+        8,
+        1776287744,
+        0,
+        298,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "c15570da360091a23edf02e6cf6fa8f9ebd1d124f7d3f285f8d6c5e7c1df1f8c",
+      "sample_positions": [
+        [
+          0,
+          298
+        ],
+        [
+          400,
+          302
+        ],
+        [
+          799,
+          305
+        ]
+      ],
+      "before_COLORREF": [
+        15392463,
+        14736101,
+        14668748
+      ],
+      "after_COLORREF": [
+        10714736,
+        8421193,
+        10254445
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10714736,
+        8421193,
+        10254445
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        306,
+        800,
+        8,
+        1776287744,
+        0,
+        306,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "c2c6bd00081a24d497149394c35380487a23760f0c52a51b857231080a9bccb4",
+      "sample_positions": [
+        [
+          0,
+          306
+        ],
+        [
+          400,
+          310
+        ],
+        [
+          799,
+          313
+        ]
+      ],
+      "before_COLORREF": [
+        14275275,
+        15065829,
+        11639695
+      ],
+      "after_COLORREF": [
+        11507333,
+        8414536,
+        10123119
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11507333,
+        8414536,
+        10123119
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        314,
+        800,
+        8,
+        1776287744,
+        0,
+        314,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "9ec9f9709a9a6935b167353042cac61372c0cef7202bb4ffd32fb0e65d4744d8",
+      "sample_positions": [
+        [
+          0,
+          314
+        ],
+        [
+          400,
+          318
+        ],
+        [
+          799,
+          321
+        ]
+      ],
+      "before_COLORREF": [
+        11973808,
+        11779779,
+        11837331
+      ],
+      "after_COLORREF": [
+        11376007,
+        8550219,
+        9139572
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11376007,
+        8550219,
+        9139572
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        322,
+        800,
+        8,
+        1776287744,
+        0,
+        322,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "04fed8bead5c856da292a8ef8528c34bb3fb5920481f80dc7cdb768348db5ee5",
+      "sample_positions": [
+        [
+          0,
+          322
+        ],
+        [
+          400,
+          326
+        ],
+        [
+          799,
+          329
+        ]
+      ],
+      "before_COLORREF": [
+        11846601,
+        9134675,
+        8085597
+      ],
+      "after_COLORREF": [
+        10264479,
+        8023370,
+        6839902
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10264479,
+        8023370,
+        6839902
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        330,
+        800,
+        8,
+        1776287744,
+        0,
+        330,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "f5ced70e84157ffa6995ed200270dea43abb003c52f4c3c0773f889bf262d152",
+      "sample_positions": [
+        [
+          0,
+          330
+        ],
+        [
+          400,
+          334
+        ],
+        [
+          799,
+          337
+        ]
+      ],
+      "before_COLORREF": [
+        7821389,
+        9199955,
+        8021345
+      ],
+      "after_COLORREF": [
+        11319482,
+        7560260,
+        12699326
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11319482,
+        7560260,
+        12699326
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        338,
+        800,
+        8,
+        1776287744,
+        0,
+        338,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "a2ef297c96d841ac0c94638dab836c2ccbc19375f8f8ec4f917c42114485f9bb",
+      "sample_positions": [
+        [
+          0,
+          338
+        ],
+        [
+          400,
+          342
+        ],
+        [
+          799,
+          345
+        ]
+      ],
+      "before_COLORREF": [
+        8153169,
+        7826504,
+        12568773
+      ],
+      "after_COLORREF": [
+        12308955,
+        8480335,
+        12106152
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12308955,
+        8480335,
+        12106152
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        346,
+        800,
+        8,
+        1776287744,
+        0,
+        346,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "0447d4ec733ccd5a8de4c21ee87c4f4205f0375cc6fb0b1a26aa52da4d6931d4",
+      "sample_positions": [
+        [
+          0,
+          346
+        ],
+        [
+          400,
+          350
+        ],
+        [
+          799,
+          353
+        ]
+      ],
+      "before_COLORREF": [
+        7624013,
+        7363397,
+        15789287
+      ],
+      "after_COLORREF": [
+        11713228,
+        10202033,
+        11909545
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11713228,
+        10202033,
+        11909545
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        354,
+        800,
+        8,
+        1776287744,
+        0,
+        354,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "33274431458bae7eec584eb9a71fadb577585098378ca779a92d0b6f29d9848d",
+      "sample_positions": [
+        [
+          0,
+          354
+        ],
+        [
+          400,
+          358
+        ],
+        [
+          799,
+          361
+        ]
+      ],
+      "before_COLORREF": [
+        9004624,
+        8017481,
+        12433843
+      ],
+      "after_COLORREF": [
+        9595739,
+        9206133,
+        14732228
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9595739,
+        9206133,
+        14732228
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        362,
+        800,
+        8,
+        1776287744,
+        0,
+        362,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "4efba1058787a2f9f7696a90c5999f2c7dd17ce1c0a20793d963771256feaac4",
+      "sample_positions": [
+        [
+          0,
+          362
+        ],
+        [
+          400,
+          366
+        ],
+        [
+          799,
+          369
+        ]
+      ],
+      "before_COLORREF": [
+        9662295,
+        8217695,
+        12500665
+      ],
+      "after_COLORREF": [
+        10268860,
+        10203575,
+        11907750
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10268860,
+        10203575,
+        11907750
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        370,
+        800,
+        8,
+        1776287744,
+        0,
+        370,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "bc715b6f2e76551216f3982f3a61b90dd2179ed7831638eb663870f3c6567bc0",
+      "sample_positions": [
+        [
+          0,
+          370
+        ],
+        [
+          400,
+          374
+        ],
+        [
+          799,
+          377
+        ]
+      ],
+      "before_COLORREF": [
+        8094099,
+        10005168,
+        11775660
+      ],
+      "after_COLORREF": [
+        11254217,
+        14012621,
+        12697528
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11254217,
+        14012621,
+        12697528
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        378,
+        800,
+        8,
+        1776287744,
+        0,
+        378,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "93e4240e638e3667afbd1411dc554b977db08884841dba73d61a06ea3d02b237",
+      "sample_positions": [
+        [
+          0,
+          378
+        ],
+        [
+          400,
+          382
+        ],
+        [
+          799,
+          385
+        ]
+      ],
+      "before_COLORREF": [
+        8948887,
+        10993097,
+        12828858
+      ],
+      "after_COLORREF": [
+        11188160,
+        14341071,
+        9537413
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11188160,
+        14341071,
+        9537413
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        386,
+        800,
+        8,
+        1776287744,
+        0,
+        386,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3bfcf54590b99ecdf9edc94a516d27c8aace206d2ea59029e93bc47a905cfabd",
+      "sample_positions": [
+        [
+          0,
+          386
+        ],
+        [
+          400,
+          390
+        ],
+        [
+          799,
+          393
+        ]
+      ],
+      "before_COLORREF": [
+        9733769,
+        9283507,
+        11249055
+      ],
+      "after_COLORREF": [
+        12897737,
+        12366771,
+        11907244
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12897737,
+        12366771,
+        11907244
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        394,
+        800,
+        8,
+        1776287744,
+        0,
+        394,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "0c3a2223325726eefd2868384f78dccfe9a6bb0c40b1a2c5b4e8caae0f3f751b",
+      "sample_positions": [
+        [
+          0,
+          394
+        ],
+        [
+          400,
+          398
+        ],
+        [
+          799,
+          401
+        ]
+      ],
+      "before_COLORREF": [
+        7823955,
+        9547451,
+        10987681
+      ],
+      "after_COLORREF": [
+        10068100,
+        10261141,
+        8420476
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10068100,
+        10261141,
+        8420476
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        402,
+        800,
+        8,
+        1776287744,
+        0,
+        402,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "3d8132b70645a1f2a8c55ef752835fdcfd06c78a272d2d225c7e45e77c749280",
+      "sample_positions": [
+        [
+          0,
+          402
+        ],
+        [
+          400,
+          406
+        ],
+        [
+          799,
+          409
+        ]
+      ],
+      "before_COLORREF": [
+        7495248,
+        9349557,
+        10527131
+      ],
+      "after_COLORREF": [
+        9138773,
+        14867414,
+        8025975
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9138773,
+        14867414,
+        8025975
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        410,
+        800,
+        8,
+        1776287744,
+        0,
+        410,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "d2d6d34d0d7d7ad7cfc74b9df45c9c22f1879c7462c3cff6234d2c14debcca85",
+      "sample_positions": [
+        [
+          0,
+          410
+        ],
+        [
+          400,
+          414
+        ],
+        [
+          799,
+          417
+        ]
+      ],
+      "before_COLORREF": [
+        7365716,
+        9480373,
+        11712434
+      ],
+      "after_COLORREF": [
+        10449504,
+        16314858,
+        10725541
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10449504,
+        16314858,
+        10725541
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        418,
+        800,
+        8,
+        1776287744,
+        0,
+        418,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "00b3259f2bdeda3691b74ac316c9f67d089e2e75df2cc4341e23378df695f4da",
+      "sample_positions": [
+        [
+          0,
+          418
+        ],
+        [
+          400,
+          422
+        ],
+        [
+          799,
+          425
+        ]
+      ],
+      "before_COLORREF": [
+        8022365,
+        10594734,
+        12503236
+      ],
+      "after_COLORREF": [
+        8022366,
+        10851725,
+        10266270
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8022366,
+        10851725,
+        10266270
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        426,
+        800,
+        8,
+        1776287744,
+        0,
+        426,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "6467ca8c14a5dca494d076ed9a1f002e56ede92628bfdb6045293ccd0c2d6493",
+      "sample_positions": [
+        [
+          0,
+          426
+        ],
+        [
+          400,
+          430
+        ],
+        [
+          799,
+          433
+        ]
+      ],
+      "before_COLORREF": [
+        8679009,
+        10528172,
+        10920861
+      ],
+      "after_COLORREF": [
+        8941409,
+        15395567,
+        8487804
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        8941409,
+        15395567,
+        8487804
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        434,
+        800,
+        8,
+        1776287744,
+        0,
+        434,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "69adda45255e4aa2b4a0ab7ef31cfbd14d415d9ed2754468244255b5886745f2",
+      "sample_positions": [
+        [
+          0,
+          434
+        ],
+        [
+          400,
+          438
+        ],
+        [
+          799,
+          441
+        ]
+      ],
+      "before_COLORREF": [
+        4603449,
+        10661042,
+        11909560
+      ],
+      "after_COLORREF": [
+        11500408,
+        12894403,
+        8947584
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        11500408,
+        12894403,
+        8947584
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        442,
+        800,
+        8,
+        1776287744,
+        0,
+        442,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "b381cea25fbb9ec227d07924cf8186b60912785e0df551604416cd449932574e",
+      "sample_positions": [
+        [
+          0,
+          442
+        ],
+        [
+          400,
+          446
+        ],
+        [
+          799,
+          449
+        ]
+      ],
+      "before_COLORREF": [
+        4735291,
+        10857649,
+        11776683
+      ],
+      "after_COLORREF": [
+        13353658,
+        7303798,
+        10264732
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        13353658,
+        7303798,
+        10264732
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        450,
+        800,
+        8,
+        1776287744,
+        0,
+        450,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "501b7e2947be1b445260658815d91af02516c4fe54a41eabae38c15372926ee7",
+      "sample_positions": [
+        [
+          0,
+          450
+        ],
+        [
+          400,
+          454
+        ],
+        [
+          799,
+          457
+        ]
+      ],
+      "before_COLORREF": [
+        4011827,
+        12766668,
+        11379617
+      ],
+      "after_COLORREF": [
+        10656657,
+        8551553,
+        10263446
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10656657,
+        8551553,
+        10263446
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        458,
+        800,
+        8,
+        1776287744,
+        0,
+        458,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "fe447a29382b629ad652d1f32a182c97b5cf7a46f7f9a08dc38c5e0d2b61c7e3",
+      "sample_positions": [
+        [
+          0,
+          458
+        ],
+        [
+          400,
+          462
+        ],
+        [
+          799,
+          465
+        ]
+      ],
+      "before_COLORREF": [
+        6971219,
+        13818327,
+        11182237
+      ],
+      "after_COLORREF": [
+        5591879,
+        8355205,
+        12043719
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5591879,
+        8355205,
+        12043719
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        466,
+        800,
+        8,
+        1776287744,
+        0,
+        466,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "9a23992361325533269e7607832148514bcb6ecd536bb33f3c9e8876d11b40ae",
+      "sample_positions": [
+        [
+          0,
+          466
+        ],
+        [
+          400,
+          470
+        ],
+        [
+          799,
+          473
+        ]
+      ],
+      "before_COLORREF": [
+        5919047,
+        12831941,
+        12756129
+      ],
+      "after_COLORREF": [
+        5329220,
+        8684425,
+        9541267
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5329220,
+        8684425,
+        9541267
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        474,
+        800,
+        8,
+        1776287744,
+        0,
+        474,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "c31c24acde92ddaabd542f1483d63fb43e65332d1b8648fea635e496e905e60d",
+      "sample_positions": [
+        [
+          0,
+          474
+        ],
+        [
+          400,
+          478
+        ],
+        [
+          799,
+          481
+        ]
+      ],
+      "before_COLORREF": [
+        4670011,
+        6710893,
+        7106156
+      ],
+      "after_COLORREF": [
+        5461574,
+        10654610,
+        11901591
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        5461574,
+        10654610,
+        11901591
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        482,
+        800,
+        8,
+        1776287744,
+        0,
+        482,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "647fdc8ec5a9730d994df680fc6db4487a1fa22953f80557f117f9d7ff3f67fe",
+      "sample_positions": [
+        [
+          0,
+          482
+        ],
+        [
+          400,
+          486
+        ],
+        [
+          799,
+          489
+        ]
+      ],
+      "before_COLORREF": [
+        5129792,
+        7763833,
+        8486788
+      ],
+      "after_COLORREF": [
+        4471349,
+        9671058,
+        6314333
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        4471349,
+        9671058,
+        6314333
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    }
+  ],
+  "post_parent_API_counts": {
+    "BitBlt": 113,
+    "ReleaseDC": 2,
+    "Critical_leave": 10,
+    "Critical_enter": 10,
+    "GetCurrentThreadId": 10,
+    "IsIconic": 2,
+    "GetCursorPos": 2,
+    "ClientToScreen": 2,
+    "GetClientRect": 2,
+    "OffsetRect": 2,
+    "ScreenToClient": 2,
+    "GetDC_owner_receipt": 2,
+    "GetDC": 2,
+    "HeapAlloc": 2
+  },
+  "full_before_parent_readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": false,
+    "differing_color_bytes": 1416461,
+    "source_RGB_SHA256": "907d0e5cb67184bf480bbf333559d5a7a93203686ba442dd63c866a2d7b6e5d1",
+    "actual_RGB_SHA256": "680a1c22a8e114ea0c637847e8cc506794073a55f4350364c8a0421e7dbcc8f0",
+    "source_blits": 850,
+    "all_source_blit_sample_readbacks_match": false,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "full_after_parent_readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": false,
+    "differing_color_bytes": 369369,
+    "source_RGB_SHA256": "e9e6d416b30105cc3706d58594ce8611f7d5e311bb347df1fec6b21aa9fe4ef8",
+    "actual_RGB_SHA256": "d034e635af644b4bdf135eb0d6d521d568523a6b8de1a57e64c6c52d1e1a07dc",
+    "source_blits": 963,
+    "all_source_blit_sample_readbacks_match": false,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "actual_source_cursor_calls": [
+    {
+      "api": "SetCursorPos_actual_source_worker",
+      "original_return_address": 4514825,
+      "original_xy": [
+        960,
+        516
+      ],
+      "actual_OS_BOOL": 0,
+      "actual_error": 0,
+      "actual_GetCursorPos_result": 1,
+      "observed_xy": [
+        960,
+        516
+      ],
+      "exact_source_arguments": true,
+      "no_forced_position_or_success": true
+    },
+    {
+      "api": "SetCursorPos_actual_source_worker",
+      "original_return_address": 4514825,
+      "original_xy": [
+        1289,
+        611
+      ],
+      "actual_OS_BOOL": 0,
+      "actual_error": 0,
+      "actual_GetCursorPos_result": 1,
+      "observed_xy": [
+        960,
+        516
+      ],
+      "exact_source_arguments": true,
+      "no_forced_position_or_success": true
+    }
+  ],
+  "full_trace_local_path": "临时\\ISSUE-20261011-02\\r-live-worker-hit-test-canonical-146",
+  "full_local_trace_SHA256": "03f02d95842a8894c73d72750c08d88b34ee19df118465aad87192a9399d9585",
+  "scope_not_complete_original_game": true
+}

@@ -1,0 +1,189 @@
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_dialog.tjs b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_dialog.tjs
+index d5508e9..c00b5bb 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_dialog.tjs
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_dialog.tjs
+@@ -225,12 +225,16 @@ function uiDialogBuildCtx(stage, screen)
+ 	var ctx = %[ page: %[], focus: %[], hide: %[], forceShow: %[],
+ 	             textOverride: %[], boxOverride: %[], opacityOverride: %[],
+ 	             phase: (UIDlgCursorOn ? 0.0 : 1.0),
+-	             // ★ M35b 一审（一般问题·Major 潜在）：补上状态检测四键。
+-	             //   对话框屏是由本函数构造 ctx（不是 uiScreenCtx），原先不含这四个键 ⇒
+-	             //   该屏上任何带 `state_assets` 的元素在 krkr 永远停在 normal，HTML 侧却正常 =
+-	             //   两端分叉。当前数据不可达（无 dialog 元素带态图），但编辑器已开放「任意 kind
+-	             //   可挂三态」，随时可达，故按与 uiScreenCtx 同一口径补齐。
+-	             hoverHit: "", pressHit: "", hoverGroup: "", pressGroup: "" ];
++	             // ★ M35b：补齐状态检测四键，**取值口径与 uiScreenCtx 完全一致**。
++	             //   ⚠️ 二审 Major-3 订正：初版这里写的是四个 **恒空串**（`hoverHit: ""` …），
++	             //   那是**空实现** —— uiWidgetStateFlags 恒判 false ⇒ 该屏态图永远停 normal，
++	             //   与 HTML 侧（DOM 事件驱动）分叉；而记录 -06 曾把它记成「已修」，不成立。
++	             //   现按 uiScreenCtx（ui_screens.tjs:254-263）的同一表达式接线。
++	             hoverHit: UIScrHoverHit,
++	             pressHit: ((UIScrPressProbe != "") ? UIScrPressProbe : UIScrPressHit),
++	             hoverGroup: uiScreenStateGroupOf(screen, UIScrHoverHit),
++	             pressGroup: uiScreenStateGroupOf(screen,
++	                 (UIScrPressProbe != "") ? UIScrPressProbe : UIScrPressHit) ];
+ 
+ 	if(screen === void || screen.elements === void) return ctx;   // 缺屏数据 → 空 ctx，不抛
+ 	var els = screen.elements;
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_screens.tjs b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_screens.tjs
+index daaab3f..9ecab35 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_screens.tjs
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_screens.tjs
+@@ -178,11 +178,19 @@ function uiScreenPressUpdate(x, y)
+ }
+ 
+ // 当前屏 (x,y) 命中的、**参与状态检测的元素** id（取最高 z）；无则 ""
+-//   ★ M35b：判据 = 「**带 state_assets 的任何元素**」∪ 「**kind == hit 的任何元素**」。
++//   ★ M35b：判据 = 「**带 `state_assets` 的任何元素**」∪ 「**带非空 `state_group` 的 hit**」。
+ //     · 前半句：`image` 也能带三态图（文字按钮就靠这个），且**组绑定要求鼠标落在它上面也被检测到**。
+-//     · 后半句（M35b 热区迁移后新增）：热区退回**纯热区**（不持有美术，避免按 PSB 交互区矩形
+-//       拉伸绘制），但它仍必须是状态目标 —— 否则「悬停整条消息行」不会点亮旁边的喇叭图标。
+-//     仍然不认「既非 hit、又无态图」的元素：满幅背景之类不会成为状态目标。
++//     · 后半句：热区迁移后退回**纯热区**（不持有美术，避免按 PSB 交互区矩形拉伸绘制），
++//       但它仍必须是状态目标 —— 否则「悬停整条消息行」不会点亮旁边的喇叭图标。
++//   ★★ 二审 Major-1 修：**判据收紧为「有组」的 hit，不能是「任何 hit」**。实测反例：
++//     配置屏 `cfg.mute_hit`（z=95、组 config.mute）与 `cfg.it_facewindow_hit`（z=95、**无组**、
++//     声明更晚、矩形覆盖静音勾选框）在勾选框处**同 z 平票**，而本函数的平票规则是「z >= bestZ 则后者胜」
++//     ⇒ 放宽成「任何 hit」时，无组的那件会抢走命中 ⇒ `ctx.hoverGroup` 为空 ⇒
++//     勾选框的 pressed 态（x_ui_check_on.png）**再也画不出来**（改动前它是能画的）。
++//     收紧后无组 hit 不再是候选，`cfg.mute_hit` 胜出、组生效（数据侧另把它的 z 提到 96，
++//     让 HTML 的 DOM 顶层归属也一致 —— 见 25_config.json 的 note）。
++//   ★ 附带好处：纯热区（既无态图又无组）不再参与，鼠标划过它们不再触发无谓的整屏 redraw
++//     （原先的「未变化不重画」在这一档上已不成立）。
+ function uiScreenHoverAt(x, y)
+ {
+ 	var id = uiScreenCurrent();
+@@ -193,7 +201,11 @@ function uiScreenHoverAt(x, y)
+ 	for(var i = 0; i < els.count; i++)
+ 	{
+ 		var el = els[i];
+-		if(el.state_assets === void && el.kind != "hit") continue;   // 见上方判据
++		if(el.state_assets === void)
++		{
++			if(el.kind != "hit") continue;
++			if(uiWidgetStateGroup(el) == "") continue;   // 见上方判据：只认「有组」的热区
++		}
+ 		if(el.visible_default === false) continue;
+ 		var r = uiWidgetRect(el);
+ 		if(x < r.x || x >= r.x + r.w || y < r.y || y >= r.y + r.h) continue;
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.css b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.css
+index 18bc29e..9d5a352 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.css
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.css
+@@ -134,7 +134,9 @@ select.btn { padding: 4px 6px; }
+      带 state_assets 的 hit 已有 normal/hover/pressed 贴图，再叠一层蓝底会变成「双反馈」，
+      且与 krkr 侧口径不一致（krkr 只画 state_assets 那张图，不叠色）——
+      实测后果：HTML 的按下态截图多一层 34% 蓝底，无法与实机逐像素对照。
+-     buildHit 会给带 state_assets 的元素加 `ui-hit-hasstate` 类。 */
++     buildHit 会给「带 state_assets」**或**「带 state_group」的 hit 加 `ui-hit-hasstate` 类
++     （M35b 二审：热区迁移后，多数热区自身没有态图、态图在同组的 image 上，
++     它们同样不该叠色 —— 否则 HTML 有蓝条、krkr 什么都没有）。 */
+ .ui-hit:not(.ui-hit-hasstate):hover  { background: rgba(122, 176, 232, .18); border-color: rgba(122, 176, 232, .55); }
+ .ui-hit:not(.ui-hit-hasstate):active { background: rgba(122, 176, 232, .34); }
+ /* 点击瞬闪（110ms，replica.js 的 click 处理加类）——语义与 state_assets.pressed 不同，
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.js b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.js
+index 7001e61..112b14d 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.js
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/replica.js
+@@ -1688,8 +1688,19 @@ if (e.dynamic === 'story_background' && DEMO_BG_CANDIDATES.length) {
+        迁移把「热区拉伸态图」改成了「热区退回纯热区 + 态图挪到旁边的 1:1 image」，
+        此时热区必须仍能被 hover/按下检测到，才能把状态广播给同组的 image（规则⑥）。
+        没有态图的 hit 传 null painter（apply 为空操作），只是当状态源。 */
++    /* ★ M35b 二审：判据与 krkr 的 uiScreenHoverAt 对齐 —— 只有「带 state_assets」或
++       「带非空 state_group」的 hit 才挂状态机。纯热区（既无态图又无组）挂了也没意义，
++       还多 4 个监听；更重要的是**有组的热区要打上 ui-hit-hasstate 类**，
++       否则 replica.css 的 `:hover`/`:active` 会给它整块热区刷一层半透明蓝，
++       而 krkr 侧无态图的 hit 什么都不画 ⇒ 两端观感分叉（二审 Major-4）。 */
+     var stH = e.state_assets;
+-    if (stH) {
++    var grpH = e.state_group || '';
++    /* ⚠️ 这里**绝不能提前 return** —— buildHit 后面还有「标签渲染 / click 监听 / applyAnim」。
++       我第一版写成 `if (!stH && !grpH) return d;`（只想着省掉状态机），结果**所有纯热区
++       的点击监听一并被跳过**：浮层「点空白收起」的 dismiss 热区正是纯热区 ⇒ 浮层收不起来。
++       自带自检套件（index.html?selftest=1）当场报出 4 条 sysicons.* 失败。
++       正确做法是**只跳过状态机、继续走完函数**（即下面这个 if 块）。 */
++    if (stH || grpH) {
+       /* ★ 主代理 2026-09-20 修：background-image 默认按**图片自然尺寸**绘制，
+          不写 background-size 时贴图会溢出热区（实测标题菜单 439x122 的贴图画进
+          290x81 的热区 → 7 个按钮互相重叠）。krkr 侧 uiWidgetDrawHit 是按 el.w/el.h
+@@ -2572,6 +2583,12 @@ if (e.dynamic === 'story_background' && DEMO_BG_CANDIDATES.length) {
+     function chk(name, cond, detail) {
+       out.push((cond ? 'PASS' : 'FAIL') + '\t' + name + '\t' + (detail === undefined ? '' : detail));
+     }
++    /* ★ M35b：主语已被 M34 重建移除的断言 —— 明确记 SKIP 并写清原因，
++       不再让它以 FAIL 的形态误导（二审指出：这套 M15 期自检长期吐 RESULT=NG，
++       其中一部分是失效主语、不是真失败）。SKIP 不计入失败数。 */
++    function skip(name, why) {
++      out.push('SKIP	' + name + '	' + why);
++    }
+     function kids(el) { return el ? el.childNodes.length : -1; }
+     function elOf(id) { var r = refOf(id); return r ? r.el : null; }
+ 
+@@ -2614,10 +2631,14 @@ if (e.dynamic === 'story_background' && DEMO_BG_CANDIDATES.length) {
+     chk('sysicons.icon-dispatch', state.screen === 'save' && state.underScreen === null, state.screen);
+ 
+     /* ⑤ 全零 nine（整图缩放）必须走 <img>，不得走 border-image（M18 已证其不绘制） */
+-    renderScreen('flowchart', { noHistory: true });
+-    var zeroNineIds = ['flow.n01_box', 'flow.n02_box', 'flow.n03_box', 'flow.n04_box', 'flow.b01_box',
+-                       'flow.n08_box', 'flow.n05_box', 'flow.n06_box', 'flow.b02_box', 'flow.n07_box',
+-                       'flow.n09_box', 'flow.n10_box', 'flow.n11_box'];
++    /* ★ M35b 订正：原主语是流程图屏的 13 个 `flow.n*_box` —— **M34 已把该屏整体重建**，
++       那批 id 不再存在（现为 `fc.*` 且无 `box` 类），该断言因此长期假失败。
++       现改指到**当前仍存在的零 nine 元素**（全库 51 件；取保存屏 12 缩略图 + tab_a = 13 件）——
++       语义不变：同样是「全零 nine 必须走 <img> 整图拉伸」。 */
++    renderScreen('save', { noHistory: true });
++    var zeroNineIds = ['sv.thumb1', 'sv.thumb2', 'sv.thumb3', 'sv.thumb4', 'sv.thumb5', 'sv.thumb6',
++                       'sv.thumb7', 'sv.thumb8', 'sv.thumb9', 'sv.thumb10', 'sv.thumb11', 'sv.thumb12',
++                       'sv.tab_a'];
+     var znOk = 0, znBad = [];
+     var znImgs = [];      // ★ 图片是异步加载的，naturalWidth 需等 load 后才能查（见下方 async 段）
+     zeroNineIds.forEach(function (id) {
+@@ -2644,11 +2665,11 @@ if (e.dynamic === 'story_background' && DEMO_BG_CANDIDATES.length) {
+     chk('dynamic.gallery_preview-placeholder',
+         !!gp && gp.classList.contains('ui-dynamic-empty') && !!gpl && /^\[占位\]/.test(gpl.textContent || ''),
+         gpl ? gpl.textContent.replace('\n', ' | ') : '无占位');
+-    renderScreen('save', { noHistory: true });
+-    var st = elOf('save.slot1_thumb');
+-    var stl = st ? st.querySelector('.ui-dynamic-label') : null;
+-    chk('dynamic.slot_thumb-placeholder',
+-        !!st && st.classList.contains('ui-dynamic-empty') && !!stl, stl ? stl.textContent.replace('\n', ' | ') : '无占位');
++    /* ★ M35b：`save.slot1_thumb` 这个动态层已被 M34 重建时移除（现为 `sv.thumb1..12` 普通 image）
++       ⇒ 本断言**无主语**，明确 SKIP，不再以 FAIL 的形态误导。
++       现存的动态层只剩两件（dlg.content / gallery.preview），其中 gallery 已由上一句覆盖。 */
++    skip('dynamic.slot_thumb-placeholder',
++         '主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）');
+ 
+     /* ⑦ 切屏清理：连续遍历 16 屏后 DOM 节点数不得随次数增长 */
+     var ids = Object.keys(SCREENS);
+@@ -2668,8 +2689,11 @@ if (e.dynamic === 'story_background' && DEMO_BG_CANDIDATES.length) {
+     var h0 = state.history.length;
+     renderScreen('dialog', { noHistory: true });
+     renderScreen('sysicons');
+-    chk('overlay.no-history-entry', state.history.length === state.history.length,
+-        '开浮层前 history=' + state.history.length);
++    /* ★ M35b 二审订正：这里原写作 `state.history.length === state.history.length` ——
++       **同一表达式自比、恒为真**，而上一行算出的 `h0` 反而从未被用（典型的“假通过”断言）。
++       改成比对「开浮层前记录的 h0」，才真的在验「浮层屏不入历史」。 */
++    chk('overlay.no-history-entry', state.history.length === h0,
++        '开浮层前 history=' + h0 + '，开浮层后=' + state.history.length);
+     closeOverlay();
+     chk('overlay.close-overlay', state.screen === 'dialog' && state.underScreen === null, state.screen);
+ 
+@@ -2689,10 +2713,13 @@ if (e.dynamic === 'story_background' && DEMO_BG_CANDIDATES.length) {
+         if (nw > 0 && z.elW > 0 && nw !== z.elW) diffs++;
+         if (z.el.querySelector('.ui-missing')) bad.push(z.id + '(画了占位)');
+       });
+-      chk('zeronine.stretched-to-element-box', stretched === 13,
+-          stretched + '/13 ' + (bad.length ? bad.join(',') : ''));
+-      chk('zeronine.size-differs-from-png-still-rendered', diffs === 13,
+-          diffs + '/13 张 PNG 实宽(' + (znImgs[0] ? znImgs[0].img.naturalWidth : '?')
++      /* ★ M35b：原本硬编码 `=== 13`（对应已被 M34 重建掉的 13 个流程图方框）——
++         这种硬编码正是「数据一变就假失败」的根因，改为**对着实际主语数**断言：
++         ① 每个主语都被拉伸到元素盒；② 至少有一件 PNG 实尺寸 ≠ 元素尺寸（说明「整图拉伸语义」真的被跱到）。 */
++      chk('zeronine.stretched-to-element-box', stretched === znImgs.length,
++          stretched + '/' + znImgs.length + ' ' + (bad.length ? bad.join(',') : ''));
++      chk('zeronine.size-differs-from-png-still-rendered', diffs >= 1 && diffs <= znImgs.length,
++          diffs + '/' + znImgs.length + ' 张 PNG 实宽(' + (znImgs[0] ? znImgs[0].img.naturalWidth : '?')
+           + ') ≠ 元素宽(' + (znImgs[0] ? znImgs[0].elW : '?') + ')，仍正常绘制');
+       var fail = out.filter(function (l) { return l.indexOf('FAIL') === 0; }).length;
+       resolve({ lines: out, fail: fail, total: out.length });

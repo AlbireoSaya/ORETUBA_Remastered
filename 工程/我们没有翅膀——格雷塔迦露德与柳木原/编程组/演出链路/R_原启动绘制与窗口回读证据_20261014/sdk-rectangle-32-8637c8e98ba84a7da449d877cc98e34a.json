@@ -1,0 +1,80 @@
+{
+  "bits": 32,
+  "offset_actual_BOOL": 1,
+  "offset_after_RECT": [
+    -13,
+    9,
+    37,
+    49
+  ],
+  "intersection_cases": [
+    {
+      "a": [
+        0,
+        0,
+        10,
+        10
+      ],
+      "b": [
+        5,
+        3,
+        20,
+        9
+      ],
+      "actual_BOOL": 1,
+      "actual_RECT": [
+        5,
+        3,
+        10,
+        9
+      ],
+      "input_and_output_guards_pass": true
+    },
+    {
+      "a": [
+        0,
+        0,
+        10,
+        10
+      ],
+      "b": [
+        10,
+        0,
+        20,
+        10
+      ],
+      "actual_BOOL": 0,
+      "actual_RECT": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_and_output_guards_pass": true
+    },
+    {
+      "a": [
+        0,
+        0,
+        10,
+        10
+      ],
+      "b": [
+        11,
+        11,
+        20,
+        20
+      ],
+      "actual_BOOL": 0,
+      "actual_RECT": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "input_and_output_guards_pass": true
+    }
+  ],
+  "pass": true,
+  "scope": "owned actual OS rectangle operations, not source rendering proof"
+}

@@ -1,0 +1,119 @@
+{
+  "RaiseException_IAT_candidates": [
+    5341680,
+    5400588
+  ],
+  "api": "RaiseException",
+  "intercept_only_no_dispatch": true,
+  "original_return_address": 5265832,
+  "exception_code": 3765269347,
+  "flags": 1,
+  "parameter_count": 3,
+  "parameters": [
+    429065504,
+    33586748,
+    5386040
+  ],
+  "SEH_chain": [
+    {
+      "frame": 33586784,
+      "next": 33586840,
+      "handler": 5332064,
+      "frame_words": [
+        33586840,
+        5332064,
+        0,
+        117551232,
+        4711726,
+        5411236,
+        4791840,
+        4791888
+      ]
+    },
+    {
+      "frame": 33586840,
+      "next": 33587188,
+      "handler": 5329515,
+      "frame_words": [
+        33587188,
+        5329515,
+        4294967295,
+        4876353,
+        5411236,
+        0,
+        117551232,
+        0
+      ]
+    },
+    {
+      "frame": 33587188,
+      "next": 4294967295,
+      "handler": 5334233,
+      "frame_words": [
+        4294967295,
+        5334233,
+        0,
+        33615872,
+        5411236,
+        5411256,
+        5411276,
+        1
+      ]
+    }
+  ],
+  "original_boot_entry": 4876256,
+  "actual_resource_request_missing": "SCRIPT/SOB_INIT.DAT",
+  "not_original_boot_success": true,
+  "CPU_registers": {
+    "EAX": 33586164,
+    "EBX": 17760256,
+    "ECX": 0,
+    "EDX": 117526639,
+    "ESI": 5359960,
+    "EDI": 33586176,
+    "EBP": 33586176,
+    "ESP": 33586116,
+    "EIP": 33612560,
+    "EFLAGS": 2
+  },
+  "actual_API_counts": {
+    "HeapCreate": 1,
+    "GetVersionExA": 2,
+    "Critical_init": 13,
+    "HeapAlloc": 39,
+    "InterlockedExchange_guest_CPU": 1,
+    "Critical_enter": 6,
+    "HeapSize": 1,
+    "Critical_leave": 6,
+    "GetCurrentThreadId": 4,
+    "CoInitialize": 1,
+    "CreateEventA": 2,
+    "lstrcpyA": 11,
+    "lstrcatA": 2,
+    "lstrlenA": 6,
+    "wsprintfA_version": 1,
+    "RegOpenKeyExA": 1,
+    "RegQueryValueExA": 1,
+    "RegCloseKey": 1,
+    "GetSystemInfo": 1,
+    "GetLocaleInfoA": 2,
+    "GlobalMemoryStatus": 1,
+    "GetSystemMetrics": 2,
+    "GetDC": 2,
+    "GetDeviceCaps": 4,
+    "ReleaseDC": 2,
+    "EnumDisplayMonitors": 1,
+    "GetMonitorInfoA": 1,
+    "CreateDCA": 1,
+    "DeleteDC": 1,
+    "EnumDisplayDevicesA": 47,
+    "lstrcmpA": 1,
+    "HeapFree": 13,
+    "GetModuleFileNameA_guest_registered_metadata": 1,
+    "GetTickCount": 1,
+    "ReadFile": 2,
+    "CharUpperA": 1,
+    "CreateFileA": 1,
+    "CharLowerA": 2
+  }
+}

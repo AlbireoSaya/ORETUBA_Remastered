@@ -1,0 +1,10 @@
+function RLiveExpressionEvaluate(rd, wr, rh, rb, wb, p, cursorPtr, ctx, resolve, native, runVM, maxSteps = 10000)
+{
+    var h = global.RLiveExpressionBind(rd, wr, rh, rb, wb, p, cursorPtr, resolve);
+    var vm = runVM(rd, wr, rb, ctx, h.code_start, native, maxSteps, false);
+    var post = global.RLiveExpressionResult(rd, rh, h.table_start);
+    post.vm = vm;
+    post.bound = h.bound;
+    post.code_start = h.code_start;
+    return post;
+}

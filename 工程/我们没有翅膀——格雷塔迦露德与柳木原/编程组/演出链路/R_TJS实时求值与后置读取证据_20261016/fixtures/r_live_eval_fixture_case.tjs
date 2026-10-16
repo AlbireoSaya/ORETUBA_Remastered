@@ -1,0 +1,24 @@
+var RLiveEvalCaseCount = 0;
+var RLiveEvalRecordCount = 0;
+var RLiveEvalTraceCount = 0;
+
+function RLiveEvalCheck(spec) {
+    var s = global.RLFCreate(spec);
+    var i, seg, result;
+    s.ctx = spec.ctx;
+    for (i = 0; i < spec.segments.count; i++) {
+        seg = spec.segments[i];
+        global.RMemoryWrite32(s.memory, s.cursor, seg.cursor_initial);
+        s.phase = "pre";
+        s.events = [];
+        s.vm_writes = [];
+        s.vm_trace = [];
+        s.vm_returns = [];
+        s.bindings = [];
+        result = global.RVEExecute(spec, s);
+        global.RVECompare(spec, s, seg, result);
+        RLiveEvalRecordCount++;
+        RLiveEvalTraceCount += s.vm_trace.count;
+    }
+    RLiveEvalCaseCount++;
+}

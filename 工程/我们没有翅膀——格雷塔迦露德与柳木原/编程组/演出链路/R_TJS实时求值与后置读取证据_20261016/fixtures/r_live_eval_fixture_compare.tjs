@@ -1,0 +1,23 @@
+// r_live_eval_fixture_compare.tjs
+// 单例 fixture 的 RVE 求值严格比较：游标三项、五组行数据、final memory。
+// 不改比较器，不吞异常，不在此处增加用例计数；游标错误抛 LIVE_EVAL_CURSORS，其余比较器与内存错误原样抛出。
+
+function RVECompare(spec, s, seg, result)
+{
+    if (result.next_cursor !== seg.source_cursor)
+        throw new global.Exception("LIVE_EVAL_CURSORS");
+    if (result.param_end !== seg.param_end)
+        throw new global.Exception("LIVE_EVAL_CURSORS");
+    if (result.param_count !== spec.count)
+        throw new global.Exception("LIVE_EVAL_CURSORS");
+
+    var cmp = global.RVMFCompareRows incontextof this;
+    cmp(s.events, seg.events, spec.label + " caller");
+    cmp(s.vm_writes, seg.vm_writes, spec.label + " vm_writes");
+    cmp(s.vm_trace, seg.vm_trace, spec.label + " vm_trace");
+    cmp(s.vm_returns, [[seg.vm_return, seg.vm_trace.count]], spec.label + " vm_returns");
+    cmp(s.bindings, [[seg.bindings]], spec.label + " bindings");
+
+    var finalmem = global.RVEFinalMemory incontextof this;
+    finalmem(spec, s, seg);
+}

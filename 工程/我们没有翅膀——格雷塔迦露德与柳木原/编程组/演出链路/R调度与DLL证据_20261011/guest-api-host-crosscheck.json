@@ -1,0 +1,40 @@
+{
+  "status": "PASS_GUEST_LSTRCPYA_SUCCESS_CONTRACT_AND_HOST_CROSSCHECK",
+  "host_platform": "Windows-11-10.0.22621-SP0",
+  "host_API": "kernel32!lstrcpyA, current Win64 host; not Win7 runtime proof",
+  "valid_fixture_cases": [
+    {
+      "bytes": 9,
+      "input_sha256": "21beeeb82d9dbe236f4f0e0a36a32b3a9b409bc4e719e172cd635b6593af64cc",
+      "same_as_host_lstrcpyA": true
+    },
+    {
+      "bytes": 1,
+      "input_sha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+      "same_as_host_lstrcpyA": true
+    },
+    {
+      "bytes": 5,
+      "input_sha256": "c8175bb6cd11af4325343313dd4d9a46af2b5d0a26bb24cee83e581a1acc0191",
+      "same_as_host_lstrcpyA": true
+    }
+  ],
+  "unsupported_cases_rejected": [
+    "overlap",
+    "unterminated",
+    "bool_limit"
+  ],
+  "stdcall_registers_checked": true,
+  "gate": {
+    "destination": 16908288,
+    "source": 16842752,
+    "return_va": 4194595,
+    "esp_before": 33587200,
+    "esp_after": 33587212
+  },
+  "scope": "valid disjoint mapped NUL strings only; no SEH/buffer overflow compatibility; limit260 is fixture cap, no engine capacity assertion",
+  "primary_sources": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-lstrcpya",
+    "https://learn.microsoft.com/en-us/cpp/cpp/stdcall?view=msvc-170"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "scope": "collector error forwarding regression; injected formatter output, not real Capstone failure",
+  "result": {
+    "edges": [],
+    "entry": 4096,
+    "unresolved": [],
+    "diagnostics": [
+      {
+        "type": "regs_access_error",
+        "site": 4096,
+        "error": "synthetic collector regs failure"
+      }
+    ],
+    "instruction_count": 1,
+    "instructions": [
+      {
+        "site": 4096,
+        "size": 1,
+        "mnemonic": "ret",
+        "op_str": "",
+        "operands": [],
+        "regs_read": null,
+        "regs_write": null,
+        "regs_access_error": "synthetic collector regs failure"
+      }
+    ]
+  }
+}

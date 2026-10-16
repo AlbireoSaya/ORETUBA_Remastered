@@ -1,0 +1,104 @@
+{
+  "status": "COUNTEREXAMPLE_SCALAR_AND_SELECTED_RGBA_NOT_UNIFORMLY_EQUIVALENT",
+  "pairs": [
+    {
+      "dest": 0,
+      "src": 4294967295
+    },
+    {
+      "dest": 2768240640,
+      "src": 4294967295
+    },
+    {
+      "dest": 2769433686,
+      "src": 1122867
+    },
+    {
+      "dest": 2768240640,
+      "src": 2164260863
+    },
+    {
+      "dest": 4278190080,
+      "src": 4294967295
+    },
+    {
+      "dest": 2768240640,
+      "src": 16777216
+    }
+  ],
+  "rows": [
+    {
+      "profile": "scalar",
+      "entry_va": 268498144,
+      "results": [
+        "0xfefefe",
+        "0xfefefe",
+        "0x123456",
+        "0x7f7f7f",
+        "0xfefefe",
+        "0x0"
+      ]
+    },
+    {
+      "profile": "flag8f",
+      "entry_va": 268679904,
+      "results": [
+        "0xffffffff",
+        "0xffffffff",
+        "0xa5123456",
+        "0x927f7f7f",
+        "0xffffffff",
+        "0xa4000000"
+      ]
+    },
+    {
+      "profile": "allflags",
+      "entry_va": 268681824,
+      "results": [
+        "0xffffffff",
+        "0xffffffff",
+        "0xa5123456",
+        "0x927f7f7f",
+        "0xffffffff",
+        "0xa4000000"
+      ]
+    },
+    {
+      "profile": "scalarHDA",
+      "entry_va": 268498608,
+      "results": [
+        "0xfefefe",
+        "0xa5fefefe",
+        "0xa5123456",
+        "0xa57f7f7f",
+        "0xfffefefe",
+        "0xa5000000"
+      ]
+    },
+    {
+      "profile": "flag8fHDA",
+      "entry_va": 268680648,
+      "results": [
+        "0xfefefe",
+        "0xa5fefefe",
+        "0xa5123456",
+        "0xa57f7f7f",
+        "0xfffefefe",
+        "0xa5000000"
+      ]
+    },
+    {
+      "profile": "allflagsHDA",
+      "entry_va": 268682576,
+      "results": [
+        "0xfefefe",
+        "0xa5fefefe",
+        "0xa5123456",
+        "0xa57f7f7f",
+        "0xfffefefe",
+        "0xa5000000"
+      ]
+    }
+  ],
+  "scope": "Original selected DLL kernels, explicit controlled settings metadata; first broader scalar-reference comparison failed at alpha byte for positive length1; no correction/no claim all RGB/alpha cases equal"
+}

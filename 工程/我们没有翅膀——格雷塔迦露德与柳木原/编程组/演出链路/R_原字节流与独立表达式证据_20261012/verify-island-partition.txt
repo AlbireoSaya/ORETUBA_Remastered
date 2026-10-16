@@ -1,0 +1,29 @@
+
+from pathlib import Path
+import json,sys,hashlib,collections,ast
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';out=root/'临时/ISSUE-20261011-02/r-literal-run-replay-01';sys.path.insert(0,str(out))
+ref=out/'lucifen_inline_expression_reference.py';assert not ref.exists()
+ref.write_bytes((root/'子代理工作区/ISSUE-20261011-02/r-inline-header-editor-01/candidate.txt').read_bytes()+b'\n\n'+(root/'子代理工作区/ISSUE-20261011-02/r-inline-relocations-editor-01/candidate.txt').read_bytes())
+ast.parse(ref.read_text(encoding='utf-8'))
+from lucifen_inline_expression_reference import parse_inline_expression
+rows=json.loads((out/'source-literal-run-results.json').read_text(encoding='utf-8'));expressions=[];counts=collections.Counter();indexmax=collections.defaultdict(int);hashes={}
+for r in rows:
+ p=root/r['path']
+ if r['path'] not in hashes:hashes[r['path']]=p.read_bytes()
+ data=hashes[r['path']];a=r['consumed_end'];b=r['end'];counts['literal_bytes']+=r['consumed_bytes']
+ if r['stop']=='marker':
+  e=parse_inline_expression(data,a);assert e['end']==b,(r['path'],a,b,e)
+  e['path']=r['path'];e['source_sha256']=hashlib.sha256(data).hexdigest();expressions.append(e)
+  counts['inline_expressions']+=1;counts['inline_expression_bytes']+=e['end']-e['start'];counts['vm_code_bytes']+=e['code_size']
+  for x in e['relocations']:counts['relocations']+=1;indexmax[x['group']]=max(indexmax[x['group']],x['index'])
+ elif r['stop']=='nul':assert a+1==b;counts['terminators']+=1
+ else:assert a==b
+ counts['island_bytes']+=b-r['start']
+assert counts['island_bytes']==counts['literal_bytes']+counts['inline_expression_bytes']+counts['terminators']
+assert counts['inline_expressions']==990 and counts['terminators']==418
+for path,data in hashes.items():assert (root/path).read_bytes()==data
+(out/'inline-expression-metadata.json').write_text(json.dumps(expressions,ensure_ascii=False,indent=2),encoding='utf-8')
+summary={'files':len(hashes),'runs':len(rows),'counts':dict(counts),'max_relocation_index_by_group':dict(indexmax),'source_unchanged':True,'scope':'all original structural islands mechanically accounted as first literal run plus exactly one standalone wide-count expression or final zero; expression/runtime meaning, reachability and drawing/audio unproven'}
+(out/'island-partition-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary,ensure_ascii=False))
+

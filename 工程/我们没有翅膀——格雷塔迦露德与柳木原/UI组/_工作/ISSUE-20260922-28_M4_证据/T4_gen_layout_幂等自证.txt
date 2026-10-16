@@ -1,0 +1,21 @@
+gen_layout 幂等自证（run1 / run2 / final 三次的三处生成物 md5）
+
+== run1 ==
+00c63124d78dfde69908b40ee1017b47 *krkr/game/ui_layout.tjs
+435e7c84a6693664a5ac355f7b4df393 *layout/ui_layout.json
+57becc197a3f8c2f38cd7bc1ff666f52 *复刻/ui_layout.js
+== run2 ==
+00c63124d78dfde69908b40ee1017b47 *krkr/game/ui_layout.tjs
+435e7c84a6693664a5ac355f7b4df393 *layout/ui_layout.json
+57becc197a3f8c2f38cd7bc1ff666f52 *复刻/ui_layout.js
+== final ==
+00c63124d78dfde69908b40ee1017b47 *工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/krkr/game/ui_layout.tjs
+435e7c84a6693664a5ac355f7b4df393 *工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/ui_layout.json
+57becc197a3f8c2f38cd7bc1ff666f52 *工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/复刻/ui_layout.js
+
+== 三处生成物逐行比对 ==
+三次输出 md5 完全一致 ⇒ 生成器↔磁盘一致（幂等）✓
+
+== 屏源 md5（本次 note 改动后）==
+0ef9529488e320ee9ae071e47ba924cb *layout/screens/01_title.json
+f8991233b0efef6cd15b5ba9e1d42752 *layout/screens/36_choices.json

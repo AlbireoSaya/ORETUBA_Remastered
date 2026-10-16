@@ -1,0 +1,37 @@
+from pathlib import Path
+import ctypes,json,sys,uuid,hashlib
+root=Path.cwd();w=root/'子代理工作区/ISSUE-20261011-02/r-WinMain-drive-20261013';g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+def scope(path):
+ result={};exec(compile(path.read_text(encoding='utf-8'),str(path),'exec'),result);return result
+loader=scope(g/'工具/lucifen_host_system_loader_bindings.py');factory=scope(g/'工具/lucifen_host_directdraw_factory_types.py');com_types=scope(g/'工具/lucifen_host_directdraw_com_types.py');enum_types=scope(g/'工具/lucifen_host_directdraw_enumeration_types.py');crt=scope(g/'工具/lucifen_host_crt_bootstrap_bindings.py');host_com=scope(g/'工具/lucifen_host_com.py')['HostCOM']()
+bitness=ctypes.sizeof(ctypes.c_void_p)*8;output=root/'临时/ISSUE-20261011-02'/('host-ddraw-bitness-'+str(bitness)+'-09.json');assert not output.exists()
+def guid(text):return ctypes.create_string_buffer(uuid.UUID(text).bytes_le,16)
+clsid=guid('d7b70ee0-4340-11cf-b063-0020afc2cd35');iid=guid('15e65ec0-3b9c-11d2-b92f-00609797ea5b');iid3d=guid('f5049e77-4861-11d2-a407-00a0c90629a8')
+def method(host,slot,prototype):
+ table=ctypes.c_void_p.from_address(host).value;assert table;address=ctypes.c_void_p.from_address(table+slot*ctypes.sizeof(ctypes.c_void_p)).value;assert address;return prototype(address)
+def release(host):return int(method(host,2,factory['IUnknownReleaseProto'])(host))
+def query(host):
+ out=ctypes.c_void_p();hr=int(method(host,0,com_types['IUnknownQueryInterfaceProto'])(host,ctypes.addressof(iid3d),ctypes.byref(out)));row={'QI_IDirect3D7_HRESULT':hr,'QI_interface_nonnull':bool(out.value)}
+ if out.value:row['QI_interface_Release_result']=release(out.value)
+ return row
+buffer=ctypes.create_unicode_buffer(512);n=int(loader['GetSystemDirectoryW'](ctypes.addressof(buffer),512));assert 0<n<512;system=Path(buffer.value).resolve();target=system/'ddraw.dll'if bitness==64 else system.parent/'SysWOW64'/'ddraw.dll';assert target.is_file();name=ctypes.create_unicode_buffer(str(target));module=int(loader['LoadLibraryW'](ctypes.addressof(name))or 0);assert module
+owned=[];rows=[];callback_errors=[]
+try:
+ actual=ctypes.create_unicode_buffer(1024);n=int(loader['GetModuleFileNameW'](module,ctypes.addressof(actual),1024));assert 0<n<1024 and str(Path(actual.value).resolve()).casefold()==str(target.resolve()).casefold();assert host_com.init()>=0
+ enum_proc=int(crt['GetProcAddress'](module,b'DirectDrawEnumerateExA')or 0);factory_proc=int(crt['GetProcAddress'](module,b'DirectDrawCreateEx')or 0);assert enum_proc and factory_proc
+ def callback(device,description,driver,context,monitor):
+  try:
+   assert not context;device_data=ctypes.string_at(device,16)if device else None;device_copy=ctypes.create_string_buffer(device_data,16)if device_data else None;host_device=ctypes.addressof(device_copy)if device_copy else None;out=ctypes.c_void_p();hr=int(com_types['CoCreateInstance'](ctypes.addressof(clsid),None,1,ctypes.addressof(iid),ctypes.byref(out)));row={'device_GUID':device_data.hex()if device_data else None,'CoCreate_HRESULT':hr,'CoCreate_interface_nonnull':bool(out.value)}
+   if out.value:
+    host=out.value;owned.append(host);row['Initialize_HRESULT']=int(method(host,18,com_types['IDirectDrawInitializeProto'])(host,host_device));row.update(query(host));row['CoCreated_Release_result']=release(host);owned.remove(host)
+   rows.append(row);return 1
+  except BaseException as exc:callback_errors.append(repr(exc));return 0
+ cb=enum_types['DDENUMCALLBACKEXA'](callback);enum_hr=int(enum_types['DirectDrawEnumerateExAProto'](enum_proc)(cb,None,7));assert not callback_errors
+ out=ctypes.c_void_p();factory_hr=int(factory['DirectDrawCreateExProto'](factory_proc)(None,ctypes.byref(out),ctypes.addressof(iid),None));factory_row={'HRESULT':factory_hr,'interface_nonnull':bool(out.value)}
+ if out.value:
+  owned.append(out.value);factory_row.update(query(out.value));factory_row['Release_result']=release(out.value);owned.remove(out.value)
+ report={'bitness':bitness,'Python_version':sys.version.split()[0],'loaded_exact_system_ddraw':actual.value,'system_DDraw_SHA256':hashlib.sha256(target.read_bytes()).hexdigest(),'enum_HRESULT':enum_hr,'device_count':len(rows),'CoCreate_path':rows,'DirectDrawCreateEx_path':factory_row,'only_real_system_DLLs_loaded':True,'original_game_code_not_loaded_or_executed':True,'this_is_host_capability_fixture_not_original_rendering':True}
+finally:
+ for host in owned:release(host)
+ owned.clear();host_com.close_all();assert loader['FreeLibrary'](module)==1
+report['cleanup']={'passed':True,'owned_interface_references':0,'owned_COM_initializations':host_com.live_count,'owned_module_references':0};output.write_text(json.dumps(report,indent=2),encoding='utf-8');print(json.dumps(report))

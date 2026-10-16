@@ -1,0 +1,37 @@
+{
+  "editor_readme_base": "子代理工作区/ISSUE-20261011-02/r-device-callbacks-20261013/batch-docs-01/candidate.txt",
+  "editor_precise_patches": [
+    {
+      "old": "本批次为有界离线技术文档产物，不进行翻译或术语编辑。分支为 issue/ISSUE-20261011-02-original-fidelity，根审查待定，绝不声称主合并或全引擎成功。所有写入仅限 E:/ZCode Workspace/Galgame；原作只读，永不 OS 执行。外部发送批准仅覆盖自有 raw ctypes 模块与派生验证元数据，不覆盖游戏脚本/资产。技能引用固定使用完整仓库相对路径：工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_原生设备回调与离屏位图证据_20261013/README.md，确保两个作品技能均可解析。",
+      "new": "本批次为 host32 原始代码设备枚举与离屏 DIB 初始化的有界证据，根批次审查待定；完整 OT/OTA/OTV/OTR100% 仍不完整。完整仓库相对路径：工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_原生设备回调与离屏位图证据_20261013/README.md。"
+    },
+    {
+      "old": "原始 EnumDisplaySettingsExA 两个原生 caller 451595 与4515D5；各自索引0..194 返回 true，195 返回0，总计392 只读 true 调用；DEVMODEA156、dmDriverExtra0、flags0 守卫保留。",
+      "new": "原始 EnumDisplaySettingsExA 两个原生 caller 451595 与4515D5；各自索引0..194 返回非零成功，195 返回0 结束枚举；总计392 次只读调用，其中390 次成功、2 次枚举结束零，并非392 次 true；DEVMODEA156、dmDriverExtra0、flags0 守卫保留。"
+    },
+    {
+      "old": "所有产物均为有界离线技术文档，未外发原作内容，仅暂存待根应用；根未应用候选前不得声称已验证通过。",
+      "new": "上述产物记录真实原始代码执行与 Win32 调用证据，未外发原作内容，仅暂存待根应用；根审查待定，根未应用候选前不得声称已验证通过。原始备份/哈希检查独立进行，并非所有产物均为离线技术文档。"
+    },
+    {
+      "old": "Host32 原始 DirectDrawEnumerateExA flags7 触发两个原始回调 4ABB30 返回1；每个实际 IDirect3D7 slot3 EnumDevices 调用原始 4ABE50 一次返回1，两者 host enum HRESULT0。D3DDEVICEDESC7 SDK236，GUID 偏移196。设备原始记录268字节：GUID+0、self+0x10、name+0x14、fullcaps+0x18、hardware flag+0x104（dwDevCaps>>19)&1、next+0x108。真实相同 RGB 软件 GUID605c66a47326cf11a31a00aa00b93356、dwDevCaps1361、flag0 两者，无伪硬件设备或成功。",
+      "new": "Host32 原始 DirectDrawEnumerateExA flags7 触发两个原始回调 4ABB30 返回1；两个实际 IDirect3D7 slot3 EnumDevices 调用各枚举三个原始 guest 设备回调 4ABE50，所有原始返回1，共六次回调；两者 host enum HRESULT0。D3DDEVICEDESC7 SDK236，GUID 偏移196。设备原始记录268字节：GUID+0、self+0x10、name+0x14、fullcaps+0x18、hardware flag+0x104（dwDevCaps>>19)&1、next+0x108。两个原生链表长度1、2、3，所有 GUID/name/236caps/flag 字节独立验证。设备1 RGB GUID605c66a47326cf11a31a00aa00b93356、dwDevCaps1361、flag0；设备2 GUID e03de684aa46cf11816f0000c020156e、dwDevCaps102416113、flag1；设备3 GUID789e04f56148d211a40700a0c90629a8、dwDevCaps102481649、flag1。无伪硬件设备或成功，无实际渲染证明；不声称 host 差异原因或物理硬件渲染成功。"
+    }
+  ],
+  "editor_final_skill_append": "## 2026-10-13 原生设备回调与离屏位图证据\n\n完整仓库相对路径：工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_原生设备回调与离屏位图证据_20261013/README.md\n\n6 次原始 guest 设备回调，2 次 D3D7 EnumDevices 调用，每个驱动/调用 3 个回调，所有原始 return1、host HRESULT0；两个原生链表长度 1、2、3；设备1 RGB GUID605c66a47326cf11a31a00aa00b93356、dwDevCaps1361、flag0；设备2 GUID e03de684aa46cf11816f0000c020156e、dwDevCaps102416113、flag1；设备3 GUID789e04f56148d211a40700a0c90629a8、dwDevCaps102481649、flag1。EnumDisplaySettingsExA 392 次调用，390 次成功、2 次枚举结束零；CreateDIBSection 800x600 topdown 32bit DIB，精确 SelectObject/恢复/DeleteObject。stop：LoadIconA HWND0（parentHWND0）未决。无帧证明，完整 OT/OTA/OTV/OTR 100% 仍不完整，不添加未验证命令/测试，不伪完成；无实际渲染证明，不声称 host 差异原因或物理硬件渲染成功。",
+  "skills": [
+    {
+      "path": "工程/我们没有翅膀R/作品skill/SKILL.md",
+      "old_LF_SHA256": "6212b3be86e6771dc82d9281d06b2244beb53c86681d6601ec957e5cfc0d35d3",
+      "new_LF_SHA256": "db1e9c68f5496270cbe6860cf94b076c779200aa4d9e2b91760a49d28ad1dfe3",
+      "exact_editor_append": true
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/作品skill/SKILL.md",
+      "old_LF_SHA256": "9e0924ebd16ff8bc947355f2313b0dc5cdf6645aefeb76600b88d56eed95f587",
+      "new_LF_SHA256": "53c6bcc12f1e16e5267a32a84bb334b2896cc2e9bbfbefdec7c5b8bf13379d9d",
+      "exact_editor_append": true
+    }
+  ],
+  "root_no_technical_doc_rewrite": true
+}

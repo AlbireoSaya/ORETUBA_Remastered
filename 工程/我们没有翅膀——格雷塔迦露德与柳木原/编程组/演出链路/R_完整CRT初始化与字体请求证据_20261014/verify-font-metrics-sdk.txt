@@ -1,0 +1,43 @@
+from pathlib import Path
+import sys,ctypes as C,json,uuid
+r=Path.cwd();w=r/'临时/ISSUE-20261011-02'/('full-Cinit-SDK-'+__import__('uuid').uuid4().hex);w.mkdir(exist_ok=False);g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(g/'工具')]
+from lucifen_host_textmetric_a import TEXTMETRICA
+from lucifen_host_textmetric_get import GetTextMetricsA
+from lucifen_host_dc_save import SaveDC
+from lucifen_host_dc_restore import RestoreDC
+from lucifen_host_text_align import GetTextAlign,SetTextAlign
+from lucifen_host_text_colors import GetTextColor,SetTextColor,GetBkColor,SetBkColor
+from lucifen_host_logfont_a import LOGFONTA
+from lucifen_host_font_create import CreateFontIndirectA
+from lucifen_host_gdi_object_bindings import CreateCompatibleDC,SelectObject,DeleteObject
+from lucifen_host_monitor_bindings import DeleteDC
+bits=C.sizeof(C.c_void_p)*8;out={'bits':bits,'scope':'owned SDK font/DC only; not source glyph pixels','checks':{}}
+check=out['checks'];dc=CreateCompatibleDC(None);assert dc
+font=old=None;saved=0
+try:
+    assert C.sizeof(TEXTMETRICA)==56 and TEXTMETRICA.tmAscent.offset==4 and TEXTMETRICA.tmCharSet.offset==52
+    lf=LOGFONTA();lf.lfHeight=-14;lf.lfWeight=400;lf.lfCharSet=128;lf.lfQuality=3;lf.lfFaceName=b'Tahoma'
+    font=CreateFontIndirectA(C.byref(lf));assert font
+    old=SelectObject(dc,font);assert old and old not in (font,(1<<bits)-1)
+    guard=b'\xa5'*32;buf=C.create_string_buffer(guard+bytes(56)+guard,120)
+    assert GetTextMetricsA(dc,C.cast(C.byref(buf,32),C.POINTER(TEXTMETRICA)))
+    assert buf.raw[:32]==buf.raw[-32:]==guard
+    tm=TEXTMETRICA.from_buffer_copy(buf.raw[32:-32]);out['metrics']={name:int(getattr(tm,name))for name,_ in TEXTMETRICA._fields_}
+    check['layout_and_guards']=True;check['positive_ascent_and_height']=tm.tmAscent>0 and tm.tmHeight>=tm.tmAscent
+    initial=(GetTextAlign(dc),GetTextColor(dc),GetBkColor(dc))
+    saved=SaveDC(dc);assert saved>0
+    assert SetTextAlign(dc,6|24)==initial[0]
+    assert SetTextColor(dc,0x00030201)==initial[1]
+    assert SetBkColor(dc,0x00060504)==initial[2]
+    check['real_changed_state']=(GetTextAlign(dc),GetTextColor(dc),GetBkColor(dc))==(30,0x030201,0x060504)
+    assert RestoreDC(dc,-1);saved=0
+    check['negative_restore_and_colors']=(GetTextAlign(dc),GetTextColor(dc),GetBkColor(dc))==initial
+finally:
+    if saved:RestoreDC(dc,saved)
+    check['previous_borrowed_font_restored']=bool(old and SelectObject(dc,old)==font)
+    check['owned_font_deleted']=bool(font and DeleteObject(font))
+    check['owned_dc_deleted']=bool(DeleteDC(dc))
+out['pass']=all(check.values())
+(w/('sdk-font-metrics-%s.json'%bits)).write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8')
+print(json.dumps(out));assert out['pass']

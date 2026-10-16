@@ -1,0 +1,29 @@
+{
+  "status": "PARTIAL_ORIGINAL_SURFACE_CONTRACT_CPU_VERIFIED",
+  "constructor": "0x4D46D0",
+  "vtable": "0x51B7EC",
+  "fields": {
+    "0x4": "width i32",
+    "0x8": "height i32",
+    "0xC": "signed pitch bytes i32",
+    "0x14..0x20": "clip four i32",
+    "0x3C": "pixels guest pointer",
+    "0x40": "depth byte"
+  },
+  "observed_virtual_slots": {
+    "0x10": "0x458230 pitch",
+    "0x18": "0x500150 buffer",
+    "0x34": "0x48A310 SetClip",
+    "0x38": "0x431B30 copy clip",
+    "0x3C": "0x431B20 clip address"
+  },
+  "fill_member": {
+    "entry": "0x4D4BD0",
+    "abi": "thiscall ret 0x14, five u32 args: R,G,B,requestedRect*,dirtyOut*; ECX original surface",
+    "dll_fill32": "0x10001D20",
+    "dll_fill8": "0x10001E70",
+    "global_backend": "0x5357E4",
+    "global_last_DLL_rect": "0x1004D1F0"
+  },
+  "scope": "Only identified original class and controlled geometry; other inherited classes/full lifecycle not verified"
+}

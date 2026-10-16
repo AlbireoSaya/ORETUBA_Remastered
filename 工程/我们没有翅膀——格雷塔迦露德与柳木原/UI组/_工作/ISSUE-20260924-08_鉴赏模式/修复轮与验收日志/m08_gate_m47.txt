@@ -1,0 +1,36 @@
+原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-03_跨页可见诊断\诊断_编辑器探针.dom.html
+MODE=NORMAL  ⚠️ 变异模式的 exit 0 含义是「变异被逮到」，不是「一切正常」
+PAGESCOPEOUT
+① 值键→页映射（从本屏数据导出，共 17 项）：cfg_v_display=sys cfg_v_facewindow=sys cfg_v_drama=sys cfg_v_effect=sys cfg_v_voicecut=sys cfg_v_curhide=sys cfg_v_savedialog=sys cfg_v_loaddialog=sys cfg_v_allskip=sys cfg_v_textcolchg=sys cfg_v_mute_vol_master=snd cfg_v_mute_vol_bgm=snd cfg_v_mute_vol_se=snd cfg_v_mute_vol_sysse=snd cfg_v_mute_vol_voice=snd cfg_v_mute_vol_char=snd cfg_vchar=snd
+② 编辑器「按 flag 预览」开关：true
+   [A1 编辑器·按 flag 预览：cfg_page=sys（DOM＝判据）] 可见总数=115 | cfg_page 页元素 sys=81 snd=0 | 本页值/选中元素=17 | **跨页残留=0**
+★CHECK★ tag=A1 total=115 residual=0 dom=1
+   [A2 编辑器·按 flag 预览：cfg_page=snd（DOM＝判据）] 可见总数=187 | cfg_page 页元素 sys=0 snd=166 | 本页值/选中元素=4 | **跨页残留=0**
+★CHECK★ tag=A2 total=187 residual=0 dom=1
+   ⇒ A1（系统页）的跨页残留 0 件、A2（声音页）的跨页残留 0 件
+   A1（系统页）残留：
+   A2（声音页）残留：
+   [A2 声音页] 名单里当前可见：系统页值元素 0/17 件、声音页角色元素 4/5 件
+      · 可见的系统页值元素：（无）
+      · 可见的声音页角色元素：cfg.ch_asu_tx_sel, cfg.ch_asu_pill, cfg.pv_name_asu, cfg.pv_face_asu
+   [A1 系统页] 名单里当前可见：系统页值元素 17/17 件、声音页角色元素 0/5 件
+      · 可见的系统页值元素：cfg.o_display_on_tx_sel, cfg.o_display_on, cfg.o_facewindow_on_tx_sel, cfg.o_facewindow_on, cfg.o_drama_on_tx_sel, cfg.o_drama_on, cfg.o_effect_on_tx_sel, cfg.o_effect_on, cfg.o_voicecut_on_tx, cfg.o_curhide_on_tx, cfg.o_savedialog_on_tx_sel, cfg.o_savedialog_on, cfg.o_loaddialog_on_tx_sel, cfg.o_loaddialog_on, cfg.o_allskip_on_tx, cfg.o_textcolchg_on_tx_sel, cfg.o_textcolchg_on
+      · 可见的声音页角色元素：（无）
+   [D 手选非页 flag：cfg_v_display=full（raw 口径）] replica 值=full | full 件可见=true / window 件可见=false | 判据 full=true window=false
+★CHECK★ tag=D rawprobe=1 hit=1 dom=1
+   [E 非设置屏零副作用] title（派生返回=0，重渲染后可见集不变=true）；dialog（派生返回=0，重渲染后可见集不变=true）；quickbar（派生返回=0，重渲染后可见集不变=true）；dress（派生返回=0，重渲染后可见集不变=true）；sysicons（派生返回=0，重渲染后可见集不变=true）
+★CHECK★ tag=E screens=5 fails=0
+③ 机制侧派生（按当前页= snd 派生，返回值=17 项发生变化）之后：
+   [B 机制侧派生后：cfg_page=snd（只看 DOM）] 可见总数=187 | cfg_page 页元素 sys=0 snd=166 | 本页值/选中元素=4 | **跨页残留=0**
+★CHECK★ tag=B total=187 residual=0 dom=1
+   ⇒ 跨页残留 0 件
+③b 机制侧派生（按当前页= sys 派生，返回值=17 项发生变化）之后：
+   [C 机制侧派生后：cfg_page=sys（只看 DOM）] 可见总数=115 | cfg_page 页元素 sys=81 snd=0 | 本页值/选中元素=17 | **跨页残留=0**
+★CHECK★ tag=C total=115 residual=0 dom=1
+   ⇒ 跨页残留 0 件
+④ 判据出处：editor_core.js 的「按 flag 预览」= 写 flag 表 → 按当前 cfg_page 跑机制侧派生（页变更走 configDerivePageFlags＝config_tab_* 的同一出口；换屏/开预览/重载走 configFlagsInitFor＝进屏语义、captureMemo=false）→ 回读 R.getFlag 进 ED.flagVals → applyFlagVisibility()；isVisible() 仍读 ED.flagVals，故判据与 DOM 同源。
+PAGESCOPEEND
+■ 判定（正常模式｜期望 {'A1': (115, 0), 'A2': (187, 0), 'B': (187, 0), 'C': (115, 0)}）
+   全部断言通过
+RESULT=OK
+★ 退出码： 0

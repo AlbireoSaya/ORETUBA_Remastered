@@ -1,0 +1,118 @@
+{
+  "status": "PASS_ORIGINAL_PAIR_LENGTH_ALIGNMENT_COUNTEREXAMPLE_AND_HELPER_NEGATIVES",
+  "witnesses": [
+    {
+      "entry_va": 268679904,
+      "length": 1,
+      "destination_mod8": 0,
+      "src": [
+        4294967295
+      ],
+      "output": [
+        4294967295
+      ],
+      "first_pixel": 4294967295
+    },
+    {
+      "entry_va": 268679904,
+      "length": 5,
+      "destination_mod8": 0,
+      "src": [
+        4294967295,
+        2164260863,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "output": [
+        4278124286,
+        1082097535,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "first_pixel": 4278124286
+    },
+    {
+      "entry_va": 268679904,
+      "length": 5,
+      "destination_mod8": 4,
+      "src": [
+        4294967295,
+        2164260863,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "output": [
+        4294967295,
+        1082097535,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "first_pixel": 4294967295
+    },
+    {
+      "entry_va": 268681824,
+      "length": 1,
+      "destination_mod8": 0,
+      "src": [
+        4294967295
+      ],
+      "output": [
+        4294967295
+      ],
+      "first_pixel": 4294967295
+    },
+    {
+      "entry_va": 268681824,
+      "length": 5,
+      "destination_mod8": 0,
+      "src": [
+        4294967295,
+        2164260863,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "output": [
+        4278124286,
+        1082097535,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "first_pixel": 4278124286
+    },
+    {
+      "entry_va": 268681824,
+      "length": 5,
+      "destination_mod8": 4,
+      "src": [
+        4294967295,
+        2164260863,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "output": [
+        4294967295,
+        1082097535,
+        4294967295,
+        4294967295,
+        4294967295
+      ],
+      "first_pixel": 4294967295
+    }
+  ],
+  "cdecl_negative_cases": [
+    "[True]",
+    "[-1]",
+    "[4294967296]",
+    "infinite loop rejected",
+    "stdcall cleanup rejected"
+  ],
+  "pair_reference_negative_cases": 5,
+  "scope": "Same original selected ordinary pixel is exact opaque at length1/unaligned leading pixel but rounds at aligned mixed-alpha pair in length5; no universal per-pixel reference; helper bounded/noncdecl failures reject"
+}

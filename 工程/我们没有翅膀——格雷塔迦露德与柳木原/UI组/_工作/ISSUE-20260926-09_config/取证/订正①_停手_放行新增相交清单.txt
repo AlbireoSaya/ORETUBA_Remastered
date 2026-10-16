@@ -1,0 +1,131 @@
+# 订正①（声音页左列滑条族 +30）· **停手取证**：若放行会新增的相交清单
+
+Issue：ISSUE-20260926-09 ｜ 日期：2026-09-26 ｜ 生成：`复现脚本\m09_selfcheck.py`（在「已放行」的临时态下运行）
+
+口径：把 `cfg.sl_{master,bgm,se,sysse,voice,char}` 及其 `_hit`/`_end_lo`/`_end_hi`（24 件）按派单
+x+30（722→752 / 732→762 / 1046→1076）后，与「同页其余元素」的相交面积变化。改前几何 =
+`原形备份_config.json`（未改动数据）。
+
+**结论：放行后新增 21 对可见件相交 ＋ 27 对 hit 层相交**，全部来自右邻的「角色语音设定」一列
+（`cfg.banner_frame` x=1110..1754，以及 `cfg.ch_*` 名条列 x=1110 pill / 1116 dot / 1136 text）
+——即派单所称「与同屏其它元素新增相交」的情形，故按派单 **停手并报告**，未自行缩宽、未改 y。
+
+**几何根因**：右侧阻碍不是派单设想的 x≥1180，而是 **x=1110** 的角色列/banner。轨宽 360、锚点 732
+⇒ 右端 1092（与角色列留 18px）；+30 后右端 1122 ⇒ 侵入角色列左缘 **12px**。要同时满足
+「左间距 36px」与「右端不越 1092」，只能把轨**收窄** w 360→330，而「不要自行缩宽」已由派单排除。
+
+另：轨素材 `x_ui_psv_rail_c2_01/02/04.png`（360×30）墨迹 bbox 实测到 357–360px ⇒ 侵入是**可见墨迹**，
+不是透明余量（`cfg.sl_char` 用 c2_02，墨迹止于 357 ⇒ 762+357 = 1119，仍越 1110 共 9px）。
+
+```
+  相交体检（左列 132 件 × **同页**其余全部元素，逐对算相交面积；改前几何取原形备份）：
+    页归属映射核对：与 `vis_flag=cfg_page` 的 `vis_when` 冲突件数 = 0（期望 0）
+    已跳过跨页对（结构上不可能同屏）：32750 对
+    同页相交对总数：改前 611 对 → 改后 659 对（含既有设计性重叠：药丸⊃自身行名、热区⊃其底板、轨⊃静音簇等；**「零相交」在本屏不可能成立**，故本项断言的是**无新增**）
+    A. **新增**相交对 — 可见件：21 对
+      · cfg.sl_master × cfg.banner_frame ：0 → 360 px
+      · cfg.sl_master_end_hi × cfg.banner_frame ：0 → 252 px
+      · cfg.sl_bgm × cfg.banner_frame ：0 → 360 px
+      · cfg.sl_bgm_end_hi × cfg.banner_frame ：0 → 252 px
+      · cfg.sl_se × cfg.banner_frame ：0 → 360 px
+      · cfg.sl_se_end_hi × cfg.banner_frame ：0 → 252 px
+      · cfg.sl_sysse × cfg.ch_asu_pill ：0 → 276 px
+      · cfg.sl_sysse × cfg.ch_asu_dot ：0 → 66 px
+      · cfg.sl_sysse × cfg.ch_hiy_pill ：0 → 48 px
+      · cfg.sl_sysse_end_hi × cfg.ch_hiy_pill ：0 → 252 px
+      · cfg.sl_sysse_end_hi × cfg.ch_hiy_dot ：0 → 72 px
+      · cfg.sl_voice × cfg.ch_kin_pill ：0 → 360 px
+      · cfg.sl_voice × cfg.ch_kin_dot ：0 → 72 px
+      · cfg.sl_voice_end_hi × cfg.ch_kin_pill ：0 → 12 px
+      · cfg.sl_voice_end_hi × cfg.ch_nar_pill ：0 → 204 px
+      · cfg.sl_voice_end_hi × cfg.ch_nar_dot ：0 → 30 px
+      · cfg.sl_char × cfg.ch_kob_pill ：0 → 360 px
+      · cfg.sl_char × cfg.ch_kob_dot ：0 → 72 px
+      · cfg.sl_char_end_hi × cfg.ch_kob_pill ：0 → 60 px
+      · cfg.sl_char_end_hi × cfg.ch_ai__pill ：0 → 156 px
+      · cfg.sl_char_end_hi × cfg.ch_ai__dot ：0 → 6 px
+    B. 既有相交**面积变大** — 可见件：12 对（改前已相交 ⇒ 非新增）
+      · cfg.o_savedialog_off × cfg.cover_c1 ：504 → 774 px
+      · cfg.o_savedialog_off_sel × cfg.cover_c1 ：504 → 774 px
+      · cfg.o_savedialog_off_tx × cfg.cover_c1 ：504 → 774 px
+      · cfg.o_savedialog_off_tx_sel × cfg.cover_c1 ：504 → 774 px
+      · cfg.o_loaddialog_off × cfg.cover_c1 ：2576 → 3956 px
+      · cfg.o_loaddialog_off_sel × cfg.cover_c1 ：2576 → 3956 px
+      · cfg.o_loaddialog_off_tx × cfg.cover_c1 ：2576 → 3956 px
+      · cfg.o_loaddialog_off_tx_sel × cfg.cover_c1 ：2576 → 3956 px
+      · cfg.sl_master × cfg.cover_c2_01 ：5580 → 6480 px
+      · cfg.sl_bgm × cfg.cover_c2_02 ：5580 → 6480 px
+      · cfg.sl_se × cfg.cover_c2_03 ：5580 → 6480 px
+      · cfg.sl_sysse × cfg.cover_c2_04 ：5580 → 6480 px
+    C. 相交**消失** — 可见件：0 对
+    D. 新增/变大相交 — 含 hit 热区（不可见覆盖层）：新增 27 对 / 变大 6 对
+      · cfg.o_savedialog_off_hit × cfg.cover_c1 ：504 → 774 px
+      · cfg.o_loaddialog_off_hit × cfg.cover_c1 ：2576 → 3956 px
+      · cfg.sl_master_hit × cfg.banner_frame ：0 → 990 px
+      · cfg.sl_master_hit × cfg.cover_c2_01 ：8820 → 10170 px
+      · cfg.sl_bgm_hit × cfg.banner_frame ：0 → 990 px
+      · cfg.sl_bgm_hit × cfg.cover_c2_02 ：8820 → 10170 px
+      · cfg.sl_se_hit × cfg.banner_frame ：0 → 990 px
+      · cfg.sl_se_hit × cfg.cover_c2_03 ：8820 → 10170 px
+      · cfg.sl_sysse × cfg.ch_asu_hit ：0 → 276 px
+      · cfg.sl_sysse × cfg.ch_hiy_hit ：0 → 48 px
+      · cfg.sl_sysse_hit × cfg.ch_asu_pill ：0 → 792 px
+      · cfg.sl_sysse_hit × cfg.ch_asu_dot ：0 → 144 px
+      · cfg.sl_sysse_hit × cfg.ch_asu_hit ：0 → 792 px
+      · cfg.sl_sysse_hit × cfg.ch_hiy_pill ：0 → 88 px
+      · cfg.sl_sysse_hit × cfg.ch_hiy_hit ：0 → 88 px
+      · cfg.sl_sysse_hit × cfg.cover_c2_04 ：8820 → 10170 px
+      · cfg.sl_sysse_end_hi × cfg.ch_hiy_hit ：0 → 252 px
+      · cfg.sl_voice × cfg.ch_kin_hit ：0 → 360 px
+      · cfg.sl_voice_hit × cfg.ch_miy_pill ：0 → 154 px
+      · cfg.sl_voice_hit × cfg.ch_miy_hit ：0 → 154 px
+      · cfg.sl_voice_hit × cfg.ch_kin_pill ：0 → 770 px
+      · cfg.sl_voice_hit × cfg.ch_kin_dot ：0 → 144 px
+      · cfg.sl_voice_hit × cfg.ch_kin_hit ：0 → 770 px
+      · cfg.sl_voice_end_hi × cfg.ch_kin_hit ：0 → 12 px
+      · cfg.sl_voice_end_hi × cfg.ch_nar_hit ：0 → 204 px
+      · cfg.sl_char × cfg.ch_kob_hit ：0 → 360 px
+      · cfg.sl_char_hit × cfg.ch_nar_pill ：0 → 242 px
+      · cfg.sl_char_hit × cfg.ch_nar_hit ：0 → 242 px
+      · cfg.sl_char_hit × cfg.ch_kob_pill ：0 → 682 px
+      · cfg.sl_char_hit × cfg.ch_kob_dot ：0 → 144 px
+      · cfg.sl_char_hit × cfg.ch_kob_hit ：0 → 682 px
+      · cfg.sl_char_end_hi × cfg.ch_kob_hit ：0 → 60 px
+      · cfg.sl_char_end_hi × cfg.ch_ai__hit ：0 → 156 px
+    E. 右沿越过右列左沿 x=1180 的位移件：0 件（期望 0）
+  ⇒ FAIL（同页可见件**零新增**相交、零越过右列；变大 12 对与 hit 层 33 对均为「改前已相交 / 不可见层」）
+
+────────────────────────────────────────────────────────────────────────────────────────────────
+【2】资产自证
+────────────────────────────────────────────────────────────────────────────────────────────────
+  新件：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\assets\ui\x_ui_psv_pill_blank.png
+    尺寸 560x72（期望 560×72）｜ 模式 RGBA ｜ md5 d1be77d900c99d83b57527c09d4e5781
+    alpha 与源件 `_ai_fit.png` 逐字节一致：是
+    RGB 逐像素 max|Δ|（&0xFC 量化前→后）= 3（要求 ≤ 4）｜ RGB 低 2bit 集合 = [0]
+  ⇒ PASS
+  旧件归档：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260926-09_药丸底图\旧素材归档
+    14 件齐备：是（缺 0 件）｜ 归档件 md5 与 README 登记表逐件一致：是（不符 0 件）
+    krkr\assets\ui\ 内残留 x_ui_psv_pill_c1_*/c2_* 件数 = 0（期望 0）
+  ⇒ PASS
+
+────────────────────────────────────────────────────────────────────────────────────────────────
+【3】删除 / 合并自证
+────────────────────────────────────────────────────────────────────────────────────────────────
+  屏 JSON + 三处生成物中的残留检索（零残留即 PASS）：
+    cfg.title_sys          残留：无  ✓
+    cfg.title_snd          残留：无  ✓
+    cfg.sec_confirm        残留：无  ✓
+    cfg.tab1_tx_sel        残留：无  ✓
+    cfg.tab2_tx_sel        残留：无  ✓
+  保留的页签名 `vis_when` 检查：
+    cfg.tab1_tx            vis_when=（无）  vis_flag=（无）  ✓
+    cfg.tab2_tx            vis_when=（无）  vis_flag=（无）  ✓
+  页签名颜色保持 @palette.psv_ink：是
+  元素总数：475 → 470（删除 5 件）
+  ⇒ PASS
+
+================================================================================================
+汇总：**FAIL**：位移引入同页可见件新增相交或越过右列
+================================================================================================
+
+```

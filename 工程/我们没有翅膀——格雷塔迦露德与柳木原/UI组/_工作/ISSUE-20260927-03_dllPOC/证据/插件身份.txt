@@ -1,0 +1,61 @@
+layerExDraw.dll  - identity record (ISSUE-20260927-03 module J)
+==============================================================================
+
+artifact        : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-03_dllPOC\engine\plugin\layerExDraw.dll
+size (bytes)    : 404480
+sha256          : fe7760906b4ffa0ede8c840b76e8e5b8798131ae7cee4d05ccb13e138a8b5c7d
+md5             : ed99ffdd74fbaef8b2ff09440873a537
+
+PE machine      : 0x014c (i386 / 32-bit)
+linker version  : 9.0   (= Visual Studio 2008 / vc9 toolchain)
+subsystem       : 2 (2=GUI, 3=CONSOLE)
+OS version req  : 5.0   (Windows 2000 minimum)
+subsystem ver   : 5.0   (Windows 2000 minimum)
+version resource: NONE (no FileVersion / CompanyName / manifest)
+static deps     : KERNEL32.dll, GDI32.dll, ole32.dll, gdiplus.dll
+CRT             : statically linked (no MSVCR*/VCRUNTIME* in the import table)
+                  => no VC++ redistributable needed at runtime
+
+exported symbols (whole export table):
+   V2Link        (ord 1)  + _V2Link@4
+   V2Unlink      (ord 2)  + _V2Unlink@0
+   -> the classic KiriKiri plugin ABI; no KAGParser/psbfile dependencies.
+
+PROVENANCE OF THE COPY USED IN THIS POC
+  source path : D:\SteamLibrary\steamapps\common\CrossConcerto\plugin\layerExDraw.dll
+  NOT downloaded. Copied from a commercial Steam release already present on this machine.
+  This exact build (fe776090...) is shipped verbatim by at least 11 titles on this box:
+    ATRI -My Dear Moments-, CafeStella, CrossConcerto, Dracu-Riot, Kinkoi Golden Time,
+    MaitetsuLastRun, NEKOPARA Vol.4, Riddle Joker, sanoba witch, SenrenBanka,
+    [柚子社]天使☆騒々 RE-BOOT!  (and more) - i.e. the stock HIKARI FIELD / Steam build.
+  Other variants found on this machine (older builds):
+    c635fe5fbc49825bcc48cbb0733e3e06d9a172829e15b9624a4c22695e830a12  (32-bit)
+    ecc78f9653e1eedff0f23563a293d65bbbf96256f433f273837a2078f90fd3f9  (32-bit)
+    dba8aa2aeb58ac429d872e1c522c12e0e31221d4a57b124d485ef37f2b6ef0e9  (32-bit)
+    8c06cf3a61b5040671f2572fe094839cab234e64aee31cbcab453ff94ac41ffd  (64-bit, plugin64)
+    b8742fda94bdb7e91135682f527fdce45ac58ed8a6e59210a3b86853fce871e9  (64-bit, plugin64)
+
+UPSTREAM SOURCE (open, public)
+  https://github.com/wamsoft/layerExDraw   (C++, CMake, GDI+ based)
+  files: CMakeLists.txt, LayerExDraw.cpp, LayerExDraw.hpp, Path.cpp,
+         layerExBase.hpp, main.cpp, manual.tjs, readme.txt
+  readme.txt author: Go Watanabe / 'Watanabe Gou'; title 'layerExDraw plugin'
+  README licence line: 'the licence of this plugin follows KiriKiri itself'
+  -> KiriKiri licence (mod. BSD): binary redistribution permitted provided the
+     copyright notice + full condition list + disclaimer accompany the distribution.
+     Copy kept at: 证据/krkrz_license.txt
+  BUILD FROM SOURCE IN THIS ENVIRONMENT: NOT POSSIBLE
+     CMakeLists.txt requires ${TPSTUB_DIR}/krkrz.cmake (krkrz plugin stub tree),
+     MSVC + the Windows SDK (gdiplus.lib). No cl.exe / cmake / g++ / mingw and no
+     Windows Kits were found anywhere on C: or D: (searched depth<=4).
+     Installing MSVC Build Tools would mean a multi-GB download onto the system disk,
+     which the workspace rules forbid without the user's explicit go-ahead.
+
+WINDOWS-DEPENDENCY ANALYSIS (Win7 SP1 floor)
+  Import table touches only KERNEL32 / GDI32 / ole32 / gdiplus - no MSVC runtime,
+  no api-ms-win-*, no D3DX, no Win8+ API. All imports are Win2000-era except the
+  gdiplus set, which belongs to GDI+ 1.1 (shipped with Windows Vista and later;
+  e.g. GdipSetPenMode, GdipSetPenDashCap197819, GdipCreateLineBrushFromRectWithAngle).
+  All 150 gdiplus imports were resolved against the local gdiplus.dll to confirm the
+  names are real exports. Win7 SP1 ships GDI+ 1.1 => expected OK, but a real Win7
+  smoke test was NOT possible in this environment (this machine is Windows 10).

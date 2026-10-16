@@ -1,0 +1,20 @@
+{
+ "tag": "C5",
+ "model": "gpt-image-2.5-1k",
+ "size": "1024x1024",
+ "ref": "ref_8x.png",
+ "ref_scale": 8.0,
+ "http": 200,
+ "sec": 29.4,
+ "prompt_sha1": "c17430f6c3a5",
+ "prompt": "Transparent background, real alpha channel, alpha = 0 everywhere outside the button's soft glow.\nInput: one round play-button sprite (pale blue-white frosted disc + grey-blue ring + soft blue outer glow, with a light-blue play triangle in the centre).\nOutput: the SAME sprite pixel for pixel, except that the light-blue play triangle is deleted and replaced by the pause symbol: exactly two vertical rounded bars, side by side, equal size, flat light-blue fill (#A7CBF1), rounded corners, no outline. Measurements relative to the disc: disc diameter 108 units; each bar 16 units wide, 54 units tall, 16 units apart; the pair occupies 48 units total, perfectly centred both horizontally and vertically inside the disc. Nothing else changes: no new glow, no new ring, no border, no panel, no shadow, no text, no background. The final image is a single round button icon floating on full transparency.",
+ "note": "8× 参考（大图给模型更多像素）+ 极简措辞",
+ "out": "pause_AI_cand_C5.png",
+ "err": null,
+ "bytes": 1207443,
+ "actual_size": [
+  1254,
+  1254
+ ],
+ "actual_mode": "RGBA"
+}

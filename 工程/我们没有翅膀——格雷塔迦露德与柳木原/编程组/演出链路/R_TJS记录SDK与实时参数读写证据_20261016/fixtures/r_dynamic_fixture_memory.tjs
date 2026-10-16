@@ -1,0 +1,36 @@
+function RDynamicMemory(spec)
+{
+	var words = %[];
+	for (var i = 0; i < spec.initial.count; i++)
+	{
+		words["" + spec.initial[i][0]] = spec.initial[i][1];
+	}
+
+	var regs = [];
+	for (var j = 0; j < spec.ranges.count; j++)
+	{
+		var start = spec.ranges[j][0];
+		var end = spec.ranges[j][1];
+		var writable = 0;
+		for (var k = 0; k < spec.write_ranges.count; k++)
+		{
+			var ws = spec.write_ranges[k][0];
+			var we = spec.write_ranges[k][1];
+			if (ws == start && we == end)
+			{
+				writable = 1;
+			}
+			else if (ws < end && start < we)
+			{
+				throw new Exception("PARTIAL_FIXTURE_WRITE_RANGE_UNSUPPORTED");
+			}
+		}
+		regs.add(%[
+			"base" => start,
+			"size" => end - start,
+			"read_byte" => (RDynamicBackingByte incontextof %["base" => start, "words" => words]),
+			"writable" => writable
+		]);
+	}
+	return RMemoryCreate(regs);
+}

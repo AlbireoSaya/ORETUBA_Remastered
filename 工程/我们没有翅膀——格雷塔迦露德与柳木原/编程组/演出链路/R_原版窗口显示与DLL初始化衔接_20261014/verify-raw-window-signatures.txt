@@ -1,0 +1,16 @@
+from pathlib import Path
+import sys,ctypes,json
+root=Path.cwd();work=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具';sys.path.insert(0,str(work))
+outdir=(root/sys.argv[1]).resolve();assert outdir.is_relative_to((root/'临时/ISSUE-20261011-02').resolve());outdir.mkdir(exist_ok=True)
+from lucifen_host_window_show import ShowWindow,IsWindowVisible
+from lucifen_host_window_foreground import SetForegroundWindow
+from lucifen_host_window_rect import GetWindowRect,RECT
+from lucifen_host_cursor_get import GetCursorPos,POINT
+from lucifen_host_cursor_set import SetCursorPos
+expected=[(ShowWindow,[ctypes.c_void_p,ctypes.c_int]),(IsWindowVisible,[ctypes.c_void_p]),(SetForegroundWindow,[ctypes.c_void_p]),(GetWindowRect,[ctypes.c_void_p,ctypes.POINTER(RECT)]),(GetCursorPos,[ctypes.POINTER(POINT)]),(SetCursorPos,[ctypes.c_int,ctypes.c_int])]
+for f,args in expected:assert f.argtypes==args and f.restype==ctypes.c_int
+assert ctypes.sizeof(RECT)==16 and ctypes.sizeof(POINT)==8
+p=POINT();actual=GetCursorPos(ctypes.byref(p));assert actual
+bits=ctypes.sizeof(ctypes.c_void_p)*8
+result=dict(passed=True,host_bits=bits,typed_function_count=6,RECT_size=16,POINT_size=8,actual_readonly_GetCursorPos_return=actual,no_OS_ShowWindow_or_cursor_write_in_this_signature_check=True,no_original_Dll_OS_load=True)
+out=outdir/('raw-window-signatures-'+str(bits)+'.json');assert not out.exists();out.write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))

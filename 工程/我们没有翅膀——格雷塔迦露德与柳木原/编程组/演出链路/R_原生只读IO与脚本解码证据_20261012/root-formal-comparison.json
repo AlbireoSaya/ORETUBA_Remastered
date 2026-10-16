@@ -1,0 +1,55 @@
+{
+  "initial_to_formal01_six_full_JSON_byte_equal": [
+    {
+      "initial": "r-native-readonly-lpk-01/readonly-io-results.json",
+      "formal01": "r-native-readonly-lpk-final-01/readonly-io-results.json",
+      "sha256": "52ae8126ac75b16ad60afa9de30a51a04924ba735cf51891d9ffba7d5d361c55",
+      "bytes": 7181611,
+      "byte_equal": true
+    },
+    {
+      "initial": "r-native-readonly-lpk-01/SCRIPT-full-stored-reads.json",
+      "formal01": "r-native-readonly-lpk-final-01/SCRIPT-full-stored-reads.json",
+      "sha256": "65aecc8dabed7148d301cbf62172bdd274dc3aa7795495c57f7d997384bea932",
+      "bytes": 55517,
+      "byte_equal": true
+    },
+    {
+      "initial": "r-native-readonly-lpk-01/readonly-io-summary.json",
+      "formal01": "r-native-readonly-lpk-final-01/readonly-io-summary.json",
+      "sha256": "af8c445a5c42f1318a22317051e0cb10db30e1862ee4dfd52ae12b47b013b5a3",
+      "bytes": 4689,
+      "byte_equal": true
+    },
+    {
+      "initial": "r-original-SCRIPT-decode-02/SCRIPT-native-decode-results.json",
+      "formal01": "r-original-SCRIPT-decode-final-01/SCRIPT-native-decode-results.json",
+      "sha256": "4a867190b2710960cf85199ed9b82afcb069530521460ee4aab670506aad1a72",
+      "bytes": 242983,
+      "byte_equal": true
+    },
+    {
+      "initial": "r-original-SCRIPT-decode-02/SCRIPT-native-decode-summary.json",
+      "formal01": "r-original-SCRIPT-decode-final-01/SCRIPT-native-decode-summary.json",
+      "sha256": "18b41de852b7327ff36d789498238112c10f03d41f5a82707aef2129f029cd65",
+      "bytes": 779,
+      "byte_equal": true
+    },
+    {
+      "initial": "r-readonly-io-fixtures-01/readonly-io-fixtures.json",
+      "formal01": "r-readonly-io-fixtures-final-01/readonly-io-fixtures.json",
+      "sha256": "2830e28516bfb0b1224dc7f4af5660e3af896957bc83878fa9742985c85a100d",
+      "bytes": 857,
+      "byte_equal": true
+    }
+  ],
+  "formal02_three_full_result_files_byte_equal": true,
+  "formal02_summary_metric_rename_only": {
+    "full_SCRIPT_compressed_reads": "full_SCRIPT_stored_reads",
+    "actual_compressed_bytes_read": "actual_stored_bytes_read",
+    "uncompressed_stored_bytes": 126
+  },
+  "two_helper_sources_exact": true,
+  "final02_additional_whole_guest_PE_integrity_check": true,
+  "limitations": "not original full factory/allocator/payload caller/module execution/four-version full fidelity"
+}

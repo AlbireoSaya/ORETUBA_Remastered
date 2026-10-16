@@ -1,0 +1,22 @@
+**`lucifen_host_end_paint.py`**（10 行，纯 ctypes，导入期不触达 OS）
+
+```python
+"""user32!EndPaint binding. Caller must pair with BeginPaint; never substitute ReleaseDC."""
+import ctypes
+
+from lucifen_host_paint_types import PAINTSTRUCT
+
+__all__ = ["EndPaint"]
+
+system = ctypes.WinDLL("user32", use_last_error=True)
+EndPaint = system.EndPaint
+EndPaint.argtypes = [ctypes.c_void_p, ctypes.POINTER(PAINTSTRUCT)]
+EndPaint.restype = ctypes.c_int32
+```
+
+要点核对：
+- 仅 `import ctypes` + 自有派生元数据 `PAINTSTRUCT`；无第三方依赖。
+- `__all__ = ["EndPaint"]`，只导出调用入口。
+- 导入期仅 `WinDLL` 装载（不调用任何 user32 函数），无 OS invocation。
+- 签名锁定 `(HWND, *PAINTSTRUCT) -> BOOL(c_int32)`，与 `BeginPaint` 严格配对；不得以 `ReleaseDC` 顶替。
+- 12 行上限内，未做任何范围外改动，未涉 Git/原作/凭据。

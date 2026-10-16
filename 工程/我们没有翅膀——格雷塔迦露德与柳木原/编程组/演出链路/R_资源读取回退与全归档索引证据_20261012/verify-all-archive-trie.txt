@@ -1,0 +1,36 @@
+from pathlib import Path
+import sys,struct,hashlib,json
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工程/我们没有翅膀R/工具'),str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')]
+import lpk_media as M
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_cdecl_probe import invoke_cdecl
+from unicorn import UC_HOOK_CODE
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE')
+stage=root/'临时/ISSUE-20261011-02/r-archive-native-trie-final-01';stage.mkdir(exist_ok=False)
+all_rows=[];summaries=[]
+for path in sorted((root/'备份/我们没有翅膀R-安装介质/SET_UP').glob('*.LPK')):
+ lp=M.load(str(path));size=(struct.unpack_from('<I',lp['mm'],4)[0]^lp['k2'])&0xffffff
+ if lp['flags']&M.X.ALIGNED_OFFSET:size=(size<<11)-8
+ table=bytearray(lp['mm'][8:8+size]);M.X.decrypt_table(table,lp['k2'],M.X.ROTATE_PATTERN);plen=table[4];mode=table[5+plen];trie_bytes=struct.unpack_from('<I',table,6+plen)[0];trie_start=10+plen;entry_start=trie_start+trie_bytes;entry_bytes=13 if lp['flags']&M.X.IS_COMPRESSED else 9
+ entries=M.X.traverse_index(table,trie_start,4 if mode else 2,entry_start,entry_bytes);assert len(entries)==lp['cnt']==len(lp['ents'])
+ u=map_pe(pe);base=0x3000000;namebuf=0x10f0000;u.mem_map(base,(len(table)+4095)&~4095);u.mem_write(base,bytes(table));before_PE=bytes(u.mem_read(pe.image_base,pe.size_image))
+ api=[]
+ def hook(uc,a,n,x):
+  if 0x518000<=a<=0x518400:api.append(a);uc.emu_stop()
+ h=u.hook_add(UC_HOOK_CODE,hook)
+ seen=set()
+ for offset,name in entries:
+  payload=name.encode('cp932');assert len(payload)<255;u.mem_write(namebuf,payload+b'\0'+b'\xd5'*(255-len(payload)));expected=(offset-entry_start)//entry_bytes;assert offset==entry_start+expected*entry_bytes and 0<=expected<lp['cnt']
+  got=invoke_cdecl(u,0x4f9a20,[base+trie_start,1 if mode else 0,namebuf,0],timeout=0);assert got==expected,(path.name,name,got,expected)
+  assert bytes(u.mem_read(namebuf,256))==payload+b'\0'+b'\xd5'*(255-len(payload))
+  row={'archive':path.name,'entry':name,'mode':int(bool(mode)),'native_result':got,'record_offset':offset,'passed':True};all_rows.append(row);seen.add(got)
+ assert len(seen)==lp['cnt'] and not api
+ missing=[]
+ for payload in [b'__absent__.missing',b'__absent__/file',b'']:
+  assert payload.decode('ascii').lower()not in lp['ents'];u.mem_write(namebuf,payload+b'\0');got=invoke_cdecl(u,0x4f9a20,[base+trie_start,1 if mode else 0,namebuf,0],timeout=0);assert got==0xffffffff;missing.append(got)
+ assert bytes(u.mem_read(base,len(table)))==bytes(table) and bytes(u.mem_read(pe.image_base,pe.size_image))==before_PE
+ u.hook_del(h);summaries.append({'archive':path.name,'source_sha256':hashlib.sha256(lp['mm']).hexdigest(),'entries':lp['cnt'],'flags':lp['flags'],'mode':int(bool(mode)),'table_bytes':len(table),'trie_bytes':trie_bytes,'table_sha256':hashlib.sha256(table).hexdigest(),'source_index_unmodified':True,'missing_results':missing});lp['mm'].close();lp['f'].close()
+ print(json.dumps({'archive':path.name,'verified_entries':len(seen)}),flush=True)
+summary={'passed':True,'archives':len(summaries),'entries':len(all_rows),'mode0_entries':sum(r['mode']==0 for r in all_rows),'mode1_entries':sum(r['mode']==1 for r in all_rows),'missing_cases':len(summaries)*3,'archive_summaries':summaries,'scope':'original 4F9A20 source trie lookup compared with existing community index traversal and exact entry-record position for every original R archive entry; decrypted index derived by existing mature tool, not original index decryption or live archive object construction/read/decompression; no original EXE OS launch'}
+(stage/'native-trie-results.json').write_text(json.dumps(all_rows,ensure_ascii=False,separators=(',',':')),encoding='utf-8');(stage/'native-trie-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps({k:v for k,v in summary.items()if k!='archive_summaries'}),flush=True)

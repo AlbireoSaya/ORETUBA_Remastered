@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>M3 / C2 · chrome=0 像素证据夹具（不参与交付）</title>
+<!-- ==========================================================================
+     目的：给「纯热区的蓝色反馈会进 1:1 截图，而 ?chrome=0 能压掉它」提供**像素证据**。
+     为什么不能直接用 ?hover= 探针：无头下没有真实指针，CSS `:hover` 不会被触发
+     （`?hover=` 派发的是合成 mouseenter，只驱动 JS 状态机 —— 对带态图的元素有效，
+     对纯热区的 CSS 叠色无效）。故本夹具直接给两件纯热区加上**真实点击路径加的同一个类**
+     `.ui-hit-pressed`（replica.js 的 click 监听里 110ms 瞬闪），再截图对比：
+       · chrome_fixture.html              → 两件纯热区带蓝色叠色
+       · chrome_fixture.html?chrome=0     → 叠色被 replica.css 的 #canvas.chrome-off 规则压掉
+     仅作证据；正式交付不含本目录。
+     ========================================================================== -->
+<link rel="stylesheet" href="../../复刻/replica.css">
+</head>
+<body>
+
+<div id="stage-wrap">
+  <div id="stage">
+    <div id="canvas"></div>
+  </div>
+</div>
+
+<script>window.UI_ASSET_BASE = '../../krkr/assets/ui/';</script>
+<script src="../../复刻/ui_layout.js"></script>
+<script src="../../复刻/replica.js"></script>
+<script>
+/* ⚠️ 必须等 replica.js 的 boot() 跑完（它挂在 DOMContentLoaded 上，本页脚本在解析期执行时
+   readyState 仍为 loading）——否则 boot() 随后会 renderScreen('title') 把我们改好的 DOM 换掉。 */
+window.addEventListener('load', function () {
+  window.UI_REPLICA.renderScreen('dialog', { noHistory: true });
+  ['dlg.icon_hit_01_qsave', 'dlg.icon_hit_02_qload'].forEach(function (id) {
+    var n = document.querySelector('[data-ui-id="' + id + '"]');
+    if (n) n.classList.add('ui-hit-pressed');       // = replica.js click 路径加的同一个类
+  });
+  document.getElementById('probe-out').textContent =
+    'chromeOff=' + window.UI_REPLICA.chromeOff()
+    + '｜bg(01)=' + getComputedStyle(document.querySelector('[data-ui-id="dlg.icon_hit_01_qsave"]')).backgroundColor;
+});
+</script>
+<pre id="probe-out" style="color:#8fa;font:12px monospace;padding:4px"></pre>
+
+</body>
+</html>

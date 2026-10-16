@@ -1,0 +1,33 @@
+from pathlib import Path
+import sys,ctypes as C,json
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-window-cursor-20261014';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具'),str(w)]
+from lucifen_host_get_cursor import GetCursor
+from lucifen_host_set_cursor import SetCursor
+from lucifen_guest_cursor_handles import GuestCursorHandles
+from lucifen_guest_setcursor_message import map_setcursor_message
+from lucifen_guest_screen_point import decode_screen_point_lparam
+assert GetCursor.restype is C.c_void_p and SetCursor.restype is C.c_void_p and SetCursor.argtypes==[C.c_void_p] and GetCursor.argtypes==[]
+before=int(GetCursor()or 0);previous=int(SetCursor(C.c_void_p(before))or 0);after=int(GetCursor()or 0);assert(previous,after)==(before,before)
+registry=GuestCursorHandles(host_bits=C.sizeof(C.c_void_p)*8);assert registry.intern(0)==registry.to_host(0)==0
+host=(1<<33)+17 if C.sizeof(C.c_void_p)==8 else 0x12345678
+x=registry.intern(host);assert registry.intern(host)==x and registry.to_host(x)==host and registry.live_count==1
+snapshot=(dict(registry.dict_by_guest),registry._next)
+for bad in [True,-1,1<<(C.sizeof(C.c_void_p)*8)]:
+ try:registry.intern(bad)
+ except ValueError:pass
+ else:raise AssertionError('bad host accepted')
+assert(dict(registry.dict_by_guest),registry._next)==snapshot
+registry.clear();assert registry.live_count==0
+try:registry.to_host(x)
+except KeyError:pass
+else:raise AssertionError('stale cursor token accepted')
+assert registry.intern(host)!=x
+exhaust=GuestCursorHandles(base=0xffffffff);assert exhaust.intern(1)==0xffffffff;state=(dict(exhaust.dict_by_guest),exhaust._next)
+try:exhaust.intern(2)
+except OverflowError:pass
+else:raise AssertionError('overflow accepted')
+assert(dict(exhaust.dict_by_guest),exhaust._next)==state
+m=map_setcursor_message(0x100000001,0x02000001,0x100000001,0x69f50000);assert m==dict(guest_wparam=0x69f50000,guest_lparam=0x02000001,hit_test=1,trigger_message=0x200)
+assert decode_screen_point_lparam(0x8000ffff)==(-1,-32768)
+out={'bits':C.sizeof(C.c_void_p)*8,'passed':True,'actual_same_cursor_SetCursor_previous_identity':True,'null_not_forced_BOOL_error':True,'explicit_host_pointer_width_and_guest_identity':True,'registry_dup_clear_stale_overflow_guards':True,'scope':'own OS ABI/borrowed identity synthetic verification, not original full input or rendering'}
+(w/('sdk-cursor-'+str(out['bits'])+'.json')).write_text(json.dumps(out,indent=2),encoding='utf-8');print(json.dumps(out))

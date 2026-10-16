@@ -1,0 +1,19 @@
+from pathlib import Path
+import sys,ctypes,json,uuid
+r=Path.cwd();w=r/'临时/ISSUE-20261011-02'/('window-state-sdk-'+uuid.uuid4().hex);w.mkdir(exist_ok=False)
+sys.path.insert(0,str(r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from lucifen_host_window_iconic import IsIconic
+from lucifen_host_window_enabled import IsWindowEnabled
+from lucifen_host_async_key import GetAsyncKeyState
+system=ctypes.WinDLL('user32',use_last_error=True)
+system.GetDesktopWindow.argtypes=[];system.GetDesktopWindow.restype=ctypes.c_void_p
+system.IsWindow.argtypes=[ctypes.c_void_p];system.IsWindow.restype=ctypes.c_int
+h=system.GetDesktopWindow();assert h and system.IsWindow(h)
+assert IsIconic.argtypes==IsWindowEnabled.argtypes==[ctypes.c_void_p]
+assert IsIconic.restype==IsWindowEnabled.restype==ctypes.c_int
+assert GetAsyncKeyState.argtypes==[ctypes.c_int] and GetAsyncKeyState.restype==ctypes.c_int16
+keys=[{'VK':vk,'actual_SHORT':int(GetAsyncKeyState(vk))}for vk in (0,0x10,0x1b)]
+assert all(-32768<=q['actual_SHORT']<=32767 for q in keys)
+out={'bits':ctypes.sizeof(ctypes.c_void_p)*8,'borrowed_live_desktop_HWND':int(h),'actual_IsIconic':int(IsIconic(h)),'actual_IsWindowEnabled':int(IsWindowEnabled(h)),'keys':keys,'pointer_and_SHORT_ABI_pass':True,'borrowed_window_unchanged_not_destroyed':True,'no_original_keyboard_input_equivalence_claim':True}
+p=w/('sdk-window-state-'+str(out['bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8');print(json.dumps({'file':str(p),'passed':True,'bits':out['bits']}))
+

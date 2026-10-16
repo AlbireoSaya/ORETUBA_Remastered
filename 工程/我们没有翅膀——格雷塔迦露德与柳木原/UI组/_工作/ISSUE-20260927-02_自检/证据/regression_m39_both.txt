@@ -1,0 +1,166 @@
+==============================================================================
+[A] 复刻\_selftest_states.html（状态机自测，期望 SELFTEST ALL PASS）
+==============================================================================
+  SELFTEST`。
+  SELFTEST OK   ①–⑤ 数据侧守卫：三态素材须存在、且三态互异（否则迁移断言恒真）  —— 三态均在清单（1677 件）且区分力达标：title.menu_txt_start=x_ui_btntxt2c_start.png/x_ui_btntxt2c_start_on.png/x_ui_btntxt2c_start_press.png
+  SELFTEST OK   初态 = normal  —— x_ui_btntxt2c_start.png
+  SELFTEST OK   ① 左键按下 -&gt; pressed  —— x_ui_btntxt2c_start_press.png
+  SELFTEST OK   ② 元素内抬起 -&gt; 离开 pressed（本 bug 的正身）  —— x_ui_btntxt2c_start.png
+  SELFTEST OK   ② document 抬起兜底复位  —— x_ui_btntxt2c_start_press.png -&gt; x_ui_btntxt2c_start.png
+  SELFTEST OK   ② 按住期间保持 pressed  —— x_ui_btntxt2c_start_press.png
+  SELFTEST OK   ③ 按住移出 -&gt; 取消按下态  —— x_ui_btntxt2c_start.png
+  SELFTEST OK   ⑤ pressed 优先于 hover  —— x_ui_btntxt2c_start_on.png -&gt; x_ui_btntxt2c_start_press.png
+  SELFTEST OK   ⑤ 抬起后回落 hover（仍在悬停）  —— x_ui_btntxt2c_start_on.png
+  SELFTEST OK   ⑤ 移出后回落 normal  —— x_ui_btntxt2c_start.png
+  SELFTEST OK   初态 = normal（收尾）  —— x_ui_btntxt2c_start.png
+  SELFTEST OK   ④ 换屏后旧节点已销毁（pressHolder 随之复位）  —— 旧元素在 DOM 中=已移除
+  SELFTEST OK   ⑥a 悬停**图标** -&gt; 图标与文字同步换态  —— 图标 x_ui_menuicon_start.png→x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start.png→x_ui_btntxt2c_start_on.png
+  SELFTEST OK   ⑥b 悬停**文字** -&gt; 与悬停图标结果逐项相同  —— 图标 x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start_on.png
+  SELFTEST OK   ⑥c 其它组不受影响  —— 另一组 = x_ui_menuicon_continue.png
+  SELFTEST OK   ⑥d 移出后全组回落常态  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png
+  SELFTEST OK   ⑥e 悬停中换屏再回来 -&gt; 悬停移出后仍能回落常态（原 Critical 的回归）  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png
+  SELFTEST OK   ⑦ 重叠带确实存在（前置）  —— 8×66
+  SELFTEST OK   ⑦ 重叠带点击 -&gt; 触发动作（原为死区；实机本来就会触发）  —— title → dialog
+  SELFTEST OK   ⑱ 数据侧守卫：三态素材须存在、常态 ≠ 悬停（否则逐项三态断言恒真）  —— 三态均在清单（1677 件）且区分力达标：ch.choices=x_ui_psv_choice_norm.png/x_ui_psv_choice_sel.png/x_ui_psv_choice_sel.png
+  SELFTEST OK   ⑱a 列表项数 == layout 标签数（项数自适应，不写死 3）  —— DOM 3 项 / layout 3 项
+  SELFTEST OK   ⑱b 每项都带 data-ui-item-states=1（探针可识别）  —— 1
+  SELFTEST OK   ⑱c 初态：所有项都是 normal  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱d 悬停第 2 项 -&gt; **仅第 2 项**换 hover（邻项不动）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱e 第 2 项按下 -&gt; 仅该项 pressed  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱f 项内抬起 -&gt; 回落 hover（仍在悬停）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱g 第 3 项按住 -&gt; document 抬起兜底复位（且不影响第 2 项的悬停）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱h 移出后全部回落 normal  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱i 按住第 3 项期间移出 -&gt; 取消按下态（规则③逐项版）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱k 右键按下不得置 pressed（项保持 hover）  —— x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱l 按住拖到相邻项 → 按下态被取消、新项只显示 hover（不跟随指针）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱l 拖拽结束后全回 normal（台账无悬挂）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST OK   ⑱e2 ⑤阶梯探针（注入互异 hover/pressed）：常态→悬停→按下→抬起→移出 逐格正确（按下优先于悬停）  —— x_ui_psv_choice_norm.png → panel_frame.png → tl2_bg1.png → panel_frame.png → x_ui_psv_choice_norm.png（注入 hover=panel_frame.png pressed=tl2_bg1.png）
+  SELFTEST OK   ⑱j 无 item_frame.state_assets 的 list 不注册逐项态（回归：老列表行为不变）  —— 2 项，首项 data-ui-item-states=null
+  SELFTEST OK   ⑧ 附加层只在 dialog 上出现（title 上不出现）  —— dialog: icon/hit/pin/pill=true/true/true/true，attachScreen=quickbar；title: icon=false
+  SELFTEST OK   ⑧b M37 退场四件（整条/把手/高面板/整条把手热区）均不在数据与 DOM 中  —— 四件全部已退场 ✓
+  SELFTEST OK   ⑨ 初始态 collapsed：整列**不绘制**（24 件 quickbar flag 元素全隐藏、0 个可见 hit）  —— quickbar=collapsed，quickbar-flag 元素 24/24 隐藏，可见 hit 数=0（应为 0）
+  SELFTEST OK   ⑩ x ≥ in_x → 展开  —— x=1846（in_x=1842）⇒ quickbar=expanded
+  SELFTEST OK   ⑪a 指针移到 x &lt; out_x → 仅起计时（delay_ms 内**未**收起）  —— out_x=1780，x=1740，排入 400ms 计时=1 个，quickbar=expanded
+  SELFTEST OK   ⑪b 期间指针回到 x ≥ in_x → 撤销收起计时（clearTimeout 命中）  —— clearTimeout(900001) 已调用=true，quickbar=expanded
+  SELFTEST OK   ⑪c 延时未到前保持展开（重复移动不叠加计时器）  —— 在途 400ms 计时=1 个，quickbar=expanded
+  SELFTEST OK   ⑪d 延时到期 → 才收起，并清空气泡  —— quickbar=collapsed，qbar_tip=""
+  SELFTEST OK   ⑫a 点「锁定」→ 钉住且保持展开（action=quick_pin）  —— qbar_pin=1，quickbar=expanded
+  SELFTEST OK   ⑫b 钉住后指针移到 out_x 之外 → **不起计时、不收起**  —— quickbar=expanded，在途计时=0 个
+  SELFTEST OK   ⑫c 钉住时指针离开画布 → 仍不收起  —— quickbar=expanded，在途计时=0 个
+  SELFTEST OK   ⑬ 名称浮出跟随悬停项：hit_save→save、hit_chart→chart、项间空隙→空  —— save→"save"，chart→"chart"，项外→""
+  SELFTEST OK   ⑬b 白字与药丸随 flag 同步显隐（save 时 tx_save+pl_save 亮 → 切 chart 后双双灭）  —— save 时 tx_save 显示=true / pl_save 显示=true；切到 chart 后 tx_save 隐藏=true / pl_save 隐藏=true
+  SELFTEST OK   ⑬c 数据侧守卫：save/load 的常态与悬停图须存在且互异（否则"换 _on 图"恒真）  —— 三态均在清单（1677 件）且区分力达标：quick.ic_save=x_ui_qbicon_save.png/x_ui_qbicon_save_on.png/x_ui_qbicon_save_on.png，quick.ic_load=x_ui_qbicon_load.png/x_ui_qbicon_load_on.png/x_ui_qbicon_load_on.png
+  SELFTEST OK   ⑬c 悬停第 N 项热区 → 第 N 个 icon 换 `_on` 图、其它保持常态、移出后复位（组绑定）  —— 悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png（数据期望 x_ui_qbicon_save.png/x_ui_qbicon_load.png）；悬停存档后=x_ui_qbicon_save_on.png/x_ui_qbicon_load.png（数据期望 x_ui_qbicon_save_on.png/x_ui_qbicon_load.png）；移出后=x_ui_qbicon_save.png
+  SELFTEST OK   ⑭ 收起态整列不可点（12 项中心处**没有任何 quick.* 命中** —— 整条把手已随 M37 退场）  —— quickbar=collapsed，命中到快捷条元素的点：无 ✓，screen=dialog
+  SELFTEST OK   ⑭b 收起态下状态未被改变（未换屏、无动作派发）  —— screen dialog → dialog
+  SELFTEST OK   ⑭c 展开态 12 项 × 5 点全部命中**该项热区自己**（圆形 icon 不参与点击，不吃命中）  —— 60/60 点命中该项
+  SELFTEST OK   ⑭d 收起态同一批 60 点**命中不到任何快捷条元素**（整列被 flag 挡掉 ⇒ 完全不绘制）  —— 0/60 点命中项；其中命中快捷条元素的=0（应为 0）；首例：quick.hit_lock@1883,44→(无)
+  SELFTEST OK   ⑮ 展开态逐项派发（spy 计数）：quick_pin 两次切换=1/空，next_choice 有反馈，open_config 换屏  —— quick_pin 派发 2 次 → 1→；next_choice 提示="前进到下一选择点（演示：不实际前进）"（screen 仍 dialog）；open_config → config
+  SELFTEST OK   ⑯ open_sysmenu 不再换屏，改为展开竖条（20_sysmenu 已废除）  —— screen dialog → dialog，quickbar=expanded，20_sysmenu 已废除=true
+  SELFTEST OK   ⑰ 前置：主语确为纯热区（无 state_assets / state_group）  —— cfg.tab1_hit 带 ui-hit-hasstate=false
+  SELFTEST OK   ⑰ ?chrome=0 压掉纯热区的点击瞬闪叠色（computedStyle 实测）  —— 默认=rgba(122, 176, 232, 0.34)　→　chrome=0=rgba(0, 0, 0, 0)
+  SELFTEST OK   ⑲a 初值渲染：data-ui-kind/data-ui-slider-value 齐备且手柄 x 比例正确（误差 ≤1px，且落在轨道内）  —— kind=slider，data-ui-slider-value=90，运行值=90（期望 90），手柄中心 x=1554.499963664619（期望 1554.0，误差 0.50px），轨道 x..x+w=1230..1590（命中=true）
+  SELFTEST OK   ⑲a 手柄常态用 handle.state_assets.normal  —— x_ui_cfg_knob.png（期望 x_ui_cfg_knob.png）
+  SELFTEST OK   ⑲b 拖动到 40 ⇒ 值=40 且 state.settings.dlg_winopac=40 且 cfg.pv_mask 的 opacity=102/255  —— 值=40，data-ui-slider-value=40，settings.dlg_winopac=40，cfg.pv_mask.style.opacity=0.4（期望 0.4 = 102/255）
+  SELFTEST OK   ⑲b 拖动中手柄用 hover 图 / 拖出轨道右侧仍不中断且 clamp 到 max / 抬起后回常态图  —— 按下后手柄=x_ui_cfg_knob_over.png（期望 x_ui_cfg_knob_over.png），拖动目标=cfg.sl_winopac，拖出右侧后值=100（期望 max=100）且拖动仍在=true；抬起后 drag="" hover="" 手柄=x_ui_cfg_knob.png（期望 x_ui_cfg_knob.png）
+  SELFTEST OK   ⑲c 切到 dialog 屏后 dlg.mask_bottom 的 opacity 同样 = 102/255（实时生效穿透）  —— dlg.mask_bottom.style.opacity=0.4（期望 0.4）
+  SELFTEST OK   ⑲c 换屏返回保留运行期值（config → dialog → config 后仍为 40）  —— data-ui-slider-value=40
+  SELFTEST OK   ⑲d 默认 cfg_page=sys（系统页全可见 / 声音页 0 可见），点页签 2 后互斥反转  —— 初始 cfg_page=sys：sys 可见 77/77、snd 可见 0；点 cfg.tab2_hit 后 cfg_page=snd：snd 可见 175/175、sys 可见 0
+  SELFTEST OK   ⑲d 切页值 flag 派生：非本页值元素 display:none（0 件残留）+ 每件值元素显隐与 flag 值一致 + **进屏那一刻同样已派生**（cfg_vchar 组在系统页可见数 = 0）  —— 切到声音页后：模型不符 0 件、**非本页仍可见 0 件**；切回系统页后：模型不符 0 件、非本页仍可见 0 件；★ **进屏那一刻**（默认系统页）：模型不符 0 件、非本页仍可见 0 件；cfg_vchar 组在系统页可见 0 件；点页签前（同一进屏态）非本页可见 0 件
+  SELFTEST OK   ⑲e 点 cfg.ch_hiy_hit ⇒ cfg_vchar=hiy，该族 _pill 与 _tx_sel 可见、其它族全不可见（且声音页上**系统页的值元素 0 件可见**）  —— cfg_page=snd（声音页前置）；cfg_vchar asu → hiy；该族 pill/sel 可见=true；**其它族误显 0 件**；声音页上非本页值元素可见 0 件；点击前旧选中族（asu）可见 2 件（预期：它是切换前的选中项）
+  SELFTEST OK   ⑲e 系统页上派发 config_char_kob ⇒ **不上屏**（该族 pill/tx_sel 可见 0 件、cfg_vchar 置空），值只进记忆  —— cfg_page=sys；cfg_vchar=""（期望空串）；该族 pill/tx_sel 可见 0 件（期望 0）；记忆 cfg_vchar=kob（期望 kob）
+  SELFTEST OK   ⑲e 切回声音页 ⇒ 记忆取回：cfg_vchar=kob，该族 pill/tx_sel 各可见 1 件  —— cfg_vchar=kob（期望 kob）；该族 pill/tx_sel 可见 2 件（期望 2）
+  SELFTEST OK   ⑲e 跨屏往返（config → dialog → config → 声音页）后仍是 kob（记忆层生效；若进屏捕获记忆会被默认值 asu 冲掉）  —— 往返后 cfg_page=snd，cfg_vchar=kob（期望 kob；默认值 asu 表示记忆被冲掉）；进屏那一刻 flag=""（期望空串：非本页不上屏）
+  SELFTEST OK   ⑲f 初始化：改「全屏」→ 切声音页 → 点初始化 ⇒ 回窗口模式（仓 25 键复位 + 派生回 window + 页签回系统页；记忆重捕获后也是默认值）  —— 改后 cfg_v_display=full（期望 full）；初始化后 cfg_v_display=window（期望 window）、仓 display=window、cfg_page=sys、窗口模式胶囊可见=true；记忆重捕获 17 键（cfg_v_display=window，应 window —— 仓复位后记忆已不可能压过默认值）
+  SELFTEST OK   ⑳a 逐块渲染数量：DOM 8 ＝ 可见行 4 × 按钮 2  —— list-item=4（期望 4）、list-item-btn=8（期望 8）
+  SELFTEST OK   ⑳b 按钮几何 = 数据里的块内局部矩形（机制不写死任何按钮几何）  —— 全部与数据一致
+  SELFTEST OK   ⑳c 初态：第 1 行两按钮各是自己的 normal 图  —— x_ui_jump_off.png / x_ui_spk2_off.png
+  SELFTEST OK   ⑳d 悬停 jump ⇒ **仅它**换 hover 图（邻按钮不动）  —— x_ui_jump_over.png / x_ui_spk2_off.png
+  SELFTEST OK   ⑳e 按住 jump ⇒ 仅它换 pressed 图（悬停/按下只影响被指到的那一个按钮）  —— x_ui_jump_on.png / x_ui_spk2_off.png
+  SELFTEST OK   ⑳f 抬起 ⇒ 回落 hover（仍在悬停，未粘住 pressed）  —— x_ui_jump_over.png
+  SELFTEST OK   ⑳f 移出 ⇒ 双按钮全回 normal（台账无悬挂）  —— x_ui_jump_off.png / x_ui_spk2_off.png
+  SELFTEST OK   ⑳g 右键按下不得置 pressed（按钮保持 hover）  —— x_ui_jump_over.png
+  SELFTEST OK   ⑳h 逐行逐按钮派发：action 的 %row% 换成**该行**全局序号（8 条全验）  —— 全部一致（末次 backlog_replay:3 行号 3）
+  SELFTEST OK   ⑳i 点块内**非按钮区**（文案区）不派发按钮动作（整行 action 数据为空 ⇒ 按契约不派发）  —— 派发次数 8 → 8，lastAct 未变=true
+  SELFTEST OK   ⑳j item_text 生效：文案区按块内局部矩形**内缩**定位（219,19 1291×168）  —— 219px,19px 1291px×168px
+  SELFTEST OK   ⑳j item_text 折行口径：max_lines=4（-webkit-line-clamp）+ 行距 = 字号 30 × 全局行距  —— lineClamp=4 lineHeight=42px fontSize=30px
+  SELFTEST OK   ⑳k 回归：无 item_text 的 list（dlg.choices）仍走旧路径（单行、无内缩）  —— label 文本="为了国家与民众…" 含内层=false
+  SELFTEST OK   ⑳l 合法数据下 item_buttons/item_text 守卫判词必须为 0 条  —— 0 条（★M06ITEMBTN-REJECT★ 未触发）
+  SELFTEST OK   ⑳m 守卫负向对照：3 种非法形态逐条 REJECT（3/3）且坏按钮**不画**（合法按钮不受影响）  —— 判词 3 条（★M06ITEMBTN-REJECT★ bl.list[__mut_emptyact] action 为空；★M06ITEMBTN-REJECT★ bl.list[__mut_outblock] 矩形出块（局部 9999,90 40×20 不在 1526×188 内）；★M06ITEMBTN-REJECT★ bl.list[#4] 第 4 项缺 key）；缺的判词=无；坏按钮 DOM 节点=0（期望 0）；合法按钮 jump 节点=4（期望 4）
+  SELFTEST OK   ⑳n 容器级结构非法也 REJECT（判词串与 krkr 逐字相同）：item_buttons 非数组 / item_text 非对象  —— 判词 2 条（★M06ITEMBTN-REJECT★ bl.list[(item_buttons)] item_buttons 不是数组；★M06ITEMBTN-REJECT★ bl.list[item_text] item_text 不是对象）；缺的判词=无；按钮 DOM 节点=0（期望 0）
+  SELFTEST OK   ⑳n 反向对照：缺 item_buttons / item_text 字段**不报**（视为未声明，走旧路径）  —— 新增判词 0 条（期望 0）
+  SELFTEST OK   ㉑a 多行网格折行几何：24 栏的 (col,row) 折行位置与公式一致  —— cols=6 rows=4 item=291×166 gap=12
+  SELFTEST OK   ㉑b 逐栏渲染数量：本页 23 栏（留空 1 栏不画）⇒ 缩略图 23 / 按钮 46 / 文本 23  —— 全表 30 栏（每页 24 栏）
+  SELFTEST OK   ㉑c 差分件几何 = 数据里的块内局部矩形（机制不写死任何几何）  —— 缩略图/左右按钮/n-N 文本四件全一致
+  SELFTEST OK   ㉑d 初态：第 1 栏缩略图 = frames[0][0]、n/N = 1/3  —— x_ui_cfg_tab_on.png / 1/3
+  SELFTEST OK   ㉑e 点 next：缩略图确实换图 + n/N 2/3 + 派发 gallery_next:0  —— x_ui_cfg_tab_on.png → x_ui_cfg_name_sel.png；n/N=2/3；派发=gallery_next:0 行号=0 次数=1
+  SELFTEST OK   ㉑f 点 prev：回到第 1 张（1/3）  —— x_ui_cfg_tab_on.png；派发=gallery_prev:0
+  SELFTEST OK   ㉑g 边界 clamp：第 1 张再点 prev ⇒ 序号钳制在 1/3（派发仍发生）  —— n/N=1/3 派发次数 2 → 3
+  SELFTEST OK   ㉑h 逐按钮三态：悬停换 hover、按住换 pressed、移出回落 normal（邻栏按钮不动）  —— x_ui_cfg_tab_on.png / 悬停=x_ui_cfg_name_sel.png（邻=x_ui_cfg_tab_on.png）/ 按下=x_ui_menuicon_gallery.png
+  SELFTEST OK   ㉑i 点缩略图（块内非按钮区）不派发差分动作（该 list 整行 action 为空 ⇒ 不派发）  —— 派发次数 3 → 3
+  SELFTEST OK   ㉑j 留空栏（第 6 栏 frames=[]）不画缩略图/按钮/文本  —— 缩略图=false 按钮=false 文本=false
+  SELFTEST OK   ㉑k 合法数据下 item_variants 守卫判词必须为 0 条  —— 0 条（★M08VARIANT-REJECT★ 未触发）
+  SELFTEST OK   ㉑l 容器级非法 REJECT（判词与 krkr 逐字相同）：item_variants 非对象 / frames 非数组  —— 判词 2 条；缺=无；缩略图节点=0（期望 0）
+  SELFTEST OK   ㉑m 逐栏非法 REJECT：frames[row] 非数组 / 空素材 ⇒ 该栏不画且逐条打判词  —— 判词 4 条；缺=无；坏栏 DOM 节点=0（期望 0）；缩略图 21（期望 21）
+  SELFTEST OK   ㉑n 页内翻页：第 1 页 → 第 2 页 → 回第 1 页，且本页首栏全局序号 = 页×每页  —— page 0→1→0；首栏 0→24
+  SELFTEST OK   ㉑p 页码 flag 接线：翻页写 1 基页号（1→2→1）+ 两件互斥页码文本随 flag 切换 + 归零复位 "1"  —— __gal_page 1→2→1，归零后=1；文本1/2 可见性 第1页=true/true 第2页=true/true
+  SELFTEST OK   ㉑q scroll.pager:false：声明 false ⇒ 不生成自动分页器（缺省时照旧 1 枚，krkr 端本无此 chrome ⇒ 关掉才两端一致）  —— 缺省 pager 节点=1，pager:false 后=0
+  SELFTEST OK   ㉑r 挂壳屏重进归零：push 形进入后 listPage 1→0、差分序号表清空（与 krkr uiScreenPush 同口径）  —— 重进前 page=1，重进后 page=0 varIdx={}
+  SELFTEST OK   ㉑o 页签 = 切屏：gallery → music（同级换屏、历史不涨、上一屏不在 DOM）+ gal_tab 派生 + 外壳仍叠画  —— attach=gal_shell 屏 gallery→music 历史 8→8 gal_tab gallery→music 上一屏残留=false 外壳命中件=true 指示件 gallery/music=false/true
+  SELFTEST ALL PASS
+  SELFTEST OK   ' : 'SELFTEST FAIL ') + name + (detail ? '  —— ' + detail : ''));
+  SELFTEST NOTE ⚠ 负向对照 ?mut=' + MUT + ' · ' + step + ' —— ' + detail);
+  SELFTEST 的输出里）。 */
+  SELFTEST ' + (fails ? ('FAILED ' + fails + ' 项') : 'ALL PASS'));
+  SELFTEST 判定」，看不出是崩在哪）⇒ 兜住并如实打印异常。
+
+  判定：ALL PASS ｜ 原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260923-01_M39_证据\M39_selftest_A_dump.html ｜ edge rc=0
+
+==============================================================================
+[B] 复刻\index.html?selftest=1（DOM 级自检，期望 RESULT=OK）
+==============================================================================
+  PASS	canvas-1920	1920pxx1080px
+  PASS	dialog.screen	dialog
+  PASS	dialog.under=null	null
+  PASS	dialog.overlay-empty	0
+  PASS	sysicons.open	sysicons
+  PASS	sysicons.under=dialog	dialog
+  PASS	sysicons.base-painted	59
+  PASS	sysicons.base-DOM-preserved
+  PASS	sysicons.overlay-children	20
+  PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+  PASS	sysicons.icons-9	9
+  PASS	sysicons.dismiss-click	dialog
+  PASS	sysicons.overlay-cleared	0
+  PASS	sysicons.back-to-dialog-DOM-preserved
+  PASS	sysicons.reopen	sysicons
+  PASS	sysicons.icon-dispatch	save
+  PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 3 件（数据推导）
+  PASS	zeronine.img-not-borderimage	3/3（主语 = 数据推导的全集）
+  PASS	zeronine.no-placeholder
+  SKIP	dynamic.gallery_preview-placeholder	gallery 屏已无 dynamic 层（M2 重写 27_gallery.json：CG 页改为网格列表 + 栏位内差分）
+  SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+  PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+  PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+  PASS	overlay.close-overlay	dialog
+  PASS	flags.attach-rendered-on-dialog	attachId=quickbar，quick.ic_lock/hit_lock/pin_mark 齐备=true/true/true
+  PASS	flags.old-structure-gone	M37 退场四件都不在 DOM：tgl/btn/tips/hit_toggle = false/false/false/false
+  PASS	flags.collapsed-by-default	quickbar=collapsed，ic_lock.display=none，hit_lock.display=none，pin_mark.display=none
+  PASS	flags.expanded-shows-icons-and-items-not-pin	ic_lock=，hit_lock=，pin_mark=none
+  PASS	flags.tip-follows-item	hit_lock 中心→"lock"，hit_option 中心→"option"，项外空白→""
+  PASS	flags.icon-hover-material-via-group	悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=x_ui_qbicon_save_on.png/x_ui_qbicon_load.png；移出后=x_ui_qbicon_save.png
+  PASS	flags.open_sysmenu-expands-not-navigates	screen dialog → dialog（未换屏），quickbar=expanded，20_sysmenu 已废除=true
+  PASS	flags.pin-toggle	钉住 flag 名（reveal.pin_flag）=qbar_pin，解除后 pin_mark.display=none
+  PASS	flags.attach-absent-on-title	title 上 attachId=null，quick.ic_lock 存在=false
+  PASS	flags.item-subject-count	快捷条「项」热区（quick.hit_&lt;key&gt; 且有 action）12 件（应为 12）
+  PASS	flags.item-N-click-dispatch-N	12/12 项：命中该项 且 该 action 的可辨副作用出现
+  PASS	flags.tip-halfopen-boundary	x=w-1→"lock" / x=w→"" / y=h-1→"lock" / y=h→""（半开区间，项=lock）
+  PASS	esc.back-to-previous-screen	save（history=1）→ Esc → screen=dialog（应 dialog），提示=""（应无）
+  PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+  PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+  PASS	zeronine.all-subjects-stretched-to-element-box	3/3（主语 = ⑤ 的全集）
+  PASS	zeronine.size-differs-from-png-still-rendered	1/3 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+
+  判定：RESULT=OK ｜ 原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260923-01_M39_证据\M39_selftest_B_dump.html ｜ edge rc=0
+
+（已清理无头 Edge 的 user-data-dir：E:/ZCode Workspace/Galgame/临时/edge_m39）

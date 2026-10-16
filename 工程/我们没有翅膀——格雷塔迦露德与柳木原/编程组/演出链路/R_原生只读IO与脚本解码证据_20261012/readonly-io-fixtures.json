@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "actual_cases": [
+    "host actual initial bytes",
+    "zero real read preserves position",
+    "actual negative seek error131",
+    "actual FFFFFFFF position succeeds with error0",
+    "actual EOF read0",
+    "guest actual bytes count and untouched guards",
+    "guest actual failed seek",
+    "guest EOF does not zero destination tail",
+    "token never reused",
+    "actual all handles closed"
+  ],
+  "guard_rejections_without_position_advance": 16,
+  "source_unchanged_sha256": "4366bde9962ba59bf7ce070127def5af5e55e680e0c520635ba28ad488a76050",
+  "scope": "actual readonly Windows host64 APIs on existing AGENTS file, including natural negative seek error and valid FFFFFFFF low position/error0; no test file modification or sparse large file creation; unsupported guest contract raises rather than fake return"
+}

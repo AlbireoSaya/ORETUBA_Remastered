@@ -1,0 +1,14 @@
+from pathlib import Path
+import sys,ctypes,json
+root=Path.cwd();sys.path.insert(0,str(root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from lucifen_host_screen_to_client import ScreenToClient
+from lucifen_host_client_to_screen import ClientToScreen
+from lucifen_host_client_rect import GetClientRect
+from lucifen_host_cursor_get import POINT
+from lucifen_host_nccalcsize import RECT
+assert ScreenToClient.argtypes==ClientToScreen.argtypes==[ctypes.c_void_p,ctypes.POINTER(POINT)]
+assert GetClientRect.argtypes==[ctypes.c_void_p,ctypes.POINTER(RECT)]
+assert ScreenToClient.restype==ClientToScreen.restype==GetClientRect.restype==ctypes.c_int
+bits=ctypes.sizeof(ctypes.c_void_p)*8
+result={'passed':True,'host_bits':bits,'typed_functions':3,'coordinate_OS_APIs_not_called_by_this_ABI_check':True,'POINT_size':ctypes.sizeof(POINT),'RECT_size':ctypes.sizeof(RECT)}
+out=(root/sys.argv[1]).resolve();assert out.is_relative_to((root/'临时/ISSUE-20261011-02').resolve());out.mkdir(exist_ok=True);p=out/('coordinate-SDK-ABI-'+str(bits)+'.json');assert not p.exists();p.write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))

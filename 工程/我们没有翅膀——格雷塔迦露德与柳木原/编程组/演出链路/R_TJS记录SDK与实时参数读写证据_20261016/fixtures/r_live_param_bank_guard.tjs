@@ -1,0 +1,31 @@
+function RLBRead(q) { return 0; }
+function RLBByte(q) { return this.selector; }
+function RLBBank(bank) { }
+function RLBForbidden(a, b) { throw new Exception("UNEXPECTED_BANK_IO"); }
+
+function RLiveBankGuard()
+{
+    var cases = [[2, "MISSING_LIVE_BANK"], [4, "UNSUPPORTED_LIVE_RECORD_SELECTOR"]];
+    for (var i = 0; i < cases.count; i++)
+    {
+        var row = cases[i];
+        var s = %["selector" => row[0]];
+        var rd = RLBRead incontextof s;
+        var rh = RLBRead incontextof s;
+        var rb = RLBByte incontextof s;
+        var wr = RLBForbidden;
+        var expr = RLBForbidden;
+        var resolve = RLBBank;
+        var msg = null;
+        try
+        {
+            RRecordLivePayload(rd, rh, rb, wr, 7, 0x3000000, 0x1020000, resolve, expr);
+        }
+        catch (e)
+        {
+            msg = e.message;
+        }
+        if (msg !== row[1]) throw new Exception("RLB_NOT_REJECTED");
+    }
+    return 2;
+}

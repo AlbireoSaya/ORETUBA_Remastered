@@ -1,0 +1,21 @@
+// r_vm_entry.tjs · RVMEntry
+// 唯一公开函数：RVMEntry(rd, wr, ctx, entry, resume)
+// resume 必须为 Integer 0/1（TJS2 boolean 即 Integer），否则抛出异常。
+// resume 为 1 时立即返回，不改动 PC/SP；void 表示继续。
+// 冷路径：写入入口 PC，取当前 SP，清零该槽，并将 SP 前移一个槽位。
+// 本入口只经 rd/wr 读写；底层标量操作固定为已有 RValueOp op13/19/20/23/41/44/45。
+
+function RVMEntry(rd, wr, ctx, entry, resume = false)
+{
+    if (typeof resume != "Integer" || (resume != 0 && resume != 1))
+        throw new Exception("RVMEntry: resume must be Integer 0 or 1");
+
+    if (resume == 1)
+        return;
+
+    wr(ctx + 8, entry);
+
+    var p = rd(ctx + 12);
+    wr(p, 0);
+    wr(ctx + 12, p + 4);
+}

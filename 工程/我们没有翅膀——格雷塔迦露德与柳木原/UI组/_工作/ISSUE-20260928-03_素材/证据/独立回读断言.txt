@@ -1,0 +1,61 @@
+# 独立回读断言（几何用解析 SDF；合成用 numpy 预乘 over；nine 从 32_flowchart.json 真读）
+判据	读数	结论	备注
+x_ui_node_section_dim.png：尺寸 == 源件 236x65	236x65	PASS	
+x_ui_node_section_dim.png：α 与源件逐像素相等	0 px 不同	PASS	
+x_ui_node_section_dim.png：RGB 全 0（α=0 处也为 0）	0	PASS	
+x_ui_node_section_dim.png：α=0 占比 == 源件（2083/15340）	13.5789%	PASS	
+x_ui_node_section_dim.png：`nine` 已知（{"l":14,"t":0,"r":16,"b":0}）	读自 32_flowchart.json（fc.node.0003）	PASS	与底图同值 ⇒ 拉伸后支撑集重合
+x_ui_node_section_dim.png：数据层接线核对（kind=image / 296x65 / nine 与底图同值）	0 处引用（未接线 / 数据层并行接线中）	PASS	
+x_ui_node_select_dim.png：尺寸 == 源件 263x65	263x65	PASS	
+x_ui_node_select_dim.png：α 与源件逐像素相等	0 px 不同	PASS	
+x_ui_node_select_dim.png：RGB 全 0（α=0 处也为 0）	0	PASS	
+x_ui_node_select_dim.png：α=0 占比 == 源件（743/17095）	4.3463%	PASS	
+x_ui_node_select_dim.png：`nine` 已知（{"l":14,"t":0,"r":13,"b":0}）	读自 32_flowchart.json（fc.node.0001）	PASS	与底图同值 ⇒ 拉伸后支撑集重合
+x_ui_node_select_dim.png：数据层接线核对（kind=image / 296x65 / nine 与底图同值）	0 处引用（未接线 / 数据层并行接线中）	PASS	
+x_ui_node_frag_dim.png：尺寸 == 源件 228x65	228x65	PASS	
+x_ui_node_frag_dim.png：α 与源件逐像素相等	0 px 不同	PASS	
+x_ui_node_frag_dim.png：RGB 全 0（α=0 处也为 0）	0	PASS	
+x_ui_node_frag_dim.png：α=0 占比 == 源件（652/14820）	4.3995%	PASS	
+x_ui_node_frag_dim.png：`nine` 已知（{"l":14,"t":0,"r":15,"b":0}）	读自 32_flowchart.json（fc.frag1.0001）	PASS	与底图同值 ⇒ 拉伸后支撑集重合
+x_ui_node_frag_dim.png：数据层接线核对（kind=image / 296x65 / nine 与底图同值）	0 处引用（未接线 / 数据层并行接线中）	PASS	
+x_ui_read_check.png：尺寸 20x20	20x20	PASS	
+x_ui_read_check.png：真 alpha（αmin=0 / αmax=255）	0/255	PASS	
+x_ui_read_check.png：硬边——形状外 ≥1.15px 处 αmax	0	PASS	无
+x_ui_read_check.png：硬边——形状内 ≥1.15px 处 αmin	255	PASS	无
+x_ui_read_check.png：过渡带 外 0.301px ＋ 内 0.485px ≤ 1.15px	0.786	PASS	
+x_ui_read_check.png：四角 α	[0, 0, 0, 0]	PASS	
+x_ui_read_check.png：最外 1px 帧 αmax（圆牌/勾形均无直边 ⇒ 应为 0）	0	PASS	
+x_ui_read_check.png：牌绿 #255E34 对三面（实测中位/给定）＝ 章节点 5.219/5.275 ／ 选择支 3.059/3.127 ／ 番外 4.191/4.240 ｜ 最差 3.059	3.059	PASS	每面 ≥2.5 门槛
+x_ui_read_check.png：每面均 ≥2.5（硬门槛）	3.059	PASS	
+x_ui_read_check.png：每面均 ≥3.0（目标）	3.059	PASS	目标：对最差面 ≥3.0
+x_ui_read_check.png：牌绿色相 135.8° ∈ [110,155]（仍是「绿」）	135.8	PASS	
+x_ui_read_check.png：白勾对牌绿 = 7.694:1（目标 ≥4.5）	7.694	PASS	
+x_ui_read_check.png：α=0 占比 31.00% ≥20%（牌外确为透明）	31.0	PASS	
+x_ui_read_check.png：数据层接线核对（kind=image / 20×20 / 无 nine）	0 处引用（未接线 / 数据层并行接线中）	PASS	
+x_ui_read_check_alt.png：尺寸 20x20	20x20	PASS	
+x_ui_read_check_alt.png：真 alpha（αmin=0 / αmax=255）	0/255	PASS	
+x_ui_read_check_alt.png：硬边——形状外 ≥1.15px 处 αmax	0	PASS	无
+x_ui_read_check_alt.png：硬边——形状内 ≥1.15px 处 αmin	255	PASS	无
+x_ui_read_check_alt.png：过渡带 外 0.602px ＋ 内 0.544px ≤ 1.15px	1.146	PASS	
+x_ui_read_check_alt.png：四角 α	[0, 0, 0, 0]	PASS	
+x_ui_read_check_alt.png：最外 1px 帧 αmax（圆牌/勾形均无直边 ⇒ 应为 0）	0	PASS	
+x_ui_read_check_alt.png：勾绿 #255E34 对三面（实测中位/给定）＝ 章节点 5.219/5.275 ／ 选择支 3.059/3.127 ／ 番外 4.191/4.240 ｜ 最差 3.059	3.059	PASS	每面 ≥2.5 门槛
+x_ui_read_check_alt.png：每面均 ≥2.5（硬门槛）	3.059	PASS	
+x_ui_read_check_alt.png：每面均 ≥3.0（目标）	3.059	PASS	目标：对最差面 ≥3.0
+x_ui_read_check_alt.png：勾绿色相 135.8° ∈ [110,155]（仍是「绿」）	135.8	PASS	
+x_ui_read_check_alt.png：白描边对勾绿 = 7.694:1（目标 ≥4.5）	7.694	PASS	
+x_ui_read_check_alt.png：白描边对三面（实测/给定）＝ 章节点 1.474/1.459 ／ 选择支 2.515/2.461 ／ 番外 1.836/1.815 ｜ 最差 1.459 ⇒ 描边在浅面上不构成可靠轮廓，备选件的可辨认性由**勾绿**承担（勾绿与主版同色）	1.459	PASS	如实登记
+x_ui_read_check_alt.png：数据层接线核对（kind=image / 20×20 / 无 nine）	0 处引用（未接线 / 数据层并行接线中）	PASS	
+取色对照：palette 原值 #5AA06A 对三面（实测/给定）＝ 章节点 2.135/2.158 ／ 选择支 1.252/1.279 ／ 番外 1.715/1.735 ｜ 最差 1.252 ⇒ **有面 <2.5 ✘**	1.252	PASS	期望：原值/上一版 不达标；最终 全达标且全 ≥3.0
+取色对照：上一版（单面选，作废） #3F8A5A 对三面（实测/给定）＝ 章节点 2.852/2.883 ／ 选择支 1.672/1.709 ／ 番外 2.290/2.317 ｜ 最差 1.672 ⇒ **有面 <2.5 ✘**	1.672	PASS	期望：原值/上一版 不达标；最终 全达标且全 ≥3.0
+取色对照：最终（磁盘实测取色） #255E34 对三面（实测/给定）＝ 章节点 5.219/5.275 ／ 选择支 3.059/3.127 ／ 番外 4.191/4.240 ｜ 最差 3.059 ⇒ 三面全 ≥2.5 ✔ 且全 ≥3.0 ✔	3.059	PASS	期望：原值/上一版 不达标；最终 全达标且全 ≥3.0
+最终磁盘取色 == 求解器 `m57_solve_green.py` 的答案（#255E34）	#255E34	PASS	求解器与落盘件一致
+灰度对照：`GREEN_PREV` 恰在 select 面不达标（1.672 < 2.5）⇒ 上一版确属缺陷	1.672	PASS	
+角落随形：dim 与底图 nine 拉伸后 α 支撑集不重合像素数	0	PASS	
+角落随形：新 dim 在底图 α==0 处改动的像素数（预乘）	0	PASS	圆角完全贴合
+角落随形：对照组（旧 rect 284×48 @6,8 opa110）改动像素数	18	PASS	判据非空转 —— 旧做法确会压到背景
+角落随形：旧做法压到底图未成实体(α<230) / 非全不透明(α<250) 的像素数	355 / 423	PASS	
+角落随形：旧做法「方角」几何面积（可见实体面 r=16 的切角，每角 / 四角）	54.94 / 219.8 px	PASS	与任务书「约 55px 暗方角」同量级
+角落随形：逐角（24×24）旧/新压到 α==0 的像素数  TL/TR/BL/BR	TL 6→0 ／ TR 6→0 ／ BL 3→0 ／ BR 3→0	PASS	
+
+合计 57 条 ｜ PASS 57 ｜ FAIL 0

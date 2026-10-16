@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--font-chain: &quot;微软雅黑&quot;,&quot;Microsoft YaHei&quot;,&quot;黑体&quot;,&quot;SimHei&quot;,&quot;宋体&quot;,&quot;SimSun&quot;,&quot;MS Gothic&quot;,sans-serif;"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title> 来自个人汉化者AlbireoSaya 模型&amp;工具:Deepseek v4.1 flash+ZCode</title>
+
+<!-- ==========================================================================
+     UI 布局编辑器（M35，2026-09-22）
+
+     **复用 `replica.js` 当渲染内核**（与人工验收件 `index.html` 同一份渲染器，
+     保证「编辑器里看到什么 = krkr 里看到什么」），在其上叠加编辑层。
+
+     数据源：`layout/screens/*.json`（唯一真相源）
+     读取：`ui_layout.js`（gen_layout.py 的合并产物）
+     写回：导出该屏的 `screens/*.json` 全文（下载 / 复制），**不直接写盘**
+           （file:// 下浏览器无写权限；导出后覆盖回去，再跑 gen_layout + verify_ui）
+
+     素材资料库：`asset_index.js`（由 `工具\emit_asset_index.py` 离线预生成）
+     贴图：`../krkr/assets/ui/`（同一份，不复制）
+     ========================================================================== -->
+
+<link rel="stylesheet" href="../../../复刻/replica.css">
+<link rel="stylesheet" href="../../../复刻/editor.css">
+</head>
+<body class="editor"><pre id="probe-out">EDITORPROBE
+① 数据：labels=4 item_h=205 gap=0 max_rows=4 有h键=false kind=list
+① derivedH=true（期望 true） elemH=0 listSpanH=820
+② 逐项复算：行数 4 × item_h 205 + (4−1) × gap 0 = 820；elemH 与之一致=false
+③ 选中框 height=0px（期望 820px；改前口径会是 0px）
+④ 属性面板：h 输入框 disabled=true 值=820 文案含「派生，只读」=true 文案含公式=true
+⑤ 画布点中：块3内(700,560)→["bl.dim"]；块4内(700,800)→["bl.dim"]；块左外(120,560)→["bl.dim"]
+⑤ 判定：FAIL（★ 本行为 --mut 变异：改前口径 elemH=0 ⇒ 上面必然点不中，这就是对照）
+⑥ 竖向手柄 pointerdown：dragging=(未进入拖动) 状态行「list 的高度是派生值（item_h × 行数），不能竖向拉伸 —— 请改 item_h / max_rows / labels」 判定=PASS（派生高度被守卫拦下 + 提示可读）
+⑥ 反向对照·横向手柄 pointerdown：dragging=进入了拖动 mode=resize（预期）
+MUT=true（改前口径 elemH）
+EDITORPROBE-END</pre></body></html>

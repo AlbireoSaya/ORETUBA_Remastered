@@ -1,0 +1,23 @@
+from pathlib import Path
+import sys,ctypes as C,json,uuid
+r=Path.cwd();w=g/'工具';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(w),str(g/'工具')]
+from lucifen_host_nccalcsize import RECT
+from lucifen_host_rect_offset import OffsetRect
+from lucifen_host_rect_intersection import IntersectRect
+assert C.sizeof(RECT)==16 and OffsetRect.restype==IntersectRect.restype==C.c_int
+assert OffsetRect.argtypes==[C.POINTER(RECT),C.c_int,C.c_int]
+guard=b'\xa5'*32
+buf=C.create_string_buffer(guard+bytes(RECT(-10,2,40,42))+guard,80)
+rc=C.cast(C.byref(buf,32),C.POINTER(RECT));result=int(OffsetRect(rc,-3,7))
+assert result and buf.raw[:32]==buf.raw[-32:]==guard
+after=RECT.from_buffer_copy(buf.raw[32:-32]);assert [after.left,after.top,after.right,after.bottom]==[-13,9,37,49]
+cases=[]
+for a,b,expected,valid in [((0,0,10,10),(5,3,20,9),(5,3,10,9),1),((0,0,10,10),(10,0,20,10),(0,0,0,0),0),((0,0,10,10),(11,11,20,20),(0,0,0,0),0)]:
+ av,bv=RECT(*a),RECT(*b);ab,bb=bytes(av),bytes(bv);buf=C.create_string_buffer(guard+bytes(16)+guard,80)
+ actual=int(IntersectRect(C.cast(C.byref(buf,32),C.POINTER(RECT)),C.byref(av),C.byref(bv)))
+ output=RECT.from_buffer_copy(buf.raw[32:-32]);vals=(output.left,output.top,output.right,output.bottom)
+ assert bool(actual)==bool(valid) and vals==expected and bytes(av)==ab and bytes(bv)==bb and buf.raw[:32]==buf.raw[-32:]==guard
+ cases.append({'a':a,'b':b,'actual_BOOL':actual,'actual_RECT':vals,'input_and_output_guards_pass':True})
+out={'bits':C.sizeof(C.c_void_p)*8,'offset_actual_BOOL':result,'offset_after_RECT':[-13,9,37,49],'intersection_cases':cases,'pass':True,'scope':'owned actual OS rectangle operations, not source rendering proof'}
+p=w/('sdk-rectangle-'+str(out['bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8');print(json.dumps({'file':str(p),'pass':True}))

@@ -1,0 +1,859 @@
+{
+  "source_Cinit": 5271496,
+  "cold_loader_events": [
+    {
+      "api": "GetModuleHandleA",
+      "source_return_address": 5275916,
+      "source_name": "KERNEL32",
+      "actual_host_borrowed_module": 1961426944,
+      "actual_error": 0,
+      "guest_module": 1775304704,
+      "borrowed_not_FreeLibrary": true
+    },
+    {
+      "api": "GetProcAddress",
+      "source_return_address": 5275932,
+      "source_name": "IsProcessorFeaturePresent",
+      "actual_host_procedure": 1961541920,
+      "full_pointer_not_truncated": true,
+      "exact_declared_system_function_verified": true,
+      "actual_error": 0
+    },
+    {
+      "api": "IsProcessorFeaturePresent",
+      "source_return_address": 5275940,
+      "feature": 0,
+      "actual_OS_BOOL": 0
+    }
+  ],
+  "cold_realloc_events": [
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117444736,
+      "new_guest": 117485696,
+      "old_size": 128,
+      "requested_new_size": 144,
+      "actual_old_host_pointer": 112002624,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 144,
+      "requested_new_size": 160,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 160,
+      "requested_new_size": 176,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 176,
+      "requested_new_size": 192,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 192,
+      "requested_new_size": 208,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 208,
+      "requested_new_size": 224,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 224,
+      "requested_new_size": 240,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 240,
+      "requested_new_size": 256,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 256,
+      "requested_new_size": 272,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    },
+    {
+      "api": "HeapReAlloc",
+      "source_return_address": 5272559,
+      "source_heap_key": 1744830464,
+      "flags": 0,
+      "old_guest": 117485696,
+      "new_guest": 117485696,
+      "old_size": 272,
+      "requested_new_size": 288,
+      "actual_old_host_pointer": 112005056,
+      "actual_OS_new_host_pointer": 112005056,
+      "actual_error": 0,
+      "actual_OS_failure_preserved": false,
+      "guest_synced_before_real_realloc": true,
+      "no_old_host_dereference_after_move": true,
+      "source_heap_layout_not_native_OS_address_equivalence": true
+    }
+  ],
+  "cold_filter_events": [
+    {
+      "api": "SetUnhandledExceptionFilter",
+      "source_return_address": 5277509,
+      "source_guest_target": 5277428,
+      "logical_previous_guest_pointer": 0,
+      "target_validated_inside_mapped_source_code": true,
+      "serialized_guest_registry_only": true,
+      "not_OS_SetUnhandledExceptionFilter": true,
+      "guest_pointer_not_registered_with_OS": true
+    }
+  ],
+  "logical_filter_current": 5277428,
+  "cold_codepage_events": [
+    {
+      "api": "GetACP",
+      "source_return_address": 5300541,
+      "actual_OS_codepage": 936,
+      "not_forced_to_932": true
+    },
+    {
+      "api": "GetCPInfo",
+      "source_return_address": 5301138,
+      "codepage": 936,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "actual_MaxCharSize": 2,
+      "CPINFO_bytes": 20,
+      "exact_OS_bytes_copied": true,
+      "both_guards_preserved": true
+    }
+  ],
+  "cold_encoding_events": [
+    {
+      "api": "GetStringTypeW",
+      "source_return_address": 5294406,
+      "locale": null,
+      "info": 1,
+      "count": 1,
+      "output_words_capacity": 1,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "guards_and_original_input_preserved": true,
+      "exact_OS_output_bytes_copied": true,
+      "input_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+      "output_sha256": "3da5c199770b6698291ece54d9da2d5168b04db7638739527d8bb69881e15985"
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5294540,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5294626,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "GetStringTypeW",
+      "source_return_address": 5294644,
+      "locale": null,
+      "info": 1,
+      "count": 256,
+      "output_words_capacity": 256,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "guards_and_original_input_preserved": true,
+      "exact_OS_output_bytes_copied": true,
+      "input_sha256": "834328d6df70a05fdf1322b4a9169dcacd9b085074aeb33ef33ff6322bd9a5ed",
+      "output_sha256": "32e7bba2b34d6152ca1142dc1949b2c7623cdd37cd668b615fec4bed12ddc0e5"
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304287,
+      "locale": 0,
+      "flags": 256,
+      "input_count": 1,
+      "output_capacity": 0,
+      "actual_return": 1,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304444,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304532,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304554,
+      "locale": 2052,
+      "flags": 256,
+      "input_count": 256,
+      "output_capacity": 0,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304709,
+      "locale": 2052,
+      "flags": 256,
+      "input_count": 256,
+      "output_capacity": 256,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "WideCharToMultiByte",
+      "source_return_address": 5304746,
+      "codepage": 936,
+      "flags": 544,
+      "input_units": 256,
+      "output_bytes_capacity": 256,
+      "actual_return_bytes": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_and_optional_BOOL_copied": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304444,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304532,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304554,
+      "locale": 2052,
+      "flags": 512,
+      "input_count": 256,
+      "output_capacity": 0,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304709,
+      "locale": 2052,
+      "flags": 512,
+      "input_count": 256,
+      "output_capacity": 256,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "WideCharToMultiByte",
+      "source_return_address": 5304746,
+      "codepage": 936,
+      "flags": 544,
+      "input_units": 256,
+      "output_bytes_capacity": 256,
+      "actual_return_bytes": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_and_optional_BOOL_copied": true
+    }
+  ],
+  "source_Cxx_table": [
+    5406720,
+    5407164
+  ],
+  "source_C_table": [
+    5407168,
+    5407188
+  ],
+  "source_initializer_entries_observed": [
+    5264240,
+    5301501,
+    5303222,
+    5277498,
+    4198400,
+    4201824,
+    4203216,
+    4205568,
+    4206016,
+    4210928,
+    4214576,
+    4216880,
+    4227536,
+    4227664,
+    4227712,
+    4232480,
+    4232528,
+    4232992,
+    4235280,
+    4248480,
+    4251648,
+    4251696,
+    4252032,
+    4252112,
+    4252192,
+    4252272,
+    4252432,
+    4252608,
+    4252768,
+    4252928,
+    4253008,
+    4253168,
+    4253328,
+    4253408,
+    4253568,
+    4280992,
+    4285984,
+    4294688,
+    4298080,
+    4305744,
+    4311120,
+    4315168,
+    4327952,
+    4348176,
+    4351936,
+    4354016,
+    4355024,
+    4355568,
+    4355616,
+    4358464,
+    4358512,
+    4393056,
+    4398048,
+    4402848,
+    4413904,
+    4419680,
+    4428192,
+    4433920,
+    4438752,
+    4448368,
+    4450176,
+    4453392,
+    4454208,
+    4454256,
+    4462400,
+    4467664,
+    4473296,
+    4480480,
+    4503168,
+    4503549,
+    4508320,
+    4515168,
+    4516832,
+    4529920,
+    4531056
+  ],
+  "source_initializer_unique_count": 75,
+  "source_expected_nonzero_count": 114,
+  "result": null,
+  "next_EIP": 1209214,
+  "next_import": "timeGetDevCaps",
+  "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+  "stack12": [
+    4531245,
+    5461568,
+    8,
+    4531134,
+    5407004,
+    4531061,
+    5271777,
+    0,
+    5271537,
+    5406720,
+    5407164,
+    5407168
+  ],
+  "recent": [
+    {
+      "pc": 5264231,
+      "esp": 33587160,
+      "eax": 4621088,
+      "ecx": 13
+    },
+    {
+      "pc": 5264233,
+      "esp": 33587160,
+      "eax": 4290346208,
+      "ecx": 13
+    },
+    {
+      "pc": 5264235,
+      "esp": 33587160,
+      "eax": 4294967295,
+      "ecx": 13
+    },
+    {
+      "pc": 5264236,
+      "esp": 33587164,
+      "eax": 4294967295,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5264238,
+      "esp": 33587164,
+      "eax": 1,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5264239,
+      "esp": 33587164,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 4529962,
+      "esp": 33587168,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 4529963,
+      "esp": 33587172,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271777,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271780,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271763,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271767,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271769,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271771,
+      "esp": 33587176,
+      "eax": 4531056,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271773,
+      "esp": 33587176,
+      "eax": 4531056,
+      "ecx": 4621088
+    },
+    {
+      "pc": 5271775,
+      "esp": 33587176,
+      "eax": 4531056,
+      "ecx": 4621088
+    },
+    {
+      "pc": 4531056,
+      "esp": 33587172,
+      "eax": 4531056,
+      "ecx": 4621088
+    },
+    {
+      "pc": 4531072,
+      "esp": 33587168,
+      "eax": 4531056,
+      "ecx": 4621088
+    },
+    {
+      "pc": 4531077,
+      "esp": 33587168,
+      "eax": 4531056,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531120,
+      "esp": 33587168,
+      "eax": 4531056,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531121,
+      "esp": 33587164,
+      "eax": 4531056,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531123,
+      "esp": 33587164,
+      "eax": 4531056,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531129,
+      "esp": 33587164,
+      "eax": 4531056,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531216,
+      "esp": 33587160,
+      "eax": 4531056,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531221,
+      "esp": 33587160,
+      "eax": 4530944,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531223,
+      "esp": 33587160,
+      "eax": 4530944,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531225,
+      "esp": 33587160,
+      "eax": 4530944,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531227,
+      "esp": 33587156,
+      "eax": 4530944,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531232,
+      "esp": 33587152,
+      "eax": 4530944,
+      "ecx": 5461560
+    },
+    {
+      "pc": 4531239,
+      "esp": 33587152,
+      "eax": 4530944,
+      "ecx": 5461560
+    }
+  ],
+  "new_API_tail": [
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117485696
+      ],
+      "actual_size": 272,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117485696
+      ],
+      "actual_size": 272,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117485696
+      ],
+      "actual_size": 272,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117485696
+      ],
+      "actual_size": 288,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117485696
+      ],
+      "actual_size": 288,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117485696
+      ],
+      "actual_size": 288,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    }
+  ],
+  "all_initializers_not_assumed_complete": true,
+  "original_WinMain_not_entered": true
+}

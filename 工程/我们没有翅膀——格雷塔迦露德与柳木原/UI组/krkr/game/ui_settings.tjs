@@ -1,0 +1,381 @@
+// ============================================================
+// ui_settings.tjs —— 设置仓（★ M47 · ISSUE-20260924-01 · W3 机制·krkr）
+//
+// 是什么：
+//   《M47_设置屏重设方案》§三.3 的**唯一设置定义表 + 读写入口**。
+//   滑块（`kind:"slider"`）把值写进这里；渲染层（对话框遮罩 / 设置页预览遮罩）
+//   从 UISettingGet() 取值 ⇒ **写入即实时生效**（见下方「3. 实时生效」）。
+//
+// 为什么单独一个文件（职责分离，同 ui_state.tjs 的拆分理由）：
+//   「设置项的定义 / 校验 / 默认值 / 实时生效」与「渲染」「屏导航」「持久化」是三件事；
+//   定义表是**数据**，不该散落在渲染器与巡演脚本里。
+//
+// ★ 与 HTML 复刻端（复刻/replica.js）的分工：
+//   设置键名 / 范围 / 默认值由方案 §三.3 **冻结**，两端逐字相同；但落点不同：
+//   krkr 侧由 ctx 构造器**每帧**读出（ui_screens.tjs / ui_dialog.tjs 的 `ctx.opacityOverride`），
+//   HTML 侧靠 DOM 样式改写（W4 实现）。⇒ 改任一侧的口径都必须改另一侧。
+//
+// 引擎坑（TJS2，本工程已实测，见 引擎工作原理.md §5）：
+//   * Dictionary **没有枚举接口**（不能 for...in，也没有 keys/count）⇒ 要有序遍历设置项，
+//     必须另备**名字数组** `UISettingKeys`（与 ui_screens.tjs 的 UIScrTourIdList 同款并行数组）。
+//   * **没有全局 parseInt**，String 也**没有 charCodeAt**（ui_state.tjs / ui_flow.tjs 同坑）
+//     ⇒ 见 uiSettingToInt 的自实现。
+//   * 对**非 Dictionary** 对象取不存在的成员会**抛异常**（不是返回 void）⇒ 取成员前先判 void。
+//   * ★★ 【M47 本轮新增实测坑】`%[ … ]` 字典字面量的键**不能用带引号的字符串**：
+//         var a = %[ "k": 1 ];   ⇒ **语法错误**（syntax error at line 1）
+//         var a = %[  k : 1 ];   ⇒ 通过
+//     本引擎构建（krkrz 1.4.0.8 / TJS2 2.4.28）**不接受引号键**（与 TJS2 文档常见写法不同，
+//     本文件首版即栽在这里：ui_settings.tjs 装载直接报「语法有误（syntax error） at line 42」，
+//     连带 ui_screens.tjs 因取不到 UISettingSyncHook 而失败、整个 UI 组件库装载 FATAL）。
+//     故本文件的键一律写成**标识符**（dlg_winopac / vol_char … 都是合法标识符，正好可用）；
+//     用**字符串变量**取值（UISettingDef[k]）不受影响。
+//     实测方法（快）：项目根放一个只 `Scripts.execStorage(<被测文件>)` 的探针 startup.tjs，
+//     看日志里有没有「语法有误（syntax error） at line N」。依据：2026-09-24 M47 探针 1/2/3/6 号用例。
+//
+// 本文件**不含任何坐标 / 尺寸 / 字号 / 颜色**（verify_ui.py 检查 [4] 会扫 krkr/game/*.tjs）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 1. 设置定义表（**唯一真相源**）—— **共 25 键**：方案 §三.3 冻结的 9 个**数值键**
+//    ＋ ★ M47 追补的 16 个**开关键**。
+//    step：数值键写仓时的**对齐粒度**（与滑块元素的 `step` 同口径；单点可调）。
+//    apply：该设置是否**实时生效到画面**（krkr 侧当前只有 dlg_winopac 有画面消费点 ——
+//           对话框遮罩与设置页预览遮罩；其余为「只存值」，音量类见下）。
+//    kind：`"int"`（数值，clamp + step 对齐）/ `"enum"`（离散值，值域见 `values`）。
+//    ★ 键名数组与字典必须**同步增删**（字典不能枚举，数组是唯一的遍历入口）。
+//
+//    ★★ M47 追补（2026-09-24，主代理裁决「切页值标志派生规则」）：把 W2 的 **16 个开关键**
+//    也收进本表 —— 10 个系统页选项（display / facewindow / drama / effect / voicecut /
+//    curhide / savedialog / loaddialog / allskip / textcolchg）+ 6 个静音键
+//    （mute_vol_master / bgm / se / sysse / voice / char）。
+//    为什么必须入表：① 切页时要按「键 → 页」把值键（`cfg_v_<键>`）从**仓里重新派生**
+//    （否则值元素跨页泄漏，见 ui_screens.tjs 的 `uiScreenConfigSyncPage` 注释）；
+//    ② 值要随存档持久化；③ 静音是 toggle 语义，需要「当前值」有处可查。
+//    ⚠️ 这 16 个键的 `def` **必须与 `layout/screens/25_config.json` 的 `flags_default` 一致**
+//    （数据是运行时真相：进屏时 flag 先由 flags_default 铺好，本表的值只是**播种来源兜底**，
+//      见 uiScreenConfigSyncPage 的 ② 步）。改数据请同步改这里。
+// ------------------------------------------------------------
+var UISettingKeys = [
+	"dlg_winopac", "text_speed", "auto_speed",
+	"vol_master", "vol_bgm", "vol_se", "vol_sysse", "vol_voice", "vol_char",
+	"display", "facewindow", "drama", "effect", "voicecut", "curhide",
+	"savedialog", "loaddialog", "allskip", "textcolchg",
+	"mute_vol_master", "mute_vol_bgm", "mute_vol_se", "mute_vol_sysse", "mute_vol_voice", "mute_vol_char"
+];
+
+var UISettingDef = %[
+	dlg_winopac: %[ min: 0, max: 100, def: 90, step: 5, kind: "int", apply: true,
+		label: "文本窗口的不透明度",
+		note: "对话框底部遮罩 dlg.mask_bottom 与设置页预览遮罩 cfg.pv_mask 的浓度；实时生效（见 ctx.opacityOverride）" ],
+	text_speed: %[ min: 0, max: 100, def: 60, step: 5, kind: "int", apply: false,
+		label: "文字显示速度",
+		note: "打字机速度；引擎侧暂无消费点（tk 现有节拍是固定 ms，接线属编程组）" ],
+	auto_speed: %[ min: 0, max: 100, def: 50, step: 5, kind: "int", apply: false,
+		label: "自动播放速度",
+		note: "自动模式换句间隔；引擎侧暂无消费点（待编程组接线）" ],
+	vol_master: %[ min: 0, max: 100, def: 80, step: 5, kind: "int", apply: false,
+		label: "主音量", note: "★ 引擎无任何音频代码（无 SoundBuffer / 无 volume 调用）⇒ 只存值 + 持久化，待编程组接音频" ],
+	vol_bgm: %[ min: 0, max: 100, def: 80, step: 5, kind: "int", apply: false,
+		label: "背景音乐", note: "同上（待编程组接音频）" ],
+	vol_se: %[ min: 0, max: 100, def: 80, step: 5, kind: "int", apply: false,
+		label: "音效", note: "同上（待编程组接音频）" ],
+	vol_sysse: %[ min: 0, max: 100, def: 80, step: 5, kind: "int", apply: false,
+		label: "系统音效", note: "同上（待编程组接音频）" ],
+	vol_voice: %[ min: 0, max: 100, def: 80, step: 5, kind: "int", apply: false,
+		label: "语音音量", note: "同上（待编程组接音频）" ],
+	vol_char: %[ min: 0, max: 100, def: 80, step: 5, kind: "int", apply: false,
+		label: "角色音量", note: "同上（待编程组接音频）；本作按**当前选中角色**（cfg_vchar）生效，逐角色值暂共用同一键" ],
+	// ---- 系统页 10 个开关键（def 与 25_config.json 的 flags_default 逐条一致）----
+	display: %[ kind: "enum", values: ["window", "full"], def: "window", apply: false,
+		label: "画面模式",
+		note: "二选一（窗口 / 全屏）；★ 引擎侧**未实现**窗口模式切换（无 setFullScreen 调用）⇒ 只存值 + 展示，登记待编程组" ],
+	facewindow: %[ kind: "enum", values: ["on", "off"], def: "on", apply: false,
+		label: "立绘窗口", note: "只存值 + 展示（演示工程无立绘窗口实现）" ],
+	drama: %[ kind: "enum", values: ["on", "off"], def: "on", apply: false,
+		label: "演出效果", note: "只存值 + 展示" ],
+	effect: %[ kind: "enum", values: ["on", "off"], def: "on", apply: false,
+		label: "特效", note: "只存值 + 展示" ],
+	voicecut: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "语音截断", note: "只存值 + 展示" ],
+	curhide: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "隐藏光标", note: "只存值 + 展示" ],
+	savedialog: %[ kind: "enum", values: ["on", "off"], def: "on", apply: false,
+		label: "存档时的确认信息", note: "只存值 + 展示" ],
+	loaddialog: %[ kind: "enum", values: ["on", "off"], def: "on", apply: false,
+		label: "读档时的确认信息", note: "只存值 + 展示" ],
+	allskip: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "全部跳过", note: "只存值 + 展示" ],
+	textcolchg: %[ kind: "enum", values: ["on", "off"], def: "on", apply: false,
+		label: "文字变色", note: "只存值 + 展示" ],
+	// ---- 声音页 6 个静音键（def 全 off，与 flags_default 一致）----
+	//   ★ 动作语义（主代理裁决）：`config_set_mute_<X>` 是 **toggle**（忽略 hit 的 value；
+	//     参考作的 MUTE 就是一个勾选框），现值为 on ↔ off 互翻。见 uiActionDispatch 的注释。
+	mute_vol_master: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "静音（主音量）", note: "toggle 语义；★ 与 vol_master 的联动（静音=音量归零？）方案未定义 ⇒ 暂不联动，登记待裁决" ],
+	mute_vol_bgm: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "静音（背景音乐）", note: "同上" ],
+	mute_vol_se: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "静音（音效）", note: "同上" ],
+	mute_vol_sysse: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "静音（系统音效）", note: "同上" ],
+	mute_vol_voice: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "静音（语音）", note: "同上" ],
+	mute_vol_char: %[ kind: "enum", values: ["on", "off"], def: "off", apply: false,
+		label: "静音（角色音量）", note: "同上" ]
+];
+
+// ------------------------------------------------------------
+// 1b. **如实登记的两处限制**（主代理 2026-09-24 要求写进注释；实现不动）
+//   ① `mute_vol_<X>` 与 `vol_<X>` **不联动**：静音要正确工作必须「记住静音前的音量」才能恢复，
+//      而方案 §三.3 未定义该语义（也没有音频代码可接）⇒ 两键**各自独立存值**，
+//      互不影响；是否联动（静音=vol 归 0？恢复=回原值？）**待用户/编程组裁决**。
+//   ② `display`（画面模式）**只存值 + 展示**：引擎侧**没有任何**窗口/全屏切换实现
+//      （无 `setFullScreen` / 无窗口尺寸重设调用）⇒ 选了「全屏」当前只是把值落仓与点亮按钮，
+//      真正切换窗口模式属**编程组待办**。
+//   两处都属「值已落仓、功能未接线」，不是缺陷遗漏，故如实登记而不擅自实现。
+// ------------------------------------------------------------
+
+// 当前值（键 → 整数）。缺失键（未设置过）由 UISettingGet 回落定义表的 def。
+var UISettingStore = %[];
+// 最近一次设置操作的**可读描述**（日志 / 巡演判词取证用，同 UIScrHoverMsg 的做法）
+var UISettingMsg = "";
+// 写仓次数（诊断：拖动的每一档步进都会累加，用于「拖动确实在写仓」的取证）
+var UISettingSetCalls = 0;
+
+// ------------------------------------------------------------
+// 2. 滑块运行值仓（`UIScrSliderVal[<元素 id>]`）
+//    方案 §三.1 冻结：滑块的**运行期值**放这里，元素 `value` 只是**初值**。
+//    为什么要「仓」而不是每次读元素：layout 数据是**只读**的，用户拖出来的值必须能
+//    活过换屏（方案要求「换屏回来应保留运行期值」）。
+//    初始化口径见 ui_screens.tjs 的 uiScreenSliderInitFor（**只在「该 id 尚无值」时写**）。
+//    ★ 本表声明在**本文件**（而非 ui_screens.tjs）的原因：ui_widget.tjs 的滑块绘制分支
+//      要读它，而 ui_widget.tjs 的装载顺序在 ui_screens.tjs **之前** ——
+//      顶层 var 落在 global，但「先声明」必须由装载顺序保证，故放这里（ui_settings.tjs
+//      排在 ui_widget.tjs 之前装载，见 startup.tjs 的装载序列）。
+// ------------------------------------------------------------
+var UIScrSliderVal = %[];
+
+// ★ 设置 → 滑块运行值的**同步钩子**：由 ui_screens.tjs 装载时挂上
+//   （`UISettingSyncHook = uiScreenSliderSyncSetting;`）。
+//   为什么用钩子而不是直接前向调用 ui_screens.tjs 的函数：本文件装载在前，
+//   TJS2 引用**尚未定义**的全局标识符会抛「未找到 Member」（且该异常即使被 catch
+//   引擎仍会打整段 dump，见 startup.tjs §1.5 注），故用**可空函数引用**解耦装载顺序。
+//   实职：设置值一变（拖动 / 恢复默认 / 读档），把所有「setting == 该键」的滑块
+//   运行值改写成新值 ⇒ 手柄位置跟着走（否则重置后手柄会停在上一次的拖动位置）。
+var UISettingSyncHook = null;
+
+// ------------------------------------------------------------
+// 3. 实时生效（方案 §三.3「唯一实现路径」）
+//    krkr 侧的「渲染层」= **每帧重建的 ctx**（uiScreenCtx / uiDialogBuildCtx），
+//    构造器里直接读 UISettingGet("dlg_winopac") 写进 `ctx.opacityOverride`
+//    （ui_widget.tjs 的 image 分支据此覆盖元素 opacity，读取点见该文件 292 行附近）
+//    ⇒ **写仓即生效，无需额外的一遍「灌进渲染层」**（HTML 侧才需要 DOM 那一遍，W4 实现）。
+//    故本文件不设「已应用值」快照：多一份快照只会多一处能悄悄脱钩的状态。
+//    UISettingDef.apply 是**数据**（哪些键真的影响画面），供 HTML 侧与后人接线时判读。
+// ------------------------------------------------------------
+
+function uiSettingToInt(v)
+{
+	// TJS2 无 parseInt、String 无 charCodeAt ⇒ 逐字符按 "0123456789".indexOf 反查
+	//（与 ui_state.tjs 的 uiStateAtoi / ui_flow.tjs 的 uiFlowAtoi 同一手法；
+	//  这里不复用它们：ui_state.tjs / ui_flow.tjs 的装载顺序在**本文件之后**，
+	//  复用会引入装载顺序依赖，而本文件要能被最先装载）。
+	if(typeof v == "Number") return v;
+	var t = "" + v;
+	var i = 0, neg = false, n = 0, seen = false;
+	if(i < t.length && (t.charAt(i) == "-" || t.charAt(i) == "+"))
+	{
+		neg = (t.charAt(i) == "-");
+		i++;
+	}
+	while(i < t.length)
+	{
+		var d = "0123456789".indexOf(t.charAt(i));
+		if(d < 0) break;
+		n = n * 10 + d;
+		seen = true;
+		i++;
+	}
+	if(!seen) return 0;
+	return neg ? -n : n;
+}
+
+// 取定义表条目；未知键返回 null（**不抛**）
+function uiSettingDef(key)
+{
+	var k = "" + key;
+	var d = UISettingDef[k];
+	if(d === void || d === null) return null;
+	return d;
+}
+
+function uiSettingHas(key)
+{
+	return (uiSettingDef(key) !== null);
+}
+
+// 该键**是否已写入过**（区别于 uiSettingHas「定义表里有没有这个键」）
+//   用途：ui_screens.tjs 的切页播种（只给「仓里还没有值」的键播种，不覆盖用户已改的值）
+function uiSettingStored(key)
+{
+	var v = UISettingStore["" + key];
+	return (v !== void && v !== null);
+}
+
+// 取值类型：`"int"`（默认）/ `"enum"`
+function uiSettingKind(key)
+{
+	var d = uiSettingDef(key);
+	if(d === null) return "int";
+	var k = d.kind;
+	return ((k === void || k === null) ? "int" : ("" + k));
+}
+
+// 取值；未设置过（或值为 void）→ 定义表的默认值 def
+function UISettingGet(key)
+{
+	var k = "" + key;
+	var d = uiSettingDef(k);
+	if(d === null) return 0;
+	var v = UISettingStore[k];
+	if(v === void || v === null) return d.def;
+	return v;
+}
+
+// 值标准化：
+//   kind="int"  ⇒ clamp 到 min..max + 按 step 对齐（四舍五入到最近一档；step <= 0 = 不对齐）
+//   kind="enum" ⇒ **值域校验**（必须在 `values` 里；不在则回落 `def`；TJS2 无枚举遍历问题，
+//                 这里就是顺序扫描一个小数组）
+function uiSettingAlign(key, value)
+{
+	var d = uiSettingDef(key);
+	if(d === null) return 0;
+	if(uiSettingKind(key) == "enum") return uiSettingEnumAlign(d, value);
+	var n = uiSettingToInt(value);
+	if(n !== Math.floor(n)) n = Math.round(n);       // 拖动算出来的是小数，先取整
+	var step = uiSettingToInt(d.step);
+	if(step > 0) n = Math.round(n / step) * step;
+	if(d.min !== void && n < d.min) n = d.min;
+	if(d.max !== void && n > d.max) n = d.max;
+	return n;
+}
+
+// enum 值的值域校验（返回**字符串**值）
+function uiSettingEnumAlign(d, value)
+{
+	var v = (value === void || value === null) ? "" : ("" + value);
+	var vals = d.values;
+	if(vals !== void && vals !== null)
+	{
+		for(var i = 0; i < vals.count; i++)
+			if(("" + vals[i]) == v) return v;
+	}
+	return ("" + d.def);       // 值域外（脏值 / 旧档改版）⇒ 回落默认，不抛
+}
+
+// 写仓。noApply=true = **只存值**（读档解析阶段用；实时生效由收尾的 uiSettingApplyAll 统一做）
+//   返回 true = 值确实变了（调用方据此决定是否重画）
+function UISettingSet(key, value, noApply)
+{
+	var k = "" + key;
+	var d = uiSettingDef(k);
+	if(d === null)
+	{
+		UISettingMsg = "未知设置键 " + k + "（忽略）";
+		return false;
+	}
+	var nv = uiSettingAlign(k, value);
+	var old = UISettingGet(k);
+	UISettingStore[k] = nv;
+	UISettingSetCalls++;
+	if(UISettingSyncHook !== null) UISettingSyncHook(k, nv);   // 滑块运行值跟着走
+	UISettingMsg = "设置 " + k + " = " + nv
+		+ ((noApply === true) ? "（noApply：只存值，未生效）" : "（实时生效）")
+		+ ((old == nv) ? "（值与旧值相同）" : ("（旧值 " + old + "）"));
+	return (old != nv);
+}
+
+// 全部恢复定义表的 def（设置屏「初始化」按钮 = config_reset 的目标）
+function uiSettingResetAll()
+{
+	var n = 0;
+	for(var i = 0; i < UISettingKeys.count; i++)
+	{
+		var k = UISettingKeys[i];
+		var d = uiSettingDef(k);
+		if(d === null) continue;
+		UISettingStore[k] = d.def;
+		n++;
+	}
+	uiSettingApplyAll();
+	UISettingMsg = "全部恢复默认（" + n + " 项）：" + uiSettingBrief();
+	return n;
+}
+
+// 把「实时生效」的设置统一过一遍：① 按 def 重新 clamp / step 对齐并回写；
+//   ② 通过同步钩子把值推进滑块运行值仓（**读档 / 恢复默认后手柄位置必须跟着走**）；
+//   ③ 记一行可读摘要。返回处理的键数。
+//   ★ 为什么这里没有「DOM 改写」那一步：krkr 的渲染层是每帧重建的 ctx，
+//     构造器直接读 UISettingGet（见本文件 §3）⇒ 写仓即已生效；HTML 侧的那一遍在 W4。
+function uiSettingApplyAll()
+{
+	var n = 0;
+	for(var i = 0; i < UISettingKeys.count; i++)
+	{
+		var k = UISettingKeys[i];
+		var v = uiSettingAlign(k, UISettingGet(k));
+		UISettingStore[k] = v;
+		if(UISettingSyncHook !== null) UISettingSyncHook(k, v);
+		n++;
+	}
+	UISettingMsg = "applyAll：" + n + " 项已对齐并同步到滑块运行值仓（" + uiSettingBrief() + "）";
+	return n;
+}
+
+// 可读的一行摘要（"键=值 键=值 …"，按 UISettingKeys 顺序）
+function uiSettingBrief()
+{
+	var out = [];
+	for(var i = 0; i < UISettingKeys.count; i++)
+	{
+		var k = UISettingKeys[i];
+		out.push(k + "=" + UISettingGet(k));
+	}
+	return out.join(" ");
+}
+
+// 序列化：`k:v,k:v,…`（写进 ui_state.txt 的 `settings=` 行；只含数字，无需转义）
+function uiSettingSerialize()
+{
+	var out = [];
+	for(var i = 0; i < UISettingKeys.count; i++)
+	{
+		var k = UISettingKeys[i];
+		out.push(k + ":" + UISettingGet(k));
+	}
+	return out.join(",");
+}
+
+// 反序列化（ui_state.tjs 读档分支调用）：
+//   **一律 noApply=true 只存值**，实时生效由调用方在解析结束后统一 uiSettingApplyAll()
+//   —— 否则读档过程中每读一项就会触发一次画面状态变化（方案 §三.3 明写此口径）。
+//   返回成功解析并写入的项数。
+function uiSettingDeserialize(text)
+{
+	var t = (text === void || text === null) ? "" : ("" + text);
+	var parts = (t == "") ? [] : t.split(",");
+	var n = 0;
+	for(var i = 0; i < parts.count; i++)
+	{
+		var s = "" + parts[i];
+		if(s == "") continue;
+		var c = s.indexOf(":");
+		if(c <= 0) continue;
+		var k = s.substring(0, c);
+		var v = s.substring(c + 1);
+		if(!uiSettingHas(k)) continue;       // 未知键（旧档 / 改版）静默跳过，不抛
+		UISettingSet(k, v, true);
+		n++;
+	}
+	return n;
+}

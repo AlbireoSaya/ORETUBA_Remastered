@@ -1,0 +1,17 @@
+{
+  "source": "\u5de5\u7a0b/\u6211\u4eec\u6ca1\u6709\u7fc5\u8180\u2014\u2014\u683c\u96f7\u5854\u8fe6\u9732\u5fb7\u4e0e\u67f3\u6728\u539f/\u7f16\u7a0b\u7ec4/\u5de5\u5177/lucifen_thiscall_probe.py",
+  "source_sha256": "699edd3c42b4addf456f7f449c181c34d75729ee1a65b8b6c2c458656d85d140",
+  "editor_patch": [
+    {
+      "old": "def invoke_thiscall_args(uc, address, obj, args, count=100000, timeout=1000000):",
+      "new": "def invoke_thiscall_args(uc, address, obj, args, count=100000, timeout=1000000, esp0=0x2008000, sentinel=0x200F000):"
+    },
+    {
+      "old": "    esp0, sentinel = 0x2008000, 0x200F000\n",
+      "new": ""
+    }
+  ],
+  "candidate": "\u5b50\u4ee3\u7406\u5de5\u4f5c\u533a/ISSUE-20261011-02/r-window-create-20261013/lucifen_call_frame_candidate.py",
+  "candidate_sha256": "a1560b2db9c0748be2c535546669802054ce0a806ef670655236edf3fb02b3dd",
+  "official_source_unchanged": true
+}

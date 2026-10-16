@@ -1,0 +1,11 @@
+① 屏 JSON 里含 PRESS_FROM_HOVER 的元素：
+   01_title.json          7 条：title.menu_txt_start、title.menu_txt_continue、title.menu_txt_load、title.menu_txt_flowchart、title.menu_txt_config、title.menu_txt_gallery、title.menu_txt_exit
+   36_choices.json        3 条：ch.bg_1、ch.bg_2、ch.bg_3
+   合计 note 10 条
+
+②-1 M35b_标题菜单组绑定.py：01_title.json 里 'new.*' 元素 = 0 个
+   → ITEMS 有 7 项，missing 非空 ⇒ 该脚本在 `return 1` 处提前退出，**不会写盘**
+
+②-2 M35b_热区态图迁移.py 的 choices 分支：ch.sel 在=False ｜ ch.bg_1 在=True
+   → migrate_choices 走「已迁移过」提前 return True ⇒ **不写 36_choices.json**
+   ⚠️ 但 main() 对 PAIRS 里 6 个屏无条件 `save()`（21_confirm/25_config/26_backlog/32_flowchart/34_sysbar/37_dress），重跑会重写它们（内容等价、幂等）——不触碰本轮的 10 条 note。

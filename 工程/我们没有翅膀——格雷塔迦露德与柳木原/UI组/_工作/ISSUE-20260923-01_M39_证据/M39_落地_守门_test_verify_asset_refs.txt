@@ -1,0 +1,15 @@
+========================================================================
+verify_ui.iter_asset_refs 覆盖性自测（state_assets）
+========================================================================
+  OK   state_assets.normal 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.hover 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.pressed 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   空串/None 不产生引用  —— ['ui/n.png']
+  OK   asset 与 state_assets 并存  —— ['ui/bg.png', 'ui/n.png']
+  OK   item_frame/asset 未回归  —— ['ui/a.png', 'ui/f.png']
+  OK   深层 list 下标路径  —— ['screens.s.elements[0].state_assets.pressed']
+  OK   真实 layout 上收到 state_assets 引用（>0）  —— state_assets=210 / 总 844
+  OK   非三键的自定义态也被收集（Minor-10）  —— ['ui/dis.png', 'ui/focus.png', 'ui/n.png']
+  OK   state_assets 非字典 -> 计入引用表（供 [1] 报缺件）  —— [('ui/typo.png', 'state_assets')]
+------------------------------------------------------------------------
+结果：**全部通过**

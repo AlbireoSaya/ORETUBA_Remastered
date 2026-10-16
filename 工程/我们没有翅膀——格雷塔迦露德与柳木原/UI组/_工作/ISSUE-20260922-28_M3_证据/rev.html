@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>REV C1 · 反向验证夹具（M3 证据，不参与交付）</title>
+<!-- ==========================================================================
+     M3 / C1 反向验证夹具：**故意把渲染器与数据改坏**，证明修好后的断言真的会 FAIL。
+     与 复刻/index.html 用的是同一份 ui_layout.js + 打好补丁的 replica.js 副本（replica_rev.js）：
+       · ?selftest=1            → 渲染器退化（sv.tab_a 走 border-image）⇒ 断言应 FAIL
+       · ?selftest=1&revhack=drop → 数据退化（save 屏少一件）⇒ 旧写法 FAIL、新写法 PASS
+     仅作证据；正式交付不含本目录。
+     ========================================================================== -->
+<link rel="stylesheet" href="../../复刻/replica.css">
+</head>
+<body>
+
+<div id="stage-wrap">
+  <div id="stage">
+    <div id="canvas"></div>
+  </div>
+</div>
+
+<script>
+/* 贴图根：本页不在 复刻/ 下，故显式覆盖（replica.js 支持 UI_ASSET_BASE 覆盖，供自检夹具用） */
+window.UI_ASSET_BASE = '../../krkr/assets/ui/';
+window.__REV_FORCE_NINE = true;     /* R1：让 sv.tab_a 走 border-image */
+</script>
+<script src="../../复刻/ui_layout.js"></script>
+<script>
+/* R3（可选）：?revhack=drop —— 从数据里删掉一件零 nine 元素，模拟「数据一变」 */
+(function () {
+  if (!/[?&]revhack=drop/.test(location.search || '')) return;
+  var L = window.UI_LAYOUT, sc = L && L.screens && L.screens.save;
+  if (!sc || !sc.elements) return;
+  var before = sc.elements.length;
+  sc.elements = sc.elements.filter(function (e) { return e.id !== 'sv.tab_a'; });
+  document.title = 'REV drop ' + before + '→' + sc.elements.length;
+})();
+</script>
+<script src="replica_rev.js"></script>
+
+</body>
+</html>

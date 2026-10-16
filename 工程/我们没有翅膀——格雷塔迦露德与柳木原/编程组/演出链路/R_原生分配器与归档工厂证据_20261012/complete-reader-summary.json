@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "complete_original_491430_cases": 446,
+  "original_CRT_heap_init": 5284122,
+  "native_CRT_heap_mode": 1,
+  "observed_host_version": [
+    148,
+    10,
+    0,
+    22621,
+    2
+  ],
+  "actual_guest_API_counts": {
+    "HeapCreate": 1,
+    "GetVersionExA": 1,
+    "SetFilePointer": 446,
+    "GlobalAlloc": 446,
+    "HeapAlloc": 444,
+    "ReadFile": 446,
+    "HeapFree": 444,
+    "GlobalFree": 446
+  },
+  "native_decoded_bytes": 10515356,
+  "native_compressed_cases": 444,
+  "all_allocated_blocks_released": true,
+  "scope": "original CRT heap init selected mode1 from real host64 GetVersionExA; original allocator50577F/507517/507543 to real host HeapAlloc, original free44B6B0/50658E to HeapFree; original491430 full reader+491E20/491E50 GlobalAlloc/GlobalFree+metadata seek+ReadFile+LZSS/content return0 for all446 SCRIPT; real registered host64 memory mirrored to controlled guest u32 at API/verification checkpoints, not original x86 kernel/shared addresses or legacy SBH; reader/table preallocated and mature-decrypted, not full archive factory/index decrypt/SOB loader or execution"
+}

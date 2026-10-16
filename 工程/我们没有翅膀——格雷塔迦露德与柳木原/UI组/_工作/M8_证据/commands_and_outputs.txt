@@ -1,0 +1,144 @@
+M8 证据 · 复现命令与原始输出
+Issue: ISSUE-20260919-11-greta-ui (UI 组 · M8 缺陷修复模块)
+日期: 2026-09-19
+
+================================================================
+0. 目录约定
+================================================================
+WT  = E:/ZCode Workspace/Galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组
+RUN = E:/ZCode Workspace/Galgame/临时/wt-ui/临时/ui_run
+（RUN 的叶子目录名全 ASCII；素材复制到 RUN/game/assets 以命中 ui_asset.tjs 的候选名 ②）
+
+================================================================
+1. 正式复现方式：双击 krkr\run_autotour.bat（等价于下面这套 bash）
+================================================================
+$ rm -rf "$RUN/game"; rm -f "$RUN"/runtime/savedata/*
+$ cp -r "$WT/krkr/game" "$RUN/game"
+$ cp -r "$WT/krkr/assets" "$RUN/game/assets"
+$ printf 'autotour' > "$RUN/game/autotour.txt"
+$ cd "$RUN/runtime" && ./tvpwin32.exe "$RUN/game" > /dev/null 2>&1 &
+$ sleep 55          # 约 45 秒巡演完并自行退出
+$ taskkill //IM tvpwin32.exe //F      # 只杀自己启动的；正常退出后此命令报"没有找到进程"
+
+读日志（UTF-16LE）：
+$ iconv -f UTF-16LE -t UTF-8 "$RUN/runtime/savedata/krkr.console.log"
+
+================================================================
+2. 修复后（after）判定：干净
+================================================================
+$ for k in "An exception occured" "redraw EXCEPTION" "\[MISS\]" "\[ERR\]"; do
+    printf "%-24s %s\n" "$k" "$(grep -c "$k" log_after.txt)"; done
+An exception occured     0
+redraw EXCEPTION         0
+\[MISS\]                 0
+\[ERR\]                  0
+
+$ grep "\[UI\]\[TOUR\]\|\[UI\]\[TRANS\]\|\[UI\] quit" log_after.txt | tail -8
+15:58:47 [UI][TOUR] 19/19  屏=flowchart  中文名=剧情流程图  元素数=92  实绘元素=92  字体=微软雅黑  缺件=0  占位=无  标签=追加：flowchart
+15:58:47 [UI][TOUR] ===== 巡演结束 =====
+15:58:47 [UI][TOUR] 共记录 20 屏 | 已载入 17 件 / 缺件 0 件
+15:58:47 [UI][TOUR] 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 0 处 | 未知 kind 0 处
+15:58:47 [UI][TOUR] 转场 成功 17 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_1280.png time=420 vague=64
+15:58:47 [UI][TOUR] PNG 导出 成功 20 / 失败 0 | 目录 file://./e/.../savedata/
+15:58:47 [UI] quit (autotour done) : frames=393 | flowchart | 已载入 17 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 0 处 | 未知 kind 0 处 | 转场 成功 17 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_1280.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=.../ui_flow_state.txt | install=(已安装：uiScreenDraw / uiActionDispatch / uiScreenKey 已包装) | 包装器异常=0 | state=.../ui_state.txt | tour_runs=1 | seen=15[title,dialog,sysmenu,save,load,config,backlog,gallery,music,chapter,fragment,flowchart,ending,loading,confirm]
+
+PNG 大小（after，字节）：
+1089213 shot_01_title.png
+1089213 shot_02_title.png
+ 902176 shot_03_dialog.png
+ 889545 shot_04_dialog.png      <-- 修复前 3669（纯黑）
+ 72442  shot_05_sysmenu.png
+ 613983 shot_06_save.png
+ 614746 shot_07_load.png
+ 562966 shot_08_config.png
+ 537173 shot_09_backlog.png
+ 774641 shot_10_gallery.png
+ 538486 shot_11_music.png
+ 139007 shot_12_chapter.png
+ 101340 shot_13_fragment.png    <-- 修复前 88935（parseInt 抛错，内容不完整）
+ 117315 shot_14_flowchart.png   <-- 修复前 3669（纯黑）
+ 654460 shot_15_ending.png
+   9213 shot_16_loading.png
+1089213 shot_17_title.png
+  27835 shot_18_confirm.png
+ 101340 shot_19_fragment.png
+ 117315 shot_20_flowchart.png   <-- 修复前 3669（纯黑）
+
+md5 去重：shot_01==shot_02==shot_17（title）、shot_13==shot_19（fragment）、
+shot_14==shot_20（flowchart）⇒ 20 张里 17 张内容互异，3 张是同屏重访的重复。
+
+================================================================
+3. 修复前（before）：把 7 处缺陷还原到一份临时副本后重跑
+================================================================
+（不依赖 git —— 本 issue 的 UI组 目录尚未入库；用脚本把 M8 的修改逐条还原：
+  D1 lastIndexOf、D2 uiFlowNodeIndex 大小写、D3 包装器无 try/catch + ctx 缺 forceShow、
+  D4 同上、D5 演示背景、D6 转场遮罩名与实绘计数）
+$ python revert_defects.py "<WT>/krkr/game" "<RUNB>/game"   # 还原 D1/D2/D3/D4/D5/D6 + parseInt
+$ cp -r "$RUN/runtime" "$RUNB/runtime"; rm -f "$RUNB"/runtime/savedata/*
+$ cd "$RUNB/runtime" && ./tvpwin32.exe "$RUNB/game" > /dev/null 2>&1 &
+$ sleep 50; taskkill //IM tvpwin32.exe //F
+
+$ grep -o "An exception occured at [^=]*" log_before.txt | sort | uniq -c
+     18 An exception occured at ui_dialog.tjs(252)[(function) uiDialogBuildCtx]
+      1 An exception occured at ui_flow.tjs(199)[(function) uiFlowBuildPaths]
+     38 An exception occured at ui_flow.tjs(442)[(function) uiFlowSyncFlowchart]
+     36 An exception occured at ui_fragment.tjs(127)[(function) uiFragmentParse]
+$ grep -o "redraw EXCEPTION : [^|]*" log_before.txt | sort | uniq -c
+     18 redraw EXCEPTION : 不能将 (void) 转换为 Object 类型
+      1 redraw EXCEPTION : 未找到 Member "lastIndexOf"
+     36 redraw EXCEPTION : 未找到 Member "parseInt"
+     38 redraw EXCEPTION : 未找到 Member "uiFlowNodeIndex"
+$ grep -c "redraw EXCEPTION" log_before.txt      -> 93
+$ grep -c "\[UI\]\[TRANS\]\[MISS\]" log_before.txt -> 13
+$ grep -m2 "实绘元素" log_before.txt
+16:18:00 [UI][TOUR] 0/19  屏=title  中文名=标题画面  元素数=8  实绘元素=0  ...
+16:18:02 [UI][TOUR] 1/19  屏=title  中文名=标题画面  元素数=8  实绘元素=0  ...
+
+before PNG 大小（与主代理 15:45 那次验收逐字节一致 ⇒ 忠实还原）：
+ 102343 shot_03_dialog.png
+   3669 shot_04_dialog.png      <-- 纯黑（选择肢屏）
+ 137550 shot_12_chapter.png
+  88935 shot_13_fragment.png
+   3669 shot_14_flowchart.png   <-- 纯黑（流程图屏）
+   3669 shot_20_flowchart.png   <-- 纯黑
+（完整清单见 before/png_sizes_before.txt）
+before 日志另存了主代理 15:45 那次验收的原始日志原貌：
+  before/krkr.console.log.original_1545.txt
+
+================================================================
+4. 非 ASCII 路径实测（README §三 的证据）
+================================================================
+$ cd "$RUN/runtime" && ./tvpwin32.exe "$WT/krkr/game" > /dev/null 2>&1 &   # 工程内非 ASCII 路径
+$ sleep 12; taskkill //IM tvpwin32.exe //F
+$ iconv -f UTF-16LE -t UTF-8 savedata/krkr.console.log | grep -nE "execStorage|已选择项目的目录|MISS"
+67: [UI] System.dataPath    = file://./e/zcode workspace/galgame/.../ui_run/runtime/savedata/
+16:09:43 ! （info）已选择项目的目录：file://./e/zcode workspace/galgame/临时/wt-ui/工程/我们没有翅膀——格雷塔迦露德与柳木原/ui组/krkr/game/
+68: [UI] execStorage OK   : ui_layout.tjs
+69: [UI] execStorage OK   : ui_theme.tjs
+70: [UI] execStorage OK   : ui_asset.tjs
+71: [UI] execStorage OK   : ui_widget.tjs
+73: [UI] execStorage OK   : ui_demo_script.tjs
+74: [UI] execStorage OK   : ui_dialog.tjs
+75: [UI] execStorage OK   : ui_state.tjs
+76: [UI] execStorage OK   : ui_transition.tjs
+77: [UI] execStorage OK   : ui_screens.tjs
+78: [UI] execStorage OK   : ui_flow_data.tjs
+80: [UI] execStorage OK   : ui_flow.tjs
+82: [UI] execStorage OK   : ui_fragment.tjs
+83: [UI] canvas = 1280x720
+88: [UI][ASSET] 未给 -assetdir，只试项目根内的 ui/ 与 assets/ui/
+108:[UI][MISS] ui/tl1_bg1.png  (三个候选名都不存在)
+109:[UI][MISS] ui/panel_frame.png  (三个候选名都不存在)
+
+⇒ 结论：非 ASCII 路径下**脚本层装载正常**（主代理原述的
+   「不能找到文件 …ui组/krkr/game」本次**未能重现**）；
+   真正失败的是素材解析（krkr\assets 在 game\ 之外且 -assetdir 未生效）。
+   另测：-assetdir=<绝对路径> 放在路径参数前 / 后各一次，
+   System.getArgument("assetdir") 均返回 void → 未生效（未继续深挖）。
+
+================================================================
+5. 目视验收（每屏 PNG 都亲自 Read 过）
+================================================================
+Read 过的：shot_01/03/04/05/06/07/08/09/10/11/12/13/14/15/16/18
+md5 判定为同屏重复而免读：shot_02==shot_01、shot_17==shot_01、shot_19==shot_13、shot_20==shot_14
+1:1 放大核查：after/zoom_backlog_row1_3x.png（列表项首字其实完整，只是与九宫格左边框重叠）

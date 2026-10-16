@@ -1,0 +1,25 @@
+==========================================================================
+状态目标可达性验证 ｜ 数据=E:\ZCode Workspace\Galgame\临时\wt-m45-sysmenu\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+
+[1] 判据指纹（ui_screens.tjs ↔ 本文件复算）
+  uiScreenElementVisible     sha256=a985f281284603ae27ec9f3468b403a8217072e38c2708a9813062d3901a259d  (319 字节)
+  uiScreenHoverAtIn          sha256=316b402dd04f5e18bd4b33d96f4cb7e41c3c60f9ccf8a8f8c3af0f658d6524f2  (528 字节)
+
+[2] 判据令牌（成对一致性）
+  ✓ 候选并集·带 state_assets 的任何元素
+  ✓ 候选并集·缺态图时只认 kind==hit
+  ✓ 候选并集·热区必须带非空 state_group
+  ✓ 可见性·visible_default 前置
+  ✓ 可见性·vis_flag / vis_when 成对
+  ✓ 可见性·vis_when 通配 "*" = 非空即显示
+  ✓ 平票·z 相等时声明更晚者胜
+
+[3] 可达性（几何中心）
+  覆盖：态图+组 37 件 ｜ 纯组热区 23 件 ⇒ 合计 60 件（按各自可见所需的 flag 取值复算）
+  – 跳过 25_config.json :: cfg.mute_off（visible_default=false）
+  – 跳过 25_config.json :: cfg.mute_hit（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay_hit（visible_default=false）
+
+==========================================================================
+结果：**全部通过**（判据指纹一致 + 60 件元素几何中心可达）

@@ -1,0 +1,9 @@
+节点族	V(ot)	V(otp)	承载位置信息的实参位	展开式(1920)	对拍命中率(ot)	证据
+CharacterOpen A	0x1C43C	0x1A618	args[2] / args[0] = 位置枚举	0→960 1→504 2→1416 -1→保持槽状态	0→0.999（1,314/1,315）1→0.952（295/310）2→0.954（292/306）（显式档；合计 1,901/1,931＝98.45%，反例 30 条；口径与复跑＝`_probe_10_enum_gold.py`：两族显式枚举行 × 名称前缀 4 字唯一金标 open 事件；2026-10-09 订正：原写 1.000 属过度四舍五入）	本模块对拍；金标 cx 640/336/944；★归因订正(2026-10-09)：位置取自「按槽号索引的槽状态」，枚举只是写入该状态的方式（单改槽号即改变位置；Round P 改枚举为无效对照）——`会话交接_20261009.md` §二
+CharacterOpen B	0x14084	0x11078	args[2]=槽号；枚举取同(scene,seq)同槽 setter	同上	全套规则：严口径 0.9901（n=10878）	本模块对拍
+位置 setter	0x17514	0x14534	args[2] = 位置枚举，args[3] = 槽号	同 A	含在上行	本模块对拍；0x14084 恒与其相邻
+CharacterAction/Move	0x18B74	0x15BAC	args[2] = ctrl token，args[3] = 槽号	PLACE DSL 增量	单步位移 0.9838（XCROSS）	PLACE / XCROSS
+CharacterOpen(chr_in)	0x186C8	0x156E8	args[1] / args[2] = ctrl token	PLACE DSL 增量	入场定位 0.9952（XCROSS）	PLACE / XCROSS
+Sprite/BG move	0x10428	—	args[5] = ctrl token（无槽）	PLACE DSL（独立求值）	未对拍	PLACE 登记
+CharacterActionEnd	0x19808	0x16828	args[2] = 槽号（无自身 token）	沿用该槽当前 x	金标 CharacterActionEnd 无 cx ⇒ 无法单点对拍	状态继承（未证级别的弱结论）
+CharacterDelete	0x1C5B0	0x1A970	无槽号（实参=[0,-1,ms]）	槽状态全量重置	间接（UNP-3）	本模块对拍

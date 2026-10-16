@@ -1,0 +1,18 @@
+from pathlib import Path
+import json,sys,struct,platform
+root=Path.cwd();s=root/'临时/ISSUE-20261011-02/r-speaker-voice-replay-01';sys.path.insert(0,str(s))
+from lucifen_host_ansi_bridge import host_copy_bytes,bridge_lstrcpynA
+rows=[]
+for payload in [b'ABC\0',b'\0',b'A\xffB\0',b'\x82\xa0\x82\xa2\0',b'0123456789abcdefghijklmnop\0']:
+ for n in [1,2,3,16,17]:
+  source=(payload+b'\xe1'*n)[:n];destination=b'\x99'*n;got=host_copy_bytes(source,destination,n);length=min(source.find(b'\0') if b'\0' in source else n,n-1);expected=source[:length]+b'\0'+destination[length+1:]
+  assert got==expected,(payload,n,got,expected);rows.append({'source_hex':source.hex(),'length':n,'destination_hex':got.hex(),'passed':True})
+rejected=0
+for dst,src,n in [(0,100,1),(100,0,1),(100,200,0),(100,200,4097),(100,101,2),(True,200,1)]:
+ try:bridge_lstrcpynA(lambda a,n:b'\0'*n,lambda a,x:None,dst,src,n)
+ except (ValueError,TypeError):rejected+=1
+ else:raise AssertionError('unproved guard accepted')
+assert rejected==6
+result={'host':platform.platform(),'python_pointer_bits':struct.calcsize('P')*8,'copy_cases':rows,'guard_rejections':rejected,'scope':'actual current Windows host lstrcpynA using valid separately allocated buffers; not original x86 kernel execution, readable non-overlap subset only'}
+p=s/'host-ansi-fixtures.json';assert not p.exists();p.write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps({'copy_cases':len(rows),'rejections':rejected,'passed':True}))
+

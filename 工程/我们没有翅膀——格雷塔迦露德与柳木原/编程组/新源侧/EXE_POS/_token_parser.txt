@@ -1,0 +1,256 @@
+0x00402B42  8B 54 24 20          mov     edx, dword ptr [esp + 0x20]
+0x00402B46  8B 4C 24 1C          mov     ecx, dword ptr [esp + 0x1c]
+0x00402B4A  8B 5C 24 34          mov     ebx, dword ptr [esp + 0x34]
+0x00402B4E  33 F6                xor     esi, esi
+0x00402B50  33 FF                xor     edi, edi
+0x00402B52  3C 21                cmp     al, 0x21
+0x00402B54  0F 85 BC 00 00 00    jne     0x402c16
+0x00402B5A  8B 54 24 30          mov     edx, dword ptr [esp + 0x30]
+0x00402B5E  8A 02                mov     al, byte ptr [edx]
+0x00402B60  42                   inc     edx
+0x00402B61  3C 6C                cmp     al, 0x6c
+0x00402B63  89 54 24 30          mov     dword ptr [esp + 0x30], edx
+0x00402B67  75 29                jne     0x402b92
+0x00402B69  8B 44 24 3C          mov     eax, dword ptr [esp + 0x3c]
+0x00402B6D  8B 33                mov     esi, dword ptr [ebx]
+0x00402B6F  85 C0                test    eax, eax
+0x00402B71  74 16                je      0x402b89
+0x00402B73  8B 54 24 18          mov     edx, dword ptr [esp + 0x18]
+0x00402B77  8B 7C 24 10          mov     edi, dword ptr [esp + 0x10]
+0x00402B7B  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402B7E  03 F2                add     esi, edx
+0x00402B80  F7 DE                neg     esi
+0x00402B82  2B F8                sub     edi, eax
+0x00402B84  E9 51 02 00 00       jmp     0x402dda
+0x00402B89  03 F1                add     esi, ecx
+0x00402B8B  F7 DE                neg     esi
+0x00402B8D  E9 48 02 00 00       jmp     0x402dda
+0x00402B92  3C 72                cmp     al, 0x72
+0x00402B94  75 29                jne     0x402bbf
+0x00402B96  8B 44 24 3C          mov     eax, dword ptr [esp + 0x3c]
+0x00402B9A  85 C0                test    eax, eax
+0x00402B9C  74 14                je      0x402bb2
+0x00402B9E  8B 7C 24 10          mov     edi, dword ptr [esp + 0x10]
+0x00402BA2  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402BA5  8B F1                mov     esi, ecx
+0x00402BA7  8B 0B                mov     ecx, dword ptr [ebx]
+0x00402BA9  2B F1                sub     esi, ecx
+0x00402BAB  2B F8                sub     edi, eax
+0x00402BAD  E9 28 02 00 00       jmp     0x402dda
+0x00402BB2  8B 74 24 18          mov     esi, dword ptr [esp + 0x18]
+0x00402BB6  8B 03                mov     eax, dword ptr [ebx]
+0x00402BB8  2B F0                sub     esi, eax
+0x00402BBA  E9 1B 02 00 00       jmp     0x402dda
+0x00402BBF  3C 63                cmp     al, 0x63
+0x00402BC1  75 16                jne     0x402bd9
+0x00402BC3  8B 74 24 20          mov     esi, dword ptr [esp + 0x20]
+0x00402BC7  8B 0B                mov     ecx, dword ptr [ebx]
+0x00402BC9  8B 7C 24 14          mov     edi, dword ptr [esp + 0x14]
+0x00402BCD  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402BD0  2B F1                sub     esi, ecx
+0x00402BD2  2B F8                sub     edi, eax
+0x00402BD4  E9 01 02 00 00       jmp     0x402dda
+0x00402BD9  3C 75                cmp     al, 0x75
+0x00402BDB  75 10                jne     0x402bed
+0x00402BDD  8B 7D 00             mov     edi, dword ptr [ebp]
+0x00402BE0  8B 4C 24 14          mov     ecx, dword ptr [esp + 0x14]
+0x00402BE4  03 F9                add     edi, ecx
+0x00402BE6  F7 DF                neg     edi
+0x00402BE8  E9 ED 01 00 00       jmp     0x402dda
+0x00402BED  3C 64                cmp     al, 0x64
+0x00402BEF  75 0E                jne     0x402bff
+0x00402BF1  8B 7C 24 24          mov     edi, dword ptr [esp + 0x24]
+0x00402BF5  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402BF8  2B F8                sub     edi, eax
+0x00402BFA  E9 DB 01 00 00       jmp     0x402dda
+0x00402BFF  8B 7C 24 14          mov     edi, dword ptr [esp + 0x14]
+0x00402C03  8B 4D 00             mov     ecx, dword ptr [ebp]
+0x00402C06  8B 44 24 30          mov     eax, dword ptr [esp + 0x30]
+0x00402C0A  2B F9                sub     edi, ecx
+0x00402C0C  48                   dec     eax
+0x00402C0D  89 44 24 30          mov     dword ptr [esp + 0x30], eax
+0x00402C11  E9 C4 01 00 00       jmp     0x402dda
+0x00402C16  3C 6C                cmp     al, 0x6c
+0x00402C18  75 2A                jne     0x402c44
+0x00402C1A  8B 44 24 3C          mov     eax, dword ptr [esp + 0x3c]
+0x00402C1E  85 C0                test    eax, eax
+0x00402C20  74 19                je      0x402c3b
+0x00402C22  8B 7C 24 10          mov     edi, dword ptr [esp + 0x10]
+0x00402C26  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402C29  C1 F9 02             sar     ecx, 2
+0x00402C2C  8B F2                mov     esi, edx
+0x00402C2E  2B F1                sub     esi, ecx
+0x00402C30  8B 0B                mov     ecx, dword ptr [ebx]
+0x00402C32  2B F1                sub     esi, ecx
+0x00402C34  2B F8                sub     edi, eax
+0x00402C36  E9 9F 01 00 00       jmp     0x402dda
+0x00402C3B  8B 33                mov     esi, dword ptr [ebx]
+0x00402C3D  F7 DE                neg     esi
+0x00402C3F  E9 96 01 00 00       jmp     0x402dda
+0x00402C44  3C 72                cmp     al, 0x72
+0x00402C46  75 30                jne     0x402c78
+0x00402C48  8B 44 24 3C          mov     eax, dword ptr [esp + 0x3c]
+0x00402C4C  85 C0                test    eax, eax
+0x00402C4E  74 19                je      0x402c69
+0x00402C50  8B 3B                mov     edi, dword ptr [ebx]
+0x00402C52  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402C55  8B F1                mov     esi, ecx
+0x00402C57  C1 FE 02             sar     esi, 2
+0x00402C5A  2B F7                sub     esi, edi
+0x00402C5C  8B 7C 24 10          mov     edi, dword ptr [esp + 0x10]
+0x00402C60  03 F2                add     esi, edx
+0x00402C62  2B F8                sub     edi, eax
+0x00402C64  E9 71 01 00 00       jmp     0x402dda
+0x00402C69  8B 74 24 18          mov     esi, dword ptr [esp + 0x18]
+0x00402C6D  8B 13                mov     edx, dword ptr [ebx]
+0x00402C6F  2B F2                sub     esi, edx
+0x00402C71  2B F1                sub     esi, ecx
+0x00402C73  E9 62 01 00 00       jmp     0x402dda
+0x00402C78  3C 63                cmp     al, 0x63
+0x00402C7A  75 3E                jne     0x402cba
+0x00402C7C  8B 44 24 3C          mov     eax, dword ptr [esp + 0x3c]
+0x00402C80  85 C0                test    eax, eax
+0x00402C82  74 14                je      0x402c98
+0x00402C84  8B 0B                mov     ecx, dword ptr [ebx]
+0x00402C86  8B 7C 24 10          mov     edi, dword ptr [esp + 0x10]
+0x00402C8A  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402C8D  8B F2                mov     esi, edx
+0x00402C8F  2B F1                sub     esi, ecx
+0x00402C91  2B F8                sub     edi, eax
+0x00402C93  E9 42 01 00 00       jmp     0x402dda
+0x00402C98  8B 74 24 18          mov     esi, dword ptr [esp + 0x18]
+0x00402C9C  8B 3B                mov     edi, dword ptr [ebx]
+0x00402C9E  8B 54 24 14          mov     edx, dword ptr [esp + 0x14]
+0x00402CA2  2B F1                sub     esi, ecx
+0x00402CA4  8B 45 00             mov     eax, dword ptr [ebp]
+0x00402CA7  D1 FE                sar     esi, 1
+0x00402CA9  2B F7                sub     esi, edi
+0x00402CAB  8B 7C 24 24          mov     edi, dword ptr [esp + 0x24]
+0x00402CAF  2B FA                sub     edi, edx
+0x00402CB1  D1 FF                sar     edi, 1
+0x00402CB3  2B F8                sub     edi, eax
+0x00402CB5  E9 20 01 00 00       jmp     0x402dda
+0x00402CBA  3C 75                cmp     al, 0x75
+0x00402CBC  75 0A                jne     0x402cc8
+0x00402CBE  8B 7D 00             mov     edi, dword ptr [ebp]
+0x00402CC1  F7 DF                neg     edi
+0x00402CC3  E9 12 01 00 00       jmp     0x402dda
+0x00402CC8  3C 64                cmp     al, 0x64
+0x00402CCA  75 14                jne     0x402ce0
+0x00402CCC  8B 7C 24 24          mov     edi, dword ptr [esp + 0x24]
+0x00402CD0  8B 4D 00             mov     ecx, dword ptr [ebp]
+0x00402CD3  8B 44 24 14          mov     eax, dword ptr [esp + 0x14]
+0x00402CD7  2B F9                sub     edi, ecx
+0x00402CD9  2B F8                sub     edi, eax
+0x00402CDB  E9 FA 00 00 00       jmp     0x402dda
+0x00402CE0  3C 3C                cmp     al, 0x3c
+0x00402CE2  75 36                jne     0x402d1a
+0x00402CE4  8D 44 24 40          lea     eax, [esp + 0x40]
+0x00402CE8  8D 4C 24 30          lea     ecx, [esp + 0x30]
+0x00402CEC  50                   push    eax
+0x00402CED  51                   push    ecx
+0x00402CEE  E8 2D FC FF FF       call    0x402920
+0x00402CF3  83 C4 08             add     esp, 8
+0x00402CF6  84 C0                test    al, al
+0x00402CF8  74 18                je      0x402d12
+0x00402CFA  8B 4C 24 40          mov     ecx, dword ptr [esp + 0x40]
+0x00402CFE  8B C1                mov     eax, ecx
+0x00402D00  F7 D8                neg     eax
+0x00402D02  C1 E0 02             shl     eax, 2
+0x00402D05  2B C1                sub     eax, ecx
+0x00402D07  8D 14 30             lea     edx, [eax + esi]
+0x00402D0A  8D 34 82             lea     esi, [edx + eax*4]
+0x00402D0D  E9 C8 00 00 00       jmp     0x402dda
+0x00402D12  83 EE 19             sub     esi, 0x19
+0x00402D15  E9 C0 00 00 00       jmp     0x402dda
+0x00402D1A  3C 3E                cmp     al, 0x3e
+0x00402D1C  75 30                jne     0x402d4e
+0x00402D1E  8D 44 24 40          lea     eax, [esp + 0x40]
+0x00402D22  8D 4C 24 30          lea     ecx, [esp + 0x30]
+0x00402D26  50                   push    eax
+0x00402D27  51                   push    ecx
+0x00402D28  E8 F3 FB FF FF       call    0x402920
+0x00402D2D  83 C4 08             add     esp, 8
+0x00402D30  84 C0                test    al, al
+0x00402D32  74 12                je      0x402d46
+0x00402D34  8B 44 24 40          mov     eax, dword ptr [esp + 0x40]
+0x00402D38  8D 04 80             lea     eax, [eax + eax*4]
+0x00402D3B  8D 14 30             lea     edx, [eax + esi]
+0x00402D3E  8D 34 82             lea     esi, [edx + eax*4]
+0x00402D41  E9 94 00 00 00       jmp     0x402dda
+0x00402D46  83 C6 19             add     esi, 0x19
+0x00402D49  E9 8C 00 00 00       jmp     0x402dda
+0x00402D4E  3C 2D                cmp     al, 0x2d
+0x00402D50  75 30                jne     0x402d82
+0x00402D52  8D 44 24 40          lea     eax, [esp + 0x40]
+0x00402D56  8D 4C 24 30          lea     ecx, [esp + 0x30]
+0x00402D5A  50                   push    eax
+0x00402D5B  51                   push    ecx
+0x00402D5C  E8 BF FB FF FF       call    0x402920
+0x00402D61  83 C4 08             add     esp, 8
+0x00402D64  84 C0                test    al, al
+0x00402D66  74 15                je      0x402d7d
+0x00402D68  8B 4C 24 40          mov     ecx, dword ptr [esp + 0x40]
+0x00402D6C  8B C1                mov     eax, ecx
+0x00402D6E  F7 D8                neg     eax
+0x00402D70  C1 E0 02             shl     eax, 2
+0x00402D73  2B C1                sub     eax, ecx
+0x00402D75  8D 14 38             lea     edx, [eax + edi]
+0x00402D78  8D 3C 82             lea     edi, [edx + eax*4]
+0x00402D7B  EB 5D                jmp     0x402dda
+0x00402D7D  83 EF 19             sub     edi, 0x19
+0x00402D80  EB 58                jmp     0x402dda
+0x00402D82  3C 2B                cmp     al, 0x2b
+0x00402D84  75 2A                jne     0x402db0
+0x00402D86  8D 44 24 40          lea     eax, [esp + 0x40]
+0x00402D8A  8D 4C 24 30          lea     ecx, [esp + 0x30]
+0x00402D8E  50                   push    eax
+0x00402D8F  51                   push    ecx
+0x00402D90  E8 8B FB FF FF       call    0x402920
+0x00402D95  83 C4 08             add     esp, 8
+0x00402D98  84 C0                test    al, al
+0x00402D9A  74 0F                je      0x402dab
+0x00402D9C  8B 44 24 40          mov     eax, dword ptr [esp + 0x40]
+0x00402DA0  8D 04 80             lea     eax, [eax + eax*4]
+0x00402DA3  8D 14 38             lea     edx, [eax + edi]
+0x00402DA6  8D 3C 82             lea     edi, [edx + eax*4]
+0x00402DA9  EB 2F                jmp     0x402dda
+0x00402DAB  83 C7 19             add     edi, 0x19
+0x00402DAE  EB 2A                jmp     0x402dda
+0x00402DB0  3C 24                cmp     al, 0x24
+0x00402DB2  74 14                je      0x402dc8
+0x00402DB4  3C 25                cmp     al, 0x25
+0x00402DB6  74 10                je      0x402dc8
+0x00402DB8  3C 5B                cmp     al, 0x5b
+0x00402DBA  74 0C                je      0x402dc8
+0x00402DBC  3C 5D                cmp     al, 0x5d
+0x00402DBE  74 08                je      0x402dc8
+0x00402DC0  3C 5E                cmp     al, 0x5e
+0x00402DC2  74 04                je      0x402dc8
+0x00402DC4  3C 5F                cmp     al, 0x5f
+0x00402DC6  75 2A                jne     0x402df2
+0x00402DC8  8D 44 24 40          lea     eax, [esp + 0x40]
+0x00402DCC  8D 4C 24 30          lea     ecx, [esp + 0x30]
+0x00402DD0  50                   push    eax
+0x00402DD1  51                   push    ecx
+0x00402DD2  E8 49 FB FF FF       call    0x402920
+0x00402DD7  83 C4 08             add     esp, 8
+0x00402DDA  8B 4C 24 30          mov     ecx, dword ptr [esp + 0x30]
+0x00402DDE  8B 54 24 20          mov     edx, dword ptr [esp + 0x20]
+0x00402DE2  8A 01                mov     al, byte ptr [ecx]
+0x00402DE4  41                   inc     ecx
+0x00402DE5  89 4C 24 30          mov     dword ptr [esp + 0x30], ecx
+0x00402DE9  8B 4C 24 1C          mov     ecx, dword ptr [esp + 0x1c]
+0x00402DED  E9 60 FD FF FF       jmp     0x402b52
+0x00402DF2  8B 13                mov     edx, dword ptr [ebx]
+0x00402DF4  03 D6                add     edx, esi
+0x00402DF6  89 13                mov     dword ptr [ebx], edx
+0x00402DF8  8B 4D 00             mov     ecx, dword ptr [ebp]
+0x00402DFB  03 CF                add     ecx, edi
+0x00402DFD  89 4D 00             mov     dword ptr [ebp], ecx
+0x00402E00  E9 9D 00 00 00       jmp     0x402ea2
+0x00402E05  8B 4C 24 30          mov     ecx, dword ptr [esp + 0x30]
+0x00402E09  8A 01                mov     al, byte ptr [ecx]
+0x00402E0B  41                   inc     ecx
+0x00402E0C  3C 2B                cmp     al, 0x2b
+0x00402E0E  89 4C 24 30          mov     dword ptr [esp + 0x30], ecx

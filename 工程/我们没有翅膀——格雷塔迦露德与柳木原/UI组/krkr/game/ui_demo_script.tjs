@@ -1,0 +1,88 @@
+// ============================================================
+// ui_demo_script.tjs —— 【由脚本生成，请勿手改】
+// 生成器：UI组/_工作/M2_证据/extract_demo_lines.py
+// 数据源：资源组/剧本/scene_ot.jsonl（只读）
+// 内容  ：全部为原版真实中文台词（ot 本篇），未自造任何剧情
+// 每条自带 scene_id 与 lineno，供溯源；README_运行方式.md 有同样清单
+// ============================================================
+var UIDemoLineCount = 28;
+var UIDemoSceneId  = ["ot_s01_01a", "ot_s01_01a", "ot_s01_01a", "ot_s01_02a", "ot_s01_02a", "ot_s01_02a", "ot_s01_02c", "ot_s01_02c", "ot_s01_02e", "ot_s01_03a", "ot_s01_04a", "ot_s01_04b1", "ot_s01_04c", "ot_s01_04c", "ot_s01_04g", "ot_s01_04i", "ot_s01_05a", "ot_s01_05b", "ot_s01_13a", "ot_s01_17a", "ot_s02_02a", "ot_s02_02a", "ot_s02_03b", "ot_s02_11b", "ot_s03_01a", "ot_s03_02a", "ot_s03_03a", "ot_s04_17b"];
+var UIDemoLineno   = [31, 33, 89, 156, 176, 1118, 46, 97, 90, 386, 671, 121, 10, 245, 41, 68, 22, 77, 51, 58, 64, 341, 460, 53, 15, 44, 135, 459];
+var UIDemoSpeaker  = ["鹰志", "鹰志", "鹰志", "声音", "和马", "明日香", "圣骑士霍克", "王女阿斯嘉", "独眼的库劳斯", "小鸠", "报道员", "京", "车站广播", "藏人", "高内", "恩田", "温柔的声音", "鹫介", "电视播音员", "满夜", "狩男", "纪奈子", "泉", "三泽", "隼人", "艾七", "金发少女", "渡来"];
+var UIDemoText     = ["初次见面，陌生的人。欢迎来到次元的夹缝。", "我的名字是羽田鹰志。私立美空学院的三年级学生。", "要说完全没有的话，嗯，也许多少还是……有那么一点吧。留恋。", "“喂，羽田——！”", "“羽田，大白天的发什么呆啊”", "“我说了，就是刚才那件事”", "“唔！我为何会在这种地方！？”", "“欢迎到来，霍克·希安布鲁。”", "“还能怎么办，攻城战不都一个套路嘛。首先得往城墙上架梯子……”", "“关上啦～，快点～”", "“呃——，我想很多人都知道，我现在走的这里……这一带，就是俗称格罗夫街的那条街的中心地段。”", "“你不知道吧。”", "“各站停车·开往柳木原，车门要关啦——”", "“你，是我们学校的——”", "“哦～。我都不知道。你跟那个大叔关系很好？”", "“班长！羽田君！”", "“羽田君？怎么？怎么了？”", "“哇哦！别发出这么明显的声音啊小鸠，大叔会受伤的嘛。”", "“今天我们在柳木原的花水木大街。街上的色彩已经全是圣诞色了呢”", "“啊咧～？这不是小榴桦吗”", "“我想和辣妹办联谊”", "“好，大家好，我是纪奈子——”", "“您大概也知道，就算装作心里想的事不小心说漏了嘴，性骚扰还是性骚扰”", "“千岁君，寒假有什么安排定了吗？我是打算和学校那帮人去玩单板滑雪，正做着计划呢。”", "咦，你这家伙，什么时候开始在那儿的。", "“所以说是取消了嘛。你可以回去了。再怎么等，客人也不会去那儿”", "“德拉，品味是坏的”", "“喂喂？我叫渡来……”"];
+
+// ============================================================
+// ★ M8 追加段（D5）：演示背景填充
+//   —— 本段由 M8 手写追加，生成器（_工作/M2_证据/extract_demo_lines.py）只覆盖
+//      上面的台词数组，不涉及本段；若重跑生成器后本段丢失，请照抄回来。
+//
+// 背景：dlg.content 是 layout 里声明的**动态层**（asset=void, dynamic:"story_background"，
+//   ★ D-04（2026-10-02）后六源 content_boxes 一律全画布 0,0,1920,1080（旧 800×600/1200×900 口径已作废）；
+//   本脚本把素材**拉伸进元素矩形**（引擎 image 语义，无 1:1 居中逻辑）。动态层留空时 ui_widget.tjs 会
+//   画「[占位] 动态层 dynamic:story_background」方块，不符合演示要求。
+//   本段从 krkr/assets/ui/ 里挑一张**真实素材**填入，**拉伸进元素矩形**（D-04 后＝1920×1080 全画布）：
+//     ui/tl2_bg1.png 实测 1200x900（RGBA），16:9 框内拉伸后比例 1.33→1.78 会有水平拉伸观感——
+//     演示态可接受（另有 M43 白底 dlg.canvas_white 盖住内容层，实际几乎看不见本层）。
+//   （备选 ui/tl1_bg.png 实测约 86% 纯黑、视觉上只见顶部星空带，不适合当演示背景；不得自造图片。）
+//   同时在背景框右上角画一行小字「演示背景」，表明这不是剧情画面而是演示素材。
+// ============================================================
+var UIDemoBgAsset    = "ui/tl2_bg1.png";  // 真实素材（实测 1200x900）；★ D-04 后拉伸进全画布 1920x1080
+var UIDemoBgTagId    = "dlg.bg_tag";      // 角标元素 id（避免与 layout 既有 id 冲突）
+var UIDemoBgTagText  = "演示背景";
+var UIDemoBgTagSize  = 14;                // 小字
+var UIDemoBgTagOpa   = 200;
+
+// 在 UILayoutData.screens["dialog"] 里按 id 找元素（找不到返回 void）
+function uiDemoFindEl(sc, elId)
+{
+	if(sc === void || sc.elements === void) return void;
+	for(var i = 0; i < sc.elements.count; i++)
+	{
+		var e = sc.elements[i];
+		if(e === void || e.id === void) continue;
+		if(("" + e.id) == ("" + elId)) return e;
+	}
+	return void;
+}
+
+// 幂等安装：重复调用只会填一次
+function uiDemoInstallBackground()
+{
+	if(UILayoutData === void || UILayoutData.screens === void) return false;
+	var sc = UILayoutData.screens["dialog"];
+	if(sc === void) return false;
+
+	var content = uiDemoFindEl(sc, "dlg.content");
+	if(content === void) return false;
+
+	// ① 动态层填真实素材（不改几何；★ D-04 后元素即全画布 1920×1080，素材拉伸进去）
+	content.asset = UIDemoBgAsset;
+
+	// ② 右上角小字角标：几何完全取自 dlg.content 的框位（align=right / valign=top）
+	if(uiDemoFindEl(sc, UIDemoBgTagId) === void)
+	{
+		var col = 0;
+		if(UILayoutData.palette !== void && UILayoutData.palette["text_small"] !== void)
+			col = UILayoutData.palette["text_small"];
+		sc.elements.push(%[
+			id: UIDemoBgTagId,
+			kind: "text",
+			z: 2,                            // 在 dlg.content(z=1) 之上、dlg.name/dlg.text(z=22) 之下（★ M38：无框化后已无 dlg.window(z=20)，本角标上面只剩文字层）
+			visible_default: true,
+			x: content.x, y: content.y, w: content.w, h: content.h,
+			align: "right", valign: "top", wrap: false, max_lines: 1,
+			opacity: UIDemoBgTagOpa,
+			font: %[ size: UIDemoBgTagSize, bold: false, color: col,
+				shadow: true, shadow_color: 0, shadow_ofs: 0 ],
+			sample: UIDemoBgTagText,
+			source: "M8 追加：演示背景角标（非原版素材，仅用于标注演示用真实背景）"
+		]);
+	}
+	Debug.message("[UI][DEMO] 演示背景已填入：" + UIDemoBgAsset
+		+ " 框位 " + content.x + "," + content.y + " " + content.w + "x" + content.h
+		+ "（1:1，未缩放）｜角标 id=" + UIDemoBgTagId);
+	return true;
+}
+
+try { uiDemoInstallBackground(); }
+catch(e) { Debug.message("[UI][DEMO][ERR] 演示背景安装失败：" + e.message); }

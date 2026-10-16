@@ -1,0 +1,164 @@
+{
+  "status": "PASS_9_ORIGINAL_CLIP_SETTER_CASES_AND_INVALID_POSTCLAMP_STATE",
+  "cases": [
+    {
+      "request": null,
+      "accepted_AL": 1,
+      "stored_clip": [
+        0,
+        0,
+        6,
+        4
+      ],
+      "post_clamp_empty": false,
+      "invalid_original_keeps_old": false
+    },
+    {
+      "request": [
+        -5,
+        -2,
+        20,
+        9
+      ],
+      "accepted_AL": 1,
+      "stored_clip": [
+        0,
+        0,
+        6,
+        4
+      ],
+      "post_clamp_empty": false,
+      "invalid_original_keeps_old": false
+    },
+    {
+      "request": [
+        10,
+        2,
+        11,
+        3
+      ],
+      "accepted_AL": 1,
+      "stored_clip": [
+        10,
+        2,
+        6,
+        3
+      ],
+      "post_clamp_empty": true,
+      "invalid_original_keeps_old": false
+    },
+    {
+      "request": [
+        2,
+        6,
+        3,
+        7
+      ],
+      "accepted_AL": 1,
+      "stored_clip": [
+        2,
+        6,
+        3,
+        4
+      ],
+      "post_clamp_empty": true,
+      "invalid_original_keeps_old": false
+    },
+    {
+      "request": [
+        -4,
+        -3,
+        -2,
+        -1
+      ],
+      "accepted_AL": 1,
+      "stored_clip": [
+        0,
+        0,
+        -2,
+        -1
+      ],
+      "post_clamp_empty": true,
+      "invalid_original_keeps_old": false
+    },
+    {
+      "request": [
+        2,
+        1,
+        2,
+        3
+      ],
+      "accepted_AL": 0,
+      "stored_clip": [
+        1,
+        1,
+        5,
+        4
+      ],
+      "post_clamp_empty": false,
+      "invalid_original_keeps_old": true
+    },
+    {
+      "request": [
+        3,
+        2,
+        2,
+        4
+      ],
+      "accepted_AL": 0,
+      "stored_clip": [
+        1,
+        1,
+        5,
+        4
+      ],
+      "post_clamp_empty": false,
+      "invalid_original_keeps_old": true
+    },
+    {
+      "request": [
+        1,
+        4,
+        3,
+        2
+      ],
+      "accepted_AL": 0,
+      "stored_clip": [
+        1,
+        1,
+        5,
+        4
+      ],
+      "post_clamp_empty": false,
+      "invalid_original_keeps_old": true
+    },
+    {
+      "request": [
+        0,
+        0,
+        6,
+        4
+      ],
+      "accepted_AL": 1,
+      "stored_clip": [
+        0,
+        0,
+        6,
+        4
+      ],
+      "post_clamp_empty": false,
+      "invalid_original_keeps_old": false
+    }
+  ],
+  "invalid_state_DLL_NULL_RECT_witness": {
+    "member_AL": 1,
+    "buffer_unchanged": true,
+    "dirty": [
+      10,
+      2,
+      6,
+      3
+    ]
+  },
+  "scope": "Controlled dimensions/old clip and original constructor/vtable/setter; setter checks original positive extent then clamps without final nonempty validation. Only positive-height inverted-width witness drawn; inverted-height states not submitted to pixel loop. Mathematical fill reference only promised for valid clips."
+}

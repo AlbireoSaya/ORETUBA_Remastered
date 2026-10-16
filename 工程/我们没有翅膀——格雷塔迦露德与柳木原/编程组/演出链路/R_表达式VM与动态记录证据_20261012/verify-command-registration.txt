@@ -1,0 +1,81 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=g/'演出链路/R_TOB动态绑定与无损IR证据_20261011';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EIP,UC_X86_REG_ESP,UC_X86_REG_EAX
+stage=root/'临时/ISSUE-20261011-02/r-expression-vm-replay-01'
+table=json.loads((g/'演出链路/R接口证据_20261011/R_注册顺序.json').read_text(encoding='utf-8'))['static_vector_candidate']
+native={int(row['handler_va']):i for i,row in enumerate(table)}
+sb,app,kbd,parent=0x1028000,0x10e0000,0x10e4000,0x100a000
+states=[
+ {'id':0,'vars':'zero','setting':0,'flags':[0,0],'keymode':0,'active':0,'pressed':[],'wrong':[],'parent':True},
+ {'id':1,'vars':'ones','setting':1,'flags':[1,0],'keymode':1,'active':1,'pressed':[0x9d],'wrong':[],'parent':True},
+ {'id':2,'vars':'linear','setting':255,'flags':[0,255],'keymode':0,'active':1,'pressed':[0x2a],'wrong':[],'parent':True},
+ {'id':3,'vars':'alternate','setting':2,'flags':[255,128],'keymode':1,'active':0,'pressed':[],'wrong':[0x1d],'parent':True},
+ {'id':4,'vars':'one','setting':0,'flags':[0,0],'keymode':0,'active':1,'pressed':[0x36],'wrong':[],'parent':True},
+ {'id':5,'vars':'xor','setting':127,'flags':[0,0],'keymode':1,'active':0,'pressed':[0x1d],'wrong':[],'parent':False}]
+def varvalue(i,s):
+ return 0 if s['vars']=='zero' else 0xffffffff if s['vars']=='ones' else (i*11+3) if s['vars']=='linear' else (0x80000000 if i&1 else 0) if s['vars']=='alternate' else 1 if s['vars']=='one' else (i^0x55)
+def initialize(u,maps,data,s):
+ u.mem_write(buffer,data);u.mem_write(ctx,b'\0'*64);u.mem_write(ctx+4,struct.pack('<I',sb));u.mem_write(ctx+12,struct.pack('<I',sb));u.mem_write(sb,b'\x92'*4096)
+ for i,a in maps[0].items():u.mem_write(a,struct.pack('<I',varvalue(i,s))+b'\x85'*12)
+ for a in maps[2].values():u.mem_write(a,b'\x55'*16)
+ u.mem_write(app,b'\0'*0x2000);u.mem_write(app+0xf1f,bytes([s['setting']]));u.mem_write(app+0xf92,bytes([s['keymode']]))
+ u.mem_write(parent,b'\0'*0x8000);u.mem_write(parent+0x4f4,bytes(s['flags']))
+ u.mem_write(kbd,b'\0'*0x210);u.mem_write(kbd,struct.pack('<I',0x518704));u.mem_write(kbd+4,bytes([s['active']]))
+ for key in s['pressed']:u.mem_write(kbd+5+((s['active']^1)<<8)+key,b'\x80')
+ for key in s['wrong']:u.mem_write(kbd+5+(s['active']<<8)+key,b'\xff')
+ u.mem_write(0x530c94,struct.pack('<I',app));u.mem_write(0x530ca4,struct.pack('<I',kbd));u.mem_write(0x530eb4,struct.pack('<I',parent if s['parent'] else 0))
+def vectorize(u,maps):
+ for i,row in enumerate(table):u.mem_write(0x1075000+i*4,struct.pack('<I',int(row['handler_va'])));maps[1][i]=int(row['handler_va'])
+
+from capstone import Cs,CS_ARCH_X86,CS_MODE_32
+from lucifen_cdecl_observer import observe_cdecl_until
+from unicorn.x86_const import UC_X86_REG_ESI
+cs=Cs(CS_ARCH_X86,CS_MODE_32);start,stop=0x42ed56,0x42f374
+ins=list(cs.disasm(pe.read_rva(start-pe.image_base,stop-start),start))
+assert ins and ins[0].address==start and ins[-1].address+ins[-1].size==stop
+assert not [x for x in ins if x.mnemonic.startswith('j') or (x.mnemonic=='call' and x.op_str!='0x4304c0')]
+registrations=[];last_push=None
+for x in ins:
+ if x.mnemonic=='push':last_push=x
+ if x.mnemonic=='call':
+  assert last_push is not None and last_push.op_str.startswith('0x')
+  registrations.append({'slot':len(registrations),'push_va':last_push.address,'call_va':x.address,'handler_va':int(last_push.op_str,16)})
+assert len(registrations)==129
+table=0x102c000;observations=[]
+for capacity in (129,256):
+ u,maps=prepare(b'\0'*16,0);u.mem_write(ctx,b'\xcc'*0x8000);u.mem_write(ctx+0x6538,b'\0'*16);u.mem_write(ctx+0x653c,struct.pack('<III',table,table,table+capacity*4))
+ u.mem_write(table-16,b'\xa8'*16+b'\xdd'*(capacity*4)+b'\xa8'*16);u.mem_write(app,b'\0'*0x2000);u.mem_write(app+0x1ab8,struct.pack('<I',0x109f000+capacity));u.mem_write(0x530c94,struct.pack('<I',app))
+ before=bytearray(u.mem_read(0x1000000,0x100000));calls=[]
+ def hook(uc,a,n,x):
+  if a==0x4304c0:
+   esp=uc.reg_read(UC_X86_REG_ESP);calls.append(struct.unpack('<I',uc.mem_read(esp+4,4))[0])
+ h=u.hook_add(UC_HOOK_CODE,hook)
+ obs=observe_cdecl_until(u,start,0,stop,0,{'esi':ctx},count=50000,timeout=0);u.hook_del(h)
+ assert obs['stop_reached'] and not obs['error'] and obs['esp']==0x2008000
+ expected=[x['handler_va'] for x in registrations];assert calls==expected and list(struct.unpack('<129I',u.mem_read(table,129*4)))==expected
+ struct.pack_into('<I',before,ctx+0x6540-0x1000000,table+129*4);struct.pack_into('<I',before,ctx+0x7560-0x1000000,0x109f000+capacity);struct.pack_into('<129I',before,table-0x1000000,*expected)
+ assert bytes(u.mem_read(0x1000000,0x100000))==bytes(before)
+ observations.append({'capacity':capacity,'registrations':len(calls),'full_live_and_guards_exact':True,'passed':True})
+o={'exe_sha256':hashlib.sha256(pe.data).hexdigest(),'span_start':start,'span_stop_before':stop,'registration_method':0x4304c0,'constructor_fragment_instructions':len(ins),'constructor_fragment_direct_branches':0,'command_vector_field':0x653c,'count':len(registrations),'rows':registrations,'runtime_fragment_observations':observations,'scope':'complete original straight registration fragment and actual original vector push on preallocated capacity; not whole ctor/allocator/real scene lifecycle. TOB command slots are distinct from SOB/expression native slots.'}
+(stage/'tob-command-registration.json').write_text(json.dumps(o,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps({k:o[k] for k in ('count','constructor_fragment_instructions','runtime_fragment_observations','scope')},ensure_ascii=False))

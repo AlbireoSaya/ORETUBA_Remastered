@@ -1,0 +1,10 @@
+function RBindExpression(rb, wb, wr, sourceBase, expr, maps, stringBase = 0) {
+    var flag = (sourceBase + expr.flag_offset) & 0xffffffff;
+    if (rb(flag) != 0) {
+        return false;
+    }
+    wb(flag, 1);
+    var writes = RRelocationWrites(expr, (sourceBase + expr.code_start) & 0xffffffff, maps, stringBase);
+    RApplyRelocations(wr, writes);
+    return true;
+}

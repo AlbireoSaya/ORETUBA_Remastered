@@ -1,0 +1,30 @@
+"""Root finite command DAG: four local verification slots, no raw bytes external."""
+from pathlib import Path
+import concurrent.futures,json,subprocess,sys,time
+r=Path.cwd().resolve();w=r/'子代理工作区/ISSUE-20261011-02/r-target-real-source-record-20261016';run=w/'full-matrix-run-01';assert not run.exists();run.mkdir()
+todo_native=list(range(4,16));todo_target=[(i,b)for i in range(4)for b in(32,64)];done=[];inflight={};native_active=0;turn=0
+def work(kind,group,bits=None):
+ name=f'{kind}-{group}'+(f'-{bits}'if bits else'');log=run/(name+'.log');out=r/'临时/ISSUE-20261011-02'/f'r-source-live-full-original-{group}-20261016-01';tag=f'r-source-live-full-target-{group}-{bits}-20261016-01'
+ argv=[sys.executable,'-X','utf8','-B',str(w/('generate-original-source-records.txt'if kind=='native'else'verify-real-source-runtime.txt'))]
+ argv +=[str(group),'16',str(out),'3794']if kind=='native'else[str(bits),tag,str(out/'manifest.json')]
+ with log.open('wb')as stream:
+  process=subprocess.Popen(argv,stdout=stream,stderr=subprocess.STDOUT,cwd=r);(run/(name+'.pid.json')).write_text(json.dumps(dict(pid=process.pid,kind=kind,group=group,bits=bits)),encoding='utf-8');code=process.wait(timeout=300)
+ if code:raise RuntimeError(name+' failed; see '+str(log.relative_to(r)))
+ verdict=out/'original-results.json'if kind=='native'else r/'临时/ISSUE-20261011-02'/tag/'evidence/verdict.json';obj=json.loads(verdict.read_text(encoding='utf-8-sig'));assert obj['passed']
+ return dict(kind=kind,group=group,bits=bits,passed=True,receipt=verdict.relative_to(r).as_posix(),cases=obj['cases'],records=obj['records'])
+with concurrent.futures.ThreadPoolExecutor(max_workers=4)as pool:
+ while todo_native or todo_target or inflight:
+  while len(inflight)<4 and(todo_native or todo_target):
+   prefer_native=bool(todo_native)and(native_active<2 or not todo_target)
+   if prefer_native:
+    group=todo_native.pop(0);future=pool.submit(work,'native',group);inflight[future]=('native',group,None);native_active+=1
+   else:
+    group,bits=todo_target.pop(0);future=pool.submit(work,'target',group,bits);inflight[future]=('target',group,bits)
+   print(json.dumps(dict(started=inflight[future],active=len(inflight),finished=len(done))),flush=True)
+  ready,_=concurrent.futures.wait(inflight,return_when=concurrent.futures.FIRST_COMPLETED,timeout=30)
+  for future in ready:
+   kind,group,bits=inflight.pop(future);result=future.result();done.append(result)
+   if kind=='native':native_active-=1;todo_target.extend([(group,32),(group,64)])
+   (run/'progress.json').write_text(json.dumps(dict(completed=done,active=list(inflight.values()),pending_native=todo_native,pending_target=todo_target),indent=2),encoding='utf-8');print(json.dumps(dict(completed=(kind,group,bits),finished=len(done),active=len(inflight))),flush=True)
+assert len(done)==44 and sum(x['kind']=='target'for x in done)==32
+(run/'result.json').write_text(json.dumps(dict(passed=True,jobs=done,source_bytes_external=False,goal_complete=False),indent=2),encoding='utf-8');print(json.dumps(dict(passed=True,completed_jobs=len(done),target_receipts=32,goal_complete=False)),flush=True)

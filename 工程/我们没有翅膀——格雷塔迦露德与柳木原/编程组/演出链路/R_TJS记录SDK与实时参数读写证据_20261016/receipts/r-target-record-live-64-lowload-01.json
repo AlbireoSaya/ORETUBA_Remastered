@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "bits": 64,
+  "cases": 3,
+  "nonce": "e9eb446955d24f48976900dcc7ff33f2",
+  "fresh_log": true,
+  "process": {
+    "returncode": 0,
+    "timed_out": false,
+    "cleanup_ok": true,
+    "pid": 33580
+  },
+  "sources": [
+    {
+      "name": "r_memory_region.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_region.tjs",
+      "sha256": "8eaf176bde1d69326cbc263796aba1dd6803dcd37c36453eba70988340515abf"
+    },
+    {
+      "name": "r_memory_create.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_create.tjs",
+      "sha256": "83f31c28eb18a012f67048c582234dea8df848c1b11f06c4d6eef8269b260c6f"
+    },
+    {
+      "name": "r_memory_access.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_access.tjs",
+      "sha256": "7922116049a2a354b0544b193ad6c7b8efae4df56b38807fb6bd51decb76fe49"
+    },
+    {
+      "name": "r_memory_find.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_find.tjs",
+      "sha256": "d4aab4aa8194fbc99bc136c72f45c549402eb8d2d1688fdf4c6dc02e08147fd8"
+    },
+    {
+      "name": "r_memory_read.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_read.tjs",
+      "sha256": "13005becea63e735a441f0e658e8541cc8d6b0b4b7a3b1be20bd1fe74b5ec79c"
+    },
+    {
+      "name": "r_memory_write8.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_write8.tjs",
+      "sha256": "222d4591ca1cc9d877e63c50d76c60be01273cce8d6c2c607f866232c8be1753"
+    },
+    {
+      "name": "r_memory_write32.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_write32.tjs",
+      "sha256": "a39521ceef60bc33c7e1e1f67b757bcc0935b293eeeeefc0debd64f9e86e32c6"
+    },
+    {
+      "name": "r_record_live_prefix.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015/r_record_live_prefix.tjs",
+      "sha256": "f8e95d79e81ebcc2a68e1ba3d068d5ccc7a93142cd84d3c54124c4fa515e8765"
+    },
+    {
+      "name": "r_record_live_gate.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015/r_record_live_gate.tjs",
+      "sha256": "cccf352c7e97717194d43e82aaa0e42a675c216a03e71032498cc3efe2acd52d"
+    },
+    {
+      "name": "r_record_live_fixture.tjs",
+      "path": "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015/r_record_live_fixture.tjs",
+      "sha256": "2b32043c6d66a127bc4798c3d35d2aadfd40f20304e79ff81b115f13e6a49f1d"
+    },
+    {
+      "name": "r_vm_fixture_compare.tjs",
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_compare.tjs",
+      "sha256": "50b1ed1833fc721b683e8d17e37c6ebdd9c355bff87898335faadac528227e45"
+    }
+  ],
+  "reference": "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015/original-record-read-order-results.json",
+  "reference_sha256": "dc614c936b9aedb509a4d1b86a10815766c0299c50da2f294779fe500196b7b3",
+  "engine_sha256": "7def704da321326a2a072a3180f88d3eb7313ac1668279c5e847c730496afcd3",
+  "console_sha256": "6798c5b611988f6468f14cf7fdcf4a98d45b38fff99a38637d59d6c225b9b063",
+  "scope": "live prefix and condition gate reads/cursors only; no item decoding, VM, dispatcher or game fidelity proof"
+}

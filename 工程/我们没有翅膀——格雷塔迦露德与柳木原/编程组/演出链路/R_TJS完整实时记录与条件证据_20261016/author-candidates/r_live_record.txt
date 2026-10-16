@@ -1,0 +1,38 @@
+**候选文件**（单文件）
+
+路径：`工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_live_record.tjs`
+
+```tjs
+function RLiveRecord(rd, wr, rh, rb, ctx, start, readArray, evaluateCond, evaluateParam) {
+    var h = global.RRecordLivePrefix(rd, rb, start);
+    var c = global.RLiveCondition(rd, h.condition_tag, h.condition_cursor, readArray, evaluateCond);
+    var gate = global.RLiveRecordGate(rd, rb, ctx, h.opcode, c[0], c[1]);
+    if (!gate.accepted) {
+        return %[
+            "accepted" => false,
+            "opcode" => h.opcode,
+            "condition_value" => 0,
+            "next_cursor" => gate.next_cursor,
+            "param_end" => void,
+            "param_count" => 0
+        ];
+    }
+    var v = global.RRecordLiveParameters(rd, rh, rb, wr, gate.items_cursor, gate.param_base, gate.item_count, void, evaluateParam, readArray);
+    return %[
+        "accepted" => true,
+        "opcode" => h.opcode,
+        "condition_value" => gate.condition_value,
+        "next_cursor" => v.next_cursor,
+        "param_end" => v.param_end,
+        "param_count" => v.param_count
+    ];
+}
+```
+
+**交付说明（仅上述事实）**
+
+- 仅 `r_live_record.tjs` 一个文件；未新增任何 guest 写，未预读 `ctx` 字段；`ctx` 只作为参数转交 `RLiveRecordGate`。
+- 调用顺序、键名、拒绝分支字段值均照派单伪代码逐字落盘：`RRecordLiveParameters` 第 8 位 `void`、第 10 位 `readArray`；`RLiveRecordGate` 六参含 `c[0]`/`c[1]`。
+- 使用 TJS2 字典 `%["key"=>v]`、成员访问 `gate.accepted`、索引 `c[0]`，未引入 JS 对象 / `Error` / `class` / 未定义 `u32`；未新增 throw。
+- 本入口停于 `ctx434` 发布 / `129 dispatch` 之前，不产生 guest 写；未做真机验证——按派单由 root 装配代验。
+- 未 Git、未回退他人、未扩范围、未调用暂停角色、未外发原作/凭据。

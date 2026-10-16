@@ -1,0 +1,30 @@
+function RRecordCondition(rb, limit, tag, p) {
+    RExprNeed(limit, p, 0);
+    if (typeof tag != "Integer") {
+        throw new Exception("UNSUPPORTED_CONDITION_TAG");
+    }
+    if (tag == 0) {
+        RExprNeed(limit, p, 4);
+        var value = RExprU32(rb, limit, p);
+        var condition = %["tag" => 0, "kind" => "literal", "value" => value];
+        return [condition, p + 4];
+    }
+    if (tag == 1) {
+        var condition = %["tag" => 1, "kind" => "always"];
+        return [condition, p];
+    }
+    if (tag == 2) {
+        RExprNeed(limit, p, 8);
+        var bank_index = RExprU32(rb, limit, p);
+        var element_index = RExprU32(rb, limit, p + 4);
+        var condition = %["tag" => 2, "kind" => "array",
+            "bank_index" => bank_index, "element_index" => element_index];
+        return [condition, p + 8];
+    }
+    if (tag == 3) {
+        var pair = RParseExpression(rb, limit, p);
+        var condition = %["tag" => 3, "kind" => "expression", "expression" => pair[0]];
+        return [condition, pair[1]];
+    }
+    throw new Exception("UNSUPPORTED_CONDITION_TAG");
+}

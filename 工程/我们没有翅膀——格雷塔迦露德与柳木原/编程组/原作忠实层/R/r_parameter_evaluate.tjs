@@ -1,0 +1,10 @@
+function RParameterEvaluate(rd, wr, rb, wb, ctx, sourceBase, expr, maps, stringBase, native, maxSteps = 10000)
+{
+	var bound = RBindExpression(rb, wb, wr, sourceBase, expr, maps, stringBase);
+	var vm = RVMRun(rd, wr, rb, ctx, (sourceBase + expr.code_start) & 0xffffffff, native, maxSteps, false);
+	var bank = maps[2];
+	var ptr = bank["0"];
+	if (typeof ptr !== "Integer") throw new Exception("MISSING_PARAMETER_RESULT_BANK");
+	var value = rd(ptr) & 0xffffffff;
+	return %["value" => value, "vm" => vm, "bound" => bound];
+}

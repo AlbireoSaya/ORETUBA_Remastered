@@ -1,0 +1,322 @@
+  0x14084  ADJSP   imm 16
+  0x1408C  MOVD    VAR#905 , MOD=0x1409C
+  0x14098  JZ      imm 0 , MOD=0x140B4
+  0x140A4  ADDSP   imm 16
+  0x140AC  RETV    imm 0
+  0x140B4  CPSP    imm 32 ' ' , imm 12
+  0x140C0  CPSP    imm 32 ' ' , imm 8
+  0x140CC  LDSP    imm 24 , MOD=0x140DC
+  0x140D8  JZ      imm 0 , MOD=0x14114
+  0x140E4  LDSP    imm 12 , MOD=0x140F4
+  0x140F0  ADD     imm 0 , imm 6 , MOD=0x14104
+  0x14100  STSP    imm 0 , imm 12
+  0x1410C  JMP     MOD=0x1413C
+  0x14114  LDSP    imm 8 , MOD=0x14124
+  0x14120  ADD     imm 0 , imm 6 , MOD=0x14134
+  0x14130  STSP    imm 0 , imm 8
+  0x1413C  LDSP    imm 32 ' ' , MOD=0x14150
+  0x14148  MUL     imm 24 , imm 0 , MOD=0x14178
+  0x14158  LDSP    imm 24 , MOD=0x1416C
+  0x14164  MUL     imm 144 , imm 0 , MOD=0x1417C
+  0x14174  ADD     imm 0 , imm 0 , MOD=0x14188
+  0x14184  STSP    imm 0 , imm 16
+  0x14190  LEASP   imm 4 , MOD=0x141A0
+  0x1419C  ADD     imm 0 , imm 0 , MOD=0x141B4
+  0x141AC  MOV     imm 0 , imm 0
+  0x141B8  LDSP    imm 28 , MOD=0x141C8
+  0x141C4  JZ      imm 0 , MOD=0x14298
+  0x141D0  LEASP   imm 0 , MOD=0x1421C
+  0x141DC  LEASP   imm 4 , MOD=0x141EC
+  0x141E8  PUSH    imm 0
+  0x141F0  LDSP    imm 32 ' ' , MOD=0x14200
+  0x141FC  PUSH    imm 0
+  0x14204  PUSH    imm 0
+  0x1420C  PUSH    imm 3
+  0x14214  CALLN   NAT#58 , imm 0 , MOD=0x2B736
+  0x14224  ADDSP   imm 16
+  0x1422C  LEASP   imm 4 , MOD=0x1423C
+  0x14238  ADD     imm 0 , imm 0 , MOD=0x1424C
+  0x14248  MOVD    imm 0 , MOD=0x14258
+  0x14254  EQ      imm 0 , imm 48 '0' , MOD=0x14268
+  0x14264  JZ      imm 0 , MOD=0x14298
+  0x14270  LEASP   imm 4 , MOD=0x14280
+  0x1427C  ADD     imm 0 , imm 0 , MOD=0x14294
+  0x1428C  MOV     imm 0 , imm 0
+  0x14298  LEASP   imm 4 , MOD=0x142A8
+  0x142A4  ADD     imm 0 , imm 0 , MOD=0x142B8
+  0x142B4  MOVD    imm 0 , MOD=0x142C4
+  0x142C0  EQ      imm 0 , imm 0 , MOD=0x142D4
+  0x142D0  JZ      imm 0 , MOD=0x14550
+  0x142DC  MOV     VAR#775 , MOD=0x14308
+  0x142E8  LDSP    imm 12 , MOD=0x142F8
+  0x142F4  MUL     imm 0 , imm 4 , MOD=0x1430C
+  0x14304  ADD     imm 0 , imm 0 , MOD=0x14318
+  0x14314  MOVD    imm 0 , MOD=0x14324
+  0x14320  GE      imm 0 , imm 0 , MOD=0x14334
+  0x14330  JZ      imm 0 , MOD=0x14540
+  0x1433C  CALL    MOD=0x19BA8
+  0x14344  STVAL   MOD=0x2B736
+  0x1434C  LDSP    imm 16 , MOD=0x1435C
+  0x14358  MUL     imm 0 , imm 1 , MOD=0x14378
+  0x14368  MOVD    VAR#759 , MOD=0x1437C
+  0x14374  ADD     imm 0 , imm 0 , MOD=0x1438C
+  0x14384  MOV     imm 0 , imm 0
+  0x14390  MOV     VAR#775 , MOD=0x143BC
+  0x1439C  LDSP    imm 12 , MOD=0x143AC
+  0x143A8  MUL     imm 0 , imm 4 , MOD=0x143C0
+  0x143B8  ADD     imm 0 , imm 0 , MOD=0x143D0
+  0x143C8  MOV     imm 4294967295 , imm 0
+  0x143D4  MOV     VAR#776 , MOD=0x14400
+  0x143E0  LDSP    imm 12 , MOD=0x143F0
+  0x143EC  MUL     imm 0 , imm 4 , MOD=0x14404
+  0x143FC  ADD     imm 0 , imm 0 , MOD=0x14414
+  0x1440C  MOV     imm 0 , imm 0
+  0x14418  MOV     VAR#777 , MOD=0x14444
+  0x14424  LDSP    imm 12 , MOD=0x14434
+  0x14430  MUL     imm 0 , imm 4 , MOD=0x14448
+  0x14440  ADD     imm 0 , imm 0 , MOD=0x14458
+  0x14450  MOV     imm 400 , imm 0
+  0x1445C  MOV     VAR#778 , MOD=0x14488
+  0x14468  LDSP    imm 12 , MOD=0x14478
+  0x14474  MUL     imm 0 , imm 4 , MOD=0x1448C
+  0x14484  ADD     imm 0 , imm 0 , MOD=0x1449C
+  0x14494  MOV     imm 0 , imm 0
+  0x144A0  MOV     VAR#824 , MOD=0x144CC
+  0x144AC  LDSP    imm 12 , MOD=0x144BC
+  0x144B8  MUL     imm 0 , imm 4 , MOD=0x144D0
+  0x144C8  ADD     imm 0 , imm 0 , MOD=0x144DC
+  0x144D8  MOVD    imm 0 , MOD=0x144E8
+  0x144E4  JZ      imm 0 , MOD=0x14530
+  0x144F0  LDSP    imm 12 , MOD=0x14500
+  0x144FC  PUSH    imm 0
+  0x14504  LDSP    imm 12 , MOD=0x14514
+  0x14510  PUSH    imm 0
+  0x14518  CALL    MOD=0x1381C
+  0x14520  ADDSP   imm 8
+  0x14528  STVAL   MOD=0x2B736
+  0x14530  ADDSP   imm 16
+  0x14538  RETV    imm 1
+  0x14540  ADDSP   imm 16
+  0x14548  RETV    imm 0
+  0x14550  LDSP    imm 16 , MOD=0x14560
+  0x1455C  MUL     imm 0 , imm 1 , MOD=0x1457C
+  0x1456C  MOVD    VAR#759 , MOD=0x14580
+  0x14578  ADD     imm 0 , imm 0 , MOD=0x1458C
+  0x14588  MOVD    imm 0 , MOD=0x14598
+  0x14594  JZ      imm 0 , MOD=0x1469C
+  0x145A0  LEASP   imm 0 , MOD=0x14608
+  0x145AC  LDSP    imm 16 , MOD=0x145BC
+  0x145B8  MUL     imm 0 , imm 1 , MOD=0x145D8
+  0x145C8  MOVD    VAR#759 , MOD=0x145DC
+  0x145D4  ADD     imm 0 , imm 0 , MOD=0x145E8
+  0x145E4  PUSH    imm 0
+  0x145EC  LDSP    imm 32 ' ' , MOD=0x145FC
+  0x145F8  PUSH    imm 0
+  0x14600  CALLN   NAT#63 , imm 0 , MOD=0x1461C
+  0x14610  ADDSP   imm 8
+  0x14618  ISZERO  imm 0 , MOD=0x14628
+  0x14624  JZ      imm 0 , MOD=0x1469C
+  0x14630  MOV     VAR#776 , MOD=0x1465C
+  0x1463C  LDSP    imm 12 , MOD=0x1464C
+  0x14648  MUL     imm 0 , imm 4 , MOD=0x14660
+  0x14658  ADD     imm 0 , imm 0 , MOD=0x1466C
+  0x14668  MOVD    imm 0 , MOD=0x14678
+  0x14674  ISZERO  imm 0 , MOD=0x14684
+  0x14680  JZ      imm 0 , MOD=0x1469C
+  0x1468C  ADDSP   imm 16
+  0x14694  RETV    imm 0
+  0x1469C  LEASP   imm 0 , MOD=0x146C4
+  0x146A8  LEASP   imm 4 , MOD=0x146B8
+  0x146B4  PUSH    imm 0
+  0x146BC  CALLN   NAT#68 , imm 0 , MOD=0x2B736
+  0x146CC  ADDSP   imm 4
+  0x146D4  LEASP   imm 4 , MOD=0x146E4
+  0x146E0  ADD     imm 0 , imm 0 , MOD=0x146F4
+  0x146F0  STSPD   imm 0 , imm 8
+  0x146FC  LDSP    imm 8 , MOD=0x1470C
+  0x14708  EQ      imm 0 , imm 5591873 'ASU' , MOD=0x1471C
+  0x14718  JZ      imm 0 , MOD=0x14738
+  0x14724  STSP    imm 0 , imm 8
+  0x14730  JMP     MOD=0x14E10
+  0x14738  LDSP    imm 8 , MOD=0x14748
+  0x14744  EQ      imm 0 , imm 5851469 'MIY' , MOD=0x14758
+  0x14754  JZ      imm 0 , MOD=0x14774
+  0x14760  STSP    imm 1 , imm 8
+  0x1476C  JMP     MOD=0x14E10
+  0x14774  LDSP    imm 8 , MOD=0x14784
+  0x14780  EQ      imm 0 , imm 4345675 'KOB' , MOD=0x14794
+  0x14790  JZ      imm 0 , MOD=0x147B0
+  0x1479C  STSP    imm 2 , imm 8
+  0x147A8  JMP     MOD=0x14E10
+  0x147B0  LDSP    imm 8 , MOD=0x147C0
+  0x147BC  EQ      imm 0 , imm 5851464 'HIY' , MOD=0x147D0
+  0x147CC  JZ      imm 0 , MOD=0x147EC
+  0x147D8  STSP    imm 3 , imm 8
+  0x147E4  JMP     MOD=0x14E10
+  0x147EC  LDSP    imm 8 , MOD=0x147FC
+  0x147F8  EQ      imm 0 , imm 5130571 'KIN' , MOD=0x1480C
+  0x14808  JZ      imm 0 , MOD=0x14828
+  0x14814  STSP    imm 4 , imm 8
+  0x14820  JMP     MOD=0x14E10
+  0x14828  LDSP    imm 8 , MOD=0x14838
+  0x14834  EQ      imm 0 , imm 4805189 'ERI' , MOD=0x14848
+  0x14844  JZ      imm 0 , MOD=0x14864
+  0x14850  STSP    imm 5 , imm 8
+  0x1485C  JMP     MOD=0x14E10
+  0x14864  LDSP    imm 8 , MOD=0x14874
+  0x14870  EQ      imm 0 , imm 5592409 'YUU' , MOD=0x14884
+  0x14880  JZ      imm 0 , MOD=0x148A0
+  0x1488C  STSP    imm 6 , imm 8
+  0x14898  JMP     MOD=0x14E10
+  0x148A0  LDSP    imm 8 , MOD=0x148B0
+  0x148AC  EQ      imm 0 , imm 5390670 'NAR' , MOD=0x148C0
+  0x148BC  JZ      imm 0 , MOD=0x148DC
+  0x148C8  STSP    imm 7 , imm 8
+  0x148D4  JMP     MOD=0x14E10
+  0x148DC  LDSP    imm 8 , MOD=0x148EC
+  0x148E8  EQ      imm 0 , imm 6244673 'AI_' , MOD=0x148FC
+  0x148F8  JZ      imm 0 , MOD=0x14918
+  0x14904  STSP    imm 8 , imm 8
+  0x14910  JMP     MOD=0x14E10
+  0x14918  LDSP    imm 8 , MOD=0x14928
+  0x14924  EQ      imm 0 , imm 5390664 'HAR' , MOD=0x14938
+  0x14934  JZ      imm 0 , MOD=0x14954
+  0x14940  STSP    imm 9 , imm 8
+  0x1494C  JMP     MOD=0x14E10
+  0x14954  LDSP    imm 8 , MOD=0x14964
+  0x14960  EQ      imm 0 , imm 5456205 'MAS' , MOD=0x14974
+  0x14970  JZ      imm 0 , MOD=0x14990
+  0x1497C  STSP    imm 10 , imm 8
+  0x14988  JMP     MOD=0x14E10
+  0x14990  LDSP    imm 8 , MOD=0x149A0
+  0x1499C  EQ      imm 0 , imm 4805185 'ARI' , MOD=0x149B0
+  0x149AC  JZ      imm 0 , MOD=0x149CC
+  0x149B8  STSP    imm 11 , imm 8
+  0x149C4  JMP     MOD=0x14E10
+  0x149CC  LDSP    imm 8 , MOD=0x149DC
+  0x149D8  EQ      imm 0 , imm 5914955 'KAZ' , MOD=0x149EC
+  0x149E8  JZ      imm 0 , MOD=0x14A08
+  0x149F4  STSP    imm 19 , imm 8
+  0x14A00  JMP     MOD=0x14E10
+  0x14A08  LDSP    imm 8 , MOD=0x14A18
+  0x14A14  EQ      imm 0 , imm 5395787 'KUR' , MOD=0x14A28
+  0x14A24  JZ      imm 0 , MOD=0x14A44
+  0x14A30  STSP    imm 20 , imm 8
+  0x14A3C  JMP     MOD=0x14E10
+  0x14A44  LDSP    imm 8 , MOD=0x14A54
+  0x14A50  EQ      imm 0 , imm 4276555 'KAA' , MOD=0x14A64
+  0x14A60  JZ      imm 0 , MOD=0x14A80
+  0x14A6C  STSP    imm 21 , imm 8
+  0x14A78  JMP     MOD=0x14E10
+  0x14A80  LDSP    imm 8 , MOD=0x14A90
+  0x14A8C  EQ      imm 0 , imm 4342091 'KAB' , MOD=0x14AA0
+  0x14A9C  JZ      imm 0 , MOD=0x14ABC
+  0x14AA8  STSP    imm 22 , imm 8
+  0x14AB4  JMP     MOD=0x14E10
+  0x14ABC  LDSP    imm 8 , MOD=0x14ACC
+  0x14AC8  EQ      imm 0 , imm 5129556 'TEN' , MOD=0x14ADC
+  0x14AD8  JZ      imm 0 , MOD=0x14AF8
+  0x14AE4  STSP    imm 23 , imm 8
+  0x14AF0  JMP     MOD=0x14E10
+  0x14AF8  LDSP    imm 8 , MOD=0x14B08
+  0x14B04  EQ      imm 0 , imm 5390669 'MAR' , MOD=0x14B18
+  0x14B14  JZ      imm 0 , MOD=0x14B34
+  0x14B20  STSP    imm 24 , imm 8
+  0x14B2C  JMP     MOD=0x14E10
+  0x14B34  LDSP    imm 8 , MOD=0x14B44
+  0x14B40  EQ      imm 0 , imm 5395792 'PUR' , MOD=0x14B54
+  0x14B50  JZ      imm 0 , MOD=0x14B70
+  0x14B5C  STSP    imm 25 , imm 8
+  0x14B68  JMP     MOD=0x14E10
+  0x14B70  LDSP    imm 8 , MOD=0x14B80
+  0x14B7C  EQ      imm 0 , imm 5129549 'MEN' , MOD=0x14B90
+  0x14B8C  JZ      imm 0 , MOD=0x14BAC
+  0x14B98  STSP    imm 26 , imm 8
+  0x14BA4  JMP     MOD=0x14E10
+  0x14BAC  LDSP    imm 8 , MOD=0x14BBC
+  0x14BB8  EQ      imm 0 , imm 3297868 'LR2' , MOD=0x14BCC
+  0x14BC8  JZ      imm 0 , MOD=0x14BE8
+  0x14BD4  STSP    imm 27 , imm 8
+  0x14BE0  JMP     MOD=0x14E10
+  0x14BE8  LDSP    imm 8 , MOD=0x14BF8
+  0x14BF4  EQ      imm 0 , imm 4802627 'CHI' , MOD=0x14C08
+  0x14C04  JZ      imm 0 , MOD=0x14C24
+  0x14C10  STSP    imm 28 , imm 8
+  0x14C1C  JMP     MOD=0x14E10
+  0x14C24  LDSP    imm 8 , MOD=0x14C34
+  0x14C30  EQ      imm 0 , imm 5128514 'BAN' , MOD=0x14C44
+  0x14C40  JZ      imm 0 , MOD=0x14C60
+  0x14C4C  STSP    imm 29 , imm 8
+  0x14C58  JMP     MOD=0x14E10
+  0x14C60  LDSP    imm 8 , MOD=0x14C70
+  0x14C6C  EQ      imm 0 , imm 4931923 'SAK' , MOD=0x14C80
+  0x14C7C  JZ      imm 0 , MOD=0x14C9C
+  0x14C88  STSP    imm 30 , imm 8
+  0x14C94  JMP     MOD=0x14E10
+  0x14C9C  LDSP    imm 8 , MOD=0x14CAC
+  0x14CA8  EQ      imm 0 , imm 5200203 'KYO' , MOD=0x14CBC
+  0x14CB8  JZ      imm 0 , MOD=0x14CD8
+  0x14CC4  STSP    imm 31 , imm 8
+  0x14CD0  JMP     MOD=0x14E10
+  0x14CD8  LDSP    imm 8 , MOD=0x14CE8
+  0x14CE4  EQ      imm 0 , imm 5523789 'MIT' , MOD=0x14CF8
+  0x14CF4  JZ      imm 0 , MOD=0x14D14
+  0x14D00  STSP    imm 32 ' ' , imm 8
+  0x14D0C  JMP     MOD=0x14E10
+  0x14D14  LDSP    imm 8 , MOD=0x14D24
+  0x14D20  EQ      imm 0 , imm 5718355 'SAW' , MOD=0x14D34
+  0x14D30  JZ      imm 0 , MOD=0x14D50
+  0x14D3C  STSP    imm 33 '!' , imm 8
+  0x14D48  JMP     MOD=0x14E10
+  0x14D50  LDSP    imm 8 , MOD=0x14D60
+  0x14D5C  EQ      imm 0 , imm 4800836 'DAI' , MOD=0x14D70
+  0x14D6C  JZ      imm 0 , MOD=0x14D8C
+  0x14D78  STSP    imm 61 '=' , imm 8
+  0x14D84  JMP     MOD=0x14E10
+  0x14D8C  LDSP    imm 8 , MOD=0x14D9C
+  0x14D98  EQ      imm 0 , imm 4342084 'DAB' , MOD=0x14DAC
+  0x14DA8  JZ      imm 0 , MOD=0x14DC8
+  0x14DB4  STSP    imm 62 '>' , imm 8
+  0x14DC0  JMP     MOD=0x14E10
+  0x14DC8  LDSP    imm 8 , MOD=0x14DD8
+  0x14DD4  EQ      imm 0 , imm 4935490 'BOK' , MOD=0x14DE8
+  0x14DE4  JZ      imm 0 , MOD=0x14E04
+  0x14DF0  STSP    imm 63 '?' , imm 8
+  0x14DFC  JMP     MOD=0x14E10
+  0x14E04  STSP    imm 99 'c' , imm 8
+  0x14E10  CALL    MOD=0x19BA8
+  0x14E18  STVAL   MOD=0x2B736
+  0x14E20  LEASP   imm 0 , MOD=0x14E88
+  0x14E2C  LDSP    imm 16 , MOD=0x14E3C
+  0x14E38  MUL     imm 0 , imm 1 , MOD=0x14E58
+  0x14E48  MOVD    VAR#759 , MOD=0x14E5C
+  0x14E54  ADD     imm 0 , imm 0 , MOD=0x14E68
+  0x14E64  PUSH    imm 0
+  0x14E6C  LDSP    imm 32 ' ' , MOD=0x14E7C
+  0x14E78  PUSH    imm 0
+  0x14E80  CALLN   NAT#57 , imm 0 , MOD=0x2B736
+  0x14E90  ADDSP   imm 8
+  0x14E98  MOV     VAR#775 , MOD=0x14EC4
+  0x14EA4  LDSP    imm 12 , MOD=0x14EB4
+  0x14EB0  MUL     imm 0 , imm 4 , MOD=0x14EC8
+  0x14EC0  ADD     imm 0 , imm 0 , MOD=0x14ED8
+  0x14ED0  LDSP    imm 8 , imm 0
+  0x14EDC  MOV     VAR#776 , MOD=0x14F08
+  0x14EE8  LDSP    imm 12 , MOD=0x14EF8
+  0x14EF4  MUL     imm 0 , imm 4 , MOD=0x14F0C
+  0x14F04  ADD     imm 0 , imm 0 , MOD=0x14F1C
+  0x14F14  MOV     imm 0 , imm 0
+  0x14F20  LDSP    imm 32 ' ' , MOD=0x14F30
+  0x14F2C  PUSH    imm 0
+  0x14F34  LDSP    imm 32 ' ' , MOD=0x14F44
+  0x14F40  PUSH    imm 0
+  0x14F48  PUSH    imm 1
+  0x14F50  LDSP    imm 36 '$' , MOD=0x14F60
+  0x14F5C  PUSH    imm 0
+  0x14F64  CALL    MOD=0x14F98
+  0x14F6C  ADDSP   imm 16
+  0x14F74  STVAL   MOD=0x2B736
+  0x14F7C  ADDSP   imm 16
+  0x14F84  RETV    imm 1
+  0x14F8C  ADDSP   imm 16
+  0x14F94  RET     

@@ -1,0 +1,16 @@
+function RRecordArguments(record, base, rd, evalExpr, varMap)
+{
+    var c = RRecordValue(record["condition"], base, rd, evalExpr, varMap) & 0xffffffff;
+    if (record["opcode"] == 0) {
+        c = (c == 0) ? 1 : 0;
+    }
+    if (c == 0) {
+        return %["accepted" => false, "condition_value" => 0, "params" => []];
+    }
+    var params = [];
+    for (var i = 0; i < record["items"].count; i++) {
+        var item = record["items"][i];
+        params.add([item["flags"], (RRecordValue(item, base, rd, evalExpr, varMap) & 0xffffffff)]);
+    }
+    return %["accepted" => true, "condition_value" => c, "params" => params];
+}

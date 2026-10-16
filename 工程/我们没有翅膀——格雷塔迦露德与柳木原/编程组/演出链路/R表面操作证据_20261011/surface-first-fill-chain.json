@@ -1,0 +1,70 @@
+{
+  "status": "PASS_ORIGINAL_ENGINE_DLL_SURFACE_FILL_CONTINUOUS",
+  "exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "dll_sha256": "63e9308c2e89445daa1d427c5b5e1ed1ce863111ca722a5f3b6dd966d065a985",
+  "surface_constructor_va": 5064400,
+  "surface_vtable": 5355500,
+  "controlled_geometry": {
+    "width": 6,
+    "height": 4,
+    "pitch": 32,
+    "buffer_bytes": 128,
+    "depth": 32,
+    "clip": [
+      1,
+      1,
+      5,
+      4
+    ]
+  },
+  "request_rect": [
+    -2,
+    0,
+    4,
+    3
+  ],
+  "color_RGB": 1193046,
+  "stored_pixel_word": 1193046,
+  "dirty_rect": [
+    1,
+    1,
+    4,
+    3
+  ],
+  "member_return_AL": 1,
+  "calls": [
+    {
+      "va": 5065680,
+      "name": "engine_member_fill"
+    },
+    {
+      "va": 268442912,
+      "name": "DLL_surface_fill32"
+    },
+    {
+      "va": 4397856,
+      "name": "original_clip_pointer"
+    },
+    {
+      "va": 4555312,
+      "name": "original_pitch"
+    },
+    {
+      "va": 5243216,
+      "name": "original_buffer"
+    },
+    {
+      "va": 268556816,
+      "name": "DLL_scalar_fill_kernel"
+    },
+    {
+      "va": 268556816,
+      "name": "DLL_scalar_fill_kernel"
+    }
+  ],
+  "output_sha256": "b064ad63bb501f2c24880542c61057b4b4968d532dfe27dd4de3f1ff3d0ffcf5",
+  "destination_canaries_unchanged": true,
+  "original_virtual_methods_executed": true,
+  "unknown_function_return_stubs": 0,
+  "scope": "Controlled mapped pixel buffer and geometry after original surface constructor, actual engine member/DLL/getters/pixel kernel; module handle input1 is an unobserved fixture marker, no OS loader/DIB allocation/original scene replay"
+}

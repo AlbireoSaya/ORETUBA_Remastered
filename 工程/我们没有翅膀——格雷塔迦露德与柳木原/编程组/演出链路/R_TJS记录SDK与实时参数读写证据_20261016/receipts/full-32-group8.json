@@ -1,0 +1,636 @@
+{
+  "passed": true,
+  "bits": 32,
+  "nonce": "a58ef80cab2f42efb8ceae4758708d70",
+  "cases": 1362,
+  "records": 2724,
+  "fresh_log": true,
+  "process": {
+    "returncode": 0,
+    "timed_out": false,
+    "cleanup_ok": true,
+    "pid": 33560
+  },
+  "engine_SHA256": "9228f50103b2a7bf95c241bef945fa254750840fd1ce4d4ff0b9a5078724175f",
+  "sources": [
+    {
+      "name": "r_u32.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_u32.tjs",
+      "SHA256": "c908113bd4da2f9eed4dd4cfb45aebaf2f4ee5f86935e867919a84435a394eac"
+    },
+    {
+      "name": "r_vm_entry.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_entry.tjs",
+      "SHA256": "d291118ddf7a52c063caf8f889a42492be56b16eef268b88f11a936e249f7412"
+    },
+    {
+      "name": "r_vm_memory.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_memory.tjs",
+      "SHA256": "c6bcc5f48177e1f415d35d3f2d1aee4a59798b30b3eb4c69670f2c43348c907b"
+    },
+    {
+      "name": "r_vm_control.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_control.tjs",
+      "SHA256": "fa764659e6808086b792d64fb53da415e038acbcfaf49110cc6ac1a3ccfd718c"
+    },
+    {
+      "name": "r_vm_value.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_value.tjs",
+      "SHA256": "63aa7132eff253474996a3b3c1e2c1a068626a63df49e89eff919849d37b7dcc"
+    },
+    {
+      "name": "r_vm_step.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_step.tjs",
+      "SHA256": "bab2f7163b9d785b9d136995caea7a678222c830eb883894d825ccddb779290d"
+    },
+    {
+      "name": "r_vm_run.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_run.tjs",
+      "SHA256": "1bf06bf3ce68210f30a4c145419be7a4e0d171615d6cc918efae7d43271a6cb2"
+    },
+    {
+      "name": "r_relocation_pair.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_relocation_pair.tjs",
+      "SHA256": "c8f397dd6446681a0d9dc420b1baf0b71fc90dc08272643a6ca7599937c94850"
+    },
+    {
+      "name": "r_relocation_writes.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_relocation_writes.tjs",
+      "SHA256": "4a9cc887554fb27b25122e6dbecbb3023fa1651d78173ef752ec9262eb95318d"
+    },
+    {
+      "name": "r_record_value.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_record_value.tjs",
+      "SHA256": "9870719ca084af008911e491a9c3de995c4c3eae2738b014caa71b458aee1c35"
+    },
+    {
+      "name": "r_apply_relocations.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_apply_relocations.tjs",
+      "SHA256": "a478396cee04d15957a0e01f1dc2562efeec66ea0b3a8e6bcaeb9e07ba63530a"
+    },
+    {
+      "name": "r_bind_expression.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_bind_expression.tjs",
+      "SHA256": "43b1b12c2a0134b1542f70ddc2805f7819f5f564bb828cca1e53d0c85ee28752"
+    },
+    {
+      "name": "r_parameter_evaluate.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_parameter_evaluate.tjs",
+      "SHA256": "171caa493b506d43c042172016e8b8637fa748708a00b3aca32705121e474f95"
+    },
+    {
+      "name": "r_write_record_item.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_write_record_item.tjs",
+      "SHA256": "02f122cf8b65c6c9a44c7b6b9f64553b5d5394736c561ddd0e8e697010e4ff00"
+    },
+    {
+      "name": "r_run_record.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_run_record.tjs",
+      "SHA256": "1f8eec4b120ad52d6ca9881be096172211e9010959264d78847f813e80a12b6c"
+    },
+    {
+      "name": "r_memory_region.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_region.tjs",
+      "SHA256": "8eaf176bde1d69326cbc263796aba1dd6803dcd37c36453eba70988340515abf"
+    },
+    {
+      "name": "r_memory_create.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_create.tjs",
+      "SHA256": "83f31c28eb18a012f67048c582234dea8df848c1b11f06c4d6eef8269b260c6f"
+    },
+    {
+      "name": "r_memory_access.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_access.tjs",
+      "SHA256": "7922116049a2a354b0544b193ad6c7b8efae4df56b38807fb6bd51decb76fe49"
+    },
+    {
+      "name": "r_memory_find.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_find.tjs",
+      "SHA256": "d4aab4aa8194fbc99bc136c72f45c549402eb8d2d1688fdf4c6dc02e08147fd8"
+    },
+    {
+      "name": "r_memory_read.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_read.tjs",
+      "SHA256": "13005becea63e735a441f0e658e8541cc8d6b0b4b7a3b1be20bd1fe74b5ec79c"
+    },
+    {
+      "name": "r_memory_write8.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_write8.tjs",
+      "SHA256": "222d4591ca1cc9d877e63c50d76c60be01273cce8d6c2c607f866232c8be1753"
+    },
+    {
+      "name": "r_memory_write32.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_write32.tjs",
+      "SHA256": "a39521ceef60bc33c7e1e1f67b757bcc0935b293eeeeefc0debd64f9e86e32c6"
+    },
+    {
+      "name": "r_memory_callbacks.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_memory_callbacks.tjs",
+      "SHA256": "85180accf3a9765224c4e436f896f0c89cdefc93774e9ab9f3203c2c868d61f3"
+    },
+    {
+      "name": "r_dynamic_fixture_backing.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_dynamic_fixture_backing.tjs",
+      "SHA256": "0b0853f620e1258acc8ad613d0ca28590f617ef10481b41edfe5c0a491da2793"
+    },
+    {
+      "name": "r_dynamic_fixture_memory.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_dynamic_fixture_memory.tjs",
+      "SHA256": "8771244883828b7b476a2c5328303e9d0d7aa35c7b8bd3b1329824b5357cf930"
+    },
+    {
+      "name": "r_dynamic_fixture_io.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_dynamic_fixture_io.tjs",
+      "SHA256": "dcbab3efc4b81421f21e5bdb0ae0d6bd9cd2269db47b9bdd01fc3f972edf9fb9"
+    },
+    {
+      "name": "r_dynamic_fixture_state.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_dynamic_fixture_state.tjs",
+      "SHA256": "bd914eb601340162d4287c28a2732c2d8d4889f3780383c214efd52bc62e7728"
+    },
+    {
+      "name": "r_dynamic_fixture_eval.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_dynamic_fixture_eval.tjs",
+      "SHA256": "5f33b574dca6a78a050bf435da22817192a0402542933d0ee99f0629f4e9b317"
+    },
+    {
+      "name": "r_dynamic_fixture_segment.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_dynamic_fixture_segment.tjs",
+      "SHA256": "aa63c775728dd8f2b6286aed8c3c9e5665340a5dff7f275dcd596fafcd4dc6a7"
+    },
+    {
+      "name": "r_dynamic_fixture_case.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015/r_dynamic_fixture_case.tjs",
+      "SHA256": "f9ba018a3649c8a41c672a9fd903b433d94b14953aea29ea02d2f47802ed8420"
+    },
+    {
+      "name": "r_vm_native_flags_fixture.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_flags_fixture.tjs",
+      "SHA256": "71d8b91daefa293f4cfd606c1be91056bee43fc23ee8d673351256d24919bbcd"
+    },
+    {
+      "name": "r_vm_native_keyboard_fixture.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_keyboard_fixture.tjs",
+      "SHA256": "2540bf00d302c3921b7465c2c693a194a4838e7d4bb73e7cef5c3de9583da8e7"
+    },
+    {
+      "name": "r_vm_native_query_fixture.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_query_fixture.tjs",
+      "SHA256": "ce15fafff08cd719fe1a1a75ca9398f02c2ca835670bdffacc7e4d4621380a76"
+    },
+    {
+      "name": "r_vm_native_control_fixture.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_control_fixture.tjs",
+      "SHA256": "78d39eb6a83e4348ccc1e6d0fe9f6883dd25508f70a44e8854f52afcd0243219"
+    },
+    {
+      "name": "r_vm_native_dispatch_fixture.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_dispatch_fixture.tjs",
+      "SHA256": "2b41eaac91b956bc4d9b956f706b757cbf5d461da17456cedc9e6420a7d6e1d8"
+    },
+    {
+      "name": "r_vm_fixture_nativecall.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_nativecall.tjs",
+      "SHA256": "33d770627dda617b69cc97fddad7f367fb0176af6a778330a4bf43ef0e939bf7"
+    },
+    {
+      "name": "r_vm_fixture_compare.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_compare.tjs",
+      "SHA256": "50b1ed1833fc721b683e8d17e37c6ebdd9c355bff87898335faadac528227e45"
+    },
+    {
+      "name": "cases-0000.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0000.tjs",
+      "SHA256": "d51a1f4d021f49e168f02f70eb2b0fd67909e4c82e27bb5f3873fa89df4106a2"
+    },
+    {
+      "name": "cases-0001.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0001.tjs",
+      "SHA256": "36e1cb1ce7bf9c81295ba84708a750d075f11957e132fb8efa0e53593024a147"
+    },
+    {
+      "name": "cases-0002.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0002.tjs",
+      "SHA256": "cb65146218e4172e99613ea5d28e4159e0d548e83640c0641bfc2bb8ec99b4d6"
+    },
+    {
+      "name": "cases-0003.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0003.tjs",
+      "SHA256": "2cebe3a9bcc076bf21ea59e3216dd06a7b145b17d6c79c2f53366613934b09dd"
+    },
+    {
+      "name": "cases-0004.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0004.tjs",
+      "SHA256": "eb93677787501b88383edb302ca7fcc7356f5d45aea68b4a4e93ddbe8347817f"
+    },
+    {
+      "name": "cases-0005.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0005.tjs",
+      "SHA256": "b76235c79c3c05e48b14e63ce9e76b6056c80ff4457ba27ed22a985a4b552cc4"
+    },
+    {
+      "name": "cases-0006.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0006.tjs",
+      "SHA256": "fe2d3fc38b8b506b21855af3a99ccfeecbfe2cc7c0b199442e5f71bda214cb43"
+    },
+    {
+      "name": "cases-0007.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0007.tjs",
+      "SHA256": "2a4fcaf33ad6306a340ec3d6a8717f53c7668417d1911dd6771a3900610445b4"
+    },
+    {
+      "name": "cases-0008.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0008.tjs",
+      "SHA256": "acc3ab21cde7093d22a7cfa4895f5a4a6b258adeb479cdfb81c1b19c5cc60b31"
+    },
+    {
+      "name": "cases-0009.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0009.tjs",
+      "SHA256": "89f7db682b3adf58f905a3a40ea2e0b3e90e0ea571e1299ebe27d5e38630a33c"
+    },
+    {
+      "name": "cases-0010.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0010.tjs",
+      "SHA256": "3afb9632756e4bf9384b8f54c1d3913ca6932363860641e7a2167e169221a87c"
+    },
+    {
+      "name": "cases-0011.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0011.tjs",
+      "SHA256": "5b592f6dd801fbd7206f9bb9c922e9b99669bd1d47a88c9028a808c5e32fbecc"
+    },
+    {
+      "name": "cases-0012.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0012.tjs",
+      "SHA256": "2ba3c42755af94c6502013716bcc544e900e625cb79ef298ce0bcfc0f40fb1ea"
+    },
+    {
+      "name": "cases-0013.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0013.tjs",
+      "SHA256": "9f0bb259839da02366a0de734f4cc7ef7c9f9137717ffb94ee36c0855b9fa06e"
+    },
+    {
+      "name": "cases-0014.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0014.tjs",
+      "SHA256": "981cf2c6809625b9e4ab4340fb81221297a0c9be9a903b4ba9f3814a3294aa02"
+    },
+    {
+      "name": "cases-0015.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0015.tjs",
+      "SHA256": "a99329293bd715396150202b81cedf41438c3350aefdb3272aff3016730b06b5"
+    },
+    {
+      "name": "cases-0016.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0016.tjs",
+      "SHA256": "77ec9e2239a39e66765da3a7506fda3b4acd36f24143e56a420b7b27d8e5ba44"
+    },
+    {
+      "name": "cases-0017.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0017.tjs",
+      "SHA256": "95f56e2bea0888626d0365877fe5a4d952bc6816a9161d7fa3804adbddee64d7"
+    },
+    {
+      "name": "cases-0018.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0018.tjs",
+      "SHA256": "ed7c783040d14d9c3a6b191be362aa49534156603bef2be9c45c2d0026b1eaf7"
+    },
+    {
+      "name": "cases-0019.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0019.tjs",
+      "SHA256": "85f4fd1fa30c59b5f2a7d9001a90ece6a5480303b603ccdb99b36b60f120d2a0"
+    },
+    {
+      "name": "cases-0020.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0020.tjs",
+      "SHA256": "f050f1c6594cbd2eb59481a8a9235951112b3d46aeaebbf58cd3391c8d25803f"
+    },
+    {
+      "name": "cases-0021.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0021.tjs",
+      "SHA256": "178e1ee7a2c5765404d9f51580efd869ac753a2261cd0844dccc52f0d68dd226"
+    },
+    {
+      "name": "cases-0022.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0022.tjs",
+      "SHA256": "de21e9a5b821425749182187dc137228aad5920883344217fa96f9ce9a52748e"
+    },
+    {
+      "name": "cases-0023.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0023.tjs",
+      "SHA256": "f03929c387ca2f2018f1b93b5f80d1577cdc9ab883fbeb484d1f589607d25cd9"
+    },
+    {
+      "name": "cases-0024.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0024.tjs",
+      "SHA256": "a8560c057d1e5eac38e286abccf10b6f44165e72f0c20b1aeb9be47a56328367"
+    },
+    {
+      "name": "cases-0025.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0025.tjs",
+      "SHA256": "b54fdc32da4959e18e57f4706bb81662d8f04452de140e92e8a3dded250931eb"
+    },
+    {
+      "name": "cases-0026.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0026.tjs",
+      "SHA256": "67747645241a8f6082745e138de928f6d3df81d149a0838cbcb319bca9b9b718"
+    },
+    {
+      "name": "cases-0027.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0027.tjs",
+      "SHA256": "6003fb7e962dc9d77bd07d2ef1b850d2cd3e9b43be5a91d304604e9fde9adc56"
+    },
+    {
+      "name": "cases-0028.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0028.tjs",
+      "SHA256": "6ae42acd1db125836f8025ec6f6398482051f8d6fd54d16c2bb5518d94b362e8"
+    },
+    {
+      "name": "cases-0029.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0029.tjs",
+      "SHA256": "34d90c3786ac5e567cb923163311ecff88b475e176c6010cd00e674ee8a56026"
+    },
+    {
+      "name": "cases-0030.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0030.tjs",
+      "SHA256": "6d13c093bdd1f122b946e29db5f75be008003e4c0f550e8f1e9db215fa3a152c"
+    },
+    {
+      "name": "cases-0031.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0031.tjs",
+      "SHA256": "eaf417cd04794b853a6ea208dd7cf50776f40cc4e2d8e60b5de98bcf84a5b3dc"
+    },
+    {
+      "name": "cases-0032.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0032.tjs",
+      "SHA256": "81b5b176efecf2e95f4923502e7b8e80f1b3bdf1fb7c8c6f2e8cd85833f7d190"
+    },
+    {
+      "name": "cases-0033.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0033.tjs",
+      "SHA256": "98c73570ca692789db5b369cc42d5625f3984b27cb86bf1870247be6abf77499"
+    },
+    {
+      "name": "cases-0034.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0034.tjs",
+      "SHA256": "3fd36c66f372e0d91eb453a61cea39f8225ea4d2e0e4be6ffbc39b49fe5ca4e3"
+    },
+    {
+      "name": "cases-0035.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0035.tjs",
+      "SHA256": "cbd6b663143f452ecff198ec2c347840cf7885f3fc862ea589798f26613e8297"
+    },
+    {
+      "name": "cases-0036.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0036.tjs",
+      "SHA256": "9db925ffd655410ea3f422aba5f7530ddc21d5ed5212b89432f8fb10afb1ab33"
+    },
+    {
+      "name": "cases-0037.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0037.tjs",
+      "SHA256": "14a0345512e67d1a65d5864cb9763cf9ec57cec8ef81c95bfe128ec09134c91a"
+    },
+    {
+      "name": "cases-0038.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0038.tjs",
+      "SHA256": "9868ca949f5ac4ffd278935400320921df4f114a830d6ae39a321badea44d074"
+    },
+    {
+      "name": "cases-0039.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0039.tjs",
+      "SHA256": "3a9ae42caa53334ab1f667d6f73914c72831080b1fab0e8d68c16e41a44027c6"
+    },
+    {
+      "name": "cases-0040.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0040.tjs",
+      "SHA256": "7126d8286fcf58cfa05a75b4aefa289543b5005a4392dd15ffadbc7effad1eb5"
+    },
+    {
+      "name": "cases-0041.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0041.tjs",
+      "SHA256": "31701ab0e79babb5d30b8bc7c1b74e389498837447142b4549bbaf3d7c1453fc"
+    },
+    {
+      "name": "cases-0042.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0042.tjs",
+      "SHA256": "828ede6517aef9ecf694103e2fbe8082af0b4a46795586d4927d00f69bbb3062"
+    },
+    {
+      "name": "cases-0043.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0043.tjs",
+      "SHA256": "3f8f6076d42e866f0617d93d15c523aa0b92428926375e01264bcac4144e8569"
+    },
+    {
+      "name": "cases-0044.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0044.tjs",
+      "SHA256": "50eaa50a2766ec7254e41c01f79bbe578c741c2cd8bcbb058816e8b66d6203ce"
+    },
+    {
+      "name": "cases-0045.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0045.tjs",
+      "SHA256": "c05049cd99f6b2a86d1f0dcce25b732a7b81ef84f3a219feb5a01f9e573bcc11"
+    },
+    {
+      "name": "cases-0046.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0046.tjs",
+      "SHA256": "83ea8effeab15d6391b118a9ee8b2d0e45b51ef4299ac1eae3c7628412730dfa"
+    },
+    {
+      "name": "cases-0047.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0047.tjs",
+      "SHA256": "6580f9e62737a379d2c7935f23688087e9a4929962ac0e2b4e37693c9c969015"
+    },
+    {
+      "name": "cases-0048.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0048.tjs",
+      "SHA256": "51b1910827dd8c40f7f7d171e7c5cc646c1e170a597c14fa432d6f62e9eb18cf"
+    },
+    {
+      "name": "cases-0049.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0049.tjs",
+      "SHA256": "d1a8afb7eca671c1961d909035daf81c5ba632d92dee8826c4191f50361c4011"
+    },
+    {
+      "name": "cases-0050.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0050.tjs",
+      "SHA256": "7b17fd16f018a493e56163380596c61ab1eb0a8b4c83b25f6de8d550a6ffd2f4"
+    },
+    {
+      "name": "cases-0051.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0051.tjs",
+      "SHA256": "d2787b1fb7fa5e6ddac056a9b6374179ce0e466f5d444fbe15a3392d327c4d0e"
+    },
+    {
+      "name": "cases-0052.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0052.tjs",
+      "SHA256": "b7e05cf8e1ab25f11aab948afb06735dffd5950bd9c7a87cba014e10519a8735"
+    },
+    {
+      "name": "cases-0053.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0053.tjs",
+      "SHA256": "8f3c5f481fb5074188fb4f17d3634cb21de32f015f4d60a5c40088e6f4a1e146"
+    },
+    {
+      "name": "cases-0054.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0054.tjs",
+      "SHA256": "1f77ac6c45f94580fa8584380176b695096f026221e630ee5b93d062afcda0bd"
+    },
+    {
+      "name": "cases-0055.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0055.tjs",
+      "SHA256": "e99cd9fdff126d04a9177886aafb8f0d80491d4c9d047c1604f7cbb0b2a69c38"
+    },
+    {
+      "name": "cases-0056.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0056.tjs",
+      "SHA256": "6f87b14fb75224906404532413931669cf60e6f915a53fcad7d2773c27c4c7f7"
+    },
+    {
+      "name": "cases-0057.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0057.tjs",
+      "SHA256": "424a98a91756e6edd1ff2c3c614d007c0a29a79b9973c9dd38c4cc6acb27ce43"
+    },
+    {
+      "name": "cases-0058.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0058.tjs",
+      "SHA256": "3859b3e8cc7484cb0b9ee8f88141f39cac49851ff476eaa52db924f3468ea26e"
+    },
+    {
+      "name": "cases-0059.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0059.tjs",
+      "SHA256": "3213a8c6fd852bbd0c3cfe1c3b56923b59cc46f5fc67388672adc0205dd2c931"
+    },
+    {
+      "name": "cases-0060.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0060.tjs",
+      "SHA256": "73a0cf93b642f45227d5f0bb002b824d441a47db7536aae8ca3cbc059611f60c"
+    },
+    {
+      "name": "cases-0061.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0061.tjs",
+      "SHA256": "cd9db05f86780361855b06afba7f23ad76156f9ce8982916e3f530c9c963a562"
+    },
+    {
+      "name": "cases-0062.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0062.tjs",
+      "SHA256": "18e37fd46cc2a11b367e6afd31e63760dd05621ff55d2f1b511495e940734b64"
+    },
+    {
+      "name": "cases-0063.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0063.tjs",
+      "SHA256": "362fdb4ba5ccd2cc9e5a951997a42f51255a2ec382a9aa305bdca21e014c49a3"
+    },
+    {
+      "name": "cases-0064.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0064.tjs",
+      "SHA256": "ff668f00049385e6bb3911927a6838744fd1c0635f9f133fbb0fc3879b5fc479"
+    },
+    {
+      "name": "cases-0065.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0065.tjs",
+      "SHA256": "eda81a054085d13f352bfc301569eedcf13c3ca237bcd1efb2ea8df7b6503503"
+    },
+    {
+      "name": "cases-0066.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0066.tjs",
+      "SHA256": "a33cc9c7be05afbf57b859d488375c9efa6f356b8b97d3d6489fc847f2d278e6"
+    },
+    {
+      "name": "cases-0067.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0067.tjs",
+      "SHA256": "e755a5485a7bbefe0fdffe33417b2460fff507124f0b3a93339b72ab630f7c6d"
+    },
+    {
+      "name": "cases-0068.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0068.tjs",
+      "SHA256": "bcad3a2004f2ce02aa7deb4b9a8a544b27597ad9643c4dccf1212942ba1a05ca"
+    },
+    {
+      "name": "cases-0069.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0069.tjs",
+      "SHA256": "135189526dc11e405b73f473df43a295035ea75eeb83f03f79d290b31218b279"
+    },
+    {
+      "name": "cases-0070.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0070.tjs",
+      "SHA256": "2342300e646d602995d5d92438212f26ed8e16985a0a1291c70fb95e1c8effa5"
+    },
+    {
+      "name": "cases-0071.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0071.tjs",
+      "SHA256": "c36f0501bc57fbc3fd2dcb5b6c37a07de99a4964f5323abe87f9054a625bf642"
+    },
+    {
+      "name": "cases-0072.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0072.tjs",
+      "SHA256": "55f6f67020691371d843236de87c6c7aa3467b3070637fe4a86377d391524f2b"
+    },
+    {
+      "name": "cases-0073.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0073.tjs",
+      "SHA256": "1327289edb4bcaa72fc38ed33792861d1292f9d8599235fb780b8484df354073"
+    },
+    {
+      "name": "cases-0074.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0074.tjs",
+      "SHA256": "534cf844bbd739a34177dfa15427b890377d5ada0dd8d460993b04ad4e31f8ed"
+    },
+    {
+      "name": "cases-0075.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0075.tjs",
+      "SHA256": "69cf1d105b98e68dc825704fa13fea20896154470ffcb6db191ca157d1bf6004"
+    },
+    {
+      "name": "cases-0076.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0076.tjs",
+      "SHA256": "11fdef935c33adee85127331a01cbcd19b12d6a55935c6b86c33cf312f7801c8"
+    },
+    {
+      "name": "cases-0077.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0077.tjs",
+      "SHA256": "9c2330aaf075c401041b344806030368e0c3a7d25f6d559f82c114f9499981e4"
+    },
+    {
+      "name": "cases-0078.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0078.tjs",
+      "SHA256": "055f101463026cc21f8770889d65a474d2856883312ce6ead7a16768668a0fb0"
+    },
+    {
+      "name": "cases-0079.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0079.tjs",
+      "SHA256": "779f223843234e2d24f3c91fb33497b1d861ceb91a2d47091a942a797fedee6f"
+    },
+    {
+      "name": "cases-0080.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0080.tjs",
+      "SHA256": "4999f295bf51789de3a8d03446ddc375491a64a5f707cb1ab28db0507a133d45"
+    },
+    {
+      "name": "cases-0081.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0081.tjs",
+      "SHA256": "2687249dd180a7bc637aaf934adca87c1a32f90649a478389b27f15721428219"
+    },
+    {
+      "name": "cases-0082.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0082.tjs",
+      "SHA256": "21caba9321ce1aa98de8850628bd5faf602c709b7483c1d4d6b16d96242afeea"
+    },
+    {
+      "name": "cases-0083.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0083.tjs",
+      "SHA256": "8e72fa3e88391c4d0fa6b67c670084212c55598d18650bac226b5c0d8342c4aa"
+    },
+    {
+      "name": "cases-0084.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0084.tjs",
+      "SHA256": "9a98d879cd4c3f5bfbd6944937fa8a287f93442e7225e10cc33099c1547b54d6"
+    },
+    {
+      "name": "cases-0085.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-record-group8-01/batch-0085.tjs",
+      "SHA256": "077e5bbee3f6855af100bbaad77aa0dea755cd35cf11be0826fb4f3823eab2a3"
+    }
+  ],
+  "console_SHA256": "716d8181287cd228cfa6f609392ddf9efe2228f3d47f8692bc5e98702fa80175",
+  "input_manifest": "临时/ISSUE-20261011-02/r-target-record-group8-01/manifest.json",
+  "native_callbacks_are_fixtures": true,
+  "full_native_lifecycle_or_game_fidelity_proven": false
+}

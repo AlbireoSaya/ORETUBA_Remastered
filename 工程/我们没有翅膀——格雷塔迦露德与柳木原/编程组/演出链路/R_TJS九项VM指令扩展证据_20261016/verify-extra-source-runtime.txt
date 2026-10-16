@@ -1,0 +1,66 @@
+"""Root platform recipe: execute exact editor modules in real TJS2 engines."""
+from pathlib import Path
+import hashlib,json,shutil,sys,time,uuid
+r=Path.cwd().resolve();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+w=r/'子代理工作区/ISSUE-20261011-02/r-target-live-record-20261016'
+sys.path.insert(0,str(g/'工具'))
+from performance_runtime import execute
+bits,tag,mp=int(sys.argv[1]),sys.argv[2],Path(sys.argv[3]).resolve()
+installed=True
+override=Path(sys.argv[4]).resolve()if len(sys.argv)>4 else None
+assert bits in(32,64)and '/'not in tag and '\\'not in tag and mp.is_relative_to(r)
+assert override is None or override.is_relative_to(r/'临时/ISSUE-20261011-02')
+def valid(path,raw,canonical=None):
+ b=path.read_bytes();return hashlib.sha256(b).hexdigest()==raw or(canonical is not None and hashlib.sha256(b.replace(b'\r\n',b'\n')).hexdigest()==canonical)
+m=json.loads(mp.read_text(encoding='utf-8-sig'));ref=mp.parent/'original-results.json'
+if not ref.exists():ref=r/m['original_result_source']
+assert ref.resolve().is_relative_to(r)and valid(ref,m['original_result_sha256'],m.get('original_result_sha256_lf'))
+original=json.loads(ref.read_text(encoding='utf-8-sig'));assert original['passed']
+out=r/'临时/ISSUE-20261011-02'/tag;assert not out.exists()
+game,save,evidence=out/'game',out/'savedata',out/'evidence'
+for p in(game,save,evidence):p.mkdir(parents=True)
+sdk=g/'原作忠实层/R';native=g/'演出链路/R_TJS表达式VM与暂停恢复证据_20261015'
+memory=['r_memory_region.tjs','r_memory_create.tjs','r_memory_access.tjs','r_memory_find.tjs','r_memory_read.tjs','r_memory_write8.tjs','r_memory_write32.tjs','r_memory_read16.tjs']
+vm=['r_u32.tjs','r_vm_entry.tjs','r_vm_memory.tjs','r_vm_control.tjs','r_vm_value.tjs','r_vm_step.tjs','r_vm_run.tjs']
+binding=['r_live_relocation_count.tjs','r_live_relocation_row.tjs','r_live_relocations.tjs','r_live_relocation_value.tjs','r_live_expression_header.tjs','r_live_expression_bind.tjs','r_live_expression_result.tjs','r_live_expression_evaluate.tjs']
+prefix=['r_record_live_prefix.tjs','r_record_live_item_prefix.tjs']
+helpers=['r_vm_native_flags_fixture.tjs','r_vm_native_keyboard_fixture.tjs','r_vm_native_query_fixture.tjs','r_vm_native_control_fixture.tjs','r_vm_native_dispatch_fixture.tjs','r_vm_fixture_compare.tjs']
+stage=g/'演出链路/R_TJS完整实时记录与条件证据_20261016'
+inventory=json.loads((stage/'delivery-inventory.json').read_text(encoding='utf-8-sig'))if installed else[]
+rows={row['name']:row for row in inventory}
+owned=list(rows)if installed else list(json.loads((w/'accepted-map.json').read_text(encoding='utf-8-sig')))
+assert len(owned)==21
+names=memory+[n for n in vm if n not in owned]+binding+prefix+helpers+owned+['r_source_record_fixture_regions.tjs']+['r_value_extra_arithmetic.tjs', 'r_value_extra_bits.tjs', 'r_value_extra_compare.tjs', 'r_value_extra_mul.tjs', 'r_vm_extra_operands.tjs', 'r_vm_extra_value.tjs']
+assert len(names)==len(set(names))
+sources=[]
+for name in names:
+ src=w/name if name in owned else sdk/name if name in memory+vm+binding+prefix else native/name
+ if installed and name in rows:
+  src=r/rows[name]['destination'];assert hashlib.sha256(src.read_bytes().replace(b'\r\n',b'\n')).hexdigest()==rows[name]['sha256_lf']
+ newer=g/'演出链路/R_TJS真实源完整记录证据_20261016/fixtures'/name
+ if not newer.exists():newer=r/'子代理工作区/ISSUE-20261011-02/r-target-real-source-record-20261016'/name
+ if newer.exists()and name in ['r_source_record_fixture_regions.tjs','r_live_record_fixture_state.tjs','r_live_record_fixture_execute.tjs','r_live_record_fixture_final.tjs']:src=newer
+ extra=g/'原作忠实层/R'/name
+ if extra.exists()and name in ['r_value_extra_arithmetic.tjs', 'r_value_extra_bits.tjs', 'r_value_extra_compare.tjs', 'r_value_extra_mul.tjs', 'r_vm_extra_operands.tjs', 'r_vm_extra_value.tjs', 'r_vm_step.tjs']:src=extra
+ if override is not None and(override/name).exists():src=override/name
+ shutil.copyfile(src,game/name);sources.append(dict(name=name,source=src.relative_to(r).as_posix(),sha256=hashlib.sha256(src.read_bytes()).hexdigest()))
+nonce=uuid.uuid4().hex
+commands=['Debug.startLogToFile();','var RActualSourceBytes=[];','try {',f'Debug.message("RRECORD_BEGIN {nonce}");']
+for name in names:commands.extend((f'Debug.message("RRECORD_LOAD {nonce} {name}");',f'Scripts.execStorage("{name}");'))
+for i,row in enumerate(m['files']):
+ src=r/row['source'];assert src.resolve().is_relative_to(r)and valid(src,row['sha256'],row.get('sha256_lf'))
+ dest=f'cases-{i:04d}.tjs';shutil.copyfile(src,game/dest);commands.append(f'Scripts.execStorage("{dest}");')
+keys=['cases','records','vm_steps','vm_runs','native_calls'];expected=[m[k]for k in keys]
+counters=['RLiveRecordCaseCount','RLiveRecordSegmentCount','RLiveRecordTraceCount','RLiveRecordVMCount','RLiveRecordNativeCount']
+condition='||'.join(f'{k}!=={v}'for k,v in zip(counters,expected));marker=f'RRECORD_PASS {nonce} '+' '.join(map(str,expected))
+commands.extend((f'if({condition})throw new Exception("WRONG_LIVE_RECORD_COUNTS");',f'Debug.message("{marker}");','} catch(e) {',f'Debug.message("RRECORD_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));','}','System.exit();'))
+(game/'startup.tjs').write_text('\n'.join(commands)+'\n',encoding='utf-8')
+engine=r/f'工具/krkrz/krkrz_20171225/tvpwin{bits}.exe';start=time.time_ns()
+process=execute([str(engine),str(game),'-datapath='+str(save)+'/', '-readencoding=UTF-8','-startup=startup.tjs','-userconf=no'],out,60,evidence)
+log=save/'krkr.console.log';raw=log.read_bytes()if log.exists()else b'';console=raw.decode('utf-16')if raw.startswith(b'\xff\xfe')else raw.decode('utf-16-le',errors='replace')
+fresh=log.exists()and log.stat().st_mtime_ns>=start
+passed=process['returncode']==0 and not process['timed_out']and process['cleanup_ok']and fresh and marker in console and f'RRECORD_EXCEPTION {nonce}'not in console
+receipt=dict(passed=passed,bits=bits,**{k:m[k]for k in keys+['caller_events','vm_writes']},nonce=nonce,fresh_log=fresh,process=process,sources=sources,input_manifest=mp.relative_to(r).as_posix(),original_result_sha256=m['original_result_sha256'],engine_sha256=hashlib.sha256(engine.read_bytes()).hexdigest(),console_sha256=hashlib.sha256(raw).hexdigest(),scope='complete live condition+gate+params beforectx434 publish/129dispatch; actual unmodified VM17/47 and readonly native411c40 fixture; exact scoped caller IO, ordered VM writes, PCs, run/return, bindings/native frame, source+written words; VM reads/native internal stack/all game not proven')
+(evidence/'verdict.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');(evidence/'console.utf8.txt').write_text(console,encoding='utf-8')
+print(json.dumps({k:receipt[k]for k in ['passed','bits']+keys+['caller_events','vm_writes','process']}))
+print('\n'.join(line for line in console.splitlines()if 'RRECORD_'in line)[-700:]);sys.exit(0 if passed else 1)

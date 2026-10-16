@@ -1,0 +1,189 @@
+{
+  "id": "confirm",
+  "title_cn": "确认框",
+  "owner": "M5",
+  "note": "通用确认框（原版 ot/sys 的 if_* 族）。原版 if_ok/if_ok2/if_yes/if_no/if_cancl 五件为 168–228×25 的**按钮日文图**（はい／いいえ／キャンセル），不可复用；边框改用九宫格件 panel_frame.png（中心透明，填充另加 rect），按钮文字由引擎绘制。提示文本用通用 UI 词，不涉剧情。",
+  "elements": [
+    {
+      "id": "confirm.backdrop",
+      "kind": "rect",
+      "z": 0,
+      "visible_default": true,
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "color": "@palette.backdrop",
+      "opacity": "@palette.backdrop_opa",
+      "note": "全屏压暗遮罩（确认框为模态覆盖层）"
+    },
+    {
+      "id": "confirm.panel_fill",
+      "kind": "rect",
+      "z": 10,
+      "visible_default": true,
+      "x": 630,
+      "y": 405,
+      "w": 660,
+      "h": 270,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "确认框面板填充（九宫格边框的中心透明区由此补齐）"
+    },
+    {
+      "id": "confirm.panel_frame",
+      "kind": "image",
+      "z": 11,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 630,
+      "y": 405,
+      "w": 660,
+      "h": 270,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 240,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png（由 if_lt/rt/lb/rb + if_tbar/bbar + if_lbar/rbar 拼合）",
+      "note": "确认框九宫格边框（可拉伸至任意尺寸；原版整页确认图 sl_data/ex_* 属 R1 类不可用）"
+    },
+    {
+      "id": "confirm.text",
+      "kind": "text",
+      "z": 20,
+      "visible_default": true,
+      "x": 666,
+      "y": 444,
+      "w": 588,
+      "h": 90,
+      "font": {
+        "size": 33,
+        "bold": false,
+        "color": "@palette.text_primary",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 3
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "line_spacing": 1.4,
+      "sample": "要返回标题画面吗？\n未保存的进度将丢失。",
+      "note": "提示文本（中文，引擎绘制；内容为通用 UI 词，由调用方按场合替换，非剧情文本）"
+    },
+    {
+      "id": "confirm.btn_yes_fill",
+      "kind": "rect",
+      "z": 30,
+      "visible_default": true,
+      "x": 750,
+      "y": 570,
+      "w": 180,
+      "h": 66,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "「是」按钮底"
+    },
+    {
+      "id": "confirm.btn_yes_frame",
+      "kind": "image",
+      "z": 31,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 750,
+      "y": 570,
+      "w": 180,
+      "h": 66,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png",
+      "note": "「是」按钮边框"
+    },
+    {
+      "id": "confirm.btn_yes",
+      "kind": "hit",
+      "z": 32,
+      "visible_default": true,
+      "x": 750,
+      "y": 570,
+      "w": 180,
+      "h": 66,
+      "action": "close",
+      "label": "是",
+      "font": {
+        "size": 33,
+        "bold": false,
+        "color": "@palette.text_menu_sel",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "center",
+      "note": "确认（肯定）按钮。原版 if_yes「はい」含日文烘焙不可用，改引擎绘字；action 动作表暂无 confirm_yes，暂用 close 占位（返回值由编程组按 confirm_result 处理）——见 M5 报告「需裁决点」"
+    },
+    {
+      "id": "confirm.btn_no_fill",
+      "kind": "rect",
+      "z": 30,
+      "visible_default": true,
+      "x": 990,
+      "y": 570,
+      "w": 180,
+      "h": 66,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "「否」按钮底"
+    },
+    {
+      "id": "confirm.btn_no_frame",
+      "kind": "image",
+      "z": 31,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 990,
+      "y": 570,
+      "w": 180,
+      "h": 66,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png",
+      "note": "「否」按钮边框"
+    },
+    {
+      "id": "confirm.btn_no",
+      "kind": "hit",
+      "z": 32,
+      "visible_default": true,
+      "x": 990,
+      "y": 570,
+      "w": 180,
+      "h": 66,
+      "action": "close",
+      "label": "否",
+      "font": {
+        "size": 33,
+        "bold": false,
+        "color": "@palette.text_menu",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "center",
+      "note": "取消（否定）按钮。原版 if_no「いいえ」含日文烘焙不可用，改引擎绘字；action 同 confirm.btn_yes 的占位说明"
+    }
+  ]
+}

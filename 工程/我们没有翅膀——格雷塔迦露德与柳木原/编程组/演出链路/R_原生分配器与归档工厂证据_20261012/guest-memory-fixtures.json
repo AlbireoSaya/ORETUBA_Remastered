@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "successful_checks": [
+    {
+      "case": "actual CharUpperA",
+      "length": 0,
+      "exact": true
+    },
+    {
+      "case": "actual CharUpperA",
+      "length": 127,
+      "exact": true
+    },
+    {
+      "case": "actual CharUpperA",
+      "length": 10,
+      "exact": true
+    },
+    {
+      "case": "actual CharUpperA",
+      "length": 4095,
+      "exact": true
+    },
+    {
+      "case": "actual host allocation bound and synced",
+      "size": 4097,
+      "host_pointer_not_truncated": true
+    },
+    {
+      "case": "both guards checked before sync and unmap",
+      "host_memory_unchanged_on_rejection": true
+    },
+    {
+      "case": "guest unmap does not release real host allocation",
+      "separate_actual_free": true
+    },
+    {
+      "case": "monotonic arena exhaustion retains caller host ownership",
+      "unmapped_addresses_not_reused": true
+    }
+  ],
+  "unsupported_or_guard_rejections": [
+    "invalid CharUpperA",
+    "invalid CharUpperA",
+    "invalid CharUpperA",
+    "invalid CharUpperA",
+    "invalid CharUpperA",
+    "registration or arena rejection",
+    "registration or arena rejection",
+    "registration or arena rejection",
+    "registration or arena rejection",
+    "registration or arena rejection",
+    "registration or arena rejection",
+    "registration or arena rejection",
+    "registration or arena rejection",
+    "corrupted guard rejected",
+    "corrupted guard rejected",
+    "corrupted guard rejected",
+    "corrupted guard rejected",
+    "monotonic arena exhausted"
+  ],
+  "all_real_host_blocks_and_heaps_released": true,
+  "scope": "actual Windows host memory and actual Unicorn mirrors, host CharUpperA; rejects before writes; not forced OS/map/bookkeeping failures or native game execution"
+}

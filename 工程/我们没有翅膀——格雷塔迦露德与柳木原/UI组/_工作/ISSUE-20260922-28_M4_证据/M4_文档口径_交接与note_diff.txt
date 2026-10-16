@@ -1,0 +1,113 @@
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json
+index 1567b83..f835234 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json
+@@ -240,7 +240,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「开始游戏」（第 1 项）。与图标热区 title.menu_hit_1 **同属 state_group「title.menu_start」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_start_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_start_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「开始游戏」（第 1 项）。与图标热区 title.menu_hit_1 **同属 state_group「title.menu_start」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_start_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_start_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_start",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_start.png",
+@@ -260,7 +260,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「继续游戏」（第 2 项）。与图标热区 title.menu_hit_2 **同属 state_group「title.menu_continue」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_continue_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_continue_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「继续游戏」（第 2 项）。与图标热区 title.menu_hit_2 **同属 state_group「title.menu_continue」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_continue_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_continue_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_continue",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_continue.png",
+@@ -280,7 +280,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「读取存档」（第 3 项）。与图标热区 title.menu_hit_3 **同属 state_group「title.menu_load」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_load_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_load_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「读取存档」（第 3 项）。与图标热区 title.menu_hit_3 **同属 state_group「title.menu_load」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_load_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_load_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_load",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_load.png",
+@@ -300,7 +300,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「流程图」（第 4 项）。与图标热区 title.menu_hit_4 **同属 state_group「title.menu_flowchart」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_flowchart_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_flowchart_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「流程图」（第 4 项）。与图标热区 title.menu_hit_4 **同属 state_group「title.menu_flowchart」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_flowchart_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_flowchart_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_flowchart",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_flowchart.png",
+@@ -320,7 +320,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「设置」（第 5 项）。与图标热区 title.menu_hit_5 **同属 state_group「title.menu_config」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_config_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_config_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「设置」（第 5 项）。与图标热区 title.menu_hit_5 **同属 state_group「title.menu_config」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_config_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_config_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_config",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_config.png",
+@@ -340,7 +340,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「画廊」（第 6 项）。与图标热区 title.menu_hit_6 **同属 state_group「title.menu_gallery」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_gallery_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_gallery_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「画廊」（第 6 项）。与图标热区 title.menu_hit_6 **同属 state_group「title.menu_gallery」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_gallery_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_gallery_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_gallery",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_gallery.png",
+@@ -360,7 +360,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「离开游戏」（第 7 项）。与图标热区 title.menu_hit_7 **同属 state_group「title.menu_exit」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_exit_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_exit_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「离开游戏」（第 7 项）。与图标热区 title.menu_hit_7 **同属 state_group「title.menu_exit」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_exit_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_exit_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_exit",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_exit.png",
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md
+index cb20ee4..4eafb62 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md
+@@ -104,7 +104,7 @@
+ 2. **命令行参数在本引擎版本读不到**：对照实验（`-autotour=1` 并抽掉 `autotour.txt`）——引擎把它记入「已声明设置」，但 `System.getArgument` 返回 void ⇒ `autotour = OFF`。
+    ⇒ **一切「外部开关」只能走项目根 flag 文件**（`autotour.txt` / `press_probe.tjs`）。README 里「方式① 命令行」已标注实测不可用。
+ 3. **按下态验收探针**：`krkr\run_pressprobe.bat`（`set PROBE=<元素id>`，约 45 秒自行退出，**会开一个窗口**）→ 把 `UIScrPressProbe` 写进项目根 `press_probe.tjs`（用已验证的 `Scripts.execStorage`）。默认关闭、零影响。
+-4. **⚠️ 探针天然绕开 `uiScreenHoverAt`**（它直接写 pressHit）⇒ **「某个元素能不能被状态检测命中」这类缺陷，探针与截图都发现不了**。为此新增数据级守门 **`工具\test_state_targets.py`**（复算判据与平票规则，断言 25 个「态图+组」可见元素在自己几何中心都可达）。**改判据/z/声明序后必跑它。**
++4. **⚠️ 探针天然绕开 `uiScreenHoverAt`**（它直接写 pressHit）⇒ **「某个元素能不能被状态检测命中」这类缺陷，探针与截图都发现不了**。为此新增数据级守门 **`工具\test_state_targets.py`**（复算判据与平票规则，断言「态图+组」∪「纯组热区」的 **36 件**元素在各自几何中心都可达；并带 **`uiScreenHoverAtIn` / `uiScreenElementVisible` 的判据指纹** —— 判据被放宽/改写即 FAIL）。**改判据/可见性/z/声明序后必跑它。**
+ 5. **`ImageFilter.MaxFilter(1)`（半径 0）会把 Python 解释器硬崩**（无输出、退出码 127）⇒ `btn_states.hover(im, 0, 0)` **不可用**；要「只提亮不扩光晕」请内联配方（见 `_工作\M35b_选择支悬停图.py`）。
+ 6. **别把「看起来不对」当缺陷描述**：我曾把 `bl.spk_hit` 的 1222×224 说成「热区画错尺寸」，实为 **PSB 原值**（`#rects/speaker` = 整条消息行可点）⇒ 让用户基于错误事实做了裁决，实施时才发现并重新取得裁定。**给选项前先查清「这个值是从哪来的」。**
+ 7. **同理：审查也会误报**。二审 Major-1（配置屏静音勾选框反馈被吃）**误报** —— 它没查 `visible_default`（那三件本就 `false`，整行关闭）。**收到审查意见要先用数据复算，再动手。**
+@@ -116,6 +116,14 @@
+ 10. **别写恒真断言**：B 里原有 `state.history.length === state.history.length`（自比永真，`h0` 从未使用）；**也别硬编码计数**（`=== 13` 这类 —— 数据一变就假失败，本轮正栽在这上面）。
+ 11. **shell heredoc 引号地狱（本会话反复中招）**：`python - <<'PY'` 或 `python -c "..."` 里的 `\U`/`\M` 转义、嵌套引号、`%` 都会被搞坏（表现为无输出、rc=127、或断言神秘失败）。**写脚本一律用 Write 工具落文件再 `python <文件>`**，别在 shell 里内联长代码。
+ 12. **krkr 的 `krkr.console.log` 是追加式**：从别处复制来的 runtime 会把**别人的启动块**一并带进来（本会话就在日志里遇到另一 worktree 的失败启动 + `-autotour=1` 尝试）。判读时按时间戳取自己那次。
++14. **`String.substring(start, count)` 第二参是「长度」不是结束下标**（krkrz `tjs2/tjsInterCodeExec.cpp:2698-2714` 源码定论）。按 Web 习惯写 `substring(k, k+4)` 找 `"hit_"` ⇒ **恒不命中且不抛异常**，日志 `EXCEPTION` 仍是 0（M2 首版气泡文字永远为空即此坑）。已入 skill §5.9 坑 1。
++15. **用 `function name(...){}` 函数声明去包装已被包装的全局函数 ⇒ 自递归 ⇒ 引擎段错误**（实测退出码 **139**，日志停在首帧重绘之前、无任何异常行）。包装一律用 `var base = 原函数; 原函数 = function(...) { … base(...) … };`。已入 skill §5.9 坑 2。
++16. **`.bat` 里 `xcopy` 的目标若被解析成不存在的「文件」会交互式等待** ⇒ 无人值守时表现为**命令挂住不返回**（不是报错）。目录复制加结尾反斜杠，或改用 `python -c "import shutil; shutil.copytree(...)"`。已入 skill §5.9 坑 3。
++17. ★ **一个 z 更高的「整条」热区会静默吞掉所有子项**（本轮**阻断项**：`quick.hit_toggle` z=96 的矩形包住 12 个项热区 z=95 ⇒ 展开态点竖条任何位置都只派发把手动作，**12 项全部不可达**）。**自检全绿、截图正常、日志无异常**，只有「点第 N 项是否真的派发第 N 项动作」这类**目标导向断言**才暴露。修法用 `vis_flag` 做状态互斥，**不要靠调 z 硬拼**。已入 skill §5.9 坑 4。
++18. ★ **「两端行为一致」不等于「两端都正确」**：krkr 与 HTML 复刻**各自独立**实现同一套命中规则，上述缺陷在两端**表现完全相同** ⇒ 一致性验证（A/B 逐像素相同）反而强化「没问题」的错觉。一致性是必要条件，正确性必须独立证明。
++19. **`verify_ui.py` 第 4 项会扫 `game/*.tjs` 里的硬编码坐标并判失败** ⇒ 一切阈值必须来自 layout 数据（本轮把 `in_x`／`out_x`／`delay_ms` 放进 `reveal` 对象的理由）。
++20. **屏 JSON 由生成器产出（如 `工具/m34_build_screens.py` 的 `build_quickbar()`）** ⇒ **改 JSON 必须同步改生成器**，否则下次重跑即抹掉。标准做法：改生成器 → 只 import 并重跑那一个 build 函数（`importlib`，避免动别的屏）→ 再 `gen_layout.py` → 用 **md5 相同**自证生成器↔磁盘一致。
++21. **TJS2 的 `Dictionary` 没有枚举接口**（`for...in`、`.count` 均不存在）⇒ 无法遍历所有键。本轮 `uiScreenFlagsInitFor` 只能枚举「被数据引用到的 flag 名」；**结论：flag 名必须至少被一个元素或 `reveal` 引用**。
+ 13. **`临时\` 清理要确权**：只删本次任务自己创建的目录（本会话的 `临时\wt-ui26\临时\*`、`临时\edge_m35*`）。
+ 
+ ---
+@@ -128,9 +136,15 @@ export PYTHONPATH="E:/ZCode Workspace/Galgame/工具/pylibs"
+ 
+ # 1) 生成 + 六项硬校验（唯一真相源 → 三处生成物）
+ cd 工具 && python gen_layout.py && python verify_ui.py        # 退出码须为 0
+-# 2) 两道数据级断言
++# 2) 三道数据级断言（**改判据/可见性/声明序/z 后必跑**）
+ python test_verify_asset_refs.py      # 引用表覆盖 state_assets（含非字典异常）
+-python test_state_targets.py          # 「态图+组」元素的悬停可达性（25 个全可达）
++python test_state_targets.py          # ①「态图+组」∪「纯组热区」的悬停可达性（36 件几何中心）
++                                      # ② uiScreenElementVisible / uiScreenHoverAtIn 的**判据指纹**
++                                      #    （TJS 正文 hash + 成对令牌；判据被放宽/改写即 FAIL）
++                                      # ⇒ 覆盖/不覆盖的准确边界见该脚本 docstring
++python test_quickbar_reach.py         # quickbar 端到端可达性（复算 uiScreenClick 口径）：
++                                      # 收起态把手独占 / 展开态 12 项各自可达且 action 正确
++                                      # （加 --selfcheck 跑反向自证：把手改回可见、注入异组遮挡）
+ # 3) 两套浏览器自检（无头 Edge；--user-data-dir 用 临时\ 下自建目录，用完清）
+ EDGE="C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
+ "$EDGE" --headless=new --disable-gpu --no-sandbox --user-data-dir=<临时> --hide-scrollbars \

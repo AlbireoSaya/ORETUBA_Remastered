@@ -1,0 +1,218 @@
+{
+ "module": "逐行演出表 · 机读汇总",
+ "issue": "ISSUE-20261001-14",
+ "generated_by": "工程/我们没有翅膀——格雷塔迦露德与柳木原/资源组/工具/emit_staging_index.py",
+ "contract": "编程组\\移交资源组_逐行演出数据任务书.md §三 / §五",
+ "seq_semantics": "op 的 seq = 紧随其后第一个文本行的行号；其后无文本行 ⇒ 末行行号（evidence 注 after_last_line）；首行之前 ⇒ 1（注 before_first_line）；skip 行 seq=0",
+ "sources": {
+  "ot": {
+   "file": "演出_ot.tsv",
+   "bytes_lf_normalized": 3001512,
+   "line_ending_canonical": "LF（仓库 blob 形态；core.autocrlf=true 的检出盘面为 CRLF，见 交接说明.md C12）",
+   "sha256": "756720b4b4d61b87314d73e87cdfd84b31efdf634ee5b488b84b5f040ec1999d",
+   "sha256_over": "LF 规范化后的字节（与检出形态无关；见 交接说明.md C12）",
+   "header_ok": true,
+   "rows": 21762,
+   "scenes": 367,
+   "scenes_expected": 367,
+   "skip_scenes": 0,
+   "skip_rows": 0,
+   "seq_max": 602,
+   "op_distribution": {
+    "bg": 1414,
+    "chr_add": 902,
+    "chr_expr": 13310,
+    "other": 2484,
+    "se": 3652
+   },
+   "confidence_distribution": {
+    "exact": 21751,
+    "unknown": 11
+   }
+  },
+  "ota": {
+   "file": "演出_ota.tsv",
+   "bytes_lf_normalized": 2163403,
+   "line_ending_canonical": "LF（仓库 blob 形态；core.autocrlf=true 的检出盘面为 CRLF，见 交接说明.md C12）",
+   "sha256": "032f06570099b82d9f53bc1dd68fc0d2cd578c5b626611bb254584aec036baee",
+   "sha256_over": "LF 规范化后的字节（与检出形态无关；见 交接说明.md C12）",
+   "header_ok": true,
+   "rows": 10275,
+   "scenes": 172,
+   "scenes_expected": 172,
+   "skip_scenes": 1,
+   "skip_rows": 1,
+   "seq_max": 406,
+   "op_distribution": {
+    "bg": 1317,
+    "chr_add": 828,
+    "chr_expr": 4805,
+    "other": 1232,
+    "se": 2092,
+    "skip": 1
+   },
+   "confidence_distribution": {
+    "exact": 9896,
+    "inferred": 378,
+    "unknown": 1
+   }
+  },
+  "otp": {
+   "file": "演出_otp.tsv",
+   "bytes_lf_normalized": 652211,
+   "line_ending_canonical": "LF（仓库 blob 形态；core.autocrlf=true 的检出盘面为 CRLF，见 交接说明.md C12）",
+   "sha256": "53e888fb09e2ac4ef42fecf76edf46ae0574fee58587b5b71474a4bccc6657b1",
+   "sha256_over": "LF 规范化后的字节（与检出形态无关；见 交接说明.md C12）",
+   "header_ok": true,
+   "rows": 4790,
+   "scenes": 59,
+   "scenes_expected": 59,
+   "skip_scenes": 0,
+   "skip_rows": 0,
+   "seq_max": 431,
+   "op_distribution": {
+    "bg": 202,
+    "chr_add": 184,
+    "chr_expr": 2732,
+    "effect": 2,
+    "other": 663,
+    "se": 1007
+   },
+   "confidence_distribution": {
+    "exact": 4776,
+    "unknown": 14
+   }
+  },
+  "otr": {
+   "file": "演出_otr.tsv",
+   "bytes_lf_normalized": 771715,
+   "line_ending_canonical": "LF（仓库 blob 形态；core.autocrlf=true 的检出盘面为 CRLF，见 交接说明.md C12）",
+   "sha256": "c3159c32331cd61e0956b506637c19826f1638b679a27af73421946a4484018f",
+   "sha256_over": "LF 规范化后的字节（与检出形态无关；见 交接说明.md C12）",
+   "header_ok": true,
+   "rows": 3371,
+   "scenes": 55,
+   "scenes_expected": 55,
+   "skip_scenes": 0,
+   "skip_rows": 0,
+   "seq_max": 343,
+   "op_distribution": {
+    "bg": 528,
+    "chr_add": 336,
+    "chr_expr": 1701,
+    "other": 318,
+    "se": 488
+   },
+   "confidence_distribution": {
+    "exact": 3265,
+    "inferred": 106
+   }
+  },
+  "otv": {
+   "file": "演出_otv.tsv",
+   "bytes_lf_normalized": 569622,
+   "line_ending_canonical": "LF（仓库 blob 形态；core.autocrlf=true 的检出盘面为 CRLF，见 交接说明.md C12）",
+   "sha256": "9684edc0fdcef89503ebc24abee67209107a4ad6e206bdc27a709eefbbed66d5",
+   "sha256_over": "LF 规范化后的字节（与检出形态无关；见 交接说明.md C12）",
+   "header_ok": true,
+   "rows": 3330,
+   "scenes": 31,
+   "scenes_expected": 31,
+   "skip_scenes": 0,
+   "skip_rows": 0,
+   "seq_max": 327,
+   "op_distribution": {
+    "bg": 443,
+    "bgm": 199,
+    "chr_add": 1106,
+    "chr_expr": 180,
+    "chr_move": 28,
+    "chr_remove": 72,
+    "effect": 275,
+    "movie": 2,
+    "other": 568,
+    "se": 386,
+    "wait": 71
+   },
+   "confidence_distribution": {
+    "exact": 2729,
+    "inferred": 497,
+    "unknown": 104
+   }
+  },
+  "np": {
+   "file": "演出_np.tsv",
+   "bytes_lf_normalized": 90005,
+   "line_ending_canonical": "LF（仓库 blob 形态；core.autocrlf=true 的检出盘面为 CRLF，见 交接说明.md C12）",
+   "sha256": "c4a3d897d4910594d6d2cb53eb56f4405fe5c7b6d4f261ae29c96cad675e5dae",
+   "sha256_over": "LF 规范化后的字节（与检出形态无关；见 交接说明.md C12）",
+   "header_ok": true,
+   "rows": 560,
+   "scenes": 28,
+   "scenes_expected": 28,
+   "skip_scenes": 2,
+   "skip_rows": 2,
+   "seq_max": 238,
+   "op_distribution": {
+    "bg": 159,
+    "bgm": 97,
+    "chr_add": 199,
+    "se": 103,
+    "skip": 2
+   },
+   "confidence_distribution": {
+    "inferred": 558,
+    "unknown": 2
+   }
+  }
+ },
+ "gates": {
+  "ran": true,
+  "exit_code": 0,
+  "all_pass": true,
+  "per_source": {
+   "np": {
+    "rows": 560,
+    "scenes": 28,
+    "verdict": "PASS",
+    "detail": "①②③④⑤⑦ 全绿（逐场守恒缺失 0）"
+   },
+   "ot": {
+    "rows": 21762,
+    "scenes": 367,
+    "verdict": "PASS",
+    "detail": "①②③④⑤⑦ 全绿（逐场守恒缺失 0）"
+   },
+   "ota": {
+    "rows": 10275,
+    "scenes": 172,
+    "verdict": "PASS",
+    "detail": "①②③④⑤⑦ 全绿（逐场守恒缺失 0）"
+   },
+   "otp": {
+    "rows": 4790,
+    "scenes": 59,
+    "verdict": "PASS",
+    "detail": "①②③④⑤⑦ 全绿（逐场守恒缺失 0）"
+   },
+   "otr": {
+    "rows": 3371,
+    "scenes": 55,
+    "verdict": "PASS",
+    "detail": "①②③④⑤⑦ 全绿（逐场守恒缺失 0）"
+   },
+   "otv": {
+    "rows": 3330,
+    "scenes": 31,
+    "verdict": "PASS",
+    "detail": "①②③④⑤⑦ 全绿（逐场守恒缺失 0）"
+   }
+  },
+  "note": "⑥ 实机抽查对照不在此列（须运行态，由编程组执行）"
+ },
+ "total": {
+  "rows": 44088,
+  "scenes": 712,
+  "skip_scenes": 3
+ }
+}

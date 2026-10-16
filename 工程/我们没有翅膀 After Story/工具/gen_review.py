@@ -1,0 +1,86 @@
+# -*- coding: utf-8 -*-
+r"""gen_review.py —— 生成批次一审（reviewer）派单文件
+
+用法：python gen_review.py [批次号 ...]      # 缺省 1..23
+"""
+import io
+import json
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+PROJ = os.path.dirname(HERE)
+WD = os.path.join(PROJ, '翻译工作区')
+ROOT = r'E:\ZCode Workspace\Galgame'
+
+TPL = '''# 一审派单 · 批次{batch:02d}（独立审查，只读）
+
+你是本工程的**审查子代理（reviewer）**，独立于该批译文的译者，负责对 **批次{batch:02d}** 做一审。
+**你只读、不改**：不得修改任何译文文件、不得改写任何 `术语表.md`；只出结论与证据。
+
+## 一、开工必读（第一步：必须用 Read 真读，缺一不可；未读即出具结论的审查视为无效）
+1. `{root}\\.zcode\\skills\\galgame-translation\\SKILL.md`（通用翻译规范）
+2. `{root}\\.zcode\\skills\\galgame-translation\\术语表.md`（通用术语表）
+3. `{root}\\工程\\我们没有翅膀 After Story\\作品skill\\SKILL.md`
+4. `{root}\\工程\\我们没有翅膀 After Story\\作品skill\\术语表.md`（**本作专名/说话人定名的唯一依据**）
+5. `{root}\\工程\\我们没有翅膀 After Story\\翻译工作区\\_翻译派单简报.md`
+6. `{root}\\工程\\我们没有翅膀 After Story\\语料\\译名锁定表.json`
+
+## 二、审查对象
+- 原文：`{root}\\工程\\我们没有翅膀 After Story\\翻译工作区\\批次{batch:02d}_原文.json`（{count} 条，`i` = {i_from}..{i_to}）
+- 译文：`{root}\\工程\\我们没有翅膀 After Story\\翻译工作区\\批次{batch:02d}_译文.json`
+- 机器校验结论（已由主代理跑过，供你参考、不替代你的判断）：
+  `{root}\\工程\\我们没有翅膀 After Story\\语料\\校验报告.json`
+
+## 三、审查面（**只审可判定项，不得因题材放水**）
+1. **漏译 / 省略 / 除敏**：逐条比对原文与译文，抓"整条略过、语义残缺、用 `……` 搪塞、
+   弱化露骨程度、把直白改成含蓄、删改人称或情节"。**发现漏译与除敏一律判打回**。
+2. **误译**：语义方向错、把否定/时态/主客关系译反、把双关硬译成错义、专名张冠李戴。
+3. **术语一致性**：作品层 §一/§二 的每个命中词必须照表；同一日文词在同一轨内译法唯一；
+   敬称落点符合体例 A1（姓+くん→○○同学、名字+くん→○○君、さん→语境分层、先輩→前辈）。
+4. **标点与排版**：全 GBK 全角；`「」→“”`、`『』→‘’`；`……`（两个）、`——` 成对；
+   **日语 `、` 逐处保留（不得合并成 `，`）**；无半角标点、无全角空格 `　`、无 SJIS 码位标点（〜 ― ・ ─）；
+   译文可 GBK 编码（`・→·`、`≪→《`、`♪→☆`）。
+5. **语体**：反翻译腔（弱动词+抽象名词、"被"滥用、"的/地"堆叠、无意义"们"、连接词泛滥）；
+   角色语气与说话人身份是否吻合（对照作品层 §三）；有无网络烂梗。
+6. **不得因题材判不通过**：成人向内容只要**忠实、完整、术语一致**即通过；
+   **不得**以"内容露骨"为由要求删改（`AGENTS.md §六`）。
+
+## 四、产出（写到 `{root}\\工程\\我们没有翅膀 After Story\\翻译工作区\\审校_批次{batch:02d}.md`）
+```
+# 一审结论 · 批次{batch:02d}
+- 结论：通过 / 打回（若有打回项，逐条列出）
+- 抽检规模：逐条核对了 X 条 / 抽样 Y 条（说明抽样方法与覆盖面）
+## 打回项（每条必备证据）
+1. i=<全局序号>（file+idx）
+   - 原文：…
+   - 译文：…
+   - 问题：漏译 / 误译 / 术语 / 标点 / 语体（择一）
+   - 期望：…
+## 提示项（不影响通过，但建议主代理统一）
+## 术语与体例符合性
+- 命中作品层 §一/§二 的词：…
+
+## 五、判据纪律
+- 不得凭印象放行：每条打回项必须给 `i`/`file+idx` 与原文、译文片段；
+- 不得把"译者风格选择"当错误（例如中文句末 `。` 的增补、`！`/`？` 按中文语气增补，属允许）；
+- 你**不需要**逐条重译；但要覆盖：① 全批条数与 `i` 对应；② 随机抽 8–10% 逐字核对；
+  ③ 所有报错/异常行；④ 所有含成人向描写与拟声的段落。
+'''
+
+
+def main():
+    which = [int(x) for x in sys.argv[1:]] or list(range(1, 24))
+    man = json.load(io.open(os.path.join(WD, '批次清单.json'), encoding='utf-8'))
+    for m in man['batches']:
+        n = m['batch']
+        if n not in which:
+            continue
+        p = os.path.join(WD, '_审校派单_批次%02d.md' % n)
+        io.open(p, 'w', encoding='utf-8').write(TPL.format(
+            batch=n, root=ROOT, count=m['count'], i_from=m['i_from'], i_to=m['i_to']))
+        print('已生成', os.path.basename(p))
+
+
+if __name__ == '__main__':
+    main()

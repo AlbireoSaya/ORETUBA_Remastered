@@ -1,0 +1,16 @@
+# 变异自证：把参数/掩膜搅坏，确认断言**真的会失败**（非空转）；全部 write=False，不写任何资产。期望每条 rc=1。
+
+[符合预期] M1 剪前帧：off gain → 1.0（发光尾冲穿画布） → rc=1
+    !! x_ui_zoomout_off.png：剪前最外 1px 帧 αmax=27 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=27 ≠ 0
+    !! x_ui_zoomin_off.png：剪前最外 1px 帧 αmax=27 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=27 ≠ 0
+    !! x_ui_shift_lf_off.png：剪前最外 1px 帧 αmax=27 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=27 ≠ 0
+    !! x_ui_shift_rg_off.png：剪前最外 1px 帧 αmax=27 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=27 ≠ 0
+
+[符合预期] M2 剪后帧不变量：PLATE_INSET → 0.5（板面/发光触到画布边缘） → rc=1
+    !! x_ui_zoomout_off.png：剪前最外 1px 帧 αmax=245 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=245 ≠ 0
+    !! x_ui_zoomout_over.png：剪前最外 1px 帧 αmax=247 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=247 ≠ 0
+    !! x_ui_zoomout_on.png：剪前最外 1px 帧 αmax=249 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=249 ≠ 0
+    !! x_ui_zoomin_off.png：剪前最外 1px 帧 αmax=245 > 10（发光尾过强）; 剪后最外 1px 帧 αmax=245 ≠ 0
+
+[符合预期] M3 corners 类：NEW 盘面改小（左右边中点 <250） → rc=1
+    !! x_ui_new.png：左右边中点 α=[0, 0] < 250 ⇒ 盘面未满铺（判据＝我方规格：满铺到画布边缘）

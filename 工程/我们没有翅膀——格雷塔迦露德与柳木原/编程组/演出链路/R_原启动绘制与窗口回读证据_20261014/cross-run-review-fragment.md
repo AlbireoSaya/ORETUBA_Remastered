@@ -1,0 +1,12 @@
+## 2026-10-14 跨运行裁剪反例与阶段准入结论
+- canonical120实际退出0、worker_errors空、ownedcleanup通过。
+- 源窗口GetClipBox类型1(NULLREGION)、RECT全0；IsIconic0、IsWindowVisible1。
+- 所有源GetPixel为CLR_INVALID；113次blit后整幅与源16543颜色字节差异。
+- 故窗口未最小化但DC无可画范围：不能判原作缺图，也不计像素还原通过；原因归属还需验证遮挡/消息泵/原父线程，不能宣称因果已定。
+- 115/117两次整帧RGB0差异只对应当次运行；118/119/120反例完整保留。
+- 当前覆盖17 SDK=16新增+既有IsIconic复用，以及两editor验证helper。
+- 32/64自有OS验证通过，含clipbox owned DIB、IsIconic owned message-window、palette独立output+无输出写入负例拒绝；所有声明不是完成目标引擎。
+- 先前14候选状态为此前小批次，不混称所有17新建。
+- 单整数cdecl已SDK实测，不假称BGM播放已执行。
+- 下一步接原父线程HANDLE/TID消费者与消息循环，在有效DC上再取动态整帧与音频，然后忠实TJS及四版本全路线。
+- 证据入口：R_原启动绘制与窗口回读证据_20261014。

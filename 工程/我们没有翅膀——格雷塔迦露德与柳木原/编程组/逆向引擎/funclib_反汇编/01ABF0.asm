@@ -1,0 +1,37 @@
+; V=0x1ABF0  core=0x1ABF0..0x1AC0C（3 条）  过程=0x1ABF0..0x1AD18（3 块/33 条，段数 1）
+; native=-
+; 内嵌串 core=-
+; 库内 CALL -> ['0xa5d0', '0x1d4bc', '0x19a68', '0x1a9e0']
+0001ABF0  MOV_D         0x183E1B8[var#905] 0x18593D0[L_1AC00]    ★ V 入口
+0001ABFC  JZ            0x0[-] 0x18593DC[L_1AC0C]                
+0001AC08  RET                                                    
+0001AC0C  LD_STK        0x1C[-] 0x18593EC[L_1AC1C]               
+0001AC18  PUSH          0x0[-]                                   
+0001AC20  LD_STK        0x1C[-] 0x1859400[L_1AC30]               
+0001AC2C  PUSH          0x0[-]                                   
+0001AC34  PUSH          0x1[-]                                   
+0001AC3C  CALL          0x1848DA0[L_A5D0]                        
+0001AC44  SP_DROP       0xC[-]                                   
+0001AC4C  STORE_RETVAL  0x1869F06[str@""]                        
+0001AC54  LD_STK        0x8[-] 0x1859434[L_1AC64]                
+0001AC60  JZ            0x0[-] 0x1859470[L_1ACA0]                
+0001AC6C  LD_STK        0x8[-] 0x185944C[L_1AC7C]                
+0001AC78  PUSH          0x0[-]                                   
+0001AC80  PUSH          0x1[-]                                   
+0001AC88  CALL          0x185BC8C[L_1D4BC]                       
+0001AC90  SP_DROP       0x8[-]                                   
+0001AC98  STORE_RETVAL  0x1869F06[str@""]                        
+0001ACA0  PUSH          0x1[-]                                   
+0001ACA8  CALL          0x1858238[L_19A68]                       
+0001ACB0  SP_DROP       0x4[-]                                   
+0001ACB8  STORE_RETVAL  0x1869F06[str@""]                        
+0001ACC0  LD_STK        0x14[-] 0x18594A0[L_1ACD0]               
+0001ACCC  PUSH          0x0[-]                                   
+0001ACD4  LD_STK        0x14[-] 0x18594B4[L_1ACE4]               
+0001ACE0  PUSH          0x0[-]                                   
+0001ACE8  LD_STK        0x14[-] 0x18594C8[L_1ACF8]               
+0001ACF4  PUSH          0x0[-]                                   
+0001ACFC  CALL          0x18591B0[L_1A9E0]                       
+0001AD04  SP_DROP       0xC[-]                                   
+0001AD0C  STORE_RETVAL  0x1869F06[str@""]                        
+0001AD14  RET                                                    

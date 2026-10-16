@@ -1,0 +1,159 @@
+from pathlib import Path
+import sys,json,hashlib,struct,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';candidate=root/'子代理工作区/ISSUE-20261011-02/r-sob-ascii-final-02'
+sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(root/'工程/我们没有翅膀R/工具'),str(g/'工具'),str(g/'逆向引擎')]
+from lucifen_host_memory import HostMemory
+from lucifen_host_version import host_version_ex_a,host_upper_ascii_z
+from lucifen_guest_memory_bridge import GuestMemoryBlocks
+from lucifen_readonly_ascii_io import ReadOnlyAsciiFiles
+from lucifen_sob_loader import parse_sob1,bind_sob1,parse_container,relocate_buffer
+from lucifen_readonly_io_guest import bridge_ReadFile,bridge_SetFilePointer,bridge_CloseHandle
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_cdecl_probe import invoke_cdecl
+from pe_min import PE
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_ESI
+import lpk_media as M
+
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+from lucifen_host_path_bridge import bridge_lstrcatA,bridge_CharLowerA,host_open_missing_readonly
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+stage=root/'临时/ISSUE-20261011-02/r-full-SOB-publication-formal-01';stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE')
+stem='SCRIPT'
+fixture=root/'_game_ascii/ISSUE-20261011-02-sob-publication-fixture-06';fixture.mkdir(parents=True,exist_ok=True);fixture_file=fixture/'EMPTY_SOB_METADATA.DAT'
+if not fixture_file.exists():fixture_file.write_bytes(b'\0\0')
+assert fixture_file.read_bytes()==b'\0\0';baseprefix=(str(fixture)+'\\').encode('ascii')
+path=root/'备份/我们没有翅膀R-安装介质/SET_UP'/ (stem+'.LPK');lp=M.load(str(path))
+hx=struct.unpack_from('<I',lp['mm'],4)[0]^lp['k2'];flags=hx>>24;ts=hx&0xffffff
+if flags&1:ts=(ts<<11)-8
+index=bytearray(lp['mm'][8:8+ts]);M.X.decrypt_table(index,lp['k2'],M.X.ROTATE_PATTERN)
+plen=index[4];mode=int(index[5+plen]!=0);trie_start=10+plen;trie_bytes=struct.unpack_from('<I',index,6+plen)[0];entry_start=trie_start+trie_bytes;esize=13 if flags&8 else 9
+entries=list(M.X.traverse_index(index,trie_start,4 if mode else 2,entry_start,esize));assert len(entries)==len(lp['ents'])
+u=map_pe(pe);u.mem_map(0,4096);u.mem_map(0x1fe0000,0x20000);u.mem_write(0,b'\xff'*4)
+u.mem_write(0x100c000,(stem+'.LPK').encode('ascii')+b'\0');u.mem_write(0x100c800,b'\xd5'*4)
+aux=M.aux_for(str(path)) or (0,0);u.mem_write(0x5357f0,struct.pack('<I',aux[0]));u.mem_write(0x5357f8,struct.pack('<I',aux[1]));u.mem_write(0x5357f4,b'\0')
+proxy={0x200e200:('HeapCreate',0x518104,12),0x200e210:('HeapDestroy',0x518108,4),0x200e220:('HeapAlloc',0x51814c,12),0x200e230:('HeapFree',0x518168,12),0x200e240:('GlobalAlloc',0x5181cc,8),0x200e250:('GlobalFree',0x518194,4),0x200e260:('GetVersionExA',0x518278,4),0x200e270:('ReadFile',0x518248,20),0x200e280:('SetFilePointer',0x518244,16)}
+proxy.update({0x200e300:('GetFileSize',0x518250,8),0x200e2d0:('lstrcatA',0x5181c8,8),0x200e2e0:('CharLowerA',0x5182e8,4),0x200e2f0:('CreateFileA',0x51824c,28),0x200e290:('lstrcpyA',0x5181dc,8),0x200e2a0:('lstrlenA',0x5181c4,4),0x200e2b0:('CharUpperA',0x5182ec,4),0x200e2c0:('CloseHandle',0x5181bc,4)})
+for addr,(name,iat,argc)in proxy.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+counts=collections.Counter();events=[];rows=[];heap_handles={};versions=[]
+with HostMemory()as memory,ReadOnlyAsciiFiles([path,fixture_file])as files:
+ mirror=GuestMemoryBlocks(u,memory);token,err=files.open(path);assert err==0
+ def hook(uc,a,n,ud):
+  name,iat,argc=proxy[a];esp=uc.reg_read(UC_X86_REG_ESP);ra=struct.unpack('<I',uc.mem_read(esp,4))[0];args=struct.unpack('<%dI'%(argc//4),uc.mem_read(esp+4,argc));event={'api':name,'args':list(args),'native_return_address':ra};rd=lambda q,k:bytes(uc.mem_read(q,k));wr=lambda q,b:uc.mem_write(q,b)
+  if name=='HeapCreate':
+   assert ra==0x50a131;actual=memory.heap_create(*args);assert actual!=0;value=0x68000000+len(heap_handles);heap_handles[value]=actual
+  elif name=='HeapDestroy':
+   actual=heap_handles[args[0]];value=int(memory.heap_destroy(actual));assert value==1;del heap_handles[args[0]]
+  elif name=='HeapAlloc':
+   assert ra==0x507630;actual=memory.heap_alloc(heap_handles[args[0]],args[1],args[2]);assert actual!=0;value=mirror.bind(actual);event['rounded_allocation_size']=memory.size(actual)
+  elif name=='HeapFree':
+   assert ra==0x506668;mirror.sync(args[2]);actual=mirror.host_pointer(args[2]);value=int(memory.heap_free(heap_handles[args[0]],args[1],actual));assert value==1;mirror.unmap(args[2])
+  elif name=='GlobalAlloc':
+   assert ra==0x491e44;actual=memory.global_alloc(*args);assert actual!=0;value=mirror.bind(actual);event['allocation_size']=memory.size(actual)
+  elif name=='GlobalFree':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;mirror.sync(args[0]);actual=mirror.host_pointer(args[0]);assert memory.global_free(actual)==0;value=0;mirror.unmap(args[0])
+  elif name=='GetVersionExA':
+   assert ra==0x509ff7;ok,data,err=host_version_ex_a(rd(args[0],148));assert ok and err==0;wr(args[0],data);value=int(ok);versions.append(list(struct.unpack('<5I',data[:20])));event['observed_version']=versions[-1]
+  elif name=='ReadFile':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value,err=bridge_ReadFile(files,rd,wr,*args);assert value==1 and err==0;event['actual_bytes_read']=struct.unpack('<I',uc.mem_read(args[3],4))[0];assert event['actual_bytes_read']==args[2];mirror.sync(args[1]) if ra!=0x4908ec else None
+  elif name=='SetFilePointer':
+   assert ra==0x49133f;value,err=bridge_SetFilePointer(files,rd,wr,*args);assert err==0 and value==args[1]
+  elif name=='lstrcpyA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrcpyA(rd,wr,args[0],args[1],256)
+  elif name=='lstrlenA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrlenA(rd,args[0],256)
+  elif name=='CharUpperA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;payload=read_z(rd,args[0],256);actual=host_upper_ascii_z(payload);wr(args[0],actual+b'\0');value=args[0]
+  elif name=='CloseHandle':
+   assert ra in(0x490c68,0x492788);value,err=bridge_CloseHandle(files,args[0]);assert value==1 and err==0
+  elif name=='lstrcatA':
+   value=bridge_lstrcatA(rd,wr,args[0],args[1],260)
+  elif name=='CharLowerA':
+   value=bridge_CharLowerA(rd,wr,args[0],260)
+  elif name=='CreateFileA':
+   payload=read_z(rd,args[0],260);assert payload.startswith(baseprefix) and payload.upper().endswith((b'.DAT',b'.SOB'))
+   if payload.upper()==str(fixture_file).encode('ascii').upper():value,err=files.open_ascii(payload,*args[1:]);assert value!=0xffffffff and err==0
+   else:value,err=host_open_missing_readonly(payload,*args[1:]);assert value==0xffffffff and err in(2,3)
+   event['actual_error']=err
+  elif name=='GetFileSize':
+   assert ra==0x4924ec;value,err=files.size(*args);assert value==2 and err==0;event['actual_error']=err
+  counts[name]+=1;event['guest_result']=value;events.append(event);uc.reg_write(UC_X86_REG_EAX,value)
+
+
+ handle=u.hook_add(UC_HOOK_CODE,hook,begin=0x200e200,end=0x200e30f)
+ seh=bytes(u.mem_read(0,4));assert invoke_cdecl(u,0x50a11a,[1],timeout=0)==1
+ reader=invoke_thiscall_args(u,0x490850,0,[0x100c000,token,0x100c800],timeout=0,count=ts*12+1000000);assert reader and struct.unpack('<I',u.mem_read(0x100c800,4))[0]==0
+ controller=invoke_cdecl(u,0x50577f,[0x118],timeout=0);assert invoke_thiscall_args(u,0x41b3d0,controller,[],timeout=0)==controller
+ # Real original application registration block, no native body execution.
+ u.reg_write(UC_X86_REG_ESI,controller);u.reg_write(UC_X86_REG_ESP,0x2008000);u.emu_start(0x40e95c,0x410f2d,timeout=0,count=2000000)
+ assert u.reg_read(UC_X86_REG_EIP)==0x410f2d and u.reg_read(UC_X86_REG_ESP)==0x2008000
+ b,end=struct.unpack('<2I',u.mem_read(controller+0x38,8));assert end-b==809*4
+ provider=0x10f0000;sentinel=0x10f3000;node=sentinel+0x40;desc=0x10f4000;prefixptr=0x10f5000
+ u.mem_write(0x5357cc,struct.pack('<I',provider));u.mem_write(provider,struct.pack('<I',0x51a3a0));u.mem_write(0x5357fc,baseprefix+b'\0')
+ u.mem_write(provider+0x24,struct.pack('<I',sentinel));u.mem_write(sentinel,struct.pack('<I',node));u.mem_write(node,struct.pack('<III',sentinel,0,desc));u.mem_write(desc,struct.pack('<IIII',reader,prefixptr,0,0));u.mem_write(prefixptr,(baseprefix+b'SCRIPT\\').lower()+b'\0')
+ u.mem_write(0x10e0000,b'EMPTY_SOB_METADATA.DAT\0')
+ start=len(events)
+ try:
+  ret=invoke_thiscall_args(u,0x4a67e0,controller,[0x10e0000,0x5291b8,0x5291cc,1,1],timeout=0,count=5000000)
+  print('original boot returned',ret,'declarations',(struct.unpack('<I',u.mem_read(controller+0x60,4))[0]-struct.unpack('<I',u.mem_read(controller+0x5c,4))[0])//12,flush=True)
+  assert ret==0 and bytes(u.mem_read(0,4))==seh
+  source=root/'工程/我们没有翅膀R/语料/R版SCRIPT';decl=parse_sob1((source/'user_var.sob').read_bytes())
+  get=lambda a:struct.unpack('<I',u.mem_read(a,4))[0]
+  binding_rows=[]
+  for label,bo,vo,ao in [('live',0x54,0x5c,0x6c),('snapshot1',0x78,0x80,0x90),('snapshot2',0x9c,0xa4,0xb4)]:
+   db=get(controller+bo);vb=get(controller+vo);ab=get(controller+ao)
+   bound=bind_sob1(decl,db,ab);n=len(decl['initial_data'])
+   assert bytes(u.mem_read(db,n))==bytes(bound['data']);mirror.sync(db);mirror.sync(vb);mirror.sync(ab)
+   addresses=[];record_matches=True
+   for i,r in enumerate(decl['records']):
+    raw=bytes(u.mem_read(vb+i*12,12));address=struct.unpack_from('<I',raw)[0];addresses.append(address)
+    assert address==bound['variable_addresses'][i] and raw[4:6]==bytes([r['type'],r['flags']]) and struct.unpack_from('<I',raw,8)[0]==r['extra']
+   assert list(struct.unpack('<3I',u.mem_read(ab,12)))==bound['array_slots']
+   binding_rows.append({'label':label,'initial_bytes':n,'declarations':len(addresses),'arrays':3,'all_data_records_and_slots_equal_reference':True,'local_relocations':len(decl['local_relocations'])})
+  vectors=[]
+  vb=get(controller+0x5c);vectors.append([get(vb+i*12)for i in range(768)])
+  nb=get(controller+0x38);vectors.append([get(nb+i*4)for i in range(809)])
+  named=get(controller+0x48);ne=get(controller+0x4c);assert ne-named==36
+  vectors.append([get(named+i*12)for i in range(3)])
+  assert vectors[2]==[controller+0xdc,controller+0x10c,controller+0x110]
+  module_rows=[]
+  funcbase=get(controller+0xd4);mb=get(controller+0x24);me=get(controller+0x28);assert me-mb==4
+  func_rec=get(mb);assert get(func_rec)==funcbase
+  func=parse_container((source/'func_lib.sob').read_bytes(),'func_lib.sob')
+  ref,trace=relocate_buffer(func['data'][func['header']:],func['maps'],func['ss'],funcbase,funcbase,vectors)
+  assert bytes(u.mem_read(funcbase,func['se']))==bytes(ref);mirror.sync(funcbase)
+  assert get(func_rec+4)==0 and get(func_rec+8)==0 and get(func_rec+12)==func['ss']
+  module_rows.append({'name':'func_lib.sob','original_entry':0x4a67e0,'bytes':func['se'],'relocations':len(trace),'original_publication_and_relocation_equal_reference':True})
+  live0=mirror.live_count
+  for spath in sorted(source.glob('*.sob')):
+   if spath.name.lower() in('func_lib.sob','user_var.sob'):continue
+   module=parse_container(spath.read_bytes(),spath.name)
+   u.mem_write(0x10e0200,('SCRIPT\\'+spath.name).encode('ascii')+b'\0')
+   start_sp=get(controller+0x10)
+   assert invoke_thiscall_args(u,0x4a7000,controller,[0x10e0200,0],timeout=0,count=120000000)==0
+   body=get(controller+0xd8);begin=get(controller+0x24);end=get(controller+0x28);assert end-begin==8
+   rec=get(end-4);assert get(rec)==body and get(rec+4)==0 and get(rec+8)==0xffffffff and get(rec+12)==module['ss']
+   ref,trace=relocate_buffer(module['data'][module['header']:],module['maps'],module['ss'],body,funcbase,vectors)
+   assert bytes(u.mem_read(body,module['se']))==bytes(ref);mirror.sync(body)
+   assert get(controller+0xc)==body and get(controller+0x10)==start_sp+4 and get(start_sp)==0
+   assert invoke_thiscall_args(u,0x4a7230,controller,[],timeout=0,count=1000000)==0
+   assert get(controller+0x28)-get(controller+0x24)==4 and mirror.live_count==live0
+   module_rows.append({'name':spath.name,'original_entry':0x4a7000,'bytes':module['se'],'relocations':len(trace),'original_publication_and_relocation_equal_reference':True,'original_release_and_pop':True,'context_PC_and_zero_stack_push':True})
+  assert len(module_rows)==22
+  assert invoke_thiscall_args(u,0x41b490,controller,[1],timeout=0,count=2000000)==controller
+  assert mirror.live_count==3
+  assert invoke_thiscall_args(u,0x490ba0,reader,[1],timeout=0,count=2000000)==reader
+  assert mirror.live_count==0 and not memory._blocks and not files._handles and bytes(u.mem_read(0,4))==seh
+  summary={'passed':True,'synthetic_metadata_fixture':{'bytes':2,'sha256':hashlib.sha256(b'\0\0').hexdigest(),'module_count':0,'not_original_SOB_INIT_DAT':True},'SOB1_bindings':binding_rows,'modules':module_rows,'containers':22,'relocations':sum(x['relocations']for x in module_rows),'body_bytes':sum(x['bytes']for x in module_rows),'API_counts':dict(counts),'all_original_owned_blocks_and_handles_released':True,'scope':'complete real 4A67E0 valid controlled empty metadata input + original USER_VAR/FUNC_LIB; 21 complete 4A7000 module loaders and 4A7230 pop/release; real controller/native registration/allocator/factory/read/relocate/publication/destruction. Provider/list/cache0/prefix controlled. Missing original SOB_INIT exception not dispatched; no native bodies, whole app boot, script execution, render or audio.'}
+  (stage/'sob-publication-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+  print(json.dumps({k:v for k,v in summary.items()if k not in('modules','SOB1_bindings')}),flush=True)
+
+ except Exception:
+  print('failed EIP',hex(u.reg_read(UC_X86_REG_EIP)),'recent APIs',events[-6:],flush=True);raise
+ (stage/'boot-API-results.json').write_text(json.dumps(events,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+ print('counts',dict(counts),flush=True)
+

@@ -1,0 +1,8 @@
+# ISSUE-20260928-03 产出 5 件 —— **独立回读**（m57_evidence.py；不 import 生成器，全部读数从磁盘 PNG 读出）
+# 与源件 α：dim 件专用，读数 = α 通道不同的像素数（0 = 逐像素相等）
+文件	源件	尺寸	mode	字节	alpha_min	alpha_max	α=0占比%	α=255占比%	主色	与源件α差异像素	RGB最大通道	nine	md5
+x_ui_node_section_dim.png	x_ui_node_section_off.png	236x65	RGBA	1535	0	255	13.5789	2.6206	#000000	0	0	{"l":14,"t":0,"r":16,"b":0}	021472ea885d4b14533cd82a90774a53
+x_ui_node_select_dim.png	x_ui_node_select_off.png	263x65	RGBA	1736	0	255	4.3463	0.1111	#000000	0	0	{"l":14,"t":0,"r":13,"b":0}	a365e372c704313f8086df67c3b0c397
+x_ui_node_frag_dim.png	x_ui_node_frag_off.png	228x65	RGBA	1829	0	255	4.3995	2.6316	#000000	0	0	{"l":14,"t":0,"r":15,"b":0}	1793e1c368548a6102861e2c1931789e
+x_ui_read_check.png	—	20x20	RGBA	565	0	255	31.0	56.0	#255E34	-1	-1	—	5cb6c996ad38c38c80356443a6aa4183
+x_ui_read_check_alt.png	—	20x20	RGBA	426	0	255	76.25	12.25	#255E34	-1	-1	—	9c08f4bd4161be114a1b8afe80f87e8c

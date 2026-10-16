@@ -1,0 +1,42 @@
+from pathlib import Path
+import sys,json,hashlib,struct
+r=Path.cwd();p=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具';sys.path.insert(0,str(p))
+from lucifen_readonly_io_bridge import ReadOnlyFiles
+from lucifen_readonly_io_guest import bridge_ReadFile,bridge_SetFilePointer,bridge_CloseHandle
+stage=r/'临时/ISSUE-20261011-02/r-readonly-io-fixtures-final-01';stage.mkdir(exist_ok=False)
+path=r/'AGENTS.md';raw=path.read_bytes();before=hashlib.sha256(raw).hexdigest();checks=[];rejections=0
+mem=bytearray(b'\xa5'*4096);base=0x10000
+def read(a,n):
+ if a<base or a+n>base+len(mem):raise ValueError('unmapped')
+ return bytes(mem[a-base:a-base+n])
+def write(a,b):
+ if a<base or a+len(b)>base+len(mem):raise ValueError('unmapped')
+ mem[a-base:a-base+len(b)]=b
+with ReadOnlyFiles([path])as f:
+ t,err=f.open(path);assert (t,err)==(0x60000000,0)
+ assert f.read(t,8)==(True,raw[:8],0);checks.append('host actual initial bytes')
+ assert f.seek(t,0,0)==(0,0);assert f.read(t,0)==(True,b'',0);assert f.seek(t,0,1)==(0,0);checks.append('zero real read preserves position')
+ assert f.seek(t,-1,0)==(0xffffffff,131);checks.append('actual negative seek error131')
+ assert f.seek(t,0x7fffffff,0)==(0x7fffffff,0);assert f.seek(t,0x7fffffff,1)==(0xfffffffe,0);assert f.seek(t,1,1)==(0xffffffff,0);checks.append('actual FFFFFFFF position succeeds with error0')
+ assert f.read(t,8)==(True,b'',0);checks.append('actual EOF read0')
+ assert bridge_SetFilePointer(f,read,write,t,0,0,0)==(0,0)
+ assert bridge_ReadFile(f,read,write,t,base+128,16,base+1024,0)==(1,0);assert read(base+128,16)==raw[:16] and read(base+1024,4)==struct.pack('<I',16);assert read(base,128)==b'\xa5'*128 and read(base+144,128)==b'\xa5'*128;checks.append('guest actual bytes count and untouched guards')
+ assert bridge_SetFilePointer(f,read,write,t,0xffffffff,0,0)==(0xffffffff,131);checks.append('guest actual failed seek')
+ assert bridge_SetFilePointer(f,read,write,t,0,0,2)==(len(raw),0)
+ mem[:]=b'\xa5'*len(mem);assert bridge_ReadFile(f,read,write,t,base+128,16,base+1024,0)==(1,0);assert read(base+128,16)==b'\xa5'*16 and read(base+1024,4)==b'\0'*4;checks.append('guest EOF does not zero destination tail')
+ for call in (lambda:bridge_ReadFile(f,read,write,True,base+128,8,base+1024),lambda:bridge_ReadFile(f,read,write,t,base+128,True,base+1024),lambda:bridge_ReadFile(f,read,write,t,base+128,8,base+132),lambda:bridge_ReadFile(f,read,write,t,base+128,8,base+1024,1),lambda:bridge_ReadFile(f,read,write,t,0xfffffffe,8,base+1024),lambda:bridge_ReadFile(f,read,write,t,base+128,8,0xffffffff),lambda:bridge_ReadFile(f,read,write,t,base+5000,8,base+1024),lambda:bridge_ReadFile(f,read,write,t,base+128,8,0),lambda:bridge_SetFilePointer(f,read,write,t,0,1,0),lambda:bridge_SetFilePointer(f,read,write,t,0,0,3),lambda:bridge_CloseHandle(f,True),lambda:f.read(t,0x100001),lambda:f.read(t,True),lambda:f.open(r/'Galgame.md')):
+  pos=f.seek(t,0,1)
+  try:call()
+  except(ValueError,TypeError,PermissionError):rejections+=1
+  else:raise AssertionError('unsupported accepted')
+  assert f.seek(t,0,1)==pos
+ assert bridge_CloseHandle(f,t)==(1,0)
+ for call in(lambda:f.read(t,1),lambda:bridge_CloseHandle(f,t)):
+  try:call()
+  except ValueError:rejections+=1
+  else:raise AssertionError('closed accepted')
+ t2,err=f.open(path);assert t2==0x60000001 and err==0;checks.append('token never reused')
+ assert f.close_all()==[] and not f._handles;checks.append('actual all handles closed')
+assert path.read_bytes()==raw
+summary={'passed':True,'actual_cases':checks,'guard_rejections_without_position_advance':rejections,'source_unchanged_sha256':before,'scope':'actual readonly Windows host64 APIs on existing AGENTS file, including natural negative seek error and valid FFFFFFFF low position/error0; no test file modification or sparse large file creation; unsupported guest contract raises rather than fake return'}
+(stage/'readonly-io-fixtures.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(summary,ensure_ascii=False))

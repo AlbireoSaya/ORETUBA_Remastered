@@ -1,0 +1,140 @@
+==============================================================================
+M06 验收命令逐条跑（UI组 = E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组）
+==============================================================================
+------------------------------------------------------------------------------
+[gen_layout] exit=0  用时 0.3 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_gen_layout.txt
+    [OK] 已生成：
+      layout\ui_layout.json  (17 屏)
+      krkr\game\ui_layout.tjs
+      复刻\ui_layout.js
+------------------------------------------------------------------------------
+[verify_ui] exit=0  用时 7.6 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_verify_ui.txt
+    [7] opacity 范围      ：检查 863 个 opacity 字段 → 通过
+    ------------------------------------------------------------------------------
+    汇总：引用 0 ｜ 尺寸 0 ｜ 三处一致 0 ｜ 硬编码可疑 0 行 ｜ PNG 0 ｜ 预算 0 处 ｜ opacity 0 处
+    资产：466 件 / 39.17 MB
+    结果：**全部通过**（退出码 0）
+    ==============================================================================
+------------------------------------------------------------------------------
+[test_gen_sync] exit=0  用时 0.3 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_test_gen_sync.txt
+    覆盖：生成器产出屏 10 个 ｜ 登记表 ACK 命中 4 条 ｜ 失效生成器待处置 3 条
+    警告（不致命）：
+      ~ [23_save.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+      ~ [24_load.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+    落盘自证：运行前后 layout/screens/*.json 的 md5 **完全一致** ✓（18 个文件）
+    结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）
+------------------------------------------------------------------------------
+[test_gate_field_granularity] exit=0  用时 0.6 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_test_gate_field_granularity.txt
+       |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+       |      确认要强行入库时加 --allow-drop）
+       | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       ⇒ 退出码 1（期望 ≠0）；逐条明细含 `item_frame.state_assets`+`ch.choices`=True；原文件 md5 95e78f001fb82167475b75afc98937b6 ⇒ 符合预期 ✓
+    结果：四项全部符合预期 ✓
+    （被审原文件 01_title.json md5 始终 = 12e620b56e43d55c684482b181188293）
+------------------------------------------------------------------------------
+[test_verify_asset_refs] exit=0  用时 0.2 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_test_verify_asset_refs.txt
+      OK   深层 list 下标路径  —— ['screens.s.elements[0].state_assets.pressed']
+      OK   真实 layout 上收到 state_assets 引用（>0）  —— state_assets=346 / 总 1184
+      OK   非三键的自定义态也被收集（Minor-10）  —— ['ui/dis.png', 'ui/focus.png', 'ui/n.png']
+      OK   state_assets 非字典 -> 计入引用表（供 [1] 报缺件）  —— [('ui/typo.png', 'state_assets')]
+    ------------------------------------------------------------------------
+    结果：**全部通过**
+------------------------------------------------------------------------------
+[test_click_reach] exit=0  用时 2.0 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_test_click_reach.txt
+    ── 35_quickbar.json OK  元素  49（可点  12）｜ 状态 13 ｜ 重叠对 0 ｜ 中心检查 144
+    ── 36_choices.json  OK  元素   1（可点   1）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 1
+    ── 37_dress.json    OK  元素 107（可点  42）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 42
+    ------------------------------------------------------------------------------
+    合计：屏 17 ｜ 重叠对 28 ｜ 中心可达性检查 15002 次 ｜ 豁免命中 3 条
+    结果：**全部通过**（无未登记的可达性缺陷；豁免项均已在表中写明理由）
+------------------------------------------------------------------------------
+[test_state_targets] exit=0  用时 0.1 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_test_state_targets.txt
+      ✓ 可见性·vis_when 通配 "*" = 非空即显示
+      ✓ 平票·z 相等时声明更晚者胜
+    [3] 可达性（几何中心）
+      覆盖：态图+组 55 件 ｜ 纯组热区 40 件 ⇒ 合计 95 件（按各自可见所需的 flag 取值复算）
+    ==========================================================================
+    结果：**全部通过**（判据指纹一致 + 95 件元素几何中心可达）
+------------------------------------------------------------------------------
+[test_quickbar_reach] exit=0  用时 0.7 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_test_quickbar_reach.txt
+      ⓪ 结构：丸体右缘 = icon 左缘 − 8；药丸宽度 = 生成器公式 pill_w(字数)（= 21×n + 2×24 + 2×4，逐条独立） ✓
+      ① 收起态：整条区域 (1845, 7, 75, 898) 共 67350 点**全部无命中**（右端无可点热区，12 项不可见）✓
+      ② 展开态：12 项中心各自胜出=自身、action 与数据一致 ✓
+      ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致 ✓
+    --------------------------------------------------------------------------
+    结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+------------------------------------------------------------------------------
+[m39_html_selftests] exit=0  用时 4.0 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_m39_html_selftests.txt
+      PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+      PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+      PASS	zeronine.all-subjects-stretched-to-element-box	15/15（主语 = ⑤ 的全集）
+      PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+      判定：RESULT=OK ｜ 原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260923-01_M39_证据\M39_selftest_B_dump.html ｜ edge rc=0
+    （已清理无头 Edge 的 user-data-dir：E:/ZCode Workspace/Galgame/临时/edge_m39）
+------------------------------------------------------------------------------
+[m47_pagescope_tour] exit=0  用时 121.9 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_m47_pagescope_tour.txt
+    ===== 区域量化（引擎自导 PNG）=====
+      shot_12_config.png           左列行区 非背景 0.116 | 角色区 非背景 0.180   ← 配置
+      shot_13_config.png           左列行区 非背景 0.116 | 角色区 非背景 0.180   ← 配置·拖动「文本窗口的不透明度」到 40%（期望遮罩用独立常量 102 判）
+      shot_14_config.png           左列行区 非背景 0.043 | 角色区 非背景 0.300   ← 配置·切到「声音」页（config_tab_2 -> cfg_page=snd）
+      shot_15_config.png           左列行区 非背景 0.043 | 角色区 非背景 0.300   ← 配置·点 MUTE（按在 MUTE 上：音量不得变、MUTE 取反）
+    （引擎已退出；私有目录 E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_pagescope 保留供复核）
+------------------------------------------------------------------------------
+[w4_html_backlog_shot] exit=0  用时 1.5 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_w4_html_backlog_shot.txt
+    shot ?screen=backlog -> E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\m06_html_backlog.png（1:1 画布，左上 1920×1080）
+    文件存在=True
+------------------------------------------------------------------------------
+[m06_editor_probe] exit=0  用时 1.6 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_m06_editor_probe.txt
+      ⑤ 画布点中：块3内(700,560)→["bl.list"]；块4内(700,800)→["bl.list"]；块左外(120,560)→["bl.dim"]
+      ⑤ 判定：PASS（改后口径：块内任意点可选中该 list）
+      ⑥ 竖向手柄 pointerdown：dragging=(未进入拖动) 状态行「list 的高度是派生值（item_h × 行数），不能竖向拉伸 —— 请改 item_h / max_rows / labels」 判定=PASS（派生高度被守卫拦下 + 提示可读）
+      ⑥ 反向对照·横向手柄 pointerdown：dragging=进入了拖动 mode=resize（预期）
+      MUT=false（改后口径）
+      ★ 改后期望：①–⑥ 全绿 ⇒ 通过 ✓
+------------------------------------------------------------------------------
+[m06_editor_probe_mut] exit=0  用时 1.5 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_m06_editor_probe_mut.txt
+      ⑤ 判定：FAIL（★ 本行为 --mut 变异：改前口径 elemH=0 ⇒ 上面必然点不中，这就是对照）
+      ⑥ 竖向手柄 pointerdown：dragging=(未进入拖动) 状态行「list 的高度是派生值（item_h × 行数），不能竖向拉伸 —— 请改 item_h / max_rows / labels」 判定=PASS（派生高度被守卫拦下 + 提示可读）
+      ⑥ 反向对照·横向手柄 pointerdown：dragging=进入了拖动 mode=resize（预期）
+      MUT=true（改前口径 elemH）
+      ★ 变异对照期望：⑤ 判定 FAIL（改前口径 elemH=0 ⇒ 块内点不中）⇒ 符合预期 ✓
+    （已还原 editor_core.js：逐字节一致=True，备份已删除）
+------------------------------------------------------------------------------
+[m06_selftest_20m_mutproof] exit=0  用时 4.2 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_m06_selftest_20m_mutproof.txt
+      SELFTEST OK   ⑳n 容器级结构非法也 REJECT（判词串与 krkr 逐字相同）：item_buttons 非数组 / item_text 非对象  —— 判词 2 条（★M06ITEMBTN-REJECT★ bl.list[(item_buttons)] item_buttons 不是数组；★M06ITEMBTN-REJECT★ bl.
+      SELFTEST OK   ⑳n 反向对照：缺 item_buttons / item_text 字段**不报**（视为未声明，走旧路径）  —— 新增判词 0 条（期望 0）
+      SELFTEST ALL PASS
+      SELFTEST OK   ' : 'SELFTEST FAIL ') + name + (detail ? '  —— ' + detail : ''));
+      SELFTEST ' + (fails ? ('FAILED ' + fails + ' 项') : 'ALL PASS'));
+    === 变异自证结论：通过（断言非空：变异下 FAIL、还原后 PASS、md5 逐字节一致） ===
+------------------------------------------------------------------------------
+[m06_html_wrap_check] exit=0  用时 1.2 s  →  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\_cmd_m06_html_wrap_check.txt
+      #6 HTML 4 行（引擎 4 行）OK | 鹰志在早餐桌上和小鸠进行了一番颇有兄妹样的互动。在学院里，明日香依旧投来窥探般的
+      #7 HTML 4 行（引擎 4 行）OK | 午休时，鹰志想把毕业纪念册的寄语从全班同学那里收齐。然而对后来才回到教室的高内她
+      #8 HTML 2 行（引擎 4 行）OK | 鹰志在去程拥挤的电车上遇见了京。之后又在车站里遇见藏人，被邀要不要翘掉第一节课，
+      #9 HTML 4 行（引擎 4 行）OK | 没有人坐在驾驶舱里、变得像空壳一样的鹰志，将被转移到另一家医院。但为了和小鸠在一
+    结论：HTML 侧 10 条全部 ≤ 4 行 = 是
+    （注：本检查只证明 **HTML 侧容量足够**，不证明与引擎逐字等价 —— CSS 不实现 krkr 禁则。）
+------------------------------------------------------------------------------
+[巡演判词抽取] → E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-06_回想屏重排\证据\m06_tour_judge_extract.txt
+  ★M06 判词 PASS=12（期望 12 ＝ 8×itembtn ＋ 2×itemrow ＋ 1×itemguard ＋ 1×itempage）；FAIL=0（期望 0）；★M06BTN-REJECT★=4（期望 4）；引擎 EXCEPTION=0（期望 0）
+  ⇒ 符合预期 ✓
+==============================================================================
+汇总（退出码 0 = 通过）
+  gen_layout                     exit=0 
+  verify_ui                      exit=0 
+  test_gen_sync                  exit=0 
+  test_gate_field_granularity    exit=0 
+  test_verify_asset_refs         exit=0 
+  test_click_reach               exit=0 
+  test_state_targets             exit=0 
+  test_quickbar_reach            exit=0 
+  m39_html_selftests             exit=0 
+  m47_pagescope_tour             exit=0 
+  w4_html_backlog_shot           exit=0 
+  m06_editor_probe               exit=0 
+  m06_editor_probe_mut           exit=0 
+  m06_selftest_20m_mutproof      exit=0 
+  m06_html_wrap_check            exit=0 
+  tour_judge_extract             exit=0 
+  ---- 16 条，失败 0 条 ----

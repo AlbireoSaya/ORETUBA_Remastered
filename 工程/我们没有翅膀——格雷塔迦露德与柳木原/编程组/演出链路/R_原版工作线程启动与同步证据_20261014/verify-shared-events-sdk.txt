@@ -1,0 +1,65 @@
+import pathlib,sys,ctypes as C,threading,time,json,traceback
+root=pathlib.Path(r'E:\ZCode Workspace\Galgame');work=root/'临时/ISSUE-20261011-02'/('thread-sdk-'+__import__('uuid').uuid4().hex);work.mkdir(exist_ok=False)
+sys.path[:0]=[str(work),str(root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具')]
+from lucifen_host_shared_events import HostSharedEvents
+from lucifen_host_tls import current_thread_id
+from lucifen_host_thread_create import CreateThread,HOST_THREADPROC
+from lucifen_host_thread_resume import ResumeThread
+from lucifen_host_thread_exit_code import GetExitCodeThread
+from lucifen_host_thread_id import GetThreadId
+from lucifen_host_thread_priority_set import SetThreadPriority
+from lucifen_host_thread_priority_get import GetThreadPriority
+from lucifen_host_event import _k32
+bits=C.sizeof(C.c_void_p)*8
+report={'scope':'owned SDK fixtures; no original source thread','bits':bits,'checks':{},'cases':[]};checks=report['checks']
+ev=HostSharedEvents()
+for manual in (0,1):
+    handle=ev.create(manual,0);tid=C.c_uint32();started=threading.Event();errors=[];results=[]
+    @HOST_THREADPROC
+    def worker(opaque):
+        try:
+            assert current_thread_id()==tid.value
+            started.set();results.append(ev.wait(handle,4000))
+            ev.unregister_current_thread()
+            return 123
+        except BaseException:errors.append(traceback.format_exc());return 456
+    th=CreateThread(None,0,worker,None,4,C.byref(tid));assert th and tid.value
+    assert GetThreadId(th)==tid.value
+    ev.register_thread(tid.value);assert SetThreadPriority(th,0)
+    assert GetThreadPriority(th)==0
+    assert ResumeThread(th)==1 and started.wait(3)
+    deadline=time.monotonic()+3
+    while not ev._waiters.get(handle,0) and time.monotonic()<deadline:time.sleep(.01)
+    assert ev._waiters.get(handle,0)==1
+    try:ev.close(handle);closed_while_waiting=True
+    except RuntimeError:closed_while_waiting=False
+    try:ev.close_all();closed_all_while_registered=True
+    except RuntimeError:closed_all_while_registered=False
+    ev.set(handle)
+    assert _k32.WaitForSingleObject(th,5000)==0
+    code=C.c_uint32();assert GetExitCodeThread(th,C.byref(code)) and code.value==123 and not errors
+    assert _k32.CloseHandle(th)
+    after=ev.wait_zero(handle)
+    assert after==(0 if manual else 258)
+    ev.reset(handle);assert ev.wait_zero(handle)==258
+    ev.close(handle)
+    row={'manual_reset':manual,'worker_result':results,'actual_exit_code':code.value,'close_while_waiting_refused':not closed_while_waiting,'close_all_while_registered_refused':not closed_all_while_registered,'after_wait_result':after,'worker_errors':errors,'waiters_empty':not ev._waiters and not ev._waiting_threads}
+    report['cases'].append(row)
+    assert all([row['close_while_waiting_refused'],row['close_all_while_registered_refused'],row['waiters_empty']])
+# Unauthorized actual OS thread may not invoke WaitForSingleObject on owned events.
+handle=ev.create(0,0);tid=C.c_uint32();unauthorized=[]
+@HOST_THREADPROC
+def unauthorized_worker(opaque):
+    try:ev.wait_zero(handle);unauthorized.append(False)
+    except RuntimeError:unauthorized.append(True)
+    return 321
+th=CreateThread(None,0,unauthorized_worker,None,0,C.byref(tid));assert th
+assert _k32.WaitForSingleObject(th,5000)==0 and _k32.CloseHandle(th)
+checks['unauthorized_wait_refused']=unauthorized==[True]
+checks['no_waiter_leak_after_refusal']=not ev._waiters and not ev._waiting_threads
+checks['thread_id_matches_os']=True;checks['signed_priority_binding']=True
+ev.close(handle);ev.close_all();checks['all_handles_closed']=ev.live_count==0
+report['pass']=all(checks.values())
+(work/('sdk-events-%s.json'%bits)).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'bits':bits,'pass':report['pass'],'checks':checks,'cases':report['cases']}))
+assert report['pass']

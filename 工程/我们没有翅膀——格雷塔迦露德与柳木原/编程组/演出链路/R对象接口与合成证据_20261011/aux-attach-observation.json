@@ -1,0 +1,57 @@
+{
+  "scope": "preallocated controlled component states, original attach function, original allocation not run",
+  "cases": [
+    {
+      "type": 9,
+      "notify_arg": 0,
+      "status": "returned",
+      "return": 0,
+      "aux_bitmap": 16785460,
+      "expected_bitmap": 16785460,
+      "aux_changed_bytes": [
+        8,
+        9,
+        11
+      ]
+    },
+    {
+      "type": 9,
+      "notify_arg": 1,
+      "status": "UcError:Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+      "return": null,
+      "aux_bitmap": 16785460,
+      "expected_bitmap": 16785460,
+      "aux_changed_bytes": [
+        8,
+        9,
+        11
+      ]
+    },
+    {
+      "type": 10,
+      "notify_arg": 0,
+      "status": "returned",
+      "return": 0,
+      "aux_bitmap": 16785460,
+      "expected_bitmap": 16785460,
+      "aux_changed_bytes": [
+        8,
+        9,
+        11
+      ]
+    },
+    {
+      "type": 10,
+      "notify_arg": 1,
+      "status": "UcError:Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+      "return": null,
+      "aux_bitmap": 16785460,
+      "expected_bitmap": 16785460,
+      "aux_changed_bytes": [
+        8,
+        9,
+        11
+      ]
+    }
+  ]
+}

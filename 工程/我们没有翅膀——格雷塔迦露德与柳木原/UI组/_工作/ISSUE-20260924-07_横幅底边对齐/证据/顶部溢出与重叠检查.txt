@@ -1,0 +1,32 @@
+头像改后矩形 = (1540,254,191,239) ⇒ x 1540..1731, y 254..493；z=18
+底板可见矩形 ≈ (1106,268,630,225) ⇒ y 268..493；元素框 (1099,261,644,239) z=16
+
+== 与头像矩形几何相交的全部元素（按 z 排序）==
+  z=1   cfg.dim                (0, 0, 1920, 1080)       交叠 191x239  vis=None/None  头像在上（z 18 > 1）⇒ 头像盖住它
+  z=10  cfg.frame              (33, 93, 1853, 953)      交叠 191x239  vis=None/None  头像在上（z 18 > 10）⇒ 头像盖住它
+  z=16  cfg.banner_frame       (1099, 261, 644, 239)    交叠 191x232  vis=cfg_page/snd  头像在上（z 18 > 16）⇒ 头像盖住它
+  z=22  cfg.o_allskip_off      (1708, 481, 115, 59)     交叠 23x12  vis=cfg_page/sys  它在头像之上（z 22 > 18）
+  z=22  cfg.o_allskip_on       (1567, 481, 115, 59)     交叠 115x12  vis=cfg_v_allskip/on  它在头像之上（z 22 > 18）
+  z=22  cfg.sl_autospeed       (1249, 439, 364, 24)     交叠 73x24  vis=cfg_page/sys  它在头像之上（z 22 > 18）
+  z=22  cfg.sl_textspeed       (1249, 319, 364, 24)     交叠 73x24  vis=cfg_page/sys  它在头像之上（z 22 > 18）
+  z=26  cfg.o_allskip_off_tx   (1708, 481, 115, 59)     交叠 23x12  vis=cfg_page/sys  它在头像之上（z 26 > 18）
+  z=26  cfg.o_allskip_on_tx    (1567, 481, 115, 59)     交叠 115x12  vis=cfg_v_allskip/off  它在头像之上（z 26 > 18）
+  z=26  cfg.o_allskip_on_tx_sel (1567, 481, 115, 59)     交叠 115x12  vis=cfg_v_allskip/on  它在头像之上（z 26 > 18）
+  z=26  cfg.sl_autospeed_end_hi (1630, 439, 46, 21)      交叠 46x21  vis=cfg_page/sys  它在头像之上（z 26 > 18）
+  z=26  cfg.sl_textspeed_end_hi (1630, 319, 46, 21)      交叠 46x21  vis=cfg_page/sys  它在头像之上（z 26 > 18）
+  z=95  cfg.sl_autospeed_hit   (1249, 425, 364, 59)     交叠 73x59  vis=cfg_page/sys  它在头像之上（z 95 > 18）
+  z=95  cfg.sl_textspeed_hit   (1249, 305, 364, 59)     交叠 73x59  vis=cfg_page/sys  它在头像之上（z 95 > 18）
+  z=96  cfg.o_allskip_off_hit  (1708, 481, 115, 59)     交叠 23x12  vis=cfg_page/sys  它在头像之上（z 96 > 18）
+  z=96  cfg.o_allskip_on_hit   (1567, 481, 115, 59)     交叠 115x12  vis=cfg_page/sys  它在头像之上（z 96 > 18）
+
+== 底板「上方」的元素（元素底边 <= 底板元素顶边 261）且与头像 x 区间有交 ==
+  z=10  cfg.page_strip         (x,y,w,h)=(35, 33, 1851, 113)      头像顶边 254 ⇒ 不交叠（间隙 108 px）
+  z=96  cfg.reset_hit          (x,y,w,h)=(1708, 76, 182, 76)      头像顶边 254 ⇒ 不交叠（间隙 102 px）
+  z=22  cfg.reset_bg           (x,y,w,h)=(1708, 76, 182, 76)      头像顶边 254 ⇒ 不交叠（间隙 102 px）
+  z=26  cfg.reset_tx           (x,y,w,h)=(1708, 76, 182, 76)      头像顶边 254 ⇒ 不交叠（间隙 102 px）
+  z=22  cfg.btn_title_bg       (x,y,w,h)=(1451, 32, 208, 41)      头像顶边 254 ⇒ 不交叠（间隙 181 px）
+  z=26  cfg.btn_title_tx       (x,y,w,h)=(1451, 32, 208, 41)      头像顶边 254 ⇒ 不交叠（间隙 181 px）
+  z=96  cfg.btn_title_hit      (x,y,w,h)=(1445, 26, 220, 53)      头像顶边 254 ⇒ 不交叠（间隙 175 px）
+  z=22  cfg.btn_end_bg         (x,y,w,h)=(1674, 32, 201, 41)      头像顶边 254 ⇒ 不交叠（间隙 181 px）
+  z=26  cfg.btn_end_tx         (x,y,w,h)=(1674, 32, 201, 41)      头像顶边 254 ⇒ 不交叠（间隙 181 px）
+  z=96  cfg.btn_end_hit        (x,y,w,h)=(1668, 26, 213, 53)      头像顶边 254 ⇒ 不交叠（间隙 175 px）

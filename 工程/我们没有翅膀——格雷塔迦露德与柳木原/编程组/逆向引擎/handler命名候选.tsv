@@ -1,0 +1,19 @@
+hidx	va	corpus_refs	core_nV_W200	core_V_W200	exp_nV_W1000	structural_evidence	candidate_name	strength	falsifiable_check	status
+0	0x4221D0	550	0	n/a	0	写 [0x50382C]=2；调度器 sub_4252F0 读该全局作状态机	请求换场（状态 2）	强	把 2 改成 1/3 则状态机分支变；闭环证据=调度器与 handler 读写同一全局	已定名(既有§3.2)
+1	0x4221B0	442	0	n/a	0	写 [0x50382C]=1	请求换场（状态 1）	强	同上	已定名(既有§3.2)
+2	0x4221F0	7	0	n/a	0	写 [0x50382C]=3	请求换场（状态 3）	强	同上	已定名(既有§3.2)
+462	0x431EA0	57865	0	n/a	0	mov ecx,[arg0]; push; mov ecx,[0x503258]; call 0x455A40（thiscall 1 参，门 [this+20]）	未定（与 V=0x2C3C 内联代码块族场景级共现关联，机制未定）	未定	共现自证：maps[1]=462 与 maps[3]=0x2C3C 在 381/387 文件逐文件计数相等（57865 vs 57859）；反证=func_lib.maps[1] 不含 462、func_lib 内 op0x05→462 站点=0 ⇒ 非「V 实现体调 462」	未定
+668	0x431B20	102	3	0x1FF58,0x20708,0x20E64	16	调 0x453760(idx,bool) on [0x503630]；0x453760 有 idx<[obj+0x1EC] 上界 + [obj+0x1F0] 数组索引	音频播放（按索引；主用于 SePlay）	强	core-V 3 个中 2 个为已定名 SePlay、0x20E64 为同族（其 native 含 668）；把 [0x503630] 换掉或去掉上界检查则 SePlay 失效；扩窗后亦含 BgmPlay/Stop（同音频子系统）	候选(强)
+669	0x431B40	41	4	0x205D0,0x209A4,0x20A4C,0x20C90	9	调 0x4538E0(idx) on [0x503630]；同族边界检查 + [elem+0x144]=0	音频停止（按索引）	强	core-V 含 2 个已定名 SeStop；与 h668 同对象同索引空间	候选(强)
+228	0x426920	57	1	0x1E634	15	调 0x470440(arg,&local,flag) on [0x50324c]（SEH 资源装载器）	系统 ELG 按名装载（SYS\%s.ELG）	中	core-V 唯一且已定名 SYS\%s.ELG；若该 V 改名或 h228 被其它族引用则降级	候选(中)
+229	0x426950	19	1	0x1E45C	8	调 0x470570(arg,&local,flag) on [0x50324c]（同 0x470440 族）	遮罩 Rule 装载（SYS\RULE%03d.ELG）	中	core-V 唯一且已定名 SYS\RULE%03d.ELG	候选(中)
+5	0x4181B0	35	4	0x21168,0x21230,0x2A150,0x2A4B4	12	14 路 selector on arg0 + 读 app+0xD74	转场/遮罩模式分派	中	core-V 4 个含已定名 cross/rule	候选(中)
+23	0x419290	23	2	0x2A150,0x2A4B4	2	mov cl,[arg0]; and cl,1; mov [app+0x194E],cl	cross/rule 标志写入（app+0x194E）	中	core-V 恰 2 个且同属转场族；扩窗不变（2→2）	候选(中)
+207	0x426540	32	2	0x11B0C,0x12588	19	调 [[0x503214]]+0x14(arg)	层/特效管理器「开始」（[0x503214] 方法 +0x14）	中	core-V 含已定名 EffectStart；与 h208 同单例	候选(中)
+208	0x426560	37	21	SpriteBG/SpriteMove/bg_*/quake/CharacterAction…	42	调 [[0x503214]]+8(arg) 并清零 [obj+0]	层/精灵槽位「释放/出队」	中（泛用）	core-V 全属层/立绘/背景/特效族，无 UI/音频族混入	候选(中·泛用)
+251	0x426F70	25	7	0x19F9C,0x1A15C,0x1AE2C,0x1AEA0,0x1B69C,0x2A150,0x2A4B4	17	obj vtbl[1]() 后 switch type 7..10	效果对象类型分派	中	core-V 内嵌串 cross/scroll/quake 与其派发一致	候选(中)
+428	0x430200	107	0	（核心空）	7	obj vtbl[2](bool)（obj=arg0；flag=arg1!=0）	对象释放/关闭	弱	仅扩窗含 SYS\%s.ELG/RULE/Window	未定(弱)
+433	0x4302D0	94	1	0x1EF58	15	arg0 空指针 → 返回 -2；否则走 0x1EF58 族	图形对象校验/引用	弱	唯一 core-V 0x1EF58 本身未定名	未定(弱)
+9	0x418A00	528	23	Window/SpriteMove/bg_*/CharacterAction/Se*…	45	14 路 selector + 读 app+0xE43	泛用参数存取器（跨族过广，无判别力）	未定	core-V 横跨 5+ 不相关族 ⇒ 反证不成立	未定
+57	0x419530	451	3	0x83FC,0x1C738,0x1C8D0	16	call dword ptr [0x4ed100]（2 参，运行期函数指针）	未定（2 参间接转发）	未定	0x4ed100 为运行期填充的函数指针，静态不可判	未定
+318	0x4291D0	24	0	（核心空）	12	obj vtbl[1]() 后 switch type 4..10	未定（对象类型分派，与 h251 同形异域）	未定	仅扩窗证据	未定

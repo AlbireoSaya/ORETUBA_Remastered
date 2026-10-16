@@ -1,0 +1,18 @@
+function RVMRun(rd, wr, rb, ctx, entry, native, maxSteps = 10000, resume = false) {
+    if (typeof maxSteps != "Integer" || maxSteps <= 0) {
+        throw new Exception("INVALID_VM_STEP_BUDGET");
+    }
+    if (rb(ctx + 24) != 0 && rd(ctx + 20) != 0) {
+        throw new Exception("UNSUPPORTED_VM_CONTEXT");
+    }
+    RVMEntry(rd, wr, ctx, entry, resume);
+    var trace = [];
+    for (var step = 1; step <= maxSteps; step++) {
+        var row = RVMStep(rd, wr, ctx, native);
+        trace.add(%["pc" => row[0], "opcode" => row[1]]);
+        if (typeof row[2] != "void") {
+            return %["return_code" => row[2], "trace" => trace, "steps" => step];
+        }
+    }
+    throw new Exception("VM_STEP_BUDGET");
+}

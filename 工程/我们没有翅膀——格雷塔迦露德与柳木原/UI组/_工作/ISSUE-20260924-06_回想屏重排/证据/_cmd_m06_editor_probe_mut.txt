@@ -1,0 +1,22 @@
+$ python _工作\ISSUE-20260924-06_回想屏重排\复现脚本\m06_editor_probe.py --mut   （cwd = UI组；退出码 0；用时 1.5 s；子进程 stdout 以 utf-8 解码）
+==============================================================================
+（--mut：elemH 已换回改前口径 `num(e.h)`）
+
+====================================================================================
+M06 编辑器「list 派生高度」无头探针  【--mut 变异：改前口径】
+====================================================================================
+  ① 数据：labels=4 item_h=205 gap=0 max_rows=4 有h键=false kind=list
+  ① derivedH=true（期望 true） elemH=0 listSpanH=820
+  ② 逐项复算：行数 4 × item_h 205 + (4−1) × gap 0 = 820；elemH 与之一致=false
+  ③ 选中框 height=0px（期望 820px；改前口径会是 0px）
+  ④ 属性面板：h 输入框 disabled=true 值=820 文案含「派生，只读」=true 文案含公式=true
+  ⑤ 画布点中：块3内(700,560)→["bl.dim"]；块4内(700,800)→["bl.dim"]；块左外(120,560)→["bl.dim"]
+  ⑤ 判定：FAIL（★ 本行为 --mut 变异：改前口径 elemH=0 ⇒ 上面必然点不中，这就是对照）
+  ⑥ 竖向手柄 pointerdown：dragging=(未进入拖动) 状态行「list 的高度是派生值（item_h × 行数），不能竖向拉伸 —— 请改 item_h / max_rows / labels」 判定=PASS（派生高度被守卫拦下 + 提示可读）
+  ⑥ 反向对照·横向手柄 pointerdown：dragging=进入了拖动 mode=resize（预期）
+  MUT=true（改前口径 elemH）
+
+  ★ 变异对照期望：⑤ 判定 FAIL（改前口径 elemH=0 ⇒ 块内点不中）⇒ 符合预期 ✓
+
+（已还原 editor_core.js：逐字节一致=True，备份已删除）
+

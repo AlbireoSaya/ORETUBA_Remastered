@@ -1,0 +1,115 @@
+====================================================================================================
+【改前】巡演 backlog 读数
+步骤 28  实绘元素=11  回想
+    ★M06BTN★ PASS  中心=244,198  令牌=bl.list:0:jump（期望
+步骤 29  实绘元素=11  回想·第 1 行「跳转」按钮中心（命中自身 + 派发 backlog_jump:0）
+    ★M06BTN★ PASS  中心=345,198  令牌=bl.list:0:replay（期望
+步骤 30  实绘元素=11  回想·第 1 行「重新播放」按钮中心（命中自身 + 派发 backlog_replay:0）
+    ★M06BTN★ PASS  中心=244,390  令牌=bl.list:1:jump（期望
+步骤 31  实绘元素=11  回想·第 2 行「跳转」按钮中心（派发行号必须 = 1）
+    ★M06BTN★ PASS  中心=345,390  令牌=bl.list:1:replay（期望
+步骤 32  实绘元素=11  回想·第 2 行「重新播放」按住（pressed 图留在导图上）
+    ★M06BTN★ PASS  中心=244,582  令牌=bl.list:2:jump（期望
+步骤 33  实绘元素=11  回想·第 3 行「跳转」按钮中心（派发行号必须 = 2）
+    ★M06BTN★ PASS  中心=345,582  令牌=bl.list:2:replay（期望
+步骤 34  实绘元素=11  回想·第 3 行「重新播放」按钮中心（派发行号必须 = 2）
+    ★M06BTN★ PASS  中心=244,774  令牌=bl.list:3:jump（期望
+步骤 35  实绘元素=11  回想·第 4 行「跳转」按住（pressed 图留在导图上）
+    ★M06BTN★ PASS  中心=345,774  令牌=bl.list:3:replay（期望
+步骤 36  实绘元素=11  回想·第 4 行「重新播放」按钮中心（派发行号必须 = 3）
+    ★M06ROW★ PASS  中心=-  令牌=-
+步骤 37  实绘元素=11  回想·负向①：两按钮之间的空隙 ⇒ 必须命中整行（不是按钮）
+    ★M06ROW★ PASS  中心=-  令牌=-
+步骤 38  实绘元素=11  回想·负向②：块右侧文案区 ⇒ 必须命中整行（不是按钮）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 39  实绘元素=11  回想·负向③：不存在的按钮 key ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 40  实绘元素=11  回想·负向④：越界行号 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 41  实绘元素=11  回想·负向⑤：非 list 元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 42  实绘元素=11  回想·负向⑥：不存在的元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06GUARD★ PASS  中心=-  令牌=-
+步骤 43  实绘元素=11  回想·负向⑦：item_buttons 5 种非法形态（内存副本）⇒ 机制守卫必须逐条 REJECT
+    ★M06PAGE★ PASS  中心=244,198  令牌=bl.list:2:jump（期望
+步骤 44  实绘元素=11  回想·分页：max_rows 临时改 2 后第 2 页的按钮属于全局第 2 行（随块走）
+
+  汇总：缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | item_buttons/item_text 拒绝 5 处 [★M06ITEMBTN-REJECT★ bl.list[jump] action 为空 ; ★M06ITEMBTN-REJECT★ bl.list[jump] 矩形出块（局部 1300,190 200×60 不在 1526×188 内） ; ★M06IT
+  汇总：转场 成功 36 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64
+  汇总：PNG 导出 成功 89 / 失败 0 | 目录 file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/
+  汇总：quit (autotour done) : frames=1674 | gal_shell | 已载入 202 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | item_buttons/item_text 拒绝 5 处 [★M06ITEMBTN-REJECT★ bl.list[jump] action 为空 ; ★M06ITEMBTN
+
+====================================================================================================
+【改后】巡演 backlog 读数
+步骤 28  实绘元素=11  回想
+    ★M06BTN★ PASS  中心=231,190  令牌=bl.list:0:jump（期望
+步骤 29  实绘元素=11  回想·第 1 行「跳转」按钮中心（命中自身 + 派发 backlog_jump:0）
+    ★M06BTN★ PASS  中心=332,190  令牌=bl.list:0:replay（期望
+步骤 30  实绘元素=11  回想·第 1 行「重新播放」按钮中心（命中自身 + 派发 backlog_replay:0）
+    ★M06BTN★ PASS  中心=231,382  令牌=bl.list:1:jump（期望
+步骤 31  实绘元素=11  回想·第 2 行「跳转」按钮中心（派发行号必须 = 1）
+    ★M06BTN★ PASS  中心=332,382  令牌=bl.list:1:replay（期望
+步骤 32  实绘元素=11  回想·第 2 行「重新播放」按住（pressed 图留在导图上）
+    ★M06BTN★ PASS  中心=231,574  令牌=bl.list:2:jump（期望
+步骤 33  实绘元素=11  回想·第 3 行「跳转」按钮中心（派发行号必须 = 2）
+    ★M06BTN★ PASS  中心=332,574  令牌=bl.list:2:replay（期望
+步骤 34  实绘元素=11  回想·第 3 行「重新播放」按钮中心（派发行号必须 = 2）
+    ★M06BTN★ PASS  中心=231,766  令牌=bl.list:3:jump（期望
+步骤 35  实绘元素=11  回想·第 4 行「跳转」按住（pressed 图留在导图上）
+    ★M06BTN★ PASS  中心=332,766  令牌=bl.list:3:replay（期望
+步骤 36  实绘元素=11  回想·第 4 行「重新播放」按钮中心（派发行号必须 = 3）
+    ★M06ROW★ PASS  中心=-  令牌=-
+步骤 37  实绘元素=11  回想·负向①：两按钮之间的空隙 ⇒ 必须命中整行（不是按钮）
+    ★M06ROW★ PASS  中心=-  令牌=-
+步骤 38  实绘元素=11  回想·负向②：块右侧文案区 ⇒ 必须命中整行（不是按钮）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 39  实绘元素=11  回想·负向③：不存在的按钮 key ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 40  实绘元素=11  回想·负向④：越界行号 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 41  实绘元素=11  回想·负向⑤：非 list 元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 42  实绘元素=11  回想·负向⑥：不存在的元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06GUARD★ PASS  中心=-  令牌=-
+步骤 43  实绘元素=11  回想·负向⑦：item_buttons 5 种非法形态（内存副本）⇒ 机制守卫必须逐条 REJECT
+    ★M06PAGE★ PASS  中心=231,190  令牌=bl.list:2:jump（期望
+步骤 44  实绘元素=11  回想·分页：max_rows 临时改 2 后第 2 页的按钮属于全局第 2 行（随块走）
+步骤 28  实绘元素=11  回想
+    ★M06BTN★ PASS  中心=231,190  令牌=bl.list:0:jump（期望
+步骤 29  实绘元素=11  回想·第 1 行「跳转」按钮中心（命中自身 + 派发 backlog_jump:0）
+    ★M06BTN★ PASS  中心=332,190  令牌=bl.list:0:replay（期望
+步骤 30  实绘元素=11  回想·第 1 行「重新播放」按钮中心（命中自身 + 派发 backlog_replay:0）
+    ★M06BTN★ PASS  中心=231,382  令牌=bl.list:1:jump（期望
+步骤 31  实绘元素=11  回想·第 2 行「跳转」按钮中心（派发行号必须 = 1）
+    ★M06BTN★ PASS  中心=332,382  令牌=bl.list:1:replay（期望
+步骤 32  实绘元素=11  回想·第 2 行「重新播放」按住（pressed 图留在导图上）
+    ★M06BTN★ PASS  中心=231,574  令牌=bl.list:2:jump（期望
+步骤 33  实绘元素=11  回想·第 3 行「跳转」按钮中心（派发行号必须 = 2）
+    ★M06BTN★ PASS  中心=332,574  令牌=bl.list:2:replay（期望
+步骤 34  实绘元素=11  回想·第 3 行「重新播放」按钮中心（派发行号必须 = 2）
+    ★M06BTN★ PASS  中心=231,766  令牌=bl.list:3:jump（期望
+步骤 35  实绘元素=11  回想·第 4 行「跳转」按住（pressed 图留在导图上）
+    ★M06BTN★ PASS  中心=332,766  令牌=bl.list:3:replay（期望
+步骤 36  实绘元素=11  回想·第 4 行「重新播放」按钮中心（派发行号必须 = 3）
+    ★M06ROW★ PASS  中心=-  令牌=-
+步骤 37  实绘元素=11  回想·负向①：两按钮之间的空隙 ⇒ 必须命中整行（不是按钮）
+    ★M06ROW★ PASS  中心=-  令牌=-
+步骤 38  实绘元素=11  回想·负向②：块右侧文案区 ⇒ 必须命中整行（不是按钮）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 39  实绘元素=11  回想·负向③：不存在的按钮 key ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 40  实绘元素=11  回想·负向④：越界行号 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 41  实绘元素=11  回想·负向⑤：非 list 元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06BTN-REJECT★ -  中心=-  令牌=-
+步骤 42  实绘元素=11  回想·负向⑥：不存在的元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+    ★M06GUARD★ PASS  中心=-  令牌=-
+步骤 43  实绘元素=11  回想·负向⑦：item_buttons 5 种非法形态（内存副本）⇒ 机制守卫必须逐条 REJECT
+    ★M06PAGE★ PASS  中心=231,190  令牌=bl.list:2:jump（期望
+步骤 44  实绘元素=11  回想·分页：max_rows 临时改 2 后第 2 页的按钮属于全局第 2 行（随块走）
+
+  汇总：缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | item_buttons/item_text 拒绝 5 处 [★M06ITEMBTN-REJECT★ bl.list[jump] action 为空 ; ★M06ITEMBTN-REJECT★ bl.list[jump] 矩形出块（局部 1300,190 200×60 不在 1526×188 内） ; ★M06IT
+  汇总：转场 成功 36 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64
+  汇总：PNG 导出 成功 89 / 失败 0 | 目录 file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/
+  汇总：quit (autotour done) : frames=1673 | gal_shell | 已载入 202 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | item_buttons/item_text 拒绝 5 处 [★M06ITEMBTN-REJECT★ bl.list[jump] action 为空 ; ★M06ITEMBTN
+

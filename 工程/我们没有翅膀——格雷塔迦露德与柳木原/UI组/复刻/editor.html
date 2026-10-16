@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI 布局编辑器 · 我们没有翅膀——格雷塔迦露德与柳木原</title>
+
+<!-- ==========================================================================
+     UI 布局编辑器（M35，2026-09-22）
+
+     **复用 `replica.js` 当渲染内核**（与人工验收件 `index.html` 同一份渲染器，
+     保证「编辑器里看到什么 = krkr 里看到什么」），在其上叠加编辑层。
+
+     数据源：`layout/screens/*.json`（唯一真相源）
+     读取：`ui_layout.js`（gen_layout.py 的合并产物）
+     写回：导出该屏的 `screens/*.json` 全文（下载 / 复制），**不直接写盘**
+           （file:// 下浏览器无写权限；导出后覆盖回去，再跑 gen_layout + verify_ui）
+
+     素材资料库：`asset_index.js`（由 `工具\emit_asset_index.py` 离线预生成）
+     贴图：`../krkr/assets/ui/`（同一份，不复制）
+     ========================================================================== -->
+
+<link rel="stylesheet" href="replica.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body class="editor">
+
+<div class="ed-shell">
+
+  <!-- ───────────────────────── 顶栏 ───────────────────────── -->
+  <div class="ed-top">
+    <span class="ttl">UI 布局编辑器</span>
+    <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"></select>
+    <span class="sp"></span>
+    <button class="ed-btn" id="ed-undo" title="撤销 (Ctrl+Z)">↶ 撤销</button>
+    <button class="ed-btn" id="ed-redo" title="重做 (Ctrl+Y)">↷ 重做</button>
+    <span class="sp"></span>
+    <button class="ed-btn" id="ed-snap" title="拖动时吸附到画布/其它元素的边与中线，以及网格 (S)">吸附：开</button>
+    <button class="ed-btn" id="ed-grid" title="显示全屏网格 (G)">网格</button>
+    <select class="ed-sel ed-grid-step" id="ed-grid-step" title="网格步长（画布像素）">
+      <option value="10">10px</option>
+      <option value="20" selected>20px</option>
+      <option value="30">30px</option>
+      <option value="40">40px</option>
+      <option value="60">60px</option>
+      <option value="120">120px</option>
+    </select>
+    <button class="ed-btn" id="ed-outline" title="只显示选中/命中元素的外框，隐藏贴图，便于对齐 (O)">线框</button>
+    <span class="sp"></span>
+    <!-- ★ M3：屏级 flag 预览（layout/_schema.md §四）。默认**关闭** = 忽略 flag，全部元素
+         可见可编辑（与改动前的编辑体验一致）；开启后按下面的下拉取值套用可见性过滤，
+         用于预览快捷条的收起/展开/钉住/气泡等状态。旁边是「该屏 flags_default 的每个 flag」。 -->
+    <button class="ed-btn" id="ed-flag-preview"
+      title="按屏级 flag 预览可见性（默认关闭 = 忽略 flag、全部元素可见可编辑）">按 flag 预览：关</button>
+    <span id="ed-flag-sels" style="display:inline-flex;gap:4px;align-items:center"></span>
+    <span class="sp"></span>
+    <button class="ed-btn" id="ed-export" title="导出当前屏的 screens/*.json 全文">导出 JSON</button>
+    <button class="ed-btn" id="ed-reload" title="丢弃未导出的改动，从 ui_layout.js 重新载入当前屏">重载</button>
+    <a class="ed-btn" href="index.html" target="_blank" title="在新窗口打开只读复刻页（人工验收件）">只读复刻 ↗</a>
+  </div>
+
+  <!-- ─────────────────────── 左：素材资料库 ─────────────────────── -->
+  <div class="ed-side left">
+    <div class="ed-sec" id="sec-lib">
+      <h3>素材资料库 <span id="ed-lib-stat" style="color:#6b8098">—</span><span class="fold">▾</span></h3>
+      <div class="body">
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+          <input class="ed-num ed-lib-search" id="ed-lib-search" style="margin:0" placeholder="搜索素材名…（如 panel / btn / 菜单）">
+          <button class="ed-btn" id="ed-lib-reload" title="重新读取 asset_index.js，无需刷新页面（file:// 下也可用）">↻ 热重载</button>
+        </div>
+        <div class="ed-lib-cats" id="ed-lib-cats"></div>
+        <div class="ed-lib-grid" id="ed-lib-grid"></div>
+        <div class="ed-lib-more" id="ed-lib-more"></div>
+        <div class="ed-hint">点缩略图 → 在画布中心新增一个 image 元素（w/h 自动取 PNG 实尺寸）。</div>
+      </div>
+    </div>
+    <div class="ed-sec" id="sec-tree">
+      <h3>元素树（按 z 从高到低） <span class="fold">▾</span></h3>
+      <div class="body"><div class="ed-el-list" id="ed-el-list"></div></div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── 画布 ───────────────────────── -->
+  <div class="ed-stage" id="ed-stage">
+    <div id="stage-wrap">
+      <div id="stage">
+        <div id="canvas"></div>
+      </div>
+    </div>
+    <!-- 全屏网格层：在编辑层之下、画布之上，鼠标穿透，供对齐参考 -->
+    <div class="ed-gridlayer" id="ed-gridlayer"></div>
+    <!-- 编辑叠加层：盖在 #canvas 上，接管指针事件 -->
+    <div class="ed-overlay" id="ed-overlay"></div>
+  </div>
+
+  <!-- ─────────────────────── 右：属性面板 ─────────────────────── -->
+  <div class="ed-side right">
+    <div class="ed-sec" id="sec-prop">
+      <h3>属性 <span class="fold">▾</span></h3>
+      <div class="body" id="ed-prop"><div class="ed-hint">未选中元素。在画布上点击，或从左侧元素树里选。</div></div>
+    </div>
+    <div class="ed-sec" id="sec-ops">
+      <h3>操作 <span class="fold">▾</span></h3>
+      <div class="body">
+        <div class="ed-multi">
+          <button class="ed-btn" id="ed-front">置顶</button>
+          <button class="ed-btn" id="ed-back">置底</button>
+          <button class="ed-btn" id="ed-dup">复制</button>
+          <button class="ed-btn danger" id="ed-del">删除</button>
+        </div>
+        <!-- ★ M35b：居中（对任意 kind 的元素都可用；多选时逐个居中到画布）
+             水平/垂直 = 把元素自身矩形在画布对应轴上居中；居中 = 两者一起 -->
+        <div class="ed-multi" style="margin-top:6px">
+          <button class="ed-btn" id="ed-center-h" title="水平居中：x = (画布宽 − 元素宽) / 2">⇔ 水平居中</button>
+          <button class="ed-btn" id="ed-center-v" title="垂直居中：y = (画布高 − 元素高) / 2">⇕ 垂直居中</button>
+          <button class="ed-btn" id="ed-center-b" title="双向居中：同时水平与垂直居中（快捷键 C）">✛ 居中</button>
+        </div>
+        <div class="ed-hint" style="margin-top:6px">
+          Del 删除 ｜ Ctrl+D 复制 ｜ PageUp/PageDown 调层 ｜ 方向键微调 1px（Shift 10px）｜
+          Esc 取消选择 ｜ Ctrl+Z / Ctrl+Y 撤销重做
+        </div>
+      </div>
+    </div>
+    <div class="ed-sec" id="sec-check">
+      <h3>即时校验 <span class="fold">▾</span></h3>
+      <div class="body" id="ed-check"><div class="ed-hint">—</div></div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── 底栏 ───────────────────────── -->
+  <div class="ed-foot">
+    <span>画布 <b id="ed-canvas">1920×1080</b></span>
+    <span>缩放 <b id="ed-zoom">—</b></span>
+    <span>鼠标 <b id="ed-cursor">—</b></span>
+    <span>元素 <b id="ed-count">—</b></span>
+    <span>已选 <b id="ed-selcount">0</b></span>
+    <span id="ed-status">就绪</span>
+  </div>
+
+</div>
+
+<!-- 导出弹窗 -->
+<div class="ed-modal" id="ed-modal">
+  <div class="panel">
+    <h3 id="ed-modal-title">导出</h3>
+    <div class="mbody"><textarea id="ed-modal-text" spellcheck="false"></textarea></div>
+    <div class="mfoot">
+      <button class="ed-btn" id="ed-modal-dl">下载为 screens/&lt;屏&gt;.json</button>
+      <button class="ed-btn" id="ed-modal-copy">复制到剪贴板</button>
+      <span class="sp" style="flex:1"></span>
+      <button class="ed-btn" id="ed-modal-close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 布局数据（gen_layout.py 生成物） -->
+<script src="ui_layout.js"></script>
+<!-- 素材资料库索引（工具\emit_asset_index.py 生成物） -->
+<script src="asset_index.js"></script>
+<!-- 屏清单（屏 id → screens/*.json 文件名） -->
+<script src="screen_index.js"></script>
+<!-- 渲染内核：与 index.html 同一份 -->
+<script src="replica.js"></script>
+<!-- 编辑器层 -->
+<script src="editor_core.js"></script>
+<script src="editor_ui.js"></script>
+
+</body>
+</html>

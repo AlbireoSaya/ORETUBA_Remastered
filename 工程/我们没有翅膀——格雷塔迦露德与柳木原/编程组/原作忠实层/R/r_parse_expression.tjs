@@ -1,0 +1,15 @@
+function RParseExpression(rb, limit, p)
+{
+	var h = RExprHeader(rb, limit, p);
+	var rows = RExprRelocations(rb, limit, h);
+	var expr = %[
+		"code_start" => h.code_start,
+		"code_size" => h.code_size,
+		"flag_offset" => h.flag_offset,
+		"compiled_flag" => h.compiled_flag,
+		"reloc_start" => h.reloc_start,
+		"reloc_size" => h.reloc_size,
+		"relocations" => rows
+	];
+	return [expr, h.reloc_start + h.reloc_size];
+}

@@ -1,0 +1,34 @@
+{
+  "scope": "commands are fixtures only; no game or original DLL. Fresh output dirs must be workspace-contained, not junctions, and only that directory gets custom SID ACL. No security-product changes.",
+  "compiler": "C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /nologo /utf8output /platform:x86 /target:exe /out:<fresh-workspace-build/name.exe> <source.cs>",
+  "thread_sources": [
+    "RestrictedWriteProbe.Imports.cs",
+    "RestrictedWriteProbe.token.fixed.cs",
+    "RestrictedWriteProbe.checks.fixed.cs",
+    "RestrictedWriteProbe.entry.fixed.cs"
+  ],
+  "thread_argv": [
+    "<fresh-private-output-dir>",
+    "S-1-5-21-21061011-44382271-91753024-44001",
+    "E:/ZCode Workspace/Galgame/AGENTS.md",
+    "E:/ZCode Workspace/Galgame/备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE",
+    "C:/Windows/win.ini"
+  ],
+  "thread_candidate_exe": "子代理工作区/ISSUE-20261011-02/r-host-readonly/RestrictedWriteProbe.exe",
+  "primary_no_window_source": "RestrictedFileParent.NoWindow.cs",
+  "primary_detached_source": "RestrictedFileParent.Detached.cs",
+  "fixed_child_source": "RestrictedFileChild.cs",
+  "primary_argv": "same as thread_argv; child exe must be sibling RestrictedFileChild.exe",
+  "positive_directory": "临时/original-host-20261011/write-probe-01",
+  "negative_no_acl_directory": "临时/original-host-20261011/write-probe-noacl",
+  "negative_existing_canary": "repeat first positive output; exit1 with no overwrite",
+  "negative_outside_output": "C:/Windows; exit1 before any write/token run",
+  "primary_no_window_output": "临时/original-host-20261011/primary-probe-01",
+  "primary_detached_output": "临时/original-host-20261011/primary-probe-detached",
+  "formal_build": "临时/original-host-20261011/formal-build; exe missing for Thread after AccessDenied, not PASS",
+  "TEMP_TMP": "set process scoped only to the respective workspace directories",
+  "negative_file_verification": "SHA256 before and after all fixtures; three files unchanged",
+  "cleanup_verification": "Get-Process by captured child pid after parent exit; no process",
+  "security_inventory": "Get-CimInstance root/SecurityCenter2 AntiVirusProduct; Get-MpThreatDetection matching these fixture paths; zero matching Defender result does not exclude other products",
+  "not_claimed": "private desktop/windowstation/default token DACL/job/descendant isolation/whole OS activity/original startup not proved"
+}

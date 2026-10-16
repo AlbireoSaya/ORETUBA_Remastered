@@ -1,0 +1,237 @@
+{
+  "original_input_state_readbacks": [
+    {
+      "message": 512,
+      "wparam": 0,
+      "lparam": 25232075,
+      "parent_range_bytes": 7192,
+      "parent_diff": {
+        "base": 33566720,
+        "byte_count": 7192,
+        "before_sha256": "153b9755eecd311a3abe84be0f645055de49b7877669f8b472edbbae8107e097",
+        "after_sha256": "a3929b6e97b7de6da8c019eac95c163b2691e977e5666746eb4c13843a331efe",
+        "total_changed_words": 1,
+        "truncated": false,
+        "changes": [
+          {
+            "offset": 352,
+            "va": 33567072,
+            "before": 53,
+            "after": 54,
+            "xor": 3
+          }
+        ]
+      },
+      "actual_GetCursorPos_BOOL": 1,
+      "actual_screen_cursor": [
+        1275,
+        613
+      ],
+      "actual_ScreenToClient_BOOL": 1,
+      "actual_client_cursor": [
+        715,
+        385
+      ],
+      "actual_focus_is_owned": false,
+      "actual_foreground_is_owned": false,
+      "no_input_state_forced": true
+    },
+    {
+      "message": 513,
+      "wparam": 1,
+      "lparam": 25232075,
+      "parent_range_bytes": 7192,
+      "parent_diff": {
+        "base": 33566720,
+        "byte_count": 7192,
+        "before_sha256": "60384bfeb981e9a298e2da2de5005e5082a3e974b1ddc900dd2adba15b5ea850",
+        "after_sha256": "60384bfeb981e9a298e2da2de5005e5082a3e974b1ddc900dd2adba15b5ea850",
+        "total_changed_words": 0,
+        "truncated": false,
+        "changes": []
+      },
+      "actual_GetCursorPos_BOOL": 1,
+      "actual_screen_cursor": [
+        1275,
+        613
+      ],
+      "actual_ScreenToClient_BOOL": 1,
+      "actual_client_cursor": [
+        715,
+        385
+      ],
+      "actual_focus_is_owned": false,
+      "actual_foreground_is_owned": false,
+      "no_input_state_forced": true
+    },
+    {
+      "message": 514,
+      "wparam": 0,
+      "lparam": 25232075,
+      "parent_range_bytes": 7192,
+      "parent_diff": {
+        "base": 33566720,
+        "byte_count": 7192,
+        "before_sha256": "e61cd841f0c94ae90d19d79b1cdbb8644a4828e98dad2292af9effa0fd4ef497",
+        "after_sha256": "e61cd841f0c94ae90d19d79b1cdbb8644a4828e98dad2292af9effa0fd4ef497",
+        "total_changed_words": 0,
+        "truncated": false,
+        "changes": []
+      },
+      "actual_GetCursorPos_BOOL": 1,
+      "actual_screen_cursor": [
+        1275,
+        613
+      ],
+      "actual_ScreenToClient_BOOL": 1,
+      "actual_client_cursor": [
+        715,
+        385
+      ],
+      "actual_focus_is_owned": false,
+      "actual_foreground_is_owned": false,
+      "no_input_state_forced": true
+    }
+  ],
+  "original_input_virtual_calls": [
+    {
+      "message": 512,
+      "source_callsite": 4847926,
+      "object": 33567052,
+      "vtable": 5350400,
+      "target": 4723888
+    },
+    {
+      "message": 513,
+      "source_callsite": 4847913,
+      "object": 117981312,
+      "vtable": 5350436,
+      "target": 4741408
+    },
+    {
+      "message": 514,
+      "source_callsite": 4847913,
+      "object": 117989504,
+      "vtable": 5350436,
+      "target": 4741408
+    }
+  ],
+  "original_input_parent_writes": [
+    {
+      "message": 512,
+      "source_EIP": 4850536,
+      "offset": 352,
+      "size": 4,
+      "value": 54
+    }
+  ],
+  "original_button_member_callbacks": [
+    {
+      "message": 513,
+      "source_callsite": 4741429,
+      "callback_this": 33566720,
+      "callback_target": 4741920,
+      "parent_vtable": 5343052,
+      "parent_button_virtual_target": 4726640,
+      "original_message_words": [
+        33567052,
+        513,
+        1,
+        25232075,
+        0
+      ]
+    },
+    {
+      "message": 514,
+      "source_callsite": 4741429,
+      "callback_this": 33566720,
+      "callback_target": 4741968,
+      "parent_vtable": 5343052,
+      "parent_button_virtual_target": 4726656,
+      "original_message_words": [
+        33567052,
+        514,
+        0,
+        25232075,
+        0
+      ]
+    }
+  ],
+  "explicit_fixture_cursor_observations": [
+    {
+      "explicit_fixture_cursor_position_only": true,
+      "actual_SetCursorPos_BOOL": 1,
+      "actual_GetCursorPos_BOOL": 1,
+      "original_screen_point": [
+        1289,
+        611
+      ],
+      "requested_client_point": [
+        715,
+        385
+      ],
+      "requested_screen_point": [
+        1275,
+        613
+      ],
+      "observed_screen_point": [
+        1275,
+        613
+      ],
+      "no_physical_button_injection": true,
+      "no_original_input_state_written": true
+    }
+  ],
+  "original_late_priority_and_post_calls": [],
+  "worker_errors_after_release": [],
+  "explicit_controlled_START_mouse_inputs": [
+    {
+      "logical_parent_round": 4,
+      "owner_generation": 5,
+      "explicit_owned_window_only": true,
+      "message": 512,
+      "wparam": 0,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    },
+    {
+      "logical_parent_round": 5,
+      "owner_generation": 6,
+      "explicit_owned_window_only": true,
+      "message": 513,
+      "wparam": 1,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    },
+    {
+      "logical_parent_round": 6,
+      "owner_generation": 7,
+      "explicit_owned_window_only": true,
+      "message": 514,
+      "wparam": 0,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+from pathlib import Path
+import sys,importlib.util,json
+r=Path.cwd();b=r/'临时/ISSUE-20261011-02/r-owner-render-replay-01';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b.mkdir(parents=True,exist_ok=True);sys.path.insert(0,str(g/'工具'))
+s=importlib.util.spec_from_file_location('chainref',g/'工具/lucifen_owner_render_reference.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+from lucifen_owner_list_reference import owner_reorder_reference
+from lucifen_opaque_layers_reference import opaque_layers32_reference
+order=[1,2,3];keys={1:10,2:20,3:20};rows=[]
+assert m.render_tail_order(order)==[3,2,1] and order==[1,2,3];rows.append('tail-backward-input-readonly')
+before=m.native_owner_reorder_reference(order,keys,1,20,0,False);assert before['order']==[1,2,3] and before['render_order']==[3,2,1] and before['changed'];rows.append('before-equal-later-draw')
+after=m.native_owner_reorder_reference(order,keys,1,20,0,True);assert after['order']==[2,3,1] and after['render_order']==[1,3,2] and after['changed'];rows.append('after-equal-earlier-draw')
+full=m.native_owner_reorder_reference(order,keys,3,20,0x100);assert full['order']==order and not full['changed']
+direct=owner_reorder_reference(order,keys,3,20,0x100);assert direct['order']==[1,3,2] and direct['changed'];rows.append('whole-native-truth-versus-low-byte-direct-skip')
+for child in [0,999]:
+ v=m.native_owner_reorder_reference(order,keys,child,5,0);assert v['native_return']==0 and v['render_order']==[3,2,1]
+rows.append('null-nonmember-al-zero')
+assert m.native_owner_reorder_reference(order,keys,3,20,-1)['changed']==False;rows.append('truth-u32-bitpattern')
+assert order==[1,2,3] and keys=={1:10,2:20,3:20};rows.append('no-input-mutation')
+layers=[{'data':(0x11223344+i*0x33333333).to_bytes(4,'little'),'width':1,'height':1,'pitch':4,'row0':0,'x':0,'y':0,'id':i,'visible':1,'enabled':255} for i in range(3)]
+dest=bytes(4);correct=opaque_layers32_reference(dest,1,1,4,0,0,list(reversed(layers)));wrong=opaque_layers32_reference(dest,1,1,4,0,0,layers)
+assert correct==bytes.fromhex('44332211') and wrong==bytes.fromhex('aa998877') and sum(a!=z for a,z in zip(correct,wrong))==4;rows.append('wrong-traversal-pixel-negative-control')
+p=b/'helper-verification.json';assert not p.exists();p.write_text(json.dumps({'passed':True,'count':len(rows),'groups':rows,'scope':'root hand expected wrapper/traversal distinction and wrong-pixel negative control; no original heap/scene'},indent=2),encoding='utf-8');print('PASS',len(rows),'reference groups')

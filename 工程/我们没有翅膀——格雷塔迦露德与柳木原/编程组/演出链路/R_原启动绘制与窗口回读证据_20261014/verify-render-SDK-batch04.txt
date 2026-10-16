@@ -1,0 +1,57 @@
+# Root owned-OS SDK verification; assertions are exact editor-easy candidates.
+from pathlib import Path
+import ctypes as C,struct,sys,json,uuid
+r=Path.cwd();w=g/'工具';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(w),str(g/'工具')]
+from lucifen_host_gdi_object_bindings import CreateCompatibleDC,CreateDIBSection,SelectObject,DeleteObject
+from lucifen_host_monitor_bindings import DeleteDC
+from lucifen_host_logfont_a import LOGFONTA
+from lucifen_host_font_create import CreateFontIndirectA
+from lucifen_host_textout_a import TextOutA,SetBkMode,TRANSPARENT
+from lucifen_host_gdi_flush import GdiFlush
+from lucifen_host_text_colors import SetTextColor
+from verify_owned_dib_colors import check_owned_dib_colors
+from verify_owned_gdi_query import check_owned_gdi_query
+owned=[];font=oldfont=None;guard=bytes([165])*32;rows={}
+def create_owned_dc(width,height,bpp):
+ dc=CreateCompatibleDC(None);assert dc
+ stride=((width*bpp+31)//32)*4;n=stride*height;header=struct.pack('<IiiHHIIiiII',40,width,-height,1,bpp,0,n,0,0,256 if bpp==8 else 0,0);raw=header+bytes(1024 if bpp==8 else 0);hb=C.create_string_buffer(guard+raw+guard,len(raw)+64);bits=C.c_void_p()
+ bmp=CreateDIBSection(dc,C.byref(hb,32),0,C.byref(bits),None,0);assert bmp and bits.value and hb.raw==guard+raw+guard
+ old=SelectObject(dc,bmp);assert old;owned.append((dc,bmp,old,bits.value,n));return owned[-1]
+try:
+ textdc=create_owned_dc(128,48,32);lf=LOGFONTA();lf.lfHeight=-20;lf.lfWeight=400;lf.lfFaceName=b'Tahoma';font=CreateFontIndirectA(C.byref(lf));assert font;oldfont=SelectObject(textdc[0],font);assert oldfont
+ C.memset(textdc[3],255,textdc[4]);oldcolor=SetTextColor(textdc[0],0);oldmode=SetBkMode(textdc[0],TRANSPARENT);assert oldmode
+ raw=bytes([65,66,67,0]);buf=C.create_string_buffer(guard+raw+guard,len(raw)+64)
+ try:
+  assert TextOutA(textdc[0],0,0,C.byref(buf,32),3) and GdiFlush();assert buf.raw==guard+raw+guard
+  payload=C.string_at(textdc[3],textdc[4]);changed=sum(payload[i:i+3]!=bytes([255])*3 for i in range(0,len(payload),4));assert changed>0;rows['TextOutA_guarded_ABC_actual_changed_RGB_pixels']=changed
+ finally: SetTextColor(textdc[0],oldcolor);SetBkMode(textdc[0],oldmode)
+ paldc=create_owned_dc(4,4,8);assert check_owned_dib_colors(paldc[0]);rows['8bpp_color_table_guards_roundtrip']=True
+ import verify_owned_dib_colors as palette_assertions
+ actual_get=palette_assertions.GetDIBColorTable;palette_assertions.GetDIBColorTable=lambda *args:2
+ try:
+  try:palette_assertions.check_owned_dib_colors(paldc[0])
+  except AssertionError:rows['negative_control_no_output_write_rejected']=True
+  else:raise AssertionError('negative control should be rejected')
+ finally:palette_assertions.GetDIBColorTable=actual_get
+ from lucifen_host_format_integer_binding import wsprintfA_one_integer
+ for value in [98,-7,-2147483648,2147483647]:
+  fmt=b'A%02d.B';expected=fmt%value;ob=C.create_string_buffer(guard+bytes(64)+guard,128);fb=C.create_string_buffer(guard+fmt+bytes([0])+guard,65+len(fmt))
+  assert wsprintfA_one_integer(C.byref(ob,32),C.byref(fb,32),C.c_int32(value))==len(expected)
+  assert ob.raw[32:32+len(expected)+1]==expected+bytes([0]) and ob.raw[:32]==ob.raw[-32:]==guard and fb.raw==guard+fmt+bytes([0])+guard
+ rows['integer_cdecl_actual_signed_cases_and_guards']=True
+ bitmapdc=create_owned_dc(4,4,32);rows['native_BITMAP_query_bytes']=check_owned_gdi_query(bitmapdc[1],bitmapdc[3])
+ from lucifen_host_dc_clip import GetClipBox,SIMPLEREGION
+ from lucifen_host_nccalcsize import RECT
+ clipbuf=C.create_string_buffer(guard+bytes(16)+guard,80);clip=C.cast(C.byref(clipbuf,32),C.POINTER(RECT))
+ assert GetClipBox(bitmapdc[0],clip)==SIMPLEREGION and [clip.contents.left,clip.contents.top,clip.contents.right,clip.contents.bottom]==[0,0,4,4] and clipbuf.raw[:32]==clipbuf.raw[-32:]==guard
+ rows['GetClipBox_owned_DIB_DC_guard']=True
+ from lucifen_host_window_iconic import IsIconic
+ from lucifen_host_message_window_bindings import user32,kernel32
+ window=user32.CreateWindowExW(0,'STATIC','owned sdk IsIconic verification',0,0,0,64,64,C.c_void_p(-3),None,kernel32.GetModuleHandleW(None),None);assert window
+ try:assert user32.IsWindow(window) and IsIconic(window)==0;rows['IsIconic_owned_message_window']=True
+ finally:assert user32.DestroyWindow(window)
+finally:
+ if oldfont:assert SelectObject(textdc[0],oldfont)==font
+ if font:assert DeleteObject(font)
+ for dc,bmp,old,bits,n in reversed(owned):assert SelectObject(dc,old)==bmp and DeleteObject(bmp) and DeleteDC(dc)
+receipt={'bits':C.sizeof(C.c_void_p)*8,'passed':True,'checks':rows,'owned_cleanup_pass':True,'scope':'synthetic owned SDK, not original game glyph proof'};p=w/('sdk-render-batch02-'+str(receipt['bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(receipt,indent=2),encoding='utf-8');print(json.dumps(receipt))

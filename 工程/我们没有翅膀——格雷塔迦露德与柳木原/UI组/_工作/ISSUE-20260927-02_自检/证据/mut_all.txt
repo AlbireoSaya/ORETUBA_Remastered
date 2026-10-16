@@ -1,0 +1,44 @@
+==============================================================================
+[(无 · 线上路径)] 期望：ALL PASS
+  NOTE   ：(无 NOTE)
+  判定：ALL PASS ｜ edge rc=0 ｜ dump=E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-02_自检\mut_none_dump.html ｜ 结果=符合期望 ✓
+==============================================================================
+[missing] 期望：必须 FAIL
+  NOTE   ：SELFTEST NOTE ⚠ 负向对照 ?mut=missing · mode —— 本页数据/期望值被**有意改坏**，仅用于证明断言仍有牙齿；正常回归请不带 ?mut= 运行
+  SELFTEST FAIL ⑱ 数据侧守卫：三态素材须存在、常态 ≠ 悬停（否则逐项三态断言恒真）  —— ch.choices.normal="__mut_no_such_asset__.png" 不在素材清单
+  判定：FAILED 1 项 ｜ edge rc=0 ｜ dump=E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-02_自检\mut_missing_dump.html ｜ 结果=符合期望 ✓
+==============================================================================
+[foldhover] 期望：必须 FAIL
+  NOTE   ：SELFTEST NOTE ⚠ 负向对照 ?mut=foldhover · mode —— 本页数据/期望值被**有意改坏**，仅用于证明断言仍有牙齿；正常回归请不带 ?mut= 运行
+  SELFTEST FAIL ⑱ 数据侧守卫：三态素材须存在、常态 ≠ 悬停（否则逐项三态断言恒真）  —— ch.choices：normal 与 hover 同为 "x_ui_psv_choice_norm.png" ⇒ 悬停断言恒真（失去区分力）
+  判定：FAILED 1 项 ｜ edge rc=0 ｜ dump=E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-02_自检\mut_foldhover_dump.html ｜ 结果=符合期望 ✓
+==============================================================================
+[swap] 期望：必须 ALL PASS（合法数据变更）
+  NOTE   ：SELFTEST NOTE ⚠ 负向对照 ?mut=swap · mode —— 本页数据/期望值被**有意改坏**，仅用于证明断言仍有牙齿；正常回归请不带 ?mut= 运行
+  判定：ALL PASS ｜ edge rc=0 ｜ dump=E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-02_自检\mut_swap_dump.html ｜ 结果=符合期望 ✓
+==============================================================================
+[drift] 期望：必须 FAIL
+  NOTE   ：SELFTEST NOTE ⚠ 负向对照 ?mut=drift · mode —— 本页数据/期望值被**有意改坏**，仅用于证明断言仍有牙齿；正常回归请不带 ?mut= 运行
+  SELFTEST FAIL ⑱g 第 3 项按住 -&gt; document 抬起兜底复位（且不影响第 2 项的悬停）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | panel_frame.png
+  SELFTEST FAIL ⑱h 移出后全部回落 normal  —— x_ui_psv_choice_norm.png | panel_frame.png | panel_frame.png
+  SELFTEST FAIL ⑱i 按住第 3 项期间移出 -&gt; 取消按下态（规则③逐项版）  —— x_ui_psv_choice_norm.png | panel_frame.png | panel_frame.png
+  SELFTEST FAIL ⑱k 右键按下不得置 pressed（项保持 hover）  —— x_ui_psv_choice_sel.png | panel_frame.png | panel_frame.png
+  SELFTEST FAIL ⑱l 按住拖到相邻项 → 按下态被取消、新项只显示 hover（不跟随指针）  —— panel_frame.png | x_ui_psv_choice_sel.png | panel_frame.png
+  SELFTEST FAIL ⑱l 拖拽结束后全回 normal（台账无悬挂）  —— panel_frame.png | panel_frame.png | panel_frame.png
+  判定：FAILED 6 项 ｜ edge rc=0 ｜ dump=E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-02_自检\mut_drift_dump.html ｜ 结果=符合期望 ✓
+==============================================================================
+[expect] 期望：必须 FAIL
+  NOTE   ：SELFTEST NOTE ⚠ 负向对照 ?mut=expect · mode —— 本页数据/期望值被**有意改坏**，仅用于证明断言仍有牙齿；正常回归请不带 ?mut= 运行
+  SELFTEST FAIL ⑱c 初态：所有项都是 normal  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱d 悬停第 2 项 -&gt; **仅第 2 项**换 hover（邻项不动）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱e 第 2 项按下 -&gt; 仅该项 pressed  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱f 项内抬起 -&gt; 回落 hover（仍在悬停）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱g 第 3 项按住 -&gt; document 抬起兜底复位（且不影响第 2 项的悬停）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱h 移出后全部回落 normal  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱i 按住第 3 项期间移出 -&gt; 取消按下态（规则③逐项版）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱k 右键按下不得置 pressed（项保持 hover）  —— x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱l 按住拖到相邻项 → 按下态被取消、新项只显示 hover（不跟随指针）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_sel.png | x_ui_psv_choice_norm.png
+  SELFTEST FAIL ⑱l 拖拽结束后全回 normal（台账无悬挂）  —— x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png | x_ui_psv_choice_norm.png
+  判定：FAILED 10 项 ｜ edge rc=0 ｜ dump=E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-02_自检\mut_expect_dump.html ｜ 结果=符合期望 ✓
+
+（已清理无头 Edge 的 user-data-dir：E:/ZCode Workspace/Galgame/临时/edge_selftest_mut）

@@ -1,0 +1,21 @@
+文本容量复核（预估：CJK 1 字 ≈ 1em；仅用于判定「收窄是否触发换行」）
+
+cfg.pv_text  w=548  font=22  wrap=True  max_lines=3
+   '渡来同学'                            4 字 ≈ 88px  OK
+   '……羽田君。这个时间，'                    11 字 ≈242px  OK
+   '你怎么会在这里？'                        8 字 ≈176px  OK
+
+cfg.pv_note  w=576  font=20  wrap=True  max_lines=2
+   '用于确认设定的文本窗口浓度、'                 14 字 ≈280px  OK
+   '文字显示速度以及自动模式换句速度。'              17 字 ≈340px  OK
+
+cfg.pv_note_x  w=576  font=20  wrap=False  max_lines=None
+   '不透明度同时影响实机对话框。'                 14 字 ≈280px  OK
+
+名条文字（w=184，按字数降序）：
+   cfg.ch_saw_tx        w=184 '布露波卢冴子'   6 字 ≈120px OK
+   cfg.ch_lr_tx         w=184 'ＬＲ２００１'   6 字 ≈120px OK
+   cfg.ch_asu_tx        w=184 '渡来明日香'    5 字 ≈100px OK
+   cfg.ch_har_tx        w=184 '春日春惠'     4 字 ≈ 80px OK
+   cfg.ch_min_tx        w=184 '米内奥拉'     4 字 ≈ 80px OK
+   cfg.ch_pur_tx        w=184 '普纳奇纳'     4 字 ≈ 80px OK

@@ -1,0 +1,27 @@
+模块 I · ①「标签墨迹」的副作用面：`item_buttons` / `hit.label` / 同族落点 全仓清点
+====================================================================================================
+【数据层】带 item_buttons 的 list（全 19 屏逐屏扫）：
+  26_backlog.json        bl.list   key=jump    label='跳转' → **绘字**（受影响）
+  26_backlog.json        bl.list   key=replay  label=None → 不绘字（label 空/缺 ⇒ 本条支路不执行，零影响）
+  28_music.json          mu.list   key=play    label='' → 不绘字（label 空/缺 ⇒ 本条支路不执行，零影响）
+
+【数据层】带 label 的 hit（元素级按钮标签）：
+  29_ending.json         ed.hit_skip          label='跳过' font=26 h=64
+  31_fragment.json       fragment.hit_back    label='返回' font=30 h=58
+
+【代码层】引擎侧 `valign:"middle"` + `h = el.h` 的**同族落点**（4 处）：
+  ui_widget.tjs::uiWidgetDrawHit            （hit.label）              → 本模块**已改** +6
+  ui_widget.tjs::uiWidgetDrawList           （item_buttons[].label）  → 本模块**已改** +6
+  ui_widget.tjs::uiWidgetDrawListVariants   （item_variants.prev/next 的 label）→ **未改**
+      理由：① 全库 0 处数据实例（27_gallery/37_dress/38_replay 的 prev/next 均无 label）
+            ② HTML 侧（replica.js::buildList 的 item_variants 段）**根本不渲染该 label** ⇒ 无「两端口径」可言
+            ⇒ 单端改动无从验证、也无收益；已在报告登记，若日后启用需与 item_buttons 同批（并补 HTML 侧）
+  ui_widget.tjs::uiWidgetDrawListVariants   （item_variants.text 的 `n/N`）→ **未改**
+      理由：它是**文本区**（对应 item_text 一类「文案区」），不是按钮标签；且 h(22) < lineH(28) 属另一种几何，
+            与 item_text 的 3px 同属「全库文本渲染普遍差」⇒ 按派单口径**不属本模块**，仅登记
+
+【同族但不在本模块范围】
+  复刻/replica.js::buildText 的 text 元素（item_text / 各屏 text 元素）：两端墨迹恒差 3.0px（引擎 190.5 / HTML 193.5，
+  字号 ~30 的对话框正文实测）—— 属全库文本渲染的普遍差，派单明确「不属本模块」，仅登记
+  复刻/fragment.html：**独立演示页**（不加载 replica.js），其 hit 标签连半行距补偿都没有 ⇒ 与两端口径本就不同，
+  不在本模块范围（且不在本模块白名单内）

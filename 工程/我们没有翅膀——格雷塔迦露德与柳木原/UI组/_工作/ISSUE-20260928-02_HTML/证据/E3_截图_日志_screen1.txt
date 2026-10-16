@@ -1,0 +1,10 @@
+盘上 32_flowchart.json：124 元素 / 13 连线 ｜ 预设判定 = screen1/ref150/其它
+
+[screen1/交付样例] 主干层： E3_screen1_main.png
+[screen1/交付样例] 点入口热区 fc.entry.0001_hit 之后：E3_screen1_entry点击后.png
+  帧差： {"n": 1510027, "bbox": [35, 33, 1838, 1010], "total": 2073600}
+  ★ 交付样例的入口热区 layer=frag1..frag6，但**该预设不含番外独立层元素、也不含 fc.fragback_hit**
+    ⇒ 点进去后画面为空且**没有返回键**（数据侧缺口，需主代理裁决；见报告）
+
+★ 两端对照：krkr 侧巡演图（E2 产出）未就绪时本脚本**不编造差异数值**；
+   拿到 `E2 *states*.png` / `*frag*.png` 后，按上一轮口径 `E3_vs_krkr_real.py` 跑邻域内/外差异。

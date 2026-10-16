@@ -1,0 +1,20 @@
+function RLFRun(spec, s)
+{
+    var rd      = RLFRead32  incontextof s;
+    var rh      = RLFRead16  incontextof s;
+    var rb      = RLFRead8   incontextof s;
+    var wr      = RLFWrite32 incontextof s;
+    var wb      = RLFWrite8  incontextof s;
+    var resolve = RLFResolve incontextof s;
+
+    if (spec.kind == "direct") {
+        return RLiveRelocations(rd, wr, rb, spec.cursor, spec.code, spec.compact, resolve);
+    }
+
+    var h = RLiveExpressionBind(rd, wr, rh, rb, wb,
+                                spec.expression, spec.cursor, resolve);
+    if (h.bound !== spec.bound || h.code_start !== spec.code) {
+        throw new Exception("LIVE_BIND_HEADER_MISMATCH");
+    }
+    return h;
+}

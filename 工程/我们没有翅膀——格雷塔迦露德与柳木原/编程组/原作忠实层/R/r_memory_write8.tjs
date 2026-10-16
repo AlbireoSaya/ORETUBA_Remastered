@@ -1,0 +1,6 @@
+function RMemoryWrite8(s, q, v)
+{
+    if (typeof v !== "Integer") throw new Exception("INVALID_MEMORY_VALUE");
+    RMemoryFind(s, q, 1, true);
+    s.dirty["" + q] = v & 255;
+}

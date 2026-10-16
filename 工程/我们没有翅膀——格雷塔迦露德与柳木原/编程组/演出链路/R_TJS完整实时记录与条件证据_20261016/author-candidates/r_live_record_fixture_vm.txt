@@ -1,0 +1,29 @@
+function RRVM(rd, wr, rb, ctx, entry, native, maxSteps, resume)
+{
+    var idx = this.vm_runs.count;
+    var kind = this.current_kind;
+    this.phase = "vm";
+    var r = global.RVMRun(rd, wr, rb, ctx, entry, native, maxSteps, resume);
+    this.phase = "post";
+    this.vm_runs.add([kind, entry, r.return_code, r.steps]);
+    for (var i = 0; i < r.trace.count; i++) {
+        var row = r.trace[i];
+        this.vm_trace.add([idx, row.pc, row.opcode]);
+    }
+    return r;
+}
+
+function RRNative(h, f)
+{
+    var rd = global.RRRead32 incontextof this;
+    var wr = global.RRWrite32 incontextof this;
+    var rb = global.RRRead8 incontextof this;
+    var wb = global.RRWrite8 incontextof this;
+    var fa = f & 0xffffffff;
+    this.calls.add([h, f,
+        rd(fa),
+        rd((fa + 4) & 0xffffffff),
+        rd((fa + 8) & 0xffffffff),
+        rd((fa + 12) & 0xffffffff)]);
+    return global.RVMNDispatch(rd, wr, rb, wb, h, fa);
+}

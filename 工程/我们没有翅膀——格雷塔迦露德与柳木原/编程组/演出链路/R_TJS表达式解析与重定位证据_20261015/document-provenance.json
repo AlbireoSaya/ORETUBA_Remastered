@@ -1,0 +1,36 @@
+{
+  "readme": "readme-run-01",
+  "skill": "skill-run-01",
+  "exact_editor_patches": "docs-corrections-run-02",
+  "changes": [
+    {
+      "file": "README.md",
+      "old": "`[s+` 后长度/size/count 均为 u32",
+      "new": "`[s` 两 byte 标记后长度/size/count 均为 u32（`+` 不属于魔数）"
+    },
+    {
+      "file": "skill-increment.md",
+      "old": "`[s+` 长度/size/count u32",
+      "new": "`[s` 两 byte 标记后长度/size/count u32（`+` 不属于魔数）"
+    },
+    {
+      "file": "README.md",
+      "old": "两处故障注入仍留在临时副本，等待 root 取证，勿记作已过；故障与最终完整性尚待 root 验证。",
+      "new": "两处故障注入已由 root 核实：故意错 group4 基址 32 bit 检出 synthetic-bind-order，故意错 opcode0 反转 64 bit 检出 RECORD_CONDITION；两者 engine exit 0 且 verdict false / cleanup true。源 1EXE 8LPK 3DLL 2refs 446SCRIPT 418IR 与 111 byte USER.CFG 未变。"
+    },
+    {
+      "file": "skill-increment.md",
+      "old": "- 故障注入两份在临时副本等待 root 取证，不写已过。",
+      "new": "- 故意错基址与条件反转两份注入均已检出；原件/脚本/IR 完整性复验不变，限本期范围。"
+    }
+  ],
+  "workskills_append_exact": true,
+  "index_rows": [
+    22,
+    31
+  ],
+  "index_columns": [
+    8,
+    10
+  ]
+}

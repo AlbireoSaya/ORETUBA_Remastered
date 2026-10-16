@@ -1,0 +1,293 @@
+from pathlib import Path
+import sys,json,hashlib,struct,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';candidate=root/'子代理工作区/ISSUE-20261011-02/r-native-allocator-01'
+sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(root/'工程/我们没有翅膀R/工具'),str(g/'工具'),str(g/'逆向引擎')]
+from lucifen_sob_loader import parse_sob1,bind_sob1,parse_container,relocate_buffer
+from lucifen_host_format_bridge import bridge_wsprintf_two
+from lucifen_host_memory import HostMemory
+from lucifen_host_tls import HostTLS,current_thread_id,get_last_error,set_last_error
+from lucifen_guest_unwind import plan_current_frame_unwind
+from lucifen_host_read_probe import host_bad_read_bytes,host_bad_read_null
+from lucifen_host_write_probe import host_bad_write_bytes,host_bad_write_null
+from lucifen_host_version import host_version_ex_a,host_upper_ascii_z
+from lucifen_guest_memory_bridge import GuestMemoryBlocks
+from lucifen_readonly_io_bridge import ReadOnlyFiles
+from lucifen_readonly_io_guest import bridge_ReadFile,bridge_SetFilePointer,bridge_CloseHandle
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_cdecl_probe import invoke_cdecl
+from pe_min import PE
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_ESI,UC_X86_REG_EBP,UC_X86_REG_EBX,UC_X86_REG_ECX,UC_X86_REG_EDX,UC_X86_REG_EDI,UC_X86_REG_EFLAGS
+import lpk_media as M
+
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+from lucifen_host_path_bridge import bridge_lstrcatA,bridge_CharLowerA,host_open_missing_readonly
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+stage=(root/(sys.argv[1]if len(sys.argv)>1 else '临时/ISSUE-20261011-02/r-native-SOB-frame-canonical-44')).resolve();assert stage.is_relative_to((root/'临时/ISSUE-20261011-02').resolve());stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE')
+stem='SCRIPT'
+fixture=root/'_game_ascii/ISSUE-20261011-02-resource-empty-01';fixture.mkdir(parents=True,exist_ok=True);assert not list(fixture.iterdir());baseprefix=(str(fixture)+'\\').encode('ascii')
+path=root/'备份/我们没有翅膀R-安装介质/SET_UP'/ (stem+'.LPK');lp=M.load(str(path))
+hx=struct.unpack_from('<I',lp['mm'],4)[0]^lp['k2'];flags=hx>>24;ts=hx&0xffffff
+if flags&1:ts=(ts<<11)-8
+index=bytearray(lp['mm'][8:8+ts]);M.X.decrypt_table(index,lp['k2'],M.X.ROTATE_PATTERN)
+plen=index[4];mode=int(index[5+plen]!=0);trie_start=10+plen;trie_bytes=struct.unpack_from('<I',index,6+plen)[0];entry_start=trie_start+trie_bytes;esize=13 if flags&8 else 9
+entries=list(M.X.traverse_index(index,trie_start,4 if mode else 2,entry_start,esize));assert len(entries)==len(lp['ents'])
+u=map_pe(pe);u.mem_map(0,4096);u.mem_map(0x1fe0000,0x20000);u.mem_write(0,b'\xff'*4)
+u.mem_write(0x100c000,(stem+'.LPK').encode('ascii')+b'\0');u.mem_write(0x100c800,b'\xd5'*4)
+aux=M.aux_for(str(path)) or (0,0);u.mem_write(0x5357f0,struct.pack('<I',aux[0]));u.mem_write(0x5357f8,struct.pack('<I',aux[1]));u.mem_write(0x5357f4,b'\0')
+proxy={0x200e200:('HeapCreate',0x518104,12),0x200e210:('HeapDestroy',0x518108,4),0x200e220:('HeapAlloc',0x51814c,12),0x200e230:('HeapFree',0x518168,12),0x200e240:('GlobalAlloc',0x5181cc,8),0x200e250:('GlobalFree',0x518194,4),0x200e260:('GetVersionExA',0x518278,4),0x200e270:('ReadFile',0x518248,20),0x200e280:('SetFilePointer',0x518244,16)}
+proxy.update({0x200e2d0:('lstrcatA',0x5181c8,8),0x200e2e0:('CharLowerA',0x5182e8,4),0x200e2f0:('CreateFileA',0x51824c,28),0x200e290:('lstrcpyA',0x5181dc,8),0x200e2a0:('lstrlenA',0x5181c4,4),0x200e2b0:('CharUpperA',0x5182ec,4),0x200e2c0:('CloseHandle',0x5181bc,4)})
+for addr,(name,iat,argc)in proxy.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+counts=collections.Counter();events=[];rows=[];heap_handles={};versions=[]
+with HostMemory()as memory,ReadOnlyFiles([path])as files:
+ mirror=GuestMemoryBlocks(u,memory);token,err=files.open(path);assert err==0
+ tls=HostTLS(memory);tlsindex,err=tls.alloc();assert err==0 and tlsindex!=0xffffffff
+ u.mem_write(0x52d970,struct.pack('<I',tlsindex))
+ def hook(uc,a,n,ud):
+  name,iat,argc=proxy[a];esp=uc.reg_read(UC_X86_REG_ESP);ra=struct.unpack('<I',uc.mem_read(esp,4))[0];args=struct.unpack('<%dI'%(argc//4),uc.mem_read(esp+4,argc));event={'api':name,'args':list(args),'native_return_address':ra};rd=lambda q,k:bytes(uc.mem_read(q,k));wr=lambda q,b:uc.mem_write(q,b)
+  if name=='HeapCreate':
+   assert ra==0x50a131;actual=memory.heap_create(*args);assert actual!=0;value=0x68000000+len(heap_handles);heap_handles[value]=actual
+  elif name=='HeapDestroy':
+   actual=heap_handles[args[0]];value=int(memory.heap_destroy(actual));assert value==1;del heap_handles[args[0]]
+  elif name=='HeapAlloc':
+   assert ra in(0x507630,0x50bfba);actual=memory.heap_alloc(heap_handles[args[0]],args[1],args[2]);assert actual!=0;value=mirror.bind(actual);event['rounded_allocation_size']=memory.size(actual)
+  elif name=='HeapFree':
+   assert ra==0x506668;mirror.sync(args[2]);actual=mirror.host_pointer(args[2]);value=int(memory.heap_free(heap_handles[args[0]],args[1],actual));assert value==1;mirror.unmap(args[2])
+  elif name=='GlobalAlloc':
+   assert ra==0x491e44;actual=memory.global_alloc(*args);assert actual!=0;value=mirror.bind(actual);event['allocation_size']=memory.size(actual)
+  elif name=='GlobalFree':
+   assert ra in(0x491e62,0x4f8687);mirror.sync(args[0]);actual=mirror.host_pointer(args[0]);assert memory.global_free(actual)==0;value=0;mirror.unmap(args[0])
+  elif name=='GetVersionExA':
+   assert ra==0x509ff7;ok,data,err=host_version_ex_a(rd(args[0],148));assert ok and err==0;wr(args[0],data);value=int(ok);versions.append(list(struct.unpack('<5I',data[:20])));event['observed_version']=versions[-1]
+  elif name=='ReadFile':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value,err=bridge_ReadFile(files,rd,wr,*args);assert value==1 and err==0;event['actual_bytes_read']=struct.unpack('<I',uc.mem_read(args[3],4))[0];assert event['actual_bytes_read']==args[2];mirror.sync(args[1]) if ra!=0x4908ec else None
+  elif name=='SetFilePointer':
+   assert ra==0x49133f;value,err=bridge_SetFilePointer(files,rd,wr,*args);assert err==0 and value==args[1]
+  elif name=='lstrcpyA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrcpyA(rd,wr,args[0],args[1],256)
+  elif name=='lstrlenA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrlenA(rd,args[0],256)
+  elif name=='CharUpperA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;payload=read_z(rd,args[0],256);actual=host_upper_ascii_z(payload);wr(args[0],actual+b'\0');value=args[0]
+  elif name=='CloseHandle':
+   assert ra==0x490c68;value,err=bridge_CloseHandle(files,args[0]);assert value==1 and err==0
+  elif name=='lstrcatA':
+   value=bridge_lstrcatA(rd,wr,args[0],args[1],260)
+  elif name=='CharLowerA':
+   value=bridge_CharLowerA(rd,wr,args[0],260)
+  elif name=='CreateFileA':
+   payload=read_z(rd,args[0],260);assert payload.startswith(baseprefix) and payload.upper().endswith((b'.DAT',b'.SOB'))
+   value,err=host_open_missing_readonly(payload,*args[1:]);assert value==0xffffffff and err in(2,3);event['actual_error']=err
+  counts[name]+=1;event['guest_result']=value;events.append(event);uc.reg_write(UC_X86_REG_EAX,value)
+
+
+ capture={}
+ def stop_raise(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);v=list(struct.unpack('<5I',uc.mem_read(sp,20)))
+  params=list(struct.unpack('<%dI'%v[3],uc.mem_read(v[4],v[3]*4))) if v[3] else []
+  chain=[];p=struct.unpack('<I',uc.mem_read(0,4))[0];seen=set()
+  while p!=0xffffffff and p not in seen and len(chain)<32:
+   seen.add(p);nxt,handler=struct.unpack('<2I',uc.mem_read(p,8));chain.append({'frame':p,'next':nxt,'handler':handler,'frame_words':list(struct.unpack('<8I',uc.mem_read(p,32)))});p=nxt
+  capture.update({'api':'RaiseException','intercept_only_no_dispatch':True,'original_return_address':v[0],'exception_code':v[1],'flags':v[2],'parameter_count':v[3],'parameters':params,'SEH_chain':chain,'original_boot_entry':0x4a67e0,'actual_resource_request_missing':'SCRIPT/SOB_INIT.DAT','not_original_boot_success':True})
+  capture['CPU_registers']={k:uc.reg_read(v) for k,v in [('EAX',UC_X86_REG_EAX),('EBX',UC_X86_REG_EBX),('ECX',UC_X86_REG_ECX),('EDX',UC_X86_REG_EDX),('ESI',UC_X86_REG_ESI),('EDI',UC_X86_REG_EDI),('EBP',UC_X86_REG_EBP),('ESP',UC_X86_REG_ESP),('EIP',UC_X86_REG_EIP),('EFLAGS',UC_X86_REG_EFLAGS)]}
+  uc.emu_stop()
+ raise_import=[r[1] for dll,funcs in pe.imports() for r in funcs if r[0]=='RaiseException'];assert raise_import==[0x12770c]
+ candidates=[]
+ for sec in pe.sections:
+  raw=pe.data[sec['rawptr']:sec['rawptr']+sec['rawsize']]
+  for q in range(0,len(raw)-4,4):
+   if struct.unpack_from('<I',raw,q)[0]==raise_import[0]:candidates.append(pe.image_base+sec['vaddr']+q)
+ assert candidates
+ for iat in candidates:u.mem_write(iat,struct.pack('<I',0x200e310))
+ capture['RaiseException_IAT_candidates']=candidates;u.mem_write(0x200e310,b'\x90')
+ u.hook_add(UC_HOOK_CODE,stop_raise,begin=0x200e310,end=0x200e310)
+ handle=u.hook_add(UC_HOOK_CODE,hook,begin=0x200e200,end=0x200e2ff)
+ seh=bytes(u.mem_read(0,4));assert invoke_cdecl(u,0x50a11a,[1],timeout=0)==1
+ reader=invoke_thiscall_args(u,0x490850,0,[0x100c000,token,0x100c800],timeout=0,count=ts*12+1000000);assert reader and struct.unpack('<I',u.mem_read(0x100c800,4))[0]==0
+ controller=invoke_cdecl(u,0x50577f,[0x118],timeout=0);assert invoke_thiscall_args(u,0x41b3d0,controller,[],timeout=0)==controller
+ # Real original application registration block, no native body execution.
+ u.reg_write(UC_X86_REG_ESI,controller);u.reg_write(UC_X86_REG_ESP,0x2008000);u.emu_start(0x40e95c,0x410f2d,timeout=0,count=2000000)
+ assert u.reg_read(UC_X86_REG_EIP)==0x410f2d and u.reg_read(UC_X86_REG_ESP)==0x2008000
+ b,end=struct.unpack('<2I',u.mem_read(controller+0x38,8));assert end-b==809*4
+ provider=0x10f0000;sentinel=0x10f3000;node=sentinel+0x40;desc=0x10f4000;prefixptr=0x10f5000
+ u.mem_write(0x5357cc,struct.pack('<I',provider));u.mem_write(provider,struct.pack('<I',0x51a3a0));u.mem_write(0x5357fc,baseprefix+b'\0')
+ u.mem_write(provider+0x24,struct.pack('<I',sentinel));u.mem_write(sentinel,struct.pack('<I',node));u.mem_write(node,struct.pack('<III',sentinel,0,desc));u.mem_write(desc,struct.pack('<IIII',reader,prefixptr,0,0));u.mem_write(prefixptr,(baseprefix+b'SCRIPT\\').lower()+b'\0')
+ start=len(events)
+ try:
+  ret=invoke_thiscall_args(u,0x4a67e0,controller,[0x5291a4,0x5291b8,0x5291cc,1,1],timeout=0,count=5000000)
+  print('original boot returned',ret,'variables',struct.unpack('<I',u.mem_read(controller+0x60,4))[0],flush=True)
+  assert ret==0 and bytes(u.mem_read(0,4))==seh
+ except Exception:
+  assert capture and u.reg_read(UC_X86_REG_EIP)==0x200e310
+  assert capture['exception_code']==0xe06d7363 and capture['flags']==1 and capture['parameter_count']==3
+  capture['actual_API_counts']=dict(counts)
+  (stage/'missing-initialization-exception-summary.json').write_text(json.dumps(capture,ensure_ascii=False,indent=2),encoding='utf-8')
+  print('captured original C++ exception',flush=True)
+  u.mem_map(0x3000000,0x20000);ep,cp,dp=0x3001000,0x3002000,0x3003000
+  record=struct.pack('<20I',capture['exception_code'],capture['flags'],0,capture['original_return_address'],capture['parameter_count'],*(capture['parameters']+[0]*12))
+  assert len(record)==80;u.mem_write(ep,record)
+  context=bytearray(716);struct.pack_into('<I',context,0,0x10007)
+  for name,off in [('EDI',156),('ESI',160),('EBX',164),('EDX',168),('ECX',172),('EAX',176),('EBP',180),('EIP',184),('EFLAGS',192),('ESP',196)]:struct.pack_into('<I',context,off,capture['CPU_registers'][name])
+  u.mem_write(cp,bytes(context))
+  def read_proxy(uc,a,n,ud):
+   sp=uc.reg_read(UC_X86_REG_ESP);ra,p,size=struct.unpack('<3I',uc.mem_read(sp,12))
+   assert size<=1048576 and pe.image_base<=ra<pe.image_base+pe.size_image
+   if p==0:value=host_bad_read_null(size)
+   else:assert size>=1;value=host_bad_read_bytes(bytes(uc.mem_read(p,size)))
+   events.append({'api':'IsBadReadPtr','guest_pointer':p,'count':size,'actual_host_surrogate_result':value,'native_return_address':ra,'not_original_guest_host_address':True})
+   counts['IsBadReadPtr']+=1;uc.reg_write(UC_X86_REG_EAX,value)
+  u.mem_write(0x5180fc,struct.pack('<I',0x200e320));u.mem_write(0x200e320,b'\xc2\x08\x00')
+  u.hook_add(UC_HOOK_CODE,read_proxy,begin=0x200e320,end=0x200e320)
+  def write_proxy(uc,a,n,ud):
+   sp=uc.reg_read(UC_X86_REG_ESP);ra,p,size=struct.unpack('<3I',uc.mem_read(sp,12))
+   assert size<=1048576 and pe.image_base<=ra<pe.image_base+pe.size_image
+   if p==0:value=host_bad_write_null(size)
+   else:
+    assert size>=1 and any(lo<=p and p+size-1<=hi and perm&2 for lo,hi,perm in uc.mem_regions())
+    value=host_bad_write_bytes(bytes(uc.mem_read(p,size)))
+   events.append({'api':'IsBadWritePtr','guest_pointer':p,'count':size,'actual_host_surrogate_result':value,'native_return_address':ra,'guest_write_permissions_checked':True,'not_original_guest_host_address':True})
+   counts['IsBadWritePtr']+=1;uc.reg_write(UC_X86_REG_EAX,value)
+  u.mem_write(0x518100,struct.pack('<I',0x200e330));u.mem_write(0x200e330,b'\xc2\x08\x00')
+  u.hook_add(UC_HOOK_CODE,write_proxy,begin=0x200e330,end=0x200e330)
+  def unwind_proxy(uc,a,n,ud):
+   sp=uc.reg_read(UC_X86_REG_ESP);ra,tf,ti,er,rv=struct.unpack('<5I',uc.mem_read(sp,20))
+   flags=struct.unpack('<I',uc.mem_read(er+4,4))[0];head=struct.unpack('<I',uc.mem_read(0,4))[0]
+   assert ra==0x505409 and er==ep
+   ranges=[(pe.image_base+s['vaddr'],pe.image_base+s['vaddr']+s['vsize']) for s in pe.sections if s['chars']&0x20000000]
+   plan=plan_current_frame_unwind(flags,head,tf,ti,rv,sp,ra,0x2000000,0x2010000,ranges)
+   events.append({'api':'RtlUnwind','explicit_guest_OS_emulation':True,'head':head,'target_frame':tf,'exception_record':er,'plan':plan})
+   counts['RtlUnwind_guest_emulation']+=1;uc.mem_write(er+4,struct.pack('<I',plan['flags']))
+   uc.reg_write(UC_X86_REG_EAX,plan['eax']);uc.reg_write(UC_X86_REG_ESP,plan['esp']);uc.reg_write(UC_X86_REG_EIP,plan['eip'])
+  u.mem_write(0x5181f4,struct.pack('<I',0x200e340));u.mem_write(0x200e340,b'\x90')
+  u.hook_add(UC_HOOK_CODE,unwind_proxy,begin=0x200e340,end=0x200e340)
+  tlsproxies={0x200e350:('TlsGetValue',0x51813c,4),0x200e360:('TlsSetValue',0x51815c,8),0x200e370:('GetCurrentThreadId',0x5181e0,0),0x200e380:('GetLastError',0x518164,0),0x200e390:('SetLastError',0x518140,4)}
+  def tls_proxy(uc,a,n,ud):
+   name,iat,argc=tlsproxies[a];sp=uc.reg_read(UC_X86_REG_ESP);ra=struct.unpack('<I',uc.mem_read(sp,4))[0];args=struct.unpack('<%dI'%(argc//4),uc.mem_read(sp+4,argc)) if argc else ()
+   if name=='TlsGetValue':
+    assert args[0]==tlsindex;actual,err=tls.get(args[0]);assert err==0;value=mirror._by_host[actual] if actual else 0
+   elif name=='TlsSetValue':
+    assert args[0]==tlsindex
+    if args[1]:mirror.sync(args[1]);actual=mirror.host_pointer(args[1])
+    else:actual=0
+    ok,err=tls.set(args[0],actual);assert ok and err==0;value=int(ok)
+   elif name=='GetCurrentThreadId':value=current_thread_id()
+   elif name=='GetLastError':value=get_last_error()
+   elif name=='SetLastError':set_last_error(args[0]);value=None
+   event={'api':name,'args':list(args),'native_return_address':ra,'actual_Windows_API':True,'guest_result':value}
+   if name in('TlsGetValue','TlsSetValue'):event['actual_host_pointer']=actual
+   events.append(event);counts[name]+=1
+   if value is not None:uc.reg_write(UC_X86_REG_EAX,value)
+  for a,(name,iat,argc) in tlsproxies.items():
+   u.mem_write(iat,struct.pack('<I',a));u.mem_write(a,b'\xc2'+struct.pack('<H',argc));u.hook_add(UC_HOOK_CODE,tls_proxy,begin=a,end=a)
+  head=capture['SEH_chain'][0];sp=0x2007000;sent=0x200f000
+  u.mem_write(sp,struct.pack('<5I',sent,ep,head['frame'],cp,dp));u.reg_write(UC_X86_REG_ESP,sp)
+  handler_result={'handler':head['handler'],'establisher_frame':head['frame'],'controlled_guest_EXCEPTION_RECORD_32':True,'controlled_guest_CONTEXT_i386':True,'not_host_RaiseException_dispatch':True}
+  try:
+   u.emu_start(head['handler'],sent,timeout=0,count=50000000)
+   handler_result.update({'returned':u.reg_read(UC_X86_REG_EIP)==sent,'EAX':u.reg_read(UC_X86_REG_EAX),'EIP':u.reg_read(UC_X86_REG_EIP)})
+  except Exception as exc:
+   pc=u.reg_read(UC_X86_REG_EIP);names=[(dll,name) for dll,funcs in pe.imports() for name,rva in funcs if rva==pc]
+   handler_result.update({'returned':False,'EIP':pc,'unresolved_import':names,'error':str(exc),'stopped_stack_words':list(struct.unpack('<8I',u.mem_read(u.reg_read(UC_X86_REG_ESP),32)))})
+  assert handler_result['returned'] and handler_result['EAX']==0 and handler_result['EIP']==0x200f000
+  assert u.reg_read(UC_X86_REG_ESP)==0x2008018 and bytes(u.mem_read(0,4))==seh
+  source=root/'工程/我们没有翅膀R/语料/R版SCRIPT';decl=parse_sob1((source/'user_var.sob').read_bytes())
+  get=lambda a:struct.unpack('<I',u.mem_read(a,4))[0]
+  binding_rows=[]
+  for label,bo,vo,ao in [('live',0x54,0x5c,0x6c),('snapshot1',0x78,0x80,0x90),('snapshot2',0x9c,0xa4,0xb4)]:
+   db=get(controller+bo);vb=get(controller+vo);ab=get(controller+ao)
+   bound=bind_sob1(decl,db,ab);n=len(decl['initial_data'])
+   assert bytes(u.mem_read(db,n))==bytes(bound['data']);mirror.sync(db);mirror.sync(vb);mirror.sync(ab)
+   addresses=[];record_matches=True
+   for i,r in enumerate(decl['records']):
+    raw=bytes(u.mem_read(vb+i*12,12));address=struct.unpack_from('<I',raw)[0];addresses.append(address)
+    assert address==bound['variable_addresses'][i] and raw[4:6]==bytes([r['type'],r['flags']]) and struct.unpack_from('<I',raw,8)[0]==r['extra']
+   assert list(struct.unpack('<3I',u.mem_read(ab,12)))==bound['array_slots']
+   binding_rows.append({'label':label,'initial_bytes':n,'declarations':len(addresses),'arrays':3,'all_data_records_and_slots_equal_reference':True,'local_relocations':len(decl['local_relocations'])})
+  vectors=[]
+  vb=get(controller+0x5c);vectors.append([get(vb+i*12)for i in range(768)])
+  nb=get(controller+0x38);vectors.append([get(nb+i*4)for i in range(809)])
+  named=get(controller+0x48);ne=get(controller+0x4c);assert ne-named==36
+  vectors.append([get(named+i*12)for i in range(3)])
+  assert vectors[2]==[controller+0xdc,controller+0x10c,controller+0x110]
+  module_rows=[]
+  funcbase=get(controller+0xd4);mb=get(controller+0x24);me=get(controller+0x28);assert me-mb==4
+  func_rec=get(mb);assert get(func_rec)==funcbase
+  func=parse_container((source/'func_lib.sob').read_bytes(),'func_lib.sob')
+  ref,trace=relocate_buffer(func['data'][func['header']:],func['maps'],func['ss'],funcbase,funcbase,vectors)
+  assert bytes(u.mem_read(funcbase,func['se']))==bytes(ref);mirror.sync(funcbase)
+  assert get(func_rec+4)==0 and get(func_rec+8)==0 and get(func_rec+12)==func['ss']
+  module_rows.append({'name':'func_lib.sob','original_entry':0x4a67e0,'bytes':func['se'],'relocations':len(trace),'original_publication_and_relocation_equal_reference':True})
+  live0=mirror.live_count
+  for spath in sorted(source.glob('*.sob')):
+   if spath.name.lower() in('func_lib.sob','user_var.sob'):continue
+   module=parse_container(spath.read_bytes(),spath.name)
+   u.mem_write(0x10e0200,('SCRIPT\\'+spath.name).encode('ascii')+b'\0')
+   start_sp=get(controller+0x10)
+   assert invoke_thiscall_args(u,0x4a7000,controller,[0x10e0200,0],timeout=0,count=120000000)==0
+   body=get(controller+0xd8);begin=get(controller+0x24);end=get(controller+0x28);assert end-begin==8
+   rec=get(end-4);assert get(rec)==body and get(rec+4)==0 and get(rec+8)==0xffffffff and get(rec+12)==module['ss']
+   ref,trace=relocate_buffer(module['data'][module['header']:],module['maps'],module['ss'],body,funcbase,vectors)
+   assert bytes(u.mem_read(body,module['se']))==bytes(ref);mirror.sync(body)
+   assert get(controller+0xc)==body and get(controller+0x10)==start_sp+4 and get(start_sp)==0
+   if spath.name.lower()=='main.sob':
+    def format_proxy(uc,a,n,ud):
+     sp=uc.reg_read(UC_X86_REG_ESP);ra,dst,fmt,left,right=struct.unpack('<5I',uc.mem_read(sp,20));assert ra==0x41bdb9
+     value=bridge_wsprintf_two(lambda q,k:bytes(uc.mem_read(q,k)),lambda q,b:uc.mem_write(q,b),dst,fmt,left,right,64)
+     events.append({'api':'wsprintfA','actual_host_API':True,'native_return_address':ra,'result':value,'formatted_path':read_z(lambda q,k:bytes(uc.mem_read(q,k)),dst,64).decode('ascii')});counts['wsprintfA']+=1;uc.reg_write(UC_X86_REG_EAX,value)
+    u.mem_write(0x518394,struct.pack('<I',0x200e3a0));u.mem_write(0x200e3a0,b'\xc3');u.hook_add(UC_HOOK_CODE,format_proxy,begin=0x200e3a0,end=0x200e3a0)
+    trace=[];calls=[];unexpected=[];child_validated=[]
+    def trace_dispatch(uc,a,n,ud):
+     pc=get(controller+0xc);sp=get(controller+0x10)
+     active=get(controller+0xd8);name='main.sob' if active==body else 'gameinit.sob'
+     if active!=body and not child_validated:
+      cm=parse_container((source/name).read_bytes(),name);cref,ct=relocate_buffer(cm['data'][cm['header']:],cm['maps'],cm['ss'],active,funcbase,vectors)
+      assert bytes(uc.mem_read(active,cm['se']))==bytes(cref);child_validated.append({'name':name,'bytes':cm['se'],'relocations':len(ct),'published_buffer_before_execution_exact_reference':True})
+     trace.append({'PC_offset':pc-active,'active_module':name,'opcode':get(pc),'SP_delta':sp-start_sp,'retAppProc':get(controller+0x110)})
+     if len(trace)>200:raise AssertionError('main trace budget')
+    def observe_native(uc,a,n,ud):
+     frame=get(uc.reg_read(UC_X86_REG_ESP)+4);calls.append({'handler':a,'frame':frame,'first_word':get(frame),'slot':vectors[1].index(a),'frame_words_at_796':[get(frame+4*i)for i in range(3)]if a==0x414530 else None,'body_executed':a in(0x41b3a0,0x41b380,0x41b3c0) or(a==0x4114d0 and get(frame)==21)})
+     if a not in(0x41b3a0,0x41b380,0x41b3c0) and not(a==0x4114d0 and get(frame)==21):unexpected.append(a);uc.emu_stop()
+    h1=u.hook_add(UC_HOOK_CODE,trace_dispatch,begin=0x4a7a75,end=0x4a7a75)
+    hh=[u.hook_add(UC_HOOK_CODE,observe_native,begin=a,end=a) for a in sorted(set(vectors[1]))]
+    try:
+     try:result=invoke_thiscall_args(u,0x41bee0,controller,[],timeout=0,count=10000000)
+     except Exception as exc:
+      assert unexpected;result={'stopped_native':unexpected[-1],'stop_before_unknown_native_body':True,'error':str(exc)}
+     scheduler={'result':result,'trace':trace,'calls':calls,'system_request':get(0x5355c0),'module_stack_depth':(get(controller+0x28)-get(controller+0x24))//4,'native_module_loader_completed':counts['wsprintfA'],'last_API_events':events[-8:],'not_complete_script_execution':True,'child_publication_reference':child_validated,'parent_app_global':get(0x530c94),'dll_wrapper_global':get(0x5357e4),'stop_requires_real_parent_window_object':True}
+     (stage/'scheduler-boundary.json').write_text(json.dumps(scheduler,indent=2),encoding='utf-8')
+     print('loaded main VM',result,'trace',trace,'calls',calls,'system_request',get(0x5355c0),'control',read_z(lambda q,k:bytes(u.mem_read(q,k)),0x5354bc,256),flush=True)
+    finally:
+     u.hook_del(h1)
+     for h in hh:u.hook_del(h)
+    assert len(trace)==22 and len(calls)==3 and calls[-1]['handler']==0x414530 and child_validated and counts['wsprintfA']==1
+    if unexpected:
+     assert get(controller+0x28)-get(controller+0x24)==12
+     assert invoke_thiscall_args(u,0x4a7230,controller,[],timeout=0,count=1000000)==0
+   assert invoke_thiscall_args(u,0x4a7230,controller,[],timeout=0,count=1000000)==0
+   assert get(controller+0x28)-get(controller+0x24)==4 and mirror.live_count==live0
+   module_rows.append({'name':spath.name,'original_entry':0x4a7000,'bytes':module['se'],'relocations':len(trace),'original_publication_and_relocation_equal_reference':True,'original_release_and_pop':True,'context_PC_and_zero_stack_push':True})
+  assert len(module_rows)==22
+  assert invoke_thiscall_args(u,0x41b490,controller,[1],timeout=0,count=2000000)==controller
+  assert mirror.live_count==4
+  assert invoke_thiscall_args(u,0x490ba0,reader,[1],timeout=0,count=2000000)==reader
+  assert mirror.live_count==1 and not files._handles and bytes(u.mem_read(0,4))==seh
+  ptdhost,err=tls.get(tlsindex);assert err==0 and ptdhost
+  ptd=mirror._by_host[ptdhost];assert mirror.size(ptd)==128
+  assert get(ptd)==current_thread_id() and get(ptd+4)==0xffffffff and get(ptd+0x6c)==0 and get(ptd+0x70)==0
+  mirror.sync(ptd)
+  invoke_cdecl(u,0x507f5a,[0],timeout=0,count=2000000)
+  assert tls.get(tlsindex)==(0,0) and mirror.live_count==0 and not memory._blocks
+  assert tls.close_all()==[] and not tls.owned and bytes(u.mem_read(0,4))==seh
+
+  recovery={'passed':True,'original_missing_init_name_used':True,'no_synthetic_metadata':True,'original_boot_entry':0x4a67e0,'original_typed_catch':0x49275d,'original_boot_return':0,'normal_original_stack_and_SEH_restored':True,'SOB1_bindings':binding_rows,'modules':module_rows,'containers':22,'relocations':sum(x['relocations'] for x in module_rows),'body_bytes':sum(x['bytes'] for x in module_rows),'API_counts':dict(counts),'all_original_owned_blocks_and_handles_released':True,'original_getptd_and_freeptd_executed':True,'actual_TLS_index_controlled_runtime_input':tlsindex,'full_mtinit_not_executed':True,'RtlUnwind_boundary':'explicit current-head-only guest OS emulation, zero frames above target; no host RtlUnwind or full SEH','scope':'original Cxx matching/copy/local unwind/catch/continuation real machine code, genuine host pointer-surrogate probes and genuine TLS APIs. Controlled records/context/provider/cache/prefix. No original OS boot, native body/script/render/audio parity.'}
+  (stage/'sob-recovery-summary.json').write_text(json.dumps(recovery,ensure_ascii=False,indent=2),encoding='utf-8')
+  handler_result['last_guest_API_calls']=events[-4:]
+  (stage/'original-Cxx-handler-probe-summary.json').write_text(json.dumps(handler_result,ensure_ascii=False,indent=2),encoding='utf-8')
+  print(json.dumps(handler_result),flush=True)
+ (stage/'boot-API-results.json').write_text(json.dumps(events,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+ print('counts',dict(counts),flush=True)
+ assert tls.close_all()==[]

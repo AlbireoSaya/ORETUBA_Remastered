@@ -1,0 +1,5 @@
+from pathlib import Path
+import sys,json,runpy
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-live-worker-20261014';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path.insert(0,str(g/'工具'))
+for name in ['verify_lucifen_rects.py','verify_lucifen_span_compare.py']:runpy.run_path(str(g/'工具'/name),run_name='__main__')
+print(json.dumps({'bits':32 if sys.maxsize<2**32 else 64,'passed':True,'scope':'own synthetic source rectangle union and BGRX comparator, never full game fidelity'}))

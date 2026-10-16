@@ -1,0 +1,967 @@
+// ============================================================
+// ui_flow.tjs —— 剧情流程图（M4 建立 / M14 改造 / M18 收口 / M43 删章选屏 / ★ 第 2 步清旧）
+//
+// ★★ 本文件当前到底是什么（2026-09-28 · ISSUE-20260928-02 第 2 步，**先读这段**）★★
+// ------------------------------------------------------------------
+// 1. **新机制在哪（正常运行路径）**
+//    · 屏数据：`layout/screens/32_flowchart.json`（生成器 `工具\gen_flow_layout.py` 产出，
+//      禁止手改）——节点族 `fc.node.<NNNN>`(+`_tx`/`_hit`/`_dim`/`_new`)、番外入口
+//      `fc.entry.*`、独立层 `fc.frag<G>.*` + `fc.fragback*`、屏级 flag `fc_layer`，
+//      以及**顶层键 `links`**（连线数据，不走 elements 管道）。
+//    · 绘制：`ui_screens.tjs` 的 `uiScreenDraw` → **流程图层**（纯 image/text/rect/hit 元素，
+//      由通用渲染器 `ui_widget.tjs` 按 z 画）+ `ui_flow_links.tjs`（连线分层趟 + 层判据）
+//      + `ui_flow_layer.tjs`（`current` 高亮环 post-pass）。
+//    · 运行态动作：`flow_layer`（切屏级层 flag，参数来自命中热区的 `layer` 字段）；
+//      连线显隐硬判据 `fc_layer != "main"` ⇒ 不画连线（见 `ui_flow_links.tjs`）。
+//    · 本文件**只保留**：流程图**节点选择/进入/状态持久化**这一层（数据来自
+//      `ui_flow_data.tjs` 的 `UIFlowData`），以及 M2 三入口的包装器（uiFlowInstall）。
+// 2. **旧机制已废（M14/M18 那套「三态色环 + 纵向滚动 + 标记框」，按 `flow.*` 元素寻址）**
+//    ★ 上一轮实机日志实证它**全空转**：`[UI][FLOW] 滚动就绪：视口 0–0 ｜ 滚动元素 0 件
+//      ｜ 内容底 0 ｜ 最大偏移 0`——因为 `flow.n01_fill` / `flow.hdr_band` / `flow.detail` /
+//      `flow.seq01` 这批元素**早已不在屏数据里**（被 `fc.*` 取代），于是：
+//      · `uiFlowBuildScroll` 建不出滚动集（0 件）⇒ 滚动/翻页恒为惰性；
+//      · `uiFlowSyncFlowchart` 的每一次 `uiFlowEl(...)` 都返回 void ⇒ 三态色环/标签/连线/
+//        详情文本**一处都没写**，却不报错（正是「日志无 error 却全空转」的根因）；
+//      · `uiFlowDrawMarkers` 同理（当前节点/选中框从不绘制）。
+//    ⇒ **本轮把这批代码整批删除**（不是注释掉、不是留着不动），删除清单与替代见文件末
+//      `uiFlowRetiredList()`（可打印，供巡演日志与报告取证）：
+//        uiFlowSyncFlowchart（三态色环/标签/连线/详情/滚动指示）
+//        uiFlowBuildScroll / uiFlowScrollAdd / uiFlowApplyScroll / uiFlowScrollClamp
+//        uiFlowScrollToCursor / uiFlowPage（翻页）
+//        uiFlowDrawMarkers（当前节点外框 + 键盘选中框）
+//        uiFlowStateKey / uiFlowEdgeState / uiFlowBusState（旧三态配色，随色环一并退场）
+//        ★ 与它们**一起保留**的两个通用 helper（**不是**旧寻址专属，`ui_fragment.tjs` 在用）：
+//          `uiFlowEl`（按 id 在屏里找元素）、`uiFlowFrame`（画矩形外框）——
+//          首版把它们一起删掉，实机立刻报「未找到 Member "uiFlowEl"」（屏=fragment）而打回。
+//      替代：① 节点/标签/底座/独立层 → 普通元素渲染（数据驱动，无需代码）；
+//            ② 连线 → `ui_flow_links.tjs`（`links[]`，色/宽/箭头全部读数据）；
+//            ③ `current` 高亮环 → `ui_flow_layer.tjs`（程序化画，见该文件）；
+//            ④ 详情面板（`fc.p_*`）/ 纵滚 / 横移 / 迷你地图 / 缩放 → **编程组**（本轮不接线，
+//               已在报告中逐条登记为缺口，**不留下任何按旧 id 空转的代码**）。
+// 3. **活功能（本轮一行都没改语义，且实测仍工作）**
+//    · `flow_enter`（`uiFlowEnterCurrent`）—— 流程图屏 `fc.jump_hit` 的「进入本章」：
+//      取键盘/鼠标光标节点 `UIFlowCursor` → 未解锁只提示 → 已解锁则标记已读 + 置
+//      `UIFlowCurrent` + 写状态 → `uiDialogReset()` + `uiScreenPush("dialog")`。
+//    · `flow_node_<id>`（`uiFlowSelectNode`）—— 键盘 Enter 的进入路径（节点热区的 action
+//      本轮为空 ⇒ 鼠标点击不派发它，但键盘路径仍活）。
+//    · `uiFlowFlowchartKey` —— 流程图屏方向键移动光标 / Enter 进入（**已去掉翻页分支**：
+//      旧滚动退场后 PageUp/PageDown 不再被本模块吞掉，交回 M2 通用路径）。
+//    · 已读状态文件 `ui_flow_state.txt`（`uiFlowLoadState` / `uiFlowSaveState`）。
+//
+// 历史（压缩保留，细节见各轮工程记录）
+// ------------------------------------------------------------------
+//   M4 建立 · M14 改 AI 方框图 + 纵向滚动 · M18 改单屏总览 · M43 删 `chapter` 屏并把
+//   「进入剧情」迁到流程图既有按钮（`flow_enter`）。★ 第 2 步（本轮）：清掉按 `flow.*`
+//   寻址的全部死代码，新机制交接给 `ui_flow_links.tjs` / `ui_flow_layer.tjs`。
+//
+// 接入方式（**不改 M2 任何文件**）
+// ------------------------------------------------------------------
+//   本文件末尾调用 uiFlowInstall()，把 M2 的三个入口**包一层**：
+//     uiScreenDraw     —— 只为番外 `fragment` 屏接 hook（流程图不再需要任何“同步”步骤）；
+//     uiActionDispatch —— 接住 flow_enter / flow_node_* / **flow_layer** / fragment_enter；
+//     uiScreenKey      —— 流程图屏的方向键与 Enter。
+//   ⇒ 只需在 M2 的 startup.tjs 里，于 uiExec("ui_screens.tjs") 之后追加：
+//        if(!uiExec("ui_flow_data.tjs")) uiBootOK = false;
+//        if(!uiExec("ui_flow.tjs"))      uiBootOK = false;
+//        if(!uiExec("ui_fragment.tjs"))  uiBootOK = false;
+//     若包装失败（TJS2 全局函数不可写等），本文件只在日志里记一行，
+//     屏仍由 M2 通用渲染器按布局默认色绘制（降级但不崩）。
+//
+// 硬性约束（M1 verify_ui.py 检查 4 会扫本文件）：
+//   * **绘制行里不出现十进制数字字面量**——所有数值一律：
+//     ① 从 UILayoutData / uiTheme* 取；② 或在文件顶部命名常量里定义。
+//   * 坐标/尺寸/字号/颜色全部来自 UILayoutData。
+//
+// 数据来源（只读）：krkr/game/ui_flow_data.tjs（由 工具/gen_flow_data.py 从
+//   资源组\剧本\spine.json + 资源组\01_剧情流程图.md §五 + 主线编排方案.md §二 生成）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 常量（本文件**唯一**允许出现数值字面量的地方；绘制行只引用标识符）
+// ------------------------------------------------------------
+var UIFlowStateName   = "ui_flow_state.txt";
+var UIFlowStateVer    = "2";    // M14：碎片格 id 由 "gN_i" 改为 "cN"（40 格版），版本号 +1
+// ★ 第 2 步：`UIFlowMarkerPad/Thick`、`UIFlowCursorPad/Thick`、`UIFlowEdgeThick`、
+//   `UIFlowScrollSlack` 六个常量**已随旧标记框/旧滚动一并删除**（它们的唯一消费者已退场）；
+//   `current` 高亮环的常量在 `ui_flow_layer.tjs` 顶部（r=16 / w=3 / 内缩 1px）。
+var UIFlowKeyLeft     = 37;   // ←
+var UIFlowKeyUp       = 38;   // ↑
+var UIFlowKeyRight    = 39;   // →
+var UIFlowKeyDown     = 40;   // ↓
+var UIFlowKeyEnter    = 13;   // Enter
+// ★ 第 2 步：`UIFlowKeyPageUp/PageDown` 已删除（翻页随旧滚动退场）
+
+// ------------------------------------------------------------
+// 运行期状态
+// ------------------------------------------------------------
+var UIFlowNodeTable   = [];    // Array<Dictionary>：UIFlowData.nodes（幕 + 分歧点）
+var UIFlowNodeIndex   = %[];   // id -> node
+var UIFlowEdgeIndex   = %[];   // id -> edge
+var UIFlowInEdges     = %[];   // node id -> Array<edge>
+var UIFlowBusTable    = [];    // Array<Dictionary>：汇流总线
+var UIFlowActTable    = [];    // Array<Dictionary>：UIFlowData.acts（按 act 升序）
+
+var UIFlowVisited     = %[];   // node id -> true（已读）
+var UIFlowCurrent     = "";    // 当前节点
+var UIFlowCursor      = "";    // 键盘/鼠标选中的节点（高亮框）
+var UIFlowMsg         = "(尚未操作)";
+
+var UIFragCollected      = %[];  // 碎片格 id（M14："c0".."c39"）-> true（已收集）
+var UIFragCollectedList  = [];
+
+// ★ 第 2 步：旧**纵向滚动状态**（`UIFlowScroll` / `UIFlowScrollMax` / `UIFlowViewTop` /
+//   `UIFlowViewBottom` / `UIFlowPageStep` / `UIFlowScrollIds` / `UIFlowScrollBaseY` /
+//   `UIFlowScrollReady`）**已整批删除** —— 它们只在 `uiFlowBuildScroll` 里被填、只被
+//   `uiFlowApplyScroll` / `uiFlowScrollToCursor` / `uiFlowPage` 消费，而这四个函数（连同
+//   它们寻址的 `flow.hdr_band` / `flow.ftr_band` / `flow.*` 元素）本轮一并退场。
+//   纵滚/横移按冻结 §五 属**编程组**；届时按新的 `fc.scroll` 视口与 `fc.node.*` 重建，
+//   不复用这套按旧 id 的寻址。
+
+// ★ M43：原 `UIFlowChapterFocus` / `UIFlowChapterMsg` 两个变量**已随 `chapter` 屏一并删除**
+//   （它们唯一的消费者 `uiFlowSyncChapter` / `uiFlowEnterChapter` 已移除）。
+
+var UIFlowReady        = false;
+var UIFlowFirstRun     = true;   // 无状态文件（首次运行）——番外演示占位据此决定是否播种
+var UIFlowInstalled    = false;
+var UIFlowInstallNote  = "(未安装)";
+var UIFlowErrCount     = 0;      // 包装器内部异常计数（M8：正常应为 0）
+var UIFlowStatePaths   = [];
+var UIFlowStatePath    = "";
+var UIFlowStateReport  = "";
+
+// 由 ui_fragment.tjs 在装载后填入（避免跨文件直接引用未定义函数）
+var UIFragDrawHook     = null;
+var UIFragKeyHook      = null;
+var UIFragDispatchHook = null;
+var UIFragInitHook     = null;
+
+// M2 原始入口的引用（安装时保存）
+var UIFlowOrigDraw     = null;
+var UIFlowOrigDispatch = null;
+var UIFlowOrigKey      = null;
+
+// ------------------------------------------------------------
+// 小工具
+// ------------------------------------------------------------
+function uiFlowLog(msg)
+{
+	Debug.message("[UI][FLOW] " + msg);
+}
+
+// ★ M8 修复（D3）：包装器内部异常的**统一出口**——只记一行，不抛。
+//   格式固定为 "[UI][FLOW][ERR] ..."，便于巡演日志按此关键字判定"包装器是否干净"。
+function uiFlowErr(where, e)
+{
+	var msg = "(未知)";
+	try { msg = "" + e.message; } catch(e1) { }
+	var tr = "";
+	try { tr = ("" + e.trace).substring(0, 160); } catch(e2) { }
+	UIFlowErrCount++;
+	uiFlowLog("[ERR] " + where + " : " + msg + " | trace = " + tr);
+}
+
+// ★ M8 修复（D1）：TJS2 的 String **没有 lastIndexOf**（静态查不出，实机抛
+//   「未找到 Member "lastIndexOf"」）。用等价的手工反向扫描实现。
+//   返回 sub 最后一次出现的下标；找不到返回 -1。
+function uiFlowLastIndexOf(s, sub)
+{
+	var hay = "" + s;
+	var needle = "" + sub;
+	if(needle == "") return hay.length;
+	if(needle.length > hay.length) return -1;
+	for(var i = hay.length - needle.length; i >= 0; i--)
+	{
+		if(hay.substring(i, i + needle.length) == needle) return i;
+	}
+	return -1;
+}
+
+// ★ M8 修复：TJS2 **没有全局 parseInt**（ui_state.tjs / ui_fragment.tjs 同坑）；
+//   且 String **没有 charCodeAt**。数字反查用 "0123456789".indexOf(c)。
+function uiFlowDigit(c)
+{
+	return "0123456789".indexOf(c);
+}
+
+function uiFlowAtoi(s)
+{
+	var t = "" + s;
+	var i = 0, neg = false, n = 0, seen = false;
+	if(i < t.length && (t.charAt(i) == "-" || t.charAt(i) == "+"))
+	{
+		neg = (t.charAt(i) == "-");
+		i++;
+	}
+	while(i < t.length)
+	{
+		var d = uiFlowDigit(t.charAt(i));
+		if(d < 0) break;
+		n = n * 10 + d;
+		seen = true;
+		i++;
+	}
+	if(!seen) return 0;
+	return neg ? -n : n;
+}
+
+// ★ 第 2 步修正（实测打回）：`uiFlowEl(screen, id)` **保留** —— 它是**通用**的「按 id 在屏里找
+//   元素」helper，**并非**旧 `flow.*` 寻址专属：`ui_fragment.tjs`（本轮不改的文件）用它取
+//   `fragment.*` 系元素（那批元素**真实存在**）。首版把它连同旧寻址一起删掉，实机立刻报
+//   「未找到 Member "uiFlowEl"」（屏=fragment），故恢复并在此写明归属。
+//   调用方只剩 `ui_fragment.tjs`；流程图的元素寻址**一律由数据/渲染器负责**，本文件不得再用它。
+function uiFlowEl(screen, elId)
+{
+	if(screen === void || screen.elements === void) return void;
+	var els = screen.elements;
+	var want = "" + elId;
+	for(var i = 0; i < els.count; i++)
+	{
+		if(("" + els[i].id) == want) return els[i];
+	}
+	return void;
+}
+
+// 画一个矩形外框（4 条 colorRect）。★ 同上：保留，调用方 = `ui_fragment.tjs` 的番外格选中框
+//   （它用的是 `fragment.*` 格元素，不是旧 `flow.*`）。本文件自身不再调用它。
+function uiFlowFrame(stage, x, y, w, h, color, thick)
+{
+	stage.colorRect(x, y, w, thick, color, 255);
+	stage.colorRect(x, y + h - thick, w, thick, color, 255);
+	stage.colorRect(x, y, thick, h, color, 255);
+	stage.colorRect(x + w - thick, y, thick, h, color, 255);
+}
+
+function uiFlowHas(d, key)
+{
+	return (d[key] !== void && d[key] !== null);
+}
+
+// ------------------------------------------------------------
+// 初始化：建索引 + 读状态
+// ------------------------------------------------------------
+function uiFlowBuildIndex()
+{
+	UIFlowNodeTable = UIFlowData.nodes;
+	UIFlowActTable  = UIFlowData.acts;
+	UIFlowBusTable  = UIFlowData.buses;
+
+	UIFlowNodeIndex = %[];
+	for(var i = 0; i < UIFlowNodeTable.count; i++)
+		UIFlowNodeIndex["" + UIFlowNodeTable[i].id] = UIFlowNodeTable[i];
+
+	UIFlowEdgeIndex = %[];
+	UIFlowInEdges   = %[];
+	for(var j = 0; j < UIFlowData.edges.count; j++)
+	{
+		var e = UIFlowData.edges[j];
+		UIFlowEdgeIndex["" + e.id] = e;
+		var to = "" + e.to;
+		if(UIFlowInEdges[to] === void) UIFlowInEdges[to] = [];
+		UIFlowInEdges[to].push(e);
+	}
+	uiFlowLog("节点 " + UIFlowNodeTable.count + " ｜ 边 " + UIFlowData.edges.count
+		+ " ｜ 总线 " + UIFlowBusTable.count + " ｜ 幕 " + UIFlowActTable.count);
+	// ★ 第 2 步：原 `uiFlowBuildScroll()` 调用**已删除**（见下方「旧纵向滚动整块已删除」）。
+	//   注意：本索引只服务「节点选择/进入/状态」这一层；**屏幕上画什么与本函数无关**
+	//   （节点/连线/环全部由屏数据与 ui_flow_links / ui_flow_layer 决定）。
+}
+
+// ------------------------------------------------------------
+// ★ 第 2 步：旧**纵向滚动**整块已删除（`uiFlowScrollAdd` / `uiFlowBuildScroll` /
+//   `uiFlowApplyScroll` / `uiFlowScrollClamp` / `uiFlowScrollToCursor` / `uiFlowPage`）。
+//   为什么删而不是留着：它的滚动集与视口全部按**已不存在的** `flow.*` 元素寻址
+//   （`flow.n01_fill`/`_box`/`_label`/`_hit`、`flow.seq01`、`flow.bus_c`、`flow.hdr_band`、
+//   `flow.ftr_band`），实机日志实证「滚动元素 0 件 / 视口 0–0」⇒ **全空转且不报错**。
+//   新机制：视口 = `fc.scroll`（1235×827）；纵滚/横移/迷你地图/缩放按冻结 §五 属**编程组**。
+// ------------------------------------------------------------
+
+// 状态文件候选名：复用 M2 ui_state.tjs 的机制（绝对存储名 file://./<盘符>/…）
+function uiFlowBuildPaths()
+{
+	UIFlowStatePaths = [];
+	if(UIStatePaths !== void && UIStatePaths.count > 0)
+	{
+		// ui_state.tjs 的候选名是 "<dir>ui_state.txt"；把文件名换成本模块的
+		for(var i = 0; i < UIStatePaths.count; i++)
+		{
+			var p = "" + UIStatePaths[i];
+			var cut = uiFlowLastIndexOf(p, UIStateName);
+			if(cut >= 0) UIFlowStatePaths.push(p.substring(0, cut) + UIFlowStateName);
+			else UIFlowStatePaths.push(p + "." + UIFlowStateName);
+		}
+	}
+	UIFlowStatePaths.push(UIFlowStateName);   // 兜底（归档模式下会失败，属预期）
+	// ★ M8：去重——否则日志里会出现两条相同的兜底候选名，白跑一次 load
+	var uniq = [];
+	for(var u = 0; u < UIFlowStatePaths.count; u++)
+	{
+		var dup = false;
+		for(var v = 0; v < uniq.count; v++)
+			if(uniq[v] == UIFlowStatePaths[u]) { dup = true; break; }
+		if(!dup) uniq.push(UIFlowStatePaths[u]);
+	}
+	UIFlowStatePaths = uniq;
+	uiFlowLog("状态候选名 = " + UIFlowStatePaths.join(" | "));
+}
+
+function uiFlowStateLines()
+{
+	var vis = [];
+	for(var i = 0; i < UIFlowNodeTable.count; i++)
+	{
+		var id = "" + UIFlowNodeTable[i].id;
+		if(UIFlowVisited[id] === true) vis.push(id);
+	}
+	var col = [];
+	for(var j = 0; j < UIFragCollectedList.count; j++) col.push(UIFragCollectedList[j]);
+	return [
+		"# ui_flow_state v" + UIFlowStateVer + " : M4 流程图已读节点 / 当前节点 / 番外已收集",
+		"# written by Array.save(); read back by Array.load()（与 ui_state.tjs 同款机制）",
+		"version=" + UIFlowStateVer,
+		"current=" + UIFlowCurrent,
+		"visited=" + vis.join(","),
+		"collected=" + col.join(","),
+		"count=" + vis.count + "/" + UIFlowNodeTable.count
+	];
+}
+
+function uiFlowSaveState()
+{
+	var lines = uiFlowStateLines();
+	var ok = false, report = "", winner = "";
+	for(var i = 0; i < UIFlowStatePaths.count; i++)
+	{
+		var p = UIFlowStatePaths[i];
+		try
+		{
+			var a = new Array();
+			for(var k = 0; k < lines.count; k++) a.push(lines[k]);
+			a.save(p, "w");
+			ok = true; winner = p; report += "[OK] " + p + "  ";
+			break;
+		}
+		catch(e)
+		{
+			report += "[FAIL] " + p + " (" + e.message + ")  ";
+		}
+	}
+	UIFlowStatePath = winner;
+	UIFlowStateReport = report;
+	uiFlowLog("save -> " + (ok ? "OK" : "FAILED") + " : " + report);
+	return ok;
+}
+
+function uiFlowApplyState(a)
+{
+	for(var i = 0; i < a.count; i++)
+	{
+		var line = "" + a[i];
+		if(line == "" || line.charAt(0) == "#") continue;
+		var eq = line.indexOf("=");
+		if(eq < 0) continue;
+		var key = line.substring(0, eq);
+		var val = line.substring(eq + 1);
+		if(key == "current")
+		{
+			UIFlowCurrent = val;
+		}
+		else if(key == "visited")
+		{
+			var pv = (val == "") ? [] : val.split(",");
+			for(var m = 0; m < pv.count; m++)
+			{
+				if(pv[m] == "") continue;
+				UIFlowVisited[pv[m]] = true;
+			}
+		}
+		else if(key == "collected")
+		{
+			var pc = (val == "") ? [] : val.split(",");
+			UIFragCollected = %[];
+			UIFragCollectedList = [];
+			for(var n = 0; n < pc.count; n++)
+			{
+				if(pc[n] == "") continue;
+				UIFragCollected[pc[n]] = true;
+				UIFragCollectedList.push(pc[n]);
+			}
+		}
+	}
+}
+
+function uiFlowLoadState()
+{
+	UIFlowVisited = %[];
+	UIFlowCurrent = "";
+	UIFragCollected = %[];
+	UIFragCollectedList = [];
+	for(var i = 0; i < UIFlowStatePaths.count; i++)
+	{
+		var p = UIFlowStatePaths[i];
+		// ★ M8：文件不存在时直接跳过——不再让 Array.load 抛"不能打开文件"，
+		//   否则引擎会为每次 miss 打一整段 "==== An exception occured at" dump，
+		//   巡演日志就永远不干净（异常本身是被 catch 的，但 dump 仍写进日志）。
+		var exists = false;
+		try { exists = Storages.isExistentStorage(p); } catch(e0) { exists = false; }
+		if(!exists) { uiFlowLog("load miss : " + p + " (不存在)"); continue; }
+		try
+		{
+			var a = new Array();
+			a.load(p);
+			uiFlowApplyState(a);
+			uiFlowLog("load -> OK : " + p + "（已读 " + uiFlowVisitedCount() + " 节点）");
+			return true;
+		}
+		catch(e)
+		{
+			uiFlowLog("load miss : " + p + " (" + e.message + ")");
+		}
+	}
+	uiFlowLog("load -> 首次运行，无状态文件");
+	return false;
+}
+
+function uiFlowVisitedCount()
+{
+	var n = 0;
+	for(var i = 0; i < UIFlowNodeTable.count; i++)
+		if(UIFlowVisited["" + UIFlowNodeTable[i].id] === true) n++;
+	return n;
+}
+
+// ------------------------------------------------------------
+// 三态判定（规则与 ui_flow_data.tjs 的 rules 字段一致）
+//   已读 visited > 可前往 available > 未解锁 locked
+// ------------------------------------------------------------
+function uiFlowStateOf(id)
+{
+	var k = "" + id;
+	if(UIFlowVisited[k] === true) return "visited";
+	var ins = UIFlowInEdges[k];
+	if(ins === void || ins.count == 0) return "available";   // 根节点恒可前往
+	for(var i = 0; i < ins.count; i++)
+	{
+		if(UIFlowVisited["" + ins[i].from] === true) return "available";
+	}
+	return "locked";
+}
+
+// ★ 第 2 步：`uiFlowStateKey` / `uiFlowEdgeState` / `uiFlowBusState` **已删除** ——
+//   它们只被 `uiFlowSyncFlowchart` 用来把「三态色环 / 连线色 / 总线色」写进**已不存在的**
+//   `flow.*` 元素；色环退场后它们成为纯死代码。新的连线配色由**数据层**在
+//   `links[].color/w/arrow` 里解析好（生成器按 `palette.json` 的 edge_normal/visited/noroute
+//   解析），两端不做任何配色判断（冻结 §一.2）——故本文件不再需要任何配色函数。
+
+function uiFlowUnlockHint(id)
+{
+	var ins = UIFlowInEdges["" + id];
+	if(ins === void || ins.count == 0) return "无条件（起始节点）";
+	var parts = [];
+	for(var i = 0; i < ins.count; i++)
+		parts.push("先到达 " + ins[i].from);
+	return parts.join(" 或 ");
+}
+
+// （`uiFlowEdgeState` / `uiFlowBusState` 的删除口径见上方「第 2 步」注释块）
+
+// ------------------------------------------------------------
+// ★ 第 2 步：旧**布局同步 / 标记框**整块已删除
+//   （`uiFlowSyncFlowchart`〔三态色环 + 标签 + 连线 + `flow.detail` 详情 + `flow.scrollinfo`
+//     滚动指示〕、`uiFlowFrame`、`uiFlowDrawMarkers`〔当前节点外框 + 键盘选中框〕）。
+//   为什么删而不是留着：它们每一次 `uiFlowEl(...)` 都返回 void（`flow.*` 元素已不在屏数据里）
+//   ⇒ **一处都没写、也不报错**，正是「日志无 error 却全空转」的根因。留着＝留一个假实现。
+//   新机制（逐条对照）：
+//     · 节点底图/标签/三态叠加件/独立层 → **普通元素**（数据里的 `fc.node.*` / `fc.*`，
+//       由通用渲染器按 `vis_flag`/`vis_when` 与 `z` 绘制，本文件不需要任何同步代码）；
+//     · 连线（含三档色） → `ui_flow_links.tjs`（顶层 `links[]`，色/宽/箭头全读数据）；
+//     · `current`（当前节点）高亮环 → `ui_flow_layer.tjs` 的 post-pass；
+//     · 详情面板（`fc.p_title_tx` / `fc.p_text_tx` / `fc.p_message_tx`）
+//       与滚动指示：**本轮不接线**（属编程组；`UIFlowMsg` 仍随动作返回值进日志）。
+//       ★ ISSUE-20260929-02（2026-09-29，右栏「章节详情」重排）：本行原并列的 `fc.p_player_tx`
+//       **已随该批删除**（旧「缩略图组 / 场景回放组」12 件元素一并退场、素材保留）；同批新增
+//       `fc.play_win` / `fc.play_view`（`dynamic:"flow_scene_frames"`，动态画面层）与
+//       `fc.pbkick_pause`（与 `fc.pbkick` 同位置互斥，屏级 flag `fc_replay`）——用法与
+//       新旧 id 对照见 `UI组\UI组交接编程组.md` §四·补、契约见 `_工作\ISSUE-20260929-02_右栏大改\接口冻结.md`。
+// ------------------------------------------------------------
+
+// ------------------------------------------------------------
+// 动作
+// ------------------------------------------------------------
+function uiFlowSelectNode(id)
+{
+	var nid = "" + id;
+	var n = UIFlowNodeIndex[nid];
+	if(n === void) return %[ handled: false, effect: "", msg: "没有节点 " + nid ];
+	UIFlowCursor = nid;
+	// ★ 第 2 步：原「选中后滚动跟随」（`uiFlowScrollToCursor`）已随旧滚动退场 ——
+	//   它的视口按 `flow.hdr_band`/`flow.ftr_band` 推导（早已不存在 ⇒ 恒为 0）。
+	//   节点是否在视口内由**数据**（生成器保证本屏节点全落在 `fc.scroll` 视口内）决定。
+
+	var st = uiFlowStateOf(nid);
+	if(st == "locked")
+	{
+		// 提示语完整版进日志；屏上文字接线属编程组（见文件头 §2 第四项）
+		UIFlowMsg = "【未解锁】" + nid + "：" + uiFlowUnlockHint(nid);
+		uiFlowLog("【未解锁】" + nid + " " + n.label + "：" + uiFlowUnlockHint(nid));
+		return %[ handled: true, effect: "", msg: UIFlowMsg ];
+	}
+
+	var before = uiFlowVisitedCount();
+	UIFlowVisited[nid] = true;
+	UIFlowCurrent = nid;
+	var after = uiFlowVisitedCount();
+	UIFlowMsg = "前往 " + nid + (st == "visited" ? "（已读）" : "（新解锁）");
+	uiFlowLog("前往 " + nid + " " + n.label + (st == "visited" ? "（已读节点）" : "（新解锁）")
+		+ "　已读 " + after + " / " + UIFlowNodeTable.count);
+	if(after != before) uiFlowSaveState();
+	return %[ handled: true, effect: "", msg: UIFlowMsg ];
+}
+
+// ------------------------------------------------------------
+// ★ M43 新增：`flow_enter` —— 流程图屏的「进入本章」按钮（元素 `fc.jump_hit`）
+//   原 `chapter` 屏的 `chapter_enter` / `uiFlowEnterChapter(index)` 已随该屏删除；
+//   其「进入剧情」能力原样迁到流程图，改为对**当前光标节点** `UIFlowCursor` 生效：
+//     ① 取光标节点（无光标 → 明确提示，不静默）；
+//     ② 未解锁 → **不进剧情**，只提示解锁条件（与 uiFlowSelectNode 的 locked 分支同口径）；
+//     ③ 已解锁 → 标记已读 + 置 UIFlowCurrent + 存状态，然后 uiDialogReset() + uiScreenPush("dialog")
+//        （与原 uiFlowEnterChapter 的「进入」动作逐条同口径）。
+//   入口：`uiActionDispatch` 的 `flow_enter` 分支（紧邻 `flow_node_*`）。
+// ------------------------------------------------------------
+function uiFlowEnterCurrent()
+{
+	if(UIFlowCursor == "")
+	{
+		UIFlowMsg = "【无可进入节点】请先选中一个节点";
+		uiFlowLog("flow_enter：无光标节点，未进入剧情");
+		return %[ handled: true, effect: "", msg: UIFlowMsg ];
+	}
+
+	var nid = "" + UIFlowCursor;
+	var n = UIFlowNodeIndex[nid];
+	if(n === void)
+	{
+		UIFlowMsg = "【无可进入节点】没有节点 " + nid;
+		uiFlowLog("flow_enter：节点 " + nid + " 不存在，未进入剧情");
+		return %[ handled: true, effect: "", msg: UIFlowMsg ];
+	}
+
+	var st = uiFlowStateOf(nid);
+	if(st == "locked")
+	{
+		// 与 uiFlowSelectNode 的 locked 分支同口径：不进剧情，只提示解锁条件
+		UIFlowMsg = "【未解锁】" + nid + "：" + uiFlowUnlockHint(nid);
+		uiFlowLog("flow_enter 被拒（未解锁）：" + nid + " " + n.label + "：" + uiFlowUnlockHint(nid));
+		return %[ handled: true, effect: "", msg: UIFlowMsg ];
+	}
+
+	var first = (UIFlowVisited[nid] !== true);
+	UIFlowVisited[nid] = true;
+	UIFlowCurrent = nid;
+	UIFlowMsg = "进入 " + nid + " " + n.label + (first ? "（首次进入）" : "（重入）");
+	uiFlowLog(UIFlowMsg + "　已读 " + uiFlowVisitedCount() + " / " + UIFlowNodeTable.count);
+	uiFlowSaveState();
+
+	uiDialogReset();
+	uiScreenPush("dialog");
+	return %[ handled: true, effect: "", msg: UIFlowMsg ];
+}
+
+function uiFlowOnOpen(action)
+{
+	if(action == "open_flowchart")
+	{
+		UIFlowCursor = UIFlowCurrent;
+		UIFlowMsg = "点击节点 / Enter 前往";
+		// ★ 第 2 步：原「打开时滚动到当前节点」已随旧滚动退场（同 uiFlowSelectNode 的说明）。
+	}
+	// ★ M43：原 `open_chapter` 分支已删除（`chapter` 屏整体移除）。
+	//   「进入剧情」改由流程图屏的 `fc.jump_hit`（动作 `flow_enter`）承担。
+	else if(action == "open_fragment")
+	{
+		if(UIFragInitHook !== null) UIFragInitHook();
+	}
+}
+
+// ------------------------------------------------------------
+// ★ ISSUE-20260929-02（右栏大改）· 播放/暂停切换（动作 `flow_replay_toggle`）
+//   接口冻结 §B.5：屏级 flag `fc_replay` 取 `"play"`（显示播放键 `fc.pbkick`）/
+//   `"pause"`（显示暂停键 `fc.pbkick_pause`）；两键**同矩形同 z**、靠 `vis_flag`/`vis_when`
+//   互斥（**不得靠 z 排序**）。唯一热区 `fc.pbkick_hit` 派发本动作。
+//   ★ 语义边界（不得声称已生效）：本动作**只翻 flag +（由调用方）重绘** ——
+//     **不写任何计时器、不碰 `fc.play_view` 的填充、不碰音频**；真正的画面播放
+//     （帧序列 / 时序 / 音频）属**编程组**（与 `bgm_playpause` / `replay_play:<行号>` 同口径）。
+//   形制照 `flow_layer`（`ui_flow_layer.tjs::uiFlowLayerApply`）：读 flag → 置值 → 日志 →
+//   回报；**重绘由调用方**（startup 的 `handleClick`、巡演 `uiTourStep` 都在派发后 redraw）。
+//   flag 名与两个取值都是**冻结接口** ⇒ 具名常量，不散落魔法串。
+// ------------------------------------------------------------
+var UIFlowReplayFlag     = "fc_replay";            // 屏级 flag 名（冻结 §B.5）
+var UIFlowReplayPlayVal  = "play";                 // 取值：显示播放键
+var UIFlowReplayPauseVal = "pause";                // 取值：显示暂停键
+var UIFlowReplayActName  = "flow_replay_toggle";   // 动作名（冻结 §B.5；`fc.pbkick_hit` 是唯一发出方）
+
+// 诊断/巡演可读状态（不入存档文件：`uiFlowSaveState` 只写 `key=value` 的既有几行）
+var UIFlowReplayLast     = "";      // 最近一次成功翻转后的值
+var UIFlowReplayCount    = 0;       // 成功翻转次数
+var UIFlowReplayErrCount = 0;       // 本模块异常计数（正常应为 0）
+
+// ★★ ISSUE-20260930-02 第 15 批（2026-09-30 · 章节详情浮层）：与上列 `replay` 具名常量**同款** ——
+//   `ui_screens.tjs::uiScreenIntroConst()` 会**优先取这里的具名常量**，未定义时退化为它自己的兜底值
+//   （与下列同值）。数据形态 = 冻结书 §三.2/§四。
+//   ⚠ 若不给这几个常量，`uiScreenIntroConst()` 的 `UIFlowIntroXxx !== void` 探测会在**每次调用点**
+//   触发一次「未找到 Member」异常（被 catch 吞掉，但引擎仍打整段 dump）⇒ 本批把常量补齐，
+//   使巡演日志的 EXCEPTION 计数归零（**行为不变**：取名与兜底同值）。
+var UIFlowIntroFlag     = "fc_intro";           // 屏级 flag 名（冻结 §三.2）
+var UIFlowIntroOpenAct  = "flow_intro_open";    // 动作名：开（`fc.p_plus_hit` 是唯一发出方）
+var UIFlowIntroCloseAct = "flow_intro_close";   // 动作名：关（`fc.intro_scrim_hit` 是唯一发出方）
+var UIFlowIntroOpenVal  = "open";               // 取值：显示浮层
+var UIFlowIntroCloseVal = "closed";             // 取值：隐藏浮层（= 进屏默认）
+
+// 日志出口：**行内只用 ASCII**（`->` / `:` / `|`），任何按行 / 按 JSON 消费日志的场景
+//   都不会被非 ASCII 或引号打断；且全程 try/catch（日志失败不得影响主流程）。
+function uiFlowReplayLog(s)
+{
+	try { Debug.message("[UI][REPLAY] " + s); } catch(e) { }
+}
+
+// 本屏 `fc_replay` 的取值集合（**从数据推**：带该 flag 的元素的 `vis_when` 去重）
+function uiFlowReplayValues(screen, flag)
+{
+	var out = [];
+	if(screen === void || screen === null || typeof screen != "Object") return out;
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void) return out;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;
+		if(("" + el.vis_flag) != ("" + flag)) continue;
+		var w = el.vis_when;
+		if(w === void || w === null) continue;
+		var wv = "" + w;
+		if(wv == "" || wv == "*") continue;
+		var seen = false;
+		for(var j = 0; j < out.count; j++) { if(out[j] == wv) { seen = true; break; } }
+		if(!seen) out.push(wv);
+	}
+	return out;
+}
+
+// 数据侧自证：该 flag 是否真的声明在 flags_default 里（机制与数据不同版时能看出来）
+function uiFlowReplayFlagDeclared(screen, flag)
+{
+	if(screen === void || screen === null) return false;
+	var def = screen.flags_default;
+	if(def === void || def === null) return false;
+	var v = def["" + flag];
+	return (v !== void && v !== null);
+}
+
+// 「带该 flag 的元素里，此刻**可见**的有哪些」 —— 用引擎自己的谓词 `uiScreenElementVisible`
+//   复算（**同一谓词**驱动绘制、悬停命中与点击命中，见 ui_screens.tjs）。
+//   ⇒ 这是「播放/暂停两键同一时刻只有一个能显示」的**直接证据**，不是对实现的复述。
+function uiFlowReplayVisibleIds(screen, flag)
+{
+	var out = [];
+	if(screen === void || screen === null || screen.elements === void) return out;
+	var els = screen.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;
+		if(("" + el.vis_flag) != ("" + flag)) continue;
+		if(!uiScreenElementVisible(el)) continue;
+		out.push("" + el.id);
+	}
+	return out;
+}
+
+// ★ 动作 `flow_replay_toggle`（冻结 §B.5）—— 播放/暂停切换。
+//   判据（**与 HTML 侧 `replica.js::flowReplayToggle` 同一句话**）：
+//     `fc_replay == UIFlowReplayPauseVal` ⇒ 置 `UIFlowReplayPlayVal`；否则 ⇒ 置 `UIFlowReplayPauseVal`。
+//   默认进 `"play"` 语义与数据 `flags_default` 一致（本屏初值 = "play"；未设置时按「非 pause」处理）。
+function uiFlowReplayToggle()
+{
+	var sid = uiScreenCurrent();
+	if(!uiScreenExists(sid))
+	{
+		uiFlowReplayLog("REFUSE flow_replay_toggle : screen not registered | screen="
+			+ ((sid == "") ? "(none)" : sid));
+		return %[ handled: true, effect: "",
+			msg: "【回放切换被拒】当前屏未登记，无键可切" ];
+	}
+	var sc = UILayoutData.screens[sid];
+	if(!uiFlowReplayFlagDeclared(sc, UIFlowReplayFlag))
+	{
+		uiFlowReplayLog("REFUSE flow_replay_toggle : flag " + UIFlowReplayFlag
+			+ " NOT declared in flags_default | screen=" + sid);
+		return %[ handled: true, effect: "",
+			msg: "【回放切换被拒】本屏未声明屏级 flag " + UIFlowReplayFlag + "（机制与数据不同版）" ];
+	}
+	var vals = uiFlowReplayValues(sc, UIFlowReplayFlag);
+	if(vals.count < 2)
+	{
+		uiFlowReplayLog("REFUSE flow_replay_toggle : flag " + UIFlowReplayFlag + " has "
+			+ vals.count + " value(s) (need 2) | screen=" + sid);
+		return %[ handled: true, effect: "",
+			msg: "【回放切换被拒】本屏 " + UIFlowReplayFlag + " 取值不足两个（无互斥的播放/暂停件）" ];
+	}
+
+	var before = uiScreenFlagGet(UIFlowReplayFlag);
+	var after = (before == UIFlowReplayPauseVal) ? UIFlowReplayPlayVal : UIFlowReplayPauseVal;
+	var changed = uiScreenFlagSet(UIFlowReplayFlag, after);
+	UIFlowReplayLast = after;
+	UIFlowReplayCount++;
+
+	// 命中集合同步=自动：绘制与命中都走 uiScreenElementVisible ⇒ 这里只**复算**，不改它。
+	var visIds = uiFlowReplayVisibleIds(sc, UIFlowReplayFlag);
+	var visStr = (visIds.count <= 0) ? "(none)" : visIds.join("+");
+	uiFlowReplayLog("flow_replay_toggle : " + UIFlowReplayFlag + " "
+		+ ((before == "") ? "(empty)" : before) + " -> " + after
+		+ (changed ? " (changed)" : " (same)")
+		+ " | screen=" + sid
+		+ " | visible=" + visStr + " (" + visIds.count + ")"
+		+ " | redraw=caller (handleClick / uiTourStep)"
+		+ " | playback=not implemented (programming group)");
+	return %[ handled: true, effect: "",
+		msg: "回放切换 " + ((before == "") ? "(空)" : before) + " -> " + after ];
+}
+
+// ------------------------------------------------------------
+// 安装：包装 M2 的三个入口
+// ------------------------------------------------------------
+function uiFlowInstall()
+{
+	if(UIFlowInstalled) return true;
+	if(uiScreenDraw === void || uiActionDispatch === void || uiScreenKey === void)
+	{
+		UIFlowInstallNote = "(失败：ui_screens.tjs 尚未装载，请在 uiExec(\"ui_screens.tjs\") 之后装载本文件)";
+		uiFlowLog(UIFlowInstallNote);
+		return false;
+	}
+	try
+	{
+		UIFlowOrigDraw     = uiScreenDraw;
+		UIFlowOrigDispatch = uiActionDispatch;
+		UIFlowOrigKey      = uiScreenKey;
+
+		// ★ M8 修复（D3）：三个包装器**必须对自身逻辑全程 try/catch**——
+		//   本模块只应"加料"，任何内部异常都不得影响被包装的原函数。
+		//   出错时：记一行 [UI][FLOW][ERR]，并**回落到原渲染/原派发路径**。
+		//   （原实现里 uiFlowSyncFlowchart 抛错会直接把异常顶到 startup.tjs 的 redraw，
+		//     结果是该屏整屏全黑——对话框屏与流程图屏都栽在这上面。）
+		uiScreenDraw = function(stage)
+		{
+			var id = uiScreenCurrent();
+			try
+			{
+				uiFlowEnsureReady();
+				// ★ 第 2 步：流程图屏**不再需要任何“绘制前同步”** ——
+				//   节点/叠加件/独立层都是普通元素（数据驱动），连线与环各有专属模块
+				//   （ui_flow_links.tjs / ui_flow_layer.tjs，由 ui_screens.tjs 直接调用）。
+				//   旧的 `uiFlowSyncFlowchart()` 前置同步 + `uiFlowDrawMarkers()` 后置绘制
+				//   已删除（按 `flow.*` 寻址、恒空转，见文件头 §2）。
+				if(id == "fragment" && UIFragDrawHook !== null) return UIFragDrawHook(stage);
+			}
+			catch(e)
+			{
+				uiFlowErr("draw 前置异常（屏=" + id + "）", e);
+			}
+
+			var n = null;
+			try
+			{
+				n = UIFlowOrigDraw(stage);
+			}
+			catch(e2)
+			{
+				uiFlowErr("原渲染器异常（屏=" + id + "）", e2);
+				return 0;
+			}
+			return n;
+		};
+
+		uiActionDispatch = function(action, index)
+		{
+			var act = "" + action;
+			try
+			{
+				uiFlowEnsureReady();
+				if(act.indexOf("flow_node_") == 0) return uiFlowSelectNode(act.substring(10));
+				// ★ M43：`flow_enter` = 流程图屏「进入本章」按钮（`fc.jump_hit`）。
+				//   原 `chapter_enter`（随 `chapter` 屏删除）的「进入剧情」能力迁到这里。
+				if(act == "flow_enter") return uiFlowEnterCurrent();
+				// ★★ 第 2 步（冻结 §二）：新动作 `flow_layer` —— 切屏级层 flag。
+				//   参数**必须**来自被命中的热区元素（数据里的 `layer` 字段）：
+				//   `ui_screens.tjs` 的 `uiScreenClick` 命中 hit 时把它抄进 `UIScrHitLayer`，
+				//   这里经 `uiScreenHitLayer()` 取 —— 同一调用栈内 set→read（与既有
+				//   `UIScrFocus` / `UIScrActiveList` 的模块级约定同款）。
+				//   实现见 `ui_flow_layer.tjs::uiFlowLayerApply`（含数据侧校验与降级）。
+				//   `UIScrFlowLayerOK` 守卫与 `UIScrFlowLinksOK` 同款：模块装载失败时**不调用**
+				//   （否则每帧都会因「未找到 Member」把这一帧打掉），改为明确回报。
+				if(act == "flow_layer")
+				{
+					if(!UIScrFlowLayerOK)
+						return %[ handled: true, effect: "",
+							msg: "【切层不可用】ui_flow_layer.tjs 未装载（see [UI][FLOWLAYER] load FAIL）" ];
+					return uiFlowLayerApply(uiScreenHitLayer());
+				}
+				// ★ ISSUE-20260929-02（本批）：新动作 `flow_replay_toggle` —— 播放/暂停切换。
+				//   唯一发出方 = 流程图屏唯一热区 `fc.pbkick_hit`（冻结 §B.5）；
+				//   只翻屏级 flag `fc_replay`（重绘由调用方），**不碰画面播放本身**。
+				//   动作名走具名常量 `UIFlowReplayActName`（冻结接口，不散落魔法串）。
+				if(act == UIFlowReplayActName) return uiFlowReplayToggle();
+				if(act == "fragment_enter" && UIFragDispatchHook !== null) return UIFragDispatchHook(index);
+				// ★ 第 2 步：原「流程图屏拦截 page_prev/page_next → uiFlowPage」已删除
+				//   （翻页随旧滚动退场；这两个动作现在照旧落回 M2 的通用路径，
+				//     流程图屏无列表 ⇒ 回报未处理，**不再被本模块吞掉**）。
+			}
+			catch(e)
+			{
+				uiFlowErr("dispatch 异常（action=" + act + "）", e);
+			}
+			var r = UIFlowOrigDispatch(action, index);   // 回落：原派发路径
+			try
+			{
+				if(act == "open_flowchart" || act == "open_fragment")
+					uiFlowOnOpen(act);
+			}
+			catch(e2)
+			{
+				uiFlowErr("onOpen 异常（action=" + act + "）", e2);
+			}
+			return r;
+		};
+
+		uiScreenKey = function(key)
+		{
+			var id = uiScreenCurrent();
+			try
+			{
+				uiFlowEnsureReady();
+				if(id == "flowchart") return uiFlowFlowchartKey(key);
+				if(id == "fragment" && UIFragKeyHook !== null) return UIFragKeyHook(key);
+			}
+			catch(e)
+			{
+				uiFlowErr("key 异常（屏=" + id + " key=" + key + "）", e);
+			}
+			return UIFlowOrigKey(key);                   // 回落：原按键路径
+		};
+
+		UIFlowInstalled = true;
+		UIFlowInstallNote = "(已安装：uiScreenDraw / uiActionDispatch / uiScreenKey 已包装)";
+		uiFlowLog(UIFlowInstallNote);
+		return true;
+	}
+	catch(e)
+	{
+		UIFlowInstallNote = "(失败：" + e.message + "；屏仍由 M2 通用渲染器按布局默认色绘制)";
+		uiFlowLog(UIFlowInstallNote);
+		return false;
+	}
+}
+
+// 流程图方向键：在节点表里前后移动光标；Enter = 进入（派发 `flow_node_<id>`）
+//   ★ 第 2 步：PageUp/PageDown 分支**已删除**（旧滚动退场）——如今这两个键不再被本模块
+//     拦截，落回 M2 通用路径（无列表 ⇒ 回报未处理），**不再被吞掉也不再有空转分支**。
+function uiFlowFlowchartKey(key)
+{
+	if(key == UIFlowKeyUp || key == UIFlowKeyDown || key == UIFlowKeyLeft || key == UIFlowKeyRight)
+	{
+		var n = UIFlowNodeTable.count;
+		var cur = -1;
+		for(var i = 0; i < n; i++)
+			if(("" + UIFlowNodeTable[i].id) == UIFlowCursor) { cur = i; break; }
+		if(cur < 0) cur = 0;
+		var step = (key == UIFlowKeyDown || key == UIFlowKeyRight) ? 1 : -1;
+		cur += step;
+		while(cur < 0) cur += n;
+		while(cur >= n) cur -= n;
+		UIFlowCursor = "" + UIFlowNodeTable[cur].id;
+		UIFlowMsg = "选中 " + UIFlowCursor + "（Enter 前往）";
+		return %[ handled: true, action: "move" ];
+	}
+	if(key == UIFlowKeyEnter)
+	{
+		if(UIFlowCursor == "") return %[ handled: false, action: "" ];
+		return %[ handled: true, action: "flow_node_" + UIFlowCursor ];
+	}
+	return %[ handled: false, action: "" ];
+}
+
+// ------------------------------------------------------------
+// 惰性初始化（首次绘制时）
+// ------------------------------------------------------------
+function uiFlowEnsureReady()
+{
+	if(UIFlowReady) return;
+	UIFlowReady = true;
+	uiFlowBuildIndex();
+	uiFlowBuildPaths();
+	UIFlowFirstRun = !uiFlowLoadState();
+	if(UIFlowCurrent == "" || UIFlowNodeIndex[UIFlowCurrent] === void)
+	{
+		// 首次运行：起始节点 = 无入边的节点（N01），规则见 UIFlowData.rules.root
+		for(var i = 0; i < UIFlowNodeTable.count; i++)
+		{
+			var id = "" + UIFlowNodeTable[i].id;
+			var ins = UIFlowInEdges[id];
+			if(ins === void || ins.count == 0) { UIFlowCurrent = id; break; }
+		}
+		if(UIFlowCurrent == "" && UIFlowNodeTable.count > 0)
+			UIFlowCurrent = "" + UIFlowNodeTable[0].id;
+		UIFlowVisited[UIFlowCurrent] = true;
+		// ★ M8 修复：原为 UIFlowSaveState（大写 U），与实际函数名 uiFlowSaveState
+		//   **大小写不符** → TJS2 抛「未找到 Member "UIFlowSaveState"」，首次运行
+		//   落状态失败（后续节点解锁状态写不进去）。同类坑第二次出现，故本文件
+		//   已用大小写不敏感扫描复核过全部标识符（见 M8 报告 §TJS2 踩坑清单）。
+		uiFlowSaveState();
+	}
+	UIFlowCursor = UIFlowCurrent;
+	uiFlowLog("ready : current=" + UIFlowCurrent + " 已读 " + uiFlowVisitedCount()
+		+ " / " + UIFlowNodeTable.count);
+	uiFlowLogRetired();
+}
+
+// ------------------------------------------------------------
+// ★ 第 2 步：旧机制退场清单（**可判读的自证**）
+//   目的：让「旧寻址已整批删除」在巡演日志里有一行可读证据，并与新机制逐条对应；
+//   同时给测试/复核一个可打印的清单入口（`uiFlowRetiredList()`）。
+//   为什么要有这行：上一轮的问题是「日志无 error 却全空转」——退场后如果只是“安静”，
+//   复核者仍无法区分「删掉了」与「又空转了」；这一行就是那个区分点。
+// ------------------------------------------------------------
+function uiFlowRetiredList()
+{
+	return [
+		"uiFlowSyncFlowchart", "uiFlowBuildScroll", "uiFlowScrollAdd", "uiFlowApplyScroll",
+		"uiFlowScrollClamp", "uiFlowScrollToCursor", "uiFlowPage",
+		"uiFlowDrawMarkers",
+		"uiFlowStateKey", "uiFlowEdgeState", "uiFlowBusState"
+	];
+}
+
+function uiFlowLogRetired()
+{
+	var l = uiFlowRetiredList();
+	// 一句话可判读：旧寻址清单（已删除）＋ 新机制落点。刻意**不写函数个数之类的自计量**
+	//   （TJS2 无反射，任何「数函数」的写法都得靠一张会漂移的常量表 —— 那是新的静默分叉源）。
+	uiFlowLog("旧机制已退场（第 2 步，按 `flow.*` 寻址的代码已整批删除）：" + l.join(" / "));
+	uiFlowLog("新机制落点：元素 `fc.*`（数据·通用渲染器）＋ `ui_flow_links.tjs`（links[] 连线 + 层判据"
+		+ " `fc_layer!=main ⇒ 不画`）＋ `ui_flow_layer.tjs`（动作 flow_layer + current 高亮环 post-pass）");
+}
+
+// 汇总行（供日志/诊断）
+function uiFlowSummary()
+{
+	return "flow=" + UIFlowCurrent + " 已读 " + uiFlowVisitedCount() + "/" + UIFlowNodeTable.count
+		+ " 碎片 " + UIFragCollectedList.count + "/" + UIFlowData.fragments.total
+		+ " | state=" + ((UIFlowStatePath != "") ? UIFlowStatePath : "(未写)")
+		+ " | install=" + UIFlowInstallNote
+		+ " | 包装器异常=" + UIFlowErrCount
+		+ " | 旧机制已退场 " + uiFlowRetiredList().count + " 个函数";
+}
+
+// ------------------------------------------------------------
+// 文件末尾自动安装（若 ui_screens.tjs 尚未装载则记一行日志、稍后由 uiFlowInstall() 重试）
+// ------------------------------------------------------------
+try { uiFlowInstall(); } catch(e) { uiFlowLog("install 异常：" + e.message); }

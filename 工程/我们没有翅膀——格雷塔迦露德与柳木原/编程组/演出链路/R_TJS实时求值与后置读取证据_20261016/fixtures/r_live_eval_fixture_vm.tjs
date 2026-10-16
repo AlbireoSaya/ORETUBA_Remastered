@@ -1,0 +1,15 @@
+function RVEForbiddenNative(a, b) {
+    throw new global.Exception("UNSUPPORTED_LIVE_EVAL_FIXTURE_NATIVE_OR_BANK");
+}
+
+function RVEVM(rd, wr, rb, ctx, entry, native, maxSteps, resume) {
+    this.phase = "vm";
+    var r = global.RVMRun(rd, wr, rb, ctx, entry, native, maxSteps, resume);
+    this.phase = "post";
+    this.vm_returns.add([r.return_code, r.steps]);
+    for (var i = 0; i < r.trace.count; i++) {
+        var row = r.trace[i];
+        this.vm_trace.add([row.pc, row.opcode]);
+    }
+    return r;
+}

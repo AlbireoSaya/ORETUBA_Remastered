@@ -1,0 +1,47 @@
+function RLEZero(q)
+{
+    return 0;
+}
+
+function RLESelector(q)
+{
+    return 3;
+}
+
+function RLEForbidden(a, b)
+{
+    throw new Exception("UNEXPECTED_EXPR_IO");
+}
+
+function RLEPair(p)
+{
+    if(this.mode == 0)
+        return [1];
+    return [1, "bad"];
+}
+
+function RLiveExpressionGuard()
+{
+    for(var mode = 0; mode < 2; ++mode)
+    {
+        var s = %["mode" => mode];
+        var rd = RLEZero incontextof s;
+        var rh = RLEZero incontextof s;
+        var rb = RLESelector incontextof s;
+        var wr = RLEForbidden incontextof s;
+        var resolveBank = RLEForbidden incontextof s;
+        var evaluateExpr = RLEPair incontextof s;
+        var msg = null;
+        try
+        {
+            RRecordLivePayload(rd, rh, rb, wr, 7, 0x3000000, 0x1020000, resolveBank, evaluateExpr);
+        }
+        catch(e)
+        {
+            msg = e.message;
+        }
+        if(msg !== "INVALID_LIVE_EXPRESSION_RESULT")
+            throw new Exception("RLE_NOT_REJECTED");
+    }
+    return 2;
+}

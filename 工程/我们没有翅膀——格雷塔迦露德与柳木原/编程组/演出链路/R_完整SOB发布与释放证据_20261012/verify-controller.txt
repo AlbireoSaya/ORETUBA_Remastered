@@ -1,0 +1,97 @@
+from pathlib import Path
+import sys,json,struct,collections,hashlib
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(g/'工具'),str(g/'逆向引擎'),str(root/'工具/unicorn-2.1.4-py314')]
+from lucifen_host_memory import HostMemory
+from lucifen_host_version import host_version_ex_a,host_upper_ascii_z
+from lucifen_guest_memory_bridge import GuestMemoryBlocks
+from lucifen_readonly_io_bridge import ReadOnlyFiles
+from lucifen_readonly_io_guest import bridge_ReadFile,bridge_SetFilePointer,bridge_CloseHandle
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+from lucifen_vm_micro import map_pe
+from lucifen_cdecl_probe import invoke_cdecl
+from lucifen_thiscall_probe import invoke_thiscall_args
+from pe_min import PE
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_ESI
+stage=root/'临时/ISSUE-20261011-02/r-real-controller-registration-formal-01';stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');path=root/'备份/我们没有翅膀R-安装介质/SET_UP/SCRIPT.LPK'
+u=map_pe(pe);u.mem_map(0,4096);u.mem_map(0x1fe0000,0x20000);u.mem_write(0,b'\xff'*4)
+proxy={0x200e200:('HeapCreate',0x518104,12),0x200e210:('HeapDestroy',0x518108,4),0x200e220:('HeapAlloc',0x51814c,12),0x200e230:('HeapFree',0x518168,12),0x200e240:('GlobalAlloc',0x5181cc,8),0x200e250:('GlobalFree',0x518194,4),0x200e260:('GetVersionExA',0x518278,4),0x200e270:('ReadFile',0x518248,20),0x200e280:('SetFilePointer',0x518244,16)}
+proxy.update({0x200e290:('lstrcpyA',0x5181dc,8),0x200e2a0:('lstrlenA',0x5181c4,4),0x200e2b0:('CharUpperA',0x5182ec,4),0x200e2c0:('CloseHandle',0x5181bc,4)})
+for addr,(name,iat,argc)in proxy.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+counts=collections.Counter();events=[];rows=[];heap_handles={};versions=[]
+with HostMemory()as memory,ReadOnlyFiles([path])as files:
+ mirror=GuestMemoryBlocks(u,memory);token,err=files.open(path);assert err==0
+ def hook(uc,a,n,ud):
+  name,iat,argc=proxy[a];esp=uc.reg_read(UC_X86_REG_ESP);ra=struct.unpack('<I',uc.mem_read(esp,4))[0];args=struct.unpack('<%dI'%(argc//4),uc.mem_read(esp+4,argc));event={'api':name,'args':list(args),'native_return_address':ra};rd=lambda q,k:bytes(uc.mem_read(q,k));wr=lambda q,b:uc.mem_write(q,b)
+  if name=='HeapCreate':
+   assert ra==0x50a131;actual=memory.heap_create(*args);assert actual!=0;value=0x68000000+len(heap_handles);heap_handles[value]=actual
+  elif name=='HeapDestroy':
+   actual=heap_handles[args[0]];value=int(memory.heap_destroy(actual));assert value==1;del heap_handles[args[0]]
+  elif name=='HeapAlloc':
+   assert ra==0x507630;actual=memory.heap_alloc(heap_handles[args[0]],args[1],args[2]);assert actual!=0;value=mirror.bind(actual);event['rounded_allocation_size']=memory.size(actual)
+  elif name=='HeapFree':
+   assert ra==0x506668;mirror.sync(args[2]);actual=mirror.host_pointer(args[2]);value=int(memory.heap_free(heap_handles[args[0]],args[1],actual));assert value==1;mirror.unmap(args[2])
+  elif name=='GlobalAlloc':
+   assert ra==0x491e44;actual=memory.global_alloc(*args);assert actual!=0;value=mirror.bind(actual);event['allocation_size']=memory.size(actual)
+  elif name=='GlobalFree':
+   assert ra==0x491e62;mirror.sync(args[0]);actual=mirror.host_pointer(args[0]);assert memory.global_free(actual)==0;value=0;mirror.unmap(args[0])
+  elif name=='GetVersionExA':
+   assert ra==0x509ff7;ok,data,err=host_version_ex_a(rd(args[0],148));assert ok and err==0;wr(args[0],data);value=int(ok);versions.append(list(struct.unpack('<5I',data[:20])));event['observed_version']=versions[-1]
+  elif name=='ReadFile':
+   assert ra in(0x49151f,0x491580,0x4908ec,0x490a6b);value,err=bridge_ReadFile(files,rd,wr,*args);assert value==1 and err==0;event['actual_bytes_read']=struct.unpack('<I',uc.mem_read(args[3],4))[0];assert event['actual_bytes_read']==args[2];mirror.sync(args[1]) if ra!=0x4908ec else None
+  elif name=='SetFilePointer':
+   assert ra==0x49133f;value,err=bridge_SetFilePointer(files,rd,wr,*args);assert err==0 and value==args[1]
+  elif name=='lstrcpyA':
+   assert ra in(0x49424f,0x4943da);value=bridge_lstrcpyA(rd,wr,args[0],args[1],256)
+  elif name=='lstrlenA':
+   assert ra in(0x490965,0x490ed5);value=bridge_lstrlenA(rd,args[0],256)
+  elif name=='CharUpperA':
+   assert ra==0x490958;payload=read_z(rd,args[0],256);actual=host_upper_ascii_z(payload);wr(args[0],actual+b'\0');value=args[0]
+  elif name=='CloseHandle':
+   assert ra==0x490c68;value,err=bridge_CloseHandle(files,args[0]);assert value==1 and err==0
+  counts[name]+=1;event['guest_result']=value;events.append(event);uc.reg_write(UC_X86_REG_EAX,value)
+
+
+ handle=u.hook_add(UC_HOOK_CODE,hook,begin=0x200e200,end=0x200e2cf)
+ seh=bytes(u.mem_read(0,4));assert invoke_cdecl(u,0x50a11a,[1],timeout=0)==1
+ obj=invoke_cdecl(u,0x50577f,[0x118],timeout=0);assert mirror.size(obj)==0x120
+ try:
+  rc=invoke_thiscall_args(u,0x41b3d0,obj,[],timeout=0,count=1000000)
+  assert rc==obj and bytes(u.mem_read(0,4))==seh
+  raw=mirror.sync(obj);assert struct.unpack_from('<I',raw)[0]==0x518aa0
+  natives,end=struct.unpack_from('<II',raw,0x38);assert end-natives==12 and bytes(u.mem_read(natives,12))==struct.pack('<3I',0x41b3a0,0x41b380,0x41b3c0)
+  assert struct.unpack_from('<I',raw,0x30)[0]==0x4000
+  native_rows=[]
+  for section in pe.sections:
+   if section['name']!='.text':continue
+   text_start=pe.image_base+section['vaddr'];text_bytes=pe.data[section['rawptr']:section['rawptr']+section['rawsize']]
+   for i in range(len(text_bytes)-5):
+    if text_bytes[i]!=0xe8:continue
+    target=text_start+i+5+struct.unpack_from('<i',text_bytes,i+1)[0]
+    if target!=0x4a5450:continue
+    prev=text_bytes[max(0,i-24):i];found=None
+    for j in range(len(prev)-7,-1,-1):
+     if prev[j]==0x68 and prev[j+5:j+7]==b'\x8b\xce':found=struct.unpack_from('<I',prev,j+1)[0];break
+    assert found is not None;native_rows.append({'call':text_start+i,'handler':found})
+  app_rows=[r for r in native_rows if 0x40e95c<=r['call']<0x410f2d]
+  assert len(native_rows)==809 and len(app_rows)==806
+  expected=[0x41b3a0,0x41b380,0x41b3c0]+[r['handler']for r in app_rows]
+  u.reg_write(UC_X86_REG_ESI,obj);u.reg_write(UC_X86_REG_ESP,0x2008000)
+  u.emu_start(0x40e95c,0x410f2d,timeout=0,count=2000000)
+  assert u.reg_read(UC_X86_REG_EIP)==0x410f2d and u.reg_read(UC_X86_REG_ESP)==0x2008000
+  vb,ve=struct.unpack('<II',u.mem_read(obj+0x38,8));actual=list(struct.unpack('<809I',u.mem_read(vb,809*4)))
+  assert ve-vb==809*4 and actual==expected
+  live=mirror.live_count
+  rc=invoke_thiscall_args(u,0x41b490,obj,[1],timeout=0,count=1000000)
+  assert rc==obj and mirror.live_count==0 and not memory._blocks and bytes(u.mem_read(0,4))==seh
+  assert files.close(token)==(True,0)
+ except Exception:
+  print('failed EIP',hex(u.reg_read(UC_X86_REG_EIP)),'last API',events[-3:],flush=True);raise
+summary={'passed':True,'original_heap_init':0x50a11a,'original_controller_constructor':0x41b3d0,'original_controller_deleting_destructor':0x41b490,'actual_control_native_registration':[0x41b3a0,0x41b380,0x41b3c0],'original_stack_capacity_words':0x4000,'live_after_ctor':live,'actual_guest_API_counts':dict(counts),'all_original_owned_blocks_released':True,'809_ordered_natives_equal_static_calls':True,'native_handlers_unique':len(set(expected)),'registration_block':[0x40e95c,0x410f2d],'scope':'original CRT/direct private heap; original allocator-created controller object, original controller constructor and destructor, actual host heap APIs; actual 806 app native-registration instructions and 3 child constructor registrations, not full parent application constructor or native bodies, SOB publication or staging'}
+(stage/'controller-ctor-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+(stage/'controller-ctor-API-results.json').write_text(json.dumps(events,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+print(json.dumps(summary),flush=True)
+

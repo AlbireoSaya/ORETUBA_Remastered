@@ -1,0 +1,19 @@
+ISSUE-20260927-05 · E3 终版复核：下划线字形两端差异（A/B 因果自证）
+
+对象：fc.node.0011_tx  sample="s01_14h"  wrap=true max_lines=2 line_spacing=1.0 size=19
+扫描：x∈[1000,1080]，行=深墨像素（r<120,g<130,b<160）的连续段；y 为画布坐标
+口径：先注入取图钩子（隐藏外壳 + setScale(1)），故画布原点 = PNG 左上 (0,0)
+
+【krkr 实机（shot_84）】基线下方一行：
+  y=422  ['1033..1041(9)']            ← 下划线，宽 9px
+
+【HTML（含 line_spacing: 1.0）】文字主体 y=406..420，之后到节点底边(y≈437)之间：
+  （无任何深墨段）                      ← 下划线缺失
+
+【HTML（A/B：把布局数据里的 line_spacing 键改名 ⇒ 回落 1.4）】文字主体上移 5px 到 y=401..415，基线下方一行：
+  y=420  ['1034..1042(9)']            ← 下划线回来了，位置/宽度与 krkr 同列同宽
+
+机制：节点标签是 wrap+max_lines ⇒ replica.js::buildText 给内层加 `-webkit-line-clamp` + `overflow:hidden`；
+      行盒 = 字号 × 元素级 line_spacing = 19×1.0 = 19px < 微软雅黑字形盒(≈25px)
+      ⇒ 基线下方墨迹（下划线）落在行盒外 → 被 overflow:hidden 裁掉。krkr 自绘文字不裁。
+影响面：13 个节点标签里仅 1 件含基线下方字形（其余 12 件为纯中文标签）。

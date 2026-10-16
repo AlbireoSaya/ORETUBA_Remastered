@@ -1,0 +1,827 @@
+总命中行数: 617
+
+==========================================================================================
+FILE: 00_UI组认知与接口契约.md
+    184 | | 16 | `sysicons` | **右键图标浮层** | 对话屏系统条的右键展开浮层（图标化入口，非文字条）。依据：`复刻\README_复刻说明.md:57` 记「画面右键 → 回想（backlog）」；`layout\screens\10_dialog.json` 现有 `dlg.sysbar`（8 键列表）为其底座。⚠ **当前 `layout\` 尚无独立 `sysicons` 屏 / 元素，属待建项**；图标来源可用 M11 的 `x_gen_icon_01..09`（9 件）。**是否落地、落在哪一模块，待主代理确认** |
+==========================================================================================
+FILE: M34_UI复刻总纲.md
+     60 | | 78 / 79 | 系统共通按钮 | ~~`sysbar`~~ | **新建**（底部条 1920×266）—— ★ **M46（2026-09-23，用户裁定）已删除**：用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」⇒ 屏数据 / `_index.json` 条目 / 巡演白名单 / 两端活引用全清（18 → 17 屏）；**素材保留原位不归档**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）；快照归档 `_工作\M46_旧素材归档\` |
+==========================================================================================
+FILE: 会话交接_20260922-02_按钮文字素材交付.md
+    201 | | **已重建 13 屏** | title / sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 素材重映射的 sysmenu<br>★ **M46 后注（2026-09-23，用户裁定）**：清单中 **`sysbar`（系统条）屏已删除**（用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）；`sysmenu` 亦已于 M45 废除。本行按「历史保留不改」原则仅作标注；**其素材一律保留原位不归档**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用） |
+==========================================================================================
+FILE: 会话交接_20260922-03_按钮文字与组绑定.md
+     79 | 7. **7 个屏的生成器仍未回写**（`01_title`/`36_choices`/`21_confirm`/`26_backlog`/`32_flowchart`/`34_sysbar`/`37_dress`）：
+     82 | ★ **M46（2026-09-23，用户裁定）后注**：`34_sysbar` 屏**已删除**（用户原话「把系统条 sysbar 页删了，
+     83 | 但底条素材保留（防冲突）」）—— 屏文件 / `build_sysbar()` / `test_gen_sync` 的 GENERATORS 与 ACK 条目
+     96 | | 3 | ~~生成器回写（上表 §3.7）~~ → **`01_title` 已根治（M41 改透传 + ACK 移除）**；其余 6 屏（`36_choices`/`21_confirm`/`26_backlog`/`32_flowchart`/`34_sysbar`/`37_dress`）照此办理；`m33` 生成器修缮或废弃。★ **M46 后注（2026-09-23）**：`34_sysbar` 屏已删除（生成器与 ACK 条目同删）⇒ **其余 5 屏** |
+    169 | - **建议**：其余 6 屏（`36_choices`/`21_confirm`/`26_backlog`/`32_flowchart`/`34_sysbar`/`37_dress`，现仍 `LOSS → ACK`）照此逐屏改透传或回写 override 常量。
+    302 | `seen=18[title,dialog,sysicons,save,load,config,backlog,gallery,music,fragment,flowchart,ending,loading,confirm,sysbar,quickbar,choices,dress]`
+==========================================================================================
+FILE: 会话交接_20260922_按钮文字生成.md
+    148 | | **已重建 13 屏** | title（竖排条）/ sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 经素材重映射的 sysmenu<br>★ **M46 后注（2026-09-23，用户裁定）**：清单中 **`sysbar`（系统条）屏已删除**（用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）；`sysmenu` 亦已于 M45 废除。本行按「历史保留不改」原则仅作标注；**其素材一律保留原位不归档**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用） |
+==========================================================================================
+FILE: 会话交接_20260923-04_高难度绘图任务前状态.md
+     13 | ★ **M46 后注（2026-09-23，用户裁定）**：`sysbar`（系统条）屏已**删除** ⇒ 上句「18 屏」为本文写作时的数字，
+     55 | > ★ **M46 后注（2026-09-23，用户裁定）**：上列屏清单中 **`sysbar`（系统条）已删除**（用户原话「把系统条
+     56 | > sysbar 页删了，但底条素材保留（防冲突）」）——本行按「历史保留不改」原则仅作标注：原清单写作时是
+     57 | > **18 屏**（含 `sysbar`），**现为 17 屏**。屏文件 / `_index.json` 条目 / 巡演白名单 / 两端活引用 /
+     58 | > 文档清单已清理；**素材一律保留原位、不归档、不删除**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。
+     84 | | 1 | 6 屏生成器仍落后（`sysbar`/`choices`/`confirm`/`backlog`/`flowchart`/`dress`） | `test_gen_sync` 报 `LOSS→ACK`；**重跑那些生成器会回退手工改动**，动前先看 ACK 表。★ **M46 后注（2026-09-23）**：`sysbar` 屏已删除、`build_sysbar()` 与 `test_gen_sync` 的 GENERATORS/ACK 条目均已移除 ⇒ **本项现为 5 屏**（`choices`/`confirm`/`backlog`/`flowchart`/`dress`） |
+     88 | | 5 | ~~`sysbar`（系统条）**不可达**（无动作能打开它，仅巡演白名单里有）；其 4 个控件的 `action` 全为空串（待编程组定义）~~ —— ★ **M46（2026-09-23）已删除（用户 2026-09-23 裁定）**：该屏整体删除（18 → 17 屏），**素材一律保留原位不归档**；见 §六 | 见本文件 §六 |
+     96 | ## 六、`sysbar`（系统条）是什么（用户 2026-09-23 问，答复留档）
+     98 | > ★★ **M46 后注（2026-09-23，用户裁定）：本节所问的 `sysbar` 屏已删除（用户 2026-09-23 裁定）。**
+     99 | > 用户指令原话：「**把系统条 sysbar 页删了，但底条素材保留（防冲突）**」。⇒ 本节以下内容**仅作历史留档**：
+    100 | > 屏文件 `layout\screens\34_sysbar.json`（8 元素）/ `_index.json` 条目（18 → 17 屏）/ 巡演白名单
+    102 | > `_工作\M46_旧素材归档\`（`34_sysbar.json.snapshot` + `_index.json.before` + `说明.md`）。
+    104 | > 已被遵守——**本屏 4 组素材一律保留原位，一个字节未动**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar`
+    107 | - **它是一屏**：`layout\screens\34_sysbar.json`（8 元素），内容＝**常驻底部条**（`sysbar.base`，1920×266 @(0,814)，素材 `ui\x_ui_sysbar.png`）+ 三个控件：**截图**（`snap` 1570,876）、**隐藏窗口**（`hide` 1513,874）、**语音回放**（`vreplay` 345,871，用 `x_ui_spk_off.png`）+ 一个额外点击区（`hit_click` 1507,1020）。
+    109 | - **当前状态**：**不可达** —— 全工程没有任何动作能打开它（只在巡演的屏白名单里被自动追加，所以巡演 `seen=18` 里有 `sysbar`）；**四个控件的 `action` 全是空串**（按 schema「动作表未覆盖的控件允许空串、不得臆造」留给编程组定义）。
+    110 | - **它的素材是共享件**：`ui\x_ui_sysbar.png` **同时被流程图屏的 `fc.sysbar` 使用** ⇒ 若要废除该屏，**素材不能归档**。
+    111 | - **与「药丸快捷条」的关系**：M36–M37 落地的 `quickbar`（右端竖排圆 icon）承担了原「系统菜单」入口；`sysbar` 是**另一件东西**（原作的底部常驻条），目前既没接线也没在界面上出现。**要废要留需用户裁定**（本轮只答疑，未动）。
+    128 | 1. **`sysbar` 答疑**（见 §六，未改动任何文件）。
+==========================================================================================
+FILE: 生图补图任务书.md
+    242 | | B | 在 `dlg.sysbar`（8 键，`item_w=88/item_h=26`）、各屏 `*_footer`/`page_btns`/`music.controls`/`ending`/`confirm` 的按钮上**加图标层**（图标 24×24 + 原文字标签并排） |
+==========================================================================================
+FILE: 素材裁决与图片化日文风险上报.md
+     61 | | `sm_save/load/cfg/skip/auto/win/log/ret/title/end/s_s_ret` | 11 | 612×26（`sm_auto` 1224×26） | 菜单条日文（セーブ / ロード / 環境設定 / スキップ / オート / ウィンドウ消去 / バックログ / タイトルに戻る / ゲーム終了 / キャンセル） | **引擎绘字**（`dlg.sysbar` 8 键 + `sysmenu` 10 项）。★ **M45（2026-09-23）**：`sysmenu` 屏**已废除**（用户裁定「已有药丸按钮系统」）⇒ 本族的**消费方只剩 `dlg.sysbar`**（且 M38 无框化后 `dlg.sysbar` 已退场，功能改由右端快捷条 `quickbar` 承担）；**本族处理口径（引擎绘字、不作文字层）不变**，仅消费方数量减少 |
+==========================================================================================
+FILE: krkr/README_运行方式.md
+     80 | ★ M46（2026-09-23，用户裁定）：「系统条 `sysbar`」屏**已删除**（18 类 → **17 类**；用户原话
+     81 | 「把系统条 sysbar 页删了，**但底条素材保留（防冲突）**」）⇒ 屏文件（`34_sysbar.json`）/ `_index.json`
+     83 | ★ **本屏 4 组素材一律保留原位、不归档、不删除**：`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` **共用**；
+     94 | ★ M46：`sysbar` 底部系统条**已删除**，也不再在巡演白名单里）
+     97 | **本次实测（2026-09-23，M46 删除 `sysbar` 后重跑）：24 屏记账 / 23 步 / 24 张 PNG
+    101 | ——**序列里没有 `sysbar`**（`quickbar` 收起态 `实绘元素=0`，与 M45 一致）。
+    103 | 历史：M45 实测 25 屏记账 / 24 步 / 25 张 PNG、`seen=18`（含 `sysbar`）；M2 实测 26 屏记账 / 25 步 / 26 张 PNG；移除 `sysmenu` 步之前为 27 屏。
+==========================================================================================
+FILE: krkr/run_pressprobe.bat
+     29 | rem    (prior example "sysbar.hit_snap" retired 2026-09-23 with screen id "sysbar";
+==========================================================================================
+FILE: krkr/game/ui_dialog.tjs
+    289 | // ★ M25：原「系统条 .sysbar 高亮」分支已删除 —— dlg.sysbar（系统条 9 键）按用户
+    344 | // ★ M25：原「系统条 .sysbar 命中扫描」已替换为**通用 hit 扫描**。
+    345 | //   原因：dlg.sysbar 已按用户要求删除，本屏新增的九宫格 9 功能图标是
+==========================================================================================
+FILE: krkr/game/ui_layout.tjs
+  15227 | id: "fc.sysbar",
+  15231 | asset: "ui/x_ui_sysbar.png",
+==========================================================================================
+FILE: krkr/game/ui_screens.tjs
+   1480 | // ★ M46（2026-09-23，用户裁定）：`sysbar` 已从白名单移除 —— 该屏**已整体删除**
+   1481 | //   （用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」），屏文件与 `_index.json`
+   1482 | //   条目均已移除；**素材一律保留原位**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。
+==========================================================================================
+FILE: layout/ui_layout.json
+  15978 | "id": "fc.sysbar",
+  15982 | "asset": "ui/x_ui_sysbar.png",
+==========================================================================================
+FILE: layout/screens/32_flowchart.json
+   1444 | "id": "fc.sysbar",
+   1448 | "asset": "ui/x_ui_sysbar.png",
+==========================================================================================
+FILE: layout/screens/_index.json
+      2 | "_comment": "屏清单（主代理维护）。owner = 写权限归属模块；file = 相对 layout/screens/ 的文件名。 ★ M45（2026-09-23，用户裁定）：`sysmenu`（系统菜单，20_sysmenu.json）**已废除**（19 → 18 屏）—— 系统功能由右端竖排快捷条（quickbar，「药丸按钮系统」）承担；屏数据快照见 _工作\\M45_旧素材归档\\。 ★ M46（2026-09-23，用户裁定）：`sysbar`（系统条，34_sysbar.json）**已删除**（18 → 17 屏）—— 用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」；该屏自 M34 建立以来**从未可达**（无任何动作能打开它），屏数据快照见 _工作\\M46_旧素材归档\\；**本屏 4 组素材一律保留原位不归档**（`x_ui_sys
+==========================================================================================
+FILE: _工作/M12_迁移报告.md
+    196 | | `dlg.sysbar` | x=510 y=490 w=746 item_w=88 item_h=26 gap=6 font.size=18 iframe.nine=**{l13 t5 r13 b5}** max_cols=**8** | x=765 y=735 w=1119 item_w=132 item_h=39 gap=9 font.size=27 iframe.nine=**{l20 t8 r20 b8}** max_cols=**8（不缩）** |
+    279 | 3. **`max_rows` / `max_cols` 不 ×1.5**——它们是**项数**而非长度（对照表把「其余元素坐标/尺寸」笼统写作 ×1.5，但项数 ×1.5 会凭空多出/少掉可显示项）。逐值未变，例：`title.menu.max_rows=7`、`dlg.sysbar.max_cols=8`、`fragment.g6_grid.max_cols=20`。
+    289 | > 全库 `list` 溢出核验：1280 基线仅 `dlg.sysbar`/`save.footer`/`load.footer`/`gallery.footer`/`music.controls`/`config.page_btns` 为**恰好填满**（tot == w），迁移后仍**恰好填满**（1119/1119、630/630、210/210、750/750），唯一新溢出即 `fragment.g6_grid`。
+==========================================================================================
+FILE: _工作/M13_报告.md
+     16 | | 2 | `layout\screens\10_dialog.json` | **改**。① `dlg.window` 由 `ui/meswin.png`（1586×261）改为 **`ui/x_gen_dialog.png`（1680×946，整图 1:1，摆在 (120,300)：水平居中 + 可见窗体贴底）**；② 删掉 `dlg.namebox` 图片元素（名字框已是新窗体贴图的一部分，不再叠 `nm_frm_b.png`）；③ `dlg.name` 重定到新名字框内沿（画布 236,543,539,105 → 内缩 20px）；④ `dlg.text` 重定为画布 (184,656,1568,318)，`font.size` 40、`wrap:true`、`max_lines:3`、`line_spacing:1.4`；⑤ `dlg.cursor` 随新窗体重定到 (1545,
+    152 | | `dlg.sysbar` | (81,486) 9×190 + 8×6 = 1758 宽，item_h 44 | 居中；y 486–530 在窗体之上、且避开名字框顶 543（间隙 13px） |
+    211 | | `crop_sysbar_left.png` | 系统条左 5 格 1:1：九宫格边框 + 白字深影，深底处清晰、亮底处偏淡（见 §七 未决问题）。 |
+    290 | | `crop_cursor_krkr.png`、`crop_sysbar_left.png`、`crop_namebox.png`、`crop_window_bottomright.png` | 局部 1:1 / 放大裁切（光标、系统条、名字框、窗体右下角） |
+==========================================================================================
+FILE: _工作/M18_报告.md
+    395 | **「系统条 9 键」这一项与 `10_dialog.json` 的 `dlg.sysbar.labels` 实际一致**（9 项：
+==========================================================================================
+FILE: _工作/M23_gen.py
+    527 | sb = by_id["dlg.sysbar"]
+==========================================================================================
+FILE: _工作/M23_报告.md
+     32 | | `layout\screens\10_dialog.json` | `dlg.window` → `ui/x_gen_dialog2.png`，`(120,300,1680,946)` → **`(146,725,1628,319)`**；`dlg.name` → **`(331,747,345,56)`**，字号 40 → **36**；`dlg.text` → **`(246,805,940,210)`**；`dlg.cursor` → **`(979,992)`**；`dlg.sysbar` y 486 → **680**；`dlg.choices.stack_bottom` 470 → **667**；letterbox / content / mode_tag / hint 未动。屏根 note 重写 |
+==========================================================================================
+FILE: _工作/M25_报告.md
+     23 | | `…\UI组\layout\screens\10_dialog.json` | ① 删 `dlg.sysbar`（系统条 9 键）整块；② 删 `dlg.cursor`（6 个三角）；③ `dlg.text` 几何 940×210@(246,805) → **1224×201@(246,806)**，字号 40→42、行数 3→4、行距 1.4→1.2；④ 新增 `dlg.icon_01..09`（image，带 `nine:{0,0,0,0}`）+ `dlg.icon_hit_01..09`（hit，矩形=格）共 18 个元素；⑤ 屏根 note 重写 | 改写 |
+     24 | | `…\UI组\krkr\game\ui_dialog.tjs` | ① 删 `uiDialogBuildCtx` 里针对 `.sysbar` 的高亮分支（死代码）；② `uiDialogClick` 里「扫 `.sysbar`」改为「扫本屏 `kind=="hit"` 元素（取最高 z）」——九宫格 9 图标由此可点；③ **修复折行度量字号错配 bug**（`uiDialogPartialLines` 补一次 `uiThemeApplyFont`） | 改（B6 + §7 修复） |
+     32 | 1. 任务书写的可写文件是 `krkr\game\{startup,ui_screens}.tjs`，但**针对 `dlg.sysbar` 的死代码实际位于 `ui_dialog.tjs`**（`uiDialogBuildCtx` 的高亮分支、`uiDialogClick` 的命中扫描）。B6 要求「最小化清理并说明」，故改的是 `ui_dialog.tjs`；`startup.tjs` **未改**（其第 414 行只是一行 blink 相位诊断日志，与 `dlg.cursor` 的绘制无关，不属死代码）。
+     96 | `dlg.sysbar`（`kind:"list"`，labels = 快速存档/快速读档/快进/返回上一选项/存档/读档/设置/隐藏对话框/重复语音）**整块元素已删除**。其 9 项语义已由 §5 的九宫格 9 图标承接（同序、同 action）。
+    184 | 1. `uiDialogBuildCtx` 中「`.sysbar` 高亮」分支删除（`dlg.sysbar` 已无，属死代码）。
+    185 | 2. `uiDialogClick` 中「扫 `.sysbar`」改为「扫本屏 `kind=="hit"` 元素、取最高 z」——返回形状与 `ui_screens.tjs:543-554` 的通用分支**完全一致**（`%[action, index:-1, hit:true]`），故 9 个图标热区可点，其余区域仍回落 `advance_dialog`。
+==========================================================================================
+FILE: _工作/M34_拆件倍率登记.json
+    401 | "file": "x_ui_sysbar.png",
+    402 | "family": "x_ui_sysbar",
+   1436 | "x_ui_sysbar.png",
+==========================================================================================
+FILE: _工作/M35b_热区态图迁移.py
+     46 | ("34_sysbar.json",   "sysbar.hit_snap",  "sysbar.snap"),
+     47 | ("34_sysbar.json",   "sysbar.hit_hide",  "sysbar.hide"),
+     48 | ("34_sysbar.json",   "sysbar.hit_vreplay", "sysbar.vreplay"),
+==========================================================================================
+FILE: _工作/ISSUE-20260921-26_复审证据/replica_at_5fc961f.js
+   2335 | ['dlg.window', 'dlg.namebox', 'dlg.name', 'dlg.text', 'dlg.cursor', 'dlg.sysbar'].forEach(function (id) {
+   2418 | 回想仍在浮层的 REPEAT/系统条「回想」键可达（dlg.sysbar 第 6 键 action=open_backlog）。
+==========================================================================================
+FILE: _工作/ISSUE-20260921-26_复审证据/ui_dialog.tjs
+    289 | // ★ M25：原「系统条 .sysbar 高亮」分支已删除 —— dlg.sysbar（系统条 9 键）按用户
+    344 | // ★ M25：原「系统条 .sysbar 命中扫描」已替换为**通用 hit 扫描**。
+    345 | //   原因：dlg.sysbar 已按用户要求删除，本屏新增的九宫格 9 功能图标是
+==========================================================================================
+FILE: _工作/ISSUE-20260921-26_复审证据/ui_layout_at_5fc961f.js
+  17279 | "id": "fc.sysbar",
+  17283 | "asset": "ui/x_ui_sysbar.png",
+  17588 | "sysbar": {
+  17589 | "id": "sysbar",
+  17595 | "id": "sysbar.base",
+  17599 | "asset": "ui/x_ui_sysbar.png",
+  17615 | "id": "sysbar.snap",
+  17626 | "note": "截图 图标（PSB idx78 `ボタン/snap/off`，x1570 y876 w37 h33）（素材 35×33 ≠ 设计 37×33 → nine {'l': 8, 't': 8, 'r': 8, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_snap` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.snap」联动。",
+  17638 | "state_group": "sysbar.snap"
+  17641 | "id": "sysbar.hit_snap",
+  17660 | "note": "截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。",
+  17661 | "state_group": "sysbar.snap"
+  17664 | "id": "sysbar.hide",
+  17675 | "note": "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。",
+  17687 | "state_group": "sysbar.hide"
+  17690 | "id": "sysbar.hit_hide",
+  17709 | "note": "隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。",
+  17710 | "state_group": "sysbar.hide"
+  17713 | "id": "sysbar.vreplay",
+  17724 | "note": "语音重播 图标（PSB idx78 `ボタン/vreplay/off`，x345 y871 w33 h43）（素材复用 B6 `x_ui_spk_*`，同语义；原作另有独立 vreplay 图标，本轮未单独生图）（素材 25×27 ≠ 设计 33×43 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `sysbar.hit_vreplay` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.vreplay」联动。",
+  17736 | "state_group": "sysbar.vreplay"
+  17739 | "id": "sysbar.hit_vreplay",
+  17758 | "note": "语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。",
+  17759 | "state_group": "sysbar.vreplay"
+  17762 | "id": "sysbar.hit_click",
+==========================================================================================
+FILE: _工作/ISSUE-20260921-26_复审证据/ui_layout_at_5fc961f.json
+  17274 | "id": "fc.sysbar",
+  17278 | "asset": "ui/x_ui_sysbar.png",
+  17583 | "sysbar": {
+  17584 | "id": "sysbar",
+  17590 | "id": "sysbar.base",
+  17594 | "asset": "ui/x_ui_sysbar.png",
+  17610 | "id": "sysbar.snap",
+  17621 | "note": "截图 图标（PSB idx78 `ボタン/snap/off`，x1570 y876 w37 h33）（素材 35×33 ≠ 设计 37×33 → nine {'l': 8, 't': 8, 'r': 8, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_snap` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.snap」联动。",
+  17633 | "state_group": "sysbar.snap"
+  17636 | "id": "sysbar.hit_snap",
+  17655 | "note": "截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。",
+  17656 | "state_group": "sysbar.snap"
+  17659 | "id": "sysbar.hide",
+  17670 | "note": "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。",
+  17682 | "state_group": "sysbar.hide"
+  17685 | "id": "sysbar.hit_hide",
+  17704 | "note": "隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。",
+  17705 | "state_group": "sysbar.hide"
+  17708 | "id": "sysbar.vreplay",
+  17719 | "note": "语音重播 图标（PSB idx78 `ボタン/vreplay/off`，x345 y871 w33 h43）（素材复用 B6 `x_ui_spk_*`，同语义；原作另有独立 vreplay 图标，本轮未单独生图）（素材 25×27 ≠ 设计 33×43 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `sysbar.hit_vreplay` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.vreplay」联动。",
+  17731 | "state_group": "sysbar.vreplay"
+  17734 | "id": "sysbar.hit_vreplay",
+  17753 | "note": "语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。",
+  17754 | "state_group": "sysbar.vreplay"
+  17757 | "id": "sysbar.hit_click",
+==========================================================================================
+FILE: _工作/ISSUE-20260921-26_复审证据/ui_screens.tjs
+    794 | "sysbar", "quickbar", "choices", "dress" ];
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M1_证据/engine_tour_counts_HEAD.txt
+     23 | 屏=sysbar  中文名=系统条  元素数=8  实绘元素=8
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M1_证据/engine_tour_counts_M1.txt
+     22 | 屏=sysbar  中文名=系统条  元素数=8  实绘元素=8
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M1_证据/engine_tour_default_after_G3.txt
+     94 | 23:33:55 [UI][SCREENS] layout 已登记屏数 = 19 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, chapter, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+    308 | 23:34:24 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    373 | 23:34:39 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+    379 | 23:34:41 [UI][DBG] 导出前 屏=sysbar blinkTicks=381 phase=1 UIDlgCursorOn=0
+    380 | 23:34:41 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    381 | 23:34:41 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run_m1/runtime/savedata/shot_23_sysbar.png
+    422 | 23:34:47 [UI] quit (autotour done) : frames=505 | dress | 已载入 109 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 23 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run_m1/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDraw / 
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M1_证据/engine_tour_expanded_after_G3.txt
+     94 | 23:35:03 [UI][SCREENS] layout 已登记屏数 = 19 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, chapter, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+    309 | 23:35:31 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    374 | 23:35:47 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+    380 | 23:35:49 [UI][DBG] 导出前 屏=sysbar blinkTicks=379 phase=1 UIDlgCursorOn=0
+    381 | 23:35:49 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    382 | 23:35:49 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run_m1/runtime/savedata/shot_23_sysbar.png
+    423 | 23:35:55 [UI] quit (autotour done) : frames=503 | dress | 已载入 110 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 23 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run_m1/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDraw / 
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M1_证据/gate_test_click_reach_M8.txt
+     79 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M2_证据/ab_result.txt
+     19 | sysbar       59f08d   59f08d   IDENTICAL (md5)   n=1/1
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M2_证据/selftest_log.utf8.txt
+     94 | 21:55:30 [UI][SCREENS] layout 已登记屏数 = 19 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, chapter, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/editor_dom_fp1.html
+     32 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框/名字框/功能图标九宫格/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config">配置（co
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/edom_dialog_fp1_expanded.html
+     32 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框/名字框/功能图标九宫格/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config">配置（co
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/edom_screen_quickbar.html
+     32 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框/名字框/功能图标九宫格/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config">配置（co
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/edom_screen_quickbar_fp_1.html
+     32 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框/名字框/功能图标九宫格/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config">配置（co
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/edom_screen_quickbar_fp_1_flags_quickbar_expanded_qbar_tip_lock_qbar_pin_1.html
+     32 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框/名字框/功能图标九宫格/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config">配置（co
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/final_editor_fp1_dump.html
+     32 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框/名字框/功能图标九宫格/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config">配置（co
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/replica_rev.js
+   2720 | ['dlg.window', 'dlg.namebox', 'dlg.name', 'dlg.text', 'dlg.cursor', 'dlg.sysbar'].forEach(function (id) {
+   2815 | 回想仍在浮层的 REPEAT/系统条「回想」键可达（dlg.sysbar 第 6 键 action=open_backlog）。
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M3_证据/replica_rev_esc.js
+   2720 | ['dlg.window', 'dlg.namebox', 'dlg.name', 'dlg.text', 'dlg.cursor', 'dlg.sysbar'].forEach(function (id) {
+   2815 | 回想仍在浮层的 REPEAT/系统条「回想」键可达（dlg.sysbar 第 6 键 action=open_backlog）。
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M4_证据/T4_note_溯源_生成器归属.txt
+     11 | ⚠️ 但 main() 对 PAIRS 里 6 个屏无条件 `save()`（21_confirm/25_config/26_backlog/32_flowchart/34_sysbar/37_dress），重跑会重写它们（内容等价、幂等）——不触碰本轮的 10 条 note。
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M8_证据/acc2_click_reach.txt
+     80 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M8_证据/acc3_click_reach_selfcheck.txt
+     79 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M8_证据/acc4_gen_sync.txt
+     28 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+     30 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+     31 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+     33 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+     34 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     35 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     36 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     37 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     38 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+     39 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     40 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+     41 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     42 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+     43 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+     44 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+     45 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+     46 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+     47 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M8_证据/acc5_gen_sync_selfcheck.txt
+     28 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+     30 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+     31 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+     33 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+     34 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     35 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     36 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     37 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     38 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+     39 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     40 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+     41 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     42 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+     43 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+     44 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+     45 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+     46 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+     47 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M8_证据/J2_ack_table_full.txt
+     22 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+     24 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+     25 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+     27 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+     28 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     29 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     30 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     31 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     32 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+     33 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     34 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+     35 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M8_证据/T1_pre_m7_fail.txt
+     78 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_M8_证据/T1_selfcheck_pre_m7.txt
+     78 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260922-28_一审证据/before_md5.txt
+     17 | 1f6652ff36bd73389caece7230731e19 *layout/screens/34_sysbar.json
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_K4_巡演_强制展开_g1e.txt
+     52 | 03:26:07 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+     53 | 03:26:09 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_K4_巡演_默认收起_g1e.txt
+     52 | 03:25:05 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+     53 | 03:25:07 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_K4终态复跑_g1e.txt
+    154 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+    291 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+    293 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+    294 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+    296 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+    297 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    298 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    299 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    300 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    301 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+    302 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    303 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+    304 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    305 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+    306 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+    307 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+    308 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+    309 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+    310 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_R3收尾自检_g1f.txt
+    162 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+    299 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+    301 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+    302 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+    304 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+    305 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    306 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    307 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    308 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    309 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+    310 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    311 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+    312 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    313 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+    314 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+    315 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+    316 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+    317 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+    318 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_巡演_强制展开_halo64.txt
+     52 | 02:25:58 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+     53 | 02:26:00 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_巡演_悬停第2项_halo64.txt
+     52 | 02:27:12 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+     53 | 02:27:13 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_巡演_默认收起_halo64.txt
+     52 | 02:24:56 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+     53 | 02:24:58 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_验收_数据级全套.txt
+    158 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+    294 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+    296 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+    297 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+    299 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+    300 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    301 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    302 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    303 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    304 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+    305 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    306 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+    307 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    308 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+    309 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+    310 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+    311 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+    312 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+    313 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/G2_验收_数据级全套_halo64.txt
+    150 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+    286 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+    288 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+    289 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+    291 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+    292 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    293 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+    294 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    295 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    296 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+    297 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+    298 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+    299 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+    300 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+    301 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+    302 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+    303 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+    304 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+    305 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_G2_证据/_editor_dom_probe_g1e.html
+     63 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框（无框画布方案·文字四向描边）/名字框/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M38_证据/M38_editor_dom.html
+     32 | <select class="ed-sel" id="ed-screen-sel" title="切换要编辑的屏"><option value="title">标题画面（title）</option><option value="dialog">对话框（无框画布方案·文字四向描边）/名字框/选择肢（dialog）</option><option value="sysmenu">系统菜单（sysmenu）</option><option value="confirm">确认框（confirm）</option><option value="loading">加载提示（loading）</option><option value="save">存档（save）</option><option value="load">读档（load）</option><option value="config
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_verify_ui_verbose.txt
+    313 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+    323 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+    735 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+    745 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+   1095 | OK  nine fc.sysbar              ui/x_ui_sysbar.png  648x41（源 1946x292）
+   1105 | OK  nine sysbar.base            ui/x_ui_sysbar.png  1920x266（源 1946x292）
+   1106 | OK  nine sysbar.snap            ui/x_ui_snap_off.png  37x33（源 35x33）
+   1107 | OK  nine sysbar.hide            ui/x_ui_hide_off.png  37x38（源 37x35）
+   1108 | OK  nine sysbar.vreplay         ui/x_ui_spk_off.png  33x43（源 25x27）
+   1599 | OK  x_ui_sysbar.png                        RGBA  1946x292
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_六道守门.txt
+     46 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_守门_test_click_reach.txt
+     73 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_守门_test_gen_sync.txt
+     27 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+     29 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+     30 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+     32 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+     33 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     34 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     35 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     36 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     37 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+     38 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     39 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+     40 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     41 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+     42 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+     43 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+     44 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+     45 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+     46 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_巡演日志_krkr.console.log.txt
+     94 | 05:13:30 [UI][SCREENS] layout 已登记屏数 = 19 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, chapter, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+    298 | 05:13:58 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    363 | 05:14:14 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+    369 | 05:14:16 [UI][DBG] 导出前 屏=sysbar blinkTicks=379 phase=1 UIDlgCursorOn=0
+    370 | 05:14:16 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    371 | 05:14:16 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/shot_23_sysbar.png
+    412 | 05:14:22 [UI] quit (autotour done) : frames=503 | dress | 已载入 99 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 23 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDraw / u
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_巡演日志分析.txt
+     53 | -> 下一步：追加：sysbar  屏=sysbar
+     54 | 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    129 | ■ [4] 素材载入：04:00:54 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    141 | ■ [4] 素材载入：04:01:00 [UI] quit (autotour done) : frames=504 | dress | 已载入 99 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 23 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScr
+    166 | shot_23_sysbar.png
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_落地_verify_ui_verbose.txt
+    313 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+    323 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+    735 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+    745 | OK  ui/x_ui_sysbar.png           -> x_ui_sysbar.png
+   1095 | OK  nine fc.sysbar              ui/x_ui_sysbar.png  648x41（源 1946x292）
+   1105 | OK  nine sysbar.base            ui/x_ui_sysbar.png  1920x266（源 1946x292）
+   1106 | OK  nine sysbar.snap            ui/x_ui_snap_off.png  37x33（源 35x33）
+   1107 | OK  nine sysbar.hide            ui/x_ui_hide_off.png  37x38（源 37x35）
+   1108 | OK  nine sysbar.vreplay         ui/x_ui_spk_off.png  33x43（源 25x27）
+   1599 | OK  x_ui_sysbar.png                        RGBA  1946x292
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_落地_守门_test_click_reach.txt
+     73 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_落地_守门_test_gen_sync.txt
+     27 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+     29 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+     30 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+     32 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+     33 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     34 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     35 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     36 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     37 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+     38 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     39 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+     40 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     41 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+     42 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+     43 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+     44 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+     45 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+     46 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260923-01_M39_证据/M39_落地_巡演日志分析.txt
+     53 | -> 下一步：追加：sysbar  屏=sysbar
+     54 | 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    129 | ■ [4] 素材载入：05:14:16 [UI][TOUR] 22/25  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    141 | ■ [4] 素材载入：05:14:22 [UI] quit (autotour done) : frames=503 | dress | 已载入 99 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 23 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScr
+    166 | shot_23_sysbar.png
+==========================================================================================
+FILE: _工作/ISSUE-20260923-06_M43_证据/M43_巡演日志_krkr.console.log.utf8.txt
+     94 | 16:51:34 [UI][SCREENS] layout 已登记屏数 = 18 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+    292 | 16:52:01 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    357 | 16:52:16 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+    363 | 16:52:18 [UI][DBG] 导出前 屏=sysbar blinkTicks=361 phase=1 UIDlgCursorOn=0
+    364 | 16:52:18 [UI][TOUR] 21/24  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    365 | 16:52:18 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m43-chapter/临时/ui_run/runtime/savedata/shot_22_sysbar.png
+    406 | 16:52:24 [UI] quit (autotour done) : frames=483 | dress | 已载入 100 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 22 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-m43-chapter/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDra
+==========================================================================================
+FILE: _工作/ISSUE-20260923-06_M43_证据/M43_验收_数据级全套.txt
+     34 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+     36 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+     37 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+     39 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+     40 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     41 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     42 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     43 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     44 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+     45 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     46 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+     47 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     48 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+     49 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+     50 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+     51 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+     52 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+     53 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+    364 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260923-08_M45_证据/M45_grep_live_masked.txt
+      3 | 会话交接_20260922_按钮文字生成.md:148:| **已重建 13 屏** | title（竖排条）/ sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 经素材重映射的 sysmenu |
+     18 | 会话交接_20260922-02_按钮文字素材交付.md:201:| **已重建 13 屏** | title / sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 素材重映射的 sysmenu |
+     43 | 素材裁决与图片化日文风险上报.md:61:| `sm_save/load/cfg/skip/auto/win/log/ret/title/end/s_s_ret` | 11 | 612×26（`sm_auto` 1224×26） | 菜单条日文（セーブ / ロード / 環境設定 / スキップ / オート / ウィンドウ消去 / バックログ / タイトルに戻る / ゲーム終了 / キャンセル） | **引擎绘字**（`dlg.sysbar` 8 键 + `sysmenu` 10 项）。★ **M45（2026-09-23）**：`sysmenu` 屏**已废除**（用户裁定「已有药丸按钮系统」）⇒ 本族的**消费方只剩 `dlg.sysbar`**（且 M38 无框化后 `dlg.sysbar` 已退场，功能改由右端快捷条 `quickbar` 承担）；**本族处理口径（引擎绘字、不作文字层
+==========================================================================================
+FILE: _工作/ISSUE-20260923-08_M45_证据/M45_守门_test_click_reach.txt
+     69 | ── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+==========================================================================================
+FILE: _工作/ISSUE-20260923-08_M45_证据/M45_守门_test_gen_sync.txt
+      8 | 34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+     10 | 本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+     11 | 理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+     13 | - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+     14 | - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     15 | - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+     16 | - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     17 | - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     18 | - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+     19 | - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+     20 | - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+     21 | - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+     22 | ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+     23 | ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+     24 | ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+     25 | ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+     26 | ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+     27 | ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+==========================================================================================
+FILE: _工作/ISSUE-20260923-08_M45_证据/M45_巡演_krkr.console.utf8.txt
+    327 | 21:19:40 [UI][SCREENS] layout 已登记屏数 = 18 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+    725 | 21:20:06 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    855 | 21:20:22 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+    867 | 21:20:24 [UI][DBG] 导出前 屏=sysbar blinkTicks=359 phase=1 UIDlgCursorOn=0
+    869 | 21:20:24 [UI][TOUR] 21/24  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    871 | 21:20:24 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m45-sysmenu/临时/ui_run/runtime/savedata/shot_22_sysbar.png
+    953 | 21:20:30 [UI] quit (autotour done) : frames=481 | dress | 已载入 101 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 22 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-m45-sysmenu/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDra
+==========================================================================================
+FILE: _工作/ISSUE-20260923-08_M45_证据/M45_巡演_本次运行摘录.txt
+     29 | 21:19:40 [UI][SCREENS] layout 已登记屏数 = 18 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+    196 | 21:20:06 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    247 | 21:20:22 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+    251 | 21:20:24 [UI][DBG] 导出前 屏=sysbar blinkTicks=359 phase=1 UIDlgCursorOn=0
+    252 | 21:20:24 [UI][TOUR] 21/24  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    253 | 21:20:24 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m45-sysmenu/临时/ui_run/runtime/savedata/shot_22_sysbar.png
+    288 | 21:20:30 [UI] quit (autotour done) : frames=481 | dress | 已载入 101 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 22 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-m45-sysmenu/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDra
+==========================================================================================
+FILE: _工作/ISSUE-20260923-08_M45_证据/M45_快捷条展开_quickbar.console.utf8.txt
+    327 | 21:22:06 [UI][SCREENS] layout 已登记屏数 = 18 [title, dialog, confirm, loading, save, load, config, backlog, gallery, music, ending, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+    753 | 21:22:32 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    883 | 21:22:48 [UI][TOUR] -> 下一步：追加：sysbar  屏=sysbar
+    895 | 21:22:50 [UI][DBG] 导出前 屏=sysbar blinkTicks=355 phase=1 UIDlgCursorOn=0
+    897 | 21:22:50 [UI][TOUR] 21/24  屏=sysbar  中文名=系统条  元素数=8  实绘元素=8  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysbar
+    899 | 21:22:50 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m45-sysmenu/临时/ui_run_quickbar/runtime/savedata/shot_22_sysbar.png
+    981 | 21:22:56 [UI] quit (autotour done) : frames=477 | dress | 已载入 115 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 22 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-m45-sysmenu/临时/ui_run_quickbar/runtime/savedata/ui_flow_state.txt | install=(已安装：ui
+==========================================================================================
+FILE: _工作/ISSUE-20260923-14_M46_证据/M46_verify_ui.txt
+      3 | layout : E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout
+      4 | assets : E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\assets\ui
+      5 | game   : E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\game
+==========================================================================================
+FILE: _工作/ISSUE-20260923-14_M46_证据/M46_六道守门.txt
+      4 | 目录 E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens ｜ 屏 18 个 ｜ 模式 normal
+    139 | 守门字段粒度反向自证 ｜ 被审原文件 E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\01_title.json
+    148 | | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C1_only_state_assets_lost\01_title.json
+    170 | | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C2_only_state_group_lost\01_title.json
+    192 | | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C1_only_state_assets_lost\01_title.json
+    237 | 屏数 17 ｜ 目录 E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+    315 | 状态目标可达性验证 ｜ 数据=E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+    342 | quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+==========================================================================================
+FILE: _工作/ISSUE-20260923-14_M46_证据/M46_巡演_krkr.console.utf8.txt
+     79 | Logging to e:\zcode workspace\galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\savedata\\krkr.console.log started on Wednesday, September 23, 2026 23:20:49
+     80 | 23:20:49 ! （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\tvpwin32.cf" 失败（已忽略）：未找到文件。
+     81 | 23:20:49 ! （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\savedata\tvpwin32.cfu" 失败（已忽略）：未找到文件。
+     82 | 23:20:49 ! （info）Data 路径：file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/
+     87 | 23:20:49 ! （info）已选择项目的目录：file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/game/
+    106 | 23:20:49 （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\tvpwin32.cf" 失败（已忽略）：未找到文件。
+    107 | 23:20:49 （info）载入配置文件 "E:\ZCode Workspace\Galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\savedata\tvpwin32.cfu" 失败（已忽略）：未找到文件。
+    108 | 23:20:49 （info）Data 路径：file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/
+    115 | 23:20:49 （info）已选择项目的目录：file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/game/
+    138 | 23:20:49 [UI] Debug.logLocation = file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/
+    139 | 23:20:49 [UI] System.dataPath    = file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/
+    162 | 23:20:49 [UI][STATE] 候选存储名 = file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_state.txt | E:\zcode workspace\galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\savedata\ui_state.txt | ui_state.txt
+    165 | 23:20:49 [UI][STATE] load -> 没有可读的存档（首次运行属正常）: [NONE] file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_state.txt  [NONE] E:\zcode workspace\galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\savedata\ui_state.txt  [NONE] ui_state.txt
+    167 | 23:20:49 [UI][STATE] save -> OK : [OK] file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_state.txt
+    178 | 23:20:49 [UI][FLOW] 状态候选名 = file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_flow_state.txt | E:\zcode workspace\galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\savedata\ui_flow_state.txt | ui_flow_state.txt
+    179 | 23:20:49 [UI][FLOW] load miss : file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_flow_state.txt (不存在)
+    180 | 23:20:49 [UI][FLOW] load miss : E:\zcode workspace\galgame\临时\wt-m46-sysbar\临时\ui_run\runtime\savedata\ui_flow_state.txt (不存在)
+    183 | 23:20:49 [UI][FLOW] save -> OK : [OK] file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_flow_state.txt
+    212 | 23:20:52 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_01_title.png
+    216 | 23:20:54 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_02_title.png
+    227 | 23:20:55 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_03_dialog.png
+    234 | 23:20:57 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_04_dialog.png
+    255 | 23:20:59 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_05_sysicons.png
+    266 | 23:21:01 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_06_dialog.png
+    281 | 23:21:03 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_07_save.png
+    288 | 23:21:05 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_08_load.png
+    300 | 23:21:07 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_09_config.png
+    314 | 23:21:09 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_10_backlog.png
+    323 | 23:21:12 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_11_gallery.png
+    336 | 23:21:13 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_12_music.png
+    346 | 23:21:16 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_13_fragment.png
+    365 | 23:21:16 [UI][ASSET] OK   ui/x_ui_sysbar.png  <-  assets/ui/x_ui_sysbar.png  (1946x292)
+    372 | 23:21:17 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_14_flowchart.png
+    381 | 23:21:20 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_15_ending.png
+    390 | 23:21:22 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_16_loading.png
+    397 | 23:21:24 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_17_title.png
+    405 | 23:21:25 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_18_confirm.png
+    412 | 23:21:28 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_19_fragment.png
+    419 | 23:21:29 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_20_flowchart.png
+    426 | 23:21:31 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_21_sysicons.png
+    433 | 23:21:33 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_22_quickbar.png
+    441 | 23:21:35 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_23_choices.png
+    461 | 23:21:37 [UI][PNG] OK file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/shot_24_dress.png
+    466 | 23:21:37 [UI][TOUR] PNG 导出 成功 24 / 失败 0 | 目录 file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/
+    467 | 23:21:37 [UI] quit (autotour done) : frames=466 | dress | 已载入 96 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 21 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDraw 
+    468 | 23:21:37 [UI][STATE] save -> OK : [OK] file://./e/zcode workspace/galgame/临时/wt-m46-sysbar/临时/ui_run/runtime/savedata/ui_state.txt
+==========================================================================================
+FILE: _工作/M12_备份_1280/10_dialog.json
+     59 | "id": "dlg.sysbar", "kind": "list", "z": 25, "visible_default": true,
+==========================================================================================
+FILE: _工作/M12_证据/迁移明细.json
+    561 | "where": "10_dialog.json/dlg.sysbar",
+    567 | "where": "10_dialog.json/dlg.sysbar",
+    573 | "where": "10_dialog.json/dlg.sysbar",
+    579 | "where": "10_dialog.json/dlg.sysbar",
+    585 | "where": "10_dialog.json/dlg.sysbar",
+    591 | "where": "10_dialog.json/dlg.sysbar",
+    597 | "where": "10_dialog.json/dlg.sysbar",
+    603 | "where": "10_dialog.json/dlg.sysbar",
+    609 | "where": "10_dialog.json/dlg.sysbar",
+    615 | "where": "10_dialog.json/dlg.sysbar",
+    621 | "where": "10_dialog.json/dlg.sysbar",
+    627 | "where": "10_dialog.json/dlg.sysbar",
+==========================================================================================
+FILE: _工作/M35_证据/M35b_实机真人鼠标_完整日志.txt
+    178 | 17:22:14 [UI][SCREENS] layout 已登记屏数 = 20 [title, dialog, sysmenu, confirm, loading, save, load, config, backlog, gallery, music, ending, chapter, fragment, flowchart, sysicons, sysbar, quickbar, choices, dress]
+==========================================================================================
+FILE: _工作/M35_证据/M35_按下态_探针运行日志.txt
+      4 | 15:08:23 [UI] quit (autotour done) : frames=519 | dress | 已载入 105 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | 转场 成功 24 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 1/53 | state=file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run_press/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDraw
+==========================================================================================
+FILE: _工作/M43_旧素材归档/_index.json.before
+    207 | "id": "sysbar",
+    208 | "file": "34_sysbar.json",
+==========================================================================================
+FILE: _工作/M45_旧素材归档/_index.json.before
+    195 | "id": "sysbar",
+    196 | "file": "34_sysbar.json",
+==========================================================================================
+FILE: _工作/M46_旧素材归档/34_sysbar.json.snapshot
+      2 | "id": "sysbar",
+      8 | "id": "sysbar.base",
+     12 | "asset": "ui/x_ui_sysbar.png",
+     28 | "id": "sysbar.snap",
+     39 | "note": "截图 图标（PSB idx78 `ボタン/snap/off`，x1570 y876 w37 h33）（素材 35×33 ≠ 设计 37×33 → nine {'l': 8, 't': 8, 'r': 8, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_snap` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.snap」联动。",
+     51 | "state_group": "sysbar.snap"
+     54 | "id": "sysbar.hit_snap",
+     73 | "note": "截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。",
+     74 | "state_group": "sysbar.snap"
+     77 | "id": "sysbar.hide",
+     88 | "note": "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。",
+    100 | "state_group": "sysbar.hide"
+    103 | "id": "sysbar.hit_hide",
+    122 | "note": "隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。",
+    123 | "state_group": "sysbar.hide"
+    126 | "id": "sysbar.vreplay",
+    137 | "note": "语音重播 图标（PSB idx78 `ボタン/vreplay/off`，x345 y871 w33 h43）（素材复用 B6 `x_ui_spk_*`，同语义；原作另有独立 vreplay 图标，本轮未单独生图）（素材 25×27 ≠ 设计 33×43 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `sysbar.hit_vreplay` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.vreplay」联动。",
+    149 | "state_group": "sysbar.vreplay"
+    152 | "id": "sysbar.hit_vreplay",
+    171 | "note": "语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。",
+    172 | "state_group": "sysbar.vreplay"
+    175 | "id": "sysbar.hit_click",
+==========================================================================================
+FILE: _工作/M46_旧素材归档/_index.json.before
+    184 | "id": "sysbar",
+    185 | "file": "34_sysbar.json",
+==========================================================================================
+FILE: _工作/M46_旧素材归档/说明.md
+      1 | # M46 旧素材归档说明（`sysbar` 系统条屏删除 · 2026-09-23）
+      3 | > Issue：`ISSUE-20260923-14`（UI 组 · 系统条屏模块）｜ 分支：`agent/ISSUE-20260923-14-sysbar`
+      4 | > 用户裁定原话：「**把系统条 sysbar 页删了，但底条素材保留（防冲突）**」。
+     14 | | 1 | `34_sysbar.json.snapshot` | `layout/screens/34_sysbar.json`（**8 元素**） | `sysbar`（系统条） | 否（屏已删除） | **屏数据快照**：数据文件本身按裁定删除，但留一份逐字节快照供溯源/回退（沿用 M37/M38/M43/M45「旧屏 JSON 快照归档」先例） |
+     15 | | 2 | `_index.json.before` | `layout/screens/_index.json`（删除前，**18 屏**） | ——（屏清单） | —— | **屏清单删除前快照**：便于核对「只删了 sysbar 一条」（18 → 17 屏） |
+     22 | 337e0b1f607b123a9a960808bfc0db2f  34_sysbar.json          ← 原文件
+     23 | 337e0b1f607b123a9a960808bfc0db2f  34_sysbar.json.snapshot ← 归档件（md5 相同）
+     32 | - **用途**：**常驻底部系统条** —— 底条底图（`sysbar.base`，1920×266 @(0,814)）+ 三个控件
+     42 | ### 元素清单（8 件，快照 `34_sysbar.json.snapshot` 为准）
+     46 | | 1 | `sysbar.base` | image | 10 | 0, 814, 1920, 266 | `ui/x_ui_sysbar.png`（nine 全零 = 整图等比缩放到版面框） |
+     47 | | 2 | `sysbar.snap` | image | 20 | 1570, 876, 37, 33 | 截图图标，`state_assets` = `x_ui_snap_{off,over,on}.png`，`state_group=sysbar.snap` |
+     48 | | 3 | `sysbar.hit_snap` | hit | 95 | 1562, 868, 53, 49 | 截图热区（PSB `#rect` 外扩 8px）；**`action` 空串**；同组 `sysbar.snap` |
+     49 | | 4 | `sysbar.hide` | image | 20 | 1513, 874, 37, 38 | 隐藏窗口图标，`state_assets` = `x_ui_hide_{off,over,on}.png`，组 `sysbar.hide` |
+     50 | | 5 | `sysbar.hit_hide` | hit | 95 | 1505, 866, 53, 54 | 隐藏窗口热区；**`action` 空串**；同组 `sysbar.hide` |
+     51 | | 6 | `sysbar.vreplay` | image | 20 | 345, 871, 33, 43 | 语音重播图标，`state_assets` = `x_ui_spk_{off,over,on}.png`，组 `sysbar.vreplay` |
+     52 | | 7 | `sysbar.hit_vreplay` | hit | 95 | 337, 863, 49, 59 | 语音重播热区；**`action` 空串**；同组 `sysbar.vreplay` |
+     53 | | 8 | `sysbar.hit_click` | hit | 95 | 1507, 1020, 61, 53 | PSB `@base:click:rect` 点击推进区；**`action` 空串** |
+     56 | ⇒ **本轮一个动作名都没有臆造**，删屏即可；`sysbar` 也**没有任何动作**指向它（不存在「动作 → 屏」映射要清理）。
+     67 | | `x_ui_sysbar.png` | 25572 | `sysbar.base` 的 `asset` | ★ **有** —— `32_flowchart.json`（**流程图屏** `fc.sysbar`，[1227,32,648,41]） | **共用件** | **保留原位**（删之即与流程图屏冲突） |
+     68 | | `x_ui_snap_off.png` | 2434 | `sysbar.snap` 的 `asset` + `state_assets.normal` | 无 | **本屏独占** | **保留原位**（不删；见下方注） |
+     69 | | `x_ui_snap_over.png` | 2716 | `sysbar.snap` 的 `state_assets.hover` | 无 | **本屏独占** | **保留原位** |
+     70 | | `x_ui_snap_on.png` | 2752 | `sysbar.snap` 的 `state_assets.pressed` | 无 | **本屏独占** | **保留原位** |
+     71 | | `x_ui_hide_off.png` | 2722 | `sysbar.hide` 的 `asset` + `state_assets.normal` | 无 | **本屏独占** | **保留原位** |
+     72 | | `x_ui_hide_over.png` | 3014 | `sysbar.hide` 的 `state_assets.hover` | 无 | **本屏独占** | **保留原位** |
+     73 | | `x_ui_hide_on.png` | 3078 | `sysbar.hide` 的 `state_assets.pressed` | 无 | **本屏独占** | **保留原位** |
+     74 | | `x_ui_spk_off.png` | 1488 | `sysbar.vreplay` 的 `asset` + `state_assets.normal` | ★ **有** —— `26_backlog.json`（**回想屏** `bl.spk`） | **共用件** | **保留原位** |
+     75 | | `x_ui_spk_over.png` | 1711 | `sysbar.vreplay` 的 `state_assets.hover` | ★ 有 —— `26_backlog.json` | **共用件** | **保留原位** |
+     76 | | `x_ui_spk_on.png` | 3421 | `sysbar.vreplay` 的 `state_assets.pressed` | ★ 有 —— `26_backlog.json` | **共用件** | **保留原位** |
+     82 | grep -rna "x_ui_sysbar"     layout/screens/ krkr/game/ 复刻/replica.js 工具/*.py
+     83 | #   → 32_flowchart.json（fc.sysbar，保留）＋ 34_sysbar.json（随屏删除）
+     85 | ##  → 仅 34_sysbar.json（本屏独占）
+     87 | ##  → 仅 34_sysbar.json（本屏独占）
+     89 | #   → 26_backlog.json（bl.spk，保留）＋ 34_sysbar.json（随屏删除）
+     96 | > 另：`工具\emit_asset_index.py` 的分组表里 `("系统条", "x_ui_sysbar_")`（带尾下划线）**本就匹配不到
+     97 | > `x_ui_sysbar.png`**（无尾下划线），故 `复刻\asset_index.js` 里该组一直是空的、本件长期归在「其它」组
+    113 | git checkout <本改动之前的提交> -- "工程/.../UI组/layout/screens/34_sysbar.json"
+    115 | cp 34_sysbar.json.snapshot   ../../layout/screens/34_sysbar.json
+    121 | > ① `krkr/game/ui_screens.tjs` 巡演白名单 `probe` 里的 `"sysbar"`（及注释）；
+    122 | > ② `工具/test_gen_sync.py` 的 GENERATORS `("build_sysbar", "34_sysbar.json")` 与 ACK_UNSYNC 条目；
+    123 | > ③ `工具/m34_build_screens.py` 的 `build_sysbar()` 与 `__main__` 调用；
+    125 | > ⑤ `krkr/run_pressprobe.bat` 的示例 `PROBE=sysbar.hit_snap`（改为 `title.menu_hit_1`）；
+==========================================================================================
+FILE: 复刻/asset_index.js
+     56 | "x_ui_sysbar.png",
+   3974 | "n": "x_ui_sysbar.png",
+==========================================================================================
+FILE: 复刻/index.html
+     42 | M46 变更（2026-09-23，用户裁定）：`sysbar`（系统条）屏**已删除**（18 → 17 屏；用户原话：
+     43 | 「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）—— `34_sysbar.json` 与
+     44 | `_index.json` 条目已删除；本页导航与 `SCREEN_CATALOG` **本就没有 `sysbar` 条目**
+     46 | **素材一律保留原位、不归档、不删除**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。
+==========================================================================================
+FILE: 复刻/replica.js
+     94 | /* ★ M46（2026-09-23，用户裁定）：`sysbar`（系统条）屏**已删除**（用户原话「把系统条
+     95 | sysbar 页删了，但底条素材保留（防冲突）」）—— 本目录（`SCREEN_CATALOG`）与复核页
+     96 | 导航**从来就没有 `sysbar` 条目**（同 `quickbar`/`choices`/`dress`：这四屏只以
+     99 | `_工作\M46_旧素材归档\`。**素材一律保留原位**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。 */
+   2901 | /* ★ M38：原表含 `dlg.window` / `dlg.cursor` / `dlg.sysbar` 三个**数据里已不存在**的 id
+   2902 | （dialog 屏无框化后 `dlg.window` 退场归档，`dlg.sysbar` 更早已删）。
+   3008 | 回想仍在浮层的 REPEAT/系统条「回想」键可达（dlg.sysbar 第 6 键 action=open_backlog）。
+==========================================================================================
+FILE: 复刻/ui_layout.js
+  15983 | "id": "fc.sysbar",
+  15987 | "asset": "ui/x_ui_sysbar.png",
+==========================================================================================
+FILE: 工具/emit_asset_index.py
+     52 | ("系统条", "x_ui_sysbar_"), ("快捷条", "x_ui_quick_"),
+==========================================================================================
+FILE: 工具/m34_build_screens.py
+     14 | （`34_sysbar.json` 已于 M46 随屏删除，不再在列）
+    251 | #   · 屏数据 `layout/screens/34_sysbar.json`（8 元素）按用户裁定删除（18 → 17 屏），
+    253 | #   · 本文件的 `build_sysbar()` 与 `__main__` 的调用一并删除（M45 删 `build_sysmenu()` 同例）；
+    254 | #   · ★ **素材一律保留原位、不归档、不删除**：`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` **共用**
+   1144 | els.append(img("fc.sysbar", 20, "x_ui_sysbar.png", 1227, 32, 648, 41,
+   1151 | # ★ M46（2026-09-23，用户裁定）：`build_sysbar()` 调用**已删除** —— `sysbar` 屏已整体删除
+==========================================================================================
+FILE: 工具/make_demo_sheets.py
+    484 | s.li("接入点：dlg.sysbar 8 键、各屏 footer / page_btns、music 控制条、ending 跳过、confirm 是/否")
+==========================================================================================
+FILE: 工具/test_click_reach.py
+      4 | ★ M43 删 `chapter` 屏后为 19 屏；★ M45 废除 `sysmenu` 屏后为 18 屏；★ M46 删 `sysbar` 屏后为 **17 屏**）
+==========================================================================================
+FILE: 工具/test_gen_sync.py
+     63 | # ★ M46（2026-09-23，用户裁定）：`("build_sysbar", "34_sysbar.json")` 条目**已移除** ——
+     64 | #   `sysbar`（系统条）屏已整体删除（屏文件删除、`_index.json` 条目移除、巡演白名单与两端
+     65 | #   活引用清理），生成器侧的 `build_sysbar()` 与 `__main__` 的 write 调用亦已删除 ⇒ 无产物可比。
+     66 | #   素材不归档（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用），见 `_工作\M46_旧素材归档\`。
+    132 | # ★ M46（2026-09-23，用户裁定）：`"34_sysbar.json"` 条目**已移除** —— 该屏已整体删除，
+    133 | #   生成器侧 `build_sysbar()` 亦已删除 ⇒ 不再有「重跑会丢什么」的对象（M45 移除 `sysmenu` 同例）。
+==========================================================================================
+FILE: 生图入料/示范图/README.md
+     51 | | 接入位置 | `dlg.sysbar` 8 键、各屏 `*_footer` / `page_btns`、music 控制条、ending 跳过、confirm 是/否 |

@@ -1,0 +1,14 @@
+function RLiveRelocationCount(rd, wr, rb, cursorPtr, compact) {
+    var q = rd(cursorPtr) & 0xffffffff;
+    var step;
+    var n;
+    if ((compact & 255) != 0) {
+        n = rb(q) & 255;
+        step = 1;
+    } else {
+        n = rd(q) & 0xffffffff;
+        step = 4;
+    }
+    wr(cursorPtr, (q + step) & 0xffffffff);
+    return n;
+}

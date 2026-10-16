@@ -1,0 +1,42 @@
+原始备份 -> E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-01_W4_证据\replica_原始备份.js
+
+   SELFTEST FAIL ⑲a 初值渲染：data-ui-kind/data-ui-slider-value 齐备且手柄 x 比例正确（误差 ≤1px，且落在轨道内） —— kind=slider，data-ui-slider-value=90，运行值=90（期望 90），手柄中心 x=942.4999860248535（期望 634.6，误差 307.90px），轨道 x.
+  -> m1 手柄漏减 wrap 原点            判定=FAILED
+
+   SELFTEST FAIL ⑲c 切到 dialog 屏后 dlg.mask_bottom 的 opacity 同样 = 102/255（实时生效穿透） —— dlg.mask_bottom.style.opacity=0.901961（期望 0.4）
+  -> m2 renderScreen 不灌设置仓      判定=FAILED
+
+   SELFTEST FAIL ⑲f 初始化：改「全屏」→ 切声音页 → 点初始化 ⇒ 回窗口模式（仓 25 键复位 + 派生回 window + 页签回系统页；记忆重捕获后也是默认值） —— 改后 cfg_v_display=NaN（期望 full）；初始化后 cfg_v_display=window（期望 window）、仓 display=window、cfg_page=sy
+  -> m3 设置仓不 clamp/对齐           判定=FAILED
+
+   SELFTEST FAIL ⑲d 切页值 flag 派生：非本页值元素 display:none（0 件残留）+ 每件值元素显隐与 flag 值一致 + **进屏那一刻同样已派生**（cfg_vchar 组在系统页可见数 = 0） —— 切到声音页后：模型不符 0 件、**非本页仍可见 17 件**（cfg.o_display_on（cfg_v_display，属 sys 页）
+   SELFTEST FAIL ⑲e 点 cfg.ch_asu_hit ⇒ cfg_vchar=asu，该族 _pill 与 _tx_sel 可见、其它族全不可见（且声音页上**系统页的值元素 0 件可见**） —— cfg_page=snd（声音页前置）；cfg_vchar → asu；该族 pill/sel 可见=true；**其它族误显 0 件**；声音页上非本页值元素可见 
+  -> m4 切页不派生值 flag             判定=FAILED
+
+   SELFTEST FAIL ⑲d 切页值 flag 派生：非本页值元素 display:none（0 件残留）+ 每件值元素显隐与 flag 值一致 + **进屏那一刻同样已派生**（cfg_vchar 组在系统页可见数 = 0） —— 切到声音页后：模型不符 0 件、**非本页仍可见 0 件**；切回系统页后：模型不符 0 件、非本页仍可见 0 件；★ **进屏那一刻**（默
+   SELFTEST FAIL ⑲e 跨屏往返（config → dialog → config → 声音页）后仍是 kob（记忆层生效；若进屏捕获记忆会被默认值 asu 冲掉） —— 往返后 cfg_page=snd，cfg_vchar=asu（期望 kob；默认值 asu 表示记忆被冲掉）；进屏那一刻 flag="asu"（期望空串：非本页不上屏）
+  -> m5 进屏不派生（补单①）              判定=FAILED
+
+  -> m6 初始化不清记忆（C2 改前）          判定=ALL
+
+   SELFTEST FAIL ⑲f 初始化：改「全屏」→ 切声音页 → 点初始化 ⇒ 回窗口模式（仓 25 键复位 + 派生回 window + 页签回系统页；记忆重捕获后也是默认值） —— 改后 cfg_v_display=full（期望 full）；初始化后 cfg_v_display=full（期望 window）、仓 display=full、cfg_page=sys、窗
+  -> m6b 初始化只 ResetAll（C2 改前，9 键时代） 判定=FAILED
+
+   SELFTEST FAIL ⑲e 系统页上派发 config_char_kob ⇒ **不上屏**（该族 pill/tx_sel 可见 0 件、cfg_vchar 置空），值只进记忆 —— cfg_page=sys；cfg_vchar="kob"（期望空串）；该族 pill/tx_sel 可见 2 件（期望 0）；记忆 cfg_vchar=kob（期望 kob）
+  -> m7 角色选中不派生（C3 改前）          判定=FAILED
+
+   SELFTEST FAIL ⑲e 跨屏往返（config → dialog → config → 声音页）后仍是 kob（记忆层生效；若进屏捕获记忆会被默认值 asu 冲掉） —— 往返后 cfg_page=snd，cfg_vchar=asu（期望 kob；默认值 asu 表示记忆被冲掉）；进屏那一刻 flag=""（期望空串：非本页不上屏）
+  -> m8 进屏捕获记忆（C4 改前）           判定=FAILED
+
+已还原 replica.js（逐字节一致=True），备份已删除
+
+变异 | 套 A 判定 | 被抓的 ⑲ 断言数
+  m1 手柄漏减 wrap 原点            | FAILED                   | 1
+  m2 renderScreen 不灌设置仓      | FAILED                   | 1
+  m3 设置仓不 clamp/对齐           | FAILED                   | 1
+  m4 切页不派生值 flag             | FAILED                   | 4
+  m5 进屏不派生（补单①）              | FAILED                   | 2
+  m6 初始化不清记忆（C2 改前）          | ALL                      | 0
+  m6b 初始化只 ResetAll（C2 改前，9 键时代） | FAILED                   | 1
+  m7 角色选中不派生（C3 改前）          | FAILED                   | 1
+  m8 进屏捕获记忆（C4 改前）           | FAILED                   | 1

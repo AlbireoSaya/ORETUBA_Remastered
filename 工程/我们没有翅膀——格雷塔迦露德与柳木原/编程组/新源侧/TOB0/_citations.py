@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+"""只读：为每个 op 抽 2~3 条跨文件 (file, offset, body_hex) 引用。"""
+import io, collections, json
+
+WANT = [0x09,0x0e,0x11,0x74,0x5a,0x04,0x23,0x26,0x31,0x50,0x55,0x56,0x5b,0x5e,0x5f,0x60,
+        0x68,0x6f,0x72,0x73,0x79,0x03,0x1b,0x25,0x27,0x28,0x29,0x2a,0x2b,0x2d,0x38,0x39,
+        0x3a,0x3c,0x3d,0x3f,0x40,0x47,0x4a,0x4b,0x4c,0x4e,0x4f,0x5c,0x69,0x6a,0x6b,0x6c,
+        0x6d,0x6e,0x71,0x78,0x7c]
+
+recs = []
+with io.open("_records_ota.tsv", encoding="utf-8") as f:
+    next(f)
+    for line in f:
+        recs.append(line.rstrip("\n").split("\t"))
+
+out = {}
+for op in WANT:
+    byfile = collections.OrderedDict()
+    for r in recs:
+        if int(r[2]) != op:
+            continue
+        byfile.setdefault(r[0], []).append(r)
+    cits = []
+    for s, rs in list(byfile.items())[:4]:
+        r = rs[0]
+        cits.append("%s:%s:%s" % (r[0], r[1], r[8]))
+    out["0x%02x" % op] = cits
+json.dump(out, open("_citations.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+for k, v in out.items():
+    print(k, " | ".join(v[:3]))

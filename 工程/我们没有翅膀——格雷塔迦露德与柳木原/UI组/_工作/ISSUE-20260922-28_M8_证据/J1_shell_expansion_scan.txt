@@ -1,0 +1,53 @@
+### J1 · 生成器注释被 shell 展开污染的排查（2026-09-22 · M8）
+
+--- ① 污染点原样（修复前，工具/m34_build_screens.py 第 767 行）---
+    #   默认显示**画面+系统页签**组。运行期切换由编程组按 uid=197108(Administrator) gid=197121 groups=197121 前缀切换可见性。
+    （本意应为「按 `cfg.*` 前缀切换可见性」—— 该行把 shell 里的 `whoami`/`id` 一类输出吃进了注释）
+
+--- ② 修复后（第 765-771 行原文，含紧随其后的逻辑循环，证明只动注释、未动逻辑）---
+765|    # ★ 互斥态分组：原作按页签只显示一组元素；本作静态渲染若全画会互相覆盖。
+766|    #   此处把**声音页签**组（滑条/静音/试听/角色集/角色行）的 visible_default 置假，
+767|    #   默认显示**画面+系统页签**组。运行期切换由编程组按 `cfg.*` 前缀切换可见性
+768|    #   （即上面 startswith 的那个前缀元组：sl/mute/replay/charset/charrow/char）。
+769|    for e in els:
+770|        if e["id"].startswith(("cfg.sl", "cfg.mute", "cfg.replay", "cfg.charset", "cfg.charrow", "cfg.char")):
+771|            e["visible_default"] = False
+772|            e["note"] = (e.get("note") or "") + "　★ M34 互斥态分组：属「声音」页签，默认隐藏（运行时由编程组按页签切换）。"
+    ⇒ 判据循环（769-772）与 M34 原样**逐字未动**；改动两侧均以 `#` 开头 ⇒ **纯注释改动**。
+
+--- ②c 本次 J1 改动的确切范围（1 处 → 2 行）---
+  旧（1 行）: #   默认显示**画面+系统页签**组。运行期切换由编程组按 uid=197108(Administrator) gid=197121 groups=197121 前缀切换可见性。
+  新（2 行）: #   默认显示**画面+系统页签**组。运行期切换由编程组按 `cfg.*` 前缀切换可见性
+             #   （即上面 startswith 的那个前缀元组：sl/mute/replay/charset/charrow/char）。
+  复验：同日重跑 `python 工具/m34_build_screens.py` 仍正常执行到守门（EXIT=2 拒写），
+        `layout/screens/*.json` md5 前后完全一致 —— 见 acc9_m34_plain_run_refuses.txt。
+
+--- ③ uid= / gid= / groups= 全仓 .py 扫描（grep -rn）---
+_工作\示范图\mk_mock.py:75:groups=[("阿雷克桑德平安夜",7),("苍女Ｘ日",7),("各线 after",4),("群像（新年行军/格兰玛尼耶）",10),("おれつば剧场",5),("おまけ",20)]
+  ⇒ 该命中是**剧情分组数据的正常变量名** `groups=[...]`（不是 shell 的 `groups=` 输出），非污染。
+  ⇒ 除这一处误命中外，全仓 .py **无其它** uid=/gid=/groups= 命中（污染仅我修的那 1 处）。
+
+--- ④ 命令替换 / 变量展开（grep -rnE '\$\(|\$\{|\$[A-Za-z_]' 工具 _工作）---
+（空）
+
+--- ⑤ Windows 环境变量 %XXX%（grep -rnE '%[A-Z][A-Z0-9_]{2,}%'）---
+（空）
+
+--- ⑥ 身份 / 机器标识串（-i: administrator|whoami|nt authority|S-1-5-|COMPUTERNAME|USERDOMAIN|HOMEPATH|USERPROFILE|LOGNAME:）---
+（空）
+
+--- ⑦ 用户目录路径（C:\Users / /c/Users / Users\）---
+（空）
+
+--- ⑧ 同类痕迹是否已落进数据（只报告，不改；grep -rln 于 layout/ 与 krkr/game/）---
+（空 = 数据未被污染）
+
+--- ⑨ 其它文件里的 `$(` / `${` 命中（均属正常语法，故不改；只报告）---
+  复刻/editor_ui.js                     45 × `$(`  —— 项目自定义的 `$('id')` 取节点辅助函数（如 `var sel = $('ed-screen-sel');`），非 shell
+  复刻/editor_core.js                   15 × `$(`
+  _工作/M18_证据/jschk/check_refs.js      8 × `${`  —— JS 模板字符串（如 `` `节点 ${n.id} 缺元素 ${n.el + sfx}` ``），非 shell
+
+--- ⑩ 结论 ---
+  找到并修掉 **1 处**（工具/m34_build_screens.py:767，纯注释）。
+  其余 5 类 shell 展开痕迹（$() / ${} / $VAR / %XXX% / 身份串 / 用户目录路径）在 工具\ 与 _工作\ 的 .py 中**均无命中**；
+  数据（layout/、krkr/game/）**未被污染**；.js 里的 60 处 `$(` 与 8 处 `${` 经人工确认为正常 JS 语法。

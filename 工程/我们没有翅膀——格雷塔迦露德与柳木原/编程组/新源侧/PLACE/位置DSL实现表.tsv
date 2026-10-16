@@ -1,0 +1,32 @@
+形态	类别	展开式(1920)	值	依据	状态	语料出现次数(次)	语料出现行数(行)
+c	abs	x := 960	960	EXE_POS §2.2: dx = C - x；C=320(内部)x3	已解	630	602
+l	abs	x := 504	504	EXE_POS §2.2: dx = (C-W/4) - x；168x3	已解	506	495
+r	abs	x := 1416	1416	EXE_POS §2.2: dx = (C+W/4) - x；472x3	已解	451	445
+!c	abs	x := 960	960	EXE_POS §2.2: dx = V - x；实测 V=640(1280)	已解	26	26
+!l	off	x := -W（画外左）	(类别)	EXE_POS §2.2: dx = -(x+W)；W 未跟踪	已解(无像素)	144	144
+!r	off	x := +W（画外右）	(类别)	EXE_POS §2.2: dx = W - x；W 未跟踪	已解(无像素)	81	80
+<N	stepx	x -= 75N	75/单位	EXE_POS §2.2: esi += -25N；25x3	已解	718	633
+>N	stepx	x += 75N	75/单位	EXE_POS §2.2: esi += +25N	已解	738	619
+-N	stepy	y -= 75N	75/单位	EXE_POS §2.2: 改 edi（y）	已解	82	81
++N	stepy	y += 75N	75/单位	EXE_POS §2.2: 改 edi（y）	已解	124	118
+u	yabs	y := 0	0	EXE_POS §2.2: edi = -y（顶端）	已解	16	16
+d	yabs	y := 1076（底边）	1076	EXE_POS §2.2: edi = V2-H-y；实机底边 598@800x600	已解	19	19
+$	hold	不动位置（吞可选数字）	—	EXE_POS §2.2: 六字符合一分支只 call 0x402920	已解	1334	695
+%	hold	不动位置（吞可选数字）	—	同上	已解	2	1
+[	hold	不动位置（吞可选数字）	—	同上	已解	141	84
+]	hold	不动位置（吞可选数字）	—	同上	已解	155	97
+^	hold	不动位置（吞可选数字）	—	同上	已解	35	16
+_	hold	不动位置（吞可选数字）	—	同上	已解	2450	1304
+(空格)	hold	不动位置（分隔符）	—	字符分派 idx0 ' ' → 0x402B2E	已解	2965	1576
+f	flag	不动位置；置 Front 标志	—	EXE_POS §2.2: [esp+0x38]=1（疑 Front/Back）	层序未覆盖	43	43
+b	flag	不动位置；置 Back 标志	—	EXE_POS §2.2: [esp+0x38]=2	层序未覆盖	336	336
+i	flag	不动位置；置 [esp+0x28]=0xFF	—	EXE_POS §2.2（疑 In）	已解(不涉位置)	94	94
+o	flag	不动位置；置 [esp+0x28]=0	—	EXE_POS §2.2（疑 Out）	已解(不涉位置)	74	74
+a	arg	不动位置；吞可选符号+浮点	—	EXE_POS §2.2	已解(不涉位置)	76	76
+<	unk	unresolved	—	EXE_POS 有「无数字 -25」分支，SOB0ARGS 判为步记号，两说不合	unresolved	293	233
+>	unk	unresolved	—	同上	unresolved	296	235
+-	unk	unresolved	—	EXE_POS 未给无数字分支	unresolved	9	5
++	unk	unresolved	—	同上	unresolved	31	17
+L	unk	unresolved	—	0x402E97 单字符处理器语义未跟踪	unresolved	0	0
+(顶层裸数字)	unk	unresolved	—	idx8 0x402E74，语义未跟踪（疑 ms 时长）	unresolved	295	253
+(idx8 其它字符)	unk	unresolved	—	idx8 0x402E74 字符类内其它字符	unresolved	0	0

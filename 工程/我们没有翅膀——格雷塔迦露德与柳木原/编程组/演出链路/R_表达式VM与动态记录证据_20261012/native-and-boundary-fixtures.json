@@ -1,0 +1,44 @@
+[
+  {
+    "kind": "keyboard_constructor_boundary",
+    "stop": 4694928,
+    "passed": true,
+    "scope": "preallocated original constructor until before actual GetKeyState helper, 512 state bytes initialized; no Windows calls or complete constructor"
+  },
+  {
+    "kind": "setting_byte",
+    "cases": 256,
+    "low_byte_selector": true,
+    "passed": true
+  },
+  {
+    "kind": "module_flags_or",
+    "cases": 50,
+    "null_parent": true,
+    "passed": true
+  },
+  {
+    "kind": "actual_key_getter",
+    "cases": 7680,
+    "all_key_codes": 256,
+    "active_buffers": 2,
+    "vtable_variants": 3,
+    "low8_query_mask": true,
+    "opposite_buffer_and_highbit": true,
+    "passed": true
+  },
+  {
+    "kind": "actual_modifier_predicate",
+    "cases": 576,
+    "modes_control_shift": true,
+    "short_circuit_key_calls": true,
+    "non80_values_false": true,
+    "wrong_buffer_negative_control": true,
+    "passed": true
+  },
+  {
+    "kind": "explicit_unproved_rejections",
+    "cases": 4,
+    "passed": true
+  }
+]

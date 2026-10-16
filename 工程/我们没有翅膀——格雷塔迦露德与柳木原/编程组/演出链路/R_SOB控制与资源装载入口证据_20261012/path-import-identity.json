@@ -1,0 +1,36 @@
+{
+  "exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "imports": [
+    {
+      "IAT": 5341636,
+      "DLL": "KERNEL32.dll",
+      "function": "lstrlenA",
+      "descriptor_fileoffset": 1205568,
+      "thunk_index": 68
+    },
+    {
+      "IAT": 5341640,
+      "DLL": "KERNEL32.dll",
+      "function": "lstrcatA",
+      "descriptor_fileoffset": 1205568,
+      "thunk_index": 69
+    },
+    {
+      "IAT": 5341772,
+      "DLL": "KERNEL32.dll",
+      "function": "CreateFileA",
+      "descriptor_fileoffset": 1205568,
+      "thunk_index": 102
+    },
+    {
+      "IAT": 5342100,
+      "DLL": "USER32.dll",
+      "function": "wsprintfA",
+      "descriptor_fileoffset": 1205588,
+      "thunk_index": 48
+    }
+  ],
+  "source_format_hex": "257325732e534f4200",
+  "source_prefix_hex": "5343524950545c00",
+  "scope": "original PE identity only; lstrlenA/lstrcatA/CreateFileA not executed in this stage"
+}

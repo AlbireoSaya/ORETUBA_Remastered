@@ -1,0 +1,36 @@
+// r_vm_fixture_state.tjs
+// ISSUE-20261011-02 · r-target-vm-20261015 —— 本单唯一模块 RVMFState(spec)。
+// 仅搭建验证状态壳（words/ranges/write_ranges/writes/calls）；read/write 实现由外部
+// RVMFRD/RVMFRB/RVMFWR/RVMFWB/RVMFNative 提供，本文件不复制其实现。
+// 语义要点：字典键必须 quoted；整数为 64 位，故 & 0xffffffff 得 0..4294967295；
+// 数组长度取 count；键不存在时 typeof 为 lowercase "undefined"（缺成员不是 "void"；已有值 void 时才是 "void"）。
+
+function RVMFState(spec)
+{
+	var s = %[
+		"words" => %[],
+		"ranges" => spec.ranges,
+		"write_ranges" => spec.write_ranges,
+		"writes" => [],
+		"calls" => []
+	];
+
+	var ini = spec.initial;
+	for (var i = 0; i < ini.count; i++)
+	{
+		var q = ini[i][0];
+		var v = ini[i][1];
+		var k = "" + q;
+		if (typeof s.words[k] != "undefined")
+			throw new Exception("RVMFState: duplicate word at " + k);
+		s.words[k] = v & 0xffffffff;
+	}
+
+	s.rd = RVMFRD incontextof s;
+	s.rb = RVMFRB incontextof s;
+	s.wr = RVMFWR incontextof s;
+	s.wb = RVMFWB incontextof s;
+	s.native_cb = RVMFNative incontextof s;
+
+	return s;
+}

@@ -1,0 +1,103 @@
+from pathlib import Path
+import sys,json,hashlib,struct,ast,collections,time
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';w=r/'子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015';sys.path[:0]=[str(w),str(g/'工具'),str(g/'逆向引擎'),str(r/'工具/unicorn-2.1.4-py314')]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_cdecl_observer import observe_cdecl_until
+from lucifen_tob_dynamic_structure import parse_record
+from lucifen_inline_vm_reference import expression_native
+from r_dynamic_parameter_reference import evaluate_parameter
+from r_dynamic_record_reference import run_record
+from r_vm_shadow_read import read32,read8
+from r_vm_shadow_write import write32,write8
+from r_vm_shadow_range import word
+from r_vm_access_log import AccessLog
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_WRITE
+from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EAX,UC_X86_REG_ESI,UC_X86_REG_EDI
+pe=PE(r/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+group=int(sys.argv[1]);groups=int(sys.argv[2]);out=Path(sys.argv[3]).resolve();limit=int(sys.argv[4])if len(sys.argv)>4 else 0
+assert 0<=group<groups<=64 and out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000;sb,app,kbd,parent=0x1028000,0x10e0000,0x10e4000,0x100a000;vmctx=ctx+0x651c;params=0x1020000
+recipe=g/'演出链路/R_表达式VM与动态记录证据_20261012/verify-dynamic-records.txt';tree=ast.parse(recipe.read_text(encoding='utf8'));funcs=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in('prepare','varvalue','initialize','vectorize')];assert len(funcs)==4
+states=ast.literal_eval(next(n.value for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='states'for t in n.targets)))
+table=json.loads((g/'演出链路/R接口证据_20261011/R_注册顺序.json').read_text(encoding='utf8'))['static_vector_candidate'];native_slots={int(row['handler_va']):i for i,row in enumerate(table)};env={k:globals()[k]for k in ['pe','map_pe','struct','buffer','ctx','sb','app','kbd','parent','table']};exec(compile(ast.Module(body=funcs,type_ignores=[]),str(recipe)+'-verified-functions','exec'),env)
+index_path=r/'临时/ISSUE-20261011-02/r-expression-vm-replay-01/dynamic-record-index.json';index=json.loads(index_path.read_text(encoding='utf8'));rows=[];lines=[];native_results=[];counts=collections.Counter();opcodes=collections.Counter();paircount=0;recordcount=0;beg=time.time();active=False
+reset_start,reset_end=params-16,params+4096+16
+
+def flush():
+ if not lines:return
+ p=out/f'batch-{len(rows):04d}.tjs';p.write_text('\n'.join(lines)+'\n',encoding='utf8');rows.append({'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'cases':len(lines),'records':len(lines)*2});lines.clear()
+
+def record_expressions(record):
+ return[item['expression']for item in[record['condition']]+record['items']if item['kind']=='expression']
+
+for fi,source in enumerate(index):
+ if fi%groups!=group:continue
+ path=source['path'];data=(r/path).read_bytes();u,maps=env['prepare'](data,0);env['vectorize'](u,maps)
+ actual_writes=[];actual_calls=[];actual_traces=[];actual_runs=[];actual_bindings=[];pe_writes=[];unknown=[]
+ def code_hook(uc,a,n,user):
+  if not active:return
+  esp=uc.reg_read(UC_X86_REG_ESP)
+  if a==0x430090:actual_bindings.append([struct.unpack('<I',uc.mem_read(esp+8,4))[0]-buffer])
+  if a==0x4a7a30:actual_runs.append([struct.unpack('<I',uc.mem_read(esp+4,4))[0]-buffer,None,0])
+  if a==0x4a7a75:
+   pc=struct.unpack('<I',uc.mem_read(vmctx+8,4))[0];op=struct.unpack('<I',uc.mem_read(pc,4))[0];actual_runs[-1][2]+=1;actual_traces.append([len(actual_runs)-1,pc,op]);opcodes[op]+=1
+  if a in(0x42fc1f,0x42fd81):actual_runs[-1][1]=uc.reg_read(UC_X86_REG_EAX)&0xffffffff
+  if a in native_slots:
+   if native_slots[a]not in(9,58,571):unknown.append(native_slots[a]);uc.emu_stop();return
+   f=struct.unpack('<I',uc.mem_read(esp+4,4))[0];actual_calls.append([a,f,*struct.unpack('<4I',uc.mem_read(f,16))])
+ def memory_hook(uc,access,a,size,value,user):
+  if not active:return
+  if 0x1000000<=a<0x1100000 or buffer<=a<buffer+len(data):actual_writes.append([size,a,value&((1<<(size*8))-1)])
+  if pe.image_base<=a<pe.image_base+pe.size_image:pe_writes.append([size,a,value])
+ h1=u.hook_add(UC_HOOK_CODE,code_hook);h2=u.hook_add(UC_HOOK_MEM_WRITE,memory_hook)
+ try:
+  for state in states:
+   for offset in source['record_offsets']:
+    record=parse_record(data,offset);env['initialize'](u,maps,data,state);u.mem_write(ctx,b'\0'*0x8000);u.mem_write(ctx+0x434,struct.pack('<I',params));u.mem_write(ctx+0x4f4,bytes(state['flags']));u.mem_write(vmctx+4,struct.pack('<I',sb));u.mem_write(vmctx+12,struct.pack('<I',sb));u.mem_write(0x530eb4,struct.pack('<I',ctx if state['parent']else 0));u.mem_write(reset_start,b'\x99'*16+b'\xbb'*4096+b'\x99'*16)
+    initial=[(0x1000000,bytes(u.mem_read(0x1000000,0x100000))),(buffer,bytes(u.mem_read(buffer,len(data)))),(pe.image_base,bytes(u.mem_read(pe.image_base,pe.size_image)))];mutable=[(base,bytearray(payload)if i<2 else payload)for i,(base,payload)in enumerate(initial)];wranges=[[0x1000000,0x1100000],[buffer,buffer+len(data)]]
+    log=AccessLog(lambda q:read32(mutable,q),lambda q,v:write32(mutable,q,v,wranges),lambda q:read8(mutable,q),lambda q,v:write8(mutable,q,v,wranges),lambda q:word(initial,q),lambda q:word(mutable,q));segments=[]
+    for warm in[False,True]:
+     if warm:
+      u.mem_write(reset_start,b'\x99'*16+b'\xbb'*4096+b'\x99'*16);mutable[0][1][reset_start-0x1000000:reset_end-0x1000000]=b'\x99'*16+b'\xbb'*4096+b'\x99'*16
+     log.writes=[];calls=[];runs=[];traces=[];bindings=[]
+     def native(h,f):calls.append([h,f,*[log.rd(f+4*i)for i in range(4)]]);return expression_native(log.rd,log.rb,h,f)
+     def evaluate(e):
+      result=evaluate_parameter(log.rd,log.wr,log.rb,log.wb,vmctx,buffer,e,maps,0x10d0000,native,10000);runidx=len(runs);vm=result['vm'];runs.append([e['code_start'],vm['return_code'],vm['steps']]);traces.extend([runidx,row['pc'],row['opcode']]for row in vm['trace'])
+      if result['bound']:bindings.append([e['code_start']])
+      return result['value']
+     expected=run_record(record,buffer,params,log.rd,log.wr,evaluate,maps[0]);segment={'result':expected,'writes':[row[:]for row in log.writes],'calls':calls,'vm_runs':runs,'vm_traces':traces,'bindings':bindings,'final':log.final_pairs()}
+     for arr in[actual_writes,actual_calls,actual_traces,actual_runs,actual_bindings,pe_writes,unknown]:arr.clear()
+     active=True
+     try:obs=observe_cdecl_until(u,0x42fb50,buffer+offset+1,0x42fdc2,0,{'ecx':ctx},count=50000,timeout=0)
+     finally:active=False
+     assert not obs['error']and not unknown,(path,offset,state['id'],warm,obs,unknown)
+     if actual_writes!=segment['writes']:
+      mismatch=next((i for i,(a,b)in enumerate(zip(actual_writes,segment['writes']))if a!=b),min(len(actual_writes),len(segment['writes'])));(out/'ordered-write-mismatch.json').write_text(json.dumps({'path':path,'offset':offset,'state':state['id'],'warm':warm,'first':mismatch,'native':actual_writes[max(0,mismatch-5):mismatch+8],'shadow':segment['writes'][max(0,mismatch-5):mismatch+8]},indent=2),encoding='utf8');raise AssertionError(('ordered writes',path,offset,state['id'],warm,mismatch))
+     assert actual_calls==calls and actual_runs==runs and actual_traces==traces and actual_bindings==bindings and not pe_writes,(path,offset,state['id'],warm,'calls/runs/trace/binds/PE writes')
+     if expected['accepted']:assert obs['stop_reached']and not obs['returned']and u.reg_read(UC_X86_REG_ESI)==buffer+record['end']and u.reg_read(UC_X86_REG_EDI)==expected['parameter_end']
+     else:assert obs['returned']and obs['eax']==buffer+record['end']and obs['esp']==0x2008008
+     assert bytes(u.mem_read(0x1000000,0x100000))==bytes(mutable[0][1])and bytes(u.mem_read(buffer,len(data)))==bytes(mutable[1][1])and bytes(u.mem_read(pe.image_base,pe.size_image))==initial[2][1],(path,offset,state['id'],warm,'whole memory')
+     counts['accepted'if expected['accepted']else'declined']+=1;counts['expressions']+=len(runs);counts['bindings']+=len(bindings);counts['native_calls']+=len(calls);counts['writes']+=len(log.writes);recordcount+=1;segments.append(segment);native_results.append({'path':path,'offset':offset,'state':state['id'],'warm':warm,'accepted':expected['accepted'],'condition_value':expected['condition_value'],'parameter_count':expected['parameter_count'],'writes':len(actual_writes),'expressions':len(runs),'bindings':len(bindings),'native_calls':len(calls),'live_sha256':hashlib.sha256(mutable[0][1]).hexdigest(),'source_guest_sha256':hashlib.sha256(mutable[1][1]).hexdigest(),'passed':True})
+    final_keys=sorted(log.initial)
+    for segment in segments:
+     # Keys first discovered by the warm run were unchanged before that run; expose them in its own final observation only.
+     assert all(q in log.initial for q,v in segment['final'])
+    used={0:set(),1:set(),2:{0}}
+    for item in[record['condition']]+record['items']:
+     if item['kind']=='array':used[0].add(item['bank_index'])
+    for e in record_expressions(record):
+     for rel in e['relocations']:
+      if rel['group']<3:used[rel['group']].add(rel['index'])
+    sparsemaps=[{str(k):maps[i][k]for k in sorted(used[i])}for i in range(3)]
+    spec={'id':f'{fi}-{state["id"]}-{offset}','record':record,'ctx':vmctx,'base':buffer,'params':params,'maps':sparsemaps,'string_base':0x10d0000,'initial':log.initial_pairs(),'ranges':[[base,base+len(payload)]for base,payload in initial],'write_ranges':wranges,'reset_words':[[q,word(initial,q)]for q in final_keys if reset_start<=q<reset_end],'segments':segments};lines.append('RDynamicCheck('+lit(spec)+');');paircount+=1
+    if len(lines)==16:flush()
+    if limit and paircount>=limit:break
+   if limit and paircount>=limit:break
+ finally:u.hook_del(h1);u.hook_del(h2)
+ assert(r/path).read_bytes()==data
+ if limit and paircount>=limit:break
+ if fi%16==group:print(json.dumps({'group':group,'file_index':fi,'pairs':paircount,'records':recordcount,'elapsed_seconds':round(time.time()-beg,2)}),flush=True)
+flush();manifest={'group':group,'groups':groups,'limited':bool(limit),'cases':paircount,'records':recordcount,'counts':dict(counts),'opcodes':dict(sorted(opcodes.items())),'fresh_original_42FB50_records':recordcount,'full_live_source_PE_and_ordered_writes_match':True,'native_result_sha256':hashlib.sha256(json.dumps(native_results,ensure_ascii=False,separators=(',',':')).encode('utf8')).hexdigest(),'index_sha256':hashlib.sha256(index_path.read_bytes()).hexdigest(),'elapsed_seconds':round(time.time()-beg,2),'files':rows};(out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf8');(out/'native-results.json').write_bytes(json.dumps(native_results,ensure_ascii=False,separators=(',',':')).encode('utf8'));print(json.dumps({k:v for k,v in manifest.items()if k!='files'}))

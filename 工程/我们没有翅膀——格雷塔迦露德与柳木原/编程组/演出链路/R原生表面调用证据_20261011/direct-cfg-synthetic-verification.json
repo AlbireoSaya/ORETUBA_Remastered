@@ -1,0 +1,401 @@
+{
+  "status": "PASS_20_SYNTHETIC_DIRECT_CFG_BOUNDARIES",
+  "checks": [
+    {
+      "case": "two conditional arms",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 5,
+        "edges": [
+          {
+            "site": 4098,
+            "target": 4112,
+            "kind": "call"
+          },
+          {
+            "site": 4104,
+            "target": 4112,
+            "kind": "call"
+          }
+        ],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "loop/jecxz E0",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 4,
+        "edges": [
+          {
+            "site": 4099,
+            "target": 4112,
+            "kind": "call"
+          }
+        ],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "loop/jecxz E1",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 4,
+        "edges": [
+          {
+            "site": 4099,
+            "target": 4112,
+            "kind": "call"
+          }
+        ],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "loop/jecxz E2",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 4,
+        "edges": [
+          {
+            "site": 4099,
+            "target": 4112,
+            "kind": "call"
+          }
+        ],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "loop/jecxz E3",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 4,
+        "edges": [
+          {
+            "site": 4099,
+            "target": 4112,
+            "kind": "call"
+          }
+        ],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "local self-cycle not tail",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "known other-entry tail",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [
+          {
+            "site": 4096,
+            "target": 4098,
+            "kind": "tail"
+          }
+        ],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "indirect call gap with fallthrough",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 2,
+        "edges": [],
+        "unresolved": [
+          {
+            "site": 4096,
+            "kind": "indirect_call"
+          }
+        ],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "indirect jump stops no dead linear scan",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [
+          {
+            "site": 4096,
+            "kind": "indirect_jump"
+          }
+        ],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "truncated opcode",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 0,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": [
+          {
+            "site": 4096,
+            "kind": "decode_error"
+          }
+        ]
+      }
+    },
+    {
+      "case": "jump outside executable range",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": [
+          {
+            "site": 4225,
+            "kind": "out_of_range"
+          }
+        ]
+      }
+    },
+    {
+      "case": "hard local instruction budget",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": [
+          {
+            "site": 4097,
+            "kind": "limit"
+          }
+        ]
+      }
+    },
+    {
+      "case": "read failure is diagnostic",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 0,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": [
+          {
+            "site": 4096,
+            "kind": "read_error",
+            "detail": "controlled fixture"
+          }
+        ]
+      }
+    },
+    {
+      "case": "terminator C3",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "terminator CD80",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "terminator F4",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "terminator 0F0B",
+      "result": {
+        "entry": 4096,
+        "instruction_count": 1,
+        "edges": [],
+        "unresolved": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "collector dedup cycle",
+      "result": {
+        "status": "STATIC_DIRECT_CFG_ONLY",
+        "functions": [
+          {
+            "entry": 1,
+            "instruction_count": 2,
+            "edges": [
+              {
+                "site": 10,
+                "target": 2,
+                "kind": "call"
+              },
+              {
+                "site": 10,
+                "target": 3,
+                "kind": "call"
+              }
+            ],
+            "unresolved": [],
+            "diagnostics": []
+          },
+          {
+            "entry": 2,
+            "instruction_count": 2,
+            "edges": [
+              {
+                "site": 20,
+                "target": 4,
+                "kind": "call"
+              }
+            ],
+            "unresolved": [],
+            "diagnostics": []
+          },
+          {
+            "entry": 3,
+            "instruction_count": 2,
+            "edges": [
+              {
+                "site": 30,
+                "target": 4,
+                "kind": "call"
+              }
+            ],
+            "unresolved": [],
+            "diagnostics": []
+          },
+          {
+            "entry": 4,
+            "instruction_count": 2,
+            "edges": [
+              {
+                "site": 40,
+                "target": 1,
+                "kind": "call"
+              }
+            ],
+            "unresolved": [],
+            "diagnostics": []
+          }
+        ],
+        "budget": {
+          "functions": 4,
+          "instructions": 8
+        },
+        "diagnostics": []
+      }
+    },
+    {
+      "case": "collector function cap",
+      "result": {
+        "status": "STATIC_DIRECT_CFG_ONLY",
+        "functions": [
+          {
+            "entry": 1,
+            "instruction_count": 2,
+            "edges": [
+              {
+                "site": 10,
+                "target": 2,
+                "kind": "call"
+              },
+              {
+                "site": 10,
+                "target": 3,
+                "kind": "call"
+              }
+            ],
+            "unresolved": [],
+            "diagnostics": []
+          }
+        ],
+        "budget": {
+          "functions": 1,
+          "instructions": 2
+        },
+        "diagnostics": [
+          "function_budget_exhausted"
+        ]
+      }
+    },
+    {
+      "case": "collector instruction cap",
+      "result": {
+        "status": "STATIC_DIRECT_CFG_ONLY",
+        "functions": [
+          {
+            "entry": 1,
+            "instruction_count": 2,
+            "edges": [
+              {
+                "site": 10,
+                "target": 2,
+                "kind": "call"
+              },
+              {
+                "site": 10,
+                "target": 3,
+                "kind": "call"
+              }
+            ],
+            "unresolved": [],
+            "diagnostics": []
+          },
+          {
+            "entry": 4,
+            "instruction_count": 1,
+            "edges": [
+              {
+                "site": 40,
+                "target": 1,
+                "kind": "call"
+              }
+            ],
+            "unresolved": [],
+            "diagnostics": []
+          }
+        ],
+        "budget": {
+          "functions": 2,
+          "instructions": 3
+        },
+        "diagnostics": [
+          "instruction_budget_exhausted"
+        ]
+      }
+    }
+  ],
+  "candidate_sha256": {
+    "walk": "fd8a4f6b412105fd42de7f3e3cc65ea899021a66fe5a5ba29e02ac161f4c7ea7",
+    "collector": "ebadfe25d75ad056071197cfbbc7727cca1d444e0af381470a2a91465e3ee79e"
+  },
+  "scope": "Flat i386 near-control-flow synthetic instructions. Diagnostic gaps/indirect transfers are not proven absence of paths or original runtime coverage."
+}

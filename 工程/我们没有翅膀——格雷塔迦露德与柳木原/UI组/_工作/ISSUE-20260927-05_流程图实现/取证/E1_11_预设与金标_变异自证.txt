@@ -1,0 +1,53 @@
+$ python 工具/gen_flow_layout.py --help   （预设表在 epilog）
+
+预设 → 命令 → 规模 → md5（金标，实跑真值）
+  screen1  默认 / 无参即此 / 交付样例 ｜ md5=815e2d175b433e4eb109f2b428a7bd63
+           content-sha256=96cb8911c79f5074087d935d63d6dda6af61a151ca67b03c96fdc5ddfd3d9d52
+  screen2  含 frag 番外节点 ｜ md5=e252ad9ba019fee930eeea94f511db19
+           content-sha256=7707035b545d711ce2b2f89e60e08271a5dd7b511e00764f4c8cf824947dce6d
+  ref150   参照作口径变体——不是交付样例 ｜ md5=360678badfac97e35900270eafe998df
+           content-sha256=4a60be6c5f99dcc7000c6eecc3b6b00dab80eed45507d0186183828724ad40c1
+
+文字参数（三预设共用）：字号 19px / 行距 1.0（元素级 line_spacing）/ 盒宽 240 / max_lines 2
+四判据实测最小值：上留 5px / 下留 5px / 最宽行 255px / 截断 0
+
+★ 落盘前自检（无参/具名预设写默认屏文件时）：金标 + 文字四判据，任一不达标即拒绝落盘。
+★ 变异自证（内存版 + 真跑），见下方两次运行：
+
+$ python 工具/gen_flow_layout.py --selfcheck-delivered   # 变异自证·内存版（默认预设 step_y→150）   [EXIT=0]
+==============================================================================
+交付自检 · 反向自证（内存里把默认预设的 step_y 改成 150，不落盘）
+  运行前 32_flowchart.json md5 = 815e2d175b433e4eb109f2b428a7bd63
+  ✓ 变异后摘要 0ae107859415334500eadbd550537142 ≠ 金标 815e2d175b433e4eb109f2b428a7bd63 ⇒ 落盘前自检会拒绝
+  ✓ 变异确实改了产出规模（节点 11、VZ 0）
+  ✓ 盘上 32_flowchart.json md5 未变（815e2d175b433e4eb109f2b428a7bd63）
+  自证结果：按预期 ✓
+
+$ python 工具/gen_flow_layout.py --preset screen1 --step-y 150   # 变异自证·真跑（默认那组参数改 150）   [EXIT=1]
+  视口 (60, 190, 1235, 827) 内**完整落入**的真实节点：11 个
+  ★ 产出元素视口内自证：全部落在视口内 ✓（x+w 最大 1188 ≤ 1295 ｜ y+h 最大 1005 ≤ 1017）
+  ★ 文字四判据（f=19 / 行距 1.0 / 盒宽 240 / plate rows 8..55）：上留最小 5px ｜ 下留最小 5px ｜ 最宽行 255.0px（62_1b）｜ 截断 0
+    ✓ 四判据全绿（A/B ≥5px、C ≤263px、D 零截断）
+  ✗ 落盘前自检：预设 screen1 产出 md5=0ae107859415334500eadbd550537142 ≠ 金标 815e2d175b433e4eb109f2b428a7bd63
+    内容摘要 content-sha256=4a60be6c5f99dcc7000c6eecc3b6b00dab80eed45507d0186183828724ad40c1（金标 96cb8911c79f5074087d935d63d6dda6af61a151ca67b03c96fdc5ddfd3d9d52），内容也变了
+    ⇒ **拒绝落盘**：默认/具名预设产出必须等于交付样例；若这是有意的改动，请先核对再跑 `--refresh-golden` 重钉金标。
+
+$ python 工具/gen_flow_layout.py --preset ref150   # 显式参照作变体（金标已钉 ⇒ 允许落盘）   [EXIT=0]
+  视口 (60, 190, 1235, 827) 内**完整落入**的真实节点：11 个
+  ★ 产出元素视口内自证：全部落在视口内 ✓（x+w 最大 1188 ≤ 1295 ｜ y+h 最大 1005 ≤ 1017）
+  ★ 文字四判据（f=19 / 行距 1.0 / 盒宽 240 / plate rows 8..55）：上留最小 5px ｜ 下留最小 5px ｜ 最宽行 255.0px（62_1b）｜ 截断 0
+    ✓ 四判据全绿（A/B ≥5px、C ≤263px、D 零截断）
+  ✓ 落盘前自检：预设 ref150 产出 md5=360678badfac97e35900270eafe998df == 金标；content-sha256=4a60be6c5f99dcc7…
+  → E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\32_flowchart.json（111 元素 / 10 边，md5=360678badfac97e35900270eafe998df）
+  ⚠ 当前屏文件已被预设 ref150 覆盖（**非交付样例**）；跑一次无参 `python 工具/gen_flow_layout.py` 回到交付样例。
+
+$ python 工具/gen_flow_layout.py   # 回到交付样例   [EXIT=0]
+  番外入口标记 6 个，y = [190, 285, 380, 475, 570, 665]
+  视口 (60, 190, 1235, 827) 内**完整落入**的真实节点：13 个
+  ★ 产出元素视口内自证：全部落在视口内 ✓（x+w 最大 1188 ≤ 1295 ｜ y+h 最大 1015 ≤ 1017）
+  ★ 文字四判据（f=19 / 行距 1.0 / 盒宽 240 / plate rows 8..55）：上留最小 5px ｜ 下留最小 5px ｜ 最宽行 255.0px（62_1b）｜ 截断 0
+    ✓ 四判据全绿（A/B ≥5px、C ≤263px、D 零截断）
+  ✓ 落盘前自检：预设 screen1 产出 md5=815e2d175b433e4eb109f2b428a7bd63 == 金标；content-sha256=96cb8911c79f5074…
+  → E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\32_flowchart.json（117 元素 / 13 边，md5=815e2d175b433e4eb109f2b428a7bd63）
+
+每次跑完盘上 md5：815e2d175b433e4eb109f2b428a7bd63

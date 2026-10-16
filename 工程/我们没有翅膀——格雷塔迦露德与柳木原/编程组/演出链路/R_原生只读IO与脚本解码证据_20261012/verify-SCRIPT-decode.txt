@@ -1,0 +1,55 @@
+from pathlib import Path
+import sys,json,hashlib,struct
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';candidate=g/'工具'
+sys.path[:0]=[str(candidate),str(root/'工具/unicorn-2.1.4-py314'),str(root/'工程/我们没有翅膀R/工具'),str(g/'工具'),str(g/'逆向引擎')]
+from lucifen_readonly_io_bridge import ReadOnlyFiles
+from lucifen_readonly_io_guest import bridge_ReadFile
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from pe_min import PE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ESP,UC_X86_REG_ECX,UC_X86_REG_EIP,UC_X86_REG_EBP,UC_X86_REG_ESI,UC_X86_REG_EDI,UC_X86_REG_EBX
+import lpk_media as M
+import lucifen_lzss as LZ
+import lpk_patch as P
+stage=root/'临时/ISSUE-20261011-02/r-original-SCRIPT-decode-final-02';stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');path=root/'备份/我们没有翅膀R-安装介质/SET_UP/SCRIPT.LPK'
+lp=M.load(str(path));script_reference=P.load(str(path));assert lp['flags']==30 and lp['prefix']==b''
+u=map_pe(pe);u.mem_map(0x3000000,0x100000);u.mem_map(0x4000000,0x100000)
+source=0x3000080;dest=0x4000080;outptr=0x100d200;decoder=0x1006000;reader=0x100e000;frame=0x100d800;cntptr=0x100d300
+u.mem_write(reader+0xe,b'\x01');u.mem_write(reader+0x14,struct.pack('<I',lp['k1']));u.mem_write(reader+0x25,b'\0')
+source_image=bytes(u.mem_read(pe.image_base,pe.size_image))
+rows=[];totstored=totdecoded=0
+with ReadOnlyFiles([path]) as files:
+ token,err=files.open(path);assert err==0
+ for name,e in sorted(lp['ents'].items()):
+  sc,so=e['sc'],(e['so'] or e['sc']);assert 0<sc<0x100000-256 and 0<so<0x100000-256
+  assert files.seek(token,e['off'],0)==(e['off'],0)
+  u.mem_write(source-128,b'\xa5'*(sc+256));u.mem_write(cntptr,b'\xd5'*4)
+  ret,err=bridge_ReadFile(files,lambda a,n:bytes(u.mem_read(a,n)),lambda a,b:u.mem_write(a,b),token,source,sc,cntptr,0)
+  assert ret==1 and err==0 and struct.unpack('<I',u.mem_read(cntptr,4))[0]==sc
+  stored=bytes(u.mem_read(source,sc));assert stored==bytes(lp['mm'][e['off']:e['off']+sc])
+  expected_lz=LZ.decompress(stored,so) if e['so'] else stored;assert len(expected_lz)==so
+  u.mem_write(dest-128,b'\xa5'*(so+256));u.mem_write(outptr,struct.pack('<I',dest));u.mem_write(decoder,b'\xd5'*0x1100)
+  if e['so']:
+   rc=invoke_thiscall_args(u,0x4b0c80,decoder,[source,outptr,so,0],timeout=0,count=so*80+10000)
+   assert rc==0 and struct.unpack('<I',u.mem_read(outptr,4))[0]==dest
+  else:
+   rc=None;u.mem_write(dest,stored)
+  decompressed=bytes(u.mem_read(dest,so));assert decompressed==expected_lz
+  assert bytes(u.mem_read(source,sc))==stored and bytes(u.mem_read(source-128,128))==b'\xa5'*128 and bytes(u.mem_read(source+sc,128))==b'\xa5'*128
+  assert bytes(u.mem_read(dest-128,128))==b'\xa5'*128 and bytes(u.mem_read(dest+so,128))==b'\xa5'*128
+  u.mem_write(frame-128,b'\0'*256);u.mem_write(frame+0xf,bytes([e['eflags']]));u.mem_write(frame-4,struct.pack('<I',dest));u.mem_write(frame+0x10,struct.pack('<I',dest));u.mem_write(frame+0x14,b'\0'*8)
+  u.reg_write(UC_X86_REG_EBP,frame);u.reg_write(UC_X86_REG_ESI,so);u.reg_write(UC_X86_REG_EDI,reader);u.reg_write(UC_X86_REG_ECX,dest);u.reg_write(UC_X86_REG_EBX,dest)
+  u.emu_start(0x49159b,0x491643,timeout=0,count=so*30+10000);assert u.reg_read(UC_X86_REG_EIP)==0x491643
+  decoded=bytes(u.mem_read(dest,so));expected=P.read_entry(script_reference,name)['plain']
+  assert decoded==expected and bytes(u.mem_read(dest-128,128))==b'\xa5'*128 and bytes(u.mem_read(dest+so,128))==b'\xa5'*128
+  known=root/'工程/我们没有翅膀R/语料/R版SCRIPT'/name
+  assert known.is_file() and known.read_bytes()==decoded,name
+  assert bytes(u.mem_read(pe.image_base,pe.size_image))==source_image
+  rows.append({'name':name,'source_file':known.relative_to(root).as_posix(),'stored_bytes':sc,'decoded_bytes':so,'stored_sha256':hashlib.sha256(stored).hexdigest(),'native_lzss_sha256':hashlib.sha256(decompressed).hexdigest(),'native_plaintext_sha256':hashlib.sha256(decoded).hexdigest(),'actual_read':True,'original_decoder_return':rc,'compressed':bool(e['so']),'source_and_target_guards':True,'matches_existing_source_and_community':True})
+  totstored+=sc;totdecoded+=so
+ assert files.close(token)==(True,0)
+summary={'passed':True,'SCRIPT_entries':len(rows),'TOB':sum(x['name'].lower().endswith('.tob')for x in rows),'SOB':sum(x['name'].lower().endswith('.sob')for x in rows),'others':sum(not x['name'].lower().endswith(('.tob','.sob'))for x in rows),'actual_stored_bytes_read':totstored,'native_decoded_bytes':totdecoded,'uncompressed_stored_bytes':sum(x['stored_bytes']for x in rows if not x['compressed']),'native_LZSS_cases':sum(x['compressed']for x in rows),'uncompressed_cases':sum(not x['compressed']for x in rows),'scope':'real host64 readonly SCRIPT file handle with guest data transfer; original4B0C80 decoder allocation flag0 into controlled preallocated destination, original49159B..491643 content restoration blocks with exact archive flags/key in controlled registers/frame; every entry exact established workspace ring-window decoder/container reference and existing source file; generic community lpk_extractor LZSS was rejected by source evidence; not original491430 full caller/allocator/factory/index decrypt/loader publication or SOB execution'}
+assert len(rows)==446 and summary['TOB']==418 and summary['SOB']==23
+(stage/'SCRIPT-native-decode-results.json').write_text(json.dumps(rows,ensure_ascii=False,separators=(',',':')),encoding='utf-8');(stage/'SCRIPT-native-decode-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+lp['mm'].close();lp['f'].close();print(json.dumps(summary,ensure_ascii=False),flush=True)

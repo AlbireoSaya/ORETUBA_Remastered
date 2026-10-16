@@ -1,0 +1,790 @@
+// ============================================================
+// ui_boot.tjs —— 编程组 · 启动与装配
+//
+// 由 startup.tjs 的**扩展点**执行（`assemble_game.py` 注入两行；UI 组原文件不被改写）：
+//   ① 一切 UI 模块装载完成后 → execStorage("ui_boot.tjs")
+//   ② 主窗口建立后 → uiStoryWindowInit(窗口实例)
+//
+// 本文件负责：装载编程组模块 → 初始化音频 → 安装剧情引擎 → （可选）无人值守剧情自测。
+// ============================================================
+
+var UIStoryWin       = null;
+// ★ ISSUE-20261003-09：层预算实测的**武装旗标**。必须在 ui_boot 里声明（**不能只在 ui_verify17 里声明**）——
+//   否则未装载该模块时，下面的钩子会引用未声明标识符，krkrz 对**被 catch 的异常仍会打整段 dump**（每启动一次一段）。
+var UIFlowPerfArmed  = false;
+var UIStoryAutoOn    = false;
+var UIStoryTestTimer = null;
+var UIStoryTestTicks = 0;
+var UIStoryTestLines = 0;
+var UIStoryTestChoices = 0;
+var UIStoryTestMax   = 400000;    // 看门狗：防跑飞（按 tick 计，节拍快时要够大）
+var UIStoryTestLastScene = "";
+var UIStoryTestIntervalMs = 40;      // 自测节拍（可被 storytest_interval.tjs 覆盖）
+var UIStoryTestShots = 0;            // 已导出张数（长跑时限量，避免导出拖慢）
+var UIStoryTestMaxLines = 0;         // >0 时到该行数即收尾（抽查全量用）
+
+// ★ 右键菜单禁用（用户 2026-10-01 裁定）：拦截计数 + 自测判据
+var UIStoryRightClickBlocked = 0;      // 拦截到右键的次数（证明「确实到达了拦截点」）
+var UIStoryRightClickSeen    = false;  // 合成右键后是否**进入**了 sysicons（应为 false）
+var UIStoryRightClickHit     = false;  // 拦截器是否被调用（应为 true）
+
+// ★ G2 内嵌字体（声明必须在使用之前 —— TJS2 顶层 var **无提升**）
+var UIStoryFontFile = "fonts/ark-pixel-16px-monospaced-zh_cn.ttf";
+
+// ---- ① 模块装载后 ----
+// ★ 用户 2026-10-01 裁定：**去掉启动后 8 秒输入静默期**。
+//   UI 组 `startup.tjs` 的 `uiInputMuted()` 首行即 `if(UI_IGNORE_INPUT_MS <= 0) return false;`，
+//   且 `UI_IGNORE_INPUT_MS` 是**全局 var**（顶层 var 落 global）⇒ 在此置 0 即彻底关闭，
+//   **不必改 UI 组任何文件**。本文件在扩展点①执行，早于主窗口建立与任何输入事件。
+UI_IGNORE_INPUT_MS = 0;
+
+// ★ 历史（ISSUE-20261001-10）：曾在此把 UI 组的转场开关置 false，以临时绕开「画面恒停旧屏」。
+//   真根因＝引擎 `ttExchange` 的 `transsrc` 是**终点**画面（TransIntf.cpp:502/607-620），旧实现用反了；
+//   UI 组已改乒乓双缓冲（`737d067`）⇒ 该行已删除、转场恢复 420ms。详见
+//   `工程记录\2026-10-01_对于我们没有翅膀格雷塔迦露德与柳木原编程组关闭屏转场修复黑屏的修改.md` 与 UI 组 `会话交接_20261001-11_D01D02修复.md`。
+
+uiExec("ui_audio.tjs");
+uiExec("ui_story.tjs");
+uiExec("ui_sysreturn.tjs");    // ★ 三按钮/页脚返回/右键返回对话框（ISSUE-20261002-09）
+uiExec("ui_staging.tjs");      // ★ 逐行演出播放器（ISSUE-20261001-17）
+uiExec("ui_save.tjs");
+uiExec("ui_flowwire.tjs");
+// ★ ISSUE-20261004-03：流程图**场景级**已读（按 scene id 记；与 UI 组的节点级 `UIFlowVisited` 并存）。
+//   常驻装载（状态集合很小、不进屏数据）；落盘走 `ui_flowscene_state.txt`。
+uiExec("ui_flowscene.tjs");
+// ★ ISSUE-20261004-08：影片播放模块（正式功能）。早装载 ⇒ `ui_story.tjs` 在运行期读它的全局才安全。
+uiExec("ui_movie.tjs");
+// 启动期每一步各自兜错：**一处失败不得中断其余装载**（否则整个剧情引擎都不装）
+try { uiAudioInit(); }      catch(eA) { Debug.message("[BOOT][ERR] 音频初始化：" + eA.message); }
+try { uiFlowWireInstall(); } catch(eB) { Debug.message("[BOOT][ERR] 简介表装载：" + eB.message); }
+try { uiStoryInstall(); }    catch(eD) { Debug.message("[BOOT][ERR] 剧情引擎安装：" + eD.message); }
+try { uiStagingInstall(); }  catch(eS) { Debug.message("[BOOT][ERR] 逐行演出安装：" + eS.message); }
+Debug.message("[BOOT] 编程组模块装载完成");
+
+// ------------------------------------------------------------
+// ★ 用户 2026-10-01 裁定：**禁用右键菜单**。
+//   本作「右键菜单」＝UI 组 M13 的 **9 图标浮层**（`sysicons` 屏）。呼出**只有一条活路**：
+//   `startup.tjs` 的 `UiWindow.onMouseDown` 在 `mb == UI_MOUSE_RIGHT` 时调
+//   `this.toggleSysIcons()` → `uiScreenPush("sysicons")`
+//   （另一处 `uiActionDispatch("open_sysicons")` 在 layout 里**没有任何元素引用**）。
+//   做法＝**只换掉窗口实例上的 `toggleSysIcons`**（不改 UI 组文件）：
+//     · 引擎派发链（源码 `base/EventIntf.cpp` 的 `tTVPEvent::Deliver`：
+//       `Target->FuncCall(0, 事件名, …, Target)`）是**在窗口对象实例上查成员**
+//       ⇒ 实例成员先于类方法命中 ⇒ 实例上的替换生效；`visual/WindowIntf.cpp` 的
+//       `tTJSNI_BaseWindow::OnMouseDown` 正是把 Target 设为窗口实例。
+//       `onMouseDown` 里的 `this.toggleSysIcons()` 同样走 `this`（＝窗口实例）的成员查找。
+//       ⚠️ 本注释**只写 文件::函数名、不写行号**（行号必然漂移，UI 组已有 6/6 全错的先例）。
+//     · `toggleSysIcons` **只有右键这一个调用点** ⇒ 替换它**只影响右键**；
+//       左键按下态 / 悬停 / 滚轮 / onClick 全不受影响。
+//   ⚠️ 不删 `sysicons` 屏、不删素材、不动 layout —— 只断「右键 → 呼出」这一条边。
+//   ⚠️ 恢复方法：删掉 `uiStoryWindowInit` 里的 `uiStoryMouseInstall(win)` 调用即可。
+// ------------------------------------------------------------
+function uiStoryRightClickDisabled()
+{
+	UIStoryRightClickBlocked++;
+	// ★ 用户 2026-10-01 要求②（ISSUE-20261001-14）：在 **backlog 屏**按右键 ⇒ 关闭该弹层、返回对话框屏。
+	// ★ 用户 2026-10-02 要求③（ISSUE-20261002-09）：**范围扩到 backlog / save / load / config / flowchart 五屏**，
+	//   统一改走新动作 `return_to_dialog`（**弹栈到 dialog**，比原来的 `close`「只关一层」更符合「返回对话框」语义；
+	//   栈内无 dialog 时该动作自身会退化为关一层，见 `ui_sysreturn.tjs`）。入口不变（本函数仍是右键唯一落点）。
+	try
+	{
+		var rs = uiSysRightClickScreen();
+		if(rs != "")
+		{
+			Debug.message("[MOUSE] 右键 → 返回对话框（当前屏=" + rs + "）");
+			uiActionDispatch("return_to_dialog", -1);
+			if(UIStoryWin !== null && UIStoryWin !== void)
+			{
+				try { UIStoryWin.redraw(); } catch(eR2) { }
+			}
+			return;
+		}
+	}
+	catch(e)
+	{
+		Debug.message("[MOUSE][ERR] 右键返回对话框异常（已回落到「忽略右键」）：" + e.message);
+	}
+	Debug.message("[MOUSE] 右键菜单（sysicons 浮层）已禁用 —— 忽略右键"
+		+ "（用户 2026-10-01 裁定；拦截计数=" + UIStoryRightClickBlocked + "）");
+}
+
+function uiStoryMouseInstall(win)
+{
+	if(win === null || win === void)
+	{
+		Debug.message("[MOUSE][ERR] 窗口引用为空，右键禁用**未安装**");
+		return false;
+	}
+	var has = false;
+	try { has = (win.toggleSysIcons !== void && win.toggleSysIcons !== null); } catch(e0) { has = false; }
+	if(!has)
+	{
+		// UI 组改了结构/名字 ⇒ **明确报错**，不静默放过（否则右键会照旧呼出浮层）
+		Debug.message("[MOUSE][ERR] 窗口上没有 toggleSysIcons —— 右键禁用**未生效**，"
+			+ "请核对 UI 组 startup.tjs 的 UiWindow 类");
+		return false;
+	}
+	win.toggleSysIcons = uiStoryRightClickDisabled;
+	Debug.message("[MOUSE] 右键菜单已禁用：已接管窗口实例的 toggleSysIcons");
+	return true;
+}
+
+// ------------------------------------------------------------
+// ★ G2 · 中文字体内嵌兜底
+//   问题：krkr 不自带字体，UI 组 `uiThemeInitFace()` 靠 `Font.getList(0)` + `fallback_faces`
+//         探测**系统**中文字体；目标机若无中文字体（如非中文版 Windows），中文会变方块。
+//   做法：本工程**随包内嵌**「方舟像素字体 Ark Pixel（OFL-1.1，见 gameonts\OFL_ark-pixel.txt）」，
+//         当且仅当系统一个字都没探到（`UIThemeFace == ""`）时启用——用 krkrz 的
+//         `Font.faceIsFileName`（FreeType 下把 face 名当**文件名**打开）。
+//   ⚠️ **有系统中文字体时不启用**：UI 的折行/截断/字号是按系统字体度量标定的，换字体会改变排版。
+//   自证开关：项目根放 `forcefilefont.txt` ⇒ 强制走「无系统字体」分支（用于本机验证兜底路径）。
+// ★ 实现要点（实测两次才找对）：UI 组 `uiThemeApplyFont()` 内部就是 `var f = layer.font;
+//   if(UIThemeFace != "") f.face = UIThemeFace;` ⇒ **把 `UIThemeFace` 指向字体文件**即可，
+//   不需要包装那个函数。**但 `faceIsFileName` 必须在该层「取 font 之前」置位**：
+//   改它会让引擎**重建**该层的 font 对象，事后设置会让调用方已持有的引用变 void
+//   （实机表现：`uiThemeLayoutText` 的 `f.lineH` 抛「不能将 (void) 转换为 Object」，一次跑出 1648 条）。
+function uiStoryFontSetFile(win)
+{
+	UIThemeFace = UIStoryFontFile;                 // UI 组既有链路直接生效
+	try { win.stageLayer.font.faceIsFileName = true; } catch(e1) { Debug.message("[FONT][ERR] stageLayer：" + e1.message); }
+	try { win.primLayer.font.faceIsFileName  = true; } catch(e2) { }
+}
+
+function uiStoryFontInstall()
+{
+	var forced = false;
+	try { forced = Storages.isExistentStorage("forcefilefont.txt"); } catch(eF) { forced = false; }
+	var sysFace = "";
+	try { sysFace = "" + UIThemeFace; } catch(e) { sysFace = ""; }
+	if(sysFace != "" && !forced)
+	{
+		Debug.message("[FONT] 使用系统字体：" + sysFace + "（不启用内嵌字体，保持 UI 排版标定）");
+		return false;
+	}
+	var ex = false;
+	try { ex = Storages.isExistentStorage(UIStoryFontFile); } catch(e2) { ex = false; }
+	if(!ex)
+	{
+		Debug.message("[FONT][warn] 系统无中文字体且内嵌字体缺失：" + UIStoryFontFile);
+		return false;
+	}
+	if(UIStoryWin !== null) uiStoryFontSetFile(UIStoryWin);
+	Debug.message("[FONT] " + ((forced) ? "强制自证模式" : "系统无中文字体")
+		+ " ⇒ 启用内嵌字体 " + UIStoryFontFile);
+	return true;
+}
+
+// ------------------------------------------------------------
+// ★ 跨组数据校验闸门（`ISSUE-20261001-07` 于 `ISSUE-20261001-13` 由「运行期热区修补」转为「校验闸门」）
+//
+//   背景（D-01）：标题屏 7 个菜单项的**可点热区没盖住用户看到的文字** —— 可见文字件
+//   `title.menu_txt_*` 几何 `(340, y, 252/200/148, 96)`，而热区是 7 个 **96×96 隐形方块**
+//   `title.menu_hit_N`（`(256, y, 96, 96)`）⇒ 只在 x=340–352 重叠 5–8%；只有「鉴赏」额外配了
+//   `title.menu_hit_6_txt`（与文字 100% 重合）⇒ **点文字永远判「空区域」**（用户 2026-10-01 实报）。
+//
+//   **UI 组已在数据层补齐**（`layout\screens\01_title.json` 18→24 件；`737d067`）
+//   ⇒ 编程组原先的**运行期热区修补**（`uiStoryTitleHitRepair`/`uiStoryTitleHitCovers`）**已拆除**。
+//
+//   **保留本校验（主代理裁定，非遗漏）**：D-01 曾在数据里躺了很久才被用户发现
+//   ⇒ 保留它 = 将来 UI 组数据被重新生成 / 改坏时能**立刻喊出来**（跨组校验闸门）。
+//   校验内容：每个菜单项**文字区**中心点都必须命中**本项**动作（按引擎同一命中规则复算，无副作用）。
+// ------------------------------------------------------------
+// 在点 (px,py) 上按**引擎同一命中规则**复算命中动作：只收 `kind=hit`、矩形包含、**取最高 z**；无命中返回 ""。
+//   ⚠️ 不得调用 `uiScreenClick`（有副作用，见自检函数头注）。
+function uiStoryTitleHitActAt(els, px, py)
+{
+	var bestZ = -1, bestAct = "";
+	for(var j = 0; j < els.count; j++)
+	{
+		var el = els[j];
+		if(el === void || el === null || el.id === void) continue;
+		var kd = (el.kind === void) ? "" : ("" + el.kind);
+		if(kd != "hit") continue;
+		var x0 = 0, y0 = 0, w0 = 0, h0 = 0, z0 = 0, a0 = "";
+		try {
+			x0 = 0 + el.x; y0 = 0 + el.y; w0 = 0 + el.w; h0 = 0 + el.h;
+			z0 = (el.z === void || el.z === null) ? 0 : (0 + el.z);
+			a0 = (el.action === void) ? "" : ("" + el.action);
+		} catch(e2) { continue; }
+		if(px < x0 || px >= x0 + w0) continue;
+		if(py < y0 || py >= y0 + h0) continue;
+		if(z0 < bestZ) continue;
+		bestZ = z0; bestAct = a0;
+	}
+	return bestAct;
+}
+
+// 跨组校验闸门：按**引擎同一命中规则**在纯数据上复算「每个菜单文字件中心点落到哪个动作」。
+// 引擎规则（`ui_screens.tjs::uiScreenClick`）：只收 `kind∈{list,hit}`、矩形包含、**取最高 z**。
+//   ⚠️ **不得调用 `uiScreenClick` 做试探**：它有副作用（`uiScreenHitLayerSet("")`；
+//      命中 `list` 还会写 `UIScrFocus`/`UIScrActiveList`）——见 `ISSUE-20261001-06` 的工程记录。
+//   ⚠️ 本复算**忽略 `uiScreenElementVisible`**（屏级 flag 门控）：标题屏元素实测**均无 `vis_flag`**
+//      ⇒ 该简化对本屏成立；函数末尾会把「带 vis_flag 的元素数」一并打进日志，>0 时说明简化不再成立。
+//   ★「文字件」以 **`kind != "hit"`** 界定 —— 否则热区件（kind=hit）会被算进来，闸门会变成部分自我满足。
+function uiStoryTitleHitCheck()
+{
+	if(UILayoutData === void || UILayoutData.screens === void)
+	{ Debug.message("[TITLEHIT] ★TITLEHIT★ FAIL ｜ layout 未就绪"); return "FAIL"; }
+	var sc = UILayoutData.screens["title"];
+	if(sc === void || sc === null || sc.elements === void)
+	{ Debug.message("[TITLEHIT] ★TITLEHIT★ FAIL ｜ 缺 title 屏"); return "FAIL"; }
+
+	var els = sc.elements;
+	var txts = [], nHit = 0, nFlag = 0, i;
+	for(i = 0; i < els.count; i++)
+	{
+		var e = els[i];
+		if(e === void || e === null || e.id === void) continue;
+		var kd = (e.kind === void) ? "" : ("" + e.kind);
+		if(kd == "hit") nHit++;
+		if(e.vis_flag !== void && e.vis_flag !== null) nFlag++;
+		if(("" + e.id).indexOf("title.menu_txt_") == 0 && kd != "hit") txts.push(e);
+	}
+	var tail = " ｜ 屏上 kind=hit 元素 " + nHit + " 件 ｜ 带 vis_flag 元素 " + nFlag
+		+ " 件（自检忽略 flag 门控，应为 0）";
+
+	// ★ 件数断言（防「空集恒真」）：文字件数 < 7 ⇒ 直接 FAIL。
+	//   用 ≥7 而非 ==7：将来 UI 组加第 8 项不应误报。
+	if(txts.count < 7)
+	{
+		Debug.message("[TITLEHIT] ★TITLEHIT★ FAIL ｜ 文字件 " + txts.count + " 件（预期 ≥7）"
+			+ "——命名前缀变了？" + tail);
+		return "FAIL";
+	}
+
+	var ok = 0, bad = "";
+	for(i = 0; i < txts.count; i++)
+	{
+		var t = txts[i];
+		var tx = 0, ty = 0, tw = 0, th = 0;
+		try { tx = 0 + t.x; ty = 0 + t.y; tw = 0 + t.w; th = 0 + t.h; } catch(eT) { tx = 0; ty = 0; tw = 0; th = 0; }
+		var cx = tx + Math.floor(tw / 2);
+		var cy = ty + Math.floor(th / 2);
+		// 实际动作 ＝ 文字件中心点的命中动作（引擎同一规则、最高 z）
+		var actual = uiStoryTitleHitActAt(els, cx, cy);
+		// 期望动作 ＝ 文字件**左侧紧邻处**（x-4，落在该行图标方块内）的命中动作
+		//   ⇒ 从数据**独立**读出该行该有的动作，不是写死表 ⇒ y 配错也能发现。
+		var wantAct = uiStoryTitleHitActAt(els, tx - 4, cy);
+		if(wantAct == "")
+			bad = bad + " 【" + t.id + " 期望动作读不到（x-4 探针无命中）】";
+		else if(actual == "")
+			bad = bad + " 【" + t.id + " @中心(" + cx + "," + cy + ") 无命中（期望=" + wantAct + "）】";
+		else if(actual != wantAct)
+			bad = bad + " 【" + t.id + " 中心命中=" + actual + " 期望=" + wantAct + " 不一致】";
+		else ok++;
+	}
+	var verdict = (bad == "") ? "PASS" : "FAIL";
+	Debug.message("[TITLEHIT] ★TITLEHIT★ " + verdict + " ｜ 菜单项文字区 一致 "
+		+ ok + "/" + txts.count + tail + bad);
+	return verdict;
+}
+
+
+// ------------------------------------------------------------
+// ★ G3 · 影片播放探针（krkrz 走 DirectShow；本工程影片＝MPEG-1 `.mpg`（片尾 7 支）
+//   与 MP4/H.264（片头/PSV 侧）。**这不是成品功能**，是把「引擎到底能不能播」测出来。
+//   触发：项目根放 `videoprobe.txt`。用**绝对存储名**指向资源组目录，避免复制大文件。
+//   VideoOverlay 原生成员（源码 `visual/VideoOvlIntf.cpp`）：open/play/stop/pause/rewind/
+//   setPos/setSize/setBounds/prepare/close…；属性 position/left/top/width/height/
+//   originalWidth/originalHeight/visible/loop（**没有 selectFile，是 `open`**）。
+// ------------------------------------------------------------
+var UIStoryVideo = null;
+function uiVideoProbe(win)
+{
+	var ex = false;
+	try { ex = Storages.isExistentStorage("videoprobe.txt"); } catch(e) { ex = false; }
+	if(!ex) return false;
+	var base = "file://./e/zcode workspace/galgame/工程/我们没有翅膀——格雷塔迦露德与柳木原/资源组/片尾/_src/psv_ed/";
+	// ★ 一审重要-2：不支持的扩展名**先判后用**（原实现对 mp4 直接 open ⇒ 抛错被 catch
+	//   但 krkrz 仍打整段 dump，污染「EXCEPTION 0」判定线）。mp4 已知不支持，故只列已知可播者。
+	var files = ["ed_asuka.mpg", "ed_ai.mpg"];
+	for(var i = 0; i < files.count; i++)
+	{
+		var mov = base + files[i];
+		var has = false;
+		try { has = Storages.isExistentStorage(mov); } catch(e2) { has = false; }
+		if(!has) { Debug.message("[VIDEO] 缺件（或绝对名不可解析）：" + files[i]); continue; }
+		try
+		{
+			var vo = new VideoOverlay(win);
+			vo.open(mov);
+			vo.play();
+			Debug.message("[VIDEO] ★VIDEO★ OK " + files[i]
+				+ " ｜ 原始尺寸 " + vo.originalWidth + "x" + vo.originalHeight
+				+ " ｜ pos=" + vo.position + " ｜ visible=" + vo.visible);
+			UIStoryVideo = vo;
+		}
+		catch(e3) { Debug.message("[VIDEO][ERR] " + files[i] + " : " + e3.message); }
+	}
+	return true;
+}
+
+// ---- ② 窗口建立后 ----
+function uiStoryWindowInit(win)
+{
+	// ★ ISSUE-20261003-09：层预算实测需在主窗口就绪后才能建离屏 Layer（new Layer(win,parent)）。
+	//   未装载 ui_verify17 时该全局名不存在 ⇒ 抛异常并被空 catch 吞掉，不产生日志噪声。
+	try { if(UIFlowPerfArmed === true) uiVerify17Attach(win); }
+	catch(eFP17) { }   // 未装载 ui_verify17 时该名不存在：**静默**跳过，避免成品日志出现噪声
+	UIStoryWin = win;
+	Debug.message("[BOOT] 主窗口已交接");
+	// ★ 影片模块：输入接管（播放中点击/按键＝跳过）＋ 槽①（启动时播厂牌标，用户裁定先用涅布片充位）
+	try { uiMovieInstall(win); } catch(eMV) { Debug.message("[BOOT][ERR] 影片模块安装：" + eMV.message); }
+	try { uiMoviePlayStartup(); } catch(eMV2) { Debug.message("[BOOT][ERR] 启动影片：" + eMV2.message); }
+	try { uiStoryMouseInstall(win); } catch(eM) { Debug.message("[BOOT][ERR] 右键禁用安装：" + eM.message); }
+	// ★ 三按钮 / 页脚返回 / 右键返回对话框的**元素动作接线**（ISSUE-20261002-09）：
+	//   运行期改元素数据，必须在**布局就绪之后、任何输入之前**跑 ⇒ 放这里（扩展点②）。
+	try { uiSysReturnInstall(); } catch(eR) { Debug.message("[BOOT][ERR] 返回对话框接线：" + eR.message); }
+	// ★ G2 字体兜底必须在**这里**判定：UI 组的 `uiThemeInitFace()`（Font.getList 探测）
+	//   是在主窗口建立时才跑，扩展点①时 `UIThemeFace` 还是空串。
+	try { uiStoryFontInstall(); } catch(eC) { Debug.message("[BOOT][ERR] 字体兜底：" + eC.message); }
+	try { uiVideoProbe(win); }    catch(eV) { Debug.message("[BOOT][ERR] 影片探针：" + eV.message); }
+	// ★ ISSUE-20261004-07：影片「扩展名 × 输出模式」可行性矩阵（诊断，`videotest.txt` 门控）。
+	//   与上面的保守探针分开：本探针要**故意试不支持的组合**，噪声隔离在 ui_videotest.tjs。
+	try
+	{
+		var vt = false;
+		try { vt = Storages.isExistentStorage("videotest.txt"); } catch(eVT0) { vt = false; }
+		if(vt) { uiExec("ui_videotest.tjs"); uiVideoTestStart(win); }
+		// ★ ISSUE-20261004-07：**肉眼验收**模式（`videoplay.tjs` 门控）。该文件由启动器边写边删，
+		//   内容是一段 TJS（设 `UIVideoPlayList`）⇒ 必须先装载 ui_videotest.tjs（全局在那里声明）
+		//   再 execStorage 它，否则赋值落不到全局。**成品不含该开关。**
+		// ★ ISSUE-20261004-08 一次性自检（`movietest.txt`）：驱动「槽② 开局播 OP」与「点击跳过」路径。
+		//   只在诊断构建里用；成品不含该开关。
+		try
+		{
+			var mt = false;
+			try { mt = Storages.isExistentStorage("movietest.txt"); } catch(eMT0) { mt = false; }
+			if(mt)
+			{
+				Debug.message("[MOVIETEST] 武装：4s 后 game_start，12s 后跳过，26s 后报状态");
+				uiMovieSelfTestArm();
+			}
+		}
+		catch(eMT) { Debug.message("[BOOT][ERR] 影片自检装甲：" + eMT.message); }
+
+		var vp2 = false;
+		try { vp2 = Storages.isExistentStorage("videoplay.tjs"); } catch(eVP0) { vp2 = false; }
+		if(vp2)
+		{
+			uiExec("ui_videotest.tjs");
+			try { Scripts.execStorage("videoplay.tjs"); }
+			catch(eVP1) { Debug.message("[BOOT][ERR] videoplay.tjs 解析失败：" + eVP1.message); }
+			if(UIVideoPlayList !== void && UIVideoPlayList.count > 0) uiVideoTestStart(win);
+		}
+	}
+	catch(eVT) { Debug.message("[BOOT][ERR] 影片矩阵探针：" + eVT.message); }
+	// ★ 成品署名（AGENTS §六，用户 2026-09-14 定规，此后每个作品一律执行）：
+	//   在游戏窗口标题的中文标题之后追加署名串。不动 UI 组文件——直接把 caption 重设一次。
+	try
+	{
+		var sig = "来自个人汉化者AlbireoSaya 模型&工具:Deepseek v4.1 flash+ZCode";
+		var cap = ("" + UI_TITLE_MAIN) + " " + ("" + UILayoutData.signature);
+		// 幂等：UI 组 `layout/_root.json` 的 `signature` 实测**已含**该串，缺了才补
+		if(cap.indexOf("AlbireoSaya") < 0) cap = cap + "　" + sig;
+		UIStoryWin.caption = cap;
+		Debug.message("[BOOT] 窗口标题 = " + cap);
+	}
+	catch(eS) { Debug.message("[BOOT][ERR] 署名写入失败：" + eS.message); }
+	uiSaveInit(win);
+	uiStoryAutoInit();
+	// ★ 标题屏文字区热区**跨组校验闸门**（ISSUE-20261001-07 → 20261001-13）：核对 UI 组标题屏数据
+	//   是否仍满足「每个菜单项文字区中心都能命中本项动作」。运行期热区修补**已拆除**（UI 组已在数据层补齐，`737d067`）。
+	//   顺序在诊断探针**之前**（探针安装点在最外层，其 title 元素转储能看到数据现状）。
+	try { uiStoryTitleHitCheck(); }  catch(eTC) { Debug.message("[BOOT][ERR] 标题屏热区校验：" + eTC.message); }
+	// ★ 章节过场卡（ISSUE-20261005-02）：标记串全集 + 过场元素 + ctx/点击包装——
+	//   必须在布局就绪后（本扩展点②），且晚于 uiFlowWireInstall（_intro.tjs 装载，扩展点①）。
+	try { uiStoryChapterInstall(); } catch(eCH) { Debug.message("[BOOT][ERR] 章节过场安装：" + eCH.message); }
+	// ★ ISSUE-20261001-14 首发 / 20261001-15 扩屏：页脚「返回」热区补丁（运行期纯追加，幂等）——
+	//   backlog / gallery / music 三屏各一件（`uiStoryFooterReturnFix` 内部小表逐屏追加；
+	//   backlog 的既有 id/矩形/行为一律不变）。与其它运行期元素补丁同处（窗口交接时、装完即用）；
+	//   各自 try/catch 兜错。已登记为移交 UI 组的 D-03（数据层补齐后应删本调用）。
+	try { uiStoryFooterReturnFix(); } catch(eBR) { Debug.message("[BOOT][ERR] 页脚返回热区补丁：" + eBR.message); }
+	// ★ ISSUE-20261001-17：逐行演出立绘槽位 —— 窗口建立后 layout 已就绪，在此确保槽位已建
+	//   （扩展点①时 dialog 屏可能尚未装载；`uiStagingEnsureSlots` 幂等，已在则跳过）。
+	try { uiStagingEnsureSlots(); } catch(eSS) { Debug.message("[BOOT][ERR] 立绘槽位建立：" + eSS.message); }
+	// ★ ISSUE-20261001-14：③ CTRL 强制快进的松开入口 —— 在**窗口实例**上装 onKeyUp
+	//   （具名全局函数；实例成员优先于类方法）。注意：uiScreenKey 的包装在 uiStoryInstall 已完成。
+	try { uiStorySkipKeyInstall(win); } catch(eSK) { Debug.message("[BOOT][ERR] CTRL 快进 onKeyUp 安装：" + eSK.message); }
+	// ★ 输入链路诊断探针（ISSUE-20261001-06）：仅当 `uidiag.txt` 存在时装载并安装。
+	//   无该文件 ⇒ 不装载、零开销、零行为改变（与 forcefilefont.txt / videoprobe.txt 同一套路）。
+	//   安装点放在**末尾** ⇒ 本探针位于所有包装器的最外层，能看到完整的派发前后状态。
+	try
+	{
+		var diagOn = false;
+		try { diagOn = Storages.isExistentStorage("uidiag.txt"); } catch(eD0) { diagOn = false; }
+		if(diagOn) { uiExec("ui_diag.tjs"); uiDiagInstall(win); }
+	}
+	catch(eD) { Debug.message("[BOOT][ERR] 诊断探针安装失败：" + eD.message); }
+	// ★ ISSUE-20261001-14 验证脚手架（**诊断用**，仅当 game\verify14.txt / verify14skip.txt
+	//   存在时装载并武装）：用引擎**同一入口**（UIStoryWin.onMouseDown/onClick/onKeyDown/onKeyUp）
+	//   合成事件，实测①页脚返回 / ②右键关 backlog / ③CTRL 快进。
+	//   成品不含这两个开关 ⇒ 零开销、零行为改变（与 uidiag.txt / forcefilefont.txt 同一套路）。
+	//   放在**最后** ⇒ 位于 diag 探针之后，能录到 [DIAG][STACK] push/pop。
+	try
+	{
+		var vMode = "";
+		try { if(Storages.isExistentStorage("verify14.txt")) vMode = "mouse"; } catch(eV0) { }
+		try { if(Storages.isExistentStorage("verify14skip.txt")) vMode = "key"; } catch(eV1) { }
+		if(vMode != "") { uiExec("ui_verify14.tjs"); uiVerify14Start(vMode); }
+	}
+	catch(eV) { Debug.message("[BOOT][ERR] 验证脚手架装载失败：" + eV.message); }
+	// ★ ISSUE-20261002-09 验证脚手架（**诊断用**，仅当 game\verify15.txt 存在时装载并武装）：
+	//   把「三按钮接线 / 页脚返回回对话框 / 四屏右键回对话框」做成可失败的机检
+	//   （`uiScreenClick` 真实命中判定 + `uiActionDispatch` 派发 + 右键唯一落点直调）。
+	//   成品不含该开关 ⇒ 零开销、零行为改变。
+	try
+	{
+		var v15 = false;
+		try { v15 = Storages.isExistentStorage("verify15.txt"); } catch(eW0) { v15 = false; }
+		if(v15) { uiExec("ui_verify15.tjs"); uiVerify15Start(); }
+	}
+	catch(eW) { Debug.message("[BOOT][ERR] verify15 脚手架装载失败：" + eW.message); }
+	// ★ ISSUE-20261003-06 验证脚手架（**诊断用**，与 verify15 同门槛；纯逻辑断言，立即执行）：
+	//   覆盖存/读档翻页（页↔槽映射、越界拒绝、sv_page 旗标）与「最近存档标记」的写读。
+	try
+	{
+		var v16 = false;
+		try { v16 = Storages.isExistentStorage("verify15.txt"); } catch(eX0) { v16 = false; }
+		if(v16) { uiExec("ui_verify16.tjs"); uiVerify16Start(); }
+	}
+	catch(eX) { Debug.message("[BOOT][ERR] verify16 脚手架装载失败：" + eX.message); }
+	// ★ ISSUE-20261003-09 层预算/绘制成本实测（**诊断用**，与 verify15 同门槛）：
+	//   冻结书 §五 点名「逐元素渲染全量的层预算未验证」；本模块用离线几何实测一次全量绘制的毫秒数。
+	try
+	{
+		var v17 = false;
+		try { v17 = Storages.isExistentStorage("verify15.txt"); } catch(eY0) { v17 = false; }
+		if(v17) { uiExec("ui_verify17.tjs"); uiVerify17Start(); }
+	}
+	catch(eY) { Debug.message("[BOOT][ERR] verify17 脚手架装载失败：" + eY.message); }
+
+	// ★ ISSUE-20261003-14：自绘渲染器**常驻装载 + 挂 uiScreenDraw**。
+	//   开关 `game/flowfull.txt`：不在 => 钩子装着但一次也不画（成品常态，行为与改动前一致）。
+	try
+	{
+		uiExec("ui_flowfull.tjs");
+		uiFlowFullHookInstall();
+		// ★ ISSUE-20261003-18：视图（纵滚/横移/缩放/点选进入场景）的输入接线。
+		//   与绘制同一个开关：flowfull.txt 不在 ⇒ 包装装着但**一个分支都不进**，行为完全不变。
+		uiFlowFullInputInstall();
+	}
+	catch(eFH) { Debug.message("[BOOT][ERR] flowfull 装载/挂屏失败：" + eFH.message); }
+	// ★ ISSUE-20261003-18 流程图自绘视图的**机检**（诊断用）：开关 `game\flowshot.txt`
+	try
+	{
+		var v18 = false;
+		try { v18 = Storages.isExistentStorage("flowshot.txt"); } catch(eZ0) { v18 = false; }
+		if(v18) { uiExec("ui_verify18.tjs"); uiVerify18Start(); }
+	}
+	catch(eZ) { Debug.message("[BOOT][ERR] verify18 脚手架装载失败：" + eZ.message); }
+	// ★ ISSUE-20261007-05 验证脚手架（**诊断用**）：退场滑出（带 dur 的 chr_remove）机检。
+	//   开关 `game\slidetest.txt`；成品不含 ⇒ 零开销、零行为改变。
+	try
+	{
+		var v19 = false;
+		try { v19 = Storages.isExistentStorage("slidetest.txt"); } catch(eZ0) { v19 = false; }
+		if(v19) { uiExec("ui_verify19.tjs"); uiVerify19Start(); }
+	}
+	catch(eZ1) { Debug.message("[BOOT][ERR] verify19 脚手架装载失败：" + eZ1.message); }
+	// ★ 【诊断】把内容区四源临时改全画布（`game\cbfull.txt` 门控）——用于画幅补边样张的三格对照
+	//   与 D-04 预演。只改运行期内存数据，不写回文件；成品不含该开关。
+	try
+	{
+		var cbf = false;
+		try { cbf = Storages.isExistentStorage("cbfull.txt"); } catch(eC0) { cbf = false; }
+		if(cbf) { uiExec("ui_cbfull.tjs"); uiCbFullApply(); }
+	}
+	catch(eC) { Debug.message("[BOOT][ERR] cbfull 装载失败：" + eC.message); }
+	// ★ ISSUE-20261008-05 D1：【Debug 开发版】屏幕标注层（用户 2026-10-08 需求）。
+	//   开关 `game\debugannot.txt`（与 flowfull.txt / uidiag.txt / slideanim.txt 同一套模式）：
+	//   **缺该文件 ⇒ 本模块根本不被装载 ⇒ 一行不执行、逐字节等于现状**（「关态零影响」由此保证）。
+	//   安装点放在**最后** ⇒ 其 `uiScreenDraw` 包装位于最外层，标注画在自绘/淡变黑幕之上；
+	//   其 `uiScreenKey` 包装只拦 F9（120）用于切换标注位置，其余键原样回落。
+	try
+	{
+		var dbgOn = false;
+		try { dbgOn = Storages.isExistentStorage("debugannot.txt"); } catch(eDB0) { dbgOn = false; }
+		if(dbgOn) { uiExec("ui_debug.tjs"); uiDebugInstall(win); }
+	}
+	catch(eDB) { Debug.message("[BOOT][ERR] Debug 标注装载失败：" + eDB.message); }
+}
+
+function uiStoryAutoInit()
+{
+	var on = false;
+	try { on = Storages.isExistentStorage("storyrun.txt"); }
+	catch(e) { on = false; }
+	UIStoryAutoOn = on;
+	if(!on)
+	{
+		Debug.message("[BOOT] 交互模式（无 storyrun.txt）");
+		return;
+	}
+	// 节拍可由 flag 文件覆盖（自测脚本写入；命令行参数在本构建下读不到，见 README §四）
+	try
+	{
+		if(Storages.isExistentStorage("storytest_interval.tjs"))
+			Scripts.execStorage("storytest_interval.tjs");
+	}
+	catch(eI) { Debug.message("[STORYTEST] 节拍 flag 读取失败：" + eI.message); }
+	Debug.message("[STORYTEST] 检测到 storyrun.txt → 无人值守剧情自测开始（"
+		+ UIStoryTestIntervalMs + "ms/行）");
+	try
+	{
+		UIStoryTestTimer = new Timer(uiStoryTestTick, '');
+		UIStoryTestTimer.interval = UIStoryTestIntervalMs;
+		UIStoryTestTimer.enabled = true;
+	}
+	catch(e2) { Debug.logger.error("[STORYTEST] Timer 建立失败：" + e2.message); }
+}
+
+function uiStoryTestLogLine()
+{
+	var sp = uiDialogCurrentSpeaker();
+	var tx = uiDialogCurrentText();
+	var scn = uiDialogCurrentScene();
+	var vo = "";
+	try
+	{
+		if(UIStoryScene !== void && UIDlgLine >= 0 && UIDlgLine < UIStoryScene.lines.count)
+			vo = "" + UIStoryScene.lines[UIDlgLine].vo;
+	}
+	catch(e) { vo = ""; }
+	Debug.message("[STORYTEST] " + UIStoryTestLines + " <" + scn + "> ["
+		+ ((sp == "") ? "旁白" : sp) + "] " + tx + ((vo == "") ? "" : ("  〔" + vo + "〕")));
+	UIStoryTestLines++;
+}
+
+// 自测收尾前的「存档 → 读档」回路（端到端验证 ui_save.tjs）
+var UIStoryTestPhase = 0;
+function uiStoryTestSaveLoadPhase()
+{
+	// ★ 相位之间等约 1 秒（≈25 个 40ms tick）：UI 组转场时长 420ms，若在同一节奏内连切
+	//   多屏会撞上「使用新转场前需先停止上一个」——该异常**被 UI 组 try/catch 兜住**（优雅降级，
+	//   不阻塞画面），但 krkrz 对**被捕获的异常仍打整段 dump** ⇒ 会污染「EXCEPTION 0」判定。
+	//   放慢到人的操作节奏即可（这正是 UI 组巡演以 2s/屏步进的做法）。
+	// 按**时间**换算节拍数（≥1.2s），不写死 tick —— 否则改快节拍时会不足以让 420ms 转场走完
+	var stepTicks = Math.ceil(1200 / UIStoryTestIntervalMs);
+	if(stepTicks < 1) stepTicks = 1;
+	if((UIStoryTestTicks % stepTicks) != 0) return;
+	UIStoryTestPhase++;
+	// 每个相位导一张图（存档屏/读档屏的槽位与缩略图证据）
+	if(UIStoryWin !== null)
+	{
+		try { UIStoryWin.redraw(); } catch(eR) { }
+		try { UIStoryWin.exportPng(uiScreenCurrent(), 900 + UIStoryTestPhase); } catch(eP) { }
+	}
+	if(UIStoryTestPhase == 1)
+	{
+		Debug.message("[STORYTEST][SAVELOAD] 1/6 打开存档屏");
+		uiActionDispatch("open_save", -1); return;
+	}
+	if(UIStoryTestPhase == 2)
+	{
+		Debug.message("[STORYTEST][SAVELOAD] 2/6 写槽 1（当前屏=" + uiScreenCurrent() + "）");
+		uiActionDispatch("slot_1", -1); return;
+	}
+	if(UIStoryTestPhase == 3)
+	{
+		Debug.message("[STORYTEST][SAVELOAD] 3/6 关存档屏（当前屏=" + uiScreenCurrent() + "）");
+		uiActionDispatch("close", -1); return;
+	}
+	if(UIStoryTestPhase == 4)
+	{
+		Debug.message("[STORYTEST][SAVELOAD] 4/6 打开读档屏");
+		uiActionDispatch("open_load", -1); return;
+	}
+	if(UIStoryTestPhase == 5)
+	{
+		Debug.message("[STORYTEST][SAVELOAD] 5/6 读槽 1（当前屏=" + uiScreenCurrent() + "）");
+		uiActionDispatch("slot_1", -1); return;
+	}
+	Debug.message("[STORYTEST][SAVELOAD] 6/6 ★SAVELOAD★ 有档 "
+		+ uiSaveRefreshAll() + "/" + UISaveSlots + " ｜ " + uiSaveSummary()
+		+ " ｜ 当前屏=" + uiScreenCurrent() + " ｜ " + uiStorySummary());
+	if(UIStoryTestPhase == 6) return;
+
+	// ---- 阶段 7-10：流程图屏取数 / 切集（★FLOWWIRE★）----
+	if(UIStoryTestPhase == 7)
+	{
+		Debug.message("[STORYTEST][FLOW] 7/10 打开流程图屏");
+		uiActionDispatch("open_flowchart", -1); return;
+	}
+	if(UIStoryTestPhase == 8)
+	{
+		Debug.message("[STORYTEST][FLOW] 8/10 选幕级节点 N01（当前屏=" + uiScreenCurrent() + "）");
+		uiActionDispatch("flow_node_N01", -1); return;
+	}
+	if(UIStoryTestPhase == 9)
+	{
+		Debug.message("[STORYTEST][FLOW] 9/10 切集→番外");
+		uiActionDispatch("flow_mode_frag", -1); return;
+	}
+	if(UIStoryTestPhase == 10)
+	{
+		Debug.message("[STORYTEST][FLOW] 10/10 切集→本篇");
+		uiActionDispatch("flow_mode_main", -1); return;
+	}
+	Debug.message("[STORYTEST][FLOW] ★FLOWWIRE★ 节点=" + UIFlowCursor
+		+ " ｜ 右栏=" + ((UIFlowWireMsg == "") ? "(空)" : UIFlowWireMsg)
+		+ " ｜ 当前屏=" + uiScreenCurrent());
+	if(UIStoryTestPhase == 10) return;
+
+	// ---- 阶段 11-14：C 类（覆盖确认 / 回想重播 / 回想跳转）----
+	if(UIStoryTestPhase == 11)
+	{
+		Debug.message("[STORYTEST][C] 11/14 再写槽 1（预期弹确认框）");
+		uiActionDispatch("open_save", -1); uiActionDispatch("slot_1", -1); return;
+	}
+	if(UIStoryTestPhase == 12)
+	{
+		Debug.message("[STORYTEST][C] 12/14 确认框 yes（当前屏=" + uiScreenCurrent() + "）");
+		uiActionDispatch("confirm_yes", -1); return;
+	}
+	if(UIStoryTestPhase == 13)
+	{
+		Debug.message("[STORYTEST][C] 13/14 回想重播第 0 行");
+		uiActionDispatch("backlog_replay:0", -1); return;
+	}
+	if(UIStoryTestPhase == 14)
+	{
+		Debug.message("[STORYTEST][C] 14/14 回想跳转第 0 行");
+		uiActionDispatch("backlog_jump:0", -1); return;
+	}
+	if(UIStoryTestPhase == 15)
+	{
+		Debug.message("[STORYTEST][MUSIC] 15/16 打开发乐鉴赏屏");
+		uiActionDispatch("open_music", -1); return;
+	}
+	if(UIStoryTestPhase == 16)
+	{
+		Debug.message("[STORYTEST][MUSIC] 16/16 播第 1 首 + 下一首 + 暂停");
+		uiActionDispatch("bgm_play:0", -1);
+		uiActionDispatch("bgm_next", -1);
+		uiActionDispatch("bgm_playpause", -1);
+		uiActionDispatch("bgm_mode_one", -1);
+		return;
+	}
+	// ---- 阶段 17-19：右键菜单禁用（★RIGHTCLICK★）----
+	if(UIStoryTestPhase == 17)
+	{
+		// ① 负向：合成右键（走引擎同一入口 UIStoryWin.onMouseDown）→ **不得**进 sysicons 浮层。
+		//    两件判据：屏不得变成 sysicons；且拦截计数必须 ≥1（证明**确实到达了拦截点**，
+		//    而不是「onMouseDown 根本没被走到」——后者会让本判据假绿）。
+		var before = uiScreenCurrent();
+		UIStoryRightClickBlocked = 0;
+		try { UIStoryWin.onMouseDown(300, 300, UI_MOUSE_RIGHT, 0); }
+		catch(eR) { Debug.message("[STORYTEST][MOUSE][ERR] 合成右键异常：" + eR.message); }
+		var after = uiScreenCurrent();
+		UIStoryRightClickSeen = (after == "sysicons");
+		UIStoryRightClickHit  = (UIStoryRightClickBlocked > 0);
+		Debug.message("[STORYTEST][MOUSE] 17/19 合成右键 mb=" + UI_MOUSE_RIGHT
+			+ "：屏 " + before + " -> " + after + " ｜ 拦截计数=" + UIStoryRightClickBlocked);
+		return;
+	}
+	if(UIStoryTestPhase == 18)
+	{
+		// ② 正控：走**另一条仍启用**的路（动作 open_sysicons；layout 里无元素引用）→ 必须进 sysicons。
+		//    作用＝证明「浮层机制本身完好」+「本判据确实能看见 sysicons 屏」——
+		//    否则 ① 的 PASS 只是「什么都没发生」的假绿（本项目「自证必须能失败」纪律）。
+		Debug.message("[STORYTEST][MOUSE] 18/19 正控：派发 open_sysicons（应进浮层）");
+		uiActionDispatch("open_sysicons", -1);
+		return;
+	}
+	// 19：判词（本相位开头的 exportPng 会拍到正控打开的浮层，作为视觉证据）→ 收尾
+	var pc = uiScreenCurrent();
+	Debug.message("[STORYTEST][MOUSE] ★RIGHTCLICK★ "
+		+ ((UIStoryRightClickHit && !UIStoryRightClickSeen && pc == "sysicons") ? "PASS" : "FAIL")
+		+ " ｜ 右键后是否进浮层=" + (UIStoryRightClickSeen ? "是(FAIL)" : "否")
+		+ " ｜ 拦截计数=" + UIStoryRightClickBlocked
+		+ " ｜ 正控屏=" + pc + (pc == "sysicons" ? "（浮层机制完好）" : "（正控失败：浮层打不开）"));
+	Debug.message("[STORYTEST][MUSIC] ★MUSIC★ 曲目 " + UIMusicNames.count
+		+ " ｜ 当前行=" + UIStoryBgmRow + " ｜ 模式=" + UIStoryBgmGalMode
+		+ " ｜ 暂停=" + UIStoryBgmPaused + " ｜ 当前曲=" + UIAudioBgmCur);
+	Debug.message("[STORYTEST][C] ★CCLASS★ 待确认动作=" + UIStoryPending
+		+ " ｜ 回想条数=" + UIStoryLogVoice.count
+		+ " ｜ 当前屏=" + uiScreenCurrent() + " ｜ " + uiStorySummary());
+	uiStoryTestFinish();
+}
+
+function uiStoryTestFinish()
+{
+	if(UIStoryTestTimer !== null) { try { UIStoryTestTimer.enabled = false; } catch(e) { } }
+	Debug.message("[STORYTEST] ★STORYTEST★ DONE 行=" + UIStoryTestLines
+		+ " 选择=" + UIStoryTestChoices
+		+ " | 音频 " + uiAudioSummary()
+		+ " | " + uiStorySummary());
+	if(UIStoryWin !== null)
+	{
+		try { UIStoryWin.uiQuit("story test done"); }
+		catch(e2) { Debug.message("[STORYTEST] 退出失败：" + e2.message); }
+	}
+	else
+	{
+		Debug.message("[STORYTEST] 无窗口引用，无法自动退出（请手动关闭）");
+	}
+}
+
+function uiStoryTestTick()
+{
+	if(UIStoryTestTimer === null) return;
+	UIStoryTestTicks++;
+	if(UIStoryTestTicks > UIStoryTestMax)
+	{
+		Debug.message("[STORYTEST] 达到上限 " + UIStoryTestMax + " tick，收尾");
+		uiStoryTestFinish();
+		return;
+	}
+
+	// 剧情已结束（含「选择支目标在切片外」的边界情形）→ 收尾前先跑一遍存/读档回路
+	if(UIStoryDone) { uiStoryTestSaveLoadPhase(); return; }
+
+	// 不在对话屏：开新局（或已结束时收尾）
+	if(uiScreenCurrent() != "dialog")
+	{
+		if(UIStoryDone) { uiStoryTestFinish(); return; }
+		uiActionDispatch("game_start", -1);
+		return;
+	}
+
+	if(UIStoryTestMaxLines > 0 && UIStoryTestLines >= UIStoryTestMaxLines)
+	{
+		Debug.message("[STORYTEST] 达到行数上限 " + UIStoryTestMaxLines + "，转入收尾相位");
+		UIStoryDone = true;
+		uiStoryTestSaveLoadPhase();
+		return;
+	}
+	uiStoryTestLogLine();
+	if(UIStoryTestLines % 200 == 0)
+		Debug.message("[STORYTEST] ...进度 " + UIStoryTestLines + " 行 | " + uiStorySummary());
+
+	uiDialogCompleteTyping();
+		// 证据截图：开场数行 × 每 100 行 × 场景切换后首行（供视觉复核）
+	var scn = uiDialogCurrentScene();
+	var sceneChanged = (scn != UIStoryTestLastScene);
+	UIStoryTestLastScene = scn;
+	if(UIStoryWin !== null && UIStoryTestShots < 40
+		&& (UIStoryTestLines <= 6 || (UIStoryTestLines % 200) == 0 || sceneChanged))
+	{
+		UIStoryTestShots++;
+		// 先重画再导图：否则导出的是**上一帧**（换屏后首张会拍到标题屏）
+		try { UIStoryWin.redraw(); } catch(eR) { }
+		try { UIStoryWin.exportPng(uiScreenCurrent(), UIStoryTestLines); }
+		catch(eP) { Debug.message("[STORYTEST] 导图失败：" + eP.message); }
+	}
+
+var r = uiDialogAdvance();
+	if(r === void || r === null) return;
+	if(r.action == "choices")
+	{
+		UIStoryTestChoices++;
+		Debug.message("[STORYTEST] 选择支 → 自动选第 1 项");
+		uiDialogChoiceCommit(0);
+	}
+	else if(r.action == "end")
+	{
+		// 剧情到头 ⇒ 走「存/读档回路」再收尾（与 tick 顶部的 UIStoryDone 分支同一条路）
+		uiStoryTestSaveLoadPhase();
+	}
+}

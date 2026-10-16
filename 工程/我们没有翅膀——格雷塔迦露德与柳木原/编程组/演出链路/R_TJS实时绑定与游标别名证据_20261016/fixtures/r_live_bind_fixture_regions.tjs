@@ -1,0 +1,15 @@
+function RLFZero(offset)
+{
+	return 0;
+}
+
+function RLFRegions(source)
+{
+	return RMemoryCreate([
+		%["base" => 0, "size" => 4096, "read_byte" => RLFZero, "writable" => 1],
+		%["base" => 0x530000, "size" => 0x10000, "read_byte" => RLFZero, "writable" => 1],
+		%["base" => 0x1000000, "size" => 0x100000, "read_byte" => RLFZero, "writable" => 1],
+		%["base" => 0x2000000, "size" => 0x10000, "read_byte" => RLFZero, "writable" => 1],
+		%["base" => source, "size" => 4096, "read_byte" => RLFZero, "writable" => 1]
+	]);
+}

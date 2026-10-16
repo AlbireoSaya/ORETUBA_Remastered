@@ -1,0 +1,180 @@
+// ============================================================================
+//  ISSUE-20260927-03  Module J  -  layerExDraw.dll STRESS POC
+//  1920x1080 target canvas, ~760 flowchart edges (3-segment elbow polylines)
+//  + arrow heads + rounded-rect node outlines, on an ltAlpha layer with an
+//  opaque backdrop. Measures in-engine elapsed ms and exports one PNG.
+//  Same isolated engine copy as the main POC (no UI-group files touched).
+// ============================================================================
+
+var W = 1920;
+var H = 1080;
+
+var LOGDIR = "";
+try { LOGDIR = "" + Debug.logLocation; } catch(e) { }
+
+var ASCII_OK = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+function esc(s)
+{
+	s = "" + s;
+	try { return s.replace(/[^\x20-\x7e]/g, "~"); }
+	catch(e)
+	{
+		var o = "";
+		for(var i = 0; i < s.length; i++)
+		{
+			var ch = s.charAt(i);
+			o += (ASCII_OK.indexOf(ch) >= 0) ? ch : "~";
+		}
+		return o;
+	}
+}
+function p(s) { Debug.message("[POCS] " + esc(s)); }
+
+var RESULTS = [];
+var win, primLayer, stageLayer;
+var PNG_OK = 0, PNG_FAIL = 0;
+
+function main()
+{
+	p("Plugins.link(layerExDraw.dll) ...");
+	try { Plugins.link("layerExDraw.dll"); RESULTS.push("[1] link OK"); }
+	catch(e) { RESULTS.push("[1] link FAIL " + e.message); return; }
+
+	win = new Window();
+	win.add(primLayer = new Layer(win, null));
+	primLayer.setImageSize(W, H);
+	win.setInnerSize(W, H);
+
+	win.add(stageLayer = new Layer(win, primLayer));
+	stageLayer.left = 0; stageLayer.top = 0;
+	stageLayer.setImageSize(W, H);
+	stageLayer.setSizeToImageSize();
+	stageLayer.type = ltAlpha;
+	stageLayer.visible = true;
+
+	stageLayer.fillRect(0, 0, W, H, 0xff101018);
+
+	var t0 = -1, t1 = -1;
+	try { t0 = System.getTickCount(); } catch(e) { RESULTS.push("[2] getTickCount unavailable"); }
+
+	// ---- 712 nodes on a 32x23 grid, 760 edges as elbow polylines --------------
+	var NODE_W = 46, NODE_H = 26;
+	var COLS = 32, ROWS = 23;
+	var gapx = 12, gapy = 12;
+	var ox = 24, oy = 24;
+	var pts = [];          // node centres
+	for(var r = 0; r < ROWS; r++)
+	{
+		for(var c = 0; c < COLS; c++)
+		{
+			pts.push([ox + c * (NODE_W + gapx) + NODE_W / 2,
+			          oy + r * (NODE_H + gapy) + NODE_H / 2]);
+		}
+	}
+	RESULTS.push("[3] nodes generated = " + pts.length);
+
+	// node boxes: filled rounded-ish rect via drawRectangle with a round-join pen
+	try
+	{
+		var aNode = new GdiPlus.Appearance();
+		aNode.addPen(0xff8899bb, %[width:2, lineJoin:GdiPlus.LineJoinRound], 0, 0);
+		var nBox = 0;
+		for(var i = 0; i < pts.length; i++)
+		{
+			var cx = pts[i][0], cy = pts[i][1];
+			stageLayer.drawRectangle(aNode, cx - NODE_W/2, cy - NODE_H/2, NODE_W, NODE_H);
+			nBox++;
+		}
+		RESULTS.push("[4] node rects drawn = " + nBox);
+	}
+	catch(e) { RESULTS.push("[4] node rects FAIL " + (e.message)); }
+
+	// edges
+	var aEdge = new GdiPlus.Appearance();
+	try { aEdge.addPen(%[color:0xff8899bb, width:3], 0, 0); } catch(e) { }
+	if(1)
+	{
+		var nEdge = 0;
+		var step = Math.floor(pts.length / 760) + 1;
+		for(var i = 0; i + step < pts.length && nEdge < 760; i += step)
+		{
+			var a = pts[i], b = pts[i + step];
+			var mx = (a[0] + b[0]) / 2;
+			try
+			{
+				stageLayer.drawLines(aEdge, [[a[0], a[1]], [mx, a[1]], [mx, b[1]], [b[0], b[1]]]);
+				nEdge++;
+			}
+			catch(e) { RESULTS.push("[5] edge " + nEdge + " FAIL " + e.message); break; }
+		}
+		RESULTS.push("[5] edges drawn = " + nEdge);
+	}
+
+	// arrow heads at a subset of edge ends (filled triangle; the exact form the
+	// flowchart will use because AdjustableArrowCap size = request x penWidth)
+	try
+	{
+		var aFill = new GdiPlus.Appearance();
+		aFill.addBrush(0xff8899bb, 0, 0);
+		var nArrow = 0;
+		for(var i = 0; i < 200; i++)
+		{
+			var x = 200 + (i % 40) * 38;
+			var y = 60 + Math.floor(i / 40) * 34;
+			stageLayer.drawPolygon(aFill, [[x + 9, y], [x, y - 5], [x, y + 5]]);
+			nArrow++;
+		}
+		RESULTS.push("[6] arrow triangles drawn = " + nArrow);
+	}
+	catch(e) { RESULTS.push("[6] arrow triangles FAIL " + e.message); }
+
+	// one big textured-ish test: thick rounded highlight ring
+	try
+	{
+		var aHi = new GdiPlus.Appearance();
+		aHi.addPen(0xff40e0ff, %[width:14, lineJoin:GdiPlus.LineJoinRound,
+		               startCap:GdiPlus.LineCapRound, endCap:GdiPlus.LineCapRound], 0, 0);
+		stageLayer.drawLines(aHi, [[60, 1000], [400, 1000], [400, 1060], [1860, 1060]]);
+		RESULTS.push("[7] thick rounded polyline OK");
+	}
+	catch(e) { RESULTS.push("[7] thick rounded polyline FAIL " + e.message); }
+
+	// built-in text on top (coexistence at target scale)
+	try
+	{
+		for(var i = 0; i < 20; i++)
+			stageLayer.drawText(60 + (i % 4) * 460, 900 + Math.floor(i / 4) * 22,
+				"NODE-LABEL-" + i, 0xffffff, 255);
+		RESULTS.push("[8] builtin drawText x20 OK");
+	}
+	catch(e) { RESULTS.push("[8] builtin drawText x20 FAIL " + e.message); }
+
+	try { t1 = System.getTickCount(); } catch(e) { }
+	if(t0 >= 0 && t1 >= 0) RESULTS.push("[9] elapsed ms = " + (t1 - t0));
+}
+
+try { main(); }
+catch(e) { RESULTS.push("!!! main threw : " + e.message); }
+
+try
+{
+	var bmp = new Bitmap();
+	stageLayer.copyToBitmapFromMainImage(bmp);
+	bmp.save(LOGDIR + "poc_stress_1920.png", "png");
+	PNG_OK++;
+	RESULTS.push("[10] stress PNG OK");
+}
+catch(e) { PNG_FAIL++; RESULTS.push("[10] stress PNG FAIL " + e.message); }
+RESULTS.push("[11] PNG ok=" + PNG_OK + " fail=" + PNG_FAIL);
+
+for(var i = 0; i < RESULTS.length; i++) p(RESULTS[i]);
+
+var exitTimer = new Timer();
+exitTimer.interval = 1500;
+exitTimer.onTimer = function()
+{
+	this.enabled = false;
+	try { win.close(); } catch(e) { }
+	try { System.exit(); } catch(e) { }
+};
+exitTimer.enabled = true;

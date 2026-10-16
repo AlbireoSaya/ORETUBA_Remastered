@@ -1,0 +1,67 @@
+from pathlib import Path
+import sys,struct,json,hashlib,importlib.util
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'临时/ISSUE-20261011-02/r-tob-control-replay-01'
+sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_control_reference import lookup,table,target
+spec=importlib.util.spec_from_file_location('tob_header',root/'工程/我们没有翅膀R/工具/tob_extract.py');t=importlib.util.module_from_spec(spec);spec.loader.exec_module(t)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');exehash=hashlib.sha256(pe.data).hexdigest();assert exehash=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+buffer,desc,ctx,name=0x3000000,0x1002000,0x1004000,0x1006000
+b.mkdir(parents=True,exist_ok=False)
+files=sorted(p for p in (root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*') if p.suffix.lower()=='.tob')
+rows=[];counts={'labels':0,'table_entries':0,'lookup_calls':0,'table_calls':0,'jump_calls':0,'call_calls':0,'return_calls':0}
+def dw(x):return struct.pack('<I',x&0xffffffff)
+for fi,p in enumerate(files):
+ data=p.read_bytes();h=t.parse_header(data);assert h['label_end']==4+struct.unpack_from('<I',data,4)[0]
+ labels=[];pos=12
+ for decoded,addr in h['labels']:
+  ln=data[pos];raw=data[pos+1:pos+ln-4];assert b'\0' not in raw and raw.decode('cp932')==decoded;assert addr<len(data)-h['code_start'];labels.append((raw,addr));pos+=1+ln
+ assert pos==h['label_end'];codebase=buffer+h['code_start']
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data)
+ descbytes=struct.pack('<5I',buffer,0,0xffffffff,h['code_start'],0);u.mem_write(desc-16,b'\x6a'*16+descbytes+b'\x6a'*16)
+ pristine=bytearray(0x454);pristine[0x20:0x28]=struct.pack('<II',desc,0xffffffff);pristine[0x428:0x430]=struct.pack('<II',ctx+0x28,codebase)
+ guard=b'\x9c'*16;u.mem_write(ctx-16,guard+bytes(pristine)+guard)
+ digest=hashlib.sha256()
+ def invoke(addr,obj,args):
+  val=invoke_thiscall_args(u,addr,obj,args,timeout=0);digest.update(struct.pack('<II',addr,val));return val
+ def cname(raw):
+  assert len(raw)<255;u.mem_write(name,raw+b'\0');return name
+ def checkctx(expected):
+  assert bytes(u.mem_read(ctx-16,len(expected)+32))==guard+bytes(expected)+guard
+ missing=b'__native_missing_label__'
+ while lookup(labels,missing)!=0xffffffff:missing+=b'_'
+ for index in list(range(h['B']))+[h['B'],0xffffffff,0x80000000]:
+  assert invoke(0x4ac200,desc,(index,))==table(h['T'],index);counts['table_calls']+=1
+ for raw,relative in labels:
+  ptr=cname(raw);assert invoke(0x4ac190,desc,(ptr,))==lookup(labels,raw);counts['lookup_calls']+=1
+  expectedpc=target(codebase,labels,raw,0)
+  assert invoke(0x4ad0a0,ctx,(0,ptr,0))==expectedpc;checkctx(pristine);counts['jump_calls']+=1
+  assert invoke(0x4ad010,ctx,(0,ptr,0))==expectedpc;counts['call_calls']+=1
+  pushed=bytearray(pristine);pushed[0x28:0x30]=struct.pack('<II',0xfffffffe,0);pushed[0x428:0x42c]=dw(ctx+0x30);checkctx(pushed)
+  assert invoke(0x4ad120,ctx,(0,0,0))==codebase;counts['return_calls']+=1
+  popped=bytearray(pushed);popped[0x428:0x42c]=dw(ctx+0x28);checkctx(popped);u.mem_write(ctx,bytes(pristine))
+ for raw,want in [(None,0),(missing,0xffffffff)]:
+  assert invoke(0x4ac190,desc,(0 if raw is None else cname(raw),))==want;counts['lookup_calls']+=1
+ assert invoke(0x4ad120,ctx,(0,0,0))==0;checkctx(pristine);counts['return_calls']+=1
+ ptr=cname(missing);assert invoke(0x4ad010,ctx,(0,ptr,0))==0;counts['call_calls']+=1
+ pushed=bytearray(pristine);pushed[0x28:0x30]=struct.pack('<II',0xfffffffe,0);pushed[0x428:0x42c]=dw(ctx+0x30);checkctx(pushed)
+ assert invoke(0x4ad120,ctx,(0,ptr,0))==0;counts['return_calls']+=1
+ popped=bytearray(pushed);popped[0x428:0x42c]=dw(ctx+0x28);checkctx(popped)
+ for override,want in [(0,7),(0xffffffff,0),(5,5)]:
+  pre=bytearray(pristine);pre[0x42c:0x430]=dw(codebase+7);u.mem_write(ctx,bytes(pre))
+  assert invoke(0x4ad010,ctx,(0,0,1))==codebase+1;counts['call_calls']+=1
+  pushed=bytearray(pre);pushed[0x28:0x30]=struct.pack('<II',0xfffffffe,7);pushed[0x428:0x42c]=dw(ctx+0x30);checkctx(pushed)
+  assert invoke(0x4ad120,ctx,(0,0,override))==codebase+want;counts['return_calls']+=1
+  popped=bytearray(pushed);popped[0x428:0x42c]=dw(ctx+0x28);checkctx(popped)
+ assert bytes(u.mem_read(desc-16,52))==b'\x6a'*16+descbytes+b'\x6a'*16
+ assert bytes(u.mem_read(buffer,len(data)))==data and p.read_bytes()==data
+ counts['labels']+=len(labels);counts['table_entries']+=h['B']
+ rows.append({'path':p.relative_to(root).as_posix(),'sha256':hashlib.sha256(data).hexdigest(),'code_start':h['code_start'],'labels':len(labels),'table_entries':h['B'],'call_result_sha256':digest.hexdigest(),'passed':True})
+ if (fi+1)%20==0:print(json.dumps({'files_completed':fi+1}),flush=True)
+summary={'source_exe_sha256':exehash,'files':len(rows),'counts':counts,'passed':True,'scope':'original complete functions on preallocated descriptor/context; same module only; PC returned not applied by dispatcher; corpus structure parsed by existing independent extractor; no full game/effects/runtime initialization'}
+assert hashlib.sha256((root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE').read_bytes()).hexdigest()==exehash
+for n,v in [('corpus-control-results.json',rows),('corpus-control-summary.json',summary)]:
+ out=b/n;assert not out.exists();out.write_text(json.dumps(v,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary),flush=True)

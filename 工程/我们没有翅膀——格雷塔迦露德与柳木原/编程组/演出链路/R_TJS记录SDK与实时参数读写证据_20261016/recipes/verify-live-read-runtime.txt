@@ -1,0 +1,65 @@
+"""Root validation: compare three tiny live TJS gates against fresh original CPU read traces."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import sys
+import time
+import uuid
+
+root = Path.cwd()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015"
+prior = root / "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015"
+sys.path.insert(0, str(group / "工具"))
+from performance_runtime import execute
+from r_vm_tjs_literal import tjs_literal as lit
+
+bits, tag = int(sys.argv[1]), sys.argv[2]
+assert bits in (32, 64) and "/" not in tag and "\\" not in tag
+reference_path = work / "original-record-read-order-results.json"
+reference = json.loads(reference_path.read_text(encoding="utf-8"))
+assert reference["passed"] and len(reference["cases"]) == 3
+out = root / "临时/ISSUE-20261011-02" / tag
+assert not out.exists()
+game, save, evidence = out / "game", out / "savedata", out / "evidence"
+for path in (game, save, evidence):
+    path.mkdir(parents=True)
+memory = ["r_memory_region.tjs", "r_memory_create.tjs", "r_memory_access.tjs", "r_memory_find.tjs", "r_memory_read.tjs", "r_memory_write8.tjs", "r_memory_write32.tjs"]
+owned = ["r_record_live_prefix.tjs", "r_record_live_gate.tjs", "r_record_live_fixture.tjs"]
+names = memory + owned + ["r_vm_fixture_compare.tjs"]
+sources = []
+for name in names:
+    src = (prior / name if name in memory else work / name if name in owned else
+           group / "演出链路/R_TJS表达式VM与暂停恢复证据_20261015" / name)
+    shutil.copyfile(src, game / name)
+    sources.append({"name": name, "path": src.relative_to(root).as_posix(), "sha256": hashlib.sha256(src.read_bytes()).hexdigest()})
+nonce = uuid.uuid4().hex
+commands = ["Debug.startLogToFile();", "try {", f'Debug.message("RLIVE_BEGIN {nonce}");']
+commands += [f'Scripts.execStorage("{name}");' for name in names]
+for case in reference["cases"]:
+    rows = [[0x4000 + offset, width] for offset, width in case["reads"]]
+    next_cursor = 0 if case["accepted_predispatch"] else (case["observed"]["eax"] - 0x3000000 + 0x4000) & 0xffffffff
+    args = [case["opcode"], case["declared_length"], case["count_byte"], rows, case["accepted_predispatch"], next_cursor]
+    commands.append("RLiveGateCheck(" + ",".join(lit(v) for v in args) + ");")
+commands += ['if(RLiveGateCheckCount!==3)throw new Exception("WRONG_LIVE_GATE_COUNT");',
+             f'Debug.message("RLIVE_PASS {nonce} 3");', "} catch(e) {",
+             f'Debug.message("RLIVE_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));', "}", "System.exit();"]
+(game / "startup.tjs").write_text("\n".join(commands) + "\n", encoding="utf-8")
+engine = root / f"工具/krkrz/krkrz_20171225/tvpwin{bits}.exe"
+start = time.time_ns()
+process = execute([str(engine), str(game), "-datapath=" + str(save) + "/", "-readencoding=UTF-8", "-startup=startup.tjs", "-userconf=no"], out, 45, evidence)
+log = save / "krkr.console.log"
+raw = log.read_bytes() if log.exists() else b""
+text = raw.decode("utf-16") if raw.startswith(b"\xff\xfe") else raw.decode("utf-16-le", errors="replace")
+fresh = log.exists() and log.stat().st_mtime_ns >= start
+passed = process["returncode"] == 0 and not process["timed_out"] and process["cleanup_ok"] and fresh and f"RLIVE_PASS {nonce} 3" in text and f"RLIVE_EXCEPTION {nonce}" not in text
+receipt = {"passed": passed, "bits": bits, "cases": 3, "nonce": nonce, "fresh_log": fresh, "process": process, "sources": sources,
+           "reference": reference_path.relative_to(root).as_posix(), "reference_sha256": hashlib.sha256(reference_path.read_bytes()).hexdigest(),
+           "engine_sha256": hashlib.sha256(engine.read_bytes()).hexdigest(), "console_sha256": hashlib.sha256(raw).hexdigest(),
+           "scope": "live prefix and condition gate reads/cursors only; no item decoding, VM, dispatcher or game fidelity proof"}
+(evidence / "verdict.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+(evidence / "console.utf8.txt").write_text(text, encoding="utf-8")
+print(json.dumps({key: receipt[key] for key in ("passed", "bits", "cases", "process")}))
+print("\n".join(line for line in text.splitlines() if "RLIVE_" in line)[-1200:])
+sys.exit(0 if passed else 1)

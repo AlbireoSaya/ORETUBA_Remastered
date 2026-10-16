@@ -1,0 +1,40 @@
+文件：`工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_live_record_gate.tjs`
+
+```tjs
+// r_live_record_gate.tjs
+// RLiveRecordGate(rd, rb, ctx, opcode, conditionValue, lengthCursor)
+// 记录门控：条件不成立则只按 length 跳过；成立则先取 ctx+0x434 参数基址，再读 count。
+// 不读取被跳过分支的 ctx+0x434 / count / items。
+
+function RLiveRecordGate(rd, rb, ctx, opcode, conditionValue, lengthCursor)
+{
+    var c = conditionValue & 0xffffffff;
+    if(opcode == 0)
+    {
+        c = (c == 0) ? 1 : 0;
+    }
+
+    if(c == 0)
+    {
+        var skip = rd(lengthCursor & 0xffffffff) & 0xffffffff;
+        return %[
+            "accepted"        => false,
+            "condition_value" => 0,
+            "next_cursor"     => (lengthCursor + skip) & 0xffffffff
+        ];
+    }
+
+    var params = rd((ctx + 0x434) & 0xffffffff) & 0xffffffff;
+    var n = rb((lengthCursor + 4) & 0xffffffff) & 255;
+    return %[
+        "accepted"        => true,
+        "condition_value" => c,
+        "param_base"      => params,
+        "item_count"      => n,
+        "items_cursor"    => (lengthCursor + 5) & 0xffffffff
+    ];
+}
+```
+
+- 成立分支不读 length；`ctx+0x434` 读取先于 `count`。
+- `opcode==0` 先反相 `c`；两个分支的 `u32` 掩码均按 `0xffffffff` 实际应用。

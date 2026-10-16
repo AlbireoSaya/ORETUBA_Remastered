@@ -1,0 +1,5 @@
+from pathlib import Path
+import sys,runpy,json
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-lock-handoff-20261015';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具'),str(w)]
+for n in ['verify_lucifen_worker_owner.py','verify_lucifen_cs_request.py']:runpy.run_path(str(g/'工具'/n),run_name='__main__')
+out={'bits':32 if sys.maxsize<2**32 else 64,'passed':True,'scope':'actual own owner and request modules, synthetic timeout/generation/recursive/wrong key invariants'};(w/('sdk-owner-pure-'+str(out['bits'])+'.json')).write_text(json.dumps(out,indent=2),encoding='utf-8');print(json.dumps(out))

@@ -1,0 +1,20 @@
+function RValueExtraBits(op, a, b = 0) {
+    if (typeof op !== "Integer" || typeof a !== "Integer" || typeof b !== "Integer") {
+        throw new global.Exception("RValueExtraBits: arguments must be Integer");
+    }
+    a = a & 0xFFFFFFFF;
+    b = b & 0xFFFFFFFF;
+    switch (op) {
+    case 21:
+        return (a ^ b) & 0xFFFFFFFF;
+    case 22:
+        return (~a) & 0xFFFFFFFF;
+    case 24:
+        var sa = (a >= 0x80000000) ? a - 0x100000000 : a;
+        return (sa >> (b & 31)) & 0xFFFFFFFF;
+    case 25:
+        return (a << (b & 31)) & 0xFFFFFFFF;
+    default:
+        throw new global.Exception("RValueExtraBits: unknown op " + op);
+    }
+}

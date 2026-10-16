@@ -1,0 +1,305 @@
+{
+  "source_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "evidence": "root read-only disassembly analysis; no raw EXE bytes",
+  "rows": [
+    {
+      "scope": "native_loader_map1",
+      "start_va": 4877998,
+      "requested_bytes": 34,
+      "instructions": [
+        {
+          "va": 4877998,
+          "fileoffset": 683694,
+          "mnemonic": "mov",
+          "operands": "eax, dword ptr [ebp]"
+        },
+        {
+          "va": 4878001,
+          "fileoffset": 683697,
+          "mnemonic": "mov",
+          "operands": "ecx, dword ptr [ebp + 4]"
+        },
+        {
+          "va": 4878004,
+          "fileoffset": 683700,
+          "mnemonic": "mov",
+          "operands": "edi, dword ptr [esi + 0x38]"
+        },
+        {
+          "va": 4878007,
+          "fileoffset": 683703,
+          "mnemonic": "add",
+          "operands": "ebp, 4"
+        },
+        {
+          "va": 4878010,
+          "fileoffset": 683706,
+          "mnemonic": "add",
+          "operands": "ebp, 4"
+        },
+        {
+          "va": 4878013,
+          "fileoffset": 683709,
+          "mnemonic": "dec",
+          "operands": "edx"
+        },
+        {
+          "va": 4878014,
+          "fileoffset": 683710,
+          "mnemonic": "mov",
+          "operands": "ecx, dword ptr [edi + ecx*4]"
+        },
+        {
+          "va": 4878017,
+          "fileoffset": 683713,
+          "mnemonic": "mov",
+          "operands": "dword ptr [ebx + eax], ecx"
+        },
+        {
+          "va": 4878020,
+          "fileoffset": 683716,
+          "mnemonic": "jne",
+          "operands": "0x4a6eae"
+        },
+        {
+          "va": 4878022,
+          "fileoffset": 683718,
+          "mnemonic": "mov",
+          "operands": "edi, dword ptr [esp + 0x20]"
+        },
+        {
+          "va": 4878026,
+          "fileoffset": 683722,
+          "mnemonic": "mov",
+          "operands": "edx, dword ptr [ebp]"
+        },
+        {
+          "va": 4878029,
+          "fileoffset": 683725,
+          "mnemonic": "add",
+          "operands": "ebp, 4"
+        }
+      ]
+    },
+    {
+      "scope": "op5_abi",
+      "start_va": 4881132,
+      "requested_bytes": 42,
+      "instructions": [
+        {
+          "va": 4881132,
+          "fileoffset": 686828,
+          "mnemonic": "mov",
+          "operands": "ecx, dword ptr [edi]"
+        },
+        {
+          "va": 4881134,
+          "fileoffset": 686830,
+          "mnemonic": "lea",
+          "operands": "eax, [edi + 4]"
+        },
+        {
+          "va": 4881137,
+          "fileoffset": 686833,
+          "mnemonic": "mov",
+          "operands": "dword ptr [esi + 8], eax"
+        },
+        {
+          "va": 4881140,
+          "fileoffset": 686836,
+          "mnemonic": "mov",
+          "operands": "edx, dword ptr [eax]"
+        },
+        {
+          "va": 4881142,
+          "fileoffset": 686838,
+          "mnemonic": "add",
+          "operands": "eax, 4"
+        },
+        {
+          "va": 4881145,
+          "fileoffset": 686841,
+          "mnemonic": "push",
+          "operands": "edx"
+        },
+        {
+          "va": 4881146,
+          "fileoffset": 686842,
+          "mnemonic": "mov",
+          "operands": "dword ptr [esi + 8], eax"
+        },
+        {
+          "va": 4881149,
+          "fileoffset": 686845,
+          "mnemonic": "call",
+          "operands": "ecx"
+        },
+        {
+          "va": 4881151,
+          "fileoffset": 686847,
+          "mnemonic": "mov",
+          "operands": "edx, dword ptr [esi + 8]"
+        },
+        {
+          "va": 4881154,
+          "fileoffset": 686850,
+          "mnemonic": "add",
+          "operands": "esp, 4"
+        },
+        {
+          "va": 4881157,
+          "fileoffset": 686853,
+          "mnemonic": "mov",
+          "operands": "ecx, dword ptr [edx]"
+        },
+        {
+          "va": 4881159,
+          "fileoffset": 686855,
+          "mnemonic": "mov",
+          "operands": "dword ptr [ecx], eax"
+        },
+        {
+          "va": 4881161,
+          "fileoffset": 686857,
+          "mnemonic": "mov",
+          "operands": "eax, dword ptr [esi + 8]"
+        },
+        {
+          "va": 4881164,
+          "fileoffset": 686860,
+          "mnemonic": "add",
+          "operands": "eax, ebp"
+        },
+        {
+          "va": 4881166,
+          "fileoffset": 686862,
+          "mnemonic": "mov",
+          "operands": "dword ptr [esi + 8], eax"
+        },
+        {
+          "va": 4881169,
+          "fileoffset": 686865,
+          "mnemonic": "jmp",
+          "operands": "0x4a7a75"
+        }
+      ]
+    },
+    {
+      "scope": "op40",
+      "start_va": 4882001,
+      "requested_bytes": 26,
+      "instructions": [
+        {
+          "va": 4882001,
+          "fileoffset": 687697,
+          "mnemonic": "mov",
+          "operands": "edx, dword ptr [esi + 0xc]"
+        },
+        {
+          "va": 4882004,
+          "fileoffset": 687700,
+          "mnemonic": "mov",
+          "operands": "ecx, dword ptr [edi]"
+        },
+        {
+          "va": 4882006,
+          "fileoffset": 687702,
+          "mnemonic": "mov",
+          "operands": "eax, dword ptr [edi + 4]"
+        },
+        {
+          "va": 4882009,
+          "fileoffset": 687705,
+          "mnemonic": "sub",
+          "operands": "edx, ecx"
+        },
+        {
+          "va": 4882011,
+          "fileoffset": 687707,
+          "mnemonic": "mov",
+          "operands": "dword ptr [eax], edx"
+        },
+        {
+          "va": 4882013,
+          "fileoffset": 687709,
+          "mnemonic": "mov",
+          "operands": "eax, dword ptr [esi + 8]"
+        },
+        {
+          "va": 4882016,
+          "fileoffset": 687712,
+          "mnemonic": "add",
+          "operands": "eax, 8"
+        },
+        {
+          "va": 4882019,
+          "fileoffset": 687715,
+          "mnemonic": "mov",
+          "operands": "dword ptr [esi + 8], eax"
+        },
+        {
+          "va": 4882022,
+          "fileoffset": 687718,
+          "mnemonic": "jmp",
+          "operands": "0x4a7a75"
+        }
+      ]
+    },
+    {
+      "scope": "native_slot2",
+      "start_va": 4305856,
+      "requested_bytes": 19,
+      "instructions": [
+        {
+          "va": 4305856,
+          "fileoffset": 111552,
+          "mnemonic": "mov",
+          "operands": "dword ptr [0x5355c0], 3"
+        },
+        {
+          "va": 4305866,
+          "fileoffset": 111562,
+          "mnemonic": "xor",
+          "operands": "eax, eax"
+        },
+        {
+          "va": 4305868,
+          "fileoffset": 111564,
+          "mnemonic": "ret",
+          "operands": ""
+        },
+        {
+          "va": 4305869,
+          "fileoffset": 111565,
+          "mnemonic": "nop",
+          "operands": ""
+        },
+        {
+          "va": 4305870,
+          "fileoffset": 111566,
+          "mnemonic": "nop",
+          "operands": ""
+        },
+        {
+          "va": 4305871,
+          "fileoffset": 111567,
+          "mnemonic": "nop",
+          "operands": ""
+        },
+        {
+          "va": 4305872,
+          "fileoffset": 111568,
+          "mnemonic": "push",
+          "operands": "-1"
+        }
+      ]
+    }
+  ],
+  "metadata_inferences": {
+    "native_vector_begin_offset": 56,
+    "op5_pushes_runtime_argument_word_by_value": true,
+    "op40_subtracts_byte_offset_from_VM_SP": true,
+    "native_slot2_sets_state_3_returns_0": true
+  },
+  "native_slot2_high_level_meaning": "unresolved"
+}

@@ -1,0 +1,77 @@
+{
+  "status": "PASS_ORIGINAL_NATIVE322_DERIVED_SURFACE_DLL_CONTINUOUS_WITH_HOST32_SETRECT",
+  "exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "tvpgl_sha256": "63e9308c2e89445daa1d427c5b5e1ed1ce863111ca722a5f3b6dd966d065a985",
+  "host_user32": {
+    "path": "C:\\Windows\\SysWOW64\\user32.dll",
+    "sha256": "c3293da5bbfa50c29a86598b1ecf8d9b7f88daa4e0ef6cbbc47a8189f915c6e5",
+    "image_base": 1776287744,
+    "setrect_va": 1776492080,
+    "machine": 332,
+    "file_version": "655360:1482494173"
+  },
+  "original_derived_constructor": 4538544,
+  "vtable": 5347316,
+  "native_candidate_slot": 322,
+  "handler": 4328272,
+  "native_parameter_words": [
+    "surface pointer",
+    "left",
+    "top",
+    "right",
+    "bottom",
+    "R low8",
+    "G low8",
+    "B low8"
+  ],
+  "calls": [
+    {
+      "va": 4328272,
+      "name": "native_candidate_slot322"
+    },
+    {
+      "va": 4315232,
+      "name": "original_surface_cast"
+    },
+    {
+      "va": 4540768,
+      "name": "original_kind4"
+    },
+    {
+      "va": 1776492080,
+      "name": "host32_SetRect"
+    },
+    {
+      "va": 4543584,
+      "name": "original_derived_fill"
+    },
+    {
+      "va": 5065680,
+      "name": "original_base_fill"
+    },
+    {
+      "va": 268442912,
+      "name": "original_DLL_surface_fill32"
+    },
+    {
+      "va": 268556816,
+      "name": "original_DLL_fill32_kernel"
+    },
+    {
+      "va": 268556816,
+      "name": "original_DLL_fill32_kernel"
+    }
+  ],
+  "raw_native_EAX": 1,
+  "derived_field_0x51": 1,
+  "dirty_rect": [
+    1,
+    1,
+    4,
+    3
+  ],
+  "output_sha256": "b064ad63bb501f2c24880542c61057b4b4968d532dfe27dd4de3f1ff3d0ffcf5",
+  "canaries_unchanged": true,
+  "unknown_return_stubs": 0,
+  "scope": "Original R handler/cast/type getter/derived+base fill/DLL pixels and actual current host32 User32.SetRect machine code in one manually mapped guest. Controlled surface geometry, pixels, null +0x58 notification sink, CPU config, module marker1 and explicit IAT binding; not VM runtime-registration verification, DIB/Win32 loader/original scene or historical-OS parity."
+}

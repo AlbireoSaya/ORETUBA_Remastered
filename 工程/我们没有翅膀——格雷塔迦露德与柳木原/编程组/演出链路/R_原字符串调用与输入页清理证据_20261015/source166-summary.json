@@ -1,0 +1,341 @@
+{
+  "case": 166,
+  "original_full_trace": {
+    "case": 166,
+    "local_directory": "临时/ISSUE-20261011-02/r-original-foreground-script-canonical-166",
+    "trace_present": true,
+    "trace_SHA256": "c5337a72ad23c0edfd250d0b4c0b35a340243e3ad43263b64f0bc2bb8ceb4178",
+    "trace_bytes": 34721632
+  },
+  "parent_round_count": 74,
+  "worker_errors": [],
+  "worker_errors_after_release": [],
+  "root_parent_failures": [
+    {
+      "error": "AssertionError: ",
+      "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 2763, in <module>\nAssertionError\n",
+      "wp_errors": [],
+      "wp_pending": [
+        {
+          "api": "GetWindowLongA",
+          "sp": 57736632,
+          "return_address": 4247917,
+          "args": [
+            1777664000,
+            4294967280
+          ]
+        }
+      ],
+      "wp_poisoned": false,
+      "current_EIP": 1211230,
+      "last_window_events": [
+        {
+          "original_WNDPROC": 4847712,
+          "actual_host_message": 132,
+          "original_stdcall_stack_bytes": 20,
+          "original_return_value": 1,
+          "guest_HWND_token": 1777664000,
+          "original_window_object": 33567052,
+          "before_guest_object_HWND": 1777664000,
+          "after_guest_object_HWND": 1777664000,
+          "message_buffer_bytes": 0,
+          "message_input_SHA256": null,
+          "exact_CREATESTRUCT_pointer_fields_mapped": false,
+          "API_events": [
+            {
+              "original_API": "GetWindowLongA",
+              "original_return_address": 4847769,
+              "original_API_args": [
+                1777664000,
+                4294967275
+              ],
+              "actual_host_API": true,
+              "mapped_guest_result": 33567052,
+              "actual_error": 0,
+              "host_API_called_only_after_outer_emu_stop": true
+            },
+            {
+              "original_API": "DefWindowProcA",
+              "original_return_address": 4847955,
+              "original_API_args": [
+                1777664000,
+                132,
+                0,
+                40174843
+              ],
+              "actual_host_API": true,
+              "mapped_guest_result": 1,
+              "actual_error": 0,
+              "host_API_called_only_after_outer_emu_stop": true
+            }
+          ],
+          "exact_setcursor_HWND_mapping": null,
+          "hit_test_screen_point": [
+            1275,
+            613
+          ],
+          "no_guest_function_registered_with_OS": true,
+          "no_outer_emu_start_active_on_host_API": true
+        },
+        {
+          "original_WNDPROC": 4847712,
+          "actual_host_message": 132,
+          "original_stdcall_stack_bytes": 20,
+          "original_return_value": 1,
+          "guest_HWND_token": 1777664000,
+          "original_window_object": 33567052,
+          "before_guest_object_HWND": 1777664000,
+          "after_guest_object_HWND": 1777664000,
+          "message_buffer_bytes": 0,
+          "message_input_SHA256": null,
+          "exact_CREATESTRUCT_pointer_fields_mapped": false,
+          "API_events": [
+            {
+              "original_API": "GetWindowLongA",
+              "original_return_address": 4847769,
+              "original_API_args": [
+                1777664000,
+                4294967275
+              ],
+              "actual_host_API": true,
+              "mapped_guest_result": 33567052,
+              "actual_error": 0,
+              "host_API_called_only_after_outer_emu_stop": true
+            },
+            {
+              "original_API": "DefWindowProcA",
+              "original_return_address": 4847955,
+              "original_API_args": [
+                1777664000,
+                132,
+                0,
+                40174843
+              ],
+              "actual_host_API": true,
+              "mapped_guest_result": 1,
+              "actual_error": 0,
+              "host_API_called_only_after_outer_emu_stop": true
+            }
+          ],
+          "exact_setcursor_HWND_mapping": null,
+          "hit_test_screen_point": [
+            1275,
+            613
+          ],
+          "no_guest_function_registered_with_OS": true,
+          "no_outer_emu_start_active_on_host_API": true
+        },
+        {
+          "original_WNDPROC": 4847712,
+          "actual_host_message": 32,
+          "original_stdcall_stack_bytes": 20,
+          "original_return_value": 0,
+          "guest_HWND_token": 1777664000,
+          "original_window_object": 33567052,
+          "before_guest_object_HWND": 1777664000,
+          "after_guest_object_HWND": 1777664000,
+          "message_buffer_bytes": 0,
+          "message_input_SHA256": null,
+          "exact_CREATESTRUCT_pointer_fields_mapped": false,
+          "API_events": [
+            {
+              "original_API": "GetWindowLongA",
+              "original_return_address": 4847769,
+              "original_API_args": [
+                1777664000,
+                4294967275
+              ],
+              "actual_host_API": true,
+              "mapped_guest_result": 33567052,
+              "actual_error": 0,
+              "host_API_called_only_after_outer_emu_stop": true
+            }
+          ],
+          "exact_setcursor_HWND_mapping": {
+            "guest_wparam": 1777664000,
+            "guest_lparam": 33554433,
+            "hit_test": 1,
+            "trigger_message": 512
+          },
+          "hit_test_screen_point": null,
+          "no_guest_function_registered_with_OS": true,
+          "no_outer_emu_start_active_on_host_API": true
+        },
+        {
+          "original_WNDPROC": 4847712,
+          "actual_host_message": 512,
+          "original_stdcall_stack_bytes": 20,
+          "original_return_value": 0,
+          "guest_HWND_token": 1777664000,
+          "original_window_object": 33567052,
+          "before_guest_object_HWND": 1777664000,
+          "after_guest_object_HWND": 1777664000,
+          "message_buffer_bytes": 0,
+          "message_input_SHA256": null,
+          "exact_CREATESTRUCT_pointer_fields_mapped": false,
+          "API_events": [
+            {
+              "original_API": "GetWindowLongA",
+              "original_return_address": 4847769,
+              "original_API_args": [
+                1777664000,
+                4294967275
+              ],
+              "actual_host_API": true,
+              "mapped_guest_result": 33567052,
+              "actual_error": 0,
+              "host_API_called_only_after_outer_emu_stop": true
+            },
+            {
+              "original_API": "DefWindowProcA",
+              "original_return_address": 4847955,
+              "original_API_args": [
+                1777664000,
+                512,
+                0,
+                25232075
+              ],
+              "actual_host_API": true,
+              "mapped_guest_result": 0,
+              "actual_error": 0,
+              "host_API_called_only_after_outer_emu_stop": true
+            }
+          ],
+          "exact_setcursor_HWND_mapping": null,
+          "hit_test_screen_point": null,
+          "no_guest_function_registered_with_OS": true,
+          "no_outer_emu_start_active_on_host_API": true
+        }
+      ]
+    }
+  ],
+  "final_worker_payload": {
+    "source_EIP": 33614080,
+    "actual_worker_tid": 28704,
+    "resume_failure": null,
+    "live_font_count": 5,
+    "source_stack12": [
+      4247917,
+      1777664000,
+      4294967280,
+      178218044,
+      124081564,
+      4,
+      12,
+      4264847,
+      124112900,
+      0,
+      4881151,
+      124113076
+    ],
+    "released_cs_request": null
+  },
+  "post_parent_full_actual_window_readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": true,
+    "differing_color_bytes": 0,
+    "source_RGB_SHA256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d",
+    "actual_RGB_SHA256": "eda525bab6d74d439bd683b578242e87fd3146fc4d631b7c81d9f76dd4d47a2d",
+    "source_blits": 6209,
+    "all_source_blit_sample_readbacks_match": false,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "source_completed_presentation_captures_after_parent": [
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 855,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "a2caf3ffdb3ee19e0971621bf9cc7230f2d514478a96d67248be103c221cb452",
+      "actual_RGB_sha256": "3ac22dacab6d8abf55a719c9b9dc606b368e7e1719ba8641cb0bc27ac63bb358",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 1315900,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 912,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "09e88371355ca7477128ada5b0c1d748e5a569a8f934b8640f47df4c824ddf8b",
+      "actual_RGB_sha256": "2ace3f1e13e681e6dc487cd035d5a4952f57926c0423cd81ba33775e37641516",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 969,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "b70c449ac472d5b503e8a952e4b5915fb90ec970b0c830b9fbd77bffc162bb1a",
+      "actual_RGB_sha256": "d355715e8c6daadfec2018ea85f31fd679c8b84cce6c750a0e518e0729bc9426",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1026,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "8772da6b56a2ce7821aa0397f7c61a788bee2c1cf57d71eb7e7afa371c07b3cd",
+      "actual_RGB_sha256": "4bcc9c6d57012c3bd3a2e2877b162da027f6d4d61320315b851cec05e79de96b",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1083,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "cd223ab60c9992e4f0e45703d4e279cf8d1eddd7b8421107501c16843ec49763",
+      "actual_RGB_sha256": "93cdfeabe37eaac05152a0ee4161a7256d31ed98e10e7441be215e5ae5fe0133",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1140,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "2cedfc0fa43b061d73ff8566d4d195fbde2274a5d9c7a5a0f4f4f78219edaf32",
+      "actual_RGB_sha256": "f368fda6a17ac4da7f340cb6cca815109f0b159d519301e0de542ba0d0360f32",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1198,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "76acebf409f4a857be7d3d406de745e6904b3fcd1815c12d2f366797ba9c16a4",
+      "actual_RGB_sha256": "76acebf409f4a857be7d3d406de745e6904b3fcd1815c12d2f366797ba9c16a4",
+      "full_800_600_RGB_match": true,
+      "differing_color_bytes": 0,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1255,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "4630b553ededd44cabbe064540baf76666545876fe553fcd15ef16bd3a55f9de",
+      "actual_RGB_sha256": "4630b553ededd44cabbe064540baf76666545876fe553fcd15ef16bd3a55f9de",
+      "full_800_600_RGB_match": true,
+      "differing_color_bytes": 0,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    }
+  ],
+  "scope": "finite original-code fixture, not complete original shutdown or all-game fidelity"
+}

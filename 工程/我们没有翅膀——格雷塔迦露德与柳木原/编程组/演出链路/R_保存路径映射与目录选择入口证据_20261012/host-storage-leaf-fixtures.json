@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "create_mapped_unicode_directory",
+      "result": 1
+    },
+    {
+      "case": "existing_directory",
+      "result": 0,
+      "error": 183
+    },
+    {
+      "case": "copy_exact_payload",
+      "result": 1,
+      "sha256": "11b168a8d23d3842fef7d0e5268146edfdfd71607231b250307ceb1cc867b906"
+    },
+    {
+      "case": "copy_existing_fail_if_exists",
+      "result": 0,
+      "error": 80
+    },
+    {
+      "case": "set_normal_attributes",
+      "result": 1
+    },
+    {
+      "case": "missing_attribute_target",
+      "result": 0,
+      "error": 2
+    },
+    {
+      "case": "GetFileSize_guarded_high_part_and_unchanged_position",
+      "size": 20
+    },
+    {
+      "case": "GetFileSize_invalid_handle",
+      "result": 4294967295,
+      "error": 6
+    }
+  ],
+  "all_writes_within_workdir": true,
+  "original_data_not_used": true
+}

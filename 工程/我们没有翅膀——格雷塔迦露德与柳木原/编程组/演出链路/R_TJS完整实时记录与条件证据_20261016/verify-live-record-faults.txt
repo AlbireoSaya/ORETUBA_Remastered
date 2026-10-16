@@ -1,0 +1,39 @@
+"""Root checker review: private negative mutations, production and VM unchanged."""
+from pathlib import Path
+import hashlib,json,subprocess,sys
+r=Path.cwd().resolve();w=r/'子代理工作区/ISSUE-20261011-02/r-target-live-record-20261016'
+bits,kind=int(sys.argv[1]),sys.argv[2]
+labels={'count-before-context':'accepted-zero-parameters','false-context-read':'declined-literal-zero-bad-context','array-entry-before-element':'array-parameter','reread-opcode':'condition-rewrites-opcode-next-call','omit-intermediate-pc':'condition-branch-0'}
+assert bits in(32,64)and kind in labels
+ref=r/'临时/ISSUE-20261011-02/r-live-record-original-input-20261016-01'
+original=json.loads((ref/'original-results.json').read_text(encoding='utf-8-sig'));case=next(c for c in original['results']if c['label']==labels[kind])
+out=r/'临时/ISSUE-20261011-02'/f'r-live-record-fault-input-{kind}-{bits}-20261016-01';assert not out.exists();override=out/'override';override.mkdir(parents=True)
+lines=[line for p in sorted(ref.glob('cases-*.tjs'))for line in p.read_text(encoding='utf-8').splitlines()if '"label"=>"'+labels[kind]+'"'in line]
+assert len(lines)==1;casefile=out/'case.tjs';casefile.write_text(lines[0]+'\n',encoding='utf-8')
+name='r_live_array_value.tjs'if kind=='array-entry-before-element'else'r_live_record.tjs'if kind=='reread-opcode'else'r_vm_control.tjs'if kind=='omit-intermediate-pc'else'r_live_record_gate.tjs'
+src=w/name;text=src.read_text(encoding='utf-8');before=hashlib.sha256(src.read_bytes()).hexdigest()
+if kind=='count-before-context':
+ old='    var params = rd((ctx + 0x434) & 0xffffffff) & 0xffffffff;\n    var n = rb((lengthCursor + 4) & 0xffffffff) & 255;'
+ new='    var n = rb((lengthCursor + 4) & 0xffffffff) & 255;\n    var params = rd((ctx + 0x434) & 0xffffffff) & 0xffffffff;'
+elif kind=='false-context-read':
+ old='    if(c == 0)';new='    rd((ctx + 0x434) & 0xffffffff);\n'+old
+elif kind=='array-entry-before-element':
+ old='    var element = rd((p + 4) & 0xffffffff) & 0xffffffff;\n    var base = rd((vector + bank * 12) & 0xffffffff) & 0xffffffff;'
+ new='    var base = rd((vector + bank * 12) & 0xffffffff) & 0xffffffff;\n    var element = rd((p + 4) & 0xffffffff) & 0xffffffff;'
+elif kind=='reread-opcode':
+ old='h.opcode, c[0], c[1]';new='rd((start + 2) & 0xffffffff), c[0], c[1]'
+else:
+ old='            wr(ctx + 8, p + 4);\n            wr(ctx + 8, rd(p + 4));';new='            wr(ctx + 8, rd(p + 4));'
+assert text.count(old)==1;(override/name).write_text(text.replace(old,new),encoding='utf-8')
+segments=case['segments'];m={'cases':1,'records':len(segments),'original_result_source':(ref/'original-results.json').relative_to(r).as_posix(),'original_result_sha256':hashlib.sha256((ref/'original-results.json').read_bytes()).hexdigest(),'files':[dict(source=casefile.relative_to(r).as_posix(),sha256=hashlib.sha256(casefile.read_bytes()).hexdigest())]}
+for key,field in [('caller_events','events'),('vm_writes','vm_writes'),('vm_steps','vm_trace'),('vm_runs','vm_runs'),('native_calls','calls')]:m[key]=sum(len(s[field])for s in segments)
+mp=out/'manifest.json';mp.write_text(json.dumps(m,indent=2),encoding='utf-8');tag=f'r-live-record-fault-{kind}-{bits}-20261016-01'
+proc=subprocess.run([sys.executable,'-X','utf8','-B',str(w/'verify-live-record-runtime.txt'),str(bits),tag,str(mp),str(override)],capture_output=True,timeout=80)
+ep=r/'临时/ISSUE-20261011-02'/tag/'evidence';test=json.loads((ep/'verdict.json').read_text(encoding='utf-8'));console=(ep/'console.utf8.txt').read_text(encoding='utf-8')
+diagnostic='UNEXPECTED_LIVE_EVAL_READ'if kind=='false-context-read'else'RVM_COMPARE'if kind!='reread-opcode'else'LIVE_RECORD_RESULT'
+detected=proc.returncode==1 and not test['passed']and diagnostic in console and test['process']['returncode']==0 and test['process']['cleanup_ok']
+assert hashlib.sha256(src.read_bytes()).hexdigest()==before
+result=dict(passed=detected,fault=kind,bits=bits,case=labels[kind],expected_diagnostic=diagnostic,candidate_unchanged_sha256=before,failed_test_receipt=(ep/'verdict.json').relative_to(r).as_posix(),scope='checker-only private fault, VM unchanged, not positive game proof')
+(ep/'fault-verdict.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8');print(json.dumps(result))
+if not detected:print(console[-1800:])
+sys.exit(0 if detected else 1)

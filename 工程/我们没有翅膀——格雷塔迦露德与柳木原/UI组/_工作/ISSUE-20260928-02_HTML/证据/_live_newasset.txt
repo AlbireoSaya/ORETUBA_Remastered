@@ -1,0 +1,15 @@
+影子素材根：new=1339 件（全 hardlink）｜ old41=1339 件（hardlink + 覆盖 2 件）
+  x_ui_zoomin_on.png ← E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run\game\assets\ui\x_ui_zoomin_on.png (29x29)
+  x_ui_zoomout_on.png ← E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run\game\assets\ui\x_ui_zoomout_on.png (29x29)
+
+=== ① 缩放键按下态（同条件 A/B；只看 fc.zoom_plus 的 29×29 矩形）===
+  变体           maxΔ     AA像素     墨核像素     说明
+  new(29×29)   199      653      90       1:1 无重采样
+  old41→29     199      653      90       0.71× 双线性重采样（更糊：AA +0、maxΔ +0）
+  对照图（左=旧41→29 发虚 ｜ 右=新29 锐）：E3_新素材_zoom按下_旧左vs新右_8x.png
+
+=== ② fc.pbk_panel（426×241，visible_default:false）===
+  默认隐藏 vs 抬起后：该矩形差异像素 0 / 102666（0.0%）⇒ ★ 默认可能仍在绘制
+  抬起后该矩形内与周边底板色不同的像素 53894 / 102666（52.5%）⇒ 面板墨迹已出现
+
+日志：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_HTML\证据\E3_新素材AB_日志.txt

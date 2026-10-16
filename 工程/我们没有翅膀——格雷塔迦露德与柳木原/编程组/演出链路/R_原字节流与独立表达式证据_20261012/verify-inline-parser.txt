@@ -1,0 +1,20 @@
+
+from pathlib import Path
+import sys,json,struct
+root=Path.cwd();out=root/'临时/ISSUE-20261011-02/r-literal-run-replay-01';sys.path.insert(0,str(out))
+from lucifen_inline_expression_reference import parse_inline_expression
+base=b'[s'+struct.pack('<I',4)+b'abcd'+b'\0'+struct.pack('<I',32)+struct.pack('<III',1,0,0xffffffff)+b'\0'*16
+good=parse_inline_expression(base,0);assert good['end']==len(base)==43 and good['relocations']==[{'group':0,'slot_offset':0,'index':0xffffffff}]
+valid=2
+assert parse_inline_expression(base[:10]+b'\xff'+base[11:],0)['compiled_flag']==255
+bad=[(base[:n],0) for n in range(len(base))]+[(bytearray(base),0),(base,True),(base,-1),(base,len(base)),(b'xx'+base[2:],0)]
+v=bytearray(base);struct.pack_into('<I',v,19,1);bad.append((bytes(v),0))
+v=bytearray(base);struct.pack_into('<I',v,15,0xffffffff);bad.append((bytes(v),0))
+v=bytearray(base+b'\0');struct.pack_into('<I',v,11,33);bad.append((bytes(v),0))
+for raw,start in bad:
+ try:parse_inline_expression(raw,start)
+ except ValueError:pass
+ else:raise AssertionError('malformed fixture accepted')
+summary={'valid_cases':valid,'malformed_rejections':len(bad),'passed':True,'scope':'wide inline-expression structural bounds, type, relocation span and exact table tail; no runtime semantics'}
+(out/'inline-expression-parser-fixtures.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(summary))
+

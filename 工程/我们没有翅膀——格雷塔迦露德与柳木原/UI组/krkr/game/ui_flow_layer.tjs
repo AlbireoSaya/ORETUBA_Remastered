@@ -1,0 +1,494 @@
+// ============================================================
+// ui_flow_layer.tjs —— 流程图「层（layer）」运行态 + `current` 高亮环
+//
+// 归属：ISSUE-20260928-02（流程图系统第 2 步）· 模块 E2（krkr 侧）
+// 契约：_工作\ISSUE-20260928-02_第2步\接口冻结.md
+//         §二（番外独立层 / 新动作 `flow_layer`）＋ §四（两端硬判据 1·2·3·5）
+//       ＋ _工作\ISSUE-20260927-05_流程图实现\边与节点数据契约.md（第 1 步，仍然有效）
+//
+// 【本模块负责三件事】
+//   ① **新动作 `flow_layer`**（冻结 §二）：把流程图屏的屏级 flag（数据里的 `fc_layer`）
+//      置为参数值（`"main"` / `"frag1"`..`"frag6"`）。参数**来自被命中的那个热区元素**的
+//      `layer` 字段 —— 数据侧已按 `action:"flow_layer"` + `layer:"…"` 产出（冻结 §二），
+//      由 ui_screens.tjs 在 `uiScreenClick` 命中时抄进 `UIScrHitLayer`，本模块读它。
+//      · 命中集合**天然同步**：绘制与命中都走 `uiScreenElementVisible`（读同一个屏级 flag）
+//        ⇒ 置 flag 之后下一次命中判定就是新层；不需要另建「命中集合」。
+//      · 重绘由调用方照旧负责（`handleClick` / `uiTourStep` 分支末尾都调用 redraw）——
+//        本模块不持有窗口，只改状态并记日志。
+//   ② **`current` 高亮环**（冻结 §四.3）：圆角矩形**描边**，圆角半径 16、线宽 3、
+//      色 `@palette.node_current`、矩形 = 节点元素矩形**内缩 1px**；
+//      **post-pass** —— 由调用方（ui_screens.tjs）在整屏绘制之后调用 ⇒ 画在全部节点之上
+//      （含 `_new` 角标 z=节点z+6 / `_dim` z=节点z+1）。
+//      · 后端复用连线模块的 `layerExDraw.dll` 加载与能力探测（同一 DLL、同一条加载路径）；
+//        不可用时**优雅降级**：一个环都不画、记一行日志、**不崩、不半画**。
+//      ★ 降级**不是失败**（ISSUE-20260928-02 第 2 轮补的判词口径）：插件缺失时「实画 0」
+//        是**降级预期**，与「机制坏了（插件在、却画不出）」必须分开报。故：
+//          · 本模块对外提供 `uiFlowLayerPluginOK()`（插件可用性判据，幂等、不改状态）；
+//          · 降级那条日志固定以 `★FLOWRING-SKIP★ 插件不可用（降级）` 起头
+//            —— 与连线模块的 `[UI][FLOWLINK] … LINK=FAIL`（插件缺失）同一口径；
+//          · 巡演「断言环计数」步（`ui_screens.tjs` 的 `uiScreenSyntheticFlowRing` clear 分支）
+//            须**先问 `uiFlowLayerPluginOK()`** 再判计数，插件不可用时打
+//            `★FLOWRING-SKIP★` 而不是 `★FLOWRING★ FAIL`（否则把降级误判成失败）。
+//   ③ 层的**数据侧校验**：目标层在当前屏数据里没有元素 ⇒ **拒绝**并记一行。
+//      为什么必须校验：本工程交付样例（screen1/screen2/ref150/states）里并没有独立层元素，
+//      若直接置 flag 就会切进一张**空视口**且日志干净 —— 正是上一轮「日志无 error 却全空转」
+//      的根因。宁可明确拒绝，也不静默进空屏。
+//
+// 【与 HTML 侧同一句话】（冻结 §四，两端逐字同句）
+//   ① `fc_layer != "main"` ⇒ 不画任何连线 —— **krkr 侧该判据在 ui_flow_links.tjs 里**
+//      （`uiFlowLinkLayerIsMain`），本模块只管读写 flag，**不重复实现**，避免两端/两处分叉；
+//   ② 节点叠加件的显隐由 `vis_flag`/`vis_when` 决定（本模块读写的就是那个 flag）；
+//   ③ 环几何：`rect = 节点元素矩形内缩 1px`、`r = 16`、`w = 3`、色 `@palette.node_current`；
+//   ④ 命中与绘制恒同集 —— 本模块对环同样守这条（`vis_when` 不满足的节点**不画**环）。
+//
+// 【flag 名从数据推导，不写死】
+//   `uiFlowLayerFlagName(screen)` = 本屏 `fc.node.<NNNN>` 族元素（冻结 §二：主干 117 件
+//   全部挂同一个屏级 flag）的 `vis_flag`。推导不到时才用文件顶部常量兜底
+//   （`UIFlowLayerFlagFallback`，仅「连线模块缺失 / 无节点族」两条降级路径会用到）。
+//
+// 【TJS2 约束】（.zcode\skills\kirikiri-unpack\引擎工作原理.md §5）
+//   无 `for...in`、无闭包（嵌套函数取不到外层变量）、`Dictionary` 无 count；
+//   `typeof` 数值返回 `"Integer"`/`"Real"`（**不是** `"number"`）；
+//   内联数组字面量**不留尾逗号**（会多出一个空元素，见 §5.10）；
+//   `Math.PI` / `Math.cos` / `Math.sin` / `Math.min` 实测可用（源码 tjsMath.cpp 已核）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 常量（本文件**唯一**允许出现数值字面量的地方；绘制行只引用标识符）
+//   数值来源：接口冻结 §四.3（r=16 / w=3 / 内缩 1px）与 §二（环不产元素）；
+//   契约常量不是「硬编码坐标」——它们不随屏/数据变化，且两端同一份公式。
+// ------------------------------------------------------------
+var UIFlowLayerMainName     = "main";        // 主干层名（冻结 §二：`flags_default` 的初值）
+var UIFlowLayerFlagFallback = "fc_layer";    // 仅两条降级路径使用的兜底 flag 名（正常路径从数据推导）
+var UIFlowLayerPaletteKey   = "node_current";// 环色 → `@palette.node_current`（色值一律走调色板）
+var UIFlowLayerRingRadius   = 16;            // 圆角半径（与节点底图轮廓同源）
+var UIFlowLayerRingThick    = 3;             // 描边线宽
+var UIFlowLayerRingInset    = 1;             // 矩形相对**节点元素矩形**内缩
+var UIFlowLayerArcSeg       = 8;             // 每 1/4 圆弧的折线段数（弦高误差 r(1-cos(45/8 deg)) ≈ 0.05px，亚像素）
+var UIFlowLayerRingZOff     = 6;             // 环的**语义** z = max(`fc.node.*` 的 z) + 6（画在全部节点之上）
+var UIFlowLayerListMax      = 6;             // 日志里最多列几个元素 id / 层名
+var UIFlowLayerNodeIdPrefix = "fc.node.";    // 节点族 id 前缀（命名契约，冻结 §二）
+
+// ------------------------------------------------------------
+// 状态（诊断用；巡演验收读它）
+// ------------------------------------------------------------
+var UIFlowLayerReady      = false;   // 模块自检是否通过（装载时置位）
+var UIFlowLayerLast       = "";      // 最近一次成功设置的层
+var UIFlowLayerRingDrawn  = 0;       // 上一帧实画环数
+var UIFlowLayerRingSkip   = 0;       // 上一帧被跳过的 current 节点数（隐藏/几何非法/异常）
+var UIFlowLayerRingZ      = -1;      // 上一帧推导出的环语义 z（-1 = 未推导）
+var UIFlowLayerRingNote   = "(尚未绘制)";
+var UIFlowLayerLoggedRing = "";      // 环日志去重（同一状态下不重复刷）
+var UIFlowLayerLoggedWarn = %[];     // 降级提示去重（按 key）
+var UIFlowLayerErrCount   = 0;       // 环绘制异常计数
+
+// ------------------------------------------------------------
+// 日志
+// ------------------------------------------------------------
+function uiFlowLayerLog(s)
+{
+	try { Debug.message("[UI][FLOWLAYER] " + s); } catch(e) { }
+}
+
+function uiFlowLayerErr(where, e)
+{
+	var m = "";
+	try { m = "" + e.message; } catch(e2) { m = "(no message)"; }
+	UIFlowLayerErrCount++;
+	if(UIFlowLayerErrCount <= 2)
+		uiFlowLayerLog("[ERR] " + where + " : " + m);
+}
+
+function uiFlowLayerLogOnce(key, s)
+{
+	if(UIFlowLayerLoggedWarn["" + key] === true) return;
+	UIFlowLayerLoggedWarn["" + key] = true;
+	uiFlowLayerLog(s);
+}
+
+function uiFlowLayerIdList(arr, maxN)
+{
+	var out = "";
+	for(var i = 0; i < arr.count && i < maxN; i++)
+		out = out + ((i > 0) ? "," : "") + ("" + arr[i].id);
+	if(arr.count > maxN) out = out + ",…(+" + (arr.count - maxN) + ")";
+	return out;
+}
+
+// ------------------------------------------------------------
+// 数据侧推导：层 flag 名 / 层集合 / current 节点
+// ------------------------------------------------------------
+function uiFlowLayerIsNodeId(id)
+{
+	var s = "" + id;
+	return (s.indexOf(UIFlowLayerNodeIdPrefix) == 0);
+}
+
+// 本屏的层 flag 名 = `fc.node.*` 族元素的 `vis_flag`（冻结 §二：主干与独立层元素共用同一个）
+//   优先走连线模块的同一份推导（它是「连线该不该画」这条判据的持有者，避免两处口径分叉）；
+//   连线模块不可用时（脚本装载失败）回落到文件顶部常量，并记一行。
+function uiFlowLayerFlagName(screen)
+{
+	if(screen === void || screen === null) return UIFlowLayerFlagFallback;
+	if(UIScrFlowLinksOK)
+	{
+		var n = uiFlowLinkLayerFlagName(screen);
+		if(n != "") return n;
+	}
+	return UIFlowLayerFlagFallback;
+}
+
+// 数据侧自证：该 flag 是否真的声明在 flags_default 里（机制与数据不同版时能看出来）
+function uiFlowLayerFlagDeclared(screen, flagName)
+{
+	if(screen === void || screen === null) return false;
+	var def = screen.flags_default;
+	if(def === void || def === null) return false;
+	var v = def["" + flagName];
+	return (v !== void && v !== null);
+}
+
+// 本屏出现过的层名集合（= 带该 flag 的元素的 `vis_when` 去重）
+function uiFlowLayerLayerSet(screen, flagName)
+{
+	var set = [];
+	if(screen === void || screen === null || typeof screen != "Object") return set;
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void) return set;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;
+		var fn = el.vis_flag;
+		if(fn === void || fn === null || ("" + fn) != ("" + flagName)) continue;
+		var w = el.vis_when;
+		if(w === void || w === null || ("" + w) == "") continue;
+		var wv = "" + w;
+		var dup = false;
+		for(var j = 0; j < set.count; j++) { if(set[j] == wv) { dup = true; break; } }
+		if(!dup) set.push(wv);
+	}
+	return set;
+}
+
+// `flow_state == "current"` 的节点元素（冻结 §一.1：`current` 由两端程序化画环、**不产元素**）
+function uiFlowLayerCurrentNodes(screen)
+{
+	var out = [];
+	if(screen === void || screen === null || typeof screen != "Object") return out;
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void) return out;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;
+		if(el.kind != "image") continue;                       // 只有节点底图（image）承载 flow_state
+		var st = el.flow_state;
+		if(st === void || st === null || ("" + st) != "current") continue;
+		out.push(el);
+	}
+	return out;
+}
+
+// 环的**语义** z 值 = max(`fc.node.*` 的 z) + 偏移（冻结 §四.3）
+function uiFlowLayerRingZOf(screen)
+{
+	var z = 0, seen = false;
+	if(screen === void || screen === null) return -1;
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void) return -1;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;
+		if(!uiFlowLayerIsNodeId(el.id)) continue;
+		var zz = uiWidgetNum(el, "z", 0);
+		if(!seen || zz > z) { z = zz; seen = true; }
+	}
+	if(!seen) return -1;
+	return z + UIFlowLayerRingZOff;
+}
+
+// ------------------------------------------------------------
+// 动作 `flow_layer`（冻结 §二）
+// ------------------------------------------------------------
+
+// 返回 "" = 允许切到该层；否则 = 拒绝原因（可直接进日志与回报）
+function uiFlowLayerWhyRefuse(screen, layer)
+{
+	if(screen === void || screen === null || typeof screen != "Object") return "当前屏无布局数据";
+	var flag = uiFlowLayerFlagName(screen);
+	if(flag == "") return "本屏元素的 vis_flag 全为空（数据里没有层 flag）";
+	if(!uiFlowLayerFlagDeclared(screen, flag))
+		return "本屏 flags_default 未声明层 flag「" + flag + "」（机制与数据不同版）";
+	var set = uiFlowLayerLayerSet(screen, flag);
+	if(set.count <= 0) return "本屏没有任何带层 flag 的元素（层集合为空）";
+	var found = false;
+	for(var i = 0; i < set.count; i++) { if(set[i] == ("" + layer)) { found = true; break; } }
+	if(!found)
+		return "本屏数据无「" + ("" + layer) + "」层元素（现有层："
+			+ set.join("/") + "）—— 若直接置 flag 会切进空视口，故拒绝";
+	return "";
+}
+
+// ★ 调用点：ui_flow.tjs 的 `uiActionDispatch` 包装器（`act == "flow_layer"` 分支）。
+//   参数取自命中热区的 `layer` 字段（ui_screens.tjs 的 `UIScrHitLayer` → `uiScreenHitLayer()`）。
+function uiFlowLayerApply(layer)
+{
+	var arg = (layer === void || layer === null) ? "" : ("" + layer);
+	if(arg == "")
+	{
+		uiFlowLayerLog("REFUSE flow_layer : 无 layer 参数（本动作只能由带 `layer` 字段的热区触发）");
+		return %[ handled: true, effect: "",
+			msg: "【切层被拒】未取得 layer 参数（动作 `flow_layer` 需由带 `layer` 字段的热区触发）" ];
+	}
+
+	var sid = uiScreenCurrent();
+	if(!uiScreenExists(sid))
+	{
+		uiFlowLayerLog("REFUSE flow_layer : 当前屏「" + sid + "」未登记");
+		return %[ handled: true, effect: "", msg: "【切层被拒】当前屏未登记，无层可切" ];
+	}
+
+	var sc = UILayoutData.screens[sid];
+	var why = uiFlowLayerWhyRefuse(sc, arg);
+	if(why != "")
+	{
+		uiFlowLayerLog("REFUSE flow_layer -> " + arg + " : " + why);
+		return %[ handled: true, effect: "", msg: "【切层被拒】" + why ];
+	}
+
+	var flag = uiFlowLayerFlagName(sc);
+	var before = uiScreenFlagGet(flag);
+	var changed = uiScreenFlagSet(flag, arg);
+	UIFlowLayerLast = arg;
+	uiFlowLayerLog("flow_layer : " + flag + " " + ((before == "") ? "(空)" : before)
+		+ " -> " + arg + (changed ? "（已变）" : "（值未变）")
+		+ " ｜ 屏=" + sid
+		+ " ｜ 命中集合同步=自动（绘制与命中同走 uiScreenElementVisible）"
+		+ " ｜ 重绘=调用方（handleClick / uiTourStep）");
+	return %[ handled: true, effect: "",
+		msg: "切换层 -> " + arg + (changed ? "" : "（已是该层）") ];
+}
+
+// ------------------------------------------------------------
+// `current` 高亮环（冻结 §四.3）—— post-pass
+// ------------------------------------------------------------
+
+// 插件：复用连线模块的加载与能力探测（同一 DLL）。模块缺失时**不调用**（会抛未找到 Member）。
+function uiFlowLayerEnsurePlugin()
+{
+	if(!UIScrFlowLinksOK) return false;
+	return uiFlowLinkEnsure();
+}
+
+// ★ 插件可用性**判据**（ISSUE-20260928-02 第 2 轮）——回答的是「环**能不能**画」，
+//   与「本帧环画了几个」是两件事：插件缺失时环数恒为 0，那是**降级预期**而非失败。
+//   幂等：`uiFlowLinkEnsure()` 在连线模块装载时就已试过一次，这里只是**读**那个结论
+//   （返回 `UIFlowLinkOK`）；连线模块没装载（脚本装载失败）则直接判不可用，**不调用**
+//   它的任何成员（否则会抛「未找到 Member」——本工程既有纪律：不用抛异常当控制流）。
+//   用途：巡演断言步（`uiScreenSyntheticFlowRing` 的 clear 分支）做「降级跳过」前置判据。
+function uiFlowLayerPluginOK()
+{
+	if(!UIScrFlowLinksOK) return false;
+	try
+	{
+		if(uiFlowLinkEnsure()) return true;
+		return false;
+	}
+	catch(e) { return false; }
+}
+
+// 一段四分之一圆弧的点（含端点；调用方负责 i=0 那一点是否已被直边覆盖）
+//   圆心 (ccx,ccy)、半径 r、起始角 a0（弧度）、扫过 +a1（顺时针 = 屏幕坐标 y 向下时的正 sin）
+function uiFlowLayerArcPush(pts, ccx, ccy, r, a0, a1, seg, skipFirst)
+{
+	var i0 = skipFirst ? 1 : 0;
+	for(var i = i0; i <= seg; i++)
+	{
+		var a = a0 + a1 * (i / seg);
+		pts.push([ccx + r * Math.cos(a), ccy + r * Math.sin(a)]);
+	}
+}
+
+// 圆角矩形轮廓点集（几何与 HTML 侧**同一公式**：路径矩形 = 元素矩形内缩 1px、r=16）
+//   · 四角圆弧用三角函数采样（每 1/4 弧 `seg` 段；弦高误差 ≈ 0.05px ⇒ 亚像素），
+//     直边端点与圆弧端点**逐点重合**（不重复 push，避免零长段）；
+//   · 起点/接缝落在**上边中点**：两端圆帽在直边上重合 ⇒ 无可见接缝
+//     （既不依赖实现是否闭合路径，也不受 LineJoin 在接缝处的行为影响）；
+//   · 半径钳位到短边一半（退化保护；本屏 296×65 下 r=16 远小于 32.5，钳位不生效）。
+function uiFlowLayerRoundRectPoints(x, y, w, h, r, seg)
+{
+	var pts = [];
+	var half = Math.floor(Math.min(w, h) / 2);
+	if(r > half) r = half;
+	if(r < 0) r = 0;
+	if(seg < 1) seg = 1;
+	var x1 = x + w, y1 = y + h;
+	var halfPi = Math.PI / 2;
+
+	// 四角圆心（左上 / 右上 / 右下 / 左下）
+	var ax = x + r,  ay = y + r;
+	var bx = x1 - r, by = y + r;
+	var cx = x1 - r, cy = y1 - r;
+	var dx = x + r,  dy = y1 - r;
+
+	pts.push([x + w / 2, y]);                                  // 接缝：上边中点
+	pts.push([bx, y]);                                         // 上边 → 右上角起点
+	uiFlowLayerArcPush(pts, bx, by, r, -halfPi, halfPi, seg, true);   // 右上弧：-90° → 0°
+	uiFlowLayerArcPush(pts, cx, cy, r, 0,      halfPi, seg, false);   // 右下弧：0° → 90°
+	uiFlowLayerArcPush(pts, dx, dy, r, halfPi, halfPi, seg, false);   // 左下弧：90° → 180°
+	uiFlowLayerArcPush(pts, ax, ay, r, Math.PI, halfPi, seg, false);  // 左上弧：180° → 270°
+	pts.push([x + w / 2, y]);                                  // 回到接缝（闭合）
+	return pts;
+}
+
+// ★★ 实测踩坑（第一轮真机：计数 drawn=2 但**画面上一个环都没有**）★★
+//   `uiThemePalette(key)` 返回的是 **0xRRGGBB（不带 alpha）**（见 ui_theme.tjs:61），
+//   而 GDI+ 的 pen 取的是 **ARGB** ⇒ `addPen(0x00D8A83C, …)` 的 alpha=0 是**全透明**：
+//   `drawLines` 不抛错、计数照加，画面却什么都没有 —— 典型的「静默不画」。
+//   ⇒ 这里显式补不透明 alpha（本工程既有写法：startup.tjs 的 primLayer.fillRect
+//     用 `(0xff << 24) | (col & 0xffffff)`）。日志同时打出 ARGB 数值，供逐帧核对。
+function uiFlowLayerArgba(rgb)
+{
+	return (0xff << 24) | (rgb & 0xffffff);
+}
+
+function uiFlowLayerDrawRingOne(stage, el)
+{
+	var r = uiWidgetRect(el);
+	if(r.w <= 0 || r.h <= 0) return false;
+	var ins = UIFlowLayerRingInset;
+	var x = r.x + ins, y = r.y + ins;
+	var w = r.w - ins - ins, h = r.h - ins - ins;
+	if(w <= 0 || h <= 0) return false;
+
+	var pts = uiFlowLayerRoundRectPoints(x, y, w, h, UIFlowLayerRingRadius, UIFlowLayerArcSeg);
+	if(pts.count < 4) return false;
+
+	var color = uiFlowLayerArgba(uiThemePalette(UIFlowLayerPaletteKey));
+	var pen = new GdiPlus.Appearance();
+	pen.addPen(color, %[
+		width: UIFlowLayerRingThick,
+		lineJoin: GdiPlus.LineJoinRound,
+		startCap: GdiPlus.LineCapRound,
+		endCap: GdiPlus.LineCapRound
+	], 0, 0);
+	stage.drawLines(pen, pts);
+	return true;
+}
+
+// ★ 调用点：ui_screens.tjs 的 uiScreenDraw（流程图屏分支，主路径与浮层下层路径各一处），
+//   在整屏绘制**之后**调用 ⇒ 环必在全部元素之上。
+function uiFlowLayerDrawRings(stage, screen, ctx)
+{
+	UIFlowLayerRingDrawn = 0;
+	UIFlowLayerRingSkip  = 0;
+	if(stage === void || stage === null) return 0;
+	if(screen === void || screen === null || typeof screen != "Object") return 0;
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void) return 0;
+
+	UIFlowLayerRingZ = uiFlowLayerRingZOf(screen);
+	var cur = uiFlowLayerCurrentNodes(screen);
+
+	// 没有 current 节点 ⇒ 不画、也**不加载插件**（照旧不产生任何副作用）
+	if(cur.count <= 0)
+	{
+		UIFlowLayerRingNote = "(本屏无 flow_state==current 节点)";
+		if(UIFlowLayerLoggedRing != UIFlowLayerRingNote)
+		{
+			UIFlowLayerLoggedRing = UIFlowLayerRingNote;
+			uiFlowLayerLog("rings current=0（本屏无 current 节点，不画环）｜ layer="
+				+ uiFlowLayerFlagValueForLog(screen));
+		}
+		return 0;
+	}
+
+	// 降级（**不是失败**）：插件不可用 ⇒ 一个环都不画、提示只发一次、不崩、不半画。
+	//   ★ 判词（ISSUE-20260928-02 第 2 轮）：固定以 `★FLOWRING-SKIP★ 插件不可用（降级）`
+	//     起头，与连线模块的 `LINK=FAIL`（插件缺失）同一口径；`uiFlowLayerPluginOK()`
+	//     也就是巡演断言步该用的那条前置判据（插件不可用时不该判 `★FLOWRING★ FAIL`）。
+	if(!uiFlowLayerEnsurePlugin())
+	{
+		UIFlowLayerRingNote = "(layerExDraw 不可用 ⇒ 降级为不画环)";
+		// 模块级常量只在连线模块装载时引用（未装载时读它会抛「未找到 Member」）
+		var why = "ui_flow_links.tjs 未装载 ⇒ 无从探测插件";
+		if(UIScrFlowLinksOK) why = "plugin=" + UIFlowLinkPluginName + " LINK=FAIL";
+		uiFlowLayerLogOnce("noplug", "★FLOWRING-SKIP★ 插件不可用（降级）｜ rings current="
+			+ cur.count + " ⇒ 0 环（不崩、不半画）｜ " + why
+			+ " ｜ 判据 uiFlowLayerPluginOK()=no");
+		return 0;
+	}
+
+	var drawn = 0, skipped = 0;
+	for(var i = 0; i < cur.count; i++)
+	{
+		var el = cur[i];
+		// 命中与绘制**恒同集**（冻结 §四.5）：隐藏的节点不画环
+		if(!uiWidgetElementVisible(el, ctx)) { skipped++; continue; }
+		try
+		{
+			if(uiFlowLayerDrawRingOne(stage, el)) drawn++; else skipped++;
+		}
+		catch(e)
+		{
+			skipped++;
+			uiFlowLayerErr("ring[" + i + "] id=" + ("" + el.id), e);
+		}
+	}
+	UIFlowLayerRingDrawn = drawn;
+	UIFlowLayerRingSkip  = skipped;
+	UIFlowLayerRingNote  = "current=" + cur.count + " drawn=" + drawn + " skipped=" + skipped;
+
+	var line = "rings " + UIFlowLayerRingNote
+		+ " ｜ r=" + UIFlowLayerRingRadius + " w=" + UIFlowLayerRingThick
+		+ " inset=" + UIFlowLayerRingInset
+		+ " ｜ z(语义)=" + UIFlowLayerRingZ
+		+ " ｜ 色=@palette." + UIFlowLayerPaletteKey + "/argb=" + uiFlowLayerArgba(uiThemePalette(UIFlowLayerPaletteKey))
+		+ " ｜ layer=" + uiFlowLayerFlagValueForLog(screen)
+		+ " ｜ 节点=" + uiFlowLayerIdList(cur, UIFlowLayerListMax);
+	if(UIFlowLayerLoggedRing != UIFlowLayerRingNote)
+	{
+		UIFlowLayerLoggedRing = UIFlowLayerRingNote;
+		uiFlowLayerLog(line);
+	}
+	return drawn;
+}
+
+// 当前层值（日志用；flag 名从数据推导，取不到时用兜底名）
+function uiFlowLayerFlagValueForLog(screen)
+{
+	var flag = uiFlowLayerFlagName(screen);
+	var v = uiScreenFlagGet(flag);
+	return flag + "=" + ((v == "") ? "(空)" : v);
+}
+
+// ------------------------------------------------------------
+// 初始化 + 摘要
+// ------------------------------------------------------------
+function uiFlowLayerInit()
+{
+	UIFlowLayerReady = true;
+	uiFlowLayerLog("ready : 动作 flow_layer（层 flag 从数据推导）＋ current 环 post-pass"
+		+ "（r=" + UIFlowLayerRingRadius + " w=" + UIFlowLayerRingThick
+		+ " inset=" + UIFlowLayerRingInset + " 色=@palette." + UIFlowLayerPaletteKey + "）"
+		+ " ｜ 插件=" + (UIScrFlowLinksOK ? "复用 ui_flow_links 的 layerExDraw 探测" : "连线模块缺失 ⇒ 环降级")
+		// ★ 第 2 轮：装载期就把**插件可用性判据**落成一行日志（连线模块此时已探测完毕，
+		//   这里是只读）；负向轮据此判定「环数 0 属降级」而不是失败。
+		+ "（uiFlowLayerPluginOK()=" + (uiFlowLayerPluginOK() ? "ok" : "no") + "）"
+		+ " ｜ TJS2 约束见文件头");
+}
+
+function uiFlowLayerSummary()
+{
+	// ★ 第 2 轮：附 `plugin=ok|no` —— 巡演摘要据此一眼区分「插件缺失（降级）」与「真失败」
+	//   （环数 0 在两种情形下长得一样，是上一轮误判 FAIL 的根源）。
+	return "layer flag=" + UIFlowLayerLast
+		+ " rings=" + UIFlowLayerRingDrawn + "/" + UIFlowLayerRingSkip
+		+ " ringZ=" + UIFlowLayerRingZ
+		+ " plugin=" + (uiFlowLayerPluginOK() ? "ok" : "no")
+		+ " err=" + UIFlowLayerErrCount;
+}
+
+uiFlowLayerInit();

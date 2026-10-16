@@ -1,0 +1,16 @@
+function RMemoryWrite32(s, q, v)
+{
+    if (typeof q !== "Integer") throw new Exception("INVALID_MEMORY_ACCESS");
+    if (typeof v !== "Integer") throw new Exception("INVALID_MEMORY_VALUE");
+    if (q < 0 || q > 4294967292) throw new Exception("INVALID_MEMORY_ACCESS");
+
+    var i;
+    for (i = 0; i < 4; i++)
+    {
+        if (!RMemoryFind(s, q + i, 1, true)) throw new Exception("INVALID_MEMORY_ACCESS");
+    }
+    for (i = 0; i < 4; i++)
+    {
+        RMemoryWrite8(s, q + i, (v >>> (8 * i)) & 255);
+    }
+}

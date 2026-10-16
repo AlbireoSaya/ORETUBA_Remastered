@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "fault": "late-flag",
+  "bits": 64,
+  "expected_diagnostic": "RVM_COMPARE writes",
+  "failed_test_receipt_preserved": true,
+  "test_exit_code": 1,
+  "test_process": {
+    "returncode": 0,
+    "timed_out": false,
+    "cleanup_ok": true,
+    "pid": 18232
+  },
+  "original_candidate_unchanged_sha256": "43b1b12c2a0134b1542f70ddc2805f7819f5f564bb828cca1e53d0c85ee28752",
+  "injections": [
+    {
+      "path": "临时/ISSUE-20261011-02/r-target-runtime-fault-late-flag-64-20261016-01/game/r_bind_expression.tjs",
+      "sha256": "b9e569b9a7cc08f937ba1d06e6a774761428805f3111e42ebf337d213bf478d0"
+    }
+  ],
+  "scope": "negative checker test only; mutated game copy, not production/candidate/original files"
+}

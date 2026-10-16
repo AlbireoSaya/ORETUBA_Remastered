@@ -1,0 +1,75 @@
+{
+  "editor": "DeepSeek editor-easy high API",
+  "rows": [
+    {
+      "id": "icon-01",
+      "source": "子代理工作区/ISSUE-20261011-02/r-window-resources-20261013/icon-01/candidate.txt",
+      "source_SHA256": "d8aba3b847faa748814aec269b2a07a7b600f9ee8b180681b37c61cbc8d13bab",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_icon_bindings.py",
+      "target_LF_SHA256": "b38872b8c0a458170a66d13768c622d75745be90e000abed74ae66a8e1c16972",
+      "exact_editor_patches": []
+    },
+    {
+      "id": "resource-simple-01",
+      "source": "子代理工作区/ISSUE-20261011-02/r-window-resources-20261013/resource-simple-01/candidate.txt",
+      "source_SHA256": "fe755127db2df39c9a6a83c69ba24aaeabccbd0fe65005aa42c61a612b2d1ab8",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_pe_resource_entries.py",
+      "target_LF_SHA256": "509f864992bbe3c02254dc71a4b5e24b09dd89b51148067e4465d90c37da5984",
+      "exact_editor_patches": [
+        {
+          "id": "resource-simple-01",
+          "old": "        q.close()",
+          "new": "        q.close()\n"
+        }
+      ]
+    },
+    {
+      "id": "window-class-01",
+      "source": "子代理工作区/ISSUE-20261011-02/r-window-resources-20261013/window-class-01/candidate.txt",
+      "source_SHA256": "a4071889129b1cf57b2578fc79940e44c6aa00574fee3e13f88dcac657cb35a6",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_window_class_bindings.py",
+      "target_LF_SHA256": "4af40ace60eeaaf2b86c2c1ea06b23f70341c223f4019036676c122c08056c53",
+      "exact_editor_patches": [
+        {
+          "id": "window-class-01",
+          "old": "DefWindowProcA.restype = ctypes.c_ssize_t",
+          "new": "DefWindowProcA.restype = ctypes.c_ssize_t\n"
+        },
+        {
+          "id": "window-class-01",
+          "old": "  Callers preserve the actual bits, including the high-order down/toggled\n  bits; this module never forces, clears or synthesizes native input state.",
+          "new": "  Callers preserve the actual bits, including the high-order down bit and\n  low-order toggle bit; this module never forces, clears or synthesizes native input state."
+        }
+      ]
+    },
+    {
+      "id": "monitor-choice-02",
+      "source": "子代理工作区/ISSUE-20261011-02/r-window-resources-20261013/monitor-choice-02/candidate.txt",
+      "source_SHA256": "d0747fa568d3ad017c1b8715c19e9e2dabbd5cb9394072d4101ac17cd4ed8b74",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_monitor_choice_binding.py",
+      "target_LF_SHA256": "f465cf63d74d7973b0da5c843a3696bbd6473d01fbc9ba956fef8f983e1c6212",
+      "exact_editor_patches": [
+        {
+          "id": "monitor-choice-02",
+          "old": "MonitorFromWindow.restype = ctypes.c_void_p",
+          "new": "MonitorFromWindow.restype = ctypes.c_void_p\n"
+        }
+      ]
+    },
+    {
+      "id": "system-parameters-01",
+      "source": "子代理工作区/ISSUE-20261011-02/r-window-resources-20261013/system-parameters-01/candidate.txt",
+      "source_SHA256": "19a1c7cb5356178bf9f26dad1382cd2f7f4b2d2fbd932e9951fd5600f89ca62e",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_system_parameters_binding.py",
+      "target_LF_SHA256": "9600613b039460747a2a07780a09fbdf666b0b8e5228b476c3403a7161beb9f3",
+      "exact_editor_patches": [
+        {
+          "id": "system-parameters-01",
+          "old": "SystemParametersInfoA.restype = ctypes.c_int",
+          "new": "SystemParametersInfoA.restype = ctypes.c_int\n"
+        }
+      ]
+    }
+  ],
+  "engineering_implementation_root_not_rewritten": true
+}

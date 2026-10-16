@@ -1,0 +1,123 @@
+from pathlib import Path
+import sys,json,hashlib,struct,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';candidate=root/'子代理工作区/ISSUE-20261011-02/r-native-allocator-01'
+sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(root/'工程/我们没有翅膀R/工具'),str(g/'工具'),str(g/'逆向引擎')]
+from lucifen_host_memory import HostMemory
+from lucifen_host_version import host_version_ex_a,host_upper_ascii_z
+from lucifen_guest_memory_bridge import GuestMemoryBlocks
+from lucifen_readonly_io_bridge import ReadOnlyFiles
+from lucifen_readonly_io_guest import bridge_ReadFile,bridge_SetFilePointer,bridge_CloseHandle
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_cdecl_probe import invoke_cdecl
+from pe_min import PE
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_ESI
+import lpk_media as M
+
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+from lucifen_host_path_bridge import bridge_lstrcatA,bridge_CharLowerA,host_open_missing_readonly
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+stage=root/'临时/ISSUE-20261011-02/r-full-SOB-exception-boundary-formal-01';stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE')
+stem='SCRIPT'
+fixture=root/'_game_ascii/ISSUE-20261011-02-resource-empty-01';fixture.mkdir(parents=True,exist_ok=True);assert not list(fixture.iterdir());baseprefix=(str(fixture)+'\\').encode('ascii')
+path=root/'备份/我们没有翅膀R-安装介质/SET_UP'/ (stem+'.LPK');lp=M.load(str(path))
+hx=struct.unpack_from('<I',lp['mm'],4)[0]^lp['k2'];flags=hx>>24;ts=hx&0xffffff
+if flags&1:ts=(ts<<11)-8
+index=bytearray(lp['mm'][8:8+ts]);M.X.decrypt_table(index,lp['k2'],M.X.ROTATE_PATTERN)
+plen=index[4];mode=int(index[5+plen]!=0);trie_start=10+plen;trie_bytes=struct.unpack_from('<I',index,6+plen)[0];entry_start=trie_start+trie_bytes;esize=13 if flags&8 else 9
+entries=list(M.X.traverse_index(index,trie_start,4 if mode else 2,entry_start,esize));assert len(entries)==len(lp['ents'])
+u=map_pe(pe);u.mem_map(0,4096);u.mem_map(0x1fe0000,0x20000);u.mem_write(0,b'\xff'*4)
+u.mem_write(0x100c000,(stem+'.LPK').encode('ascii')+b'\0');u.mem_write(0x100c800,b'\xd5'*4)
+aux=M.aux_for(str(path)) or (0,0);u.mem_write(0x5357f0,struct.pack('<I',aux[0]));u.mem_write(0x5357f8,struct.pack('<I',aux[1]));u.mem_write(0x5357f4,b'\0')
+proxy={0x200e200:('HeapCreate',0x518104,12),0x200e210:('HeapDestroy',0x518108,4),0x200e220:('HeapAlloc',0x51814c,12),0x200e230:('HeapFree',0x518168,12),0x200e240:('GlobalAlloc',0x5181cc,8),0x200e250:('GlobalFree',0x518194,4),0x200e260:('GetVersionExA',0x518278,4),0x200e270:('ReadFile',0x518248,20),0x200e280:('SetFilePointer',0x518244,16)}
+proxy.update({0x200e2d0:('lstrcatA',0x5181c8,8),0x200e2e0:('CharLowerA',0x5182e8,4),0x200e2f0:('CreateFileA',0x51824c,28),0x200e290:('lstrcpyA',0x5181dc,8),0x200e2a0:('lstrlenA',0x5181c4,4),0x200e2b0:('CharUpperA',0x5182ec,4),0x200e2c0:('CloseHandle',0x5181bc,4)})
+for addr,(name,iat,argc)in proxy.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+counts=collections.Counter();events=[];rows=[];heap_handles={};versions=[]
+with HostMemory()as memory,ReadOnlyFiles([path])as files:
+ mirror=GuestMemoryBlocks(u,memory);token,err=files.open(path);assert err==0
+ def hook(uc,a,n,ud):
+  name,iat,argc=proxy[a];esp=uc.reg_read(UC_X86_REG_ESP);ra=struct.unpack('<I',uc.mem_read(esp,4))[0];args=struct.unpack('<%dI'%(argc//4),uc.mem_read(esp+4,argc));event={'api':name,'args':list(args),'native_return_address':ra};rd=lambda q,k:bytes(uc.mem_read(q,k));wr=lambda q,b:uc.mem_write(q,b)
+  if name=='HeapCreate':
+   assert ra==0x50a131;actual=memory.heap_create(*args);assert actual!=0;value=0x68000000+len(heap_handles);heap_handles[value]=actual
+  elif name=='HeapDestroy':
+   actual=heap_handles[args[0]];value=int(memory.heap_destroy(actual));assert value==1;del heap_handles[args[0]]
+  elif name=='HeapAlloc':
+   assert ra==0x507630;actual=memory.heap_alloc(heap_handles[args[0]],args[1],args[2]);assert actual!=0;value=mirror.bind(actual);event['rounded_allocation_size']=memory.size(actual)
+  elif name=='HeapFree':
+   assert ra==0x506668;mirror.sync(args[2]);actual=mirror.host_pointer(args[2]);value=int(memory.heap_free(heap_handles[args[0]],args[1],actual));assert value==1;mirror.unmap(args[2])
+  elif name=='GlobalAlloc':
+   assert ra==0x491e44;actual=memory.global_alloc(*args);assert actual!=0;value=mirror.bind(actual);event['allocation_size']=memory.size(actual)
+  elif name=='GlobalFree':
+   assert ra==0x491e62;mirror.sync(args[0]);actual=mirror.host_pointer(args[0]);assert memory.global_free(actual)==0;value=0;mirror.unmap(args[0])
+  elif name=='GetVersionExA':
+   assert ra==0x509ff7;ok,data,err=host_version_ex_a(rd(args[0],148));assert ok and err==0;wr(args[0],data);value=int(ok);versions.append(list(struct.unpack('<5I',data[:20])));event['observed_version']=versions[-1]
+  elif name=='ReadFile':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value,err=bridge_ReadFile(files,rd,wr,*args);assert value==1 and err==0;event['actual_bytes_read']=struct.unpack('<I',uc.mem_read(args[3],4))[0];assert event['actual_bytes_read']==args[2];mirror.sync(args[1]) if ra!=0x4908ec else None
+  elif name=='SetFilePointer':
+   assert ra==0x49133f;value,err=bridge_SetFilePointer(files,rd,wr,*args);assert err==0 and value==args[1]
+  elif name=='lstrcpyA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrcpyA(rd,wr,args[0],args[1],256)
+  elif name=='lstrlenA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrlenA(rd,args[0],256)
+  elif name=='CharUpperA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;payload=read_z(rd,args[0],256);actual=host_upper_ascii_z(payload);wr(args[0],actual+b'\0');value=args[0]
+  elif name=='CloseHandle':
+   assert ra==0x490c68;value,err=bridge_CloseHandle(files,args[0]);assert value==1 and err==0
+  elif name=='lstrcatA':
+   value=bridge_lstrcatA(rd,wr,args[0],args[1],260)
+  elif name=='CharLowerA':
+   value=bridge_CharLowerA(rd,wr,args[0],260)
+  elif name=='CreateFileA':
+   payload=read_z(rd,args[0],260);assert payload.startswith(baseprefix) and payload.endswith((b'.DAT',b'.SOB'))
+   value,err=host_open_missing_readonly(payload,*args[1:]);assert value==0xffffffff and err in(2,3);event['actual_error']=err
+  counts[name]+=1;event['guest_result']=value;events.append(event);uc.reg_write(UC_X86_REG_EAX,value)
+
+
+ capture={}
+ def stop_raise(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);v=list(struct.unpack('<5I',uc.mem_read(sp,20)))
+  params=list(struct.unpack('<%dI'%v[3],uc.mem_read(v[4],v[3]*4))) if v[3] else []
+  chain=[];p=struct.unpack('<I',uc.mem_read(0,4))[0];seen=set()
+  while p!=0xffffffff and p not in seen and len(chain)<32:
+   seen.add(p);nxt,handler=struct.unpack('<2I',uc.mem_read(p,8));chain.append({'frame':p,'next':nxt,'handler':handler,'frame_words':list(struct.unpack('<8I',uc.mem_read(p,32)))});p=nxt
+  capture.update({'api':'RaiseException','intercept_only_no_dispatch':True,'original_return_address':v[0],'exception_code':v[1],'flags':v[2],'parameter_count':v[3],'parameters':params,'SEH_chain':chain,'original_boot_entry':0x4a67e0,'actual_resource_request_missing':'SCRIPT/SOB_INIT.DAT','not_original_boot_success':True})
+  uc.emu_stop()
+ raise_import=[r[1] for dll,funcs in pe.imports() for r in funcs if r[0]=='RaiseException'];assert raise_import==[0x12770c]
+ candidates=[]
+ for sec in pe.sections:
+  raw=pe.data[sec['rawptr']:sec['rawptr']+sec['rawsize']]
+  for q in range(0,len(raw)-4,4):
+   if struct.unpack_from('<I',raw,q)[0]==raise_import[0]:candidates.append(pe.image_base+sec['vaddr']+q)
+ assert candidates
+ for iat in candidates:u.mem_write(iat,struct.pack('<I',0x200e310))
+ capture['RaiseException_IAT_candidates']=candidates;u.mem_write(0x200e310,b'\x90')
+ u.hook_add(UC_HOOK_CODE,stop_raise,begin=0x200e310,end=0x200e310)
+ handle=u.hook_add(UC_HOOK_CODE,hook,begin=0x200e200,end=0x200e2ff)
+ seh=bytes(u.mem_read(0,4));assert invoke_cdecl(u,0x50a11a,[1],timeout=0)==1
+ reader=invoke_thiscall_args(u,0x490850,0,[0x100c000,token,0x100c800],timeout=0,count=ts*12+1000000);assert reader and struct.unpack('<I',u.mem_read(0x100c800,4))[0]==0
+ controller=invoke_cdecl(u,0x50577f,[0x118],timeout=0);assert invoke_thiscall_args(u,0x41b3d0,controller,[],timeout=0)==controller
+ # Real original application registration block, no native body execution.
+ u.reg_write(UC_X86_REG_ESI,controller);u.reg_write(UC_X86_REG_ESP,0x2008000);u.emu_start(0x40e95c,0x410f2d,timeout=0,count=2000000)
+ assert u.reg_read(UC_X86_REG_EIP)==0x410f2d and u.reg_read(UC_X86_REG_ESP)==0x2008000
+ b,end=struct.unpack('<2I',u.mem_read(controller+0x38,8));assert end-b==809*4
+ provider=0x10f0000;sentinel=0x10f3000;node=sentinel+0x40;desc=0x10f4000;prefixptr=0x10f5000
+ u.mem_write(0x5357cc,struct.pack('<I',provider));u.mem_write(provider,struct.pack('<I',0x51a3a0));u.mem_write(0x5357fc,baseprefix+b'\0')
+ u.mem_write(provider+0x24,struct.pack('<I',sentinel));u.mem_write(sentinel,struct.pack('<I',node));u.mem_write(node,struct.pack('<III',sentinel,0,desc));u.mem_write(desc,struct.pack('<IIII',reader,prefixptr,0,0));u.mem_write(prefixptr,(baseprefix+b'SCRIPT\\').lower()+b'\0')
+ start=len(events)
+ try:
+  ret=invoke_thiscall_args(u,0x4a67e0,controller,[0x5291a4,0x5291b8,0x5291cc,1,1],timeout=0,count=5000000)
+  print('original boot returned',ret,'variables',struct.unpack('<I',u.mem_read(controller+0x60,4))[0],flush=True)
+  assert ret==0 and bytes(u.mem_read(0,4))==seh
+ except Exception:
+  assert capture and u.reg_read(UC_X86_REG_EIP)==0x200e310
+  assert capture['exception_code']==0xe06d7363 and capture['flags']==1 and capture['parameter_count']==3
+  capture['actual_API_counts']=dict(counts)
+  (stage/'missing-initialization-exception-summary.json').write_text(json.dumps(capture,ensure_ascii=False,indent=2),encoding='utf-8')
+  print(json.dumps(capture),flush=True)
+ (stage/'boot-API-results.json').write_text(json.dumps(events,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+ print('counts',dict(counts),flush=True)
+

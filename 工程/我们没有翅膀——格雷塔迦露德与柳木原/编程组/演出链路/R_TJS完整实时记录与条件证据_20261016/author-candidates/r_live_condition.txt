@@ -1,0 +1,28 @@
+交付单个候选，未 Git、未回退、未扩范围、未调用暂停角色；未执行任何测试，故不报测试结论。
+
+**候选路径**：`工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_live_condition.tjs`
+
+```tjs
+// r_live_condition.tjs —— 实时条件 tag 分派（本工程 R 忠实层）
+// 契约：tag 由调用者读出后传入；本模块不写 flags、不调用严格 parser、不做 opcode0 反转。
+function RLiveCondition(rd, tag, p, readArray, evaluateExpr) {
+    switch (tag) {
+    case 0:
+        return [rd(p & 0xffffffff) & 0xffffffff, (p + 4) & 0xffffffff];
+    case 1:
+        return [1, p & 0xffffffff];
+    case 2:
+        return readArray(p);
+    case 3:
+        return evaluateExpr(p);
+    }
+    throw new Exception("UNSUPPORTED_LIVE_CONDITION_TAG");
+}
+```
+
+要点自述（仅接口事实，非测试结论）：
+- tag0 唯一 guest 读＝`rd(addr)` 一次，返回 `[value&0xffffffff, (p+4)&0xffffffff]`；指针推进按 4 字节。
+- tag1 不做任何 guest 读取，返回 `[1, p&0xffffffff]`（常量真值，`p` 原位掩码返回）。
+- tag2/tag3 直接委托 `readArray` / `evaluateExpr`，本模块不解释其返回结构。
+- 未覆盖 tag 一律 `throw new Exception("UNSUPPORTED_LIVE_CONDITION_TAG")`，不静默回落、不返回假值。
+- 仅用 `function` / `switch` / 数组字面量 / 位与掩码 / `new Exception`；未使用 class、字典、`u32`、JS 对象或错误类型。

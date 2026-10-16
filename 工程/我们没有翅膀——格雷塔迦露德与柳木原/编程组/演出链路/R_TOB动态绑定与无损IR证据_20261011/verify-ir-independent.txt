@@ -1,0 +1,27 @@
+from pathlib import Path
+import sys,json,gzip,base64,hashlib,struct,importlib.util
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-tob-dynamic-replay-01';out=b/'lossless-ir'
+spec=importlib.util.spec_from_file_location('independent_header',root/'工程/我们没有翅膀R/工具/tob_extract.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+manifest=json.loads((out/'manifest.json').read_text(encoding='utf-8'));actual_files={p.resolve() for p in (root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*') if p.suffix.lower()=='.tob'};seen=set();rows=[];nr=ni=ne=0
+for row in manifest['files']:
+ p=(root/row['path']).resolve();assert p in actual_files and p not in seen;seen.add(p);d=p.read_bytes();f=out/row['irfile'];assert f.resolve().is_relative_to(out) and f.name==row['irfile']
+ blob=f.read_bytes();assert hashlib.sha256(blob).hexdigest()==row['ir_sha256'];plain=gzip.decompress(blob);assert hashlib.sha256(plain).hexdigest()==row['json_sha256'];obj=json.loads(plain);recovered=base64.b64decode(obj['raw_base64'],validate=True);assert recovered==d and hashlib.sha256(d).hexdigest()==obj['sha256']==row['source_sha256']
+ assert obj['size']==row['size']==len(d) and obj['semantic_status']=='unresolved';h=m.parse_header(d);assert obj['parts'][0]=={'kind':'header','start':0,'end':h['code_start']}
+ reassembled=[];last=0;rct=ict=ect=0
+ for part in obj['parts']:
+  a,z=part['start'],part['end'];assert a==last and a<=z<=len(d);reassembled.append(recovered[a:z]);last=z
+  if part['kind']=='record':
+   rct+=1;assert d[a:a+2]==b'\x5b\x20' and struct.unpack_from('<I',d,a+2)[0]==part['opcode'] and d[a+6]==part['condition']['tag']
+   lp=part['length_offset'];assert z==lp+struct.unpack_from('<I',d,lp)[0] and len(part['items'])==d[lp+4]
+   if part['condition']['kind']=='expression':ect+=1
+   ect+=sum(i['kind']=='expression' for i in part['items'])
+  elif part['kind']=='island':ict+=1
+  else:assert part['kind']=='header' and a==0
+ assert last==len(d) and b''.join(reassembled)==d and rct==row['records'] and ict==row['islands']
+ nr+=rct;ni+=ict;ne+=ect
+ rows.append({'path':row['path'],'source_sha256':row['source_sha256'],'ir_sha256':row['ir_sha256'],'records':rct,'islands':ict,'expressions_preserved':ect,'byte_exact_reconstruction':True})
+assert seen==actual_files
+summary={'files':len(rows),'records':nr,'islands':ni,'expressions_preserved':ne,'source_bytes':sum(r['size'] for r in manifest['files']),'ir_bytes':sum((out/r['irfile']).stat().st_size for r in manifest['files']),'passed':True,'artifact':out.relative_to(root).as_posix(),'scope':'independent gzip/json/base64/hash and contiguous byte reconstruction, existing header parser and direct source word checks; structural raw-preserving IR, full semantic and faithful TJS target not yet complete'}
+for n,v in [('lossless-ir-independent-results.json',rows),('lossless-ir-independent-summary.json',summary)]:
+ p=b/n;assert not p.exists();p.write_text(json.dumps(v,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary))

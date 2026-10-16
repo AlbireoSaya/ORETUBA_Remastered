@@ -1,0 +1,22 @@
+var RVMFCaseCount = 0;
+var RVMFSegmentCount = 0;
+
+function RVMFRunCase(spec)
+{
+    var s = RVMFState(spec);
+    for (var i = 0; i < spec.segments.count; i++)
+    {
+        var seg = spec.segments[i];
+        s.writes = [];
+        s.calls = [];
+        var got = RVMRun(s.rd, s.wr, s.rb, spec.ctx, spec.entry, s.native_cb, 10000, seg.resume);
+        RVMFCompareSegment(s, spec, seg, got);
+        RVMFSegmentCount++;
+    }
+    RVMFCaseCount++;
+    s.rd = void;
+    s.rb = void;
+    s.wr = void;
+    s.wb = void;
+    s.native_cb = void;
+}

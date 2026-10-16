@@ -1,0 +1,24 @@
+// r_dynamic_fixture_state.tjs — RDynamicState(spec)：唯一 fixture 状态构造入口（纯 TJS2，无 OS/UI/IO，未知即抛）
+function RDynamicState(spec) {
+	if (spec === null || typeof spec == "undefined") throw new Exception("RDynamicState: spec is required");
+	var s = %[
+		"memory"=>RDynamicMemory(spec),
+		"ctx"=>spec.ctx,
+		"base"=>spec.base,
+		"params"=>spec.params,
+		"maps"=>spec.maps,
+		"string_base"=>spec.string_base,
+		"writes"=>[],
+		"calls"=>[],
+		"vm_runs"=>[],
+		"vm_traces"=>[],
+		"bindings"=>[]
+	];
+	s.rd = RDynamicRD incontextof s;
+	s.rb = RDynamicRB incontextof s;
+	s.wr = RDynamicWR incontextof s;
+	s.wb = RDynamicWB incontextof s;
+	s.native_cb = RVMFNative incontextof s;
+	s.eval_cb = RDynamicEval incontextof s;
+	return s;
+}

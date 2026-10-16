@@ -1,0 +1,22 @@
+// R/r_vm_fixture_range.tjs
+// RVMFRange(s, q, n, writing=false)：判定 [q, q+n) 是否落在 s.ranges / s.write_ranges
+// 的某段 [start, endExclusive) 内；未命中抛 UNMAPPED_RANGE。
+// 标量路径仅 Integer 与 RValueOp 13·19·20·23·41·44·45，不做任何隐式 Real 化。
+
+function RVMFRange(s, q, n, writing = false) {
+    if (typeof q != "Integer" || typeof n != "Integer")
+        throw new Exception("RVMFRange: q/n must be Integer");
+    if (q < 0 || q > 0xffffffff)
+        throw new Exception("RVMFRange: q out of range");
+    if (n != 1 && n != 4)
+        throw new Exception("RVMFRange: n must be 1 or 4");
+    if (q + n > 0x100000000)
+        throw new Exception("RVMFRange: q+n overflow");
+
+    var r = writing ? s.write_ranges : s.ranges;
+    for (var i = 0; i < r.count; i++) {
+        if (r[i][0] <= q && q + n <= r[i][1])
+            return true;
+    }
+    throw new Exception("UNMAPPED_RANGE");
+}

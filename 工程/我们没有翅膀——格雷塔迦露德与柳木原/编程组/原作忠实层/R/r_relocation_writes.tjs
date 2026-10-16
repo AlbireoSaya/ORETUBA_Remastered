@@ -1,0 +1,13 @@
+// r_relocation_writes.tjs —— 按原顺序把 expr.relocations 逐条交给 RRelocationPair 生成写入记录
+// 纯数据：不读写内存、不 IO、不触碰 OS/UI；pair 构造由外部 helper 承担，本文件不内联
+function RRelocationWrites(expr, codeBase, groupMaps, stringBase)
+{
+    if (typeof stringBase === "void") stringBase = 0;
+    if (typeof codeBase !== "Integer" || codeBase < 0 || codeBase > 0xffffffff) throw new Exception("BAD_RELOCATION_BASE");
+    if (typeof stringBase !== "Integer" || stringBase < 0 || stringBase > 0xffffffff) throw new Exception("BAD_RELOCATION_BASE");
+    var writes = [];
+    var i, n = expr.relocations.count;
+    for (i = 0; i < n; i++)
+        writes.add(RRelocationPair(expr.relocations[i], codeBase, groupMaps, stringBase));
+    return writes;
+}

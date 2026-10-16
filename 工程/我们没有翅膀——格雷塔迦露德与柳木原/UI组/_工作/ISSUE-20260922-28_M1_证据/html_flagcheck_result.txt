@@ -1,0 +1,15 @@
+flags_default={"quickbar":"collapsed","qbar_tip":"","qbar_pin":""}
+DEFAULT bar=hidden tgl=visible toggle=visible hit_lock=hidden tx_lock=hidden tx_save=hidden tips=hidden pin=hidden
+setFlag(quickbar,expanded) changed=true
+EXPANDED bar=visible tgl=visible toggle=visible hit_lock=visible tx_lock=hidden tx_save=hidden tips=hidden pin=hidden
+setFlag(qbar_tip,lock) changed=true
+TIP_lock bar=visible tgl=visible toggle=visible hit_lock=visible tx_lock=visible tx_save=hidden tips=visible pin=hidden
+setFlag(qbar_pin,1) changed=true
+PIN bar=visible tgl=visible toggle=visible hit_lock=visible tx_lock=visible tx_save=hidden tips=visible pin=visible
+setFlag 同值再置 changed=false（应为 false = 未变化）
+getFlag(qbar_tip)=lock  getFlag(未设置键)=""
+elementVisible({vis_flag:"quickbar",vis_when:"expanded"})=true
+elementVisible({no_flag})=true
+elementVisible({visible_default:false})=false
+elementVisible({vis_flag:"qbar_tip",vis_when:"*"})=true
+RESULT=OK

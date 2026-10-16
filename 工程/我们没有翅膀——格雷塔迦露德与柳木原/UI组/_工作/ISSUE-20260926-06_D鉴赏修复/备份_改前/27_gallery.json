@@ -1,0 +1,2371 @@
+{
+  "id": "gallery",
+  "title_cn": "CG 鉴赏",
+  "owner": "M2",
+  "attach": "gal_shell",
+  "flags_default": {
+    "gal_page": "1"
+  },
+  "note": "**M2 重写（2026-09-24 · ISSUE-20260924-08）**：按主代理冻结的接口书重做 CG 鉴赏页 —— **24 栏网格 × 12 页 = 286 栏**（参考作《交汇协奏曲》CG 页结构），弃用旧方案（旧版为「左侧 4 选择框 + 右侧预览大框 + 章节名条 + 4 条简介」的 AI 生图整页底图布局，已随本次重写整体退场；旧素材 `x_gen_gallerypage.png` **保留不删**）。\n★ 配色与材质用**我方冰蓝霜白族**（`layout\\palette.json` 为唯一色值来源），**不铺底图**：与 `26_backlog` / `28_music` / `37_dress` 同口径 —— 系统屏是**透明浮层**，只留一层薄压暗（`gal.dim`），画面透出下层剧情背景。\n★ **文字一律引擎绘制**（本工程铁律：禁止把文字烘焙进图）。\n★ 本屏**不画页签条 / 大标题 / 返回键** —— 主代理 2026-09-24 裁决「页签 = 切屏」，共享外壳由 M1 的浮层屏 `39_gal_shell.json` 提供（本屏 `attach` 它）。\n★ 素材来源：`工具\\m50_make_gallery_thumbs.py`（程序化生成，幂等、自带断言）；栏位顺序真相源 = `_工作\\ISSUE-20260924-08_鉴赏模式\\CG候选集\\新顺序\\映射.tsv`。\n★ 首版由 `_工作\\ISSUE-20260924-08_鉴赏模式\\复现脚本\\m50_build_gallery_screen.py` **一次性**产出；此后本文件手工维护（本屏登记在 `test_gen_sync.py` 的 `NO_GEN`，无生成器回写）。\n★ **M8 一审 R3 修复（2026-09-24）**：新增屏级字段 **`page_flag: \"gal_page\"`** —— 翻页动作`gallery_page_prev/next` 写完 `UIScrPage` 后按本字段把页号（1 基）写进 flag（krkr `uiScreenFlagSet` ／HTML `setFlag`），`gal.page_tx_01..12` 的 `vis_flag:gal_page` 互斥文本由此**真正随页切换**；`uiScreenPageVariantClearFor` 归零时同步复位 \"1\"。字段语义见 `_schema.md` §六 M1 块。",
+  "elements": [
+    {
+      "id": "gal.dim",
+      "kind": "rect",
+      "z": 1,
+      "visible_default": true,
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "color": "@palette.backdrop",
+      "opacity": 70,
+      "note": "全屏压暗遮罩（与 26_backlog 的 bl.dim / 28_music 的 mu.dim 同口径：系统屏为**透明浮层**，不铺底图，只留薄压暗保证文字与缩略图可读）。"
+    },
+    {
+      "id": "gal.list",
+      "kind": "list",
+      "z": 20,
+      "visible_default": true,
+      "orientation": "h",
+      "x": 57,
+      "y": 187,
+      "w": 1806,
+      "h": 700,
+      "item_w": 291,
+      "item_h": 166,
+      "gap": 12,
+      "max_cols": 6,
+      "max_rows": 4,
+      "scroll": {
+        "mode": "page",
+        "page_size": 24,
+        "pager": false
+      },
+      "labels": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "actions": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "item_frame": {
+        "asset": "ui/x_ui_gal_cell_off.png",
+        "state_assets": {
+          "normal": "ui/x_ui_gal_cell_off.png",
+          "hover": "ui/x_ui_gal_cell_over.png",
+          "pressed": "ui/x_ui_gal_cell_on.png"
+        },
+        "opacity": 255
+      },
+      "item_variants": {
+        "frames": [
+          [
+            "ui/x_gal_c001_1.png",
+            "ui/x_gal_c001_2.png",
+            "ui/x_gal_c001_3.png"
+          ],
+          [
+            "ui/x_gal_c002_1.png",
+            "ui/x_gal_c002_2.png"
+          ],
+          [
+            "ui/x_gal_c003_1.png",
+            "ui/x_gal_c003_2.png"
+          ],
+          [
+            "ui/x_gal_c004_1.png"
+          ],
+          [
+            "ui/x_gal_c005_1.png",
+            "ui/x_gal_c005_2.png",
+            "ui/x_gal_c005_3.png"
+          ],
+          [
+            "ui/x_gal_c006_1.png"
+          ],
+          [
+            "ui/x_gal_c007_1.png",
+            "ui/x_gal_c007_2.png",
+            "ui/x_gal_c007_3.png"
+          ],
+          [
+            "ui/x_gal_c008_1.png",
+            "ui/x_gal_c008_2.png",
+            "ui/x_gal_c008_3.png"
+          ],
+          [
+            "ui/x_gal_c009_1.png",
+            "ui/x_gal_c009_2.png"
+          ],
+          [
+            "ui/x_gal_c010_1.png",
+            "ui/x_gal_c010_2.png",
+            "ui/x_gal_c010_3.png",
+            "ui/x_gal_c010_4.png"
+          ],
+          [
+            "ui/x_gal_c011_1.png",
+            "ui/x_gal_c011_2.png"
+          ],
+          [
+            "ui/x_gal_c012_1.png",
+            "ui/x_gal_c012_2.png",
+            "ui/x_gal_c012_3.png",
+            "ui/x_gal_c012_4.png",
+            "ui/x_gal_c012_5.png",
+            "ui/x_gal_c012_6.png",
+            "ui/x_gal_c012_7.png",
+            "ui/x_gal_c012_8.png",
+            "ui/x_gal_c012_9.png",
+            "ui/x_gal_c012_10.png"
+          ],
+          [
+            "ui/x_gal_c013_1.png",
+            "ui/x_gal_c013_2.png",
+            "ui/x_gal_c013_3.png"
+          ],
+          [
+            "ui/x_gal_c014_1.png",
+            "ui/x_gal_c014_2.png",
+            "ui/x_gal_c014_3.png"
+          ],
+          [
+            "ui/x_gal_c015_1.png",
+            "ui/x_gal_c015_2.png"
+          ],
+          [
+            "ui/x_gal_c016_1.png",
+            "ui/x_gal_c016_2.png",
+            "ui/x_gal_c016_3.png"
+          ],
+          [
+            "ui/x_gal_c017_1.png",
+            "ui/x_gal_c017_2.png",
+            "ui/x_gal_c017_3.png",
+            "ui/x_gal_c017_4.png"
+          ],
+          [
+            "ui/x_gal_c018_1.png",
+            "ui/x_gal_c018_2.png"
+          ],
+          [
+            "ui/x_gal_c019_1.png",
+            "ui/x_gal_c019_2.png",
+            "ui/x_gal_c019_3.png"
+          ],
+          [
+            "ui/x_gal_c020_1.png",
+            "ui/x_gal_c020_2.png"
+          ],
+          [
+            "ui/x_gal_c021_1.png"
+          ],
+          [
+            "ui/x_gal_c022_1.png"
+          ],
+          [
+            "ui/x_gal_c023_1.png"
+          ],
+          [
+            "ui/x_gal_c024_1.png"
+          ],
+          [
+            "ui/x_gal_c025_1.png"
+          ],
+          [
+            "ui/x_gal_c026_1.png"
+          ],
+          [
+            "ui/x_gal_c027_1.png"
+          ],
+          [
+            "ui/x_gal_c028_1.png",
+            "ui/x_gal_c028_2.png",
+            "ui/x_gal_c028_3.png"
+          ],
+          [
+            "ui/x_gal_c029_1.png",
+            "ui/x_gal_c029_2.png",
+            "ui/x_gal_c029_3.png",
+            "ui/x_gal_c029_4.png"
+          ],
+          [
+            "ui/x_gal_c030_1.png",
+            "ui/x_gal_c030_2.png",
+            "ui/x_gal_c030_3.png",
+            "ui/x_gal_c030_4.png"
+          ],
+          [
+            "ui/x_gal_c031_1.png",
+            "ui/x_gal_c031_2.png",
+            "ui/x_gal_c031_3.png",
+            "ui/x_gal_c031_4.png"
+          ],
+          [
+            "ui/x_gal_c032_1.png"
+          ],
+          [
+            "ui/x_gal_c033_1.png",
+            "ui/x_gal_c033_2.png"
+          ],
+          [
+            "ui/x_gal_c034_1.png",
+            "ui/x_gal_c034_2.png",
+            "ui/x_gal_c034_3.png",
+            "ui/x_gal_c034_4.png"
+          ],
+          [
+            "ui/x_gal_c035_1.png",
+            "ui/x_gal_c035_2.png"
+          ],
+          [
+            "ui/x_gal_c036_1.png",
+            "ui/x_gal_c036_2.png",
+            "ui/x_gal_c036_3.png",
+            "ui/x_gal_c036_4.png"
+          ],
+          [
+            "ui/x_gal_c037_1.png"
+          ],
+          [
+            "ui/x_gal_c038_1.png",
+            "ui/x_gal_c038_2.png"
+          ],
+          [
+            "ui/x_gal_c039_1.png",
+            "ui/x_gal_c039_2.png",
+            "ui/x_gal_c039_3.png"
+          ],
+          [
+            "ui/x_gal_c040_1.png",
+            "ui/x_gal_c040_2.png",
+            "ui/x_gal_c040_3.png",
+            "ui/x_gal_c040_4.png"
+          ],
+          [
+            "ui/x_gal_c041_1.png",
+            "ui/x_gal_c041_2.png",
+            "ui/x_gal_c041_3.png",
+            "ui/x_gal_c041_4.png"
+          ],
+          [
+            "ui/x_gal_c042_1.png",
+            "ui/x_gal_c042_2.png",
+            "ui/x_gal_c042_3.png",
+            "ui/x_gal_c042_4.png"
+          ],
+          [
+            "ui/x_gal_c043_1.png",
+            "ui/x_gal_c043_2.png"
+          ],
+          [
+            "ui/x_gal_c044_1.png"
+          ],
+          [
+            "ui/x_gal_c045_1.png",
+            "ui/x_gal_c045_2.png"
+          ],
+          [
+            "ui/x_gal_c046_1.png",
+            "ui/x_gal_c046_2.png",
+            "ui/x_gal_c046_3.png",
+            "ui/x_gal_c046_4.png"
+          ],
+          [
+            "ui/x_gal_c047_1.png",
+            "ui/x_gal_c047_2.png",
+            "ui/x_gal_c047_3.png",
+            "ui/x_gal_c047_4.png"
+          ],
+          [
+            "ui/x_gal_c048_1.png",
+            "ui/x_gal_c048_2.png",
+            "ui/x_gal_c048_3.png",
+            "ui/x_gal_c048_4.png"
+          ],
+          [
+            "ui/x_gal_c049_1.png",
+            "ui/x_gal_c049_2.png",
+            "ui/x_gal_c049_3.png",
+            "ui/x_gal_c049_4.png"
+          ],
+          [
+            "ui/x_gal_c050_1.png",
+            "ui/x_gal_c050_2.png",
+            "ui/x_gal_c050_3.png",
+            "ui/x_gal_c050_4.png"
+          ],
+          [
+            "ui/x_gal_c051_1.png",
+            "ui/x_gal_c051_2.png"
+          ],
+          [
+            "ui/x_gal_c052_1.png",
+            "ui/x_gal_c052_2.png"
+          ],
+          [
+            "ui/x_gal_c053_1.png",
+            "ui/x_gal_c053_2.png",
+            "ui/x_gal_c053_3.png"
+          ],
+          [
+            "ui/x_gal_c054_1.png"
+          ],
+          [
+            "ui/x_gal_c055_1.png"
+          ],
+          [
+            "ui/x_gal_c056_1.png",
+            "ui/x_gal_c056_2.png",
+            "ui/x_gal_c056_3.png"
+          ],
+          [
+            "ui/x_gal_c057_1.png",
+            "ui/x_gal_c057_2.png"
+          ],
+          [
+            "ui/x_gal_c058_1.png",
+            "ui/x_gal_c058_2.png"
+          ],
+          [
+            "ui/x_gal_c059_1.png"
+          ],
+          [
+            "ui/x_gal_c060_1.png",
+            "ui/x_gal_c060_2.png"
+          ],
+          [
+            "ui/x_gal_c061_1.png",
+            "ui/x_gal_c061_2.png",
+            "ui/x_gal_c061_3.png"
+          ],
+          [
+            "ui/x_gal_c062_1.png",
+            "ui/x_gal_c062_2.png",
+            "ui/x_gal_c062_3.png",
+            "ui/x_gal_c062_4.png"
+          ],
+          [
+            "ui/x_gal_c063_1.png",
+            "ui/x_gal_c063_2.png",
+            "ui/x_gal_c063_3.png"
+          ],
+          [
+            "ui/x_gal_c064_1.png",
+            "ui/x_gal_c064_2.png",
+            "ui/x_gal_c064_3.png"
+          ],
+          [
+            "ui/x_gal_c065_1.png",
+            "ui/x_gal_c065_2.png",
+            "ui/x_gal_c065_3.png",
+            "ui/x_gal_c065_4.png"
+          ],
+          [
+            "ui/x_gal_c066_1.png"
+          ],
+          [
+            "ui/x_gal_c067_1.png",
+            "ui/x_gal_c067_2.png",
+            "ui/x_gal_c067_3.png"
+          ],
+          [
+            "ui/x_gal_c068_1.png"
+          ],
+          [
+            "ui/x_gal_c069_1.png",
+            "ui/x_gal_c069_2.png",
+            "ui/x_gal_c069_3.png"
+          ],
+          [
+            "ui/x_gal_c070_1.png"
+          ],
+          [
+            "ui/x_gal_c071_1.png"
+          ],
+          [
+            "ui/x_gal_c072_1.png",
+            "ui/x_gal_c072_2.png",
+            "ui/x_gal_c072_3.png"
+          ],
+          [
+            "ui/x_gal_c073_1.png",
+            "ui/x_gal_c073_2.png",
+            "ui/x_gal_c073_3.png",
+            "ui/x_gal_c073_4.png"
+          ],
+          [
+            "ui/x_gal_c074_1.png",
+            "ui/x_gal_c074_2.png",
+            "ui/x_gal_c074_3.png",
+            "ui/x_gal_c074_4.png"
+          ],
+          [
+            "ui/x_gal_c075_1.png"
+          ],
+          [
+            "ui/x_gal_c076_1.png"
+          ],
+          [
+            "ui/x_gal_c077_1.png"
+          ],
+          [
+            "ui/x_gal_c078_1.png"
+          ],
+          [
+            "ui/x_gal_c079_1.png"
+          ],
+          [
+            "ui/x_gal_c080_1.png",
+            "ui/x_gal_c080_2.png"
+          ],
+          [
+            "ui/x_gal_c081_1.png",
+            "ui/x_gal_c081_2.png"
+          ],
+          [
+            "ui/x_gal_c082_1.png",
+            "ui/x_gal_c082_2.png"
+          ],
+          [
+            "ui/x_gal_c083_1.png"
+          ],
+          [
+            "ui/x_gal_c084_1.png"
+          ],
+          [
+            "ui/x_gal_c085_1.png"
+          ],
+          [
+            "ui/x_gal_c086_1.png",
+            "ui/x_gal_c086_2.png"
+          ],
+          [
+            "ui/x_gal_c087_1.png",
+            "ui/x_gal_c087_2.png",
+            "ui/x_gal_c087_3.png"
+          ],
+          [
+            "ui/x_gal_c088_1.png"
+          ],
+          [
+            "ui/x_gal_c089_1.png",
+            "ui/x_gal_c089_2.png",
+            "ui/x_gal_c089_3.png",
+            "ui/x_gal_c089_4.png"
+          ],
+          [
+            "ui/x_gal_c090_1.png",
+            "ui/x_gal_c090_2.png",
+            "ui/x_gal_c090_3.png"
+          ],
+          [
+            "ui/x_gal_c091_1.png",
+            "ui/x_gal_c091_2.png"
+          ],
+          [
+            "ui/x_gal_c092_1.png",
+            "ui/x_gal_c092_2.png",
+            "ui/x_gal_c092_3.png",
+            "ui/x_gal_c092_4.png"
+          ],
+          [
+            "ui/x_gal_c093_1.png",
+            "ui/x_gal_c093_2.png",
+            "ui/x_gal_c093_3.png",
+            "ui/x_gal_c093_4.png"
+          ],
+          [
+            "ui/x_gal_c094_1.png",
+            "ui/x_gal_c094_2.png",
+            "ui/x_gal_c094_3.png",
+            "ui/x_gal_c094_4.png"
+          ],
+          [
+            "ui/x_gal_c095_1.png",
+            "ui/x_gal_c095_2.png",
+            "ui/x_gal_c095_3.png",
+            "ui/x_gal_c095_4.png"
+          ],
+          [
+            "ui/x_gal_c096_1.png",
+            "ui/x_gal_c096_2.png",
+            "ui/x_gal_c096_3.png",
+            "ui/x_gal_c096_4.png"
+          ],
+          [
+            "ui/x_gal_c097_1.png",
+            "ui/x_gal_c097_2.png",
+            "ui/x_gal_c097_3.png",
+            "ui/x_gal_c097_4.png"
+          ],
+          [
+            "ui/x_gal_c098_1.png",
+            "ui/x_gal_c098_2.png",
+            "ui/x_gal_c098_3.png",
+            "ui/x_gal_c098_4.png"
+          ],
+          [
+            "ui/x_gal_c099_1.png",
+            "ui/x_gal_c099_2.png",
+            "ui/x_gal_c099_3.png",
+            "ui/x_gal_c099_4.png"
+          ],
+          [
+            "ui/x_gal_c100_1.png",
+            "ui/x_gal_c100_2.png",
+            "ui/x_gal_c100_3.png"
+          ],
+          [
+            "ui/x_gal_c101_1.png"
+          ],
+          [
+            "ui/x_gal_c102_1.png",
+            "ui/x_gal_c102_2.png",
+            "ui/x_gal_c102_3.png",
+            "ui/x_gal_c102_4.png"
+          ],
+          [
+            "ui/x_gal_c103_1.png",
+            "ui/x_gal_c103_2.png"
+          ],
+          [
+            "ui/x_gal_c104_1.png",
+            "ui/x_gal_c104_2.png",
+            "ui/x_gal_c104_3.png",
+            "ui/x_gal_c104_4.png"
+          ],
+          [
+            "ui/x_gal_c105_1.png",
+            "ui/x_gal_c105_2.png",
+            "ui/x_gal_c105_3.png",
+            "ui/x_gal_c105_4.png"
+          ],
+          [
+            "ui/x_gal_c106_1.png",
+            "ui/x_gal_c106_2.png",
+            "ui/x_gal_c106_3.png",
+            "ui/x_gal_c106_4.png"
+          ],
+          [
+            "ui/x_gal_c107_1.png",
+            "ui/x_gal_c107_2.png",
+            "ui/x_gal_c107_3.png",
+            "ui/x_gal_c107_4.png"
+          ],
+          [
+            "ui/x_gal_c108_1.png",
+            "ui/x_gal_c108_2.png"
+          ],
+          [
+            "ui/x_gal_c109_1.png",
+            "ui/x_gal_c109_2.png",
+            "ui/x_gal_c109_3.png",
+            "ui/x_gal_c109_4.png"
+          ],
+          [
+            "ui/x_gal_c110_1.png",
+            "ui/x_gal_c110_2.png",
+            "ui/x_gal_c110_3.png",
+            "ui/x_gal_c110_4.png"
+          ],
+          [
+            "ui/x_gal_c111_1.png"
+          ],
+          [
+            "ui/x_gal_c112_1.png",
+            "ui/x_gal_c112_2.png"
+          ],
+          [
+            "ui/x_gal_c113_1.png"
+          ],
+          [
+            "ui/x_gal_c114_1.png"
+          ],
+          [
+            "ui/x_gal_c115_1.png",
+            "ui/x_gal_c115_2.png",
+            "ui/x_gal_c115_3.png"
+          ],
+          [
+            "ui/x_gal_c116_1.png",
+            "ui/x_gal_c116_2.png",
+            "ui/x_gal_c116_3.png"
+          ],
+          [
+            "ui/x_gal_c117_1.png"
+          ],
+          [
+            "ui/x_gal_c118_1.png"
+          ],
+          [
+            "ui/x_gal_c119_1.png",
+            "ui/x_gal_c119_2.png",
+            "ui/x_gal_c119_3.png"
+          ],
+          [
+            "ui/x_gal_c120_1.png"
+          ],
+          [
+            "ui/x_gal_c121_1.png",
+            "ui/x_gal_c121_2.png"
+          ],
+          [
+            "ui/x_gal_c122_1.png"
+          ],
+          [
+            "ui/x_gal_c123_1.png",
+            "ui/x_gal_c123_2.png",
+            "ui/x_gal_c123_3.png",
+            "ui/x_gal_c123_4.png"
+          ],
+          [
+            "ui/x_gal_c124_1.png",
+            "ui/x_gal_c124_2.png",
+            "ui/x_gal_c124_3.png"
+          ],
+          [
+            "ui/x_gal_c125_1.png",
+            "ui/x_gal_c125_2.png"
+          ],
+          [
+            "ui/x_gal_c126_1.png"
+          ],
+          [
+            "ui/x_gal_c127_1.png",
+            "ui/x_gal_c127_2.png",
+            "ui/x_gal_c127_3.png",
+            "ui/x_gal_c127_4.png"
+          ],
+          [
+            "ui/x_gal_c128_1.png",
+            "ui/x_gal_c128_2.png",
+            "ui/x_gal_c128_3.png"
+          ],
+          [
+            "ui/x_gal_c129_1.png"
+          ],
+          [
+            "ui/x_gal_c130_1.png",
+            "ui/x_gal_c130_2.png",
+            "ui/x_gal_c130_3.png",
+            "ui/x_gal_c130_4.png"
+          ],
+          [
+            "ui/x_gal_c131_1.png",
+            "ui/x_gal_c131_2.png",
+            "ui/x_gal_c131_3.png",
+            "ui/x_gal_c131_4.png"
+          ],
+          [
+            "ui/x_gal_c132_1.png",
+            "ui/x_gal_c132_2.png",
+            "ui/x_gal_c132_3.png",
+            "ui/x_gal_c132_4.png"
+          ],
+          [
+            "ui/x_gal_c133_1.png",
+            "ui/x_gal_c133_2.png",
+            "ui/x_gal_c133_3.png",
+            "ui/x_gal_c133_4.png"
+          ],
+          [
+            "ui/x_gal_c134_1.png",
+            "ui/x_gal_c134_2.png",
+            "ui/x_gal_c134_3.png",
+            "ui/x_gal_c134_4.png"
+          ],
+          [
+            "ui/x_gal_c135_1.png",
+            "ui/x_gal_c135_2.png",
+            "ui/x_gal_c135_3.png",
+            "ui/x_gal_c135_4.png"
+          ],
+          [
+            "ui/x_gal_c136_1.png",
+            "ui/x_gal_c136_2.png",
+            "ui/x_gal_c136_3.png",
+            "ui/x_gal_c136_4.png"
+          ],
+          [
+            "ui/x_gal_c137_1.png",
+            "ui/x_gal_c137_2.png",
+            "ui/x_gal_c137_3.png",
+            "ui/x_gal_c137_4.png"
+          ],
+          [
+            "ui/x_gal_c138_1.png",
+            "ui/x_gal_c138_2.png",
+            "ui/x_gal_c138_3.png"
+          ],
+          [
+            "ui/x_gal_c139_1.png",
+            "ui/x_gal_c139_2.png"
+          ],
+          [
+            "ui/x_gal_c140_1.png"
+          ],
+          [
+            "ui/x_gal_c141_1.png",
+            "ui/x_gal_c141_2.png",
+            "ui/x_gal_c141_3.png",
+            "ui/x_gal_c141_4.png"
+          ],
+          [
+            "ui/x_gal_c142_1.png",
+            "ui/x_gal_c142_2.png",
+            "ui/x_gal_c142_3.png",
+            "ui/x_gal_c142_4.png"
+          ],
+          [
+            "ui/x_gal_c143_1.png",
+            "ui/x_gal_c143_2.png",
+            "ui/x_gal_c143_3.png",
+            "ui/x_gal_c143_4.png"
+          ],
+          [
+            "ui/x_gal_c144_1.png",
+            "ui/x_gal_c144_2.png",
+            "ui/x_gal_c144_3.png",
+            "ui/x_gal_c144_4.png"
+          ],
+          [
+            "ui/x_gal_c145_1.png",
+            "ui/x_gal_c145_2.png"
+          ],
+          [
+            "ui/x_gal_c146_1.png",
+            "ui/x_gal_c146_2.png",
+            "ui/x_gal_c146_3.png",
+            "ui/x_gal_c146_4.png"
+          ],
+          [
+            "ui/x_gal_c147_1.png",
+            "ui/x_gal_c147_2.png",
+            "ui/x_gal_c147_3.png",
+            "ui/x_gal_c147_4.png"
+          ],
+          [
+            "ui/x_gal_c148_1.png"
+          ],
+          [
+            "ui/x_gal_c149_1.png",
+            "ui/x_gal_c149_2.png"
+          ],
+          [
+            "ui/x_gal_c150_1.png",
+            "ui/x_gal_c150_2.png",
+            "ui/x_gal_c150_3.png"
+          ],
+          [
+            "ui/x_gal_c151_1.png",
+            "ui/x_gal_c151_2.png",
+            "ui/x_gal_c151_3.png",
+            "ui/x_gal_c151_4.png"
+          ],
+          [
+            "ui/x_gal_c152_1.png"
+          ],
+          [
+            "ui/x_gal_c153_1.png",
+            "ui/x_gal_c153_2.png",
+            "ui/x_gal_c153_3.png"
+          ],
+          [
+            "ui/x_gal_c154_1.png"
+          ],
+          [
+            "ui/x_gal_c155_1.png",
+            "ui/x_gal_c155_2.png"
+          ],
+          [
+            "ui/x_gal_c156_1.png",
+            "ui/x_gal_c156_2.png",
+            "ui/x_gal_c156_3.png",
+            "ui/x_gal_c156_4.png"
+          ],
+          [
+            "ui/x_gal_c157_1.png",
+            "ui/x_gal_c157_2.png"
+          ],
+          [
+            "ui/x_gal_c158_1.png"
+          ],
+          [
+            "ui/x_gal_c159_1.png",
+            "ui/x_gal_c159_2.png",
+            "ui/x_gal_c159_3.png"
+          ],
+          [
+            "ui/x_gal_c160_1.png",
+            "ui/x_gal_c160_2.png",
+            "ui/x_gal_c160_3.png"
+          ],
+          [
+            "ui/x_gal_c161_1.png",
+            "ui/x_gal_c161_2.png",
+            "ui/x_gal_c161_3.png",
+            "ui/x_gal_c161_4.png"
+          ],
+          [
+            "ui/x_gal_c162_1.png"
+          ],
+          [
+            "ui/x_gal_c163_1.png",
+            "ui/x_gal_c163_2.png",
+            "ui/x_gal_c163_3.png"
+          ],
+          [
+            "ui/x_gal_c164_1.png",
+            "ui/x_gal_c164_2.png",
+            "ui/x_gal_c164_3.png",
+            "ui/x_gal_c164_4.png"
+          ],
+          [
+            "ui/x_gal_c165_1.png"
+          ],
+          [
+            "ui/x_gal_c166_1.png"
+          ],
+          [
+            "ui/x_gal_c167_1.png"
+          ],
+          [
+            "ui/x_gal_c168_1.png",
+            "ui/x_gal_c168_2.png",
+            "ui/x_gal_c168_3.png",
+            "ui/x_gal_c168_4.png"
+          ],
+          [
+            "ui/x_gal_c169_1.png",
+            "ui/x_gal_c169_2.png",
+            "ui/x_gal_c169_3.png",
+            "ui/x_gal_c169_4.png"
+          ],
+          [
+            "ui/x_gal_c170_1.png",
+            "ui/x_gal_c170_2.png",
+            "ui/x_gal_c170_3.png",
+            "ui/x_gal_c170_4.png"
+          ],
+          [
+            "ui/x_gal_c171_1.png",
+            "ui/x_gal_c171_2.png",
+            "ui/x_gal_c171_3.png",
+            "ui/x_gal_c171_4.png"
+          ],
+          [
+            "ui/x_gal_c172_1.png",
+            "ui/x_gal_c172_2.png"
+          ],
+          [
+            "ui/x_gal_c173_1.png",
+            "ui/x_gal_c173_2.png",
+            "ui/x_gal_c173_3.png"
+          ],
+          [
+            "ui/x_gal_c174_1.png",
+            "ui/x_gal_c174_2.png",
+            "ui/x_gal_c174_3.png",
+            "ui/x_gal_c174_4.png"
+          ],
+          [
+            "ui/x_gal_c175_1.png",
+            "ui/x_gal_c175_2.png",
+            "ui/x_gal_c175_3.png",
+            "ui/x_gal_c175_4.png"
+          ],
+          [
+            "ui/x_gal_c176_1.png"
+          ],
+          [
+            "ui/x_gal_c177_1.png",
+            "ui/x_gal_c177_2.png"
+          ],
+          [
+            "ui/x_gal_c178_1.png"
+          ],
+          [
+            "ui/x_gal_c179_1.png",
+            "ui/x_gal_c179_2.png",
+            "ui/x_gal_c179_3.png",
+            "ui/x_gal_c179_4.png"
+          ],
+          [
+            "ui/x_gal_c180_1.png"
+          ],
+          [
+            "ui/x_gal_c181_1.png",
+            "ui/x_gal_c181_2.png",
+            "ui/x_gal_c181_3.png",
+            "ui/x_gal_c181_4.png"
+          ],
+          [
+            "ui/x_gal_c182_1.png",
+            "ui/x_gal_c182_2.png",
+            "ui/x_gal_c182_3.png",
+            "ui/x_gal_c182_4.png"
+          ],
+          [
+            "ui/x_gal_c183_1.png",
+            "ui/x_gal_c183_2.png",
+            "ui/x_gal_c183_3.png",
+            "ui/x_gal_c183_4.png"
+          ],
+          [
+            "ui/x_gal_c184_1.png",
+            "ui/x_gal_c184_2.png"
+          ],
+          [
+            "ui/x_gal_c185_1.png",
+            "ui/x_gal_c185_2.png",
+            "ui/x_gal_c185_3.png",
+            "ui/x_gal_c185_4.png"
+          ],
+          [
+            "ui/x_gal_c186_1.png"
+          ],
+          [
+            "ui/x_gal_c187_1.png"
+          ],
+          [
+            "ui/x_gal_c188_1.png",
+            "ui/x_gal_c188_2.png",
+            "ui/x_gal_c188_3.png"
+          ],
+          [
+            "ui/x_gal_c189_1.png",
+            "ui/x_gal_c189_2.png"
+          ],
+          [
+            "ui/x_gal_c190_1.png"
+          ],
+          [
+            "ui/x_gal_c191_1.png"
+          ],
+          [
+            "ui/x_gal_c192_1.png"
+          ],
+          [
+            "ui/x_gal_c193_1.png"
+          ],
+          [
+            "ui/x_gal_c194_1.png"
+          ],
+          [
+            "ui/x_gal_c195_1.png"
+          ],
+          [
+            "ui/x_gal_c196_1.png",
+            "ui/x_gal_c196_2.png",
+            "ui/x_gal_c196_3.png",
+            "ui/x_gal_c196_4.png"
+          ],
+          [
+            "ui/x_gal_c197_1.png",
+            "ui/x_gal_c197_2.png"
+          ],
+          [
+            "ui/x_gal_c198_1.png",
+            "ui/x_gal_c198_2.png",
+            "ui/x_gal_c198_3.png"
+          ],
+          [
+            "ui/x_gal_c199_1.png",
+            "ui/x_gal_c199_2.png"
+          ],
+          [
+            "ui/x_gal_c200_1.png",
+            "ui/x_gal_c200_2.png",
+            "ui/x_gal_c200_3.png"
+          ],
+          [
+            "ui/x_gal_c201_1.png"
+          ],
+          [
+            "ui/x_gal_c202_1.png"
+          ],
+          [
+            "ui/x_gal_c203_1.png",
+            "ui/x_gal_c203_2.png"
+          ],
+          [
+            "ui/x_gal_c204_1.png"
+          ],
+          [
+            "ui/x_gal_c205_1.png"
+          ],
+          [
+            "ui/x_gal_c206_1.png"
+          ],
+          [
+            "ui/x_gal_c207_1.png",
+            "ui/x_gal_c207_2.png",
+            "ui/x_gal_c207_3.png",
+            "ui/x_gal_c207_4.png"
+          ],
+          [
+            "ui/x_gal_c208_1.png",
+            "ui/x_gal_c208_2.png",
+            "ui/x_gal_c208_3.png"
+          ],
+          [
+            "ui/x_gal_c209_1.png"
+          ],
+          [
+            "ui/x_gal_c210_1.png"
+          ],
+          [
+            "ui/x_gal_c211_1.png"
+          ],
+          [
+            "ui/x_gal_c212_1.png"
+          ],
+          [
+            "ui/x_gal_c213_1.png"
+          ],
+          [
+            "ui/x_gal_c214_1.png",
+            "ui/x_gal_c214_2.png",
+            "ui/x_gal_c214_3.png",
+            "ui/x_gal_c214_4.png"
+          ],
+          [
+            "ui/x_gal_c215_1.png",
+            "ui/x_gal_c215_2.png"
+          ],
+          [
+            "ui/x_gal_c216_1.png",
+            "ui/x_gal_c216_2.png"
+          ],
+          [
+            "ui/x_gal_c217_1.png",
+            "ui/x_gal_c217_2.png",
+            "ui/x_gal_c217_3.png"
+          ],
+          [
+            "ui/x_gal_c218_1.png",
+            "ui/x_gal_c218_2.png"
+          ],
+          [
+            "ui/x_gal_c219_1.png",
+            "ui/x_gal_c219_2.png"
+          ],
+          [
+            "ui/x_gal_c220_1.png",
+            "ui/x_gal_c220_2.png"
+          ],
+          [
+            "ui/x_gal_c221_1.png",
+            "ui/x_gal_c221_2.png"
+          ],
+          [
+            "ui/x_gal_c222_1.png",
+            "ui/x_gal_c222_2.png",
+            "ui/x_gal_c222_3.png",
+            "ui/x_gal_c222_4.png"
+          ],
+          [
+            "ui/x_gal_c223_1.png"
+          ],
+          [
+            "ui/x_gal_c224_1.png"
+          ],
+          [
+            "ui/x_gal_c225_1.png",
+            "ui/x_gal_c225_2.png",
+            "ui/x_gal_c225_3.png"
+          ],
+          [
+            "ui/x_gal_c226_1.png"
+          ],
+          [
+            "ui/x_gal_c227_1.png",
+            "ui/x_gal_c227_2.png",
+            "ui/x_gal_c227_3.png"
+          ],
+          [
+            "ui/x_gal_c228_1.png",
+            "ui/x_gal_c228_2.png"
+          ],
+          [
+            "ui/x_gal_c229_1.png"
+          ],
+          [
+            "ui/x_gal_c230_1.png"
+          ],
+          [
+            "ui/x_gal_c231_1.png",
+            "ui/x_gal_c231_2.png",
+            "ui/x_gal_c231_3.png",
+            "ui/x_gal_c231_4.png",
+            "ui/x_gal_c231_5.png",
+            "ui/x_gal_c231_6.png",
+            "ui/x_gal_c231_7.png",
+            "ui/x_gal_c231_8.png",
+            "ui/x_gal_c231_9.png",
+            "ui/x_gal_c231_10.png",
+            "ui/x_gal_c231_11.png",
+            "ui/x_gal_c231_12.png",
+            "ui/x_gal_c231_13.png",
+            "ui/x_gal_c231_14.png"
+          ],
+          [
+            "ui/x_gal_c232_1.png"
+          ],
+          [
+            "ui/x_gal_c233_1.png"
+          ],
+          [
+            "ui/x_gal_c234_1.png"
+          ],
+          [
+            "ui/x_gal_c235_1.png",
+            "ui/x_gal_c235_2.png"
+          ],
+          [
+            "ui/x_gal_c236_1.png",
+            "ui/x_gal_c236_2.png",
+            "ui/x_gal_c236_3.png"
+          ],
+          [
+            "ui/x_gal_c237_1.png"
+          ],
+          [
+            "ui/x_gal_c238_1.png",
+            "ui/x_gal_c238_2.png",
+            "ui/x_gal_c238_3.png",
+            "ui/x_gal_c238_4.png"
+          ],
+          [
+            "ui/x_gal_c239_1.png",
+            "ui/x_gal_c239_2.png"
+          ],
+          [
+            "ui/x_gal_c240_1.png",
+            "ui/x_gal_c240_2.png"
+          ],
+          [
+            "ui/x_gal_c241_1.png"
+          ],
+          [
+            "ui/x_gal_c242_1.png",
+            "ui/x_gal_c242_2.png"
+          ],
+          [
+            "ui/x_gal_c243_1.png"
+          ],
+          [
+            "ui/x_gal_c244_1.png"
+          ],
+          [
+            "ui/x_gal_c245_1.png",
+            "ui/x_gal_c245_2.png",
+            "ui/x_gal_c245_3.png",
+            "ui/x_gal_c245_4.png"
+          ],
+          [
+            "ui/x_gal_c246_1.png",
+            "ui/x_gal_c246_2.png"
+          ],
+          [
+            "ui/x_gal_c247_1.png",
+            "ui/x_gal_c247_2.png"
+          ],
+          [
+            "ui/x_gal_c248_1.png"
+          ],
+          [
+            "ui/x_gal_c249_1.png"
+          ],
+          [
+            "ui/x_gal_c250_1.png"
+          ],
+          [
+            "ui/x_gal_c251_1.png",
+            "ui/x_gal_c251_2.png"
+          ],
+          [
+            "ui/x_gal_c252_1.png"
+          ],
+          [
+            "ui/x_gal_c253_1.png",
+            "ui/x_gal_c253_2.png"
+          ],
+          [
+            "ui/x_gal_c254_1.png"
+          ],
+          [
+            "ui/x_gal_c255_1.png",
+            "ui/x_gal_c255_2.png",
+            "ui/x_gal_c255_3.png",
+            "ui/x_gal_c255_4.png",
+            "ui/x_gal_c255_5.png"
+          ],
+          [
+            "ui/x_gal_c256_1.png"
+          ],
+          [
+            "ui/x_gal_c257_1.png"
+          ],
+          [
+            "ui/x_gal_c258_1.png"
+          ],
+          [
+            "ui/x_gal_c259_1.png"
+          ],
+          [
+            "ui/x_gal_c260_1.png",
+            "ui/x_gal_c260_2.png"
+          ],
+          [
+            "ui/x_gal_c261_1.png"
+          ],
+          [
+            "ui/x_gal_c262_1.png"
+          ],
+          [
+            "ui/x_gal_c263_1.png"
+          ],
+          [
+            "ui/x_gal_c264_1.png"
+          ],
+          [
+            "ui/x_gal_c265_1.png"
+          ],
+          [
+            "ui/x_gal_c266_1.png"
+          ],
+          [
+            "ui/x_gal_c267_1.png"
+          ],
+          [
+            "ui/x_gal_c268_1.png"
+          ],
+          [
+            "ui/x_gal_c269_1.png"
+          ],
+          [
+            "ui/x_gal_c270_1.png"
+          ],
+          [
+            "ui/x_gal_c271_1.png"
+          ],
+          [
+            "ui/x_gal_c272_1.png"
+          ],
+          [
+            "ui/x_gal_c273_1.png"
+          ],
+          [
+            "ui/x_gal_c274_1.png"
+          ],
+          [
+            "ui/x_gal_c275_1.png"
+          ],
+          [
+            "ui/x_gal_c276_1.png",
+            "ui/x_gal_c276_2.png"
+          ],
+          [
+            "ui/x_gal_c277_1.png"
+          ],
+          [
+            "ui/x_gal_c278_1.png"
+          ],
+          [
+            "ui/x_gal_c279_1.png"
+          ],
+          [
+            "ui/x_gal_c280_1.png"
+          ],
+          [
+            "ui/x_gal_c281_1.png"
+          ],
+          [
+            "ui/x_gal_c282_1.png",
+            "ui/x_gal_c282_2.png"
+          ],
+          [
+            "ui/x_gal_c283_1.png"
+          ],
+          [
+            "ui/x_gal_c284_1.png",
+            "ui/x_gal_c284_2.png",
+            "ui/x_gal_c284_3.png",
+            "ui/x_gal_c284_4.png",
+            "ui/x_gal_c284_5.png",
+            "ui/x_gal_c284_6.png",
+            "ui/x_gal_c284_7.png",
+            "ui/x_gal_c284_8.png",
+            "ui/x_gal_c284_9.png",
+            "ui/x_gal_c284_10.png",
+            "ui/x_gal_c284_11.png",
+            "ui/x_gal_c284_12.png",
+            "ui/x_gal_c284_13.png",
+            "ui/x_gal_c284_14.png",
+            "ui/x_gal_c284_15.png",
+            "ui/x_gal_c284_16.png"
+          ],
+          [
+            "ui/x_gal_c285_1.png",
+            "ui/x_gal_c285_2.png",
+            "ui/x_gal_c285_3.png",
+            "ui/x_gal_c285_4.png",
+            "ui/x_gal_c285_5.png",
+            "ui/x_gal_c285_6.png",
+            "ui/x_gal_c285_7.png",
+            "ui/x_gal_c285_8.png",
+            "ui/x_gal_c285_9.png",
+            "ui/x_gal_c285_10.png",
+            "ui/x_gal_c285_11.png",
+            "ui/x_gal_c285_12.png",
+            "ui/x_gal_c285_13.png",
+            "ui/x_gal_c285_14.png",
+            "ui/x_gal_c285_15.png",
+            "ui/x_gal_c285_16.png",
+            "ui/x_gal_c285_17.png",
+            "ui/x_gal_c285_18.png",
+            "ui/x_gal_c285_19.png"
+          ],
+          [
+            "ui/x_gal_c286_1.png",
+            "ui/x_gal_c286_2.png",
+            "ui/x_gal_c286_3.png",
+            "ui/x_gal_c286_4.png"
+          ]
+        ],
+        "thumb": {
+          "x": 2,
+          "y": 2,
+          "w": 287,
+          "h": 162
+        },
+        "prev": {
+          "key": "vprev",
+          "x": 5,
+          "y": 66,
+          "w": 26,
+          "h": 34,
+          "asset": "ui/x_ui_gal_vprev_off.png",
+          "state_assets": {
+            "normal": "ui/x_ui_gal_vprev_off.png",
+            "hover": "ui/x_ui_gal_vprev_over.png",
+            "pressed": "ui/x_ui_gal_vprev_on.png"
+          },
+          "action": "gallery_prev:%row%",
+          "note": "**栏位内「上一张差分」键**（`item_variants.prev`）。块内局部 5,66,26×34 —— 落在栏位左侧留边带内（4:3 源缩进 287×162 后左右各约 36px 透明带）⇒ **不压 CG 画面**；纵向居中（66 = (166−34)/2）。三态件 `ui/x_ui_gal_vprev_{off,over,on}.png`（26×34，1:1 无 nine）。动作 `gallery_prev:%row%`（`%row%` = 全局项序号，含分页偏移）。`edge:\"clamp\"` ⇒ 已在第 1 张时停在原地、不回绕。"
+        },
+        "next": {
+          "key": "vnext",
+          "x": 260,
+          "y": 66,
+          "w": 26,
+          "h": 34,
+          "asset": "ui/x_ui_gal_vnext_off.png",
+          "state_assets": {
+            "normal": "ui/x_ui_gal_vnext_off.png",
+            "hover": "ui/x_ui_gal_vnext_over.png",
+            "pressed": "ui/x_ui_gal_vnext_on.png"
+          },
+          "action": "gallery_next:%row%",
+          "note": "**栏位内「下一张差分」键**（`item_variants.next`）。块内局部 260,66,26×34 —— 落在栏位右侧留边带内（4:3 源缩进 287×162 后左右各约 36px 透明带）⇒ **不压 CG 画面**；纵向居中（66 = (166−34)/2）。三态件 `ui/x_ui_gal_vnext_{off,over,on}.png`（26×34，1:1 无 nine）。动作 `gallery_next:%row%`（`%row%` = 全局项序号，含分页偏移）。`edge:\"clamp\"` ⇒ 已在第 N 张时停在原地、不回绕。"
+        },
+        "text": {
+          "x": 224,
+          "y": 134,
+          "w": 56,
+          "h": 22,
+          "align": "center",
+          "valign": "middle",
+          "wrap": false,
+          "max_lines": 1,
+          "font": {
+            "size": 20,
+            "bold": true,
+            "color": "@palette.text_primary",
+            "shadow": false,
+            "shadow_color": "@palette.shadow",
+            "shadow_ofs": 0,
+            "outline": true,
+            "outline_color": "#000000",
+            "outline_width": 2
+          },
+          "note": "**栏位内 `n/N` 计数区**（`item_variants.text`）。块内局部 224,134,56×22（右下角），**引擎绘制、无底板**：白字 + 2px 黑四向描边（M38 机制，`font.outline*`）⇒ 压在任何 CG 上都可读，且不必为 N=1 的栏额外做「空底板」处理。`n` = 当前第几张（1 起）、`N` = `frames[项].count`。"
+        },
+        "edge": "clamp"
+      },
+      "source": "程序化生成：工具\\m50_make_gallery_thumbs.py（入料 = _工作\\ISSUE-20260924-08_鉴赏模式\\CG候选集\\组\\<旧ID>_<组名>\\ 的原始差分图；等比缩放 + 居中 ⇒ ui/x_gal_c<新ID三位>_<n>.png 287×162）；栏位底板 ui/x_ui_gal_cell_*.png 亦由同脚本程序化生成",
+      "note": "★ **元素 id 与 M1 契约对齐**：本 list 的 id = **`gal.list`** —— M1 的 `ui_screens.tjs` 巡演步骤（`galpage` / `galvar` / `galguard`）把 spec 里的 `<list元素id>` **硬编码为 `gal.list`**（见该文件步骤表与「依赖数据」注），故本屏按该名命名（原拟名 `gal.cells` 已弃用）；页码件命名亦对齐 M1 测试页的 `gal.page_*`。\n**CG 栏位网格（逐项 list + 网格折行）** —— ISSUE-20260924-08 · M2。\n★ 几何逐条取自参考作《交汇协奏曲》`locale_cn.xp3` idx75 的 CG 页台账（`CG/#scroll (57,187,1806,697)`、`CG/#item00` 291×166、列步进 303 / 行步进 177）⇒ **6 列 × 4 行 = 24 栏/页**；本屏用 `gap:12` 统一列/行间距（参考作行步进 177 = gap 11，本屏 178，差 1px；网格外框 1806×700，列宽 6×291+5×12 = 1806 **恰好等于**参考作滚动区宽）。\n★ **横向折行 = 网格**：`orientation:\"h\"` + `max_cols:6` + `max_rows:4` ⇒ 每行 6 项折行、每页 4 行；`scroll.page_size:24` = 24 栏/页。HTML 侧 `replica.js::buildList` **已按此口径实现**（`row = floor(k/cols)` / `c = k%cols`，`perPage = cols*rowsCap`）；krkr 侧 `ui_widget.tjs` 的 `uiWidgetListItemRect` / `uiWidgetListPage` / `uiWidgetRect` **已由 M1 按同一口径补齐**（一审时「`uiWidgetRect` 把 `r.h` 写成 span ⇒ 必须先修」的旧患已修，本句按 M8 一审订正删去过时警告）。\n★ **286 栏 × 12 页**：`labels` 286 条（**全为空串**，仅作项数载体 —— `uiWidgetListPage` 靠 `labels.count` 取项数）、`actions` 286 条（全空串，见 note 末）。\n★ **`item_variants`（M1 冻结契约）**：`frames` 按全局项序号索引，第 row 栏 = 该栏**全部差分**的素材列表，顺序**严格等于 `映射.tsv` 该栏「统一名列表」**（主件在前、并入成员按规格顺序）；`thumb` = 缩略图绘制区（块内局部 2,2,287×162 = 栏位内缩描边 2px）；`prev`/`next` = 左右差分子按钮（字段形状同 `item_buttons`，动作 `gallery_prev:%row%` / `gallery_next:%row%`）；`text` = `n/N` 文本区（**引擎绘制**，无底板、靠 2px 黑描边压画面）；`edge:\"clamp\"`（到端不回绕）。\n★ 素材：`ui/x_gal_c<新ID三位>_<n>.png`（287×162，PNG-32 真 alpha，由 `工具\\m50_make_gallery_thumbs.py` 从 `CG候选集\\组\\<旧ID>_<组名>\\` 的**原始差分图**等比缩放 + 居中程序化生成，留边**全透明** ⇒ 衬出栏位底板的深色磨砂，不烘黑边）。\n★ 栏位底板 `ui/x_ui_gal_cell_{off,over,on}.png`（291×166，**直角** —— 参考作 CG 栏位圆角实测≈0）走 `item_frame.state_assets` ⇒ **逐项三态**（M46 机制）。\n★ **页签条 / 大标题 / 返回键不在本屏** —— 主代理 2026-09-24 裁决「页签 = 切屏」，共享外壳由浮层屏 `39_gal_shell.json`（M1）统一提供，本屏仅 `attach` 它；本屏元素**一律不带页 flag**（不需要页键派生）。\n★ **页码控件**（`gal.page_*`，见各件 note）走冻结书 §5 新增动作 `gallery_page_prev` / `gallery_page_next`；`scroll.pager:false` = **明确要求关闭 HTML 侧 `replica.js` 的自动 `ui-list-pager`**（该件是 HTML 补充 chrome、krkr 无对应物；本屏已自带页码控件 ⇒ 留着就是重复控件且两端不一致）。该字段为**本屏提出、待 M1 纳入 `_schema.md`**（若 M1 选择按「屏内已有页码控件即自动关闭」实现，本字段可删）。\n★ **点击栏位的动作留空**：冻结动作表只新增 `gallery_tab_1..4` / `gallery_page_prev|next` / `gallery_prev|next:<行号>`，**没有**「打开该 CG 大图」的动作名，而全屏 CG 查看屏也不在本 issue 范围内⇒ 按 M5 裁决（动作表未覆盖的控件允许空串 + note 标注）**留空、不臆造**。待编程组定义后回填。"
+    },
+    {
+      "id": "gal.page_prev",
+      "kind": "image",
+      "z": 30,
+      "visible_default": true,
+      "asset": "ui/x_ui_gal_pgprev_off.png",
+      "x": 790,
+      "y": 939,
+      "w": 56,
+      "h": 56,
+      "state_assets": {
+        "normal": "ui/x_ui_gal_pgprev_off.png",
+        "hover": "ui/x_ui_gal_pgprev_over.png",
+        "pressed": "ui/x_ui_gal_pgprev_on.png"
+      },
+      "source": "程序化生成：工具\\m50_make_gallery_thumbs.py（56×56 三态，1:1 无 nine）",
+      "note": "**页码控件**（本屏内，非外壳）：参考作 CG 页页码按钮行 y=939、三态件 53/65px 居中于 960；本屏取「上一页 / `x / 12` / 下一页」三件居中对齐 x=960（790..1130，中心 960.5）。键件 `ui/x_ui_gal_pgprev_*.png` / `ui/x_ui_gal_pgnext_*.png`（56×56，1:1 无 nine，双三角字形 —— 参考作 prev/next 图标的字形语言）；文字 `x / 12` 由 `gal.page_tx_01..12` **引擎绘制**。★ **页码文本 `x / 12` 走 `gal_page` flag + 12 件互斥文本**（见 `gal.page_tx_01..12` 的 note）：`gallery_page_*` 的机制侧须在翻页时把 `gal_page` 置成 1 基页号，否则恒显示 1 / 12。\n热区 70×70 比键件大一圈（参考作 オン 态 65×65 大于 オフ 53×53 的同款「按到就大」意图，本屏以「热区略大于键件」等价实现，且**不给热区 state_assets** ⇒ 悬停态由键件自身承担）。（本件 = 「上一页」键）"
+    },
+    {
+      "id": "gal.page_prev_hit",
+      "kind": "hit",
+      "z": 32,
+      "visible_default": true,
+      "x": 783,
+      "y": 931,
+      "w": 70,
+      "h": 72,
+      "action": "gallery_page_prev",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "note": "「上一页」热区（比键件大一圈：70×72）。动作 `gallery_page_prev` —— 冻结书 §5 新增动作名（页数 = ceil(286/24) = 12）。**本热区不带 `state_assets` / `state_group`** ⇒ 不进 `uiScreenHoverAtIn` 候选集，悬停态由同位的 `gal.page_prev`（带 state_assets）承担（与 28_music 的 `mu.pb_*` 同款）。"
+    },
+    {
+      "id": "gal.page_next",
+      "kind": "image",
+      "z": 30,
+      "visible_default": true,
+      "asset": "ui/x_ui_gal_pgnext_off.png",
+      "x": 1074,
+      "y": 939,
+      "w": 56,
+      "h": 56,
+      "state_assets": {
+        "normal": "ui/x_ui_gal_pgnext_off.png",
+        "hover": "ui/x_ui_gal_pgnext_over.png",
+        "pressed": "ui/x_ui_gal_pgnext_on.png"
+      },
+      "source": "程序化生成：工具\\m50_make_gallery_thumbs.py（56×56 三态，1:1 无 nine）",
+      "note": "**页码控件**（本屏内，非外壳）：参考作 CG 页页码按钮行 y=939、三态件 53/65px 居中于 960；本屏取「上一页 / `x / 12` / 下一页」三件居中对齐 x=960（790..1130，中心 960.5）。键件 `ui/x_ui_gal_pgprev_*.png` / `ui/x_ui_gal_pgnext_*.png`（56×56，1:1 无 nine，双三角字形 —— 参考作 prev/next 图标的字形语言）；文字 `x / 12` 由 `gal.page_tx_01..12` **引擎绘制**。★ **页码文本 `x / 12` 走 `gal_page` flag + 12 件互斥文本**（见 `gal.page_tx_01..12` 的 note）：`gallery_page_*` 的机制侧须在翻页时把 `gal_page` 置成 1 基页号，否则恒显示 1 / 12。\n热区 70×70 比键件大一圈（参考作 オン 态 65×65 大于 オフ 53×53 的同款「按到就大」意图，本屏以「热区略大于键件」等价实现，且**不给热区 state_assets** ⇒ 悬停态由键件自身承担）。（本件 = 「下一页」键）"
+    },
+    {
+      "id": "gal.page_next_hit",
+      "kind": "hit",
+      "z": 32,
+      "visible_default": true,
+      "x": 1067,
+      "y": 931,
+      "w": 70,
+      "h": 72,
+      "action": "gallery_page_next",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "note": "「下一页」热区（比键件大一圈：70×72）。动作 `gallery_page_next`（冻结书 §5 新增）。不带 `state_assets` / `state_group`，理由同 `gal.page_prev_hit`。"
+    },
+    {
+      "id": "gal.page_tx_01",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "1 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "1",
+      "note": "**页码 `1 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"1\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_02",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "2 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "2",
+      "note": "**页码 `2 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"2\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_03",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "3 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "3",
+      "note": "**页码 `3 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"3\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_04",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "4 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "4",
+      "note": "**页码 `4 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"4\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_05",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "5 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "5",
+      "note": "**页码 `5 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"5\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_06",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "6 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "6",
+      "note": "**页码 `6 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"6\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_07",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "7 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "7",
+      "note": "**页码 `7 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"7\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_08",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "8 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "8",
+      "note": "**页码 `8 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"8\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_09",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "9 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "9",
+      "note": "**页码 `9 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"9\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_10",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "10 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "10",
+      "note": "**页码 `10 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"10\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_11",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "11 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "11",
+      "note": "**页码 `11 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"11\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    },
+    {
+      "id": "gal.page_tx_12",
+      "kind": "text",
+      "z": 31,
+      "visible_default": true,
+      "x": 858,
+      "y": 939,
+      "w": 204,
+      "h": 56,
+      "font": {
+        "size": 30,
+        "bold": true,
+        "color": "@palette.text_menu",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "12 / 12",
+      "vis_flag": "gal_page",
+      "vis_when": "12",
+      "note": "**页码 `12 / 12`（引擎绘制）** —— 12 件同矩形文本，靠**既有 flag 机制**互斥显隐（`vis_flag:\"gal_page\"` + `vis_when:\"12\"`；本屏 `flags_default.gal_page = \"1\"`）。★ **为什么不是一件静态文本**：页码必须随页变，而静态 `text` 没有运行期写入口；用「一件 + 机制回写」需要机制认识某个**硬编码元素 id**（违反「一律读数据」）。⇒ 走 `26_backlog`/`25_config` 同款的「flag + vis_when 互斥件」口径，**零新增机制字段**；代价是机制侧须在翻页时把 `gal_page` 置成当前页号（见下）。★ **机制侧待办（M1）**：`gallery_page_prev|next` 改完页码后须 `setFlag(\"gal_page\", <1 基页号>)`／krkr `uiScreenFlagSet(\"gal_page\", ...)` —— 与既有的 `gal_tab`（外壳页签高亮）同一路数，建议同样冻结为接口常量（如 `UIScrGalleryPageFlag = \"gal_page\"`）。在机制补上之前，本屏恒显示 `1 / 12`（如实登记为**未生效项**，不声称已生效）。"
+    }
+  ],
+  "page_flag": "gal_page"
+}

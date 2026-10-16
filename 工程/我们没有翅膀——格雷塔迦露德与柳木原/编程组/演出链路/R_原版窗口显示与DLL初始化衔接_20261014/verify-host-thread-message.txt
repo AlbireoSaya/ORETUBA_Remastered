@@ -1,0 +1,30 @@
+from pathlib import Path
+import ctypes,sys,json
+root=Path.cwd();sys.path.insert(0,str(root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from lucifen_host_msg_types import MSG,POINT
+from lucifen_host_peek_message import PeekMessageA
+from lucifen_host_dispatch_message import DispatchMessageA
+from lucifen_host_translate_message import TranslateMessage
+from lucifen_host_post_thread import PostThreadMessageA
+from lucifen_host_tls import current_thread_id
+bits=ctypes.sizeof(ctypes.c_void_p)*8
+assert ctypes.sizeof(MSG)==(32 if bits==32 else 48) and ctypes.sizeof(POINT)==8
+expected=[0,4,8,12,16,20,28]if bits==32 else[0,8,16,24,32,36,44]
+assert [getattr(MSG,n).offset for n in ('hwnd','message','wParam','lParam','time','pt','lPrivate')]==expected
+assert PeekMessageA.argtypes==[ctypes.POINTER(MSG),ctypes.c_void_p,ctypes.c_uint32,ctypes.c_uint32,ctypes.c_uint32] and PeekMessageA.restype==ctypes.c_int
+assert DispatchMessageA.argtypes==TranslateMessage.argtypes==[ctypes.POINTER(MSG)]
+assert DispatchMessageA.restype==ctypes.c_ssize_t and TranslateMessage.restype==ctypes.c_int
+guard=b'\xa5'*32;size=ctypes.sizeof(MSG);buf=ctypes.create_string_buffer(guard+b'\0'*size+guard,size+64);ptr=ctypes.cast(ctypes.byref(buf,32),ctypes.POINTER(MSG))
+message=0x8312
+assert not PeekMessageA(ptr,None,message,message,0)
+wp=0x11223344 if bits==32 else 0x1122334455667788
+lp=-0x1020304 if bits==32 else -0x102030405060708
+assert PostThreadMessageA(current_thread_id(),message,wp,lp)
+assert PeekMessageA(ptr,None,message,message,1)
+msg=ptr.contents;assert not msg.hwnd and msg.message==message and msg.wParam==wp and msg.lParam==lp
+assert DispatchMessageA(ptr)==0
+assert TranslateMessage(ptr)==0
+assert buf.raw[:32]==buf.raw[-32:]==guard
+assert not PeekMessageA(ptr,None,message,message,0)
+result={'passed':True,'host_bits':bits,'MSG_size':size,'offsets':expected,'own_thread_message_post_peek_dispatch_translate_passed':True,'wparam_full_width_preserved':True,'lparam_signed_full_width_preserved':True,'guard_unchanged':True,'own_exact_message_consumed':True,'lPrivate_not_claimed_as_OS_written':True,'no_original_guest_callback_or_function_registered_with_OS':True,'original_guest_MSG_layout_not_proven':True}
+out=(root/sys.argv[1]).resolve();assert out.is_relative_to((root/'临时/ISSUE-20261011-02').resolve());out.mkdir(exist_ok=True);p=out/('host-message-SDK-'+str(bits)+'.json');assert not p.exists();p.write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))

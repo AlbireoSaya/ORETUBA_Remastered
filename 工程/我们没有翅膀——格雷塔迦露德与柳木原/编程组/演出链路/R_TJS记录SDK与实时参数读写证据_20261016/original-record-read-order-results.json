@@ -1,0 +1,109 @@
+{
+  "passed": true,
+  "original_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "cases": [
+    {
+      "label": "accepted-zero-declared-length",
+      "opcode": 4,
+      "declared_length": 0,
+      "count_byte": 0,
+      "accepted_predispatch": true,
+      "reads": [
+        [
+          2,
+          4
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          11,
+          1
+        ]
+      ],
+      "writes": [],
+      "observed": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 0,
+        "ecx": 16785409,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "label": "declined-valid-length-poison-count",
+      "opcode": 0,
+      "declared_length": 5,
+      "count_byte": 255,
+      "accepted_predispatch": false,
+      "reads": [
+        [
+          2,
+          4
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "writes": [],
+      "observed": {
+        "stop_reached": false,
+        "returned": true,
+        "eip": 33615872,
+        "esp": 33587208,
+        "eax": 50331660,
+        "ecx": 0,
+        "edx": 0,
+        "stack_words": [],
+        "error": null
+      },
+      "passed": true
+    },
+    {
+      "label": "declined-wrapping-length-poison-count",
+      "opcode": 0,
+      "declared_length": 4294967295,
+      "count_byte": 255,
+      "accepted_predispatch": false,
+      "reads": [
+        [
+          2,
+          4
+        ],
+        [
+          6,
+          1
+        ],
+        [
+          7,
+          4
+        ]
+      ],
+      "writes": [],
+      "observed": {
+        "stop_reached": false,
+        "returned": true,
+        "eip": 33615872,
+        "esp": 33587208,
+        "eax": 50331654,
+        "ecx": 0,
+        "edx": 0,
+        "stack_words": [],
+        "error": null
+      },
+      "passed": true
+    }
+  ],
+  "scope": "three synthetic original42FB50 calls only; no dispatcher/native lifecycle/OS loading or game proof"
+}

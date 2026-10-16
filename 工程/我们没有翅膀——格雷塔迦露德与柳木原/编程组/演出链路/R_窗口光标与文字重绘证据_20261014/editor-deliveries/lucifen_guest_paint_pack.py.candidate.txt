@@ -1,0 +1,21 @@
+```python
+"""Pack a guest PAINTSTRUCT (64 bytes)."""
+import struct
+
+def pack_guest_paintstruct(native, guest_hdc) -> bytes:
+    if type(guest_hdc) is not int or not 0 <= guest_hdc <= 0xFFFFFFFF:
+        raise ValueError("guest_hdc must be int 0..0xFFFFFFFF")
+    rc = native.rcPaint
+    rgb = bytes(native.rgbReserved)
+    if len(rgb) != 32:
+        raise ValueError("rgbReserved must be exactly 32 bytes")
+    return struct.pack(
+        "<Ii4iii32s",
+        guest_hdc,
+        int(native.fErase),
+        rc.left, rc.top, rc.right, rc.bottom,
+        int(native.fRestore),
+        int(native.fIncUpdate),
+        rgb,
+    )
+```

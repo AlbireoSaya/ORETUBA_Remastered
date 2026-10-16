@@ -1,0 +1,38 @@
+{
+  "editor": "DeepSeek editor-easy high API",
+  "rows": [
+    {
+      "id": "d3d",
+      "source": "子代理工作区/ISSUE-20261011-02/r-WinMain-drive-20261013/d3d7-enum-types-01/candidate.txt",
+      "source_SHA256": "82365c4185021328f69e3fb4547cf048c2724d6e5d519b21348387a3876c68a6",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_direct3d7_enum_types.py",
+      "target_LF_SHA256": "c0bcc4ac35e9a7071f7ed44f4c4d98d39f079b999adad8ff74e85d874787c2f3",
+      "exact_editor_suffix_patch": null
+    },
+    {
+      "id": "display",
+      "source": "子代理工作区/ISSUE-20261011-02/r-device-callbacks-20261013/display-settings-02/candidate.txt",
+      "source_SHA256": "91306e952a24b2b3725e1a2caa944f4a5500e04a94ecb710be27fa785de88e3f",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_display_settings_binding.py",
+      "target_LF_SHA256": "44a57e31b24513a8125275a460d827bb58d77fe7b6e5551d9888219400aa748f",
+      "exact_editor_suffix_patch": {
+        "id": "display",
+        "old_suffix": "EnumDisplaySettingsExA.restype = ctypes.c_int",
+        "new_suffix": "EnumDisplaySettingsExA.restype = ctypes.c_int\n"
+      }
+    },
+    {
+      "id": "gdi",
+      "source": "子代理工作区/ISSUE-20261011-02/r-device-callbacks-20261013/gdi-objects-02/candidate.txt",
+      "source_SHA256": "1682aafc106eb53a79fb960a3792497b479fe81674b2060d97b514bb1fa7a534",
+      "target": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_gdi_object_bindings.py",
+      "target_LF_SHA256": "e44dbe96b1c5c17053bf0d3419bce7e0125c8a59b185c07629f712279f03dbb8",
+      "exact_editor_suffix_patch": {
+        "id": "gdi",
+        "old_suffix": "CreateDIBSection.restype = ctypes.c_void_p",
+        "new_suffix": "CreateDIBSection.restype = ctypes.c_void_p\n"
+      }
+    }
+  ],
+  "engineering_source_root_not_rewritten": true
+}

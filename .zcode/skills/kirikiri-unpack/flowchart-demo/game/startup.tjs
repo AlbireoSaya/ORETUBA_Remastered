@@ -1,0 +1,383 @@
+//======================================================================
+//  startup.tjs -- 流程图（フローチャート）系统演示 / 入口脚本
+//  ISSUE-20260917-02 / KiriKiri Z（krkrz 1.4.0.8）自建
+//
+//  本文件由本工作区自行编写，与 Applique（あっぷりけ）及其作品
+//  CrossConcerto / 月影のシミュラクル 无任何关系，不含其任何数据。
+//
+//  入口约定：krkrz 的启动脚本默认名 = "startup.tjs"
+//    （base/ScriptMgnIntf.cpp TVPStartupScriptName(TJS_W("startup.tjs"))，
+//      可用命令行 -startup=<名称> 覆盖）
+//  运行方式（两者走同一条 TVPStorage 虚拟文件系统）：
+//    松散目录模式  tvpwin32.exe  <flow\game 目录>
+//    XP3 归档模式  tvpwin32.exe  <flow.xp3>
+//
+//  交互（验收要求 3）：
+//    F键        游戏画面（剧情视图） ↔ 流程图，互相切换
+//    点击节点    已到达/已解锁 → 跳转（指针移动、记账、显示「已跳转到 xxx」）
+//                未解锁 → 无效（只给原因，不移动指针）
+//    Esc        流程图内 = 关闭流程图回到剧情；剧情内 = 退出程序
+//    数字键      剧情内 = 选分支；流程图内 = 选中第 N 个节点
+//    方向键/Enter 流程图内移动选中框 / 跳转
+//    C键        清空进度并写状态文件（重新演示解锁过程）
+//    Q键        退出程序
+//
+//  保底（验收要求 5）：启动后 FLOW_IGNORE_INPUT_SEC 秒内忽略一切输入；
+//    窗口 FLOW_AUTO_EXIT_SEC 秒后自行退出，不留残留 GUI 进程。
+//
+//  本脚本的 API 组合严格照抄本工作区已实机跑通的 poc\game\startup.tjs
+//  （Window / Layer / setImageSize / setSizeToImageSize / type / colorRect /
+//    drawText / font.height / Timer / onClick / onKeyDown / Debug.message /
+//    Scripts.execStorage），不引入任何未验证的 API。
+//======================================================================
+
+//----------------------------------------------------------------------
+// 0. 日志（主代理只能靠 krkr.console.log 定位问题）
+//    日志文件：<exe 同级>\savedata\krkr.console.log
+//----------------------------------------------------------------------
+try { Debug.startLogToFile(); } catch(e) { }
+Debug.message("[FLOW] ===== startup.tjs begin =====");
+Debug.message("[FLOW] Debug.logLocation = " + Debug.logLocation);
+
+//----------------------------------------------------------------------
+// 1. 加载本工程的 3 个脚本（数据/状态 → 场景文本 → 绘制）
+//----------------------------------------------------------------------
+function flowExecStorage(name)
+{
+	try
+	{
+		Scripts.execStorage(name);
+		Debug.message("[FLOW] execStorage OK : " + name);
+		return true;
+	}
+	catch(e)
+	{
+		Debug.message("[FLOW] execStorage FAILED : " + name + " : " + e.message);
+		return false;
+	}
+}
+
+var flowBootOK = true;
+if(!flowExecStorage("flow_lib.tjs"))   flowBootOK = false;
+if(!flowExecStorage("flow_scene.tjs")) flowBootOK = false;
+if(!flowExecStorage("flow_draw.tjs"))  flowBootOK = false;
+
+// 数据表 + 状态文件（读回上次进度 / 首次运行则新建）
+var flowDataOK = false;
+if(flowBootOK)
+{
+	try { flowDataOK = flowInitAll(); }
+	catch(e)
+	{
+		Debug.message("[FLOW] flowInitAll EXCEPTION : " + e.message);
+		flowDataOK = false;
+	}
+}
+
+if(!flowBootOK || !flowDataOK)
+{
+	Debug.message("[FLOW] FATAL : boot failed (bootOK=" + flowBootOK + " dataOK=" + flowDataOK + ")");
+	try { System.inform("流程图演示启动失败，请看 krkr.console.log"); } catch(e2) { }
+}
+
+//----------------------------------------------------------------------
+// 2. 主窗口
+//    层级构造顺序照抄 POC（movieplayer/MoviePlayerWindow.tjs 同款）：
+//      ① add(new Layer(this, null)) → 建立 primaryLayer
+//      ② setInnerSize() → 读回 innerWidth/innerHeight
+//      ③ primaryLayer.setImageSize()/setSizeToImageSize() → 绘制
+//    实测约束：krkrz 的 Layer 默认 Visible=false、只有 primary 被引擎自动置真，
+//    所以子层必须显式写 visible=true（见 引擎工作原理.md §6.2）。
+//----------------------------------------------------------------------
+class FlowWindow extends Window
+{
+	var view;        // "story" = 游戏画面 / "flow" = 流程图
+	var cursorId;    // 流程图视图里的键盘选中节点
+	var exitTimer;   // 保底自动退出
+	var uiTimer;     // 每 5 秒重画一次（倒计时/静默提示会走动）
+	var frames;      // 重画次数（诊断）
+	var closing;     // 已调用 close()，此后不再绘制
+
+	function FlowWindow()
+	{
+		super.Window();
+
+		view = "story";
+		cursorId = flowCurrent;
+		frames = 0;
+		closing = false;
+
+		borderStyle = bsSingle;
+		caption = "流程图（フローチャート）系统演示 · 自制 KiriKiri Z 工程";
+
+		// ① primaryLayer
+		add(new Layer(this, null));
+
+		// ② 客户区尺寸：先请求，再读回实际值
+		setInnerSize(FLOW_WIN_W, FLOW_WIN_H);
+		var w = innerWidth;
+		var h = innerHeight;
+
+		// ③ 画布：绘制都落在 primaryLayer 上
+		var pl = primaryLayer;
+		pl.setImageSize(w, h);
+		pl.setSizeToImageSize();
+		pl.type = ltOpaque;
+
+		Debug.message("[FLOW] client size = " + w + "x" + h
+			+ " | view=" + view + " | current=" + flowCurrent);
+
+		this.redrawFrame();
+
+		// ④ 保底自动退出
+		try
+		{
+			exitTimer = new Timer(onTimer, '');
+			exitTimer.interval = FLOW_AUTO_EXIT_SEC * 1000;
+			exitTimer.enabled  = true;
+			Debug.message("[FLOW] auto exit timer armed : " + FLOW_AUTO_EXIT_SEC + " s");
+		}
+		catch(e)
+		{
+			Debug.message("[FLOW] exit timer init FAILED : " + e.message);
+		}
+
+		// ⑤ 周期性重画，让倒计时 / 静默期提示能走动
+		try
+		{
+			uiTimer = new Timer(onUiTimer, '');
+			uiTimer.interval = 5000;
+			uiTimer.enabled  = true;
+		}
+		catch(e)
+		{
+			Debug.message("[FLOW] ui timer init FAILED : " + e.message);
+		}
+
+		visible = true;
+		Debug.message("[FLOW] window visible"
+			+ " | stateFile=" + flowSavePath
+			+ " | load=" + flowLoadReport);
+	}
+
+	function finalize()
+	{
+		try { if(exitTimer !== void) invalidate exitTimer; } catch(e) { }
+		try { if(uiTimer   !== void) invalidate uiTimer;   } catch(e) { }
+		super.finalize(...);
+	}
+
+	// 重画一帧
+	function redrawFrame()
+	{
+		if(closing) return;      // 已经 close()，不要再碰图层
+		frames++;
+		try
+		{
+			flowDrawAll(primaryLayer, innerWidth, innerHeight, view, cursorId);
+		}
+		catch(e)
+		{
+			Debug.message("[FLOW] redraw EXCEPTION : " + e.message);
+		}
+	}
+
+	// 保存 + 退出（按键退出与超时退出共用）
+	function flowQuit(reason)
+	{
+		if(closing) return;
+		closing = true;
+		Debug.message("[FLOW] quit (" + reason + ") : frames=" + frames
+			+ " | " + flowStateSummary());
+		try { flowSaveState(); } catch(e) { Debug.message("[FLOW] final save EXCEPTION : " + e.message); }
+		close();
+	}
+
+	// 超时 → 退出
+	function onTimer()
+	{
+		Debug.message("[FLOW] auto exit timer fired");
+		this.flowQuit("timeout " + FLOW_AUTO_EXIT_SEC + "s");
+	}
+
+	// 周期重画（只为让倒计时走动；不改状态）
+	function onUiTimer()
+	{
+		this.redrawFrame();
+	}
+
+	//----------------------- 输入 -----------------------
+	function onKeyDown(key, shift)
+	{
+		Debug.message("[FLOW] onKeyDown key=" + key + " shift=" + shift);
+		if(flowMuted())
+		{
+			Debug.message("[FLOW] onKeyDown ignored : input muted for the first "
+				+ FLOW_IGNORE_INPUT_SEC + "s");
+			return;
+		}
+		try { this.handleKey(key); }
+		catch(e) { Debug.message("[FLOW] handleKey EXCEPTION : " + e.message); }
+		this.redrawFrame();
+	}
+
+	function handleKey(key)
+	{
+		// F / f = 切换视图（VK_F=70；若引擎给的是字符码则 102）
+		if(key == 70 || key == 102)
+		{
+			if(view == "flow") view = "story";
+			else
+			{
+				view = "flow";
+				if(!flowExists(flowNodeIndex, cursorId)) cursorId = flowCurrent;
+			}
+			Debug.message("[FLOW] key F -> view=" + view + " cursor=" + cursorId);
+			return;
+		}
+
+		// Esc = 流程图内回到剧情；剧情内退出程序
+		if(key == 27)
+		{
+			if(view == "flow")
+			{
+				view = "story";
+				Debug.message("[FLOW] key Esc -> close flowchart, back to story view");
+				return;
+			}
+			this.flowQuit("key Esc in story view");
+			return;
+		}
+
+		// Q / q = 退出
+		if(key == 81 || key == 113)
+		{
+			this.flowQuit("key Q");
+			return;
+		}
+
+		// C / c = 清空进度（会写状态文件）
+		if(key == 67 || key == 99)
+		{
+			try { flowResetState(); }
+			catch(e) { Debug.message("[FLOW] reset EXCEPTION : " + e.message); }
+			cursorId = flowCurrent;
+			Debug.message("[FLOW] key C -> reset, " + flowStateSummary());
+			return;
+		}
+
+		// 数字键 1..9
+		if(key >= 49 && key <= 57)
+		{
+			var n = key - 49 + 1;
+			if(view == "story")
+			{
+				Debug.message("[FLOW] key " + n + " -> take branch in story view");
+				flowTakeEdgeByKey("" + n);
+			}
+			else
+			{
+				if(n <= flowNodeTable.count)
+				{
+					cursorId = flowNodeTable[n - 1]["id"];
+					Debug.message("[FLOW] key " + n + " -> cursor=" + cursorId);
+				}
+			}
+			return;
+		}
+
+		// 方向键 37/38/39/40 = 流程图内移动选中框
+		if(key >= 37 && key <= 40)
+		{
+			if(view != "flow")
+			{
+				view = "flow";
+				if(!flowExists(flowNodeIndex, cursorId)) cursorId = flowCurrent;
+			}
+			cursorId = flowMoveCursor(cursorId, key);
+			Debug.message("[FLOW] arrow key " + key + " -> cursor=" + cursorId);
+			return;
+		}
+
+		// Enter = 跳转到选中节点
+		if(key == 13)
+		{
+			if(view == "flow") this.doJump(cursorId, "Enter");
+			return;
+		}
+
+		Debug.message("[FLOW] key " + key + " ignored");
+	}
+
+	// 点击：流程图内点「已到达 / 已解锁」节点 = 跳转；点未解锁节点无效
+	function onClick(x, y)
+	{
+		Debug.message("[FLOW] onClick " + x + "," + y);
+		if(flowMuted())
+		{
+			Debug.message("[FLOW] onClick ignored : input muted for the first "
+				+ FLOW_IGNORE_INPUT_SEC + "s");
+			return;
+		}
+		try { this.handleClick(x, y); }
+		catch(e) { Debug.message("[FLOW] handleClick EXCEPTION : " + e.message); }
+		this.redrawFrame();
+	}
+
+	// 触摸设备（支持多点触摸的终端走 onTouchDown 而非 onClick）
+	function onTouchDown(x, y, cx, cy, id)
+	{
+		Debug.message("[FLOW] onTouchDown " + x + "," + y);
+		if(flowMuted())
+		{
+			Debug.message("[FLOW] onTouchDown ignored : input muted");
+			return;
+		}
+		try { this.handleClick(x, y); }
+		catch(e) { Debug.message("[FLOW] onTouchDown EXCEPTION : " + e.message); }
+		this.redrawFrame();
+	}
+
+	function handleClick(x, y)
+	{
+		if(view != "flow")
+		{
+			Debug.message("[FLOW] click in story view -> ignored (press F for the flowchart)");
+			return;
+		}
+		var id = flowHitTest(x, y);
+		if(id == "")
+		{
+			Debug.message("[FLOW] click on empty area -> ignored");
+			return;
+		}
+		cursorId = id;
+		this.doJump(id, "click " + x + "," + y);
+	}
+
+	function doJump(id, why)
+	{
+		if(id == "" || !flowExists(flowNodeIndex, id))
+		{
+			Debug.message("[FLOW] doJump cancelled (" + why + ") : no such node \"" + id + "\"");
+			return;
+		}
+		var ok = flowJumpTo(id);
+		Debug.message("[FLOW] doJump " + id + " (" + why + ") -> " + (ok ? "OK" : "REJECTED")
+			+ " : " + flowLastMessage);
+	}
+}
+
+//----------------------------------------------------------------------
+// 3. 启动
+//----------------------------------------------------------------------
+try
+{
+	var flowWindow = new FlowWindow();
+	Debug.message("[FLOW] ===== startup.tjs finished, window object created =====");
+}
+catch(e)
+{
+	Debug.message("[FLOW] FATAL : " + e.message);
+	try { System.inform("流程图演示 FATAL : " + e.message); } catch(e2) { }
+}

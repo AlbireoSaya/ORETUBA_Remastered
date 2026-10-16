@@ -1,0 +1,50 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'临时/ISSUE-20261011-02/r-tob-control-replay-01'
+sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_cdecl_observer import observe_cdecl_until
+from lucifen_tob_literal_reference import decode_literal_record
+from unicorn.x86_const import UC_X86_REG_ESI,UC_X86_REG_EDI
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+ctx,params,buffer=0x1002000,0x1020000,0x3000000
+rows=[];counts=collections.Counter();ops=collections.Counter();tags=collections.Counter()
+files=sorted(p for p in (root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*') if p.suffix.lower()=='.tob')
+for fi,p in enumerate(files):
+ data=p.read_bytes();u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data)
+ context=bytearray(0x8000);context[0x434:0x438]=struct.pack('<I',params);guard=b'\xac'*16
+ u.mem_write(ctx-16,guard+bytes(context)+guard)
+ per=collections.Counter();digest=hashlib.sha256();pos=4+struct.unpack_from('<I',data,4)[0];code_start=pos+struct.unpack_from('<I',data,pos)[0];pos=code_start
+ while True:
+  at=data.find(b'\x5b\x20',pos)
+  if at<0:break
+  per['locator_candidates']+=1;pos=at+2
+  if at+11>len(data):per['truncated_candidate']+=1;continue
+  if data[at+6]!=1:per['nonliteral_condition_candidate']+=1;continue
+  length=struct.unpack_from('<I',data,at+7)[0];end=at+7+length
+  if length<5 or end>len(data):per['invalid_length_candidate']+=1;continue
+  pos=end
+  try:r=decode_literal_record(data,at)
+  except NotImplementedError:per['unsupported_selector_record']+=1;continue
+  except ValueError:per['malformed_literal_record']+=1;continue
+  wanted=[list(pair) for pair in r['pairs']]
+  for j in r['pointer_item_indexes']:wanted[j][1]+=buffer
+  n=r['count']*8;region=guard+b'\xbb'*n+guard;u.mem_write(params-16,region)
+  result=observe_cdecl_until(u,0x42fb50,buffer+at+1,0x42fdc2,read_stack_words=0,register_seeds={'ecx':ctx},count=100000,timeout=0)
+  assert result['stop_reached'] and not result['returned'] and not result['error'],(p.name,at,result)
+  raw=bytes(u.mem_read(params,n));got=[list(struct.unpack_from('<II',raw,j*8)) for j in range(r['count'])]
+  assert got==wanted,(p.name,at,r['opcode'])
+  assert u.reg_read(UC_X86_REG_ESI)==buffer+r['end'] and u.reg_read(UC_X86_REG_EDI)==params+n
+  assert bytes(u.mem_read(params-16,16))==guard and bytes(u.mem_read(params+n,16))==guard
+  assert bytes(u.mem_read(ctx-16,len(context)+32))==guard+bytes(context)+guard
+  digest.update(struct.pack('<III',at,r['opcode'],r['count'])+raw)
+  per['native_literal_records']+=1;per['native_items']+=r['count'];per['source_pointer_items']+=len(r['pointer_item_indexes']);ops[str(r['opcode'])]+=1
+  for flag,_ in r['pairs']:tags[str(flag)]+=1
+ assert bytes(u.mem_read(buffer,len(data)))==data and p.read_bytes()==data
+ counts.update(per);rows.append({'path':p.relative_to(root).as_posix(),'sha256':hashlib.sha256(data).hexdigest(),'code_start':code_start,'counts':dict(per),'native_result_sha256':digest.hexdigest(),'passed':True})
+ if (fi+1)%50==0:print(json.dumps({'files_completed':fi+1,'native_records':counts['native_literal_records']}),flush=True)
+summary={'files':len(rows),'counts':dict(counts),'opcode_counts':dict(sorted(ops.items(),key=lambda kv:int(kv[0]))),'decoded_flag_counts':dict(tags),'passed':True,'source_exe_sha256':hashlib.sha256(pe.data).hexdigest(),'scope':'original 42FB50 entry through exact pre-dispatch stop 42FDC2; condition 1 and literal/inline-pointer items only; byte signature locator is not complete grammar; no handlers/cross-module/expression/global-state execution'}
+for n,v in [('corpus-literal-results.json',rows),('corpus-literal-summary.json',summary)]:
+ out=b/n;assert not out.exists();out.write_text(json.dumps(v,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary),flush=True)

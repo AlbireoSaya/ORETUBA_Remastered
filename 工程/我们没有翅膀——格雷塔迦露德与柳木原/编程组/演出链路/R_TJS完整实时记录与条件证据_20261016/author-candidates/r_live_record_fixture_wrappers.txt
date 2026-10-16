@@ -1,0 +1,26 @@
+交付：一个纯 TJS2 生产模块（仅新增文件，无其他改动）。
+
+**目标路径**
+`工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_live_expression_entry.tjs`
+
+**编码/行尾**：UTF-8（无 BOM）＋ LF。
+
+```tjs
+// r_live_expression_entry.tjs
+// R 表达式取式入口：C = Condition，P = Parameter。
+// 仅做转发：取 global.RRExpression，并以 incontextof this 保持调用者上下文。
+
+function RRConditionExpr(p)
+{
+    var run = global.RRExpression incontextof this;
+    return run(p, "C");
+}
+
+function RRParameterExpr(p)
+{
+    var run = global.RRExpression incontextof this;
+    return run(p, "P");
+}
+```
+
+边界与未验证项（如实登记，等 root 代执行）：本文件不做任何解析/求值，仅按 kind 转发；`global.RRExpression` 不存在或签名不符时按其自身行为抛错，本文件不做兜底；实际运行证据由 root 代执行产生，本轮不假报测试结果。

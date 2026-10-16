@@ -1,0 +1,42 @@
+================================================================================================
+23_save.json  盘上 md5=f4ae4eaaaaa5c8d473697acf797b4cf5  改前快照 md5=3b3b5392b6a24ffede1761927420abf5
+  字节 163499 → 165318（Δ+1819）  CRLF 3386 → 3386  BOM=False
+  [1] 九件 x 读回：
+      sv.sys_game        x   872 →   864  OK
+      sv.sys_game_tx     x   872 →   864  OK
+      sv.sys_game_hit    x   864 →   856  OK
+      sv.sys_title       x  1122 →  1114  OK
+      sv.sys_title_tx    x  1122 →  1114  OK
+      sv.sys_title_hit   x  1114 →  1106  OK
+      sv.sys_end         x  1480 →  1472  OK
+      sv.sys_end_tx      x  1480 →  1472  OK
+      sv.sys_end_hit     x  1472 →  1464  OK
+  [2] 逐元素字段 diff（应仅 9 处 x）：
+      x 变化 9 处；非 x 字段变化 0 处
+  [3] 间距  可见 40/40   hit 24/24  —— 改前 [40, 40] / 改后 [40, 40]  OK
+          hit 层：改前 [24, 24] / 改后 [24, 24]  OK
+  [4] 屏级字段 ['flags_default', 'id', 'owner', 'page_flag', 'title_cn']：全等 OK
+      note 长度 5084 → 6160（仅追加：旧内容是新内容的前缀=True）
+  [5] bytes 结构：CRLF 数相同=True；note 之后区段（elements 起）除数字外逐字相同=True
+================================================================================================
+24_load.json  盘上 md5=f249d5551b3ad9784be44cf135d1b241  改前快照 md5=0a1910465793dad82d3d5ff21607b247
+  字节 175646 → 177465（Δ+1819）  CRLF 3386 → 3386  BOM=False
+  [1] 九件 x 读回：
+      sv.sys_game        x   872 →   864  OK
+      sv.sys_game_tx     x   872 →   864  OK
+      sv.sys_game_hit    x   864 →   856  OK
+      sv.sys_title       x  1122 →  1114  OK
+      sv.sys_title_tx    x  1122 →  1114  OK
+      sv.sys_title_hit   x  1114 →  1106  OK
+      sv.sys_end         x  1480 →  1472  OK
+      sv.sys_end_tx      x  1480 →  1472  OK
+      sv.sys_end_hit     x  1472 →  1464  OK
+  [2] 逐元素字段 diff（应仅 9 处 x）：
+      x 变化 9 处；非 x 字段变化 0 处
+  [3] 间距  可见 40/40   hit 24/24  —— 改前 [40, 40] / 改后 [40, 40]  OK
+          hit 层：改前 [24, 24] / 改后 [24, 24]  OK
+  [4] 屏级字段 ['flags_default', 'id', 'owner', 'page_flag', 'title_cn']：全等 OK
+      note 长度 6262 → 7338（仅追加：旧内容是新内容的前缀=True）
+  [5] bytes 结构：CRLF 数相同=True；note 之后区段（elements 起）除数字外逐字相同=True
+================================================================================================
+结论：PASS —— 九件 x 全部到位、非 x 字段零变化、间距不变、note 纯追加、字节结构完好

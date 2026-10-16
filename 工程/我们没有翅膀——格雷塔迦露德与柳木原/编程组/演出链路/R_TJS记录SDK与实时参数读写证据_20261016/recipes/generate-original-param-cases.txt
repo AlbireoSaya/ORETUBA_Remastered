@@ -1,0 +1,97 @@
+"""Root validation recipe: eleven bounded synthetic original calls, no corpus replay."""
+from pathlib import Path
+import hashlib
+import json
+import struct
+import sys
+
+root = Path.cwd()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-live-params-20261015"
+sys.path[:0] = [str(root / "工具/unicorn-2.1.4-py314"), str(group / "工具"), str(group / "逆向引擎")]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_cdecl_observer import observe_cdecl_until
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE
+from unicorn.x86_const import UC_X86_REG_ESI, UC_X86_REG_EDI
+
+out = Path(sys.argv[1]).resolve()
+assert out.is_relative_to(root / "临时/ISSUE-20261011-02") and not out.exists()
+out.mkdir()
+path = root / "备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE"
+pe = PE(path)
+digest = hashlib.sha256(pe.data).hexdigest()
+assert digest == "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33"
+source, ctx, params, bank = 0x3000000, 0x1002000, 0x1020000, 0x1090000
+u32 = lambda v: struct.pack("<I", v)
+literal = b"\x02" + u32(0x89abcdef)
+array = b"\x09\x02" + u32(0) + u32(2)
+inline = b"\x05\x01\x03\0\x01\0\xff"
+cases = [
+    ("zero-count", [], params),
+    ("empty", [b"\0"], params),
+    ("simple-literal", [literal], params),
+    ("selected-literal", [b"\x07\0" + u32(0x12345678)], params),
+    ("inline-zero", [b"\x05\x01\0\0"], params),
+    ("inline-data", [inline], params),
+    ("array-existing-bank", [array], params),
+    ("flags-alias-literal", [literal], source + 13),
+    ("inline-flags-alias-length", [inline], source + 14),
+    ("first-parameter-rewrites-next-tag", [b"\x02" + u32(0x11223344), array], source + 17),
+    ("flags-alias-array-index", [array], source + 18),
+]
+results, lines = [], []
+bank_values = [(0x55660000 + i * 0x101) & 0xffffffff for i in range(16)]
+for label, items, dest in cases:
+    body = bytes([len(items)]) + b"".join(items)
+    record = b"[ " + u32(4) + b"\x01" + u32(4 + len(body)) + body
+    raw = record + b"\xcc" * (64 - len(record))
+    assert len(raw) == 64
+    uc = map_pe(pe)
+    uc.mem_map(source, 4096)
+    uc.mem_write(source, raw)
+    uc.mem_write(ctx + 0x434, u32(dest))
+    uc.mem_write(0x5355f0, u32(0x1040000))
+    uc.mem_write(0x1040000, struct.pack("<III", 0, 0x1050000, 0x105000c))
+    uc.mem_write(0x1050000, u32(bank) + b"\0" * 8)
+    uc.mem_write(bank, b"".join(u32(v) for v in bank_values))
+    pe_before = bytes(uc.mem_read(pe.image_base, pe.size_image))
+    events, other_writes = [], []
+    def watched(address):
+        return (source <= address < source + 4096 or params <= address < params + 64 or bank <= address < bank + 64)
+    def read_hook(machine, _access, address, size, _value, _user):
+        if watched(address):
+            events.append(["r", address, size, int.from_bytes(machine.mem_read(address, size), "little")])
+    def write_hook(_machine, _access, address, size, value, _user):
+        if watched(address):
+            events.append(["w", address, size, value & ((1 << (8 * size)) - 1)])
+        elif 0x1000000 <= address < 0x1100000 or pe.image_base <= address < pe.image_base + pe.size_image:
+            other_writes.append([address, size, value])
+    uc.hook_add(UC_HOOK_MEM_READ, read_hook)
+    uc.hook_add(UC_HOOK_MEM_WRITE, write_hook)
+    observed = observe_cdecl_until(uc, 0x42fb50, source + 1, 0x42fdc2, 0, {"ecx": ctx}, count=1000, timeout=200000)
+    assert not observed["error"] and observed["stop_reached"] and not observed["returned"], (label, observed)
+    assert not other_writes and bytes(uc.mem_read(pe.image_base, pe.size_image)) == pe_before
+    source_cursor, param_end = uc.reg_read(UC_X86_REG_ESI), uc.reg_read(UC_X86_REG_EDI)
+    assert param_end == dest + len(items) * 8
+    spec = {"label": label, "source": source, "params": dest, "bank_base": bank, "bank_values": bank_values,
+            "data": list(raw), "count": len(items), "events": events, "source_cursor": source_cursor, "param_end": param_end,
+            "source_final": list(uc.mem_read(source, 64)), "params_final": list(uc.mem_read(dest, 16))}
+    lines.append("RLiveParamCheck(" + lit(spec) + ");")
+    results.append({"label": label, "passed": True, "count": len(items), "destination": dest, "source_cursor": source_cursor,
+                    "param_end": param_end, "events": events, "source_initial_sha256": hashlib.sha256(raw).hexdigest(),
+                    "source_final_sha256": hashlib.sha256(bytes(spec["source_final"])).hexdigest(), "other_heap_PE_writes": other_writes,
+                    "observer": observed})
+assert path.read_bytes() == pe.data
+target = out / "cases.tjs"
+target.write_text("\n".join(lines) + "\n", encoding="utf-8")
+receipt = {"passed": True, "cases": len(results), "original_sha256": digest, "results": results,
+           "scope": "source page, parameter buffer, existing bank value events only; context/descriptor/stack reads outside scope; no growth, expression VM, dispatcher, native lifecycle or game proof"}
+(out / "original-results.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+manifest = {"cases": len(results), "limited": True, "source_byte_reads_writes_and_cursors": True,
+            "original_result_sha256": hashlib.sha256((out / "original-results.json").read_bytes()).hexdigest(),
+            "files": [{"source": target.relative_to(root).as_posix(), "sha256": hashlib.sha256(target.read_bytes()).hexdigest()}]}
+(out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+print(json.dumps({"passed": True, "fresh_original_calls": len(results), "scoped_events": sum(len(row["events"]) for row in results),
+                  "cursor_offsets": [[row["label"], row["source_cursor"] - source] for row in results]}))

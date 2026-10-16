@@ -1,0 +1,39 @@
+// r_live_record_fixture_compare.tjs
+// 严格比较 live record fixture 的 result 与源段记录 seg。
+// 仅自有源码与数值契约；不读、不猜原作内容。
+
+function RRCompare(spec, s, seg, result) {
+	if (result.accepted !== seg.accepted
+		|| result.opcode !== seg.opcode
+		|| result.condition_value !== seg.condition_value
+		|| result.next_cursor !== seg.next_cursor
+		|| result.param_count !== seg.param_count) {
+		throw new global.Exception("LIVE_RECORD_RESULT");
+	}
+
+	if (seg.accepted) {
+		if (result.param_end !== seg.param_end) {
+			throw new global.Exception("LIVE_RECORD_RESULT");
+		}
+	} else {
+		// nativeJSON 的 null 序列化为 TJS void
+		if (result.param_end !== void || seg.param_end !== void) {
+			throw new global.Exception("LIVE_RECORD_RESULT");
+		}
+	}
+
+	global.RVMFCompareRows(s.events, seg.events, spec.label + " events");
+	global.RVMFCompareRows(s.vm_writes, seg.vm_writes, spec.label + " vm_writes");
+	global.RVMFCompareRows(s.vm_trace, seg.vm_trace, spec.label + " vm_trace");
+	global.RVMFCompareRows(s.vm_runs, seg.vm_runs, spec.label + " vm_runs");
+	global.RVMFCompareRows(s.bindings, seg.bindings, spec.label + " bindings");
+	global.RVMFCompareRows(s.calls, seg.calls, spec.label + " calls");
+
+	if (s.eval_index !== seg.expr_preps.count) {
+		throw new global.Exception("LIVE_RECORD_PREP_COUNT");
+	}
+
+	global.RRFinalMemory(spec, s, seg);
+}
+
+global.RRCompare = RRCompare;

@@ -1,0 +1,56 @@
+{
+  "scope": "thread access pass; primary startup not passed; no original code/GUI executed",
+  "negative_files": [
+    {
+      "path": "E:\\ZCode Workspace\\Galgame\\AGENTS.md",
+      "size": 57761,
+      "sha256": "4366bde9962ba59bf7ce070127def5af5e55e680e0c520635ba28ad488a76050"
+    },
+    {
+      "path": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质\\SET_UP\\ORETUBAR.EXE",
+      "size": 1363968,
+      "sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33"
+    },
+    {
+      "path": "C:\\Windows\\win.ini",
+      "size": 92,
+      "sha256": "6b3d6e268dcb76e175a7db3d9e031349ab2c32654c7e57581a851e64dd6214ab"
+    }
+  ],
+  "positive": {
+    "thread_canary_hex": "00000000000000000000000000000000",
+    "size": 16
+  },
+  "controls": {
+    "no_acl": {
+      "exit": 1,
+      "error": 5
+    },
+    "existing_canary": {
+      "exit": 1
+    },
+    "outside_output": {
+      "exit": 1
+    }
+  },
+  "primary_no_window": {
+    "child_exit_decimal": 3221225794,
+    "child_exit_hex": "0xc0000142",
+    "parent_exit": 1,
+    "pid": 27320,
+    "canary": false,
+    "process_present_after": false
+  },
+  "primary_detached": {
+    "parent_exit": 1,
+    "error_type": "InvalidOperationException",
+    "wait_exact_value": "not recorded",
+    "pid": 6496,
+    "canary": false,
+    "process_present_after": false
+  },
+  "original_processes_started": 0,
+  "original_dlls_loaded": 0,
+  "probe_direct_write_targets_outside_workspace": 0,
+  "whole_os_file_activity_traced": false
+}

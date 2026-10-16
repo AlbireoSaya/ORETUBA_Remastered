@@ -1,0 +1,264 @@
+// ============================================================
+// ui_verify17.tjs —— 层预算 / 绘制成本实测（ISSUE-20261003-09）
+//
+// 目的：冻结书 §五 点名「**逐元素渲染全量的层预算未验证**」，UI 组 POC 只测到
+//       「736 节点框 ＋ 735 折线 ＋ 200 箭头 ＝ 56 ms/帧」vs 该屏 120 ms 重画节拍。
+//       本模块在**本工程自己的构建**上，用**离线已定的真实几何**（`story/_flowgeom.tjs`）
+//       实测「一次全量绘制」的毫秒数，并对比**开/关视口裁剪**两种口径。
+//
+// 门槛：`game\verify15.txt` 存在（与 verify15/16 同一脚手架），装载后立即执行。
+// 判词：`★FLOWPERF★ …`（逐档打印），结束 `★FLOWPERF-DONE★`。
+//
+// ★ 三条已知 API 口径（见 `.zcode\skills\kirikiri-unpack\引擎工作原理.md` §5.7/§5.11）：
+//   · `Layer.drawText` 的**颜色要 0xRRGGBB**（传 0xffffffff 完全不画）；
+//   · GDI+ 的 pen/brush 要 **ARGB**（本项目 `uiFlowFrame` 用 `colorRect` 绕开）；
+//   · 计时用 `System.getTickCount()`（`System.elapsedTime` 在 krkrz **不存在**）。
+// ============================================================
+
+// ★ 这四个全局必须**在本模块声明**： 里的赋值语句只有在全局名已存在时才会命中
+//   （否则抛「未找到 Member」——与  需要  先声明同理）。
+
+// 旗标 `UIFlowPerfArmed` 由 `ui_boot.tjs` 声明（那里才是它必须存在的地方）
+// 几何五全局的声明已移到消费方 `ui_flowfull.tjs`（本模块只负责装载与实测）
+var FP17_layer = null;
+var FP17_win = null;
+
+function fp17Layer()
+{
+	if(FP17_layer !== null) return FP17_layer;
+
+	var host = null;
+	try { host = UIAssetHost; } catch(eH1) { host = null; }
+	var hostWin = FP17_win;
+	try { if(UIAssetWin !== null && UIAssetWin !== void) hostWin = UIAssetWin; } catch(eH2) { }
+	Debug.message("[FLOWPERF] 建层条件：win=" + ((hostWin === null) ? "null" : "ok")
+		+ " ｜ host=" + ((host === null || host === void) ? "null" : "ok"));
+
+	var l = null;
+	// 策略 A：宿主层做父 + setSize + ltAlpha（照 ui_asset.tjs:129 的写法）
+	try
+	{
+		l = new Layer(hostWin, host);
+		Debug.message("[FLOWPERF] A1 new Layer 成功");
+		try { l.setSize(1920, 1080); Debug.message("[FLOWPERF] A2 setSize 成功"); }
+		catch(eA2) { Debug.message("[FLOWPERF][ERR] A2 setSize：" + eA2.message); }
+		try { l.visible = false; l.type = ltAlpha; Debug.message("[FLOWPERF] A3 type 成功"); }
+		catch(eA3) { Debug.message("[FLOWPERF][ERR] A3 type：" + eA3.message); }
+	}
+	catch(eA1) { Debug.message("[FLOWPERF][ERR] A1 new Layer：" + eA1.message); l = null; }
+
+	// 策略 B：宿主层做父，**不做** setSize/type（沿用父层尺寸）
+	if(l === null)
+	{
+		try { l = new Layer(hostWin, host); Debug.message("[FLOWPERF] B 纯 new Layer 成功"); }
+		catch(eB) { Debug.message("[FLOWPERF][ERR] B：" + eB.message); l = null; }
+	}
+
+	// 策略 C：直接画在**已挂载的 stageLayer** 上（会短暂污染画面，仅供诊断；跑完立即清屏）
+	if(l === null)
+	{
+		try
+		{
+			var w2 = (hostWin === null) ? FP17_win : hostWin;
+			l = w2.stageLayer;
+			if(l !== null && l !== void) Debug.message("[FLOWPERF][warn] 降级：直接画在 stageLayer 上（画面会被污染）");
+			else l = null;
+		}
+		catch(eC) { Debug.message("[FLOWPERF][ERR] C：" + eC.message); l = null; }
+	}
+
+	if(l === null) { Debug.message("[FLOWPERF][ERR] 三种建层策略全部失败"); return null; }
+	try { l.fillRect(0, 0, 1920, 1080, 0x101820); } catch(eF) { Debug.message("[FLOWPERF][ERR] 预填：无"); }
+	FP17_layer = l;
+	return l;
+}
+
+// 一次「全量绘制」：**分三段独立计时**（节点框 / 连线 / 箭头）——
+// 任一段抛错也保留前几段的数字，避免「一处不支持 ⇒ 什么都测不到」。
+function fp17DrawOnce(nodes, links, arrows, cull, vx, vy, vw, vh, label)
+{
+	var l = fp17Layer();
+	if(l === null) { Debug.message("[FLOWPERF][ERR] 无离屏 Layer，本档跳过"); return -1; }
+	var tRects = -1, tLines = -1, tArrows = -1;
+	var drawnN = 0, drawnL = 0, drawnA = 0;
+	var err = "";
+	try { l.fillRect(0, 0, 1920, 1080, 0x101820); } catch(eF0) { }
+
+	// 段一：节点底 + 四边描边（colorRect ×5；与 uiFlowFrame 同法）
+	try
+	{
+		var t0 = System.getTickCount();
+		for(var i = 0; i < nodes.count; i++)
+		{
+			var n = nodes[i];
+			var x = 0 + n[0], y = 0 + n[1], w = 0 + n[2], h = 0 + n[3];
+			if(cull && (x + w < vx || y + h < vy || x > vx + vw || y > vy + vh)) continue;
+			l.colorRect(x, y, w, h, 0x26323e, 235);
+			l.colorRect(x, y, w, 2, 0x39c1e0, 255);
+			l.colorRect(x, y + h - 2, w, 2, 0x39c1e0, 255);
+			l.colorRect(x, y, 2, h, 0x39c1e0, 255);
+			l.colorRect(x + w - 2, y, 2, h, 0x39c1e0, 255);
+			drawnN++;
+		}
+		tRects = System.getTickCount() - t0;
+	}
+	catch(eR) { err += "节点段:" + eR.message + " "; }
+
+	// 段二：连线（3 点折线；pen 要 **ARGB**）
+	try
+	{
+		var t1 = System.getTickCount();
+		// ★ 必须用 `new GdiPlus.Appearance()` + `addPen`（照 UI 组 ui_flow_links.tjs:278 的写法）；
+		//   传普通字典会报 `Invalid instance type`（本轮实测）。
+		var pen = new GdiPlus.Appearance();
+		pen.addPen(0xff266080, %[ width: 3, lineJoin: GdiPlus.LineJoinRound,
+			startCap: GdiPlus.LineCapRound, endCap: GdiPlus.LineCapRound ], 0, 0);
+		for(var j = 0; j < links.count; j++)
+		{
+			var k = links[j];
+			if(cull && (k[0] < vx || k[0] > vx + vw || k[1] < vy || k[1] > vy + vh)) continue;
+			l.drawLines(pen, [ [ (0 + k[0]), (0 + k[1]) ], [ (0 + k[2]), (0 + k[1]) ], [ (0 + k[2]), (0 + k[3]) ] ]);
+			drawnL++;
+		}
+		tLines = System.getTickCount() - t1;
+	}
+	catch(eL) { err += "连线段:" + eL.message + " "; }
+
+	// 段三：箭头（三角多边形）
+	try
+	{
+		var t2 = System.getTickCount();
+		var br = new GdiPlus.Appearance();
+		br.addBrush(0xff266080, 0, 0);
+		var lim = (arrows < links.count) ? arrows : links.count;
+		for(var m = 0; m < lim; m++)
+		{
+			var k2 = links[m];
+			if(cull && (k2[0] < vx || k2[0] > vx + vw || k2[1] < vy || k2[1] > vy + vh)) continue;
+			l.drawPolygon(br, [ [ (0 + k2[2]), (0 + k2[3]) ], [ (0 + k2[2] - 9), (0 + k2[3] - 5) ],
+								[ (0 + k2[2] - 9), (0 + k2[3] + 5) ] ]);
+			drawnA++;
+		}
+		tArrows = System.getTickCount() - t2;
+	}
+	catch(eA) { err += "箭头段:" + eA.message + " "; }
+
+	var tot = ((tRects < 0) ? 0 : tRects) + ((tLines < 0) ? 0 : tLines) + ((tArrows < 0) ? 0 : tArrows);
+	Debug.message("[FLOWPERF] " + label
+		+ " ｜ 节点 " + drawnN + "/" + nodes.count + " → " + tRects + " ms"
+		+ " ｜ 连线 " + drawnL + "/" + links.count + " → " + tLines + " ms"
+		+ " ｜ 箭头 " + drawnA + " → " + tArrows + " ms"
+		+ " ｜ **合计 " + tot + " ms** ｜ 裁剪 " + (cull ? "ON" : "OFF")
+		+ ((err == "") ? "" : (" ｜ ⚠ " + err)));
+	return tot;
+}
+
+function uiVerify17Start()
+{
+	try
+	{
+		var ok = false;
+		try { ok = Storages.isExistentStorage("story/_flowgeom.tjs"); } catch(e0) { ok = false; }
+		if(!ok) { Debug.message("[FLOWPERF] 无 story/_flowgeom.tjs（先跑 emit_flow_geometry.py）"); Debug.message("★FLOWPERF-DONE★"); return; }
+		// 可复用渲染器（落地用的就是它；此处一并装载以便 A/B 对照）
+		try { uiExec("ui_flowfull.tjs"); } catch(eFF) { Debug.message("[FLOWPERF][warn] ui_flowfull 装载失败：" + eFF.message); }
+		try { Scripts.execStorage("story/_flowgeom.tjs"); } catch(e1) { Debug.message("[FLOWPERF][ERR] 几何装载失败：" + e1.message); Debug.message("★FLOWPERF-DONE★"); return; }
+
+		Debug.message("[FLOWPERF] 几何已装载：节点 " + UIFlowGeomNodes.count + " ｜ 代理连线 " + UIFlowGeomLinks.count
+			+ " ｜ viewport " + UIFlowGeomViewport[0] + "," + UIFlowGeomViewport[1] + " "
+			+ UIFlowGeomViewport[2] + "x" + UIFlowGeomViewport[3] + "（等主窗口就绪后实测）");
+		// ★ 本工程实测的启动顺序是「**窗口先建、模块后装**」（HOOK2 早于 HOOK1）⇒
+		//   若 `uiStoryWindowInit` 已跑过（`UIBootWindow` 已就绪），就**当场实测**；
+		//   否则置 armed，等它回调。两边都覆盖，避免时序耦合。
+		var _w = null;
+		try { _w = UIBootWindow; } catch(eW17) { _w = null; }
+		if(_w !== null && _w !== void)
+		{
+			Debug.message("[FLOWPERF] 窗口已就绪（早于本模块）⇒ 当场实测");
+			uiVerify17Attach(_w);
+			return;
+		}
+		UIFlowPerfArmed = true;
+		Debug.message("[FLOWPERF] 等 uiStoryWindowInit 回调");
+		return;
+	}
+	catch(eA)
+	{
+		Debug.message("[FLOWPERF][ERR] " + eA.message);
+	}
+	Debug.message("★FLOWPERF-DONE★");
+}
+
+// ② 实测阶段：由 ui_boot 的 uiStoryWindowInit(win) 回调（离屏 Layer 必须有窗口）
+function FP17_linkPlugin()
+{
+	var ret = null;
+	try { ret = Plugins.link("layerExDraw.dll"); }
+	catch(e) { Debug.message("[FLOWPERF][warn] layerExDraw.dll 链接抛错：" + e.message); return false; }
+	// ★ 必须**打印返回值**：link 失败时不一定抛错（本项目既有的「静默不生效」形态）
+	Debug.message("[FLOWPERF] Plugins.link(layerExDraw.dll) 返回：" + ("" + ret));
+	return true;
+}
+
+function uiVerify17Attach(win)
+{
+	FP17_linkPlugin();
+	try { uiFlowFullInit(win); } catch(eFI) { Debug.message("[FLOWPERF][warn] uiFlowFullInit 失败：" + eFI.message); }
+	Debug.message("[FLOWPERF] Attach 回调到达：win=" + ((win === null) ? "(null!)" : "ok"));
+	FP17_win = win;
+	UIFlowPerfArmed = false;
+	try
+	{
+		var vp = UIFlowGeomViewport;
+
+		// 三档规模；每档跑 3 次（首轮含冷启动分配，取后两轮）
+		var scales = [100, 300];
+		if(UIFlowGeomNodes.count > 600) scales.push(656);
+		var k, nodes, links, i;
+		for(k = 0; k < scales.count; k++)
+		{
+			nodes = []; links = [];
+			for(i = 0; i < scales[k] && i < UIFlowGeomNodes.count; i++) nodes.push(UIFlowGeomNodes[i]);
+			for(i = 0; i < UIFlowGeomLinks.count; i++) links.push(UIFlowGeomLinks[i]);
+			fp17DrawOnce(nodes, links, 0, false, 0, 0, 1920, 1080, "预热 " + scales[k] + " 节点");       // 预热（含首轮分配）
+			fp17DrawOnce(nodes, links, 200, false, 0, 0, 1920, 1080, "档 " + scales[k] + " 不裁剪（含 200 箭头）");
+			fp17DrawOnce(nodes, links, 200, true, vp[0], vp[1], vp[2], vp[3], "档 " + scales[k] + " 视口裁剪");
+		}
+		// ★ A/B 对照：用**可复用渲染器** `ui_flowfull.tjs` 画同一全量，验证「提成模块」后与内联版同效
+		try
+		{
+			var rA = uiFlowFullDraw(0, 0, 1920, 1080, false, true, true);
+			var rB = uiFlowFullDraw(vp[0], vp[1], vp[2], vp[3], true, true, true);
+			if(rA !== null && rB !== null)
+				Debug.message("[FLOWPERF][渲染器] 全量 " + rA.nodes + "/" + rA.links + "/" + rA.arrows
+					+ " ｜ 裁剪 " + rB.nodes + "/" + rB.links + "/" + rB.arrows
+					+ " ｜ 渲染器状态 " + UIFlowFullNote);
+			else
+				Debug.message("[FLOWPERF][ERR] 渲染器返回 null（层未就绪？）");
+		}
+		catch(eRF) { Debug.message("[FLOWPERF][ERR] 渲染器对照异常：" + eRF.message); }
+		// ★ ISSUE-20261003-14：**在真实 stage 上画一次** —— 这正是挂屏钩子要走的同一条路径。
+		try
+		{
+			var st = null;
+			try { st = UIFlowFullWin.stageLayer; } catch(eS0) { st = null; }
+			if(st !== null && st !== void)
+			{
+				var tA = System.getTickCount();
+				var rS = uiFlowFullDrawOn(st, vp[0], vp[1], vp[2], vp[3], true, true);
+				var dA = System.getTickCount() - tA;
+				Debug.message("[FLOWPERF][真实stage] "
+					+ ((rS === null) ? "返回 null" : ("节点 " + rS.nodes + "/" + rS.links + "/" + rS.arrows))
+					+ " → " + dA + " ms");
+			}
+			else Debug.message("[FLOWPERF][真实stage] 拿不到 stageLayer");
+		}
+		catch(eS) { Debug.message("[FLOWPERF][ERR] 真实stage 绘制异常：" + eS.message); }
+
+	}
+	catch(e)
+	{
+		Debug.message("[FLOWPERF][ERR] " + e.message);
+	}
+	Debug.message("★FLOWPERF-DONE★");
+}

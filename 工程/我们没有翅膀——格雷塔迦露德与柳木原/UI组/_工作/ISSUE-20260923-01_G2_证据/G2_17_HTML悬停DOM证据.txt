@@ -1,0 +1,28 @@
+HTML 复刻端「悬停第 2 项」的 DOM 证据（无头 Edge --dump-dom，原始 dump 见 _html_dom_probe_hover.html）
+URL: index.html?screen=dialog&chrome=0&flags=quickbar:expanded,qbar_tip:save&hover=quick.hit_save
+说明：?hover= 走的是 buildHit/buildImage 注册的 mouseenter 监听（真人鼠标同一条路径），
+      组绑定（state_group=quick.save）把状态广播给同组 icon ⇒ 该 icon 的贴图切到 _on。
+
+① hover-probe 命中的节点数 = 1（= 1，即 quick.hit_save 热区）
+
+② 各 icon 的 ui-stateimage 实际 background-image（同一时刻只有一个悬停目标）：
+   quick.ic_lock      x_ui_qbicon_lock.png
+   quick.ic_save      x_ui_qbicon_save_on.png
+   quick.ic_load      x_ui_qbicon_load.png
+   quick.ic_qsave     x_ui_qbicon_qsave.png
+   quick.ic_qload     x_ui_qbicon_qload.png
+   quick.ic_auto      x_ui_qbicon_auto.png
+   quick.ic_skip      x_ui_qbicon_skip.png
+   quick.ic_next      x_ui_qbicon_next.png
+   quick.ic_prev      x_ui_qbicon_prev.png
+   quick.ic_log       x_ui_qbicon_log.png
+   quick.ic_chart     x_ui_qbicon_chart.png
+   quick.ic_option    x_ui_qbicon_option.png
+
+③ 名称药丸与白字（qbar_tip=save）的 display（元素自身 style 属性，逐个精确取值）：
+   quick.pl_lock    display=none
+   quick.pl_save    display=（空 = 可见）
+   quick.pl_load    display=none
+   quick.tx_lock    display=none
+   quick.tx_save    display=（空 = 可见）
+   quick.tx_load    display=none

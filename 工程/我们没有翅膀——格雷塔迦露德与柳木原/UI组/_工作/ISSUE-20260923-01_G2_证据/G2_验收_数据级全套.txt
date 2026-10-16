@@ -1,0 +1,480 @@
+########## gen_layout.py
+
+[OK] 已生成：
+  layout\ui_layout.json  (20 屏)
+  krkr\game\ui_layout.tjs
+  复刻\ui_layout.js
+EXIT=0
+
+########## verify_ui.py
+==============================================================================
+verify_ui.py · UI 组 M1 一致性校验
+  layout : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout
+  assets : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\assets\ui
+  game   : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\game
+  canvas : 1920x1080（canvas_baseline=1920x1080）  ← 读自 layout/_root.json
+==============================================================================
+  [1] 引用完整性      ：862 条引用 / 173 条唯一 → 通过
+  [2] 尺寸一致性      ：323 个 image（其中九宫格 280）→ 通过
+  [3] 三处数据一致    ：json 17600 键 / tjs 17600 键 / js 17600 键 → 通过
+  [4] 硬编码坐标扫描  ：扫 12 个 .tjs（排除自动生成的 ui_layout.tjs）→ 可疑清单为空，通过
+      白名单：W1 值∈{0,1,2,3} ｜ W2 值==255 ｜ W3 行含 interval/Timer/period ｜ W4 疑似数组下标 ｜ W5 十六进制字面量 ｜ W6 行含 UILayout/uiTheme/uiAsset
+  [5] PNG 合法性      ：453 件 → 通过
+      P 模式（索引色）清单：无
+      L 模式（灰度）清单  ：无
+  [6] 体积预算        ：453 件 / 39.54 MB（56 MB 预算）→ 通过
+------------------------------------------------------------------------------
+汇总：引用 0 ｜ 尺寸 0 ｜ 三处一致 0 ｜ 硬编码可疑 0 行 ｜ PNG 0 ｜ 预算 0 处
+资产：453 件 / 39.54 MB
+结果：**全部通过**（退出码 0）
+==============================================================================
+EXIT=0
+
+########## test_state_targets.py
+==========================================================================
+状态目标可达性验证 ｜ 数据=E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+
+[1] 判据指纹（ui_screens.tjs ↔ 本文件复算）
+  uiScreenElementVisible     sha256=a985f281284603ae27ec9f3468b403a8217072e38c2708a9813062d3901a259d  (319 字节)
+  uiScreenHoverAtIn          sha256=316b402dd04f5e18bd4b33d96f4cb7e41c3c60f9ccf8a8f8c3af0f658d6524f2  (528 字节)
+
+[2] 判据令牌（成对一致性）
+  ✓ 候选并集·带 state_assets 的任何元素
+  ✓ 候选并集·缺态图时只认 kind==hit
+  ✓ 候选并集·热区必须带非空 state_group
+  ✓ 可见性·visible_default 前置
+  ✓ 可见性·vis_flag / vis_when 成对
+  ✓ 可见性·vis_when 通配 "*" = 非空即显示
+  ✓ 平票·z 相等时声明更晚者胜
+
+[3] 可达性（几何中心）
+  覆盖：态图+组 37 件 ｜ 纯组热区 23 件 ⇒ 合计 60 件（按各自可见所需的 flag 取值复算）
+  – 跳过 25_config.json :: cfg.mute_off（visible_default=false）
+  – 跳过 25_config.json :: cfg.mute_hit（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay_hit（visible_default=false）
+
+==========================================================================
+结果：**全部通过**（判据指纹一致 + 60 件元素几何中心可达）
+EXIT=0
+
+########## test_verify_asset_refs.py
+========================================================================
+verify_ui.iter_asset_refs 覆盖性自测（state_assets）
+========================================================================
+  OK   state_assets.normal 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.hover 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.pressed 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   空串/None 不产生引用  —— ['ui/n.png']
+  OK   asset 与 state_assets 并存  —— ['ui/bg.png', 'ui/n.png']
+  OK   item_frame/asset 未回归  —— ['ui/a.png', 'ui/f.png']
+  OK   深层 list 下标路径  —— ['screens.s.elements[0].state_assets.pressed']
+  OK   真实 layout 上收到 state_assets 引用（>0）  —— state_assets=210 / 总 862
+  OK   非三键的自定义态也被收集（Minor-10）  —— ['ui/dis.png', 'ui/focus.png', 'ui/n.png']
+  OK   state_assets 非字典 -> 计入引用表（供 [1] 报缺件）  —— [('ui/typo.png', 'state_assets')]
+------------------------------------------------------------------------
+结果：**全部通过**
+EXIT=0
+
+########## test_click_reach.py
+==============================================================================
+全屏点击可达性守门（复算 uiScreenClick / uiDialogClick / uiScreenAttachClick 口径）
+  屏数 20 ｜ 目录 E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+  豁免表 4 条（DESIGN 3 / REVIEW 1）—— 逐条打印可达面积以证明不是死件
+==============================================================================
+
+── _index.json（屏清单）OK —— 登记 20 屏，文件齐、id 一致、无未登记的屏
+
+── 01_title.json    OK  元素  17（可点   7）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 7
+
+── 10_dialog.json   OK  元素  26（可点  10）｜ 状态 2 ｜ 重叠对 3 ｜ 中心检查 19
+   [10_dialog.json·默认态] 重叠：dlg.icon_hit_02_qload(z=29) 覆盖 dlg.icon_hit_03_config(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·默认态] 重叠：dlg.icon_hit_05_prev(z=29) 覆盖 dlg.icon_hit_06_close(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·默认态] 重叠：dlg.icon_hit_08_load(z=29) 覆盖 dlg.icon_hit_09_repeat(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·对话屏·选择肢展开态（等价 UIDlgChoicesOpen=true）] 重叠：dlg.icon_hit_02_qload(z=29) 覆盖 dlg.icon_hit_03_config(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·对话屏·选择肢展开态（等价 UIDlgChoicesOpen=true）] 重叠：dlg.icon_hit_05_prev(z=29) 覆盖 dlg.icon_hit_06_close(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·对话屏·选择肢展开态（等价 UIDlgChoicesOpen=true）] 重叠：dlg.icon_hit_08_load(z=29) 覆盖 dlg.icon_hit_09_repeat(z=29)  0.75 px（占被覆盖者 0.0%）
+
+── 20_sysmenu.json  OK  元素  29（可点   9）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 9
+
+── 21_confirm.json  OK  元素   9（可点   2）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 2
+
+── 22_loading.json  OK  元素   7（可点   0）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 0
+
+── 23_save.json     OK  元素 118（可点  32）｜ 状态 1 ｜ 重叠对 2 ｜ 中心检查 32
+   [23_save.json·默认态] 重叠：sv.mov(z=97) 覆盖 sv.hit_back(z=96)  2379 px（占被覆盖者 10.9%）
+   [23_save.json·默认态] 重叠：sv.cpy(z=97) 覆盖 sv.hit_back(z=96)  9516 px（占被覆盖者 43.7%）
+   [豁免·DESIGN] sv.hit_back 可达面积 56.3%（被覆盖 43.7%）被 sv.cpy 吞掉中心
+       理由：**铁律二（schema §四）规定的合法重叠**：本件是「整块区域热区」（x1560 y960 w320 h68，**无对应美术**），块内的具体控件 `sv.cpy/del/mod/mov`（PSB `エディット/#*` 156×61，z=97）按「更具体者赢」压过它 —— 故本件的**几何中心**(1720,994)落在 `sv.cpy` 里、中心不归它。这不是缺陷：铁律二明确**选择抬 z 而不是收窄区域热区**（收窄＝凭空决定边界并把让出的区域变成死区），代价就是区域热区**在控件之外**的面积才归它 —— 实测仍有 **56.3%** 归本件（左 63px 带 x1560–1623 + 右 101px 带 x1779–1880，本脚本打印实测值），且 z=97 的 4 件合计只吃掉 43.7%。**真缺陷另有其形**：修前 `sv.cpy` 被本件 100% 吞掉（9516/9516）—— 那才是铁律二要消灭的方向，本脚本的 `--selfcheck` 案例 A 仍能复现并 FAIL。
+
+── 24_load.json     OK  元素 118（可点  32）｜ 状态 1 ｜ 重叠对 2 ｜ 中心检查 32
+   [24_load.json·默认态] 重叠：sv.mov(z=97) 覆盖 sv.hit_back(z=96)  2379 px（占被覆盖者 10.9%）
+   [24_load.json·默认态] 重叠：sv.cpy(z=97) 覆盖 sv.hit_back(z=96)  9516 px（占被覆盖者 43.7%）
+   [豁免·DESIGN] sv.hit_back 可达面积 56.3%（被覆盖 43.7%）被 sv.cpy 吞掉中心
+       理由：同存档屏（读档屏的 `sv.hit_back` 与 `sv.cpy` 几何相同，同属铁律二的合法重叠）。
+
+── 25_config.json   OK  元素 121（可点  44）｜ 状态 1 ｜ 重叠对 5 ｜ 中心检查 36
+   [25_config.json·默认态] 重叠：cfg.hit_reset(z=95) 覆盖 cfg.sys_end_hit(z=95)  121 px（占被覆盖者 2.4%）
+   [25_config.json·默认态] 重叠：cfg.on_hit(z=96) 覆盖 cfg.it_facewindow_hit(z=95)  3068 px（占被覆盖者 20.3%）
+   [25_config.json·默认态] 重叠：cfg.off_hit(z=96) 覆盖 cfg.it_facewindow_hit(z=95)  3717 px（占被覆盖者 24.6%）
+   [25_config.json·默认态] 重叠：cfg.it_allskip_hit(z=95) 覆盖 cfg.autospeed_hit(z=95)  138 px（占被覆盖者 0.6%）
+   [25_config.json·默认态] 重叠：cfg.it_textcolchg_hit(z=95) 覆盖 cfg.char2(z=95)  1168 px（占被覆盖者 9.7%）
+
+── 26_backlog.json  OK  元素  15（可点   7）｜ 状态 1 ｜ 重叠对 4 ｜ 中心检查 7
+   [26_backlog.json·默认态] 重叠：bl.jump_hit(z=95) 覆盖 bl.list(z=20)  28448 px（占被覆盖者 2.9%）
+   [26_backlog.json·默认态] 重叠：bl.spk_hit(z=95) 覆盖 bl.list(z=20)  273728 px（占被覆盖者 28.2%）
+   [26_backlog.json·默认态] 重叠：bl.close_hit(z=95) 覆盖 bl.up_hit(z=95)  196 px（占被覆盖者 4.5%）
+   [26_backlog.json·默认态] 重叠：bl.jump_hit(z=95) 覆盖 bl.spk_hit(z=95)  224 px（占被覆盖者 0.1%）
+   [豁免·REVIEW] bl.list 可达面积 100.0%（被覆盖 0.0%）  项 2/3 各自中心可达
+       理由：回想消息块列表（x208 y108 w1349 item_h240×3）的**第 1 块**被 `bl.spk_hit`（z=95、x334 y117 w1222 h224 —— PSB `#rects/speaker` 规定「整条消息行可点=语音重播」）盖住，故第 1 块中心不派发列表项（第 2/3 块可达，本脚本会打印实测「项 2/3 可达」）。两件**今天都无害**：`bl.list.actions` 全为空串（schema §六「动作表未覆盖的控件允许空 action，待编程组定义」）⇒ 点列表项本就没有动作；`bl.spk_hit` 按 PSB 就是整条消息行。▲ 与铁律二的关系：本条**不是**「区域热区 vs 块内具体控件」（那个方向是具体控件赢、由铁律二制度化），而是**两个各自都有 PSB 依据的交互区在争同一块像素**（消息块列表 vs 语音重播行），究竟该谁赢属**产品/设计裁决**，故只能登记 REVIEW 而不能援引铁律二消掉。★ 待裁决（且**不得**靠抬 `bl.list` 的 z 了事 —— 那会把整条语音重播行吃掉，正是铁律二要避免的方向）：可选项是「列表项点击限制到文本区 1143×179」或「语音重播热区缩到喇叭 `bl.spk` 25×35 @(349,138)」，两者都改交互区几何，须先取得裁定。
+       ★ **待裁决**（见豁免表 REVIEW 类）
+          （豁免项内的列表项失配）[26_backlog.json·默认态] bl.list 的**第 0 项**中心(882.5,228) 被 **bl.spk_hit** 吞掉（列表项不可达）
+
+── 27_gallery.json  OK  元素  19（可点   7）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 7
+
+── 28_music.json    OK  元素 128（可点  44）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 44
+
+── 29_ending.json   OK  元素   7（可点   1）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 1
+
+── 30_chapter.json  OK  元素  15（可点   3）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 3
+
+── 31_fragment.json OK  元素  83（可点  41）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 41
+
+── 32_flowchart.json OK  元素  74（可点  12）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 12
+
+── 33_sysicons.json OK  元素  20（可点  10）｜ 状态 1 ｜ 重叠对 9 ｜ 中心检查 10
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_01_qsave(z=30) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_02_qload(z=31) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_03_skip(z=32) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_04_prev(z=33) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_05_save(z=34) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_06_load(z=35) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_07_config(z=36) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_08_close(z=37) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_09_repeat(z=38) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [豁免·DESIGN] sysicons.dismiss 可达面积 96.0%（被覆盖 4.0%）被 sysicons.hit_05_save 吞掉中心
+       理由：浮层的「点击空白关闭」全屏热区，**铁律二 / schema §六 规定的做法**：「整块区域热区（低 z）+ 块内具体控件（高 z，此处为 9 个功能图标 z30..38）」⇒ 具体控件赢，正是「点图标不关屏」想要的。它本身**不是**被吞死的元素：矩形 1920×1080、被 9 个图标合计覆盖仅 ~4%，其余 96% 面积仍是它的命中区（本脚本打印实测值 96.0%）。
+
+── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+
+── 35_quickbar.json OK  元素  49（可点  12）｜ 状态 13 ｜ 重叠对 0 ｜ 中心检查 144
+
+── 36_choices.json  OK  元素   9（可点   3）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 3
+
+── 37_dress.json    OK  元素 107（可点  42）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 42
+
+------------------------------------------------------------------------------
+合计：屏 20 ｜ 重叠对 25 ｜ 中心可达性检查 455 次 ｜ 豁免命中 4 条
+结果：**全部通过**（无未登记的可达性缺陷；豁免项均已在表中写明理由）
+EXIT=0
+
+########## test_quickbar_reach.py
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 49 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ⓪ 结构：旧结构（整条/把手/高面板）确已退场 ✓
+  ⓪ 结构：12×(icon 56×56 两态 + 药丸九宫格 + 白字 + 热区) 齐备且 key 对应 ✓
+  ⓪ 结构：icon 与热区同组、圆心偏差 ≤1px、icon 完整落在热区内 ✓
+  ⓪ 结构：药丸右缘 = icon 左缘 − 6；药丸宽 = 34×字数 + 44（逐条独立） ✓
+  ① 收起态：整条区域 (1845, 7, 75, 898) 共 67350 点**全部无命中**（右端无可点热区，12 项不可见）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+EXIT=0
+
+########## test_gate_field_granularity.py
+==============================================================================
+守门字段粒度反向自证 ｜ 被审原文件 E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\01_title.json
+  跑前 md5 = b15740d7e5fefaf8bee6b99ed2a41cd5
+==============================================================================
+
+───── C1_only_state_assets_lost（元素 title.menu_hit_1 只丢 state_assets）─────
+   | ==============================================================================
+   | 编辑器导出件检验 ｜ 1 个屏
+   | ==============================================================================
+   | 
+   | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C1_only_state_assets_lost\01_title.json
+   |    元素数 17 → 17
+   |    * 改属性 title.menu_hit_1         state_assets
+   | 
+   | 调色板引用还原：无需还原（无「旧源是引用、导出变字面值」的字段）
+   | 
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | !! 守门拦截：导出件会造成静默流失，**未落盘**
+   |    · 状态字段丢失：01_title.json —— 1 处（逐条明细见下）
+   |    —— 逐条丢失明细（元素 id + 字段名）——
+   |      · 元素 title.menu_hit_1               丢失字段 state_assets
+   |    （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets` 分别判定**，任一字段丢失即拦截。
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ⇒ 退出码 1（期望 ≠0）；原文件 md5 b15740d7e5fefaf8bee6b99ed2a41cd5（未变）⇒ 符合预期 ✓
+
+───── C2_only_state_group_lost（元素 title.menu_txt_start 只丢 state_group）─────
+   | ==============================================================================
+   | 编辑器导出件检验 ｜ 1 个屏
+   | ==============================================================================
+   | 
+   | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C2_only_state_group_lost\01_title.json
+   |    元素数 17 → 17
+   |    * 改属性 title.menu_txt_start     state_group
+   | 
+   | 调色板引用还原：无需还原（无「旧源是引用、导出变字面值」的字段）
+   | 
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | !! 守门拦截：导出件会造成静默流失，**未落盘**
+   |    · 状态字段丢失：01_title.json —— 1 处（逐条明细见下）
+   |    —— 逐条丢失明细（元素 id + 字段名）——
+   |      · 元素 title.menu_txt_start           丢失字段 state_group
+   |    （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets` 分别判定**，任一字段丢失即拦截。
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ⇒ 退出码 1（期望 ≠0）；原文件 md5 b15740d7e5fefaf8bee6b99ed2a41cd5（未变）⇒ 符合预期 ✓
+
+───── C3 = C1 + --allow-drop --dry（放行开关）─────
+   | ==============================================================================
+   | 编辑器导出件检验 ｜ 1 个屏
+   | ==============================================================================
+   | 
+   | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C1_only_state_assets_lost\01_title.json
+   |    元素数 17 → 17
+   |    * 改属性 title.menu_hit_1         state_assets
+   | 
+   | 调色板引用还原：无需还原（无「旧源是引用、导出变字面值」的字段）
+   | 
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | !! 守门告警（**--allow-drop 已放行，将继续落盘**）：导出件会造成静默流失
+   |    · 状态字段丢失：01_title.json —— 1 处（逐条明细见下）
+   |    —— 逐条丢失明细（元素 id + 字段名）——
+   |      · 元素 title.menu_hit_1               丢失字段 state_assets
+   |    （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets` 分别判定**，任一字段丢失即拦截。
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | （--allow-drop：已放行，上述逐条明细仍全部打印，**请据此核对后再提交**）
+   |      · 放行项 元素 title.menu_hit_1               丢失字段 state_assets
+   | 
+   | （--dry：未落盘、未跑校验）
+   ⇒ 退出码 0（期望 0）；逐条明细已打印=True；原文件 md5 b15740d7e5fefaf8bee6b99ed2a41cd5 ⇒ 符合预期 ✓
+
+==============================================================================
+结果：三项全部符合预期 ✓
+（被审原文件 01_title.json md5 始终 = b15740d7e5fefaf8bee6b99ed2a41cd5）
+EXIT=0
+
+########## test_gen_sync.py
+==============================================================================
+生成器 ↔ 磁盘 一致性守门（write() 内存捕获法；**不写盘**）
+  目录 E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens ｜ 屏 21 个 ｜ 模式 normal
+==============================================================================
+
+### 生成器 m34_build_screens.py（M34 · 按《交汇协奏曲》PSB 坐标重建）
+  01_title.json        **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 10 件 ｜ 差异 丢14/改1
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_title()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：M35b 的「图标↔文字」组绑定与 7 张文字图由 `_工作\M35b_标题菜单组绑定.py` **直接改 JSON** 落在盘上，未回写 build_title()。重跑会删 `title.menu_txt_{start,continue,load,flowchart,config,gallery,exit}` 7 件、并丢掉 7 个 `title.menu_hit_N` 的 `state_group` ⇒ 组绑定全失（悬停图标不再点亮文字）。修法与 `_工作\M1_emit_m35b_override.py` 给 config 做的相同：把这些字段提成生成器里的 override 常量。
+          **重跑会丢的清单**：
+            - 元素 `title.menu_txt_config` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_continue` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_exit` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_flowchart` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_gallery` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_load` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_start` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_hit_1` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_start'
+            - 元素 `title.menu_hit_2` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_continue'
+            - 元素 `title.menu_hit_3` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_load'
+            - 元素 `title.menu_hit_4` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_flowchart'
+            - 元素 `title.menu_hit_5` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_config'
+            - 元素 `title.menu_hit_6` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_gallery'
+            - 元素 `title.menu_hit_7` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_exit'
+        ~ 屏级字段 `note` 不同：生成器 '**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 84 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V1 裁决（用户 2026-09-21）**：标题菜单改**竖排条**，推翻 M28 的底部横排。' ／ 磁盘 '**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 84 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V1 裁决（用户 2026-09-21）**：标题菜单改**竖排条**，推翻 M28 的底部横排。\n★ **M35b（2026-09-22）· 标题菜单「图标 + 文字」组绑定**（用户要求）：7 个图标热区与 7 张文字图同属 `state_group: "title.menu_<key>"` ⇒ 鼠标落在任意一者上（或两者同时）两者**同步**换态；文字图的 `state_assets` = 合成层常态 / 合成层 `_on`（悬停）。文字位置由**用户在编辑器里摆放**（导出件见 `编辑器修改区\\01_title.json`），文字图 id 由编辑器自动名 `new.*` 改成语义名 `title.menu_txt_<key>`。\n★ **给后续编辑者的提醒**：在编辑器里继续改本屏前，请先**刷新页面/点「重载」**，让它从更新后的 `ui_layout.js` 读入（否则旧会话里没有 `state_group` 与文字态图，导出会把这两项覆盖掉）。'
+  34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+          **重跑会丢的清单**：
+            - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+            - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+            - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+            - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+            - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+            - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+            - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+            - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+            - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+        ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+        ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+        ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+        ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+        ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+        ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+        ~ …另有 3 处值差异（--verbose 全列）
+  35_quickbar.json     SYNCED ✓（生成器可完整复现磁盘）
+  21_confirm.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 9 件 ｜ 差异 丢6/改6
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_confirm()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：`_工作\M35b_热区态图迁移.py` 把 `cf.hit_yes/no` 的 `state_assets` 挪到 `cf.yes/no` image + `state_group` 联动；重跑会把三态塞回 hit（拉伸涂抹回归）并抹掉 4 个 `state_group`。
+          **重跑会丢的清单**：
+            - 元素 `cf.hit_no` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.no'
+            - 元素 `cf.hit_yes` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.yes'
+            - 元素 `cf.no` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'}
+            - 元素 `cf.no` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.no'
+            - 元素 `cf.yes` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'}
+            - 元素 `cf.yes` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.yes'
+        ~ 元素 `cf.hit_no.note` 不同：生成器 '「否」热区（action=confirm_no；PSB `#rect` 同矩形）' ／ 磁盘 '「否」热区（action=confirm_no；PSB `#rect` 同矩形） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `cf.no` 绘制，两者 state_group「confirm.no」联动。'
+        ~ 元素 `cf.hit_no.state_assets` 不同：生成器 {'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'} ／ 磁盘 None
+        ~ 元素 `cf.hit_yes.note` 不同：生成器 '「是」热区（action=confirm_yes；PSB `#rect` 同矩形）' ／ 磁盘 '「是」热区（action=confirm_yes；PSB `#rect` 同矩形） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `cf.yes` 绘制，两者 state_group「confirm.yes」联动。'
+        ~ 元素 `cf.hit_yes.state_assets` 不同：生成器 {'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'} ／ 磁盘 None
+        ~ 元素 `cf.no.note` 不同：生成器 "「否」按钮底（PSB idx74 `#rect` x993 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}）" ／ 磁盘 "「否」按钮底（PSB idx74 `#rect` x993 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}） ★ M35b：接收原热区 `cf.hit_no` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「confirm.no」联动。"
+        ~ 元素 `cf.yes.note` 不同：生成器 "「是」按钮底（PSB idx74 `#rect` x720 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}）" ／ 磁盘 "「是」按钮底（PSB idx74 `#rect` x720 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}） ★ M35b：接收原热区 `cf.hit_yes` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「confirm.yes」联动。"
+  36_choices.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 7 件 ｜ 差异 丢6/改7
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_choices()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：`_工作\M35b_热区态图迁移.py` 把 `ch.sel` 拆成 `ch.bg_1/2/3`（per-row 态图）并把三态从 hit 挪到 image，仅改 JSON。重跑会删 `ch.bg_1/2/3` 并让 3 个 hit 重新持有 `state_assets`（热区拉伸涂抹问题回归）。
+          **重跑会丢的清单**：
+            - 元素 `ch.bg_1` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.bg_2` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.bg_3` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.hit_1` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.1'
+            - 元素 `ch.hit_2` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.2'
+            - 元素 `ch.hit_3` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.3'
+        ~ 元素 `ch.sel` 只在生成器里（磁盘没有）⇒ 重跑会新增它
+        ~ 元素 `ch.hit_1.note` 不同：生成器 '选项热区（index=0）。**state_assets 三态整图**（原作即三态整条）' ／ 磁盘 '选项热区（index=0）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_1` 绘制，两者 state_group「choices.1」联动。'
+        ~ 元素 `ch.hit_1.state_assets` 不同：生成器 {'normal': 'ui/x_ui_choice_off.png', 'hover': 'ui/x_ui_choice_over.png', 'pressed': 'ui/x_ui_choice_dis.png'} ／ 磁盘 None
+        ~ 元素 `ch.hit_2.note` 不同：生成器 '选项热区（index=1）。**state_assets 三态整图**（原作即三态整条）' ／ 磁盘 '选项热区（index=1）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_2` 绘制，两者 state_group「choices.2」联动。'
+        ~ 元素 `ch.hit_2.state_assets` 不同：生成器 {'normal': 'ui/x_ui_choice_off.png', 'hover': 'ui/x_ui_choice_over.png', 'pressed': 'ui/x_ui_choice_dis.png'} ／ 磁盘 None
+        ~ 元素 `ch.hit_3.note` 不同：生成器 '选项热区（index=2）。**state_assets 三态整图**（原作即三态整条）' ／ 磁盘 '选项热区（index=2）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_3` 绘制，两者 state_group「choices.3」联动。'
+        ~ …另有 1 处值差异（--verbose 全列）
+  37_dress.json        **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 107 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_dress()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`dr.hit_reset` ⇄ `dr.reset`）：重跑后「初始化」三态按 78×25 热区绘制并抹掉 `dress.reset` 组。
+          **重跑会丢的清单**：
+            - 元素 `dr.hit_reset` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'dress.reset'
+            - 元素 `dr.reset` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_reset_off.png', 'hover': 'ui/x_ui_reset_over.png', 'pressed': 'ui/x_ui_reset_on.png'}
+            - 元素 `dr.reset` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'dress.reset'
+        ~ 元素 `dr.hit_reset.note` 不同：生成器 '「初始化」热区（action 留空）' ／ 磁盘 '「初始化」热区（action 留空） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `dr.reset` 绘制，两者 state_group「dress.reset」联动。'
+        ~ 元素 `dr.hit_reset.state_assets` 不同：生成器 {'normal': 'ui/x_ui_reset_off.png', 'hover': 'ui/x_ui_reset_over.png', 'pressed': 'ui/x_ui_reset_on.png'} ／ 磁盘 None
+        ~ 元素 `dr.reset.note` 不同：生成器 "「初始化」键（PSB idx76 `reset/オフ`，x1264 y44 w78 h25）（素材 48×25 ≠ 设计 78×25 → nine {'l': 12, 't': 6, 'r': 12, 'b': 6}）" ／ 磁盘 "「初始化」键（PSB idx76 `reset/オフ`，x1264 y44 w78 h25）（素材 48×25 ≠ 设计 78×25 → nine {'l': 12, 't': 6, 'r': 12, 'b': 6}） ★ M35b：接收原热区 `dr.hit_reset` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「dress.reset」联动。"
+  26_backlog.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 15 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_backlog()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`bl.spk_hit` ⇄ `bl.spk`）：重跑会把 `ui/x_ui_spk_*.png` 三态按 1222×224 热区矩形拉伸绘制（48.9×8.3 涂抹，M35b 修掉的正是这条），并抹掉 `backlog.spk` 组。
+          **重跑会丢的清单**：
+            - 元素 `bl.spk` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+            - 元素 `bl.spk` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'backlog.spk'
+            - 元素 `bl.spk_hit` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'backlog.spk'
+        ~ 元素 `bl.spk.note` 不同：生成器 "语音重播键（PSB idx73 `バックログ/オフ/スピーカー`，x349 y138 w25 h35）（素材 25×27 ≠ 设计 25×35 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}）" ／ 磁盘 "语音重播键（PSB idx73 `バックログ/オフ/スピーカー`，x349 y138 w25 h35）（素材 25×27 ≠ 设计 25×35 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `bl.spk_hit` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「backlog.spk」联动。"
+        ~ 元素 `bl.spk_hit.note` 不同：生成器 '语音重播热区（PSB `#rects/speaker` 1222×224 —— **整条消息行可点**）' ／ 磁盘 '语音重播热区（PSB `#rects/speaker` 1222×224 —— **整条消息行可点**） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `bl.spk` 绘制，两者 state_group「backlog.spk」联动。'
+        ~ 元素 `bl.spk_hit.state_assets` 不同：生成器 {'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'} ／ 磁盘 None
+  23_save.json         SYNCED ✓（生成器可完整复现磁盘）
+  24_load.json         SYNCED ✓（生成器可完整复现磁盘）
+  25_config.json       SYNCED ✓（生成器可完整复现磁盘）
+  28_music.json        SYNCED ✓（生成器可完整复现磁盘）
+  32_flowchart.json    **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 74 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_flowchart()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`fc.close_hit` ⇄ `fc.close`）：重跑后关闭键的三态会按 56×56 热区拉伸，并抹掉 `flowchart.close` 组。
+          **重跑会丢的清单**：
+            - 元素 `fc.close` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_close_off.png', 'hover': 'ui/x_ui_close_over.png', 'pressed': 'ui/x_ui_close_on.png'}
+            - 元素 `fc.close` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'flowchart.close'
+            - 元素 `fc.close_hit` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'flowchart.close'
+        ~ 元素 `fc.close.note` 不同：生成器 "关闭键（PSB `close/off` x1843 y177 w26 h26）（素材 24×26 ≠ 设计 26×26 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}）" ／ 磁盘 "关闭键（PSB `close/off` x1843 y177 w26 h26）（素材 24×26 ≠ 设计 26×26 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `fc.close_hit` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「flowchart.close」联动。"
+        ~ 元素 `fc.close_hit.note` 不同：生成器 '关闭热区（PSB `close/#rect`）' ／ 磁盘 '关闭热区（PSB `close/#rect`） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `fc.close` 绘制，两者 state_group「flowchart.close」联动。'
+        ~ 元素 `fc.close_hit.state_assets` 不同：生成器 {'normal': 'ui/x_ui_close_off.png', 'hover': 'ui/x_ui_close_over.png', 'pressed': 'ui/x_ui_close_on.png'} ／ 磁盘 None
+
+### 生成器 m33_rebuild_screens.py（M33 · 系统屏重排）　★**已失效，不得再运行**
+  20_sysmenu.json      **LOSS**（重跑会丢数据）             → FAIL ｜ 元素 29 件 ｜ 差异 丢10/改20
+        ~ 元素 `sm.back.asset` 不同：生成器 'ui/x_gen_sd_1-1_back_off.png' ／ 磁盘 'ui/x_ui_btn_l_off.png'
+        ~ 元素 `sm.back.note` 不同：生成器 '返回游戏按钮（`SD-1-1` 共通按钮，同族 9 件归一化为 224×64）' ／ 磁盘 "返回游戏按钮（`SD-1-1` 共通按钮，同族 9 件归一化为 224×64）  ★ M34 素材重映射：x_gen_sd_1-1_back_off.png → x_ui_btn_l_off.png  ★ M34 九宫格自动补齐（素材 78x41 vs 版面 224x64 → {'l': 19, 't': 0, 'r': 19, 'b': 0}）"
+        ~ 元素 `sm.bg.asset` 不同：生成器 'ui/x_gen_sd_9-1_bg.png' ／ 磁盘 'ui/x_ui_backlog_bg.png'
+        ~ 元素 `sm.bg.note` 不同：生成器 '满幅底（本批片尾背景，浅冰蓝）' ／ 磁盘 "满幅底（本批片尾背景，浅冰蓝）  ★ M34 素材重映射：x_gen_sd_9-1_bg.png → x_ui_backlog_bg.png  ★ M34 九宫格自动补齐（素材 1916x1080 vs 版面 1920x1080 → {'l': 120, 't': 0, 'r': 120, 'b': 0}）"
+        ~ 元素 `sm.item1.asset` 不同：生成器 'ui/x_gen_sd_2-1_m1_off.png' ／ 磁盘 'ui/x_ui_btn_l_off.png'
+        ~ 元素 `sm.item1.note` 不同：生成器 '菜单项底（`SD-2-1` 拆件 m1 常态）。**同族 14 件已归一化为统一画布 408×58**（原 off 398–407、on 350–364 宽不一致 → 参差）；元素矩形 = 素材实尺寸，1:1。' ／ 磁盘 "菜单项底（`SD-2-1` 拆件 m1 常态）。**同族 14 件已归一化为统一画布 408×58**（原 off 398–407、on 350–364 宽不一致 → 参差）；元素矩形 = 素材实尺寸，1:1。  ★ M34 素材重映射：x_gen_sd_2-1_m1_off.png → x_ui_btn_l_off.png  ★ M34 九宫格自动补齐（素材 78x41 vs 版面 408x58 → {'l': 19, 't': 0, 'r': 19, 'b': 0}）"
+        ~ …另有 14 处值差异（--verbose 全列）
+  22_loading.json      **LOSS**（重跑会丢数据）             → FAIL ｜ 元素 7 件 ｜ 差异 丢5/改10
+        ~ 元素 `ld.bg.asset` 不同：生成器 'ui/x_gen_sd_9-1_bg.png' ／ 磁盘 'ui/x_ui_backlog_bg.png'
+        ~ 元素 `ld.bg.note` 不同：生成器 '满幅底（本批片尾背景，浅冰蓝）' ／ 磁盘 "满幅底（本批片尾背景，浅冰蓝）  ★ M34 素材重映射：x_gen_sd_9-1_bg.png → x_ui_backlog_bg.png  ★ M34 九宫格自动补齐（素材 1916x1080 vs 版面 1920x1080 → {'l': 120, 't': 0, 'r': 120, 'b': 0}）"
+        ~ 元素 `ld.plate.asset` 不同：生成器 'ui/x_gen_sd_4-1_plate.png' ／ 磁盘 'ui/x_ui_loading_plate.png'
+        ~ 元素 `ld.plate.note` 不同：生成器 '提示牌（`SD-4-1` 拆件，1:1）。**整组以画布中心 960 居中**：牌 705–1125 + 间隔 40 + 转圈 1165–1215 → 组宽 510，中心 960。' ／ 磁盘 "提示牌（`SD-4-1` 拆件，1:1）。**整组以画布中心 960 居中**：牌 705–1125 + 间隔 40 + 转圈 1165–1215 → 组宽 510，中心 960。  ★ M34 素材重映射：x_gen_sd_4-1_plate.png → x_ui_loading_plate.png  ★ M34 九宫格自动补齐（素材 420x137 vs 版面 420x148 → {'l': 0, 't': 34, 'r': 0, 'b': 34}）"
+        ~ 元素 `ld.spin_a.asset` 不同：生成器 'ui/x_gen_sd_4-1_spin_a.png' ／ 磁盘 'ui/x_ui_spin_a.png'
+        ~ 元素 `ld.spin_a.note` 不同：生成器 '转圈指示第 A 帧（`SD-4-1` 拆件）。**三帧同矩形**（1165,512）——引擎轮播换图，位置不动；HTML 静态渲染时最上层一帧可见。竖直中心 512+32 = 544 = 提示牌中心 470+74 ✓' ／ 磁盘 "转圈指示第 A 帧（`SD-4-1` 拆件）。**三帧同矩形**（1165,512）——引擎轮播换图，位置不动；HTML 静态渲染时最上层一帧可见。竖直中心 512+32 = 544 = 提示牌中心 470+74 ✓  ★ M34 素材重映射：x_gen_sd_4-1_spin_a.png → x_ui_spin_a.png  ★ M34 九宫格自动补齐（素材 50x53 vs 版面 50x64 → {'l': 0, 't': 13, 'r': 0, 'b': 13}）"
+        ~ …另有 4 处值差异（--verbose 全列）
+
+### ★ 已失效生成器的处置（**不得再运行**，否则覆盖盘上数据 + 引用缺图）
+  m33_rebuild_screens.py 的 build 函数产出的是**旧素材体系**（`ui/x_gen_sd_*.png` 等，盘上已不存在）
+  盘上现值由后续工作改写（M12/M13 的 1920 迁移 + M34 的 `x_ui_*` 素材统一）⇒
+  重跑它 = 覆盖 + 引用缺图（`verify_ui` 的 [1][2] 会失败）。
+  该模块其余 build 函数（同一屏已由 m34 重建）已整体作废，留档如下：
+    · m33_rebuild_screens.build_backlog —— 同一屏由 m34_build_screens.build_backlog 重建
+    · m33_rebuild_screens.build_config —— 同一屏由 m34_build_screens.build_config 重建
+    · m33_rebuild_screens.build_confirm —— 同一屏由 m34_build_screens.build_confirm 重建（owner 已是 M34）
+    · m33_rebuild_screens.build_music —— 同一屏由 m34_build_screens.build_music 重建
+    · m33_rebuild_screens.build_save/load —— 同一屏由 m34_build_screens.build_saveload_* 重建
+    · m33_rebuild_screens.patch_flowchart —— 作用于 `flow.tab*`——该结构已由 m34 的 `fc.*` 重建取代（死代码）
+  盘上仍会被它改坏的屏（清单）：
+    · [20_sysmenu.json] 元素 `sm.back` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.bg` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 120, 't': 0, 'r': 120, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item1` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item2` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item3` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item4` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item5` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item6` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item7` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item8` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 与失效生成器有 20 处值差异
+    · [22_loading.json] 元素 `ld.bg` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 120, 't': 0, 'r': 120, 'b': 0}
+    · [22_loading.json] 元素 `ld.plate` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 34, 'r': 0, 'b': 34}
+    · [22_loading.json] 元素 `ld.spin_a` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 元素 `ld.spin_b` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 元素 `ld.spin_c` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 与失效生成器有 10 处值差异
+
+### 无 build 函数的屏（不会被任何生成器重跑抹掉）
+  10_dialog.json       来源：M23_gen.py（系统条改通用 hit 扫描 + 对话框换图）＋ migrate_1920.py
+  27_gallery.json      来源：_工作/M14_gen_screens.py
+  29_ending.json       来源：早期直接写盘（无生成器；改动无回写对象）
+  30_chapter.json      来源：早期直接写盘（无生成器；改动无回写对象）
+  31_fragment.json     来源：_工作/M14_gen_screens.py
+  33_sysicons.json     来源：_工作/M23_gen.py
+
+------------------------------------------------------------------------------
+覆盖：生成器产出屏 14 个 ｜ 登记表 ACK 命中 7 条 ｜ 失效生成器待处置 17 条
+落盘自证：运行前后 layout/screens/*.json 的 md5 **完全一致** ✓（21 个文件）
+结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）
+EXIT=0
+
+########## test_quickbar_reach.py --selfcheck
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 49 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ⓪ 结构：旧结构（整条/把手/高面板）确已退场 ✓
+  ⓪ 结构：12×(icon 56×56 两态 + 药丸九宫格 + 白字 + 热区) 齐备且 key 对应 ✓
+  ⓪ 结构：icon 与热区同组、圆心偏差 ≤1px、icon 完整落在热区内 ✓
+  ⓪ 结构：药丸右缘 = icon 左缘 − 6；药丸宽 = 34×字数 + 44（逐条独立） ✓
+  ① 收起态：整条区域 (1845, 7, 75, 898) 共 67350 点**全部无命中**（右端无可点热区，12 项不可见）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+
+==========================================================================
+反向自证（全部在内存里做，**不动磁盘**）
+==========================================================================
+
+【A 注入 z=999 异组遮挡（盖住第 1 项中心）】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ ① 收起态：整条区域 (1845, 7, 75, 898) 内有 5475 点被派发（期望**全部无命中** = 完全隐藏）：{'quick.zz_occluder': 5475}
+    ✗ ② 中心(1882.5,43.5) 被 **quick.zz_occluder**(z=999) 吞掉 —— 期望 quick.hit_lock(z=95)；两者重叠 5475 点
+    ✗ ③ 中心(1882.5,43.5) 被 **quick.zz_occluder**(z=999) 吞掉 —— 期望 quick.hit_lock(z=95)；两者重叠 5475 点
+
+【B 抹掉 12 项热区的 vis_flag（收起态也可见）】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ ① 收起态：12 项里有 12 件在本态**可见**（期望全部不可见）：quick.hit_lock、quick.hit_save、quick.hit_load、quick.hit_qsave、quick.hit_qload、quick.hit_auto、quick.hit_skip、quick.hit_next、quick.hit_prev、quick.hit_log、quick.hit_chart、quick.hit_option
+    ✗ ① 收起态：整条区域 (1845, 7, 75, 898) 内有 65700 点被派发（期望**全部无命中** = 完全隐藏）：{'quick.hit_lock': 5475, 'quick.hit_save': 5475, 'quick.hit_load': 5475, 'quick.hit_qsave': 5475, 'quick.hit_qload': 5475, 'quick.hit_auto': 5475, 'quick.hit_skip': 5475, 'quick.hit_next': 5475, 'quick.hit_prev': 5475, 'quick.hit_log': 5475, 'quick.hit_chart': 5475, 'quick.hit_option': 5475}
+    ✗ ② 无法构造「展开态」：12 项热区没有 vis_flag —— 无法推出「展开态」（本屏的展收互斥靠 vis_flag）
+
+自证结果：两项均按预期 FAIL ✓
+EXIT=0

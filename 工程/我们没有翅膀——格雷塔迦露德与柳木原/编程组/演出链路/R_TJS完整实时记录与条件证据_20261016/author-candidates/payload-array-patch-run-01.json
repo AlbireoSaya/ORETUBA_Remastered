@@ -1,0 +1,14 @@
+[
+  {
+    "file": "编程组/原作忠实层/R/r_record_live_payload.tjs",
+    "old": "function RRecordLivePayload(rd, rh, rb, wr, tag, p, dest, resolveBank, evaluateExpr)\n{",
+    "new": "function RRecordLivePayload(rd, rh, rb, wr, tag, p, dest, resolveBank, evaluateExpr, arrayValue = void)\n{",
+    "count": 1
+  },
+  {
+    "file": "编程组/原作忠实层/R/r_record_live_payload.tjs",
+    "old": "    if (selector == 2) {\n        var bank = rd(p & 0xffffffff) & 0xffffffff;",
+    "new": "    if (selector == 2) {\n        if (typeof arrayValue == \"Object\") return arrayValue(p);\n        var bank = rd(p & 0xffffffff) & 0xffffffff;",
+    "count": 1
+  }
+]

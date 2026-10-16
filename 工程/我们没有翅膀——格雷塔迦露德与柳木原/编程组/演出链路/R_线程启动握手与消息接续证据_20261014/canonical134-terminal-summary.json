@@ -1,0 +1,49 @@
+{
+  "process_exit0_verified": true,
+  "worker_errors": [],
+  "native_slices": 26,
+  "native_executable_DLL_steps": [
+    {
+      "source_module_image_base": 301989888,
+      "from_EIP": 302224518,
+      "next_EIP": 302236404,
+      "failure": null,
+      "instruction_budget_per_slice": 1000000
+    },
+    {
+      "source_module_image_base": 301989888,
+      "from_EIP": 302236404,
+      "next_EIP": 302236401,
+      "failure": null,
+      "instruction_budget_per_slice": 1000000
+    },
+    {
+      "source_module_image_base": 301989888,
+      "from_EIP": 302236401,
+      "next_EIP": 302236446,
+      "failure": null,
+      "instruction_budget_per_slice": 1000000
+    },
+    {
+      "source_module_image_base": 301989888,
+      "from_EIP": 302236446,
+      "next_EIP": 33613856,
+      "failure": "AssertionError: ",
+      "instruction_budget_per_slice": 1000000
+    }
+  ],
+  "next_EIP": 33613856,
+  "next_stack": [
+    5065044,
+    1776287750,
+    1777336321,
+    118128820,
+    136953984,
+    136949888,
+    118128641,
+    4538894
+  ],
+  "stop_reason": "root old SelectObject verification routing treated every worker object as font; owned bitmap is not a font",
+  "original_game_error_not_proven": true,
+  "cleanup": true
+}

@@ -1,0 +1,39 @@
+from pathlib import Path
+import sys,ctypes,json,struct
+root=Path.cwd();w=root/'子代理工作区/ISSUE-20261011-02/r-window-create-20261013';scope={};exec(compile((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_window_class_bindings.py').read_text('utf8'),'class-binding','exec'),scope)
+for name in ['lucifen_host_window_creation_bindings.py','lucifen_host_window_message_structs.py','lucifen_host_window_userdata_bindings.py']:exec(compile((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'/name).read_text('utf8'),name,'exec'),scope)
+bits=ctypes.sizeof(ctypes.c_void_p)*8;stage=root/f'临时/ISSUE-20261011-02/r-host-window-message-ABI-{bits}-22';stage.mkdir(exist_ok=False)
+assert ctypes.sizeof(scope['POINT'])==8 and ctypes.sizeof(scope['MINMAXINFO'])==40 and ctypes.sizeof(scope['CREATESTRUCTA'])=={32:48,64:80}[bits]
+kernel=ctypes.WinDLL('kernel32',use_last_error=True);kernel.GetModuleHandleW.argtypes=[ctypes.c_void_p];kernel.GetModuleHandleW.restype=ctypes.c_void_p;instance=kernel.GetModuleHandleW(None);assert instance
+guard=b'\xa5'*32;marker=ctypes.create_string_buffer(guard+b'OWNED_WINDOW_PARAMETER'+b'\0'+guard);param=ctypes.addressof(marker)+32
+name_bytes=('LucifenHostMsgABI_'+str(bits)+'_'+str(__import__('os').getpid())).encode('ascii');name=ctypes.create_string_buffer(guard+name_bytes+b'\0'+guard);nameptr=ctypes.addressof(name)+32
+title=ctypes.create_string_buffer(b'Lucifen host message ABI fixture\0');events=[];errors=[];atom=0;hwnd=0;fields=None
+@scope['WNDPROC']
+def callback(h,msg,wp,lp):
+ try:
+  row={'message':msg,'nonnull_owned_host_HWND':bool(h)}
+  if msg in (0x81,1):
+   cs=scope['CREATESTRUCTA'].from_address(lp);assert cs.lpCreateParams==param and cs.hInstance==instance and not cs.hMenu and not cs.hwndParent
+   assert ctypes.string_at(cs.lpszClass)==name_bytes
+   row['CREATESTRUCTA_bytes']=ctypes.sizeof(cs);row['original_fixture_parameter_identity_exact']=True;row['host_instance_identity_exact']=True;row['dimensions']=[cs.cx,cs.cy];row['exstyle']=cs.dwExStyle;row['style']=cs.style&0xffffffff
+   if msg==0x81:
+    ctypes.set_last_error(0);old=int(scope['SetWindowLongPtrA'](h,-21,param));err=ctypes.get_last_error();assert old==0 and err==0
+  if msg in (0x81,1,2,0x82):
+   ctypes.set_last_error(0);v=int(scope['GetWindowLongPtrA'](h,-21));err=ctypes.get_last_error();assert v==param and err==0;row['real_userdata_full_host_pointer_identity_preserved']=True;row['userdata_exceeds_32bit']=param>0xffffffff
+  if msg==0x24:
+   raw=ctypes.string_at(lp,40);mm=scope['MINMAXINFO'].from_buffer_copy(raw);row['MINMAXINFO_bytes']=40;row['ptMinTrackSize']=[mm.ptMinTrackSize.x,mm.ptMinTrackSize.y]
+  events.append(row);return int(scope['DefWindowProcA'](h,msg,wp,lp))
+ except BaseException as e:errors.append(type(e).__name__);return 0
+try:
+ cls=scope['WNDCLASSEXA']();cls.cbSize=ctypes.sizeof(cls);cls.style=3;cls.lpfnWndProc=callback;cls.hInstance=instance;cls.lpszClassName=nameptr
+ ctypes.set_last_error(0);atom=int(scope['RegisterClassExA'](ctypes.byref(cls)));assert atom and not errors
+ ctypes.set_last_error(0);hwnd=int(scope['CreateWindowExA'](512,nameptr,ctypes.addressof(title),0xcb0000,550,195,820,643,None,None,instance,param)or 0);error=ctypes.get_last_error();assert hwnd and scope['IsWindow'](hwnd)==1 and not errors
+ assert all(m in [row['message']for row in events]for m in(0x24,0x81,1));assert scope['GetWindowLongPtrA'](hwnd,-21)==param
+ assert scope['DestroyWindow'](hwnd)==1;assert scope['IsWindow'](hwnd)==0;hwnd=0;assert not errors and all(m in[row['message']for row in events]for m in(2,0x82))
+ assert marker.raw[:32]==guard and marker.raw[32+len(b'OWNED_WINDOW_PARAMETER')+1:32+len(b'OWNED_WINDOW_PARAMETER')+33]==guard and name.raw[:32]==guard and name.raw[32+len(name_bytes)+1:32+len(name_bytes)+33]==guard
+ assert scope['UnregisterClassA'](nameptr,instance)==1;atom=0
+ report={'passed':True,'host_bits':bits,'POINT_bytes':8,'MINMAXINFO_bytes':40,'CREATESTRUCTA_bytes':ctypes.sizeof(scope['CREATESTRUCTA']),'CREATESTRUCTA_offsets':{n:getattr(scope['CREATESTRUCTA'],n).offset for n,_ in scope['CREATESTRUCTA']._fields_},'actual_CreateWindowExA_nonnull':True,'actual_CreateWindowExA_error':error,'actual_GetSetWindowLong_pointer_identity_preserved':True,'native_events':events,'callback_errors':errors,'actual_DestroyWindow_and_UnregisterClass':True,'guarded_own_parameter_and_name_unchanged':True,'not_original_WinMain_WNDPROC_or_guest_callback_proof':True,'only_own_class_callback_buffers_no_original_PE_loaded':True,'no_ShowWindow_or_message_pump':True}
+ (stage/'host-window-message-ABI.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf8');print('HOST_WINDOW_MESSAGE_ABI_PASS',bits,len(events))
+finally:
+ if hwnd:assert scope['DestroyWindow'](hwnd)==1
+ if atom:assert scope['UnregisterClassA'](nameptr,instance)==1

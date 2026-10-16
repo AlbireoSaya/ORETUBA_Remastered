@@ -1,0 +1,34 @@
+{
+  "scope": "failed fixture/bridge attempts, not successful engine results",
+  "attempts": [
+    {
+      "task": "initial combined VM observer",
+      "finish_reason": "length",
+      "budget": 8192,
+      "candidate_delivered": false
+    },
+    {
+      "task": "snapshot first",
+      "finish_reason": "length",
+      "budget": 4096,
+      "candidate_delivered": false
+    },
+    {
+      "task": "reference first",
+      "finish_reason": "length",
+      "budget": 6144,
+      "candidate_delivered": false
+    },
+    {
+      "task": "constructor chain before guest zero page",
+      "eip": 4957863,
+      "error": "Invalid memory read (UC_ERR_READ_UNMAPPED)",
+      "cause_boundary": "original factory reads FS:[0], guest zero page not yet mapped; controlled guest zero page mapping then replay succeeded; no Windows OS environment claimed"
+    },
+    {
+      "task": "synthetic reference fixture before correction",
+      "error": "unknown op ValueError",
+      "cause": "fixture mistakenly wrote next opcode instead of next operand; unsupported opcode guard correctly rejected; fixed only root verification fixture"
+    }
+  ]
+}

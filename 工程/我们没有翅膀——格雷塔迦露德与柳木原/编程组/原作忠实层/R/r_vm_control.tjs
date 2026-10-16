@@ -1,0 +1,58 @@
+function RVMStepControl(rd, wr, ctx, op, p, native) {
+    // op 0：上层已预取并推进 PC，此处不能再推进或重置
+    if (op == 0) {
+        return 1;
+    }
+
+    // op 30：写 ctx+8，条件读 p 决定取 rd(p+4) 还是 p+8
+    if (op == 30) {
+        if (rd(p) == 0) {
+            wr(ctx + 8, p + 4);
+            wr(ctx + 8, rd(p + 4));
+        } else {
+            wr(ctx + 8, p + 8);
+        }
+        return;
+    }
+
+    // op 1：弹栈，若 ret 为 0 则返回 0，否则写 ctx+8 并继续
+    if (op == 1) {
+        var sp = rd(ctx + 12) - 4;
+        wr(ctx + 12, sp);
+        var t = rd(sp);
+        if (t == 0) {
+            return 0;
+        }
+        wr(ctx + 8, t);
+        return;
+    }
+
+    // op 8：写栈，并同步推进 SP 和 PC 侧指针
+    if (op == 8) {
+        wr(rd(ctx + 12), rd(p));
+        wr(ctx + 12, rd(ctx + 12) + 4);
+        wr(ctx + 8, rd(ctx + 8) + 4);
+        return;
+    }
+
+    // op 12：SP 减去参数并推进 PC
+    if (op == 12) {
+        wr(ctx + 12, rd(ctx + 12) - rd(p));
+        wr(ctx + 8, p + 4);
+        return;
+    }
+
+    // op 5：原生同步回调，严格保持读写顺序
+    if (op == 5) {
+        var h = rd(p);
+        wr(ctx + 8, p + 4);
+        var f = rd(rd(ctx + 8));
+        wr(ctx + 8, rd(ctx + 8) + 4);
+        var v = native(h, f);
+        wr(rd(rd(ctx + 8)), v);
+        wr(ctx + 8, rd(ctx + 8) + 4);
+        return;
+    }
+
+    throw new Exception("UNSUPPORTED_CONTROL_OPCODE");
+}

@@ -1,0 +1,23 @@
+### J1 后复验：python 工具/m34_build_screens.py（注释修改后仍可跑、守门仍生效）
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! 拒绝写入 01_title.json —— 本次重跑会**丢数据**（防静默清空守门，M8）
+!!   ✗ 元素 `title.menu_txt_config`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_continue`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_exit`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_flowchart`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_gallery`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_load`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_start`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_hit_1` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_start'
+!!   ✗ 元素 `title.menu_hit_2` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_continue'
+!!   ✗ 元素 `title.menu_hit_3` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_load'
+!!   ✗ 元素 `title.menu_hit_4` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_flowchart'
+!!   ✗ 元素 `title.menu_hit_5` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_config'
+!!   ✗ 元素 `title.menu_hit_6` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_gallery'
+!!   ✗ 元素 `title.menu_hit_7` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_exit'
+!! 正确做法：把盘上的这些改动**回写进本文件**（提成 override 常量），
+!!          再跑 `python 工具\test_gen_sync.py` 自证「生成器可完整复现磁盘」。
+!! 确需强行覆盖：`python 工具/m34_build_screens.py --force`（或 set M34_FORCE=1）
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+EXIT=2

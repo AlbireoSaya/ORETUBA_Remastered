@@ -1,0 +1,21 @@
+// r_record_items.tjs
+// 仅按序解析 record 内的 item 列表；不执行 item，不做排序或去重；无 IO / UI / OS / VM 调用。
+
+function RRecordItems(rb, limit, p, end) {
+    RExprNeed(limit, end, 0);
+    if (typeof p != "Integer" || p < 0 || p > end) {
+        throw new Exception("RECORD_ITEMS_CURSOR");
+    }
+    var count = RExprByte(rb, end, p);
+    p = p + 1;
+    var items = [];
+    for (var i = 0; i < count; i = i + 1) {
+        var pair = RRecordItem(rb, limit, p, end);
+        items.add(pair[0]);
+        p = pair[1];
+    }
+    if (p != end) {
+        throw new Exception("RECORD_ITEMS_END_MISMATCH");
+    }
+    return [items, p];
+}

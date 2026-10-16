@@ -1,0 +1,62 @@
+**交付物：`test_worker_step_owner.py`（raw Python，31 行 ≤ 32）**
+
+建议落盘路径（本单未给 issue 号，按工作区约定置于子代理工作区）：
+`子代理工作区\<issue>\<模块>\test_worker_step_owner.py`
+
+```python
+from lucifen_worker_step_owner import WorkerStepOwner
+
+def raises(exc, fn):
+    try: fn()
+    except exc: return
+    raise AssertionError("expected " + exc.__name__)
+
+class DummyGate:
+    def __init__(self):
+        self.n, self.payload, self.released = 0, {"ok": 1}, []
+    def wait_park(self, gen, timeout):
+        self.n += 1
+        return None if self.n == 1 else self.payload
+    def release(self, gen, command):
+        if command not in ("continue", "finish"): raise ValueError(command)
+        self.released.append((gen, command))
+
+gate = DummyGate()
+owner = WorkerStepOwner(gate)
+assert owner.wait_next(10) is None and owner.generation == 0
+raises(RuntimeError, lambda: owner.payload)
+raises(RuntimeError, lambda: owner.release("continue"))
+assert owner.wait_next(10) == gate.payload and owner.generation == 1
+raises(RuntimeError, lambda: owner.wait_next(10))
+raises(ValueError, lambda: owner.release("bogus"))
+assert owner.generation == 1 and owner.payload == gate.payload
+assert owner.release("continue") is None
+raises(RuntimeError, lambda: owner.payload)
+raises(RuntimeError, lambda: owner.release("continue"))
+assert owner.wait_next(10) == gate.payload and owner.generation == 2
+assert owner.release("finish") is None
+```
+
+**逐条对齐本单规格**
+
+| 规格点 | 落点 |
+| --- | --- |
+| DummyGate `wait_park(gen,timeout)` 首次 None、此后恒 dict payload | L11–13（计数器 `n`，`payload` 为常量 dict，跨次同一对象） |
+| `release(gen,command)` 只收 continue/finish、返回 None、非法 ValueError | L14–16 |
+| 无 owner 算法（只定义假 gate，不实现 owner 逻辑） | 全篇仅调用，未复刻 owner 行为 |
+| `wait_next(10)` → None / gen 0 | L20 |
+| 未驻留时 `payload` **必须** RuntimeError（非 None） | L21 |
+| 驻留前 release → RuntimeError | L22 |
+| 再 wait → 同一 payload / gen 1 | L23 |
+| 重复 wait → RuntimeError | L24 |
+| 非法 release → ValueError，且仍驻留 gen1 + payload 可读 | L25–26（gate 在记录前抛出，owner 状态不变） |
+| release continue 清除 → payload RuntimeError → 重复 release RuntimeError | L27–29 |
+| 再 wait → gen 2；release finish | L30–31 |
+| 未驻留时 `generation` 属性仍可读 | L20（gen 0 断言即在未驻留态） |
+| 不吞断言失败、无假通过打印 | `raises` 仅捕获**指定**异常，其余异常与 AssertionError 一律上抛；无 print |
+
+**如实声明（不假报）**
+
+- 本单未执行任何测试：无运行器 / 无执行授权，故**不声称该测试通过**，也未输出任何"pass"字样。
+- 未读取 `lucifen_worker_step_owner` 实体，测试按本单规格书写；若该模块的构造函数为关键字形式（如 `WorkerStepOwner(gate=...)`）或 `wait_next` 返回类型与规格所述"返回 payload"不一致，需按实际签名微调 L19/L23/L30。
+- 未改动其他文件、未 Git、未回退他人改动、未调用暂停角色。

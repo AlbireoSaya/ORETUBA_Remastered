@@ -1,0 +1,1979 @@
+// ============================================================
+// ui_story.tjs —— 编程组 · 剧情引擎（剧本播放器）
+//
+// 职责：把资源组交付的 `资源组\剧本\scene_<源>.jsonl`（经 `编程组\工具\build_story.py`
+//       组装为 `story/_index.tjs` + `story/scene_*.tjs` + `story_assets/`）
+//       驱动成可玩的剧情：逐行台词、说话人、语音、场景背景、立绘、选择支、场景推进。
+//
+// 接入方式（**不改 UI 组的任何文件**）：
+//   * UI 组的 `ui_dialog.tjs` 通过 5 个全局数组读取台词：
+//       UIDemoLineCount / UIDemoSceneId / UIDemoLineno / UIDemoSpeaker / UIDemoText
+//     本模块在「装载一个场景」时把当前场景的台词灌进这 5 个全局（并把 UIDlgLine 归零），
+//     于是打字机/名字框/正文/选择肢全部**沿用 UI 组既有实现**，零分叉。
+//   * 通过**包装**（capture-then-wrap）uiDialogAdvance / uiDialogChoiceCommit /
+//     uiActionDispatch 获得控制权：行末 → 切场景 / 开选择肢；选完 → 跳目标场景；
+//     game_start → 载入入口场景。包装按装载顺序链式叠加，不影响 UI 组自身包装。
+//
+// ★ 语音不中断：见 ui_audio.tjs。本模块只在**行有语音时**调用 uiAudioPlayVoice，
+//   行无语音时**不调用**（上一句继续播完）。
+// ============================================================
+
+// 状态
+var UIStoryIndex    = [];       // 场景顺序（生成物覆盖）
+var UIStoryEntry    = "";       // 入口场景
+var UIStoryScene    = void;     // 当前场景数据（生成物覆盖）
+var UIStoryAssetRoot = %[];     // 生成物覆盖（资源根）
+var UIStoryCur      = "";       // 当前场景 id
+// BGM（C17/C18）：`all`＝全部采用（含资源组按规则**重建**的）｜`sourceside`＝只播源侧実引用｜`off`＝不播
+var UIStoryBgmMode  = "all";
+var UIStoryBgmLev   = "";
+var UIStoryCuePos   = 0;        // 切换点游标（按 lines[].seq 推进）
+// ★ BGM 鉴赏（UI 组 `28_music.json` 的 `mu.list` 59 首；表由 build_story.py 从
+//   UI 组标签 + `BGM统一清单.tsv` 生成 → story/_music.tjs）
+var UIMusicNames  = [];
+var UIMusicUnis   = [];
+var UIStoryBgmRow = -1;
+var UIStoryBgmGalMode = "all";     // none | one | all | rnd（UI 组 8 枚动作里的模式四键）
+var UIStoryBgmPaused = false;
+var UIStoryHist     = [];       // 已进入的场景（路径）
+var UIStoryPlayed   = 0;        // 已播放台词数（累计）
+var UIStoryDone     = false;
+var UIStoryMsg      = "未开始";
+var UIStoryInstalled = false;
+var UIStoryLastFace = "";
+
+// 角色 → 立绘（并行数组；生成物覆盖。TJS2 不用带引号键的内联字典）
+var UIStoryRoleKeys  = [];
+var UIStoryRoleFams  = [];
+var UIStoryRoleFaces = [];
+
+// ★ 对话框头像映射（ISSUE-20261001-12 首建 9 族；ISSUE-20261001-16 扩至 29 族口径、实映射 28 族）
+//   数据源：`资源组\演出\头像族判读.tsv`（2026-10-02，35 族全覆盖：高 18 / 中 11 / 待判读 6）
+//            ＋ 契约 `资源组\交接编程组\交接说明.md` §三 C21。
+//   口径：**接入 29 族＝高置信 18 ＋ 中置信 11**；**剔除 6 族「待判读」**（dai/saw/aki/kan/min/y）；
+//         无可信映射（表外说话人 / 复合说话人 / 待裁决项）或说话人为空 ⇒ **隐藏头像**（宁可没有，不要张冠李戴）。
+//   ⚠️ 「29 族」中 **28 族有可映射 sp 写形**；`kaa` 与 `kab` 是**同一角色（凤凰寺翔）的两个形态**（C21）
+//      ⇒ `sp="翔"` 只能映一族，沿用既有 `kab`，**不另立 `kaa`**（避免同一角色分列成两个人）。
+//   ⚠️ sp 写形**以真实语料实测为准**（`资源组\剧本\scene_<源>.jsonl` 的 `lines[].speaker`：
+//      六源 712 场景 / 96,755 行 / 470 个不同值），并与各 sp 的 `speaker_jp` 逐条交叉核对身份。
+//   ⚠️ **未采纳** UI 组 M47 的三个暂定名（`aki`→吉川 / `kan`→可菜 / `min`→米内奥拉）——资源组未采。
+//   ⚠️ 待裁决（**本轮不映射**，详见工程记录）：`菲尼克斯`（フェニックス，凤凰寺翔 Phoenix 形态，族 kaa/kab 未定）、
+//      `丝帕萝`（スパロウ，京的幻想侧异名）、`针生`（可能指針生提督而非针生藏人）
+//      —— 均因「形态/指代不确定」不自行扩映射；复合说话人（`明日香＆京＆藏人` 等）一律隐藏。
+//   ⚠️ `lr` 族基础件为 **3 位编号 `lr201.png`**：本轮同步把 `uiStoryFaceBaseOf` 的编号探测上界
+//      由「每档一律 n≤99」改为**按位数的自然上界**（99/999/9999，命中即早退、每族只解析一次；主代理已批准）
+//      ⇒ `lr` 运行期可正常取到 `face/lr201.png`（见该函数注释的探测次序与开销说明）。
+//   ★ 为什么不是 `var UIStoryFaceMap = %[ "明日香":"asu" ]`：**TJS2 内联字典不接受带引号键**
+//     （`%[ "k":1 ]` ＝ 语法错误，UI 组实测 `ui_settings.tjs:25`）⇒ 用「并行数组 + 索引循环」
+//     （同 UIStoryRoleKeys 模式；也与 §六.1「无 for...in」一致）。
+//   键＝说话人中文名（以生成物 `story/scene_*.tjs` 实测的 `sp` 写形为准，并与作品层术语表核对）；
+//   值＝头像族前缀。**前 9 项＝ISSUE-20261001-12 既有 9 族，语义与顺序保持不变**；新增 19 项同序对齐（Who[i] ↔ Fam[i]）。
+//   ★ 末 3 项＝`ISSUE-20261002-04`（用户 2026-10-02 裁定「三个都接上」）：`菲尼克斯`→`kab`（作品层术语表 §5.2 明登
+//     `kaa`/`kab` 与「翔」同角色，此处取与既有 `翔` 相同的族）、`丝帕萝`→`miy`（京的幻想侧异名）、`针生`→`kur`（藏人）。
+//     ⚠️ 这三条属**异名/形态**推断，源侧无直证；`针生` 另有「针生提督」的歧义（用户已裁定接上）。
+var UIStoryFaceWho  = ["明日香", "奇肯多", "英里子", "春惠", "日和子", "翔", "和马", "纪奈子", "小鸠",
+                       "亚衣", "爱丽丝", "巴尼Ｄ", "狂夜", "ＬＲ２００１", "马汀内斯", "面魔", "满夜", "京", "鸣",
+                       "普纳奇纳", "咲夜", "狩男", "优", "高内", "牧师", "帽子男", "藏人", "美咲",
+                       "菲尼克斯", "丝帕萝", "针生"];
+var UIStoryFaceFam  = ["asu", "chi", "eri", "har", "hiy", "kab", "kaz", "kin", "kob",
+                       "ai_", "ari", "ban", "kyo", "lr", "mar", "men", "mit", "miy", "nar",
+                       "pur", "sak", "ten", "yuu", "mas", "bok", "dab", "kur", "mis",
+                       "kab", "miy", "kur"];
+var UIStoryFaceBase = [];       // 与 UIStoryFaceWho 平行：族→基础件存储名（"" ＝ 该族无可用件）
+var UIStoryFaceDone = [];       // 与 UIStoryFaceWho 平行：是否已解析（空结果也缓存）
+
+// 包装用
+var UIStoryOrigAdvance  = void;
+var UIStoryOrigCommit   = void;
+var UIStoryOrigDispatch = void;
+
+// ------------------------------------------------------------------
+// ★ CTRL 强制快进（ISSUE-20261001-14 · 用户 2026-10-01 要求③「对话框页 CTRL 键强制快进」）
+//   机制：包装**全局** `uiScreenKey`（capture-then-wrap，与 uiActionDispatch 同法；ui_flow.tjs
+//         已包过一层，本层链式叠加）——`key==17`（VK_CONTROL）且当前屏 dialog ⇒ 开始快进并
+//         返回 `%[handled:true, action:"skip_hold"]`（避免 UI 组再打「ignored」）；其余键**原样回落**。
+//   驱动：一个 40ms 的 **Timer**（★ 必须被全局引用持有，否则回调被回收、静默停止 —— 见交接 §六.14）。
+//   松开：窗口实例上的 `onKeyUp`（TJS2 具名全局函数，**不用匿名函数**）——`key==17` ⇒ 停止。
+//   为什么用**窗口实例**的 onKeyUp：引擎按成员名在**实例**上查找，实例成员优先于类方法
+//   （本工程已多次实证；引擎窗口级事件含 onKeyUp，见 `引擎工作原理.md` §7）。
+//   状态同步：开始/停止都置 `UIDlgSkipMode`（UI 组全局）⇒ 对话框屏 `dlg.mode_tag` 显示「快进中」。
+//   幂等：重复按/松不出错。快进中**不播语音**（避免每 40ms 抢音频，见 uiStoryOnLine）。
+// ------------------------------------------------------------------
+var UIStorySkipOn        = false;   // 是否处于「CTRL 强制快进」
+var UIStorySkipTimer     = null;    // ★ 快进驱动 Timer（全局引用持有）
+var UIStorySkipTicks     = 0;       // 快进拍数（日志/自证）
+var UIStorySkipOrigKey   = void;    // 包装前的全局 uiScreenKey（链式叠加用）
+var UIStorySkipVoiceLog  = false;   // 「快进中跳过语音」只记一次（防日志刷屏）
+
+function uiStoryFindEl(sc, elId)
+{
+	if(sc === void || sc.elements === void) return void;
+	for(var i = 0; i < sc.elements.count; i++)
+	{
+		var e = sc.elements[i];
+		if(e === void || e.id === void) continue;
+		if(("" + e.id) == ("" + elId)) return e;
+	}
+	return void;
+}
+
+function uiStoryDialogScreen()
+{
+	if(UILayoutData === void || UILayoutData.screens === void) return void;
+	return UILayoutData.screens["dialog"];
+}
+
+// 角色名（中文）→ 立绘族 / 脸文件
+function uiStoryRoleFam(name)
+{
+	var n = "" + name;
+	for(var i = 0; i < UIStoryRoleKeys.count; i++)
+		if(("" + UIStoryRoleKeys[i]) == n) return "" + UIStoryRoleFams[i];
+	return "";
+}
+
+function uiStoryRoleFace(name)
+{
+	var n = "" + name;
+	for(var i = 0; i < UIStoryRoleKeys.count; i++)
+		if(("" + UIStoryRoleKeys[i]) == n) return "" + UIStoryRoleFaces[i];
+	return "";
+}
+
+// ------------------------------------------------------------
+// 场景应用：背景（dlg.content 动态层）/ 立绘（dlg.face）
+// ------------------------------------------------------------
+// 背景选择：优先**非章节题卡**的图（题卡＝`ec<数字>` 族，是「key visual + logo」开场卡，
+//   不是场景背景）；若本场景只有题卡，则仍用它（忠实数据），并打一条 GAP 日志供上游补演出数据。
+//   —— 依据：资源组 C6/R1「演出命令语义未逆向，图像只到场景级」，且 `ot_ec28` 实测即标题 Logo。
+// ★ 实测坑（一审提示-6 订正措辞）：本 krkrz 构建下 **`String.substring(start, len)` 的第二参是「长度」、
+//   不是「结束下标」**（依据 `引擎工作原理.md` §5.1/§5.9 坑 1 与源码 `tjsInterCodeExec.cpp`）：
+//   `"0123456789".substring(3,2)` → `"34"`（2 个字符）；`substring(15,17)` → 从 15 起 17 字符、被钳到串尾。
+//   ⇒ 一律改用**只吃下标的 `charAt`**（实测可用）。
+// ★★ P0-A（ISSUE-20261006-02，治用户头号抱怨「背景乱放」）：
+//   · 背景层改由生成物的逐条 `op=="bg"` 事件驱动（源侧时间线，带 seq）；`bg[]` 退为兜底候选。
+//   · **跨场景延续记忆**：记住「上一次真正设过的背景 asset」。场景装载时若本场无事件（或事件未到）
+//     就**沿用**它——依据：源侧 `op=bg` 带 seq，首条之前（实测 `ot_s01_02c` 首条在 seq=33）语义上
+//     应延续上一场；旧实现「每场取 bg[] 首个」正是在此丢语义。
+var UIStoryLastBgAsset = "";      // 上一次真正设过的背景 asset（"" ＝ 从未设过）
+var UIStoryLastBgW     = 0;       // 其素材宽（供 contain 重算，跨源内容区不同）
+var UIStoryLastBgH     = 0;       // 其素材高
+
+// 把背景素材按 **contain** 落进 dlg.content（既有 4:3/16:9 选框口径，抽成函数供两处复用）。
+// 返回实际采用的选框 cb（供日志判「全画布 / 源内容区」）。
+function uiStoryFrameBgElement(el, aw, ah, src)
+{
+	var cw = 1920, chh = 1080;
+	try { if(UI_W > 0) cw = UI_W; if(UI_H > 0) chh = UI_H; } catch(eWH) { cw = 1920; chh = 1080; }
+	var cbfull = %[ x: 0, y: 0, w: cw, h: chh ];
+
+	var cb = cbfull;
+	var cbsrc = void;
+	if(UILayoutData !== void && UILayoutData.content_boxes !== void)
+		cbsrc = UILayoutData.content_boxes[src];
+
+	if(cbsrc !== void && cbsrc !== null)
+	{
+		if(aw > 0 && ah > 0)
+		{
+			var ar    = aw / ah;
+			var dSrc  = Math.abs(ar - (cbsrc.w / cbsrc.h));
+			var dFull = Math.abs(ar - (cbfull.w / cbfull.h));
+			cb = (dFull < dSrc) ? cbfull : cbsrc;
+		}
+		else cb = cbsrc;
+	}
+
+	if(cb !== void && cb !== null)
+	{
+		if(aw > 0 && ah > 0)
+		{
+			var k = Math.min(cb.w / aw, cb.h / ah);
+			var w = Math.floor(aw * k), h = Math.floor(ah * k);
+			el.x = cb.x + Math.floor((cb.w - w) / 2);
+			el.y = cb.y + Math.floor((cb.h - h) / 2);
+			el.w = w; el.h = h;
+		}
+		else { el.x = cb.x; el.y = cb.y; el.w = cb.w; el.h = cb.h; }
+	}
+	else
+	{
+		// 极兜底（布局根缺失）：满画布 contain，等价旧实现的 0,0,画布
+		el.x = 0; el.y = 0; el.w = cw; el.h = chh;
+		cb = cbfull;
+	}
+	return cb;
+}
+
+// ★ P0-A 主路径：把某个背景 asset 设为当前背景（供 op=="bg" 事件调用），并更新延续记忆。
+//   复用既有 `dlg.content` 元素，不新建。
+function uiStorySetBg(t, aw, ah)
+{
+	var sc = uiStoryDialogScreen();
+	if(sc === void) return false;
+	var el = uiStoryFindEl(sc, "dlg.content");
+	if(el === void) return false;
+	var p = "" + t;
+	if(p == "") return false;
+	el.visible_default = true;
+	el.asset = p;
+	var src = (UIStoryScene === void) ? "" : ("" + UIStoryScene.src);
+	var cb = uiStoryFrameBgElement(el, 0 + aw, 0 + ah, src);
+
+	var cw = 1920, chh = 1080;
+	try { if(UI_W > 0) cw = UI_W; if(UI_H > 0) chh = UI_H; } catch(eWH) { cw = 1920; chh = 1080; }
+	UIStoryLastBgAsset = p; UIStoryLastBgW = 0 + aw; UIStoryLastBgH = 0 + ah;
+	Debug.message("[STORY] 背景 = " + el.asset + " 源 " + aw + "x" + ah
+		+ " → 框 " + el.x + "," + el.y + " " + el.w + "x" + el.h
+		+ "（" + (((cb.x == 0) && (cb.y == 0) && (cb.w == cw) && (cb.h == chh)) ? "全画布" : "源内容区") + "）");
+	return true;
+}
+
+function uiStoryBgIsCard(path)
+{
+	var p = "" + path;
+	var n = p.length;
+	if(n < 6) return false;
+	// 反向扫描找 "__"（TJS2 无 lastIndexOf）
+	var i = -1;
+	for(var k = n - 2; k >= 0; k--)
+		if(p.charAt(k) == "_" && p.charAt(k + 1) == "_") { i = k; break; }
+	if(i < 0) return false;
+	if(i + 4 >= n) return false;                 // 需要 i+2..i+4
+	if(p.charAt(i + 2) != "e") return false;
+	if(p.charAt(i + 3) != "c") return false;
+	var d = p.charAt(i + 4);                     // 形如 ec28.png → 卡片族
+	return (d >= "0" && d <= "9");
+}
+
+function uiStoryPickBg()
+{
+	var n = UIStoryScene.bg.count;
+	for(var i = 0; i < n; i++)
+		if(!uiStoryBgIsCard("" + UIStoryScene.bg[i].a)) return i;
+	return 0;                              // 全是题卡 → 用第一张（并会在下面记 GAP）
+}
+
+function uiStoryApplyScene()
+{
+	var sc = uiStoryDialogScreen();
+	if(sc === void) return false;
+
+	// 背景：★ P0-A —— 主路径是逐条 `op=="bg"` 事件（由 ui_staging 分发到 uiStorySetBg）；
+	//   装载时只决定**初始画面**：
+	//     ① 有过「上一次背景」⇒ **延续**它（不得回落 bg[] 首个——那正是「背景乱放」根因之一）；
+	//     ② 从未设过 ⇒ 用 bg[] 首个兜底（bg[] 已收窄为背景层候选，见 build_story.py）；
+	//     ③ 两处都没有 ⇒ 隐藏该层（露出 dlg.letterbox 纯黑）。
+	//   依据：源侧 `op=bg` 带 seq，首条之前语义上应延续上一场（实测 ot_s01_02c 首条在 seq=33）。
+	var el = uiStoryFindEl(sc, "dlg.content");
+	if(el !== void && UIStoryScene !== void)
+	{
+		if(UIStoryLastBgAsset != "")
+		{
+			uiStorySetBg(UIStoryLastBgAsset, UIStoryLastBgW, UIStoryLastBgH);
+			Debug.message("[STORY] 背景延续上一场：" + UIStoryLastBgAsset + " ← " + UIStoryCur);
+		}
+		else if(UIStoryScene.bg !== void && UIStoryScene.bg.count > 0)
+		{
+			var bi = uiStoryPickBg();
+			var bgo = UIStoryScene.bg[bi];
+			uiStorySetBg("" + bgo.a, 0 + bgo.w, 0 + bgo.h);
+			if(uiStoryBgIsCard("" + bgo.a))
+				Debug.message("[STORY][GAP] 本场景可用的图只有章节题卡（演出语义未逆向，非场景背景）："
+					+ bgo.a + " ← " + UIStoryCur);
+		}
+		else
+		{
+			// ★ 本场景无图像数据（如序文 ot_s00_00）：**隐藏该层**，露出 dlg.letterbox 纯黑；
+			//   否则会一直显示 UI 组演示层留下的 `ui/tl2_bg1.png`（标题底图）——那是上游演示残留，不是本作画面。
+			el.visible_default = false;
+			Debug.message("[STORY][GAP] 本场景无图像数据（隐藏背景层）：" + UIStoryCur);
+		}
+	}
+	return true;
+}
+
+// 说话人 → 映射表下标（-1 ＝ 无映射；空串＝旁白/无说话人）
+function uiStoryFaceIndexOf(who)
+{
+	var n = "" + who;
+	if(n == "") return -1;
+	for(var i = 0; i < UIStoryFaceWho.count; i++)
+		if(("" + UIStoryFaceWho[i]) == n) return i;
+	return -1;
+}
+
+// 头像件存在性：候选与 `ui_asset.tjs::uiAssetCandidates` 同序
+//   ① 项目根内 "face/…"（-assetdir/addAutoPath 情形）② "assets/face/…"（assemble_game 并入 game\assets 的情形）
+//   —— 只认**实际可解析**的件；取不到就当作无映射，绝不硬用。
+function uiStoryFaceExists(p)
+{
+	var ok = false;
+	try { ok = Storages.isExistentStorage(p); } catch(e) { ok = false; }
+	if(ok) return true;
+	try { ok = Storages.isExistentStorage("assets/" + p); } catch(e2) { ok = false; }
+	return ok;
+}
+
+// 族 → 「基础件」（该族里不带表情后缀字母的那件，如 asu07.png / kaz02.png / lr201.png）。
+//   ★ **不写死族内编号**（asu 是 07、kaz 是 02、lr 是 201…）：按「族名 + 纯数字编号」探测，取第一个存在的。
+//   ★ 探测次序与早退：编号**位数**从少到多 w=2 → 3 → 4；每档上界＝**该位数的自然上界**
+//     （w 位 ⇒ n ≤ 10^w−1，即 99 / 999 / 9999）。**命中即早退**（found 非空就跳出内层，外层随 `found == ""` 再跳出）。
+//     ⚠️ 旧实现把每档一律写死 n ≤ 99 ⇒ 3 位编号 `lr201.png` **永远够不到**（本轮 ISSUE-20261001-16 修正；主代理已批准）。
+//   ★ 开销（为何不会退化为慢路径）：两层循环**只解析到第一个命中为止**，且**每族只解析一次**
+//     （UIStoryFaceDone[i] 缓存，含空结果）⇒ 开销是**一次性**的，不随台词行数/帧数增长。
+//     实测本作 28 族中 27 族基础件为 2 位编号 ⇒ 首次解析通常 2–99 次 `Storages.isExistentStorage`（亚毫秒级）；
+//     仅 `lr` 因 2 位档 99 次不中、转 3 位档至 201 命中，合计约 **300 次**（仍属一次性）。
+//     w=4 档仅当「某族连 2 位/3 位件都没有」才会进入，本作 28 族均无此情形。
+//   返回 "face/<族><编号>.png" 或 ""（族无件）。
+function uiStoryFaceBaseOf(i)
+{
+	if(i < 0 || i >= UIStoryFaceWho.count) return "";
+	if(UIStoryFaceDone[i] === true) return "" + UIStoryFaceBase[i];
+	var fam = "" + UIStoryFaceFam[i];
+	var found = "";
+	var w = 2;
+	while(w <= 4 && found == "")
+	{
+		var maxN = 1;                          // 10^w − 1 ＝ w 位编号的自然上界（99 / 999 / 9999）
+		for(var k = 0; k < w; k++) maxN = maxN * 10;
+		maxN = maxN - 1;
+		var n = 1;
+		while(n <= maxN && found == "")
+		{
+			var d = "" + n;
+			while(d.length < w) d = "0" + d;
+			var p = "face/" + fam + d + ".png";
+			if(uiStoryFaceExists(p)) found = p;
+			n++;
+		}
+		w++;
+	}
+	UIStoryFaceBase[i] = found;
+	UIStoryFaceDone[i] = true;
+	return found;
+}
+
+// 按当前台词说话人切换 `dlg.face`：有可信映射 ⇒ 设 asset 并显示；否则 ⇒ 隐藏。
+//   日志**只在映射结果变化时**打（不每帧刷屏）。
+function uiStoryApplyFace(speaker)
+{
+	var sc = uiStoryDialogScreen();
+	if(sc === void) return;
+	var el = uiStoryFindEl(sc, "dlg.face");
+	if(el === void) return;
+
+	var who = "" + speaker;
+	var idx = uiStoryFaceIndexOf(who);
+	var path = "";
+	if(idx >= 0) path = uiStoryFaceBaseOf(idx);      // 族存在但取不到件 ⇒ "" ⇒ 按无映射处理
+
+	var key = (path == "") ? "-" : path;             // 变化判据（"-" ＝ 隐藏；初值 "" 永不等于它）
+	if(key == UIStoryLastFace) return;
+	UIStoryLastFace = key;
+
+	if(path != "")
+	{
+		el.asset = path;
+		el.visible_default = true;
+		Debug.message("[STORY][FACE] 说话人=" + who + " → " + path);
+	}
+	else
+	{
+		el.visible_default = false;
+		Debug.message("[STORY][FACE] 说话人=" + who + " → 无映射，隐藏头像");
+	}
+}
+
+// 选择肢文本写进 dlg.choices（labels/actions 都是字符串数组）
+function uiStoryApplyChoices()
+{
+	var sc = uiStoryDialogScreen();
+	if(sc === void) return;
+	var el = uiStoryFindEl(sc, "dlg.choices");
+	if(el === void) return;
+	if(UIStoryScene === void || UIStoryScene.choices === void) return;
+	var labs = [], acts = [];
+	for(var i = 0; i < UIStoryScene.choices.count; i++)
+	{
+		labs.push("" + UIStoryScene.choices[i].tx);
+		acts.push("select_choice");
+	}
+	el.labels = labs;
+	el.actions = acts;
+	Debug.message("[STORY] 选择肢装载 " + labs.count + " 项");
+}
+
+// ------------------------------------------------------------
+// 载入场景
+// ------------------------------------------------------------
+function uiStoryLoad(id)
+{
+	var sid = "" + id;
+	if(sid == "") return false;
+	var path = "story/scene_" + sid + ".tjs";
+	// ★ 先判存在再执行：krkrz 对**被 catch 的异常**仍会打整段 dump，
+	//   而「切片外/未交付场景」是正常情形 ⇒ 不得用异常当控制流（保持 EXCEPTION 0）。
+	//   ★ 一审重要-4：**先判存在、再清空 UIStoryScene** —— 否则「目标不在切片内」会把当前
+	//     场景清成 void，玩家卡在无场景状态（还会把末行重复输出一次）。
+	var exists = false;
+	try { exists = Storages.isExistentStorage(path); } catch(e0) { exists = false; }
+	if(!exists)
+	{
+		UIStoryMsg = "场景不在本次切片内：" + sid;
+		Debug.message("[STORY] " + UIStoryMsg);
+		return false;
+	}
+	UIStoryScene = void;
+	var ok = true;
+	try { Scripts.execStorage(path); }
+	catch(e) { ok = false; Debug.message("[STORY][ERR] 场景载入失败 " + sid + " : " + e.message); }
+	if(!ok || UIStoryScene === void || UIStoryScene === null)
+	{
+		UIStoryMsg = "场景载入失败：" + sid;
+		Debug.message("[STORY][ERR] " + UIStoryMsg);
+		return false;
+	}
+
+	UIStoryCur = sid;
+	UIStoryHist.push(sid);
+	UIStoryLastFace = "";
+
+	// ★ 剧情进度 → 流程图「已读 / 当前节点」（ISSUE-20261003-03）：
+	//   UI 组 `ui_flow.tjs` 只在**玩家点击流程图节点**时推进已读状态 ⇒ 顺着剧情推进、从没开过流程图的
+	//   玩家会看到「全部未读」。此处把剧情进度也写回去（**只动幕级节点，不碰番外收集**；
+	//   场景不在幕内＝不对应幕级节点 ⇒ 不动；任何异常都被吞掉并记一行，绝不打断剧情）。
+	try { uiFlowWireMarkProgress(sid); }
+	catch(eMP) { Debug.message("[STORY][ERR] 流程图进度回写异常：" + eMP.message); }
+
+	// ★ 场景级已读（ISSUE-20261004-03）：按 **scene id** 记，供分页自绘标「已读 / 当前」。
+	//   与上面那条并存：UI 组那条是**节点级**（只覆盖幕级节点、键是节点 id），
+	//   本条是**场景级**（键是 scene id）——分页后同场景可能出现在多页/多锚点，必须按场景记。
+	//   异常一律吞掉：绝不因为流程图状态而打断剧情。
+	try { uiFlowSceneMark(sid); }
+	catch(eSM) { Debug.message("[STORY][ERR] 场景级已读回写异常：" + eSM.message); }
+
+	// 灌进 UI 组的 5 个全局接口（当前场景）
+	var n = 0;
+	try { n = UIStoryScene.lines.count; }
+	catch(eC) { Debug.message("[STORY][ERR] lines.count 失败：" + eC.message); return false; }
+	if(n > 0)
+	{
+		var l0 = UIStoryScene.lines[0];
+		if(l0 === void || l0 === null)
+			Debug.message("[STORY][DBG] lines[0] 是 void/null");
+		else
+			Debug.message("[STORY][DBG] lines[0] 类型 sp=" + (typeof l0.sp)
+				+ " tx=" + (typeof l0.tx) + " k=" + (typeof l0.k) + " vo=" + (typeof l0.vo));
+	}
+	var sp = [], tx = [], si = [], ln = [];
+	for(var i = 0; i < n; i++)
+	{
+		var l = UIStoryScene.lines[i];
+		sp.push("" + l.sp);
+		tx.push("" + l.tx);
+		si.push(sid);
+		ln.push(i + 1);
+	}
+	UIDemoLineCount = n;
+	UIDemoSpeaker   = sp;
+	UIDemoText      = tx;
+	UIDemoSceneId   = si;
+	UIDemoLineno    = ln;
+
+	// 台词游标归零并起打字机
+	UIDlgLine = 0; UIDlgTyped = 0; UIDlgTyping = true;
+	UIDlgChoicesOpen = false; UIDlgChoiceFocus = 0;
+
+	uiStoryApplyScene();
+	uiStoryApplyBgm();
+	uiStoryApplyFace((n > 0) ? ("" + UIStoryScene.lines[0].sp) : "");
+	// ★ 逐行演出（ISSUE-20261001-17）：建槽 + 换场景清空立绘（`ui_staging.tjs`）。
+	//   ★ 硬边界①：五源立绘「退场」无信号 ⇒ 策略＝**场景内保持、换场景清空**（不拿换背景反推清屏）。
+	try { uiStagingSceneLoad(); }
+	catch(eSt) { Debug.message("[STORY][ERR] 逐行演出装载失败：" + eSt.message); }
+	uiStoryOnLine();
+
+	UIStoryMsg = "场景 " + sid + "（" + n + " 行）｜" + ("" + UIStoryScene.title);
+	Debug.message("[STORY] 载入 " + sid
+		+ " 行=" + n
+		+ " 背景=" + ((UIStoryScene.bg === void) ? 0 : UIStoryScene.bg.count)
+		+ " 立绘=" + ((UIStoryScene.chr === void) ? 0 : UIStoryScene.chr.count)
+		+ " 选择支=" + ((UIStoryScene.choices === void) ? 0 : UIStoryScene.choices.count)
+		+ " 标题=" + ("" + UIStoryScene.title));
+	return true;
+}
+
+// 行变化时调用：语音（不中断语义）+ 立绘
+function uiStoryOnLine()
+{
+	UIStoryPlayed++;
+	if(UIStoryScene === void) return;
+	var i = UIDlgLine;
+	if(i < 0 || i >= UIStoryScene.lines.count) return;
+	var l = UIStoryScene.lines[i];
+	if(l === void || l === null) return;          // ★ 一审提示-8：空元素守卫（防上游尾逗号类空元素）
+	uiStoryApplyFace("" + l.sp);
+	uiStoryApplyCues();                      // BGM 切换点按行推进（无切换点的场景是空操作）
+	// ★ B3：过场卡按 (场景,seq) 触发（本场首个插点；弹卡机制本身见 uiStoryEcStart）
+	try { uiStoryEcOnLine(); }
+	catch(eEc2) { Debug.message("[CHAPTER][ERR] 插点触发异常：" + eEc2.message); }
+	// ★ 逐行演出（ISSUE-20261001-17）：把「在本行显示之前生效」的 op（chr_* / se）应用掉。
+	//   `seq` 口径＝紧随该 op 之后第一个文本行的行号（C21）；本行行的 `sq` 即行号。
+	try { uiStagingOnLine(); }
+	catch(eSt2) { Debug.message("[STORY][ERR] 逐行演出应用失败：" + eSt2.message); }
+	// 存档缩略图素材：在**对话框屏**节流抓取当前画面（离屏导出较贵 ⇒ 每 8 行一次）
+	//   ★ 快进中**不抓**（ISSUE-20261001-14）：离屏导出是每拍最贵的一步，快进时抓图会
+	//     把 40ms 节拍拖慢数倍；且快进期间的中间帧没有留存价值。缩略图是机会性的，跳过无损。
+	if((UIStoryPlayed % 8) == 0 && !UIStorySkipOn) uiSaveCaptureLive();
+	var vo = "" + l.vo;
+	uiStoryLogPush(UIStoryCur, i, vo, "" + l.sp, "" + l.tx);
+	// ★ 只有有语音时播放 ⇒ 无语音行不打断。
+	//   ★ CTRL 快进中**不播语音**（ISSUE-20261001-14 要求⑤）：快进每 40ms 推进一行，
+	//     若照常播报会每拍抢一次音频、声音糊成一片 ⇒ 快进期间跳过语音播报（只记一次日志）。
+	if(vo != "")
+	{
+		if(UIStorySkipOn)
+		{
+			if(!UIStorySkipVoiceLog)
+			{
+				UIStorySkipVoiceLog = true;
+				Debug.message("[STORY][SKIP] 快进中：跳过语音播报（本条起不再逐条记日志）");
+			}
+		}
+		else uiAudioPlayVoice(vo);
+	}
+}
+
+// ------------------------------------------------------------
+// BGM（C17/C18）
+//   ① `BGM切换点.tsv`（仅 otv/np 57 场）＝**源侧播放序**，精确到 `lines[].seq`
+//   ② 场景级 `bgm[]`＝源侧实测引用 或 `挂接_BGM.tsv` 推荐统一名（后者**是重建**，带依据等级）
+//   一律取 `BGM统一\` 的**统一名**；严禁按编号拼名（C18）。
+// ------------------------------------------------------------
+function uiStoryApplyCues()
+{
+	if(UIStoryScene === void || UIStoryScene.bgmCue === void) return;
+	var curSeq = 0;
+	if(UIDlgLine >= 0 && UIDlgLine < UIStoryScene.lines.count)
+		curSeq = 0 + UIStoryScene.lines[UIDlgLine].sq;
+	while(UIStoryCuePos < UIStoryScene.bgmCue.count)
+	{
+		var c = UIStoryScene.bgmCue[UIStoryCuePos];
+		if(c === void || c === null) { UIStoryCuePos++; continue; }
+		if((0 + c.seq) > curSeq) break;
+		if(("" + c.ev) == "stop")
+		{
+			uiAudioStopBgm();
+			Debug.message("[BGM] 停止 @seq" + c.seq);
+		}
+		else
+		{
+			uiAudioPlayBgm("" + c.t);
+			Debug.message("[BGM] 切曲 " + c.t + " @seq" + c.seq + "（源侧切换点）");
+		}
+		UIStoryCuePos++;
+	}
+}
+
+function uiStoryApplyBgm()
+{
+	UIStoryCuePos = 0;
+	UIStoryBgmLev = "";
+	if(UIStoryScene === void) return;
+	// ① 有切换点 ⇒ 以源侧播放序为准（C18）
+	if(UIStoryScene.bgmCue !== void && UIStoryScene.bgmCue.count > 0)
+	{
+		Debug.message("[BGM] 本场景有源侧切换点 " + UIStoryScene.bgmCue.count + " 条 ← " + UIStoryCur);
+		uiStoryApplyCues();
+		return;
+	}
+	// ② 场景级 BGM
+	if(UIStoryScene.bgm === void || UIStoryScene.bgm.count == 0) return;
+	var lev = "" + UIStoryScene.bgmLev;
+	var isSrc = (lev == "源侧実引用");
+	if(UIStoryBgmMode == "off") { Debug.message("[BGM] mode=off，跳过"); return; }
+	if(UIStoryBgmMode == "sourceside" && !isSrc)
+	{
+		Debug.message("[BGM] mode=sourceside，跳过重建曲（依据等级=" + lev + "）");
+		return;
+	}
+	uiAudioPlayBgm("" + UIStoryScene.bgm[0]);
+	UIStoryBgmLev = lev;
+	Debug.message("[BGM] 播放 " + UIStoryScene.bgm[0] + " ｜依据等级=" + lev
+		+ (isSrc ? "" : "（※资源组按规则重建，非源侧数据；C17）"));
+}
+
+// ------------------------------------------------------------
+// 场景推进 / 选择
+// ------------------------------------------------------------
+function uiStoryNextId()
+{
+	if(UIStoryScene === void) return "";
+	var nx = UIStoryScene.next;
+	if(nx === void || nx.count == 0) return "";
+	return "" + nx[0];
+}
+
+// 选择支里是否**至少有一个目标可载入**。★ 一审重要-4 修复后暴露的真缺陷：
+//   若本场景的选择支目标全在本次切片之外（如 ot_s01_02e → ot_s01_02f1），
+//   原先会「推进 → 开选择支 → 选 → 载入失败 → 再推进 → 再开」**无限循环**。
+//   故开选择支前先判可达；全不可达 ⇒ 按剧情结束处理（切片边界，非缺陷）。
+function uiStoryAnyChoiceLoadable()
+{
+	if(UIStoryScene === void || UIStoryScene.choices === void) return false;
+	for(var i = 0; i < UIStoryScene.choices.count; i++)
+	{
+		var t = "" + UIStoryScene.choices[i].to;
+		if(t == "") continue;
+		var ex = false;
+		try { ex = Storages.isExistentStorage("story/scene_" + t + ".tjs"); } catch(e) { ex = false; }
+		if(ex) return true;
+	}
+	return false;
+}
+
+// ★ 影片插曲/片尾的续播（ISSUE-20261004-08）——播放是异步的，播完/跳过后从这里接回原流程。
+var UIMoviePendingNext = "";
+
+function uiMovieResumePending()
+{
+	var n = UIMoviePendingNext; UIMoviePendingNext = "";
+	if(n == "") return;
+	try
+	{
+		// 与正常路径同两步：`uiStoryGoNext` 里是 `uiStoryLoad`；`uiStoryAdvanceWrapper` 里接着 `uiStoryOnLine`。
+		if(uiStoryLoad(n)) uiStoryOnLine();
+	}
+	catch(e) { Debug.message("[STORY][ERR] 影片后续播失败：" + e.message); }
+}
+
+// 终章场景的 ED 播完之后：**有后继就继续剧情**（本作是串联主线，终章之后接「解缆/対決」篇）；
+// 无后继 ⇒ 那是真终局 ⇒ 回标题。
+function uiMovieResumeAfterEd()
+{
+	var n = UIMoviePendingNext; UIMoviePendingNext = "";
+	if(n == "") { uiMovieBackToTitle(); return; }
+	try { if(uiStoryLoad(n)) uiStoryOnLine(); }
+	catch(e) { Debug.message("[STORY][ERR] 终章后继续失败：" + e.message); }
+}
+
+function uiMovieBackToTitle()
+{
+	try { uiActionDispatch("open_title", -1); }
+	catch(e) { Debug.message("[STORY][ERR] 片尾后回标题失败：" + e.message); }
+}
+
+// 槽②：开局时先播片头 OP，播完/跳过后再走原来的「开局」两步
+function uiMovieEnterResume()
+{
+	try { uiStoryStart(); } catch(e0) { Debug.message("[STORY][ERR] 片头后开局失败：" + e0.message); }
+	try { UIStoryOrigDispatch("game_start", -1); }
+	catch(e1) { Debug.message("[STORY][ERR] 片头后推 dialog 失败：" + e1.message); }
+}
+
+function uiStoryGoNext()
+{
+	if(UIStoryScene === void) return %[ action: "end", msg: "无场景" ];
+
+	// 有选择支且**目标可达** → 展开选择肢
+	if(UIStoryScene.choices !== void && UIStoryScene.choices.count > 0
+		&& uiStoryAnyChoiceLoadable())
+	{
+		uiStoryApplyChoices();
+		uiDialogCompleteTyping();
+		uiDialogOpenChoices();
+		UIStoryMsg = "选择肢展开（" + UIStoryScene.choices.count + " 项）";
+		Debug.message("[STORY] " + UIStoryMsg);
+		return %[ action: "choices", msg: UIStoryMsg ];
+	}
+
+	// ── 离开本场景时的影片判定（ISSUE-20261004-08 订正）────────────────────
+	//   规矩（PSV 明文脚本实证，ISSUE-20261004-09 二次订正）：**每条线「最后一场常规剧情戏」的末尾**播该角色 ED，
+	//   之后剧情**继续**接「终章（エピローグ）→ 解缆/対決」。⚠️ 旧稿写的「终章场景播 ED」是错的
+	//   （ED 实际在终章**前一场**，只有美咲线因该场本身即终章而重合），落点表见 `ui_movie.tjs`。
+	//   真终局（无后继）则播完回标题。插入影片（源侧 `assets[].kind=="movie"`）与其并行判定。
+	//   ★ ISSUE-20261004-09：**影片在播时不接受第二次触发**。本函数会被「推进」重入
+	//     （对话框推进链、自测 Timer 直调同一入口）；不设闸时重入会落到 `uiMoviePlay` 的
+	//     「保险：不留重叠」，把上一支的续播回调（`UIMoviePendingNext`）连同对象一起丢掉
+	//     ⇒ 剧情卡在该场景末尾反复「开始→结束」空转（自测实走时实测到）。
+	if(uiMoviePlaying() === true)
+		return %[ action: "movie", msg: "影片播放中：忽略重复的场景末触发（" + UIStoryCur + "）" ];
+	var nid = uiStoryNextId();
+	var _ed = uiMovieEndFor(UIStoryCur);
+	if(_ed != "")
+	{
+		UIMoviePendingNext = nid;                 // 空串＝真终局
+		uiMoviePlay(_ed, uiMovieResumeAfterEd);
+		return %[ action: "movie", msg: "片尾（该线末场）：" + UIStoryCur + " → " + _ed ];
+	}
+	if(nid != "")
+	{
+		var _ins = uiMovieInsertFor(UIStoryCur);
+		if(_ins != "")
+		{
+			UIMoviePendingNext = nid;
+			uiMoviePlay(_ins, uiMovieResumePending);
+			return %[ action: "movie", msg: "影片插入：" + UIStoryCur + " → " + _ins ];
+		}
+		if(uiStoryLoad(nid))
+			return %[ action: "next", msg: UIStoryMsg ];
+	}
+
+	// 到头（无后继的终局）
+	UIStoryDone = true;
+	UIStoryMsg = "剧本结束（已播放 " + UIStoryPlayed + " 行，路径 " + UIStoryHist.count + " 场景）";
+	Debug.message("[STORY] " + UIStoryMsg);
+	try
+	{
+		var _ins2 = uiMovieInsertFor(UIStoryCur);
+		if(_ins2 != "") { uiMoviePlay(_ins2, uiMovieBackToTitle); }   // 先播该场景自带的插入影片
+		else uiMovieBackToTitle();                                    // 无 ED 的终局：按用户裁定直接回标题
+	}
+	catch(eME) { Debug.message("[STORY][ERR] 终局处理异常：" + eME.message); }
+	return %[ action: "end", msg: UIStoryMsg ];
+}
+
+function uiStoryChoose(i)
+{
+	if(UIStoryScene === void) return "";
+	if(UIStoryScene.choices === void || i < 0 || i >= UIStoryScene.choices.count) return "";
+	var to = "" + UIStoryScene.choices[i].to;
+	Debug.message("[STORY] 选择第 " + (i + 1) + " 项 → " + to);
+	if(to != "" && uiStoryLoad(to)) return to;
+	// 目标不在切片内 ⇒ 到此为止（切片边界），不得反复重开选择支
+	UIStoryDone = true;
+	UIStoryMsg = "选择支目标不在本次切片内：" + to;
+	Debug.message("[STORY] " + UIStoryMsg);
+	return "";
+}
+
+// ------------------------------------------------------------
+// 开局
+// ------------------------------------------------------------
+function uiStoryStart(entryId)
+{
+	UIStoryHist = [];
+	UIStoryPlayed = 0;
+	UIStoryDone = false;
+	UIStoryLastFace = "";
+	var e = (entryId === void || ("" + entryId) == "") ? UIStoryEntry : ("" + entryId);
+	if(e == "") e = (UIStoryIndex.count > 0) ? ("" + UIStoryIndex[0]) : "";
+	if(e == "") { Debug.message("[STORY][ERR] 无入口场景"); return false; }
+	Debug.message("[STORY] 开局 → " + e);
+	return uiStoryLoad(e);
+}
+
+
+// ------------------------------------------------------------
+// UI 组 §4.2 C 类：回想跳转/重播、确认框两键、页码
+//   `backlog_jump:<行>` / `backlog_replay:<行>`：行号＝回想屏列表的**全局行序**（0 起）
+//   本引擎在每行显示时登记 (场景, 行序, 语音, 说话人, 文本) 到并行数组，故**跨场景**也能跳/重播。
+// ------------------------------------------------------------
+var UIStoryLogScene  = [];
+var UIStoryLogLine   = [];
+var UIStoryLogVoice  = [];
+var UIStoryLogWho    = [];
+var UIStoryLogText   = [];
+var UIStoryPending   = "";        // 待确认的动作（如占位槽覆盖）
+var UIStoryPendingArg = 0;
+
+function uiStoryLogPush(scene, line, voice, who, text)
+{
+	UIStoryLogScene.push("" + scene);
+	UIStoryLogLine.push(0 + line);
+	UIStoryLogVoice.push("" + voice);
+	UIStoryLogWho.push("" + who);
+	UIStoryLogText.push("" + text);
+}
+
+// BGM 鉴赏：逐曲播放 + 8 枚传输键
+function uiStoryBgmGallery(n)
+{
+	var r = 0 + n;
+	if(r < 0 || r >= UIMusicUnis.count) { Debug.message("[STORY] bgm_play 越界 " + n); return false; }
+	var u = "" + UIMusicUnis[r];
+	if(u == "") { Debug.message("[STORY] 第 " + r + " 首无可播放件：" + UIMusicNames[r]); return false; }
+	UIStoryBgmRow = r; UIStoryBgmPaused = false;
+	uiAudioStopBgm();
+	uiAudioPlayBgm("story_assets/bgm__" + u);
+	Debug.message("[STORY] BGM 鉴赏播放 #" + (r + 1) + " " + UIMusicNames[r] + " → " + u);
+	return true;
+}
+
+function uiStoryBgmTransport(a)
+{
+	var act = "" + a;
+	if(act == "bgm_stop") { uiAudioStopBgm(); UIStoryBgmPaused = false; Debug.message("[STORY] BGM 停"); return true; }
+	if(act == "bgm_prev") { if(UIStoryBgmRow > 0) return uiStoryBgmGallery(UIStoryBgmRow - 1); return false; }
+	if(act == "bgm_next") { if(UIStoryBgmRow + 1 < UIMusicUnis.count) return uiStoryBgmGallery(UIStoryBgmRow + 1); return false; }
+	if(act == "bgm_playpause")
+	{
+		try
+		{
+			// ★ `WaveSoundBuffer` **没有 `pause()` 方法**——暂停是**属性 `paused`**
+			//   （源码 `sound/WaveIntf.cpp` 成员表：open/play/stop/fade/stopFade/setPos
+			//    ＋ position/paused/totalTime/looping/volume…）
+			if(UIStoryBgmPaused) { UIAudioBgm.paused = false; UIStoryBgmPaused = false; Debug.message("[STORY] BGM 继续"); }
+			else { UIAudioBgm.paused = true; UIStoryBgmPaused = true; Debug.message("[STORY] BGM 暂停"); }
+		}
+		catch(e) { Debug.message("[STORY] playpause 失败：" + e.message); }
+		return true;
+	}
+	if(act.indexOf("bgm_mode_") == 0)
+	{
+		UIStoryBgmGalMode = act.substring(9);
+		Debug.message("[STORY] BGM 播放模式 = " + UIStoryBgmGalMode);
+		return true;
+	}
+	return false;
+}
+
+function uiStoryBacklogReplay(row)
+{
+	var r = 0 + row;
+	if(r < 0 || r >= UIStoryLogVoice.count) { Debug.message("[STORY] backlog_replay 行号越界 " + row); return false; }
+	var v = "" + UIStoryLogVoice[r];
+	if(v == "") { Debug.message("[STORY] backlog_replay 第 " + r + " 行无语音"); return false; }
+	Debug.message("[STORY] 回想重播第 " + r + " 行：" + v);
+	return uiAudioPlayVoice(v);
+}
+
+function uiStoryBacklogJump(row)
+{
+	var r = 0 + row;
+	if(r < 0 || r >= UIStoryLogScene.count) { Debug.message("[STORY] backlog_jump 行号越界 " + row); return false; }
+	var sc2 = "" + UIStoryLogScene[r];
+	var ln2 = 0 + UIStoryLogLine[r];
+	Debug.message("[STORY] 回想跳转 → " + sc2 + " 行 " + ln2);
+	if(!uiStoryLoad(sc2)) return false;
+	if(ln2 >= 0 && ln2 < UIDemoLineCount)
+	{
+		UIDlgLine = ln2; UIDlgTyped = 0; UIDlgTyping = true;
+		uiStoryApplyScene();
+		uiStoryApplyFace("" + UIStoryScene.lines[ln2].sp);
+		// ★ 逐行演出随跳转回退/前进重建到该行之前的状态（`uiStagingApplyTo` 检测回退后从头重放）
+		try { uiStagingOnLine(); }
+		catch(eSt3) { Debug.message("[STORY][ERR] 回想跳转后演出重建失败：" + eSt3.message); }
+	}
+	if(uiScreenCurrent() == "backlog") uiScreenReset("dialog");
+	return true;
+}
+
+// 确认框（`21_confirm.json` 两键 action = confirm_yes / confirm_no）
+function uiStoryConfirmYes()
+{
+	var a = UIStoryPending;
+	UIStoryPending = "";
+	if(a == "overwrite_save")
+	{
+		Debug.message("[STORY] 确认覆盖存档槽 " + UIStoryPendingArg);
+		uiSaveWrite(UIStoryPendingArg);
+		// ★ ISSUE-20261003-12（一审 Major-2）：`uiScreenReset` 会跑 `uiScreenFlagsInitFor`，
+		//   把屏级 flag **打回 flags_default**（`sv_page="1"`、`sv_s1..12="on"`）。
+		//   故必须**先换屏、再应用**，否则页码指示回 1、空槽显成「有档」。
+		if(uiScreenCurrent() == "confirm") uiScreenReset("save");
+		uiSaveApplyToScreen("save");
+		return true;
+	}
+	Debug.message("[STORY] confirm_yes 无待确认动作（当前屏=" + uiScreenCurrent() + "）");
+	if(uiScreenCurrent() == "confirm") uiScreenReset("dialog");
+	return false;
+}
+
+function uiStoryConfirmNo()
+{
+	Debug.message("[STORY] confirm_no：取消待确认动作（" + UIStoryPending + "）");
+	UIStoryPending = "";
+	// ★ ISSUE-20261003-12（一审 Major-2）：同上——换屏会重置屏级 flag，换屏后必须重新应用
+	if(uiScreenCurrent() == "confirm") uiScreenReset("save");
+	uiSaveApplyToScreen("save");
+	return true;
+}
+
+// ------------------------------------------------------------
+// ★ 章节过场（ISSUE-20261005-03 · 用户 2026-10-05 二次裁定）
+// ------------------------------------------------------------
+// 与前一版（-02「文字卡」）的关系：**文字卡整体撤除**。用户裁定：
+//   ① 游戏内**不显示**「章节标题/简介」这类标记行（简介只属于流程图）；
+//   ② 在**特定章节开头**播资源组提供的**过场卡原素材**（图二＝`ecN_bg` 题卡一系）；
+//      用户接受图中烘焙的日文/英文，先做一版、看**实机截图**后再决定后续。
+// 标记行判据（与 `工具\audit_chapter_markers.py` 同一；实测命中 955 行 / 609 场景）：
+//   sp=="" && vo=="" && tx!="" && (tx∈标记串全集 || k=="title")
+//   ⇒ 命中即**跳过**：场景载入后把行游标推到首个非标记行，推进时同样跳过（不入对话框）。
+// 过场卡插点与选图：`编程组\章节过场卡插点.tsv`（生成器 `工具\emit_eyecatch.py`）⇒ 引擎读
+//   `story/_eyecatch.tjs`（**(场景,seq)** → 资产相对名 ＋ 原生宽高）。
+//   ★ B3（ISSUE-20261006-04）：数据源改为 **PSV 金标 `PSV演出\时间线.tsv` 的 EyeCatch**（同场取首个，
+//     EC28 分件合成、其余卡号用交付层件）；触发＝按当前行 seq（`uiStoryEcOnLine`），
+//     不再只靠「章节标记行」在装载瞬间弹。弹卡/淡出/跳过机制本身未改。
+// 呈现（v1，忠于「全屏＋自动淡出＋点击可跳过」）：按原生宽高 contain 居中（4:3 卡即左右
+//   留底色）＋ 停留 `UIStoryEcMs` 后淡出 `UIStoryEcFadeMs` ＋ 任意点击/按键立即结束；
+//   多图层依序淡入等更细演出留待后续轮次。
+// 边界：**不改 UI 组任何文件**——运行期追加 image 元素、ctx 覆盖、点击/按键/推进包装。
+// ------------------------------------------------------------
+var UIStoryMarkerPool    = %[];    // 标记串全集（键=文本）
+var UIStoryChInstalled   = false;
+var UIStoryOrigBuildCtx  = void;
+var UIStoryOrigDlgClick  = void;
+var UIStoryOrigLoad      = void;
+var UIStoryOrigKey       = void;
+var UIStoryOrigPress     = void;
+var UIStoryEcElId        = "dlg.eyecatch_img";
+var UIStoryEcHideIds     = ["dlg.content", "dlg.mask_bottom", "dlg.face",
+                            "dlg.name", "dlg.text", "dlg.canvas_white"];
+var UIStoryEcActive      = false;  // 过场卡显示中
+var UIStoryEcAlpha       = 255;    // 当前不透明度（淡出用）
+var UIStoryEcHoldMs      = 3200;   // 停留时长
+var UIStoryEcFadeMs      = 600;    // 淡出时长
+var UIStoryEcT0          = 0;      // 起始时刻（System.getTickCount()）
+var UIStoryEcTimer       = null;
+// ★ Q 版人物层（ISSUE-20261005-06）：3 个运行期元素，**每次显示**随机抽 3 件不同素材；
+//   预缩放件与矩形全部由 `工具/emit_chibi.py` 生成（引擎不做缩放、不算几何，只换 asset+矩形）。
+var UIStoryEcChibiElIds  = ["dlg.eyecatch_c1", "dlg.eyecatch_c2", "dlg.eyecatch_c3"];
+var UIStoryEcChibi       = %[ slots: [], files: [], rects: [] ];
+var UIStoryEcRandMode    = "";    // "math"（TJS2 标准随机）｜"tick"（退化：tick+调用序号）
+var UIStoryEcRandSeq     = 0;
+// ★ 过场插点表用**本模块声明的字典**承载（`story/_eyecatch.tjs` 只定义
+//   `uiEyecatchFill(o)` 函数、由安装代码传入本字典填充）。原因：TJS2 里字符串存储的顶层
+//   `var` 只在该存储内可见，而该存储对未声明的**全局**赋值会抛「未找到 Member」
+//   （实走两轮踩到：表文件自己 `UIEyecatchKeys = […]` 必炸）——函数调用是全项目各
+//   ui_*.tjs 互相调用的既有可靠形式。
+// ★ B3（ISSUE-20261006-04）：插点键从「场景」改为「**(场景, seq)**」——`seqs` 与 `keys` 同序，
+//   `seq` ＝我方语料 `lines[].seq`（PSV 金标）。运行期按当前行 seq 触发（见 `uiStoryEcOnLine`），
+//   不再只靠「章节标记行」在装载时弹。
+var UIStoryEcTable       = %[ keys: [], seqs: [], imgs: [], ws: [], hs: [] ];
+var UIStoryEcPending     = -1;    // 本场待弹的插点下标（-1＝本场无插点）
+var UIStoryEcFired       = false; // 本场插点是否已弹过（同场只弹首次）
+
+// 某一行是否为章节标记行（判据见模块头注）
+function uiStoryIsMarkerLine(l)
+{
+	if(l === void || l === null) return false;
+	var tx = (l.tx === void) ? "" : ("" + l.tx);
+	if(tx == "") return false;
+	if(l.sp !== void && ("" + l.sp) != "") return false;
+	if(l.vo !== void && ("" + l.vo) != "") return false;
+	if(l.k !== void && ("" + l.k) == "title") return true;
+	if(UIStoryMarkerPool[tx] == 1) return true;
+	if(UIStoryScene !== void && UIStoryScene.title !== void && tx == ("" + UIStoryScene.title)) return true;
+	return false;
+}
+
+// 过场卡查表（0 起下标；无则 -1）
+function uiStoryEcIndex(sceneId)
+{
+	if(UIStoryEcTable === void || UIStoryEcTable.keys === void) return -1;
+	var ks = UIStoryEcTable.keys;
+	var s = "" + sceneId;
+	for(var i = 0; i < ks.count; i++)
+		if(("" + ks[i]) == s) return i;
+	return -1;
+}
+
+// ★ B3：进入一场时重置插点游标——取「本场首个插点」（表按 (场景,seq) 排；PSV 已同场去重）。
+function uiStoryEcSceneReset()
+{
+	UIStoryEcPending = uiStoryEcIndex(UIStoryCur);
+	UIStoryEcFired = false;
+	if(UIStoryEcPending >= 0)
+		Debug.message("[CHAPTER] 本场插点：seq=" + ("" + UIStoryEcTable.seqs[UIStoryEcPending])
+			+ " → " + ("" + UIStoryEcTable.imgs[UIStoryEcPending]));
+	else
+		Debug.message("[CHAPTER] 本场无过场插点：" + UIStoryCur);
+	return UIStoryEcPending;
+}
+
+// ★ B3：每行调用——当前行 seq ≥ 插点 seq 时弹卡（**同场只弹首次**）。
+//   触发口径与逐行演出同源：源侧 seq＝「在本行显示之前生效」⇒ cur ≥ due 即触发。
+function uiStoryEcOnLine()
+{
+	if(UIStoryEcPending < 0 || UIStoryEcFired) return false;
+	if(UIStoryEcTable === void || UIStoryEcTable.seqs === void) return false;
+	var due = 0;
+	try { due = 0 + UIStoryEcTable.seqs[UIStoryEcPending]; } catch(eD) { return false; }
+	var cur = 0;
+	try { if(UIDlgLine >= 0 && UIDlgLine < UIStoryScene.lines.count) cur = 0 + UIStoryScene.lines[UIDlgLine].sq; }
+	catch(eC) { cur = 0; }
+	if(cur < due) return false;
+	UIStoryEcFired = true;
+	Debug.message("[CHAPTER] 过场卡触发：行 seq=" + cur + " ≥ 插点 seq=" + due + "（" + UIStoryCur + "）");
+	return uiStoryEcStart(UIStoryEcPending);
+}
+
+// 随机取 [0,n)。TJS2 标准有 Math.random，但 krkrz 未实测（坑 69 同款谨慎）⇒ 安装时探测一次，
+// 异常/不存在则退化为「tick + 调用序号」扰动（同一次显示内连抽也能错开）。
+function uiStoryEcRand(n)
+{
+	if(UIStoryEcRandMode == "math")
+	{
+		try
+		{
+			var v = Math.floor(Math.random() * n);
+			return (v % n + n) % n;
+		}
+		catch(eR0) { UIStoryEcRandMode = "tick"; }
+	}
+	UIStoryEcRandSeq++;
+	var w = (System.getTickCount() + UIStoryEcRandSeq * 104729) % n;
+	return (w % n + n) % n;
+}
+
+// 抽 3 个互不相同的索引（149 件池 ⇒ 理论循环极短；guard 只是防呆）
+function uiStoryEcPick3(n)
+{
+	var out = [];
+	var guard = 0;
+	while(out.count < 3 && guard < n * 20 + 30)
+	{
+		guard++;
+		var i = uiStoryEcRand(n);
+		var dup = false;
+		for(var k = 0; k < out.count; k++) if(out[k] == i) { dup = true; break; }
+		if(dup) continue;
+		out.push(i);
+	}
+	return out;
+}
+
+// 显示过场卡（全屏 contain 居中 + 自动淡出 + 可点击跳过）
+// ★ B3：参数由「场景 id」改为**表下标 idx**（取数在 `uiStoryEcOnLine` 按 (场景,seq) 完成；
+//   弹卡/淡出/跳过机制本身未改）。
+function uiStoryEcStart(idx)
+{
+	if(idx < 0 || UIStoryEcTable === void || UIStoryEcTable.keys === void) return false;
+	if(idx >= UIStoryEcTable.keys.count) return false;
+	var sceneId = "" + UIStoryEcTable.keys[idx];
+	if(UIStoryWin === void || UIStoryWin === null) return false;
+	var sc = (UILayoutData !== void && UILayoutData.screens !== void) ? UILayoutData.screens["dialog"] : void;
+	if(sc === void || sc === null || sc.elements === void) return false;
+	var el = uiStoryFindEl(sc, UIStoryEcElId);
+	if(el === void || el === null) return false;
+	// 几何：按原生宽高 contain（4:3 卡左右留底色；16:9 件满屏）
+	var cw = 1920, ch = 1080;
+	try { cw = UIStoryWin.primaryLayer.width; ch = UIStoryWin.primaryLayer.height; } catch(eW) { }
+	var iw = 0, ih = 0;
+	try { iw = 0 + UIStoryEcTable.ws[idx]; ih = 0 + UIStoryEcTable.hs[idx]; } catch(eS) { }
+	if(iw <= 0 || ih <= 0) { iw = cw; ih = ch; }
+	var s = Math.min(cw / iw, ch / ih);
+	var dw = Math.floor(iw * s), dh = Math.floor(ih * s);
+	el.x = Math.floor((cw - dw) / 2); el.y = Math.floor((ch - dh) / 2); el.w = dw; el.h = dh;
+	el.asset = "" + UIStoryEcTable.imgs[idx];
+	// Q 版层（ISSUE-20261005-06）：每次显示随机抽 3 件不同素材（预缩放件与矩形由 emit_chibi 生成，
+	// 引擎只换 asset+矩形；池缺失/为空 ⇒ 只少 Q 版，过场卡本体不受影响）
+	try
+	{
+		var cf = UIStoryEcChibi.files, cr = UIStoryEcChibi.rects;
+		if(cf !== void && cr !== void && cf.count == 3 && cr.count == 3 && cf[0].count >= 3)
+		{
+			var pi = uiStoryEcPick3(0 + cf[0].count);
+			for(var k2 = 0; k2 < 3 && k2 < pi.count; k2++)
+			{
+				var elc = uiStoryFindEl(sc, UIStoryEcChibiElIds[k2]);
+				if(elc === void || elc === null) continue;
+				var fi = 0 + pi[k2];
+				var rc = cr[k2][fi];
+				elc.asset = "" + cf[k2][fi];
+				elc.x = 0 + rc.x; elc.y = 0 + rc.y; elc.w = 0 + rc.w; elc.h = 0 + rc.h;
+			}
+			Debug.message("[CHAPTER] Q 版随机 3 件：" + pi[0] + " / " + pi[1] + " / " + pi[2]);
+		}
+	}
+	catch(eC) { Debug.message("[CHAPTER][ERR] Q 版落位异常：" + eC.message); }
+	UIStoryEcActive = true; UIStoryEcAlpha = 255;
+	UIStoryEcT0 = System.getTickCount();
+	if(UIStoryEcTimer === null)
+	{
+		UIStoryEcTimer = new Timer(uiStoryEcTick, '');
+		UIStoryEcTimer.interval = 100;
+	}
+	UIStoryEcTimer.enabled = true;
+	Debug.message("[CHAPTER] 过场卡开始：" + sceneId + " → " + el.asset
+		+ "（" + iw + "×" + ih + " → " + dw + "×" + dh + " @(" + el.x + "," + el.y + ")）");
+	return true;
+}
+
+function uiStoryEcEnd(tag)
+{
+	if(UIStoryEcActive !== true) return false;
+	UIStoryEcActive = false; UIStoryEcAlpha = 255;
+	if(UIStoryEcTimer !== null) { try { UIStoryEcTimer.enabled = false; } catch(e0) { } }
+	Debug.message("[CHAPTER] 过场卡结束（" + tag + "）");
+	if(UIStoryWin !== null && UIStoryWin !== void)
+	{
+		try { UIStoryWin.redraw(); } catch(eR) { }
+	}
+	return true;
+}
+
+function uiStoryEcTick()
+{
+	if(UIStoryEcActive !== true) return;
+	var dt = System.getTickCount() - UIStoryEcT0;
+	if(dt <= UIStoryEcHoldMs) { UIStoryEcAlpha = 255; return; }
+	var p = (dt - UIStoryEcHoldMs) / UIStoryEcFadeMs;          // 0→1
+	if(p >= 1.0) { uiStoryEcEnd("自动淡出"); return; }
+	UIStoryEcAlpha = Math.floor(255 * (1.0 - p));
+	if(UIStoryWin !== null && UIStoryWin !== void)
+	{
+		try { UIStoryWin.redraw(); } catch(eR2) { }
+	}
+}
+
+// 跳过标记行（场景载入后 / 推进后共用）。返回跳过行数。
+function uiStoryChapterSkipMarkers(tag)
+{
+	if(!UIStoryChInstalled) return 0;
+	if(UIStoryScene === void || UIStoryScene.lines === void) return 0;
+	var n = 0;
+	while(UIDlgLine >= 0 && UIDlgLine < UIStoryScene.lines.count)
+	{
+		var l = UIStoryScene.lines[UIDlgLine];
+		if(!uiStoryIsMarkerLine(l)) break;
+		if(UIDlgLine + 1 >= UIStoryScene.lines.count) break;   // 末行：留给 end 链（整场皆标记的空拍）
+		Debug.message("[CHAPTER] 跳过标记行（" + tag + "）：" + UIStoryCur + " sq" + (0 + l.sq)
+			+ " k=" + ("" + l.k) + "「" + ("" + l.tx).substring(0, 18) + "」");
+		// 先整行显示再推进：orig advance 在「打字中」只回 typed 不推进（ISSUE-20261005-02 实测教训）
+		uiDialogCompleteTyping();
+		var r = UIStoryOrigAdvance();
+		if(r === void || r === null || r.action != "next") break;
+		uiStoryOnLine();
+		n++;
+	}
+	return n;
+}
+
+// 场景载入包装：载入成功 ⇒ 跳标记行 ＋ 按需播过场卡
+function uiStoryLoadWrapper(n)
+{
+	var ok = UIStoryOrigLoad(n);
+	try
+	{
+		if(ok === true)
+		{
+			// ★ B3：插点键＝(场景,seq)。装载时先重置本场插点，再由标记行跳过/逐行推进触发；
+			//   最后补一次检查，保证「插点 seq ≤ 首行 seq」（含 seq=0 的章首点）立即弹。
+			uiStoryEcSceneReset();
+			uiStoryChapterSkipMarkers("载入");
+			uiStoryEcOnLine();
+		}
+	}
+	catch(e) { Debug.message("[CHAPTER][ERR] 载入包装异常：" + e.message); }
+	return ok;
+}
+
+// ctx 覆盖：过场卡显示中 → 藏对话框件＋显示卡图；整场皆标记的空拍 → 藏对话框件
+function uiStoryChapterCtxWrapper(stage, screen)
+{
+	var ctx = UIStoryOrigBuildCtx(stage, screen);
+	try
+	{
+		if(UIStoryEcActive === true)
+		{
+			for(var h = 0; h < UIStoryEcHideIds.count; h++) ctx.hide[UIStoryEcHideIds[h]] = true;
+			ctx.forceShow[UIStoryEcElId] = true;
+			ctx.opacityOverride[UIStoryEcElId] = UIStoryEcAlpha;
+			// Q 版 3 元素与过场卡同进同退（ISSUE-20261005-06）
+			for(var h3 = 0; h3 < UIStoryEcChibiElIds.count; h3++)
+			{
+				ctx.forceShow[UIStoryEcChibiElIds[h3]] = true;
+				ctx.opacityOverride[UIStoryEcChibiElIds[h3]] = UIStoryEcAlpha;
+			}
+			return ctx;
+		}
+		if(UIStoryScene !== void && UIStoryScene.lines !== void
+			&& UIDlgLine >= 0 && UIDlgLine < UIStoryScene.lines.count
+			&& uiStoryIsMarkerLine(UIStoryScene.lines[UIDlgLine]))
+		{
+			for(var h2 = 0; h2 < UIStoryEcHideIds.count; h2++) ctx.hide[UIStoryEcHideIds[h2]] = true;
+		}
+	}
+	catch(e) { Debug.message("[CHAPTER][ERR] ctx 覆盖异常：" + e.message); }
+	return ctx;
+}
+
+// 过场卡显示中：点击/按键＝结束过场（吞掉，不推进剧情）；按下同理
+function uiStoryChapterClickWrapper(stage, screen, x, y)
+{
+	try
+	{
+		if(UIStoryEcActive === true) { uiStoryEcEnd("点击跳过"); return %[ action: "", hit: true ]; }
+	}
+	catch(eC2) { Debug.message("[CHAPTER][ERR] 点击包装异常：" + eC2.message); }
+	return UIStoryOrigDlgClick(stage, screen, x, y);
+}
+
+function uiStoryChapterKeyWrapper(key)
+{
+	try
+	{
+		// ★ 返回形状＝字典（ISSUE-20261005-01 教训：UI 组 handleKey 取 .handled）
+		if(UIStoryEcActive === true) { uiStoryEcEnd("按键跳过"); return %[ handled: true, action: "move" ]; }
+	}
+	catch(eK2) { Debug.message("[CHAPTER][ERR] 按键包装异常：" + eK2.message); }
+	try { return UIStoryOrigKey(key); } catch(eK3) { return %[ handled: false ]; }
+}
+
+function uiStoryChapterPressWrapper(x, y)
+{
+	try { if(UIStoryEcActive === true) return false; } catch(eP2) { }
+	try { return UIStoryOrigPress(x, y); } catch(eP3) { return false; }
+}
+
+// 安装（uiStoryWindowInit 布局就绪后调用；幂等）。缺表/缺屏 ⇒ 整体退场并明说。
+function uiStoryChapterInstall()
+{
+	if(UIStoryChInstalled) return true;
+	// ① 标记串全集（_intro 生成物，ui_flowwire 开机装载）
+	try
+	{
+		if(UIIntroTitles === void || UIIntroTexts === void || UIActLabels === void
+			|| UIActTitles === void || UIActIntros === void)
+		{
+			Debug.message("[CHAPTER][ERR] UIIntro*/UIAct* 未装载（ui_flowwire/_intro.tjs）⇒ 章节过场功能退场");
+			return false;
+		}
+		var nAll = 0;
+		var i, t;
+		for(i = 0; i < UIIntroTitles.count; i++)
+		{
+			t = "" + UIIntroTitles[i];
+			if(t != "") { if(UIStoryMarkerPool[t] !== 1) nAll++; UIStoryMarkerPool[t] = 1; }
+		}
+		for(i = 0; i < UIActLabels.count; i++)
+		{
+			t = "" + UIActLabels[i];
+			if(t != "") { if(UIStoryMarkerPool[t] !== 1) nAll++; UIStoryMarkerPool[t] = 1; }
+		}
+		for(i = 0; i < UIActTitles.count; i++)
+		{
+			t = "" + UIActTitles[i];
+			if(t != "") { if(UIStoryMarkerPool[t] !== 1) nAll++; UIStoryMarkerPool[t] = 1; }
+		}
+		for(i = 0; i < UIIntroTexts.count; i++)
+		{
+			t = "" + UIIntroTexts[i];
+			if(t != "") { if(UIStoryMarkerPool[t] !== 1) nAll++; UIStoryMarkerPool[t] = 1; }
+		}
+		for(i = 0; i < UIActIntros.count; i++)
+		{
+			t = "" + UIActIntros[i];
+			if(t != "") { if(UIStoryMarkerPool[t] !== 1) nAll++; UIStoryMarkerPool[t] = 1; }
+		}
+		Debug.message("[CHAPTER] 标记串全集 " + nAll + " 条");
+	}
+	catch(eP) { Debug.message("[CHAPTER][ERR] 标记串全集构建失败：" + eP.message); return false; }
+	// ② 过场插点表（生成物；缺件 ⇒ 退场并明说——表文件只定义 `uiEyecatchFill(o)`，
+	//    由这里传入本模块声明的字典填充，见表头上方说明）
+	//    ★ **先判存在再 exec**：对不存在的存储调 `execStorage` 会抛错，而 krkrz 对
+	//      **被 catch 的异常仍打整段 dump** ⇒ 污染「EXCEPTION 0」判定线（与影片探针同款教训）。
+	UIStoryEcTable = %[ keys: [], imgs: [], ws: [], hs: [] ];
+	var exT = false;
+	try { exT = Storages.isExistentStorage("story/_eyecatch.tjs"); } catch(eT0) { exT = false; }
+	if(!exT)
+	{
+		Debug.message("[CHAPTER][warn] 缺 story/_eyecatch.tjs ⇒ 无过场卡（标记行抑制仍生效）");
+	}
+	else
+	{
+		try
+		{
+			Scripts.execStorage("story/_eyecatch.tjs");
+			var nEc = 0;
+			if(uiEyecatchFill !== void) nEc = 0 + uiEyecatchFill(UIStoryEcTable);
+			if(nEc <= 0) Debug.message("[CHAPTER][warn] 过场插点表为空 ⇒ 无过场卡（标记行抑制仍生效）");
+			else Debug.message("[CHAPTER] 过场插点表 " + nEc + " 条");
+		}
+		catch(eT)
+		{
+			Debug.message("[CHAPTER][ERR] 过场插点表装载失败：" + eT.message + "（标记行抑制仍生效）");
+			UIStoryEcTable = %[ keys: [], imgs: [], ws: [], hs: [] ];
+		}
+	}
+	// ②' Q 版人物池（ISSUE-20261005-06；缺件/为空 ⇒ 只少 Q 版，过场卡本体不受影响）
+	UIStoryEcChibi = %[ slots: [], files: [], rects: [] ];
+	var exC = false;
+	try { exC = Storages.isExistentStorage("story/_eyecatch_chibi.tjs"); } catch(eC0) { exC = false; }
+	if(!exC)
+	{
+		Debug.message("[CHAPTER][warn] 缺 story/_eyecatch_chibi.tjs ⇒ 过场卡不带 Q 版（本体仍显示）");
+	}
+	else
+	{
+		try
+		{
+			Scripts.execStorage("story/_eyecatch_chibi.tjs");
+			var nCb = 0;
+			if(uiEyecatchChibiFill !== void) nCb = 0 + uiEyecatchChibiFill(UIStoryEcChibi);
+			if(nCb <= 0) Debug.message("[CHAPTER][warn] Q 版池为空 ⇒ 过场卡不带 Q 版");
+			else Debug.message("[CHAPTER] Q 版池 " + nCb + " 件 × 3 槽（随机源见安装尾）");
+		}
+		catch(eC1)
+		{
+			Debug.message("[CHAPTER][ERR] Q 版池装载失败：" + eC1.message + "（过场卡本体仍显示）");
+			UIStoryEcChibi = %[ slots: [], files: [], rects: [] ];
+		}
+	}
+	// ③ 过场卡元素（运行期追加，幂等；image，默认隐藏）
+	try
+	{
+		var sc = (UILayoutData !== void && UILayoutData.screens !== void) ? UILayoutData.screens["dialog"] : void;
+		if(sc === void || sc === null || sc.elements === void)
+		{
+			Debug.message("[CHAPTER][ERR] dialog 屏数据未就绪 ⇒ 章节过场功能退场");
+			return false;
+		}
+		if(uiStoryFindEl(sc, UIStoryEcElId) === void)
+		{
+			sc.elements.push(%[
+				id: UIStoryEcElId, kind: "image", z: 50, visible_default: false,
+				x: 0, y: 0, w: 1920, h: 1080, asset: "",
+				note: "ISSUE-20261005-03 运行期追加：章节过场卡（全屏图，几何按原生宽高 contain，运行期设置）" ]);
+			Debug.message("[CHAPTER] 过场卡元素已追加：" + UIStoryEcElId);
+		}
+		// Q 版 3 元素（运行期追加，幂等；z 高于过场卡，随过场卡一起淡出；几何每次显示设置）
+		for(var k3 = 0; k3 < UIStoryEcChibiElIds.count; k3++)
+		{
+			if(uiStoryFindEl(sc, UIStoryEcChibiElIds[k3]) === void)
+			{
+				sc.elements.push(%[
+					id: UIStoryEcChibiElIds[k3], kind: "image", z: 51 + k3, visible_default: false,
+					x: 0, y: 0, w: 480, h: 1080, asset: "",
+					note: "ISSUE-20261005-06 运行期追加：章节过场卡·Q 版人物（每次显示随机，几何运行期设置）" ]);
+			}
+		}
+	}
+	catch(eE) { Debug.message("[CHAPTER][ERR] 过场元素追加失败：" + eE.message); return false; }
+	// ④ 包装（capture-then-wrap；**全部挂上才置 installed**，避免半装静默失效）
+	var ok = true;
+	if(UIStoryOrigLoad === void && uiStoryLoad !== void) { UIStoryOrigLoad = uiStoryLoad; uiStoryLoad = uiStoryLoadWrapper; }
+	else if(UIStoryOrigLoad === void) { ok = false; Debug.message("[CHAPTER][ERR] uiStoryLoad 未就绪"); }
+	if(UIStoryOrigBuildCtx === void && uiDialogBuildCtx !== void) { UIStoryOrigBuildCtx = uiDialogBuildCtx; uiDialogBuildCtx = uiStoryChapterCtxWrapper; }
+	else if(UIStoryOrigBuildCtx === void) { ok = false; Debug.message("[CHAPTER][ERR] uiDialogBuildCtx 未就绪"); }
+	if(UIStoryOrigDlgClick === void && uiDialogClick !== void) { UIStoryOrigDlgClick = uiDialogClick; uiDialogClick = uiStoryChapterClickWrapper; }
+	else if(UIStoryOrigDlgClick === void) { ok = false; Debug.message("[CHAPTER][ERR] uiDialogClick 未就绪"); }
+	try
+	{
+		if(uiScreenKey !== void && UIStoryOrigKey === void) { UIStoryOrigKey = uiScreenKey; uiScreenKey = uiStoryChapterKeyWrapper; }
+		if(uiScreenPressUpdate !== void && UIStoryOrigPress === void) { UIStoryOrigPress = uiScreenPressUpdate; uiScreenPressUpdate = uiStoryChapterPressWrapper; }
+	}
+	catch(eW) { Debug.message("[CHAPTER][ERR] 键/按下包装未挂：" + eW.message); }
+	if(!ok) { Debug.message("[CHAPTER][ERR] 包装未挂全 ⇒ 章节过场不生效"); return false; }
+	// ⑤ 随机源探测（TJS2 标准有 Math.random，krkrz 未实测 ⇒ 探一次并记日志；异常退化为 tick+序号）
+	try { var prb = Math.random(); UIStoryEcRandMode = (prb >= 0.0 && prb < 1.0) ? "math" : "tick"; }
+	catch(eR5) { UIStoryEcRandMode = "tick"; }
+	UIStoryChInstalled = true;
+	Debug.message("[CHAPTER] 章节过场已安装（标记行抑制 + 过场卡：全屏图/自动淡出/点击跳过 + Q 版随机 3 件"
+		+ "，随机源=" + UIStoryEcRandMode + "）");
+	return true;
+}
+
+// ------------------------------------------------------------
+// 包装安装（capture-then-wrap）
+// ------------------------------------------------------------
+// ★ 三个包装器一律「只保护自己的逻辑」：UI 组原函数照常调用（其异常按原样上抛），
+//   本层逻辑用 try/catch 兜住并在失败时回落到原结果 —— 遵守 UI 组纪律
+//   「包装他人函数必须 try/catch 并回落原路径，否则一个异常会连带打黑共用该入口的所有屏」
+//   （`引擎工作原理.md` §5.7 方法论 2；对照 `ui_flow.tjs` 的三段包装）。一审重要-3。
+function uiStoryAdvanceWrapper()
+{
+	var r = UIStoryOrigAdvance();
+	try
+	{
+		if(r !== void && r !== null)
+		{
+			if(r.action == "next")
+			{
+				uiStoryOnLine();
+				// ★ 章节过场（ISSUE-20261005-03）：推进后把标记行（标题/简介＝元数据）一并跳过，
+				//   不在对话框显示；跳过后落在场景末的情形由下一次点击走既有 end 链。
+				uiStoryChapterSkipMarkers("推进");
+			}
+			else if(r.action == "end") return uiStoryGoNext();
+		}
+	}
+	catch(e) { Debug.message("[STORY][ERR] advance 包装异常：" + e.message); }
+	return r;
+}
+
+function uiStoryCommitWrapper(i)
+{
+	var msg = UIStoryOrigCommit(i);
+	try { uiStoryChoose((i === void) ? 0 : i); }
+	catch(e) { Debug.message("[STORY][ERR] 选择包装异常：" + e.message); }
+	return msg;
+}
+
+function uiStoryDispatchWrapper(action, index)
+{
+	var act = "" + action;
+	var postScr = "";                    // 需要在原派发**之后**才刷新的屏
+	var postFlow = false;                // 流程图屏需要在其后取数
+
+	// ★ 新动作 `return_to_dialog`（ISSUE-20261002-09，用户 2026-10-02 要求①②③）：
+	//   把屏栈弹到 "dialog"（栈内无 dialog 时退化为关一层）。**本包装自己消化，不进原派发**
+	//   ——原派对它只会落「未实现的动作」回落。实现与口径见 `ui_sysreturn.tjs`。
+	//   调用方：SAVE/LOAD 顶部「返回游戏」、SAVE/LOAD 右下「返回」、CONFIG「返回游戏」、
+	//           以及四屏（backlog/save/load/config/flowchart）的**右键**。
+	try
+	{
+		// ★ 标题屏「继续」＝**真续玩**（ISSUE-20261003-06）：读最近存档（场景＋行号）回到对话框。
+		//   原实现落到 UI 组的演示逻辑（读回"演示台词序号"），与真实存档无关。
+		//   **没有存档时原样放行**（不吞动作）—— 交给 UI 组既有的 game_continue 回落，行为不回归。
+		if(act == "game_continue")
+		{
+			if(uiSaveContinue())
+			{
+				if(uiScreenCurrent() != "dialog") uiScreenReset("dialog");
+				Debug.message("[STORY] 继续 → 槽 " + UISaveLastSlot + " ｜ 场景 " + UIStoryCur + " 行 " + UIDlgLine);
+				if(UIStoryWin !== null && UIStoryWin !== void)
+				{
+					try { UIStoryWin.redraw(); } catch(eRD2) { }
+				}
+				return %[ handled: true, effect: "", msg: "继续：读回最近存档（场景 " + UIStoryCur + " 行 " + UIDlgLine + "）" ];
+			}
+		}
+		if(act == "return_to_dialog")
+		{
+			var okRTD = uiStoryReturnToDialog();
+			if(UIStoryWin !== null && UIStoryWin !== void)
+			{
+				try { UIStoryWin.redraw(); } catch(eRD) { }
+			}
+			return %[ handled: true, effect: "", msg: okRTD ? "返回对话框" : "无对话上下文，已关一层" ];
+		}
+	}
+	catch(eRTD) { Debug.message("[STORY][ERR] return_to_dialog 异常：" + eRTD.message); }
+
+	// ★ 点选**场景级节点**进入该场景（ISSUE-20261003-18，编程组自定义动作名并登记）：
+	//   唯一发出方 = `ui_flowfull.tjs::uiFlowFullClickWrapped`（视口内命中某个自绘节点时
+	//   返回 `%[action:"flow_scene_enter", index:<节点下标>]`；`index` 即节点下标，
+	//   经 `UIFlowGeomIds` 换成语料 scene id，再交给 `uiStoryStart()` 开局）。
+	//   开局成功后**自己推 dialog 屏**：照 UI 组 `flow_enter` 的形制（`uiDialogReset()` +
+	//   `uiScreenPush("dialog")`）——`flow_scene_enter` 是本组自定动作，UI 组的派发器不认它。
+	//   本分支**提前 return**（与上方 `game_continue` / `return_to_dialog` 同法），不再往下派发。
+	if(act == "flow_scene_enter")
+	{
+		try { UIFullAskIdx = -1; } catch(eFA0) { }     // ★ 关掉可能开着的确认卡（模态收尾）
+		if(("" + uiScreenCurrent()) == "flowchart")
+		{
+			// ⚠️ 直接调用，**不写 `typeof … == "Function"`**：TJS2 的 typeof 对本机函数不返回
+			//   "Function"（引擎工作原理 §5.4）⇒ 那种守卫恒为假，会静默让点选进不了场景。
+			//   `ui_flowfull.tjs` 由 `ui_boot.tjs` 在启动时无条件装载，函数必定存在。
+			var _okE = false;
+			try { _okE = uiFlowFullEnterScene((index === void) ? -1 : index); }
+			catch(eFE) { Debug.message("[STORY][ERR] flow_scene_enter 异常：" + eFE.message); _okE = false; }
+			if(_okE)
+			{
+				try { uiDialogReset(); uiScreenPush("dialog"); } catch(eFP) { Debug.message("[STORY][ERR] 推 dialog 失败：" + eFP.message); }
+				if(UIStoryWin !== null && UIStoryWin !== void)
+				{
+					try { UIStoryWin.redraw(); } catch(eFR) { }
+				}
+				return %[ handled: true, effect: "", msg: "进入场景 " + UIStoryCur ];
+			}
+			return %[ handled: true, effect: "", msg: "进入场景失败（节点无场景 id 或场景不在切片内）" ];
+		}
+	}
+
+	// ★ 点选跳转确认卡（ISSUE-20261004-03，原作 `askJump`）：`flow_ask_open` 开卡、
+	//   `flow_ask_close` 关卡。两者都只改自绘的运行期状态并请一帧重绘，不改任何屏数据。
+	if(act == "flow_ask_open" || act == "flow_ask_close")
+	{
+		if(("" + uiScreenCurrent()) == "flowchart")
+		{
+			try {
+				UIFullAskIdx = (act == "flow_ask_open") ? (0 + index) : -1;
+				if(UIFullAskIdx >= UIFlowGeomNodes.count) UIFullAskIdx = -1;
+			}
+			catch(eFA) { UIFullAskIdx = -1; Debug.message("[STORY][ERR] 确认卡状态异常：" + eFA.message); }
+			if(UIStoryWin !== null && UIStoryWin !== void)
+			{
+				try { UIStoryWin.redraw(); } catch(eFAr) { }
+			}
+			return %[ handled: true, effect: "", msg: "流程图确认卡 " + ((UIFullAskIdx >= 0) ? ("打开 #" + UIFullAskIdx) : "关闭") ];
+		}
+	}
+
+	// ★ 页签切页（ISSUE-20261004-03）：自绘页签条返回 `flow_page_enter` + 目标页下标。	//   同为自定动作（UI 组派发器不认），与 `flow_scene_enter` 同法提前 return。
+	//   门槛 = 自绘开关（`flowfull.txt`）：没开自绘时页签条根本不存在、本分支不可达。
+	if(act == "flow_page_enter")
+	{
+		if(("" + uiScreenCurrent()) == "flowchart")
+		{
+			var _okP = false;
+			try { _okP = uiFlowFullSelectPage((index === void) ? -1 : index); }
+			catch(eFPg) { Debug.message("[STORY][ERR] flow_page_enter 异常：" + eFPg.message); _okP = false; }
+			if(_okP && UIStoryWin !== null && UIStoryWin !== void)
+			{
+				try { UIStoryWin.redraw(); } catch(eFPr) { }
+			}
+			return %[ handled: true, effect: "", msg: "切到流程图页 " + index + "（" + ((_okP) ? "ok" : "失败") + "）" ];
+		}
+	}
+
+	// ★ 流程图屏的滚轮 = **缩放**（ISSUE-20261003-18；用户 2026-09-30 裁定的交互模型「滚轮缩放」）：
+	//   与下面 dialog 屏同一手法 —— UI 组 `startup.tjs::onMouseWheel` 把滚轮映射成
+	//   page_prev(+)/page_next(−)，而流程图屏没有列表 ⇒ 这两个动作在本屏只可能来自滚轮，改写不会撞车。
+	//   门槛 = 自绘开关（`flowfull.txt`）：没开自绘时本屏保持原状，行为与改动前**逐字相同**。
+	try
+	{
+		if((act == "page_prev" || act == "page_next") && uiScreenCurrent() == "flowchart")
+		{
+			// ⚠️ 同 `flow_scene_enter`：不写 typeof 守卫（TJS2 对本机函数不返回 "Function"）
+			var _canF = false;
+			try { _canF = uiFlowFullInteractive(); }
+			catch(eQF) { _canF = false; }
+			if(_canF)
+			{
+				uiFlowFullWheel((act == "page_prev") ? 1 : -1);
+				if(UIStoryWin !== null && UIStoryWin !== void)
+				{
+					try { UIStoryWin.redraw(); } catch(eWZ) { }
+				}
+				return %[ handled: true, effect: "", msg: "流程图缩放 z=" + UIFullZoom ];
+			}
+		}
+	}
+	catch(eWF) { Debug.message("[STORY][WHEEL][ERR] 流程图缩放异常：" + eWF.message); }
+
+	// ★ 滚轮重定向（ISSUE-20261001-11，用户 2026-10-01 要求）：
+	//   UI 组 onMouseWheel 把「滚轮向上」映射为 page_prev、「向下」映射为 page_next（原用于列表翻页）。
+	//   **仅当当前屏是 dialog** 时改写：向上 → 打开回想（backlog）、向下 → 等价左键推进（advance_dialog）。
+	//   其它屏保持原样（存/读档、鉴赏、回想等屏的滚轮仍用于列表翻页）。
+	//   理由：dialog 屏没有列表 ⇒ 这两个动作在本屏只可能来自滚轮，改写不会撞车。
+	try
+	{
+		if(uiScreenCurrent() == "dialog")
+		{
+			if(act == "page_next")      { act = "advance_dialog";
+				Debug.message("[STORY][WHEEL] 滚轮向下 → advance_dialog（等价左键推进）"); }
+			else if(act == "page_prev") { act = "open_backlog";
+				Debug.message("[STORY][WHEEL] 滚轮向上 → open_backlog（打开回想）"); }
+		}
+	}
+	catch(eW) { Debug.message("[STORY][WHEEL][ERR] 重定向异常：" + eW.message); }
+
+	try
+	{
+		if(act == "game_start")
+		{
+			// ★ 槽②（用户裁定：本篇 OP①）：先播 OP，播完/跳过后再走原来的「开局」两步。
+			//   接管成功就**提前 return**（不再往下派发），避免 dialog 屏在影片底下先推出来。
+			if(uiMovieShouldPlayEnter() === true)
+			{
+				UIMoviePlayedEnter = true;
+				uiMoviePlay(UIMovieSlotEnter, uiMovieEnterResume);
+				return %[ handled: true, effect: "", msg: "已接管 game_start：先播片头 OP（" + UIMovieSlotEnter + "）" ];
+			}
+			uiStoryStart();
+		}
+		// ★ 一审提示-7：音量/静音设置改动后让音频层实时生效（原 `uiAudioApplyVolume` 无调用点）
+		else if(act.indexOf("config_set_") == 0 || act.indexOf("config_mute_") == 0
+			|| act.indexOf("config_reset") == 0) uiAudioApplyVolume();
+		// ★ 存/读档：槽位刷新必须排在**推屏之后** —— 推屏会跑 `uiScreenFlagsInitFor`
+		//   把 `sv_s<N>` 等屏级 flag 重置成默认值，先刷会被冲掉（实测「无数据」标记不出现）。
+		else if(act == "open_save") postScr = "save";
+		else if(act == "open_load") postScr = "load";
+		else if(act.indexOf("slot_") == 0)
+			uiStorySlotAction(1 * act.substring(5));      // substring(起点) ⇒ 取槽号
+		// ★ UI 组 §4.2 C 类：回想 / 确认框 / 页码
+		else if(act.indexOf("bgm_play:") == 0) uiStoryBgmGallery(1 * act.substring(9));
+		else if(act.indexOf("bgm_") == 0) uiStoryBgmTransport(act);
+		else if(act.indexOf("backlog_replay:") == 0) uiStoryBacklogReplay(1 * act.substring(15));
+		else if(act.indexOf("backlog_jump:") == 0)   uiStoryBacklogJump(1 * act.substring(13));
+		else if(act == "confirm_yes") { uiStoryConfirmYes(); }
+		else if(act == "confirm_no")  { uiStoryConfirmNo(); }
+		else if(act.indexOf("page_") == 0)
+		{
+			// ★ 存/读档屏页码（ISSUE-20261003-06）：本屏是 12 槽/页 × 10 页 = 120 槽，
+			//   `page_<N>` 切到第 N 页；`page_prev`/`page_next`（滚轮在列表屏的翻页语义）不在此列
+			//   —— 它们在 dialog 屏已被改写成 advance/open_backlog（见本函数开头）。
+			var _pg = act.substring(5);
+			// 滚轮在该屏被映射成 `page_prev`/`page_next`（非数字）⇒ 静默跳过，
+			// 否则每次滚轮都会打一行「page_0 越界…忽略」（一审 Minor-4）。
+			if(_pg != "" && "0123456789".indexOf(_pg.charAt(0)) >= 0) uiSaveSetPage(1 * _pg);
+		}
+		// ★ 流程图屏取数（章节简介/详情浮层/画面窗/切集/进入本章）
+		else if(act == "flow_mode_main") { uiFlowWireMode("main"); postFlow = true; }
+		else if(act == "flow_mode_frag") { uiFlowWireMode("frag"); postFlow = true; }
+		else if(act == "flow_enter") { uiFlowWireEnter(); postFlow = true; }
+		// ★ 进入流程图屏时把**视图复位**（ISSUE-20261003-18）：在原点的默认视图上开局，
+		//   避免上次拖动/缩放的残留位置让玩家"打开就看到半空"。
+		else if(act == "open_flowchart")
+		{
+			// ⚠️ **必须与绘制同门槛**（一审打回项）：`uiFlowFullResetView()` 首行会
+			//   `uiFlowFullLoadGeometry()` → `Scripts.execStorage("story/_flowgeom.tjs")`
+			//   ＋分配 712 元素数组＋打两行 [FLOWFULL] 日志。成品（无 flowfull.txt）若照跑，
+			//   「成品零行为改变」就不成立。故先问 `UIFullHookEnabled`（＝flowfull.txt 在不在），
+			//   与滚轮缩放/命中链同一判据。
+			if(UIFullHookEnabled === true)
+			{
+				try { uiFlowFullResetView(); } catch(eRF2) { }      // 不用 typeof 守卫（TJS2 对本机函数不返回 "Function"）
+			}
+			postFlow = true;
+		}
+		else if(act.indexOf("flow_node_") == 0 || act == "flow_layer"
+			|| act.indexOf("flowchart") >= 0) postFlow = true;
+	}
+	catch(e) { Debug.message("[STORY][ERR] 派发包装异常：" + e.message); }
+
+	// ★ 必须派发**替换后的** act：滚轮在 dialog 屏被改写成 advance_dialog/open_backlog（见上）
+	var r = UIStoryOrigDispatch(act, index);
+
+	try { if(postScr != "") uiSaveApplyToScreen(postScr); }
+	catch(e2) { Debug.message("[STORY][ERR] 屏刷新异常：" + e2.message); }
+	try { if(postFlow) uiFlowWireApply(); }
+	catch(e3) { Debug.message("[STORY][ERR] 流程图取数异常：" + e3.message); }
+	return r;
+}
+
+// 存/读档屏上的槽位点击（热区 action = `slot_<N>`，N 从 1 起）
+function uiStorySlotAction(n)
+{
+	if(n < 1) return;
+	// ★ 翻页（ISSUE-20261003-06）：屏上 12 个热区是**页内序号**，映射到全局槽号 1..120。
+	var slot = uiSaveSlotOf(n);
+	var scr = "" + uiScreenCurrent();
+	if(scr == "save")
+	{
+		uiSaveRefreshAll();
+		if(UISaveExists[slot] === true)
+		{
+			UIStoryPending = "overwrite_save"; UIStoryPendingArg = slot;
+			Debug.message("[STORY] 槽 " + slot + "（第 " + UISavePage + " 页第 " + n + " 格）已有存档 ⇒ 弹确认框（confirm_yes 才覆盖）");
+			uiScreenPush("confirm");
+			return;
+		}
+		uiSaveWrite(slot);
+	}
+	else if(scr == "load")
+	{
+		if(uiSaveRead(slot))
+		{
+			if(uiScreenCurrent() == "load") uiScreenReset("dialog");
+			UIStoryMsg = "读档 → " + UIStoryCur;
+			Debug.message("[STORY] " + UIStoryMsg);
+		}
+	}
+	else
+	{
+		Debug.message("[STORY][warn] slot_" + n + " 在非存/读档屏触发（当前=" + scr + "）");
+	}
+}
+
+// ------------------------------------------------------------
+// ★ CTRL 强制快进（ISSUE-20261001-14 · 用户 2026-10-01 要求③）
+// ------------------------------------------------------------
+// 包装全局 `uiScreenKey`（capture-then-wrap；ui_flow.tjs 已包一层 ⇒ 本层链式叠加）。
+//   ⚠️ 只拦 `key==17` 且当前屏 dialog；其余键**原样回落**到上一层的 uiScreenKey，
+//      UI 组的空格/回车/方向键/Esc 等路径完全不受影响。
+//   ★ 额外守卫 `!UIDlgChoicesOpen`：选择肢已展开时**不启动**快进 —— 否则玩家按住 CTRL
+//     不放（引擎按键重复）会在选择肢屏上「启动→遇选择支停止」反复切换、刷日志。
+//     （无论有没有这条守卫都**绝不自动选项**：快进拍遇 choices 一律停止。）
+function uiStorySkipKey(key)
+{
+	try
+	{
+		if(key == 17 && uiScreenCurrent() == "dialog" && !UIDlgChoicesOpen)
+		{
+			uiStorySkipStart();
+			return %[ handled: true, action: "skip_hold" ];
+		}
+	}
+	catch(e)
+	{
+		Debug.message("[STORY][SKIP][ERR] uiScreenKey 包装异常：" + e.message);
+	}
+	if(UIStorySkipOrigKey === void || UIStorySkipOrigKey === null)
+		return %[ handled: false, action: "" ];
+	return UIStorySkipOrigKey(key);
+}
+
+function uiStorySkipWrapKey()
+{
+	if(UIStorySkipOrigKey !== void && UIStorySkipOrigKey !== null) return true;   // 幂等
+	if(uiScreenKey === void)
+	{
+		Debug.message("[STORY][SKIP][ERR] uiScreenKey 未就绪，CTRL 快进**未包装**");
+		return false;
+	}
+	UIStorySkipOrigKey = uiScreenKey;
+	uiScreenKey = uiStorySkipKey;
+	Debug.message("[STORY][SKIP] uiScreenKey 已包装（key=17=CTRL ⇒ 对话框屏强制快进）");
+	return true;
+}
+
+// 开始快进（幂等）：置 UI 组 `UIDlgSkipMode`（⇒「快进中」标签亮）+ 开启 40ms Timer。
+function uiStorySkipStart()
+{
+	if(UIStorySkipOn)
+	{
+		// 重复按下（引擎按键重复）：幂等 —— 只确保 Timer 在跑
+		try { if(UIStorySkipTimer !== null) UIStorySkipTimer.enabled = true; } catch(eR) { }
+		return;
+	}
+	UIStorySkipOn = true;
+	UIStorySkipTicks = 0;
+	UIStorySkipVoiceLog = false;
+	UIDlgSkipMode = true;                       // UI 组全局：dlg.mode_tag 显示「快进中」
+	try
+	{
+		if(UIStorySkipTimer === null)
+		{
+			UIStorySkipTimer = new Timer(uiStorySkipTick, '');   // ★ 赋给全局，防回收
+			UIStorySkipTimer.interval = 40;
+		}
+		UIStorySkipTimer.enabled = true;
+	}
+	catch(e)
+	{
+		UIStorySkipTimer = null;
+		UIStorySkipOn = false;
+		UIDlgSkipMode = false;
+		Debug.message("[STORY][SKIP][ERR] Timer 建立失败（快进未启动）：" + e.message);
+		return;
+	}
+	Debug.message("[STORY][SKIP] CTRL 按下 → 开始强制快进（40ms/拍）｜UIDlgSkipMode=1（快进中）");
+}
+
+// 停止快进（幂等）：无论是否在快进，都确保 `UIDlgSkipMode=false` 且 Timer 停。
+function uiStorySkipStop()
+{
+	if(!UIStorySkipOn)
+	{
+		UIDlgSkipMode = false;                  // 幂等：未在快进也要保证 UI 状态为「非快进」
+		try { if(UIStorySkipTimer !== null) UIStorySkipTimer.enabled = false; } catch(e0) { }
+		return;
+	}
+	UIStorySkipOn = false;
+	UIDlgSkipMode = false;
+	try { if(UIStorySkipTimer !== null) UIStorySkipTimer.enabled = false; } catch(e) { }
+	Debug.message("[STORY][SKIP] 停止快进（共 " + UIStorySkipTicks + " 拍）｜UIDlgSkipMode=0");
+}
+
+// 快进驱动（Timer 回调，40ms/拍）：
+//   每拍先整行显示（`uiDialogCompleteTyping`）再推进（`uiDialogAdvance`，走既有包装链）。
+//   · `choices` ⇒ **立即停止**（绝不自动选项）；
+//   · 屏已不是 dialog ⇒ 停止（玩家打开了回想/存档等）；
+//   · `advance` 内部经 uiStoryAdvanceWrapper 处理跨场景推进，`end` 由既有包装处理。
+function uiStorySkipTick()
+{
+	if(!UIStorySkipOn) return;
+	try
+	{
+		if(uiScreenCurrent() != "dialog")
+		{
+			Debug.message("[STORY][SKIP] 当前屏=" + uiScreenCurrent() + " ≠ dialog ⇒ 停止快进");
+			uiStorySkipStop();
+			return;
+		}
+		UIStorySkipTicks++;
+		uiDialogCompleteTyping();
+		var r = uiDialogAdvance();
+		if(r !== void && r !== null)
+		{
+			if(r.action == "choices")
+			{
+				Debug.message("[STORY][SKIP] 遇到选择支 ⇒ 停止快进（不自动选项）");
+				uiStorySkipStop();
+				return;
+			}
+		}
+		// 主动重画（advance 不改画面；UI 组 blink 定时器 120ms 才重画一次，40ms 节拍下要自己刷）
+		if(UIStoryWin !== null && UIStoryWin !== void)
+		{
+			try { UIStoryWin.redraw(); } catch(eR) { }
+		}
+		if((UIStorySkipTicks % 25) == 0)        // 约每 1 秒一行进度
+			Debug.message("[STORY][SKIP] 快进中… " + UIStorySkipTicks + " 拍｜" + uiStorySummary());
+	}
+	catch(e)
+	{
+		Debug.message("[STORY][SKIP][ERR] 快进拍异常：" + e.message);
+		uiStorySkipStop();
+	}
+}
+
+// onKeyUp（挂到**窗口实例**上，具名全局函数）：CTRL 松开 ⇒ 停止快进。
+function uiStorySkipKeyUp(key, shift)
+{
+	try
+	{
+		if(key == 17)
+		{
+			if(UIStorySkipOn)
+			{
+				Debug.message("[STORY][SKIP] CTRL 松开 → 停止快进");
+				uiStorySkipStop();
+			}
+		}
+	}
+	catch(e)
+	{
+		Debug.message("[STORY][SKIP][ERR] onKeyUp 异常：" + e.message);
+	}
+}
+
+// 在窗口实例上安装 onKeyUp（实例成员优先于类方法；引擎按成员名在实例上查找）。
+function uiStorySkipKeyInstall(win)
+{
+	if(win === null || win === void)
+	{
+		Debug.message("[STORY][SKIP][ERR] 窗口引用为空，CTRL 快进的 onKeyUp **未安装**");
+		return false;
+	}
+	win.onKeyUp = uiStorySkipKeyUp;
+	var got = false;
+	try { got = (win.onKeyUp === uiStorySkipKeyUp); } catch(e) { got = false; }
+	Debug.message("[STORY][SKIP] 窗口实例 onKeyUp 已安装（读回" + (got ? "一致" : "**不一致**") + "）");
+	return got;
+}
+
+// ------------------------------------------------------------
+// ★ 页脚「返回」热区补丁（ISSUE-20261001-14 首发 backlog；ISSUE-20261001-15 扩到 gallery/music）
+//
+//   根因：三屏底图（PSV 整屏 1:1）把页脚「⊗ 返回」**烘焙进图**，而屏上原有无一件 hit 盖住它
+//     ⇒ 点页脚「返回」必然没反应。页脚多为**多件并列**，各屏矩形不同 ⇒ 逐屏像素实测。
+//   做法：**纯追加**一件隐形热区（`kind:"hit"`，无 `state_assets` ⇒ 零绘制），
+//     动作 = `"close"`（由 `uiActionDispatch` 走 `uiScreenPop` 回上一屏）。**幂等**：已存在即跳过。
+//   ★ 这是**补丁，不是正解**：正解＝UI 组在 layout/screens 的对应 JSON 里补一件页脚热区
+//     （save/load 屏已有等价的 `sv.hit_back`）。已登记为移交 UI 组的 **D-03**；UI 组修好后
+//     应删掉本函数与它的调用。
+//   ★ 悬停态：页脚「返回」是**烘焙进 PSV 底图的字**，`UI组\krkr\assets\ui\` 里只有整屏
+//     `x_ui_psv_*` 底图、**没有页脚返回的分离 `_on`/`_over` 件**（已查）⇒ 一律保持纯热区零绘制。
+//
+//   各屏几何（对**各自底图**底部区域按像素实测「⊗+返回」墨迹外扩 20px，不含邻件）：
+//     backlog : 底图 x_ui_psv_backlog_bg.png 墨迹 (1746,995)-(1865,1026) ⇒ rect (1726,975,160,72)  ← 既有，未改
+//     gallery : 底图 x_ui_psv_gal_shell.png   墨迹 (1743,992)-(1865,1032) ⇒ rect (1723,972,163,81)
+//               （页脚并列 …⊙确定 ⊗返回；矩形左沿 1723 > 确定右沿 1668 ⇒ **不吃进「确定」**）
+//     music   : 底图 x_ui_psv_music_bg.png    墨迹 (1562,992)-(1684,1030) ⇒ rect (1542,972,163,79)
+//               （页脚并列 ◎播放／停止 ⊗返回 ⊕选择；左沿 1542 > 停止右沿 1493、
+//                 右沿 1705 < 选择左沿 1747 ⇒ **不吃邻件**）
+//   z=10：> 各自底图(0)，与三屏的列表/滑条/页码/页签**均不重叠**，无需更高（同 backlog 既有取值）。
+function uiStoryFooterReturnFix()
+{
+	var T = [
+		%[ scr: "backlog", id: "bl.ret_hitfix",  x: 1726, y: 975, w: 160, h: 72,
+		   src: "ISSUE-20261001-14 运行期补丁：backlog 页脚「返回」热区（正解＝UI 组修 layout/screens/26_backlog.json）" ],
+		%[ scr: "gallery", id: "gal.ret_hitfix", x: 1723, y: 972, w: 163, h: 81,
+		   src: "ISSUE-20261001-15 运行期补丁：gallery 页脚「返回」热区（正解＝UI 组修 layout/screens/27_gallery.json）" ],
+		%[ scr: "music",   id: "mu.ret_hitfix",  x: 1542, y: 972, w: 163, h: 79,
+		   src: "ISSUE-20261001-15 运行期补丁：music 页脚「返回」热区（正解＝UI 组修 layout/screens/28_music.json）" ]
+	];
+	if(UILayoutData === void || UILayoutData.screens === void)
+	{ Debug.message("[FRET][ERR] layout 未就绪，页脚返回补丁跳过"); return 0; }
+	var nDone = 0;
+	for(var i = 0; i < T.count; i++)
+	{
+		var t = T[i];
+		var sc = UILayoutData.screens["" + t.scr];
+		if(sc === void || sc === null || sc.elements === void)
+		{ Debug.message("[FRET][ERR] 缺屏 " + t.scr + " 或 elements，跳过"); continue; }
+		if(uiStoryFindEl(sc, "" + t.id) !== void)
+		{ Debug.message("[FRET] " + t.id + " 已存在 ⇒ 跳过（幂等）"); continue; }
+		var eNew = %[
+			id: "" + t.id,
+			kind: "hit",
+			z: 10,
+			visible_default: true,
+			x: 0 + t.x, y: 0 + t.y, w: 0 + t.w, h: 0 + t.h,
+			action: "close",
+			label: "",
+			source: "" + t.src
+		];
+		try { sc.elements.push(eNew); }
+		catch(eP) { Debug.message("[FRET][ERR] " + t.scr + " 追加热区失败：" + eP.message); continue; }
+		Debug.message("[FRET] 已补 " + t.scr + " 页脚「返回」热区 " + t.id
+			+ " rect=(" + t.x + "," + t.y + "," + t.w + "," + t.h + ") action=close z=10");
+		nDone++;
+	}
+	return nDone;
+}
+
+// 兼容旧名（ISSUE-20261001-14 的调用点与记录曾用此名）：等价于上面的「全屏表」版本。
+function uiStoryBacklogReturnFix()
+{
+	return uiStoryFooterReturnFix();
+}
+
+function uiStoryInstall()
+{
+	if(UIStoryInstalled) return true;
+
+	// 索引（生成物）
+	try { Scripts.execStorage("story/_index.tjs"); }
+	catch(e) { Debug.message("[STORY][ERR] 索引载入失败：" + e.message); }
+
+	// 链式包装：先取当前（可能已被 ui_flow 包装过），再换成我们的
+	UIStoryOrigAdvance  = uiDialogAdvance;
+	UIStoryOrigCommit   = uiDialogChoiceCommit;
+	UIStoryOrigDispatch = uiActionDispatch;
+	uiDialogAdvance       = uiStoryAdvanceWrapper;
+	uiDialogChoiceCommit  = uiStoryCommitWrapper;
+	uiActionDispatch      = uiStoryDispatchWrapper;
+
+	// ★ 包装全局 uiScreenKey（CTRL 强制快进）——与上面三个包装同批安装
+	uiStorySkipWrapKey();
+
+	UIStoryInstalled = true;
+
+	// ★ UI 组在对话框屏留了一件**调试用全白底** `dlg.canvas_white`（z=2，满幅），
+	//   其 note 明写「纯观察辅助层，不是成品美术：正式游玩前应把 visible_default 置 false」。
+	//   它在 dlg.content(z=1) 之上 ⇒ 不关掉就看不到剧情背景。在此关闭（不改 UI 组数据）。
+	try
+	{
+		var sc = uiStoryDialogScreen();
+		var cw = uiStoryFindEl(sc, "dlg.canvas_white");
+		if(cw !== void) { cw.visible_default = false; Debug.message("[STORY] 已关闭调试白底 dlg.canvas_white"); }
+		// ★ UI 组 `ui_demo_script.tjs` 在装载时**运行期追加**一件 `dlg.bg_tag`（kind=text, z=2），
+		//   文本「演示背景」——它不在 layout JSON 里，故只关 canvas_white 是不够的：
+		//   实测该角标会一直画在真实 CG 之上（一审阻断-1 抓出）。此处一并关掉（不改 UI 组文件）。
+		var tag = uiStoryFindEl(sc, "dlg.bg_tag");
+		if(tag !== void) { tag.visible_default = false; Debug.message("[STORY] 已关闭演示角标 dlg.bg_tag"); }
+		// ★ 同理，`ui_demo_script.tjs` 还把 `dlg.content.asset` 填成了演示底图 `ui/tl2_bg1.png`
+		//   （标题底图）——先清空并隐藏，等剧情装载场景时按需重设，避免演示残留混进本作画面。
+		var ct = uiStoryFindEl(sc, "dlg.content");
+		if(ct !== void && ct.dynamic !== void)
+		{
+			ct.asset = void;
+			ct.visible_default = false;
+			Debug.message("[STORY] 已清空演示底图并隐藏 dlg.content（待剧情装载）");
+		}
+	}
+	catch(eW) { Debug.message("[STORY] 关闭调试元素失败：" + eW.message); }
+
+	// BGM 鉴赏曲目表 + 给 `mu.list` 逐项装动作（UI 组交付时 actions 为空 ⇒ 由编程组接线）
+	try
+	{
+		Scripts.execStorage("story/_music.tjs");
+		if(UILayoutData !== void && UILayoutData.screens !== void)
+		{
+			var mus = UILayoutData.screens["music"];
+			if(mus !== void && mus.elements !== void)
+			{
+				for(var mi = 0; mi < mus.elements.count; mi++)
+				{
+					var me = mus.elements[mi];
+					if(me === void || me.id === void) continue;
+					if(("" + me.id) != "mu.list") continue;
+					var acts2 = [];
+					for(var ai = 0; ai < UIMusicNames.count; ai++) acts2.push("bgm_play:" + ai);
+					me.actions = acts2;
+					Debug.message("[STORY] mu.list 已装 " + acts2.count + " 项动作");
+				}
+			}
+		}
+	}
+	catch(eMu) { Debug.message("[STORY][ERR] 音乐表装载失败：" + eMu.message); }
+
+	Debug.message("[STORY] 已安装｜入口=" + UIStoryEntry
+		+ " 顺序=" + UIStoryIndex.count
+		+ " 角色表=" + UIStoryRoleKeys.count);
+	return true;
+}
+
+function uiStorySummary()
+{
+	return "剧情 " + UIStoryHist.count + " 场景 / " + UIStoryPlayed + " 行"
+		+ " | 当前 " + UIStoryCur + " | " + UIStoryMsg;
+}

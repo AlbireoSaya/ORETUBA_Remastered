@@ -1,0 +1,136 @@
+{
+  "status": "PASS_ORIGINAL_MAIN_TO_FIRST_NATIVE_TRACE",
+  "source_sha256": {
+    "main.sob": "f776e63097d1a1421360d7abe845d54d1d7e632a73654dd116363da0a1b626fa",
+    "func_lib.sob": "89a4998a50fa4c2340fc39a79a167cd8da3d86dfdef88d6398f38bd7058e0be0"
+  },
+  "user_var_sha256": "8fcc7762c25ab45485f6585db0f1a99577f9c467e7f3e41dee84e6c5f30fe9ff",
+  "named_symbol_mapping": [
+    "ScriptBootFlg = this+0x10c (ctor name at 0x5293e4)",
+    "retAppProc = this+0x110 (ctor name at 0x5293d8)"
+  ],
+  "rows": [
+    {
+      "input_status": "controlled scalar word 0/1, not observed original startup value or valid callback pointer",
+      "instructions": [
+        {
+          "module": "main.sob",
+          "pc": 50331648,
+          "offset": 0,
+          "opcode": 6
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331656,
+          "offset": 8,
+          "opcode": 11
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331664,
+          "offset": 16,
+          "opcode": 32
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331676,
+          "offset": 28,
+          "opcode": 30
+        },
+        {
+          "module": "main.sob",
+          "pc": 50332556,
+          "offset": 908,
+          "opcode": 40
+        },
+        {
+          "module": "main.sob",
+          "pc": 50332568,
+          "offset": 920,
+          "opcode": 8
+        },
+        {
+          "module": "main.sob",
+          "pc": 50332576,
+          "offset": 928,
+          "opcode": 5
+        }
+      ],
+      "first_native_call": {
+        "handler_va": 4305824,
+        "static_candidate_indices": [
+          0
+        ],
+        "runtime_argument_pointer": 16810000,
+        "argument_word0": 50335092,
+        "execution": "stopped_before_native_body",
+        "argument0_ASCII": "GameInit"
+      },
+      "return_reached": false,
+      "retAppProc_word_input": 0
+    },
+    {
+      "input_status": "controlled scalar word 0/1, not observed original startup value or valid callback pointer",
+      "instructions": [
+        {
+          "module": "main.sob",
+          "pc": 50331648,
+          "offset": 0,
+          "opcode": 6
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331656,
+          "offset": 8,
+          "opcode": 11
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331664,
+          "offset": 16,
+          "opcode": 32
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331676,
+          "offset": 28,
+          "opcode": 30
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331688,
+          "offset": 40,
+          "opcode": 36
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331700,
+          "offset": 52,
+          "opcode": 40
+        },
+        {
+          "module": "main.sob",
+          "pc": 50331712,
+          "offset": 64,
+          "opcode": 5
+        }
+      ],
+      "first_native_call": {
+        "handler_va": 4269680,
+        "static_candidate_indices": [
+          35
+        ],
+        "runtime_argument_pointer": 16810000,
+        "argument_word0": 0,
+        "execution": "stopped_before_native_body"
+      },
+      "return_reached": false,
+      "retAppProc_word_input": 1
+    }
+  ],
+  "native_calls_executed": 0,
+  "scope": "actual main.sob, func_lib.sob, declaration data and original VM; controlled raw named-symbol word inputs; halted before native body, no return stubs",
+  "original_scene_replay": false,
+  "metadata_correction": "The first draft guessed the second label ScriptRetnFlg; current constructor string lookup proves retAppProc. Pointer mapping and observed bytes are unchanged. No bool/function type asserted.",
+  "receipt_source_sha256": "dc3248c7c48df4871357adb2ec26a0e9eddf2f2a1347e40b3a3348753b2f5001"
+}

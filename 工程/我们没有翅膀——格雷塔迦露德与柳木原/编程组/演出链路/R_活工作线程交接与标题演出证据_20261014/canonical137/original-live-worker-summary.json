@@ -1,0 +1,365 @@
+{
+  "original_request": {
+    "security_attributes": 0,
+    "stack_size": 0,
+    "start_address": 5271290,
+    "parameter": 119525504,
+    "creation_flags": 0,
+    "thread_id_out": 33569996
+  },
+  "original_return_address": 5271254,
+  "original_CRT_parameter": 119525504,
+  "original_business_start": 5213520,
+  "original_business_parameter": 33569988,
+  "parent_fs0": "8c750002",
+  "source_thread_exit_not_executed": true,
+  "source_CreateThread_consumer_not_resumed": false,
+  "scope": "bounded original worker prefix on actual owned host thread; not a complete Windows loader/TEB model",
+  "worker_guest_reservation": {
+    "source_PE_reserve": 1048576,
+    "source_PE_commit": 4096,
+    "mapped_low_high": [
+      56754176,
+      57802752
+    ],
+    "OS_guard_pages_commit_growth_TEB_not_modeled": true
+  },
+  "actual_owned_thread_handle": 4232,
+  "actual_returned_tid": 30096,
+  "guest_TID_out_not_written_until_full_request_receipt": true,
+  "original_guest_start_pointer_not_passed_to_OS": true,
+  "actual_host_worker_tid": 30096,
+  "WUV_DLL_THREAD_ATTACH": {
+    "entry": 285289965,
+    "reason": 2,
+    "next_EIP": 57802736,
+    "return_value": 1,
+    "failure": null,
+    "new_API_events": []
+  },
+  "CRT_prefix": {
+    "next_EIP": 5271379,
+    "failure": null,
+    "original_parameter_tid": 30096,
+    "new_API_events": [
+      {
+        "api": "TlsSetValue",
+        "args": [
+          13,
+          119525504
+        ],
+        "native_return_address": 5271344,
+        "actual_Windows_API": true,
+        "guest_result": 1,
+        "actual_host_pointer": 140425696
+      },
+      {
+        "api": "GetCurrentThreadId",
+        "args": [],
+        "native_return_address": 5271362,
+        "actual_Windows_API": true,
+        "guest_result": 30096
+      }
+    ],
+    "FS0": "ecff7003",
+    "source_business_call_not_executed": true
+  },
+  "original_CRT_TLS_pointer_verified": true,
+  "original_CRT_tid_matches_OS": true,
+  "park_before_resource_cleanup": {
+    "source_EIP": 33613744,
+    "actual_worker_tid": 30096,
+    "live_font_count": 5,
+    "live_selected_font_DCs": 5
+  },
+  "actual_STILL_ACTIVE_during_parent_consumers": 259,
+  "host_guard_exit_is_not_original_exit_code": true,
+  "worker_errors": [],
+  "owned_thread_handle_retained_for_parent_consumers": true,
+  "parent_context_and_FS0_restored": true,
+  "worker_permissions_retained_while_parked": true,
+  "original_font_handles_live_during_parent_consumers": [
+    {
+      "guest_font": 1777729536,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "6d2c34e67c1217593b92747b4186d8120ca243ce79b769bdb60f984656825037",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729537,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "67d4f73b68eef4bd7c21bcced13c03a639fd824a0564042399e1d0b401a61cfd",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729538,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "2fd09ae96e9e994f2718a43e9f903a03c82a8abf9f020aafe4f2accf054d603c",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729539,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "fa31ea0a8f5e3203b15c5f7877f3fc56c3fa0ef32d70221f7915b39f82e686e1",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729540,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "0f2adefaed6eb381f7d42bbf594af5c29cdfb56951311c8a22c74303a2278abe",
+      "guards_pass": true
+    }
+  ],
+  "worker_context_and_FS0_restored_on_original_OS_tid_after_release": true,
+  "business_boundary_registers": {
+    "EAX": 118128940,
+    "ECX": 0,
+    "EDX": 98,
+    "ESI": 800,
+    "EDI": 118128820,
+    "EBX": 118128840
+  },
+  "business_recent_instructions": [
+    {
+      "pc": 4794193,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 4794200,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265780,
+      "esp": 57736032,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265781,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265783,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265786,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265789,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265790,
+      "esp": 57735992,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265791,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265793,
+      "esp": 57735984,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265794,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265799,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 7
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 6
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 5
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 4
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 3
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 2
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 1
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265804,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265807,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265810,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265813,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265816,
+      "esp": 57735988,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265817,
+      "esp": 57735984,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265820,
+      "esp": 57735980,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265823,
+      "esp": 57735976,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265826,
+      "esp": 57735972,
+      "eax": 57736016,
+      "ecx": 0
+    }
+  ],
+  "actual_host_guard_exit_code_after_release": 2702180352,
+  "owned_thread_handle_closed": true,
+  "worker_errors_after_release": [],
+  "font_actual_face_W": "MS PGothic",
+  "full_before_parent_readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": false,
+    "differing_color_bytes": 1416182,
+    "source_RGB_SHA256": "fcdf1c16b442de8cc311d74ab8253aa78e1bfffa9cef56199a9df547e064e90c",
+    "actual_RGB_SHA256": "680a1c22a8e114ea0c637847e8cc506794073a55f4350364c8a0421e7dbcc8f0",
+    "source_blits": 706,
+    "all_source_blit_sample_readbacks_match": false,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "full_after_parent_readback": null,
+  "actual_source_cursor_calls": [
+    {
+      "api": "SetCursorPos_actual_source_worker",
+      "original_return_address": 4514825,
+      "original_xy": [
+        960,
+        540
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_GetCursorPos_result": 1,
+      "observed_xy": [
+        960,
+        540
+      ],
+      "exact_source_arguments": true,
+      "no_forced_position_or_success": true
+    },
+    {
+      "api": "SetCursorPos_actual_source_worker",
+      "original_return_address": 4514825,
+      "original_xy": [
+        1289,
+        611
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_GetCursorPos_result": 1,
+      "observed_xy": [
+        1289,
+        611
+      ],
+      "exact_source_arguments": true,
+      "no_forced_position_or_success": true
+    }
+  ],
+  "full_trace_local_path": "临时\\ISSUE-20261011-02\\r-live-worker-handoff-canonical-137",
+  "full_local_trace_SHA256": "40a4e47bc9a97b8294befec77f5e2f5dee78699952a2223e2f23f89102bd39ea",
+  "scope_not_complete_original_game": true
+}

@@ -1,0 +1,63 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'子代理工作区/ISSUE-20261011-02/r-tob-dynamic-control';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+import importlib.util
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EIP,UC_X86_REG_ESP,UC_X86_REG_EAX,UC_X86_REG_ECX
+from lucifen_tob_dynamic_structure import pack_ir
+out=root/'临时/ISSUE-20261011-02/r-literal-run-replay-01'
+spec=importlib.util.spec_from_file_location('literal_ref',out/'lucifen_literal_run_reference.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+rows=[];totals=collections.Counter();state={}
+def hook(u,address,size,user):
+ if address==0x42f8b7 and struct.unpack('<I',bytes(u.mem_read(ctx+0x42c,4)))[0]>=state['end']:
+  state['stop']='limit';u.emu_stop()
+ elif address==0x42f8c8:state['stop']='marker';u.emu_stop()
+ elif address==0x42f942:state['stop']='nul';u.emu_stop()
+files=sorted((root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*.tob'))
+for fi,p in enumerate(files):
+ raw=p.read_bytes();pos=4+struct.unpack_from('<I',raw,4)[0];code_start=pos+struct.unpack_from('<I',raw,pos)[0]
+ u=map_pe(pe);u.mem_map(buffer,(len(raw)+4095)&~4095);u.mem_write(buffer,raw);u.mem_write(ctx+8,struct.pack('<II',0x1050000,0x1050004));u.mem_write(ctx+0x654c,b'\0'*4)
+ baseline=bytes(u.mem_read(0x400000,0x140000));handle=u.hook_add(UC_HOOK_CODE,hook)
+ for x in pack_ir(raw)['parts']:
+  if x['kind']!='island' or x['end']<=code_start:continue
+  a=max(x['start'],code_start);b=x['end']
+  try:r=m.literal_run(raw,a,b)
+  except ValueError as error:
+   totals['truncated_lead']+=1;rows.append({'path':p.relative_to(root).as_posix(),'start':a,'end':b,'status':'explicit_unresolved_truncated_lead'});continue
+  payload=r['payload'];guard=b'\xa7'*16
+  u.mem_write(ctx+0x42c,struct.pack('<I',buffer+a));u.mem_write(ctx+0x7550,struct.pack('<I',ctx+0x6550));u.mem_write(ctx+0x6550,b'\xbb'*len(payload)+guard)
+  u.reg_write(UC_X86_REG_ESP,0x2008000);u.reg_write(UC_X86_REG_ECX,ctx);u.mem_write(0x2008000,struct.pack('<I',0x200f000));state={'end':buffer+b,'stop':None}
+  u.emu_start(0x42f880,0x200f000,count=max(100,(len(payload)+1)*50),timeout=0)
+  got=struct.unpack('<I',bytes(u.mem_read(ctx+0x42c,4)))[0]-buffer
+  dest=struct.unpack('<I',bytes(u.mem_read(ctx+0x7550,4)))[0]-(ctx+0x6550)
+  assert got==r['end'] and dest==len(payload) and state['stop']==r['stop'],(p.name,a,r,state,got,dest,hex(u.reg_read(UC_X86_REG_EIP)))
+  assert bytes(u.mem_read(ctx+0x6550,len(payload)+16))==payload+guard
+  totals['runs']+=1;totals['literal_bytes']+=len(payload);totals['units']+=len(r['units']);totals['stop_'+r['stop']]+=1
+  rows.append({'path':p.relative_to(root).as_posix(),'start':a,'end':b,'consumed_end':got,'consumed_bytes':len(payload),'units':len(r['units']),'stop':r['stop'],'payload_sha256':hashlib.sha256(payload).hexdigest(),'source_sha256':hashlib.sha256(raw).hexdigest(),'passed':True})
+ assert bytes(u.mem_read(buffer,len(raw)))==raw and p.read_bytes()==raw and bytes(u.mem_read(0x400000,0x140000))==baseline
+ u.hook_del(handle)
+ if fi%100==0:print(json.dumps({'file':fi+1,'runs':totals['runs']}),flush=True)
+summary={'files':len(files),'counts':dict(totals),'scope':'first literal run of each lossless structural island via original 42F880/42FB00; boundary stopped before next marker/zero or artificial island end; not full script reachability, marker handling, embedded task stream or all island semantics'}
+(out/'source-literal-run-results.json').write_text(json.dumps(rows,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+(out/'source-literal-run-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary),flush=True)
+

@@ -1,0 +1,38 @@
+@'
+from pathlib import Path
+import sys,struct,json,importlib.util,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')];from pe_min import PE;from lucifen_vm_micro import map_pe;from lucifen_thiscall_probe import invoke_thiscall_args
+from unicorn.x86_const import UC_X86_REG_ESI,UC_X86_REG_EBX,UC_X86_REG_ESP,UC_X86_REG_EIP
+spec=importlib.util.spec_from_file_location('observer',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');outer,src,aux,frame,pix=0x1002000,0x1004000,0x1006000,0x1008000,0x100a000;records=[]
+def word(u,p):return struct.unpack('<I',u.mem_read(p,4))[0]
+def prepare(kind=9,link=False):
+ u=map_pe(pe);u.mem_map(0,0x1000);u.mem_write(outer,b'\xa5'*0xd8);u.reg_write(UC_X86_REG_ESI,outer);u.reg_write(UC_X86_REG_EBX,0);u.reg_write(UC_X86_REG_ESP,0x2008000)
+ a,z,vt,ivt=(0x4ba6df,0x4ba70a,0x519038,0x519094) if kind==9 else (0x4ba7ff,0x4ba82a,0x518f7c,0x518fd8)
+ u.emu_start(a,z,count=10000,timeout=1000000);assert u.reg_read(UC_X86_REG_EIP)==z and word(u,outer)==vt and word(u,outer+0x30)==ivt and word(u,outer+0xbc)==0
+ invoke_thiscall_args(u,0x4540b0,src,());invoke_thiscall_args(u,0x459dc0,aux,());assert word(u,aux)==0x5199ec and word(u,aux+8)==0
+ u.mem_write(src+0x3c,struct.pack('<I',pix));u.mem_write(pix,b'\x12'*64)
+ if link:u.mem_write(outer+0xbc,struct.pack('<I',aux))
+ return u
+
+from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_INVALID
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ECX,UC_X86_REG_EDX
+u=prepare(9,True);dst=outer+0x34
+for bmp,pixels in [(src,pix),(dst,0x100c000)]:
+ u.mem_write(bmp+4,struct.pack('<III',2,2,8));u.mem_write(bmp+0x14,struct.pack('<4i',0,0,2,2));u.mem_write(bmp+0x3c,struct.pack('<II',pixels,32));u.mem_write(pixels,b'\x55'*64)
+last=[];invalid=[]
+def codehook(u,a,n,x):
+ last.append({'site':a,'size':n,'ecx':u.reg_read(UC_X86_REG_ECX),'eax':u.reg_read(UC_X86_REG_EAX),'esp':u.reg_read(UC_X86_REG_ESP)})
+ if len(last)>24:del last[0]
+def memhook(u,access,address,size,value,user):
+ invalid.append({'access':access,'address':address,'size':size,'value':value,'eip':u.reg_read(UC_X86_REG_EIP)})
+ return False
+h1=u.hook_add(UC_HOOK_CODE,codehook);h2=u.hook_add(UC_HOOK_MEM_INVALID,memhook)
+try:
+ ret=invoke_thiscall_args(u,0x459ee0,aux,(dst,1));err=None
+except Exception as ex:ret=None;err=type(ex).__name__+':'+str(ex)
+finally:u.hook_del(h1);u.hook_del(h2)
+d={'scope':'controlled auxiliary attach notify=1 failure trace, not original allocation/startup','error':err,'return':ret,'last_instructions':last,'invalid_access':invalid,'eip':u.reg_read(UC_X86_REG_EIP),'esp':u.reg_read(UC_X86_REG_ESP),'aux_bitmap':word(u,aux+8)}
+p=b/'aux-notify-failure-trace.json';assert not p.exists();p.write_text(json.dumps(d,indent=2),encoding='utf-8');print(json.dumps(d))
+
+'@ | python -X utf8 -B -

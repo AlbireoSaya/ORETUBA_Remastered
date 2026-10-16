@@ -1,0 +1,824 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "scope": "target expression VM17 opcode subset, controlled expression execution, fixtures and administrative documentation; not full game",
+  "base_main": "4e5dadcf961b4a6a8a9555cb22ebef4fbf370736",
+  "base_issue": "e562ef24b5d444178322557a29e95e8d236385fe",
+  "hashes": "LF UTF8 Git blob; manifest self excluded",
+  "files": [
+    {
+      "path": "Galgame.md",
+      "bytes": 63266,
+      "sha256": "bbd9943aa9a111c42371b18827d2be417f4160e388aa2d2bf84c23d92c5320c0"
+    },
+    {
+      "path": "工程/我们没有翅膀R/作品skill/SKILL.md",
+      "bytes": 134977,
+      "sha256": "622c5e43577133c8765869058874ec9628f7c590b99ba37ec9ef9381cb70177f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/作品skill/SKILL.md",
+      "bytes": 143476,
+      "sha256": "e79f4c33e4dc5c50b12dca6604bb75f99b79a9ab3ef1a093eb12182ae6bd6743"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_control.tjs",
+      "bytes": 1437,
+      "sha256": "416093b0b160f89fb1c0095cd2041deb4067e54f0d1d65e33078add3bc95b3e6"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_entry.tjs",
+      "bytes": 775,
+      "sha256": "9a5dbc9292ef1cc4dc04393e87148d5f2d1b677957df7e21fa0b58993d8c7254"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_memory.tjs",
+      "bytes": 1376,
+      "sha256": "99cde9bf4b0697270625e26b86a18a213b520cd2f437acf95d9d2ae3ee464f57"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_run.tjs",
+      "bytes": 713,
+      "sha256": "306f24e68b6a2906877c966b0d64d070bf4086ff0840fd132ca0b4d319d9b9cc"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_step.tjs",
+      "bytes": 1256,
+      "sha256": "9cadcd40bfb190a37cfa6d6fc70e8d58c438d93aa406f131345ffab0dbdc1f85"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_vm_value.tjs",
+      "bytes": 483,
+      "sha256": "8a3abb53baabf68f00e897a8a8208c20f153a44e25187c793b32cf6388ba1509"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/r_vm_access_log.py",
+      "bytes": 1204,
+      "sha256": "62d3b10a97ccd7d21c308523a8c6b1455fce76463f13a41b9c360bd743db8238"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/r_vm_shadow_range.py",
+      "bytes": 583,
+      "sha256": "a0c84631372a81d4ba5ca8382402e6857ab17c86c7c0a26f220413cf74756a0e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/r_vm_shadow_read.py",
+      "bytes": 232,
+      "sha256": "c9b9485bdee41ffef124653d055bbe01fd8d8f73af7421810eac81f9b800ac5b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/r_vm_shadow_write.py",
+      "bytes": 508,
+      "sha256": "4887c47a693d9d9bd5665e2a30bddd033f7f5134ec862ad4fa4c24cd9b9c871d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/r_vm_tjs_literal.py",
+      "bytes": 2201,
+      "sha256": "03081deb13b7e3c1facf449d66aa3e243a5da336125ec40a760e7892743e7efd"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/ISSUE-20261011-02_四版本原作还原长程目标.md",
+      "bytes": 60800,
+      "sha256": "8ed585a6e0b4a560a0d86ddc89abdfe68a0adde93aa8ae573db6c322afd5d65a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/README.md",
+      "bytes": 2952,
+      "sha256": "7ede8584c06a4b271a11d9e44a7f6ea2505b4673f752d5d782c84566e99d9541"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/api-receipts.json",
+      "bytes": 39514,
+      "sha256": "690e11abf836ec84097fc843fd277b261d944d3145747aeba0b0ad64555f9754"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/ascii-witness-identity.json",
+      "bytes": 238,
+      "sha256": "73e235bec425c13882c3214381b5e6228d62b5a14a8326ac5ff89f58c567fafa"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/candidate-provenance.json",
+      "bytes": 13355,
+      "sha256": "78daf3b9ed7269ec9feb3e13dad8b5d49708349ca76d1762bd40b6d4ea8fd93c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/document-provenance.json",
+      "bytes": 659,
+      "sha256": "e7ee264551a3247783904c0fb1028399150457d1a6b64a1192fae4eed6be2bf2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/fault-data-manifest.json",
+      "bytes": 300,
+      "sha256": "4bc763b72f78b062cb5ab5e837fcff8e8c5c0cfa78014f8227619e1950ac6e6c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-0-manifest.json",
+      "bytes": 13009,
+      "sha256": "468699d48f6fb0634bed06ad8ee50b6e7e1a6ccbfd3346614584e4ea657ebddd"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-0-summary.json",
+      "bytes": 1054,
+      "sha256": "f3ec408480781b2eddbca9737162be3d23f49345518ff472fe1c93f10d1b4588"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-1-manifest.json",
+      "bytes": 13059,
+      "sha256": "8492be4e30eb238c0582a9c20bda0794b6e1373863389a8f040b93bbf648baf1"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-1-summary.json",
+      "bytes": 1107,
+      "sha256": "3210e817a39b9f920ed903c7c65444d1736eecbe0b13737e8a83223986b60275"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-2-manifest.json",
+      "bytes": 12755,
+      "sha256": "a6cb6548f06b3280a3fd4bc5c9380dafb5950995f83c38863347fc2e5e10ac58"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-2-summary.json",
+      "bytes": 1054,
+      "sha256": "0dbb09500e78947d4b7136ecd2b6f49f1841a612d1e44381a0ce5361868127a7"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-3-manifest.json",
+      "bytes": 13009,
+      "sha256": "22a9e3e4e6a8a138ca11d1e76db723d8e073a2ad5d6e58319ea3a8597a37b06c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/inline-3-summary.json",
+      "bytes": 1054,
+      "sha256": "7811c808c80ecfd9a233ea22403522767f602d87f0b0c312c08cde8be9382a28"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-0-manifest.json",
+      "bytes": 40970,
+      "sha256": "9fed091583aa41c5c673b22bf84fa08dc78bf2cb651938bf590465cb99458ea0"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-0-summary.json",
+      "bytes": 1020,
+      "sha256": "5da7eb80fd2abd037fc50a2a8247c36b99df94370abc15a3470c21853b7d9dc7"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-1-manifest.json",
+      "bytes": 41498,
+      "sha256": "55eed0f5f3fd484d99ee5474b3f9ec60112424a0cb20aab829f5a1c3aa9b7afc"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-1-summary.json",
+      "bytes": 1033,
+      "sha256": "41f9ea48fef3ad07ca032d65378a2d31bf171866ed90fce652927265a789c539"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-2-manifest.json",
+      "bytes": 42234,
+      "sha256": "1bf56525440ce996f264274bf08043ebbca66045f041b4652d044a4cd8c25d0e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-2-summary.json",
+      "bytes": 1004,
+      "sha256": "f5dd3f2e509cd807e21cf88cf7cd0b03d1ef81f4b1ba8e8637f1610f6912628e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-3-manifest.json",
+      "bytes": 40943,
+      "sha256": "e34b8c840ce34c785f76a81a34df99dbe5748502043bbd6d1c1b70beef03c9e8"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/group-manifests/parameter-3-summary.json",
+      "bytes": 993,
+      "sha256": "c9653e5317a17470b92db367f5c5cf4caf694f16cd42abf95ab7cb406e92619f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/installed-native-replay-manifest.json",
+      "bytes": 1432,
+      "sha256": "b44d7ed248edfe5891b42da2b105f5a1e2359bb97f97c0ca45d07d75ae1dc83b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/installed-source-replay-manifest.json",
+      "bytes": 1255,
+      "sha256": "ada8120ba0b01084fbfd064d047913790e5fd420db36147af9d1063577e0f4eb"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/negative-manifest.json",
+      "bytes": 865,
+      "sha256": "885135e71ad1de43e55c291b4d31f50376c026455dd2db06b37b7cf2327fb206"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/norm-hashes.json",
+      "bytes": 256,
+      "sha256": "6e6339522fb994509adf2961464c91cdca5a26508af6cfcc74d3b7b6bdefba3e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/python-support-smoke.json",
+      "bytes": 187,
+      "sha256": "b8c8e4dbed3a7760ee84115eddce77c21cedeffe39f35e65524c7549d5bba1fe"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_case.tjs",
+      "bytes": 538,
+      "sha256": "999d130e20f7295d04dff9acb86b1f6366f8343e3871f3a650b172ce9ade4e97"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_compare.tjs",
+      "bytes": 650,
+      "sha256": "8ba09db9e61125d5d6030e85dc30213441e94e2526c3da9ade07dfda0f62841e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_nativecall.tjs",
+      "bytes": 179,
+      "sha256": "078367f228f10e382bb574a69a5b7ec0059668600c8d3ca64c78de7f140db119"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_range.tjs",
+      "bytes": 934,
+      "sha256": "6b71b9ac6956ec7de1bd9cf294e242c5969b7571ae417f817f848e7ea93e6468"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_read.tjs",
+      "bytes": 554,
+      "sha256": "bb166441f9a38ba13a15893f659b4ba35165f7098a3271e17c10d6a23ea29d4b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_segment.tjs",
+      "bytes": 844,
+      "sha256": "0478c4ae2815d56bb910daa2402381f5a4370affca5eec22b49e17d4144e6bb9"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_state.tjs",
+      "bytes": 1138,
+      "sha256": "2945158fb605b2b731b0b15e41afcde39c948d221c497a3de5e57b7e3ec8ea78"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_write.tjs",
+      "bytes": 709,
+      "sha256": "811ac909d0476d946ce4ad4e3c852ae8f330773dbc8b9a665979379752a7eae6"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_control_fixture.tjs",
+      "bytes": 322,
+      "sha256": "0842c92c14ef5798ab3ff4433bab55ec6a8c17eb34e4d1ab38658a074421eb72"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_dispatch_fixture.tjs",
+      "bytes": 405,
+      "sha256": "00abfc5d776d9d4a864807404187f4883c2d9c9530e11aea44de07eae1ee7d64"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_flags_fixture.tjs",
+      "bytes": 1068,
+      "sha256": "f92d0d3c2a1e3118a893537eada0e966d5e3d6076ffe34382e1564617376c76f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_keyboard_fixture.tjs",
+      "bytes": 832,
+      "sha256": "250111cda6a72b6245f27c3f9b0c0fd62055c393f48f1c5d8db73fc85abf75e6"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_native_query_fixture.tjs",
+      "bytes": 974,
+      "sha256": "08b0a2a8c86e91c2b2601ba23c7134edd28534f6160b2aa9286f78564de514be"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-full-synthetic-32-01.json",
+      "bytes": 14866,
+      "sha256": "3999a7983e73dc3a607c73dbd39011ef43be42a3ae4f2445494a83403d450580"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-full-synthetic-32-01.markers.txt",
+      "bytes": 2905,
+      "sha256": "a754f2540cce135f52d41b8672a25a0f995df4be7519a69f78b316a25a6d6511"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-full-synthetic-64-01.json",
+      "bytes": 14867,
+      "sha256": "ff5bd696f8de1dac17a0989fbf9f7a2a21993a427f1cb5599600e2b80060258b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-full-synthetic-64-01.markers.txt",
+      "bytes": 2905,
+      "sha256": "ae3a71339a0a17d3bf214bebaf0815e5751c895286e3a451112594fecc214421"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group0-01.json",
+      "bytes": 15470,
+      "sha256": "0487571fc210565cbf63e3f6149bb30f6f84c1c64abcdefa45debca7414f2b3c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group0-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "4f0955095a2eb3544a97d53e66379e108d3530d1dffcd54746774e23bfb91ada"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group1-01.json",
+      "bytes": 15470,
+      "sha256": "45b235339b1183fd35d50bc4e90d0c8954cbf43e1d841f67622a015d5790d520"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group1-01.markers.txt",
+      "bytes": 3102,
+      "sha256": "ffcdd4399382d2b041d78e4a40052a6d6d562e2c389dcad72dbfbbd4a8bb00c2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group2-01.json",
+      "bytes": 15254,
+      "sha256": "e537287c15a2f8e2751adbd6ad2730a0e03108a5e2f203eb6865a91473ec3ba5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group2-01.markers.txt",
+      "bytes": 3039,
+      "sha256": "8bbfc4991b6aabc8d443fe7715824cd20cf1d8bea4cb1c6c462ee2b11bbe38b4"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group3-01.json",
+      "bytes": 15470,
+      "sha256": "f214e89b0e4147dcdcb2a60c9a8eb60e6a1efba1a1893b43745e61b7dd4a0da5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-32-group3-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "6a5bb4cb67fa0a54907e9296aa98335694206977b0d90ffc3d2558fd2bdea4b4"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group0-01.json",
+      "bytes": 15469,
+      "sha256": "6fcb2dcffefd5b91ba02679f8394a67d41f871b5d40862eb8655ade3d324e942"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group0-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "9368bb6f0d4be6a525922949b36768501265735bdde02b8387e372290cdfa704"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group1-01.json",
+      "bytes": 15470,
+      "sha256": "8c4051bcd5ee5cf212432097434648283a998a440f895e71a17abbdc59ff3164"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group1-01.markers.txt",
+      "bytes": 3102,
+      "sha256": "a17abf84192190baee333fbb2f056ab8634e35969d41b55639d3e8a57b492501"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group2-01.json",
+      "bytes": 15254,
+      "sha256": "b4677524a6f594147cee64c6719da9140b34eab1621a038c3a94a3458544c941"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group2-01.markers.txt",
+      "bytes": 3039,
+      "sha256": "cc7a9a0f3992a18a6a18c0b7a243f536d4e60e90569ac14c5c905965906ba075"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group3-01.json",
+      "bytes": 15470,
+      "sha256": "3d850c58a9dcc4df295e971ee2954a4b4c3e53cdac4edb484dc7f82b653dec25"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-inline-64-group3-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "4a78889a4af4818e163bf4814969ec26dc8da9c85864815634db9c0af138e8ab"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group0-01.json",
+      "bytes": 16624,
+      "sha256": "d052c3a021f6dcbfc933c9db7842cb3a57d9824b4651a4ff7f44e644ed9a0f2f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group0-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "bfa4d8957b8f536eb94e188554b262ba3cbe6533c63c2512079047584070a16b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group1-01.json",
+      "bytes": 16624,
+      "sha256": "7e36b0c0a99cea266f50e78b44a675402c1f0604c148589eeeb5dd12e7e1e1f2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group1-01.markers.txt",
+      "bytes": 3102,
+      "sha256": "b03dbb26196810509c0d8620e29a890ab009cb6c9ecbaaab2c0dc6c5ecd7cd2e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group2-01.json",
+      "bytes": 16408,
+      "sha256": "63b4ae59c6501e6e005d88ad03b613f01ce37e80e6ef2dcf18b06fcc80b4c0a2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group2-01.markers.txt",
+      "bytes": 3039,
+      "sha256": "f94dff0920860ec4edc4e3c668a2b0498b45fc0773d7c664a36e30a5964feb26"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group3-01.json",
+      "bytes": 16624,
+      "sha256": "778fcdbe5fc8442d4a654bab7d1654148e70ce56cd23d3e36333b70ce9977909"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-32-group3-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "54f08d443738c7afbc50908b595d391f224e78be707b7124968d375af7c613c6"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group0-01.json",
+      "bytes": 16624,
+      "sha256": "a74a074659f12303cfd69bc4615db72e14bc09cd5b53134456884d81fa2c48d4"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group0-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "63935e28b0a34b238195dabd5ce56bba3ba0fde22ad20d58df7f499facd456ca"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group1-01.json",
+      "bytes": 16624,
+      "sha256": "0c9c8608761968a227b8c944c1ecf98ffccbc992194783b448aa61e1d789897b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group1-01.markers.txt",
+      "bytes": 3102,
+      "sha256": "76130461f63d406841fb528cc21a57cb388140b0cf63d11375e49cd86abe534e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group2-01.json",
+      "bytes": 16408,
+      "sha256": "dcf29fbb6a4d238b3c09fe3fb8e2468a17b7c6e89b3b8f9250c4c35797a04e95"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group2-01.markers.txt",
+      "bytes": 3039,
+      "sha256": "f8bf17d58c9a1a455631d5d01d202fdff7d39da684bfb62d4131de6050f108f2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group3-01.json",
+      "bytes": 16624,
+      "sha256": "2ece64990dbe58e6a92e94c372fc03fdce09980e2c2d7a8bfb6e89f500ca8408"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-inline-64-group3-01.markers.txt",
+      "bytes": 3104,
+      "sha256": "9337adccdaacb9354d288f6e523f79c722226d273fa2f88d7a850e8a3e792ab5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-negatives-32-01.json",
+      "bytes": 6690,
+      "sha256": "16cfa387d7987f7dbf88504a7754c18c050bfd1f9f42fcbfb34eea8ac507fa6a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-negatives-32-01.markers.txt",
+      "bytes": 1141,
+      "sha256": "4136120cc123a2f563be7de31ee0de8d9a142bcfaae70990c98cb113927b703e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-negatives-64-01.json",
+      "bytes": 6690,
+      "sha256": "4e37e4c1628da2650aedeb91080a04848623cca93d6c2aa737747aca5212fe11"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-negatives-64-01.markers.txt",
+      "bytes": 1141,
+      "sha256": "e423e4a442cfbfcd70c196e4d6a9abc44eac041d28c130c64e15d8c91bd514a5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group0-01.json",
+      "bytes": 40639,
+      "sha256": "daf88e86fcee1e39d82354d945363a52d0ff30296feb5034ba664b708653569d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group0-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "0a2284cad22e20fc494988c6218c298262af4fea21382890684f2b88407b03a9"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group1-01.json",
+      "bytes": 41077,
+      "sha256": "0b44d4ebdc48d9b7ba4022ae4eba1cd0b2b5ae4d73837a75bf12af1172ee4783"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group1-01.markers.txt",
+      "bytes": 10373,
+      "sha256": "faee5d4ad0b8f0eb51d04a4f8edd80d23d50d99017fcf48925f4b86cde17541d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group2-01.json",
+      "bytes": 41733,
+      "sha256": "56c6f01aabc9d55b435a04d2d5cd4cba2a46bc8bc43b012ad5b11ba18d187f55"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group2-01.markers.txt",
+      "bytes": 10571,
+      "sha256": "0d06b9ccddc1afd74e8d4c2c613e9c621ca8b3945df71761906bce4a6e2dba5e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group3-01.json",
+      "bytes": 40639,
+      "sha256": "76f2cb942584fa0e9ef6779d6ca9d049b3ac93b3cddb9ce505d55762ab9aed8f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-32-group3-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "c88a51ef8b99e6a6a7e783b2002835d62b017596dec95c84f05ac64a8b89c920"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group0-01.json",
+      "bytes": 40639,
+      "sha256": "e2bdd7b78a3c85df1116e0923a80e72d588b43cf93cc6515ee79d9a15baed93c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group0-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "c0cf509e4adb352f83e8658921cf02def6dac2f5855c5c18fc2b9100442c3cc0"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group1-01.json",
+      "bytes": 41077,
+      "sha256": "30820405b7ea56ce1cd44d7b0be4ab024322d2bef60799456f35e2d41c7192c2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group1-01.markers.txt",
+      "bytes": 10373,
+      "sha256": "2a2b2bd38bb4f0fb640484c9cba095f464894a25285a05c9c4b7b9a250233a66"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group2-01.json",
+      "bytes": 41734,
+      "sha256": "6f9b608fa07b72fd62afc4e7a609cef1b7ebd00e890897e7d61cea417e168ded"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group2-01.markers.txt",
+      "bytes": 10571,
+      "sha256": "f28ff37cf6697bfc73632cface82ab9109523ae22090661e0e00ed64b35d9900"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group3-01.json",
+      "bytes": 40639,
+      "sha256": "53b9dca403e3ff78900b1e0fd418620800c7d3ed8c13722cf347642762038e7c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-parameter-64-group3-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "b931e4f0b888ff5d7957774828b29cac01115089d466b4003c52bb16be946dcd"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-synthetic-32-01.json",
+      "bytes": 16021,
+      "sha256": "edd81c2c7d79571e35ba8d2bcbdf36af23890fd0735cbc63c0dae85e0af34c6a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-synthetic-32-01.markers.txt",
+      "bytes": 2905,
+      "sha256": "2f31739ef2ddbb70abf2ae3b4be1b52140b4223d4892f0f781e9b196a7499593"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-synthetic-64-01.json",
+      "bytes": 16021,
+      "sha256": "b2017d11b366166b9bc8a0d426dca6d3e6aa4c673b45baa7d644d7623e2792e5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-synthetic-64-01.markers.txt",
+      "bytes": 2905,
+      "sha256": "759d899668796ae6bf2921e3e45e0ab06fc296ce3a4bb8bae5880232fc48a40b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-unicode-32-01.json",
+      "bytes": 6706,
+      "sha256": "16c30cb1ac33802061f617e3cbf81510298ed2c4e109c36547522c6f3867ec95"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-unicode-32-01.markers.txt",
+      "bytes": 172,
+      "sha256": "0607a6d4ac3217e4d1526f0ee5d6df7e56b610b1cf3cd5c0c471ed5217fc0664"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-unicode-64-01.json",
+      "bytes": 6706,
+      "sha256": "c647e56e9a6edabb46f43841bc2b1637ac0d31aa97fbe40fc087dadee211bc07"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-installed-unicode-64-01.markers.txt",
+      "bytes": 172,
+      "sha256": "db258576e800ed6a1163213fa00d6720047a13f26ec5fe1ed9edc8521fad5243"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-negatives-32-02.json",
+      "bytes": 5536,
+      "sha256": "fe8b41f7cb2123c3cb5ccb6af780fb5fb0a7b6ffc9e3d91df9f92d548498d2cd"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-negatives-32-02.markers.txt",
+      "bytes": 1141,
+      "sha256": "62b8ba0bdec1140eb9337d9b9e303329a3b8b3de9f66e53566950feddad0068c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-negatives-64-02.json",
+      "bytes": 5536,
+      "sha256": "594eb784a668c60f1c3e7065aaadc5ce8e1241aa045184d9683ca14c9ea32564"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-negatives-64-02.markers.txt",
+      "bytes": 1141,
+      "sha256": "52698d137c1dfb4f19aec1711041d9c269c06331dc351fbba6a92c74b814d857"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group0-01.json",
+      "bytes": 39485,
+      "sha256": "a4a44c236bf7a4d437d167d5447c9bd64d0240147f2119a03f5cc8d82e446bc9"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group0-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "6fb622a6ffeb36cd0dbb4ff7c532e22cfe16c59f4d2a69ac4839f7f0b0e55bb0"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group1-01.json",
+      "bytes": 39922,
+      "sha256": "d66f574bd742b743c4972b247618ebf6e5782db760107a3a7b63dadc3217a477"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group1-01.markers.txt",
+      "bytes": 10373,
+      "sha256": "8beffb98785903bcbeafb70930033c7624b1af4713f7cbb6b332a50ec7f82233"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group2-01.json",
+      "bytes": 40579,
+      "sha256": "4e6f6de8ffbed66e5eefdcb490c83b8a9d97e5472ea00a9113fd767c38f8e321"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group2-01.markers.txt",
+      "bytes": 10571,
+      "sha256": "94344c7df33de1fc83edb9ed359e0f0c728e1b630ba3e1ab60eb091767bdf247"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group3-01.json",
+      "bytes": 39485,
+      "sha256": "496b410772f66b715cd67ad3c6565fa6051797fda598883c7303adccc6bb74cb"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-32-group3-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "4c720b0fc5ab53b1f772ac3e1b94c84eaf848f59f286d1795a03071edf80367a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group0-01.json",
+      "bytes": 39485,
+      "sha256": "0907d52141ebb4851f9e97a8f4b7c00dd02e852b365c2bec87f1821e7bfe0fc1"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group0-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "7d505d9064619cebbb17935cfcb43a8122627d8dcaa128a5076139a103389e59"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group1-01.json",
+      "bytes": 39923,
+      "sha256": "5537605886fdb5a4ed0376e139fece63fec6778aa1964cb8eddf3f88f55ea471"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group1-01.markers.txt",
+      "bytes": 10373,
+      "sha256": "3751eae15bc7e798c15d2ec89644588e0282bd6699d94b8c853bbc22bc5ed9a1"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group2-01.json",
+      "bytes": 40580,
+      "sha256": "ba01c5ee7ccbcca9568ecc52b3dda577e3c7e6fb6aaebf24109506d610da1d07"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group2-01.markers.txt",
+      "bytes": 10571,
+      "sha256": "9e9f0c8d6b919732a5d19c911492e2250b7cc78f63b5ae66957903fec9c0ad79"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group3-01.json",
+      "bytes": 39485,
+      "sha256": "156d0a7c86bd7d46a1f22adebfe8111a12727eabcaab48e37ea0f61bfdb94e08"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-parameter-64-group3-01.markers.txt",
+      "bytes": 10241,
+      "sha256": "f830be8e97a55074e66cdc519e3ef9a0dd06615b1ba5ca77b545c41293c97844"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-unicode-32-04.json",
+      "bytes": 5532,
+      "sha256": "4014cc8bc955d9048381ff8c1df2f150567ab3415dc308327ac9afaacef9fe7a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-unicode-32-04.markers.txt",
+      "bytes": 172,
+      "sha256": "fca19c23c4ad35ac89878d1950431f09bb0857934354f4f3ff64bbd81ffb66c4"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-unicode-64-04.json",
+      "bytes": 5532,
+      "sha256": "9694d7e19bce591915a5e0fad3984bb690d91ca80037399f2f90344c6c604cb8"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-unicode-64-04.markers.txt",
+      "bytes": 172,
+      "sha256": "445ecffc3b1126d819a4bfaa5e970ae08a0f3af77debc70342feec97155910d5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-warm-restart-fault-01.json",
+      "bytes": 5753,
+      "sha256": "d023f0d6b1bcf23ceae62a7394fb93c26dbd8a5b6e8583d860f2ead8e57a0500"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-warm-restart-fault-01.markers.txt",
+      "bytes": 158,
+      "sha256": "4449cbf891e00ed8f3efc376459d80b0368dd9dd2310f830527a5a3c68260594"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-wrong-increment-fault-01.json",
+      "bytes": 5757,
+      "sha256": "d89814007dd84a0c3b1dc9b9e560bda0ff89f6936d37d18f4cf7845947f49462"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/receipts/r-target-vm-wrong-increment-fault-01.markers.txt",
+      "bytes": 145,
+      "sha256": "08b904eabc1695b4101c1fc67afc1a671910ed9377073db344dd14c633655eae"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/reference-provenance.json",
+      "bytes": 1289,
+      "sha256": "22f9e44bdfccded093843d530e8b6f5082ded8ea6c4d48e06bbd0eb919f50c87"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/root-audit.json",
+      "bytes": 903,
+      "sha256": "eb7e6d0eb869e7094d04163d7da2d9a310d52d49747894ca8943eed77e3a76e1"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/root-source-integrity.json",
+      "bytes": 2264,
+      "sha256": "5210e0ef8c1f593cdb0dda9695d129e13998ab9632d16115405fe6f3eb9dc896"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/serializer-guards.json",
+      "bytes": 89,
+      "sha256": "475fc630f2b770140b9515bb2937309b8d54a66d8eec2574bad7fcf25e06a393"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/skill-increment.md",
+      "bytes": 1767,
+      "sha256": "3fd82d68b14d18484f7f3f186d696e46acc4de782546075dc5c2104ca25fa887"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/source-runtime-summary.json",
+      "bytes": 5009,
+      "sha256": "c267dae04a6d3df3b01a0825237bda745f25cbdc834b357b5d059ced6703207b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/synthetic-manifest.json",
+      "bytes": 121967,
+      "sha256": "106e52055b83e43c8577da7375e7ff349317e79173c3012b8696bf340d234057"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/unicode-manifest.json",
+      "bytes": 249,
+      "sha256": "8796d699bf6ef123e855039b46f4bc76fdc4dfa2629b9f7dea90a2abb588029e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verification-audit.json",
+      "bytes": 13613,
+      "sha256": "a4f692a3e472fe07d63daad7d80136cb023bb291e2793eac2c26a82c70e0f0ef"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verify-vm-faults.txt",
+      "bytes": 4603,
+      "sha256": "da9b742dc5cad17f45a8cb789601d66414d19b179be7c076e8e920fa41b5b2ed"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verify-vm-negatives.txt",
+      "bytes": 4460,
+      "sha256": "f7bf2b38f2b4d8c363d2b218ff711e76850461e96c462263f5a9018aabb7c230"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verify-vm-source-vectors.txt",
+      "bytes": 8230,
+      "sha256": "198fa91c13dd367a7d83adc34d887c3fc3e9c57f004571b8c7485f842979a2db"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verify-vm-synthetic.txt",
+      "bytes": 6330,
+      "sha256": "88d4ad115899c95a6a25db3fb052bf67b61016cabce7cd8375950fd34b30a55d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verify-vm-target-runtime.txt",
+      "bytes": 4116,
+      "sha256": "1ab5699d116469b5a3de40d04c1affd10eca7f6ecf4d1729be8bf5f224274e12"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verify-vm-unicode.txt",
+      "bytes": 1988,
+      "sha256": "7c96b8b137b2bf960d9248b8324c8f9a38a683a16d002ea76da75b27975c8524"
+    },
+    {
+      "path": "工程记录/2026-10-15_对于R版TJS表达式VM与暂停恢复的修改.md",
+      "bytes": 6995,
+      "sha256": "4e12d3285c01a50da83bded2c11fb616bf9c44a7237f4c17f0dcbd61414ebd2f"
+    }
+  ]
+}

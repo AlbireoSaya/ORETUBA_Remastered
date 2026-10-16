@@ -1,0 +1,63 @@
+// r_literal_run.tjs
+// RLiteralRun(readByte, start, end)
+// readByte(position) 必须返回严格 Integer 0..255。
+// 本函数不做 Unicode 解码，不解释换行/标签，仅按给定原始字节规则切分。
+function RLiteralRun(readByte, start, end) {
+    if (typeof readByte != "Object")
+        throw new Exception("readByte must be a Function");
+    if (typeof start != "Integer")
+        throw new Exception("start must be Integer");
+    if (typeof end != "Integer")
+        throw new Exception("end must be Integer");
+    if (start < 0 || start > 0xffffffff)
+        throw new Exception("start out of range");
+    if (end < 0 || end > 0xffffffff)
+        throw new Exception("end out of range");
+    if (start > end)
+        throw new Exception("start must not exceed end");
+
+    var pos = start;
+    var units = [];
+    var payload = [];
+    var stop = "limit";
+
+    while (pos < end) {
+        var b = readByte(pos);
+        if (typeof b != "Integer" || b < 0 || b > 255)
+            throw new Exception("readByte must return Integer 0..255");
+
+        if (b == 0) {
+            stop = "nul";
+            break;
+        }
+        if (b == 0x5b) {
+            stop = "marker";
+            break;
+        }
+
+        var width = 1;
+        if ((b >= 0x81 && b <= 0x9f) || (b >= 0xe0 && b <= 0xfc)) {
+            if (pos + 1 >= end)
+                throw new Exception("trail byte exceeds end");
+            var trail = readByte(pos + 1);
+            if (typeof trail != "Integer" || trail < 0 || trail > 255)
+                throw new Exception("readByte must return Integer 0..255");
+            payload.add(b);
+            payload.add(trail);
+            width = 2;
+        } else {
+            payload.add(b);
+        }
+
+        units.add([pos, width]);
+        pos += width;
+    }
+
+    return %[
+        "start" => start,
+        "end" => pos,
+        "units" => units,
+        "payload" => payload,
+        "stop" => stop
+    ];
+}

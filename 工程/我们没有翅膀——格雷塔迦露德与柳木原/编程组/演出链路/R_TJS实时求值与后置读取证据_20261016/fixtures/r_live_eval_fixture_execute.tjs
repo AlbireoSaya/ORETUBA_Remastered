@@ -1,0 +1,10 @@
+function RVEExecute(spec, s)
+{
+	var rd = global.RVERead32 incontextof s;
+	var rh = global.RVERead16 incontextof s;
+	var rb = global.RVERead8 incontextof s;
+	var wr = global.RVEWrite32 incontextof s;
+	var expr = global.RVEExpression incontextof s;
+	var bank = global.RVEForbiddenNative;
+	return global.RRecordLiveParameters(rd, rh, rb, wr, spec.item_start, spec.params, spec.count, bank, expr);
+}

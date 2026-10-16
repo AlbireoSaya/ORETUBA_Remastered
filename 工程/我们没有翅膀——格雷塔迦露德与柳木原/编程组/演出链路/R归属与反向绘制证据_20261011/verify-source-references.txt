@@ -1,0 +1,31 @@
+from pathlib import Path
+import sys,json,hashlib
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=r/'临时/ISSUE-20261011-02/r-owner-render-replay-01';b.mkdir(parents=True,exist_ok=True);sys.path.insert(0,str(g/'工具'));from lucifen_sob_loader import parse_container,NonContainer
+rows=[];containers=[];noncode=[]
+for p in sorted((r/'工程/我们没有翅膀R/语料/R版SCRIPT').glob('*.sob')):
+ data=p.read_bytes()
+ try:m=parse_container(data,p.name)
+ except NonContainer:
+  assert data[:4]==b'SOB1';noncode.append({'name':p.name,'sha256':hashlib.sha256(data).hexdigest(),'kind':'SOB1 variable declarations'});continue
+ containers.append({'name':p.name,'source_sha256':m['hash'],'magic':m['magic']})
+ for off,slot in m['maps'][1].items():
+  if slot in [411,412]:
+   assert off>=4 and off%4==0 and off+12<=m['ss'] and m['cells'][(off-4)//4]==5
+   row={'module':p.name,'source_sha256':m['hash'],'native_slot':slot,'call_codeoffset':off-4,'call_fileoffset':m['header']+off-4,'call_words':m['cells'][(off-4)//4:(off-4)//4+4]};rows.append(row)
+p=b/'reorder-SOB-references.json';assert not p.exists();p.write_text(json.dumps({'scope':'original 22 SOB0/2 native relocation tables with raw op5 words, not caller reachability or runtime vector','containers':containers,'noncode':noncode,'rows':rows},indent=2),encoding='utf-8');print('reorder SOB refs',len(rows),'containers',len(containers),'noncode',len(noncode),[(x['module'],x['native_slot'],x['call_codeoffset']) for x in rows[:8]])
+
+from pathlib import Path
+import sys,json,hashlib
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=r/'临时/ISSUE-20261011-02/r-owner-render-replay-01';b.mkdir(parents=True,exist_ok=True);sys.path.insert(0,str(g/'工具'));from lucifen_sob_loader import parse_container,NonContainer
+rows=[];containers=[];noncode=[]
+for p in sorted((r/'工程/我们没有翅膀R/语料/R版SCRIPT').glob('*.sob')):
+ data=p.read_bytes()
+ try:m=parse_container(data,p.name)
+ except NonContainer:
+  assert data[:4]==b'SOB1';noncode.append({'name':p.name,'sha256':hashlib.sha256(data).hexdigest(),'kind':'SOB1 variable declarations'});continue
+ containers.append({'name':p.name,'source_sha256':m['hash'],'magic':m['magic']})
+ for off,slot in m['maps'][1].items():
+  if slot in [790]:
+   assert off>=4 and off%4==0 and off+12<=m['ss'] and m['cells'][(off-4)//4]==5
+   row={'module':p.name,'source_sha256':m['hash'],'native_slot':slot,'call_codeoffset':off-4,'call_fileoffset':m['header']+off-4,'call_words':m['cells'][(off-4)//4:(off-4)//4+4]};rows.append(row)
+p=b/'reorder-upstream-SOB-references.json';assert not p.exists();p.write_text(json.dumps({'scope':'original 22 SOB0/2 native relocation tables with raw op5 words, not caller reachability or runtime vector','containers':containers,'noncode':noncode,'rows':rows},indent=2),encoding='utf-8');print('upstream slot790 SOB refs',len(rows),'containers',len(containers),'noncode',len(noncode),[(x['module'],x['native_slot'],x['call_codeoffset']) for x in rows[:8]])

@@ -1,0 +1,10 @@
+function RWriteRecordItem(item, base, dest, rd, wr, evalExpr, varMap) {
+    var firstFlags = (item.kind == "inline") ? item.tag : item.flags;
+    wr(dest, firstFlags);
+    if (item.kind == "inline") {
+        wr(dest, (rd(dest) | 2) & 0xffffffff);
+    }
+    var v = RRecordValue(item, base, rd, evalExpr, varMap) & 0xffffffff;
+    wr((dest + 4) & 0xffffffff, v);
+    return v;
+}

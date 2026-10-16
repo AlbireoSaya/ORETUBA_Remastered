@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-12",
+  "issue": "ISSUE-20261011-02",
+  "reviewer": "root",
+  "status": "passed_for_explicit_scope_only",
+  "formal_directory": "临时/ISSUE-20261011-02/r-expression-vm-replay-01",
+  "candidate_directory": "子代理工作区/ISSUE-20261011-02/r-expression-vm",
+  "full_results": [
+    {
+      "name": "dynamic-record-index.json",
+      "bytes": 97714,
+      "candidate_sha256": "d5f585fb8977483d98cce4c6f21baea85fae5f065330a0f94bbf9151ad4941eb",
+      "formal_sha256": "d5f585fb8977483d98cce4c6f21baea85fae5f065330a0f94bbf9151ad4941eb",
+      "full_json_equal": true
+    },
+    {
+      "name": "dynamic-record-results.json",
+      "bytes": 18876857,
+      "candidate_sha256": "326dcf5cead897253ff4ebc5181bcf090211a59aea952e47755448075961ca16",
+      "formal_sha256": "326dcf5cead897253ff4ebc5181bcf090211a59aea952e47755448075961ca16",
+      "full_json_equal": true
+    },
+    {
+      "name": "dynamic-record-summary.json",
+      "bytes": 847,
+      "candidate_sha256": "46d794d83db9803fccc046737da2de8ea226f02519bbf031dc09b3a231f873b0",
+      "formal_sha256": "46d794d83db9803fccc046737da2de8ea226f02519bbf031dc09b3a231f873b0",
+      "full_json_equal": true
+    },
+    {
+      "name": "expression-vm-instruction-evidence.json",
+      "bytes": 193966,
+      "candidate_sha256": "1df3df9d3b4051bab6d8d2e4e45c5381896f53058a28c5c496a8f5ea92e9f32d",
+      "formal_sha256": "1df3df9d3b4051bab6d8d2e4e45c5381896f53058a28c5c496a8f5ea92e9f32d",
+      "full_json_equal": true
+    },
+    {
+      "name": "independent-vm-results.json",
+      "bytes": 6395778,
+      "candidate_sha256": "d57073f773d8b85cef988afd10d15431ffe8fad8b5c5234a25c808ee3ef3e18c",
+      "formal_sha256": "d57073f773d8b85cef988afd10d15431ffe8fad8b5c5234a25c808ee3ef3e18c",
+      "full_json_equal": true
+    },
+    {
+      "name": "independent-vm-summary.json",
+      "bytes": 758,
+      "candidate_sha256": "198b53c16d3172dc584aa9bda579043d7fcbcfed8667f5c598513da19edf5d04",
+      "formal_sha256": "198b53c16d3172dc584aa9bda579043d7fcbcfed8667f5c598513da19edf5d04",
+      "full_json_equal": true
+    },
+    {
+      "name": "native-and-boundary-fixtures.json",
+      "bytes": 1052,
+      "candidate_sha256": "d3729af602650731ff9835dd8b11bad6a6505c402533c38e8b1638d067eb545a",
+      "formal_sha256": "d3729af602650731ff9835dd8b11bad6a6505c402533c38e8b1638d067eb545a",
+      "full_json_equal": true
+    },
+    {
+      "name": "native-vm-complete-results.json",
+      "bytes": 12975528,
+      "candidate_sha256": "086bb83c5f65aa4f79dc187d47bdfa4eb91ba273a4a30425e55cfbc757f35dff",
+      "formal_sha256": "086bb83c5f65aa4f79dc187d47bdfa4eb91ba273a4a30425e55cfbc757f35dff",
+      "full_json_equal": true
+    },
+    {
+      "name": "native-vm-complete-summary.json",
+      "bytes": 2413,
+      "candidate_sha256": "1d1ae5f8620015e0e8bc829ce45bb32767cf4d5b75fb385513f01d510dea4780",
+      "formal_sha256": "1d1ae5f8620015e0e8bc829ce45bb32767cf4d5b75fb385513f01d510dea4780",
+      "full_json_equal": true
+    },
+    {
+      "name": "native-vm-prefix-results.json",
+      "bytes": 1525500,
+      "candidate_sha256": "8636cec1c5b3fba470cb6cc8d940ba5373feed951478811773ebb3f2a7d7db9a",
+      "formal_sha256": "8636cec1c5b3fba470cb6cc8d940ba5373feed951478811773ebb3f2a7d7db9a",
+      "full_json_equal": true
+    },
+    {
+      "name": "native-vm-prefix-summary.json",
+      "bytes": 696,
+      "candidate_sha256": "50f03cb2b2628e8d3a81ad95188afdd2af94c6aa59222c471a598aca7d0b9327",
+      "formal_sha256": "50f03cb2b2628e8d3a81ad95188afdd2af94c6aa59222c471a598aca7d0b9327",
+      "full_json_equal": true
+    },
+    {
+      "name": "tob-command-registration.json",
+      "bytes": 15996,
+      "candidate_sha256": "5848b5232c684f7f581833c6e8b5fa4f0600e35cdb9f6891c9391db48831974d",
+      "formal_sha256": "5848b5232c684f7f581833c6e8b5fa4f0600e35cdb9f6891c9391db48831974d",
+      "full_json_equal": true
+    }
+  ],
+  "tool_sha256": "5285fee16da54523efd988caa2a5256b62b62b8c7ce15cb6a8ee5ca602e66803",
+  "checks": [
+    "independent reference source reviewed",
+    "8 exact recipes reviewed and compiled",
+    "12 complete JSON objects replay-equal",
+    "dynamic true and false original paths traced",
+    "live/source/PE memory and VM stacks covered",
+    "native exact getters and boundary negative controls covered",
+    "129 constructor registration fragment covered",
+    "editor README factual corrections applied",
+    "R knowledge incremental append preserves all old bytes"
+  ],
+  "not_proven": [
+    "47-opcode universal semantics",
+    "whole 129 handler semantics",
+    "real allocator and Windows input lifecycle",
+    "whole scene original runtime",
+    "faithful TJS target scripts",
+    "all four versions all routes frame/audio equality"
+  ],
+  "git_state": "issue branch; merge performed only after remaining administrative coverage review",
+  "source_baseline_hashes": "418/418 match IR02",
+  "administrative_coverage": [
+    "Galgame.md: existing R and selfbuilt rows, columns 8/10 only",
+    "2026-10-12_对于R版表达式VM与动态记录解码的修改.md",
+    "工程\\我们没有翅膀——格雷塔迦露德与柳木原\\编程组\\演出链路\\ISSUE-20261011-02_四版本原作还原长程目标.md"
+  ]
+}

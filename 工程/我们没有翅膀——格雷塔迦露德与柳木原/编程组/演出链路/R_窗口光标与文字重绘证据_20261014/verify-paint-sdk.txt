@@ -1,0 +1,35 @@
+from pathlib import Path
+import ctypes as C,sys,json,uuid,traceback,runpy,struct
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-window-cursor-20261014';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(w),str(g/'工具')]
+from lucifen_host_message_window_bindings import user32 as u,kernel32 as k,WNDCLASSEXW,WNDPROC
+from lucifen_host_paint_types import PAINTSTRUCT
+from lucifen_host_begin_paint import BeginPaint
+from lucifen_host_end_paint import EndPaint
+from lucifen_guest_paint_pack import pack_guest_paintstruct
+bits=C.sizeof(C.c_void_p)*8;assert C.sizeof(PAINTSTRUCT)==(64 if bits==32 else 72)
+synthetic=PAINTSTRUCT();synthetic.hdc=0x100000001 if bits==64 else 0x12345678;synthetic.fErase=-1;synthetic.rcPaint.left=-2;synthetic.rcPaint.top=3;synthetic.rcPaint.right=20;synthetic.rcPaint.bottom=40;synthetic.fRestore=9;synthetic.fIncUpdate=-7;synthetic.rgbReserved[:]=range(32)
+before=bytes(synthetic);packed=pack_guest_paintstruct(synthetic,0x69102000);assert len(packed)==64 and struct.unpack('<Ii4iii32s',packed)==(0x69102000,-1,-2,3,20,40,9,-7,bytes(range(32))) and bytes(synthetic)==before
+for bad in [True,-1,2**32]:
+ try:pack_guest_paintstruct(synthetic,bad)
+ except ValueError:pass
+ else:raise AssertionError('bad guest HDC')
+errors=[];rows=[]
+@WNDPROC
+def proc(hwnd,msg,wp,lp):
+ if msg!=15:return u.DefWindowProcW(hwnd,msg,wp,lp)
+ ptr=None;begun=False
+ try:
+  guard=bytes([165])*32;buf=C.create_string_buffer(guard+bytes(C.sizeof(PAINTSTRUCT))+guard,64+C.sizeof(PAINTSTRUCT));ptr=C.cast(C.byref(buf,32),C.POINTER(PAINTSTRUCT));dc=int(BeginPaint(hwnd,ptr)or 0);begun=bool(dc);assert dc and ptr.contents.hdc==dc and buf.raw[:32]==buf.raw[-32:]==guard
+  guest=pack_guest_paintstruct(ptr.contents,0x69ff0000);assert len(guest)==64 and struct.unpack_from('<I',guest)[0]==0x69ff0000
+  rows.append({'actual_WM_PAINT':True,'actual_BeginPaint_HDC_matches_native_PAINTSTRUCT':True,'native_bytes':C.sizeof(PAINTSTRUCT),'guest_bytes':len(guest),'rcPaint':[ptr.contents.rcPaint.left,ptr.contents.rcPaint.top,ptr.contents.rcPaint.right,ptr.contents.rcPaint.bottom],'both_guards_preserved':True})
+ except BaseException:errors.append(traceback.format_exc())
+ finally:
+  if begun:assert EndPaint(hwnd,ptr)
+ return 0
+name='GalgamePaintProbe'+uuid.uuid4().hex;inst=k.GetModuleHandleW(None);cls=WNDCLASSEXW();cls.cbSize=C.sizeof(cls);cls.lpfnWndProc=proc;cls.hInstance=inst;cls.lpszClassName=name;atom=u.RegisterClassExW(C.byref(cls));assert atom
+hwnd=u.CreateWindowExW(0,name,'owned paint ABI fixture',0,0,0,64,64,None,None,inst,None);assert hwnd
+try:u.SendMessageA(hwnd,15,0,0);assert len(rows)==1 and not errors
+finally:assert u.DestroyWindow(hwnd)and u.UnregisterClassW(name,inst)
+for f in ['verify_lucifen_cursor_messages.py','verify_lucifen_cursor_handles.py','verify_lucifen_gray8.py']:runpy.run_path(str(w/f),run_name='__main__')
+receipt={'bits':bits,'passed':True,'actual_Begin_End_in_owned_WM_PAINT':rows,'no_ReleaseDC_substitution':True,'native_HDC_not_truncated_to_guest':True,'reserved_and_flags_exact_pack':True,'scope':'synthetic owned hidden window and own pure data tests, not complete original WM_PAINT or pixels'}
+(w/('sdk-paint-and-pure-'+str(bits)+'.json')).write_text(json.dumps(receipt,indent=2),encoding='utf-8');print(json.dumps(receipt))

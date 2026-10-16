@@ -1,0 +1,48 @@
+@'
+
+from pathlib import Path
+import sys,json,struct,importlib.util
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-source-frame-replay-01';b.mkdir(parents=True,exist_ok=True);sys.path.insert(0,str(root/'工具/unicorn-2.1.4-py314'));from unicorn import Uc,UC_ARCH_X86,UC_MODE_32,UcError
+from unicorn.x86_const import UC_X86_REG_ESP
+spec=importlib.util.spec_from_file_location('probe',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_native_frame_probe.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+rows=[]
+u=Uc(UC_ARCH_X86,UC_MODE_32);u.mem_map(0x1000,0x3000);u.reg_write(UC_X86_REG_ESP,0x1000);u.mem_write(0x1004,struct.pack('<I',0x2000));u.mem_write(0x2000,struct.pack('<III',0xffffffff,0x80000000,7));u.mem_write(0x3008,struct.pack('<II',0x12345678,0x76543210));before=bytes(u.mem_read(0x1000,0x3000));r=m.snapshot_native_frame(u,0x3000,3);assert r['frame_words']==[0xffffffff,0x80000000,7] and r['vm_pc']==0x12345678 and r['vm_sp']==0x76543210 and bytes(u.mem_read(0x1000,0x3000))==before;rows.append('snapshot live unsigned and readonly')
+u.mem_write(0x1004,struct.pack('<I',0x90000000));assert m.snapshot_native_frame(u,0x3000,0)['frame_words']==[];rows.append('zero-count no frame deref')
+try:m.snapshot_native_frame(u,0x3000,1)
+except UcError:rows.append('unmapped frame actual UcError propagated')
+else:raise AssertionError('unmapped frame accepted')
+for ctx,n in [(True,1),(-1,1),(0x100000000,1),(0x3000,True),(0x3000,-1),(0x3000,33)]:
+ try:m.snapshot_native_frame(u,ctx,n)
+ except ValueError:pass
+ else:raise AssertionError('bad snapshot input accepted')
+rows.append('six snapshot invalid controls')
+
+memory={0:40,4:0,8:64,12:31,16:0xffffffff,20:44,24:13,28:0xffffffff,32:1,36:52,40:8,44:123,48:8,52:123,56:5,60:0xabcdef,64:0,68:0};writes=[]
+def rd(a):return memory[a]
+def wr(a,v):memory[a]=v;writes.append((a,v))
+r=m.reference_setup(rd,wr,0,100,2);assert r['frame_ptr']==100 and r['frame_words']==[0xffffffff,0] and r['vm_sp']==108 and r['steps']==6;assert memory[44]==0xffffffff and memory[52]==0
+rows.append('self-modification re-read and add wrap32')
+for program,expect in [({0:32,4:200,8:16,12:8,16:0,20:5,24:0xabcdef,28:100,32:0,200:0xaabbccdd},0xaabbccdd),({0:35,4:4,8:16,12:8,16:0,20:5,24:0xabcdef,28:100,32:0,96:0x33445566},0x33445566)]:
+ memory=program;writes=[];r=m.reference_setup(rd,wr,0,100,1);assert r['frame_words']==[expect];rows.append('reference indirect/stack read '+hex(expect))
+memory={0:46};writes=[]
+try:m.reference_setup(rd,wr,0,100,1)
+except ValueError as ex:assert str(ex)=='unknown op' and not writes;rows.append('unknown op rejected without skip')
+else:raise AssertionError('unsupported op accepted')
+memory={0:8,4:7};writes=[]
+try:m.reference_setup(rd,wr,0,100,1,max_steps=1)
+except ValueError as ex:assert str(ex)=='step budget exceeded' and writes==[(100,7)];rows.append('budget partial mutation retained not return')
+else:raise AssertionError('budget accepted')
+called=[]
+for vals in [(True,0,0,1),(0,-1,0,1),(0,0,True,1),(0,0,33,1),(0,0,0,True),(0,0,0,0)]:
+ try:m.reference_setup(lambda a:called.append(a),lambda a,v:called.append((a,v)),*vals)
+ except ValueError:pass
+ else:raise AssertionError('reference bad input accepted')
+assert not called;rows.append('six reference invalid controls before callbacks')
+memory={0xfffffffc:8,0:123,4:5,8:0x111,12:0xfffffffc,16:0};writes=[];r=m.reference_setup(rd,wr,0xfffffffc,0xfffffffc,1);assert r['frame_words']==[123] and r['vm_sp']==0 and r['call_pc']==4;rows.append('32bit pc and sp wrap preserved')
+memory={}
+try:m.reference_setup(rd,wr,0,100,1)
+except KeyError:rows.append('missing memory callback error propagated')
+else:raise AssertionError('missing memory fabricated')
+p=b/'helper-verification.json';assert not p.exists();p.write_text(json.dumps({'scope':'synthetic helper guard, read-only snapshot, reference arithmetic/self-modification/budget controls; no full VM coverage claim','groups':rows},ensure_ascii=False,indent=2),encoding='utf-8');print('PASS',len(rows),'helper groups')
+
+'@ | python -X utf8 -B -

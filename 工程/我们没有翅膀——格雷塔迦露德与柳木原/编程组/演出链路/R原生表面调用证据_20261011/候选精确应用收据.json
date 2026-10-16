@@ -1,0 +1,26 @@
+[
+  {
+    "line": 61,
+    "old": "        if insn.group(CS_GRP_JUMP):",
+    "editor_new_text": "             if insn.group(CS_GRP_JUMP) or insn.mnemonic in (\"loop\", \"loope\", \"loopne\"):",
+    "indent_application": "original matched-line indentation preserved; no expression changes"
+  },
+  {
+    "line": 65,
+    "old": "                if imm in known:",
+    "editor_new_text": "                 if imm in known and imm != entry:",
+    "indent_application": "original matched-line indentation preserved; no expression changes"
+  },
+  {
+    "line": 68,
+    "old": "                    edges.append({\"site\": site, \"target\": imm, \"kind\": \"jmp\"})",
+    "editor_new_text": "",
+    "indent_application": "original matched-line indentation preserved; no expression changes"
+  },
+  {
+    "line": 71,
+    "old": "                edges.append({\"site\": site, \"target\": imm, \"kind\": \"branch\"})",
+    "editor_new_text": "",
+    "indent_application": "original matched-line indentation preserved; no expression changes"
+  }
+]

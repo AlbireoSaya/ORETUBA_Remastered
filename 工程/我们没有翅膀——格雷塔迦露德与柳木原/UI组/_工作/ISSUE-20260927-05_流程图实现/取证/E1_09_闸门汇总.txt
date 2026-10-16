@@ -1,0 +1,10 @@
+$ 交付屏1（无参 = screen1）在盘上时实跑
+
+test_flow_links.py               EXIT=0  结果：**全部通过**（六条断言 + 两条自证）（退出码 0）
+verify_ui.py                     EXIT=0  资产：1316 件 / 94.89 MB | 结果：**全部通过**（退出码 0）
+test_gen_sync.py                 EXIT=0  结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）
+test_click_reach.py              EXIT=0  合计：屏 19 ｜ 重叠对 11 ｜ 中心可达性检查 31510 次 ｜ 豁免命中 1 条 | 结果：**全部通过**（无未登记的可达性缺陷；豁免项均已在表中写明理由）
+test_state_targets.py            EXIT=0  覆盖：态图+组 107 件 ｜ 纯组热区 53 件 ⇒ 合计 160 件（按各自可见所需的 flag 取值复算） | 结果：**全部通过**（判据指纹一致 + 160 件元素几何中心可达）
+test_quickbar_reach.py           EXIT=0  结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+test_gate_field_granularity.py   EXIT=0  结果：四项全部符合预期 ✓
+test_verify_asset_refs.py        EXIT=0  结果：**全部通过**

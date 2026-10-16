@@ -1,0 +1,51 @@
+from pathlib import Path
+import sys,json,struct,hashlib
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path.insert(0,str(g/'工具'))
+from r_vm_tjs_literal import tjs_literal as strict_lit
+def lit(v):return repr(v)if type(v)is float else strict_lit(v)
+from lucifen_inline_vm_reference import record_arguments
+from lucifen_tob_binding_reference import relocation_writes
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+lines=['var RBindCheckCount=0;var RBindPlanCount=0;',
+'function RBindRead(q){return this.data[q-this.base];}',
+'function RBindReject(label,fn){var caught=false;try{fn();}catch(e){caught=true;}if(!caught)throw new Exception("GUARD_ACCEPTED "+label);RBindCheckCount++;}',
+'var RBindWords=%[];var RBindEvents=[];',
+'function RBindRD(q){RBindEvents.add([0,q]);var v=RBindWords[""+q];if(typeof v!="Integer")throw new Exception("UNMAPPED_FIXTURE_WORD");return v;}',
+'function RBindEvalExpr(e){RBindEvents.add([1,e.id]);return e.value;}'];checks=0;labels=[]
+def octet(raw):return'<% '+' '.join(f'{v:02X}'for v in raw)+' %>'
+def reject(label,code):
+ global checks
+ lines.append('RBindReject('+lit(label)+',function(){'+code+'});');checks+=1;labels.append(label)
+for mode in[0,1]:
+ code=b'\x00'*32;table=(b'\0'*5 if not mode else b'\0'*20);raw=(struct.pack('<H',32)if not mode else b'[s'+struct.pack('<I',32))+code+b'\xff'+(struct.pack('<H',len(table)+2)if not mode else struct.pack('<I',len(table)+4))+table
+ name='RParseInlineExpression'if mode else'RParseExpression'
+ for cut in range(len(raw)):
+  reject(f'truncated-{mode}-{cut}',name+'(RBindRead incontextof %["data"=>'+octet(raw[:cut])+',"base"=>0],'+str(cut)+',0);')
+ lines.append('var RBindP='+name+'(RBindRead incontextof %["data"=>'+octet(raw)+',"base"=>0],'+str(len(raw))+',0);if('+( 'RBindP'if mode else'RBindP[0]')+'.compiled_flag!==255)throw new Exception("FLAG_NOT_PRESERVED");RBindCheckCount++;');checks+=1
+ # Corrupt slot in a real one-entry table, without relying on source bytes.
+ table=(b'\x01'if not mode else struct.pack('<I',1))+struct.pack('<II',29,0)+(b'\0'*4 if not mode else b'\0'*16);raw=(struct.pack('<H',32)if not mode else b'[s'+struct.pack('<I',32))+code+b'\0'+(struct.pack('<H',len(table)+(2 if not mode else 4))if not mode else struct.pack('<I',len(table)+4))+table
+ reject('slot-outside-'+str(mode),name+'(RBindRead incontextof %["data"=>'+octet(raw)+',"base"=>0],'+str(len(raw))+',0);')
+for off in[-1,1.5,'bad']:
+ reject('invalid-offset-'+str(off),'RParseExpression(RBindRD,0,'+lit(off)+');')
+for val in[-1,256,1.5,'x']:
+ reject('invalid-byte-'+str(val),'RExprByte(function(q){return '+lit(val)+';},1,0);')
+for base in[-1,2**32,1.5,'x']:
+ reject('invalid-code-base-'+str(base),'RRelocationWrites(%["relocations"=>[]],'+lit(base)+',[%[],%[],%[]],0);')
+for group in[-1,5,1.5]:
+ reject('invalid-group-'+str(group),'RRelocationWrites(%["relocations"=>[%["group"=>'+lit(group)+',"slot_offset"=>0,"index"=>0]]],0,[%[],%[],%[]],0);')
+for group in[0,1,2]:
+ reject('missing-bank-'+str(group),'RRelocationWrites(%["relocations"=>[%["group"=>'+str(group)+',"slot_offset"=>0,"index"=>0]]],0,[%[],%[],%[]],0);')
+maps={0:{0:0xffffffff},1:{1:0x80000000},2:{2:123}};rel=[{'group':i,'slot_offset':(i*3)%8,'index':i if i<3 else 0xffffffff}for i in range(5)];rel+=[rel[0],rel[3]]
+for base in[0,0xfffffff0]:
+ expr={'relocations':rel};groupmaps=[{str(k):v for k,v in maps[i].items()}for i in range(3)];expected=relocation_writes(expr,base,maps,0xfffffff0);lines.append('RVMFCompareRows(RRelocationWrites('+lit(expr)+','+str(base)+','+lit(groupmaps)+',4294967280),'+lit(expected)+',"synthetic-bind-order");RBindCheckCount++;RBindPlanCount++;');checks+=1
+conditions=[{'kind':'always'},{'kind':'empty'}]+[{'kind':'literal','value':v}for v in[0,1,0xffffffff,-1,2**32]]+[{'kind':'array','bank_index':0,'element_index':i}for i in[0,1]]+[{'kind':'expression','expression':{'id':i,'value':v}}for i,v in enumerate([0,1,0xffffffff])]
+items=[{'kind':'empty','flags':0},{'kind':'literal','value':-1,'flags':2},{'kind':'inline','data_offset':16,'data_size':0,'flags':5},{'kind':'inline','data_offset':16,'data_size':1,'flags':7},{'kind':'array','bank_index':0,'element_index':1,'flags':3},{'kind':'expression','expression':{'id':55,'value':-1},'flags':9}]
+for opcode in[0,1,129,0xffffffff]:
+ for condition in conditions:
+  record={'opcode':opcode,'condition':condition,'items':items};events=[];wordmap={0xfffffff8:0,0xfffffffc:0x80000001}
+  def rd(q):q&=0xffffffff;events.append([0,q]);return wordmap[q]
+  def evaluate(e):events.append([1,e['id']]);return e['value']
+  expected=record_arguments(record,0xfffffff8,rd,evaluate,{0:0xfffffff8})
+  lines.extend(['RBindEvents=[];RBindWords='+lit({str(k):v for k,v in wordmap.items()})+';','var RBindGot=RRecordArguments('+lit(record)+',4294967288,RBindRD,RBindEvalExpr,%["0"=>4294967288]);','if(RBindGot.accepted!=='+str(int(expected['accepted']))+' || RBindGot.condition_value!=='+str(expected['condition_value'])+')throw new Exception("RECORD_CONDITION");','RVMFCompareRows(RBindGot.params,'+lit(expected['params'])+',"record-params");RVMFCompareRows(RBindEvents,'+lit(events)+',"record-lazy-events");RBindCheckCount++;']);checks+=1
+reject('record-unknown-kind','RRecordValue(%["kind"=>"unimplemented"],0,RBindRD,RBindEvalExpr,%[]);');reject('record-missing-bank','RRecordValue(%["kind"=>"array","bank_index"=>0,"element_index"=>0],0,RBindRD,RBindEvalExpr,%[]);')
+p=out/'synthetic.tjs';p.write_text('\n'.join(lines)+'\n',encoding='utf8');manifest={'kind':'synthetic-parser-binder-record-primitives-not-full-record-VM','checks':checks,'plans':2,'negative_cases':len(labels),'record_cases':len(conditions)*4,'labels':labels,'files':[{'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'checks':checks,'plans':2}]};(out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf8');print({k:v for k,v in manifest.items()if k not in('files','labels')})

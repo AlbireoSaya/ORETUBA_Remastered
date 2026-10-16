@@ -1,0 +1,134 @@
+"""Root local original CPU experiment: real VM mutation and live post-VM reads."""
+from pathlib import Path
+import hashlib
+import json
+import struct
+import sys
+
+r=Path.cwd().resolve();g=r/"工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+sys.path[:0]=[str(r/"工具/unicorn-2.1.4-py314"),str(g/"工具"),str(g/"逆向引擎")]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_cdecl_observer import observe_cdecl_until
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_READ,UC_HOOK_MEM_WRITE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ESP,UC_X86_REG_ESI,UC_X86_REG_EDI
+
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/"临时/ISSUE-20261011-02")and not out.exists();out.mkdir()
+original=r/"备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE";pe=PE(original)
+digest=hashlib.sha256(pe.data).hexdigest();assert digest=="b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33"
+source,ctx,params,sb=0x3000000,0x1002000,0x1020000,0x1028000
+vmctx=ctx+0x651c;code=source+16;expression=source+14
+result,altptr,altdesc,altvec=0x1090000,0x1090400,0x1040100,0x1088000
+u32=lambda n:struct.pack("<I",n&0xffffffff)
+cases=[]
+def add(label,words,relocs=(),calls=2,declared=None,following=False,initial_result=0x87654321):
+    n=4*len(words);flag=code+n;table=flag+1;size=7+8*len(relocs);nextitem=table+size
+    values={"RESULT":result,"ALTPTR":altptr,"ALTDESC":altdesc,"ALTVEC":altvec,"GLOBAL":0x5355e8,"DESC4":0x1040084,"VECTOR":0x1085000,
+            "HEADER":expression,"TABLE":table,"FLAG":flag,"NEXT":nextitem}
+    words=[values.get(v,v)if isinstance(v,str)else v for v in words]
+    table_bytes=bytearray()
+    for group in range(5):
+        rows=[(slot,index)for grp,slot,index in relocs if grp==group];table_bytes+=bytes([len(rows)])
+        for slot,index in rows:
+            index=values[index]-code if isinstance(index,str)else index
+            table_bytes+=u32(slot)+u32(index)
+    expr=struct.pack("<H",n)+b"".join(u32(v)for v in words)+b"\0"+struct.pack("<H",size if declared is None else declared)+table_bytes
+    body=bytes([2 if following else 1])+b"\x07\x03"+expr+(b"\0"+u32(0xaabbccdd)if following else b"")
+    record=b"[ "+u32(4)+b"\1"+u32(4+len(body))+body
+    assert len(record)<=512
+    cases.append({"label":label,"data":record+b"\xcc"*(512-len(record)),"count":2 if following else 1,"calls":calls,
+                  "initial_result":initial_result,"code":code,"table":table,"flag":flag})
+
+add("pause-still-reads-result-and-pushes-again",[0])
+add("return-zero-still-reads-result",[1])
+add("bound-result-address-write",[31,0x11223344,0,1],[(2,8,0)])
+add("pause-with-written-result",[31,0xa1b2c3d4,"RESULT",0])
+add("vm-changes-table-size",[31,0xaabb000b,0,1],[(4,8,"TABLE")])
+add("vm-changes-result-global",[31,"ALTDESC","GLOBAL",1])
+add("vm-changes-descriptor-vector",[31,"ALTVEC","DESC4",1])
+add("vm-changes-result-vector-item",[31,"ALTPTR","VECTOR",1])
+add("vm-changes-size-and-result-global",[31,0xd00d0009,0,31,"ALTDESC","GLOBAL",1],[(4,8,"TABLE")])
+add("vm-overwrites-original-code-length",[31,0xaabbffff,"HEADER",1],calls=1)
+add("vm-clears-flag-and-rebinds-next-call",[31,0,0,1],[(4,8,"FLAG")])
+add("vm-makes-result-pointer-alias-size",[31,"TABLE","VECTOR",1])
+add("copy-result-word",[32,"ALTPTR","RESULT",1])
+add("increment-u32-result",[26,"RESULT",1],initial_result=0xffffffff)
+add("stack-relative-result",[40,4,"RESULT",1])
+add("post-size-zero",[1],calls=1,declared=0)
+add("post-size-ffff",[1],calls=1,declared=65535)
+add("real-vm-rewrites-following-parameter-tag",[31,0x44332202,0,1],[(4,8,"NEXT")],following=True)
+assert len(cases)==18
+
+specs,results=[],[]
+for case in cases:
+    uc=map_pe(pe);uc.mem_map(source,4096);uc.mem_write(source,case["data"])
+    initial=[]
+    def seed(a,v):uc.mem_write(a,u32(v));initial.append([a,v&0xffffffff])
+    for group,glob,desc,vector,count,width in((0,0x5355f0,0x1040000,0x1050000,8,12),(1,0x5355ec,0x1040040,0x1075000,8,4),(2,0x5355e8,0x1040080,0x1085000,3,12)):
+        seed(glob,desc);seed(desc+4,vector);seed(desc+8,vector+count*width)
+        for i in range(count):seed(vector+i*width,(result+i*16)if group==2 else(0x411c40+i*16 if group==1 else 0x1090800+i*16))
+    seed(0x5355e4,0x10d0000);seed(altdesc+4,altvec);seed(altdesc+8,altvec+36);seed(altvec,altptr)
+    seed(result,case["initial_result"]);seed(altptr,0xcafebabe)
+    seed(ctx+0x434,params);seed(vmctx+4,sb);seed(vmctx+12,sb)
+    state={"active":False,"phase":"pre","cursor":None}
+    segments=[]
+    def watched(a):
+        return(source<=a<source+4096 or 0x1000000<=a<0x1100000 or 0x5355e4<=a<0x5355f4 or
+               (state["cursor"]is not None and state["cursor"]<=a<state["cursor"]+4))
+    def on_code(machine,a,n,user):
+        if a==0x42fc74 and not state["active"]:
+            state["active"]=True;state["phase"]="pre";state["cursor"]=machine.reg_read(UC_X86_REG_ESP)+0x14
+            current["cursor_initial"]=int.from_bytes(machine.mem_read(state["cursor"],4),"little")
+            current["before_heap"]=bytes(machine.mem_read(0x1000000,0x100000));current["before_pe"]=bytes(machine.mem_read(pe.image_base,pe.size_image))
+        if not state["active"]:return
+        if a==0x430090:current["bindings"]+=1
+        if a==0x4a7a30:state["phase"]="vm";current["vm_calls"]+=1
+        if a==0x4a7a75:
+            pc=int.from_bytes(machine.mem_read(vmctx+8,4),"little");op=int.from_bytes(machine.mem_read(pc,4),"little");current["vm_trace"].append([pc,op])
+        if a==0x42fd81:current["vm_return"]=machine.reg_read(UC_X86_REG_EAX)&0xffffffff;state["phase"]="post"
+    def on_read(machine,access,a,size,value,user):
+        if state["active"]and state["phase"]!="vm"and watched(a):
+            current["events"].append([state["phase"],"r",a,size,int.from_bytes(machine.mem_read(a,size),"little")])
+    def on_write(machine,access,a,size,value,user):
+        if not state["active"]:return
+        row=[a,size,value&((1<<(8*size))-1)]
+        if state["phase"]=="vm":
+            if 0x1000000<=a<0x1100000 or source<=a<source+4096 or pe.image_base<=a<pe.image_base+pe.size_image:
+                current["vm_writes"].append(row);current["all_writes"].append(row)
+            elif not 0x2000000<=a<0x2010000:current["unexpected"].append(row)
+        elif watched(a):
+            current["events"].append([state["phase"],"w",*row]);current["all_writes"].append(row)
+        elif not 0x2000000<=a<0x2010000:current["unexpected"].append(row)
+    uc.hook_add(UC_HOOK_CODE,on_code);uc.hook_add(UC_HOOK_MEM_READ,on_read);uc.hook_add(UC_HOOK_MEM_WRITE,on_write)
+    for call in range(case["calls"]):
+        current={"events":[],"vm_writes":[],"vm_trace":[],"all_writes":[],"unexpected":[],"bindings":0,"vm_calls":0}
+        state.update(active=False,phase="pre",cursor=None)
+        observed=observe_cdecl_until(uc,0x42fb50,source+1,0x42fdc2,0,{"ecx":ctx},count=10000,timeout=200000)
+        state["active"]=False
+        assert observed["stop_reached"]and not observed["error"]and not current["unexpected"],(case["label"],call,observed,current["unexpected"])
+        assert current["vm_calls"]==1 and current["vm_return"]in(0,1)
+        heap,guest_pe=bytearray(current.pop("before_heap")),bytearray(current.pop("before_pe"))
+        for a,size,value in current["all_writes"]:
+            raw=value.to_bytes(size,"little")
+            if 0x1000000<=a<0x1100000:heap[a-0x1000000:a-0x1000000+size]=raw
+            if pe.image_base<=a<pe.image_base+pe.size_image:guest_pe[a-pe.image_base:a-pe.image_base+size]=raw
+        assert bytes(uc.mem_read(0x1000000,0x100000))==bytes(heap)and bytes(uc.mem_read(pe.image_base,pe.size_image))==bytes(guest_pe)
+        addresses=sorted({a for a,size,value in current["all_writes"]if size==4 and not 0x2000000<=a<0x2010000}|{vmctx+8,vmctx+12})
+        current.update(source_cursor=uc.reg_read(UC_X86_REG_ESI),param_end=uc.reg_read(UC_X86_REG_EDI),
+                       source_final=list(uc.mem_read(source,512)),final_words=[[a,int.from_bytes(uc.mem_read(a,4),"little")]for a in addresses],passed=True)
+        assert current["param_end"]==params+8*case["count"]
+        segments.append(current)
+    spec={"label":case["label"],"source":source,"data":list(case["data"]),"initial_words":initial,"ctx":vmctx,"params":params,"count":case["count"],
+          "cursor":state["cursor"],"item_start":source+12,"segments":segments}
+    specs.append(spec);results.append({"label":case["label"],"count":case["count"],"calls":len(segments),"passed":True,"segments":segments})
+assert original.read_bytes()==pe.data
+target=out/"cases.tjs";target.write_text("\n".join("RLiveEvalCheck("+lit(spec)+");"for spec in specs)+"\n",encoding="utf-8")
+calls=sum(len(s["segments"])for s in results);events=sum(len(x["events"])for s in results for x in s["segments"]);writes=sum(len(x["vm_writes"])for s in results for x in s["segments"])
+receipt={"passed":True,"cases":len(results),"original_record_calls":calls,"caller_events":events,"vm_writes":writes,"original_sha256":digest,"results":results,
+         "scope":"real original live record -> binder -> VM -> postVM result -> next live item, stops beforectx434/dispatch; exact caller pre/post reads/writes, ordered VM writes/PC-op/return; VM reads and internal native stack excluded; original heap/PE snapshot is write-coverage sanity, not independent oracle"}
+(out/"original-results.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+manifest={"cases":len(results),"records":calls,"caller_events":events,"vm_writes":writes,"original_result_sha256":hashlib.sha256((out/"original-results.json").read_bytes()).hexdigest(),
+          "files":[{"source":target.relative_to(r).as_posix(),"sha256":hashlib.sha256(target.read_bytes()).hexdigest()}]}
+(out/"manifest.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
+print(json.dumps({k:receipt[k]for k in("passed","cases","original_record_calls","caller_events","vm_writes")}))

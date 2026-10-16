@@ -1,0 +1,1178 @@
+// ============================================================
+// ui_flowfull.tjs —— 流程图「全量节点」运行期自绘渲染器
+//   ISSUE-20261003-09（渲染器）→ -14（挂屏）→ -16（标题）→ -18（标题修复 + 视图：纵滚/横移/缩放/点选）
+//
+// 分工依据（`ISSUE-20261003-08` 改判后）：**元素化 / 纵滚 / 横移 / 缩放 → 编程组**；
+// 版式与几何由 UI 组交付（`_工作\ISSUE-20260928-02_第2步\全量布局.json`，经
+// `工具\emit_flow_geometry.py` 生成 `story/_flowgeom.tjs`）。
+//
+// 本模块只做**画 + 视图**：把 `UIFlowGeomNodes` / `UIFlowGeomLinks` / `UIFlowGeomTitles`
+// 按「视图变换（平移＋缩放）」画到流程图屏的 stage 上，**软件夹取到视口 `fc.scroll`**。
+// 不新增屏元素、不改 UI 组任何文件 ⇒ 「单一数据源 ＋ 生成器 ＋ HTML 1:1 复刻」不受影响。
+//
+// ★ 已实测的 API 口径（详见 `工程记录\…层预算实测的修改-03.md`、`.zcode\skills\kirikiri-unpack\引擎工作原理.md`）：
+//   ① 离屏层必须**挂在已建好的宿主层下**：`new Layer(hostWin, host)`；
+//      `new Layer(win, null)` 会在 `DrawDevice.cpp:141` 抛内部错误（出处 `ui_asset.tjs:129`）。
+//   ② pen/brush 必须 **`new GdiPlus.Appearance()` ＋ `addPen` / `addBrush`**；
+//      传普通字典报 `Invalid instance type`（出处 `ui_flow_links.tjs:278`）；颜色是 **0xAARRGGBB**。
+//   ③ 点集必须**嵌套** `[[x,y],…]`；扁平数组**不报错也不画**。
+//   ④ `Layer.colorRect`：极便宜（656 节点 ×5 次填充仅 2–4 ms）⇒ 节点框一律用它。
+//   ⑤ `Layer.drawText` 的颜色要 **0xRRGGBB**（传 0xAARRGGBB 完全不画）；且 **`Layer.font` 是只读属性**
+//      ⇒ 不能 `layer.font = f`，只能改 `layer.font` 对象自身的字段（UI 组 `uiThemeApplyFont` 正是这么做的）。
+//   ⑥ **krkrz 对被 catch 的异常仍打整段 dump** ⇒ 热路径上必须"不抛异常"，而不是"抛了再 catch"。
+//
+// ★ 文字排版**不自造**：直接复用 UI 组的 `uiThemeLayoutText` / `uiThemeRenderText`
+//   （折行 / 行首行尾禁则 / max_lines / 居中 / valign / 描边 / 阴影全在那一份实现里），
+//   字体口径从流程图屏既有的 `fc.node.*_tx` 元素上**借用 `font`**（必然是同一口径）。
+// ============================================================
+
+// ★ 几何全局：**必须由消费方自己声明**。生成物 `story/_flowgeom.tjs` 里的赋值只在全局名已存在时才命中，
+//   否则抛「未找到 Member」——而 krkrz 对被 catch 的异常仍打整段 dump（本项目已踩两次）。
+var UIFlowGeomNodes    = [];
+var UIFlowGeomLinks    = [];
+var UIFlowGeomEdges    = [];
+var UIFlowGeomTitles   = [];       // 节点标题（与 Nodes 同序同长）
+var UIFlowGeomIds      = [];       // 场景 id（与 Nodes 同序同长；点选进入场景用）
+var UIFlowGeomKinds    = [];       // 类别码（0 section / 1 select / 2 branch / 3 frag）
+var UIFlowGeomViewport = [60, 190, 1235, 827];
+var UIFlowGeomCanvas   = [1920, 1080];
+var UIFlowGeomBBox     = [-408, 190, 1388, 19605];
+
+// ★★ 分页（ISSUE-20261004-03）：生成物 `story/_flowpages.tjs` 交的是**每页四张表**，
+//   渲染器仍只认上面那组「当前页」变量，由 `uiFlowFullSelectPage()` 绑定
+//   ⇒ 绘制 / 命中 / 视图 / 标题的代码**一行不改**（这正是本轮设计的目的）。
+var UIFlowPageTable   = [];        // 生成物：每页 %[nodes,links,titles,ids,kinds,bbox,entries,anchors_*]
+var UIFlowPageNames   = [];        // 生成物：页名（渡来明日香 …）
+var UIFlowPageShort   = [];        // 生成物：页签用的短名（明日香 / 日和子 …）
+var UIFlowPageRule    = %[];       // 生成物：版式规则计数（并排分叉 / 汇合对齐 …，机检用）
+var UIFlowPageCodes   = [];        // 生成物：页代号 A/B/C/D/E/F/G/I/J
+var UIFlowPageBBox    = [];
+var UIFullPageLoaded  = false;     // 是否已装载分页几何（true 时忽略旧的扁平 `_flowgeom.tjs`）
+var UIFullPageCur     = -1;        // 当前页下标
+var UIFullPagInAnchors  = [];      // 当前页的「入锚」（从别页进来）
+var UIFullPagOutAnchors = [];      // 当前页的「出锚」（跳到别页）
+// 页签条（自绘；UI 组将来若出正式入口图标，可把 `UIFullChipsEnabled` 置 false 整条退场）
+var UIFullChipsEnabled = true;
+var UIFullChipY   = 0;             // 页签条纵向落点（画布坐标；= 视口顶 - 46）
+var UIFullChipH   = 34;
+var UIFullChipGap = 6;
+var UIFullColorChipOn  = 0x2f6f8f;
+var UIFullColorChipOff = 0x1c2733;
+var UIFullColorAnchor  = 0xf2b338;  // 锚点标记（入锚描边 / 出锚小箭头）
+
+// ★ 点选跳转确认框（原作的 `askJump`）—— 原作里 `SystemConfig.askJump` 是**玩家设置项**
+//   （`scnchart_ui.tjs:1006 jumpConfirmText`：开着才弹「ジャンプしますか？」），故这里也做成开关：
+//   默认 **false**（＝保持本轮已机检通过的既有行为「点了就进」）；置 true 则先弹自绘确认卡。
+//   ⚠️ 自绘态没有设置屏（config 屏归 UI 组）⇒ 真正的开关项应由 UI 组接进 config；
+//      本变量先给编程组/机检驱动用，并作为将来接线时的**唯一判据**。
+var UIFullAskJump   = false;
+var UIFullAskIdx    = -1;           // ≥0 = 确认卡打开中（存节点下标）
+var UIFullAskYes    = [];           // 屏幕矩形 [x,y,w,h]
+var UIFullAskNo     = [];
+
+var UIFlowFullLayer  = null;
+var UIFlowFullHost   = null;
+var UIFlowFullWin    = null;
+var UIFlowFullNote   = "(未初始化)";
+var UIFlowFullDrawn  = 0;          // 上一次实际画出的节点数（夹取后）
+var UIFullLabelDrawn = 0;
+var UIFullSeenDrawn  = 0;          // 上一帧按「已读」色画出的节点数（场景级三态的可失败证据）
+var UIFullCurDrawn   = 0;          // 上一帧按「当前场景」色画出的节点数
+var UIFullLastResult = null;       // 上一次绘制的结果 `%[nodes,links,arrows,labels,ms*]`（供机检读取）
+var UIFullPerfNote   = "(未测)";   // 上一次绘制的分段耗时文本
+
+// 颜色常量（节点底 / 节点描边 / 连线 / 文字）
+var UIFullColorNodeBg   = 0x26323e;
+var UIFullColorNodeEdge = 0x39c1e0;
+// 场景级三态（ISSUE-20261004-03；已读集合在 `ui_flowscene.tjs`，**按 scene id** 记）
+var UIFullColorEdgeSeen = 0x53a877;   // 已读
+var UIFullColorEdgeCur  = 0xf2c14e;   // 当前正在播的场景
+var UIFullColorLink     = 0xff266080;   // ★ 必须带 alpha：GDI+ pen/brush 要 0xAARRGGBB，
+                                        //   给 0xRRGGBB（α=0）会静默不画（本期一审 Critical D2）
+var UIFullArrowLimit    = 200;       // 箭头只画前 N 条：**与 UI 组 POC 同口径的对照值**，不是真实数据
+// ★ 自绘节点上的文字颜色**不借 UI 组的 `@palette.psv_ink`**（实测 = 0x16213A，深墨蓝）——
+//   那是给 UI 组**浅底**节点美术配的；自绘节点底是深色（UIFullColorNodeBg=0x26323e）⇒
+//   借过来是"深字深底"，实机截图上几乎看不见（2026-10-03 实测发现）。自绘层用**自己的**浅色。
+var UIFullColorText     = 0xeef6ff;
+
+// ------------------------------------------------------------
+// 视图状态（平移 ＋ 缩放）——ISSUE-20261003-18
+//   坐标口径：节点几何是**画布坐标**，`UIFlowGeomViewport` 是 `fc.scroll` 在画布上的矩形。
+//   屏幕坐标 = 视口左上 + (画布坐标 − 视图原点) × 缩放。
+// ------------------------------------------------------------
+var UIFullViewX   = -408.0;    // 视口左上角对应的画布 x
+var UIFullViewY   = 190.0;
+var UIFullZoom    = 1.0;
+var UIFullZoomMin = 0.25;
+var UIFullZoomMax = 2.0;
+var UIFullZoomStep = 1.25;
+var UIFullLabelMinZoom = 0.5;  // 缩放低于此值不画标题（字太小只会糊成一片）
+
+// ★ 一律落到整数像素：`colorRect` / `drawLines` 用的是 GDI+ 整数坐标，
+//   传 Real 有踩坑风险（本工程对"传错类型静默不画"已有多次教训），故在源头取整。
+function uiFlowFullSX(cx) { return Math.floor(UIFlowGeomViewport[0] + (cx - UIFullViewX) * UIFullZoom); }
+function uiFlowFullSY(cy) { return Math.floor(UIFlowGeomViewport[1] + (cy - UIFullViewY) * UIFullZoom); }
+
+// 把视图夹回内容范围（留半屏余量，便于把边缘节点带到画面中间）
+function uiFlowFullClampView()
+{
+	if(UIFlowGeomBBox === void || UIFlowGeomBBox === null || UIFlowGeomBBox.count < 4) return;
+	var vw = UIFlowGeomViewport[2] / UIFullZoom;
+	var vh = UIFlowGeomViewport[3] / UIFullZoom;
+	var bx0 = 0 + UIFlowGeomBBox[0], by0 = 0 + UIFlowGeomBBox[1];
+	var bx1 = 0 + UIFlowGeomBBox[2], by1 = 0 + UIFlowGeomBBox[3];
+	var pad = 0.5;
+	var minX = bx0 - vw * pad, maxX = bx1 - vw + vw * pad;
+	var minY = by0 - vh * pad, maxY = by1 - vh + vh * pad;
+	if(maxX < minX) UIFullViewX = (bx0 + bx1 - vw) / 2;
+	else { if(UIFullViewX < minX) UIFullViewX = minX; if(UIFullViewX > maxX) UIFullViewX = maxX; }
+	if(maxY < minY) UIFullViewY = (by0 + by1 - vh) / 2;
+	else { if(UIFullViewY < minY) UIFullViewY = minY; if(UIFullViewY > maxY) UIFullViewY = maxY; }
+}
+
+// 默认视图：**从本页的入口节点左上角开始**，缩放 1.0。
+//   ★ 分页后不再用「节点 #0」：每页入口不同（A=ot_s00_00、E=otr_s03c_06a …），
+//     用生成物给出的 `entries[0]`（页内入度 0 的第一个）更稳。
+function uiFlowFullPageEntryIndex()
+{
+	if(UIFullPageLoaded !== true) return 0;
+	if(UIFullPageCur < 0 || UIFullPageCur >= UIFlowPageTable.count) return 0;
+	var T = UIFlowPageTable[UIFullPageCur];
+	if(T === void || T === null || T.entries === void || T.entries.count < 1) return 0;
+	return 0 + T.entries[0];
+}
+
+function uiFlowFullResetView()
+{
+	if(UIFullGeomLoaded !== true) uiFlowFullLoadGeometry();          // ★ 先确保几何已装载（否则读到的 count 是 0）
+	if(UIFlowGeomBBox === void || UIFlowGeomBBox === null || UIFlowGeomBBox.count < 4) return false;
+	UIFullZoom = 1.0;
+	var e0 = uiFlowFullPageEntryIndex();
+	if(UIFlowGeomNodes !== void && UIFlowGeomNodes !== null && UIFlowGeomNodes.count > e0 && e0 >= 0)
+	{
+		var n0 = UIFlowGeomNodes[e0];
+		UIFullViewX = 0 + n0[0] - 40;
+		// ★ 纵向让开页签条：使页首节点的**上沿**落在页签条下沿之下
+		UIFullViewY = 0 + n0[1] - (uiFlowFullTopReserve() + 28);
+	}
+	else
+	{
+		UIFullViewX = 0 + UIFlowGeomBBox[0];
+		UIFullViewY = 0 + UIFlowGeomBBox[1];
+	}
+	uiFlowFullClampView();
+	Debug.message("[FLOWFULL] 视图复位 → view=(" + Math.floor(UIFullViewX) + "," + Math.floor(UIFullViewY)
+		+ ") zoom=" + UIFullZoom);
+	return true;
+}
+
+// ★ 全览：把**节点区间 [a,b] 的包围盒**缩放到正好落进视口（居中）。
+//   为什么要它：分页后一页就是一条长竖列（A 页 164 节点 ≈ 1.97 万 px，与原作同款），
+//   默认视图（zoom 1.0）一屏只看得见 5–6 个节点 ⇒ 看不清"分叉并排 / 汇合对齐"的版式。
+//   本函数给样张与将来的「全览」按钮用；不影响默认进入行为。
+// ★ 页签条占用视口顶端 `UIFullChipH+16` px ⇒ 「复位 / 全览」必须把它让开，
+//   否则页首节点会被页签条压住（实测：页 A 的 `ot_s00_00` 被压掉一半）。
+function uiFlowFullTopReserve()
+{
+	return (UIFullChipsEnabled === true) ? (UIFullChipH + 16) : 0;
+}
+
+function uiFlowFullFitNodes(a, b, pad)
+{
+	if(UIFlowGeomNodes === void || UIFlowGeomNodes === null || UIFlowGeomNodes.count < 1) return false;
+	a = 0 + a; b = 0 + b;
+	if(a < 0) a = 0;
+	if(b >= UIFlowGeomNodes.count) b = UIFlowGeomNodes.count - 1;
+	if(b < a) b = a;
+	if(pad === void || pad === null) pad = 40;
+	var x0 = 1e12, y0 = 1e12, x1 = -1e12, y1 = -1e12, i = 0;
+	for(i = a; i <= b; i++)
+	{
+		var n = UIFlowGeomNodes[i];
+		var nx0 = 0 + n[0], ny0 = 0 + n[1];
+		var nx1 = nx0 + (0 + n[2]), ny1 = ny0 + (0 + n[3]);
+		if(nx0 < x0) x0 = nx0;
+		if(ny0 < y0) y0 = ny0;
+		if(nx1 > x1) x1 = nx1;
+		if(ny1 > y1) y1 = ny1;
+	}
+	x0 -= pad; y0 -= pad; x1 += pad; y1 += pad;
+	var bw = x1 - x0, bh = y1 - y0;
+	if(bw <= 0 || bh <= 0) return false;
+	var vp = UIFlowGeomViewport;
+	var top = uiFlowFullTopReserve();                    // ★ 页签条让位
+	var availH = vp[3] - top;
+	var zx = vp[2] / bw, zy = availH / bh;
+	var z = (zx < zy) ? zx : zy;
+	if(z > UIFullZoomMax) z = UIFullZoomMax;
+	if(z < UIFullZoomMin) z = UIFullZoomMin;
+	UIFullZoom = z;
+	UIFullViewX = x0 + bw / 2 - (vp[2] / z) / 2;
+	UIFullViewY = y0 + bh / 2 - (availH / z) / 2;
+	uiFlowFullClampView();
+	Debug.message("[FLOWFULL] 全览节点[" + a + "," + b + "] → zoom=" + UIFullZoom
+		+ " view=(" + Math.floor(UIFullViewX) + "," + Math.floor(UIFullViewY) + ")"
+		+ " 画布框 [" + Math.floor(x0) + "," + Math.floor(y0) + "," + Math.floor(x1) + "," + Math.floor(y1) + "]");
+	return true;
+}
+
+// 节点下标 → 视图对准它（供「进入后回到当前位置」之类的后续功能用）
+function uiFlowFullFocusNode(idx)
+{
+	idx = 0 + idx;
+	if(UIFlowGeomNodes === void || UIFlowGeomNodes === null) return false;
+	if(idx < 0 || idx >= UIFlowGeomNodes.count) return false;
+	var n = UIFlowGeomNodes[idx];
+	UIFullViewX = (0 + n[0]) + (0 + n[2]) / 2 - (UIFlowGeomViewport[2] / UIFullZoom) / 2;
+	UIFullViewY = (0 + n[1]) + (0 + n[3]) / 2 - (UIFlowGeomViewport[3] / UIFullZoom) / 2;
+	uiFlowFullClampView();
+	return true;
+}
+
+// 滚轮：以视口中心为锚点缩放。dir > 0 = 放大。
+function uiFlowFullWheel(dir)
+{
+	var vp = UIFlowGeomViewport;
+	var cx = UIFullViewX + (vp[2] / 2) / UIFullZoom;
+	var cy = UIFullViewY + (vp[3] / 2) / UIFullZoom;
+	var z = (dir > 0) ? (UIFullZoom * UIFullZoomStep) : (UIFullZoom / UIFullZoomStep);
+	if(z < UIFullZoomMin) z = UIFullZoomMin;
+	if(z > UIFullZoomMax) z = UIFullZoomMax;
+	UIFullZoom = z;
+	UIFullViewX = cx - (vp[2] / 2) / z;
+	UIFullViewY = cy - (vp[3] / 2) / z;
+	uiFlowFullClampView();
+	return UIFullZoom;
+}
+
+// 平移（画布位移量）
+function uiFlowFullPanByCanvas(dx, dy)
+{
+	UIFullViewX += dx;
+	UIFullViewY += dy;
+	uiFlowFullClampView();
+	return true;
+}
+
+// 屏幕坐标 → 命中的节点下标（后画者在上 ⇒ 反向遍历），未命中返回 -1
+function uiFlowFullNodeAt(sx, sy)
+{
+	if(UIFlowGeomNodes === void || UIFlowGeomNodes === null) return -1;
+	if(UIFlowGeomNodes.count < 1) return -1;
+	var vp = UIFlowGeomViewport;
+	if(UIFullZoom <= 0) return -1;
+	var cx = UIFullViewX + (sx - vp[0]) / UIFullZoom;
+	var cy = UIFullViewY + (sy - vp[1]) / UIFullZoom;
+	for(var i = UIFlowGeomNodes.count - 1; i >= 0; i--)
+	{
+		var n = UIFlowGeomNodes[i];
+		if(cx < (0 + n[0]) || cx > (0 + n[0]) + (0 + n[2])) continue;
+		if(cy < (0 + n[1]) || cy > (0 + n[1]) + (0 + n[3])) continue;
+		return i;
+	}
+	return -1;
+}
+
+// 点选节点 → 进入该场景（动作 `flow_scene_enter` 的落点）
+function uiFlowFullEnterScene(idx)
+{
+	idx = 0 + idx;
+	if(UIFlowGeomIds === void || UIFlowGeomIds === null) { Debug.message("[FLOWFULL] 进入场景失败：无 id 表"); return false; }
+	if(idx < 0 || idx >= UIFlowGeomIds.count) { Debug.message("[FLOWFULL] 进入场景失败：下标越界 " + idx); return false; }
+	var sid = "" + UIFlowGeomIds[idx];
+	if(sid == "") { Debug.message("[FLOWFULL] 进入场景失败：节点 " + idx + " 无场景 id"); return false; }
+	Debug.message("[FLOWFULL] 点选节点 #" + idx + " → 场景 " + sid);
+	try { return uiStoryStart(sid); }
+	catch(e) { Debug.message("[FLOWFULL][ERR] 进入场景抛错：" + e.message); return false; }
+}
+
+function uiFlowFullInteractive()
+{
+	if(UIFullHookEnabled !== true) return false;
+	if(UIFlowGeomNodes === void || UIFlowGeomNodes === null) return false;
+	return (UIFlowGeomNodes.count > 0);
+}
+
+// ------------------------------------------------------------
+// 几何装载（必须由本模块自己做：诊断模块不会在成品里装载，否则挂屏后画出来就是 0/0/0）
+// ------------------------------------------------------------
+var UIFullGeomLoaded = false;
+
+// 切页：把该页的四张表绑到「当前页」全局上（绘制/命中/视图/标题全部复用同一批代码）
+function uiFlowFullSelectPage(p)
+{
+	if(UIFullPageLoaded !== true) return false;
+	if(UIFlowPageTable === void || UIFlowPageTable === null || UIFlowPageTable.count < 1) return false;
+	p = 0 + p;
+	if(p < 0 || p >= UIFlowPageTable.count) return false;
+	var T = UIFlowPageTable[p];
+	if(T === void || T === null || T.nodes === void || T.nodes === null) return false;
+	UIFlowGeomNodes  = T.nodes;
+	UIFlowGeomLinks  = T.links;
+	UIFlowGeomTitles = T.titles;
+	UIFlowGeomIds    = T.ids;
+	UIFlowGeomKinds  = T.kinds;
+	UIFlowGeomBBox   = T.bbox;
+	UIFullPagInAnchors  = (T.anchors_in  === void) ? [] : T.anchors_in;
+	UIFullPagOutAnchors = (T.anchors_out === void) ? [] : T.anchors_out;
+	UIFullPageCur = p;
+	UIFullLabelCache = [];                 // 折行缓存按页失效（元素数变了）
+	UIFullLabelCacheZoom = -1.0;
+	uiFlowFullResetView();
+	Debug.message("[FLOWFULL] 切页 → " + p + "「" + UIFlowPageNames[p] + "」节点 "
+		+ T.nodes.count + " ｜ 连线 " + T.links.count
+		+ " ｜ 锚出 " + UIFullPagOutAnchors.count + " ｜ 锚入 " + UIFullPagInAnchors.count);
+	return true;
+}
+
+function uiFlowFullLoadGeometry()
+{
+	if(UIFullGeomLoaded === true) return true;
+	UIFullGeomLoaded = true;
+	try
+	{
+		// ★ 优先分页几何（`_flowpages.tjs`）；旧扁平几何（`_flowgeom.tjs`）仅作兜底，
+		//   它带 UI 组 `full` 预设的**同坐标叠字**（48 格各挤 2–5 个场景），只在没生成分页件时用。
+		var exP = false;
+		try { exP = Storages.isExistentStorage("story/_flowpages.tjs"); } catch(eP) { exP = false; }
+		if(exP)
+		{
+			Scripts.execStorage("story/_flowpages.tjs");
+			UIFullPageLoaded = true;
+			Debug.message("[FLOWFULL] 分页几何已装载：" + UIFlowPageTable.count + " 页");
+			uiFlowFullSelectPage(0);
+			return true;
+		}
+		Debug.message("[FLOWFULL][warn] 无 story/_flowpages.tjs ⇒ 退回旧扁平几何（会有同坐标叠字）");
+		var ex = false;
+		try { ex = Storages.isExistentStorage("story/_flowgeom.tjs"); } catch(e0) { ex = false; }
+		if(!ex) { Debug.message("[FLOWFULL][warn] 无 story/_flowgeom.tjs（先跑 emit_flow_geometry.py）"); return false; }
+		Scripts.execStorage("story/_flowgeom.tjs");
+	}
+	catch(e) { Debug.message("[FLOWFULL][ERR] 几何装载失败：" + e.message); return false; }
+	Debug.message("[FLOWFULL] 几何已装载：节点 " + UIFlowGeomNodes.count + " ｜ 连线 " + UIFlowGeomLinks.count
+		+ " ｜ 标题 " + UIFlowGeomTitles.count);
+	return true;
+}
+
+function uiFlowFullInit(win)
+{
+	UIFlowFullWin = win;
+	uiFlowFullLoadGeometry();
+	var host = null;
+	try { host = UIAssetHost; } catch(eH) { host = null; }
+	var hostWin = win;
+	try { if(UIAssetWin !== null && UIAssetWin !== void) hostWin = UIAssetWin; } catch(eH2) { }
+	UIFlowFullHost = host;
+	if(host === null || host === void) { UIFlowFullNote = "UIAssetHost 不可用，无法建绘制层"; return false; }
+	try
+	{
+		var l = new Layer(hostWin, host);
+		l.setSize(1920, 1080);
+		l.visible = false;      // 只当绘图靶子（可见性不影响 bitmap 绘制成本；与素材缓存层同法）
+		l.type = ltAlpha;
+		UIFlowFullLayer = l;
+		UIFlowFullNote = "就绪";
+		Debug.message("[FLOWFULL] 绘制层就绪（宿主层做父）");
+		return true;
+	}
+	catch(e) { UIFlowFullNote = "建层失败：" + e.message; Debug.message("[FLOWFULL][ERR] " + UIFlowFullNote); return false; }
+}
+
+// ------------------------------------------------------------
+// 软件夹取（自绘文字/折线无法靠 Layer 夹取，一律先裁到视口）
+// ------------------------------------------------------------
+function uiFlowFullClipRect(x, y, w, h, vx, vy, vx2, vy2)
+{
+	var x1r = x + w, y1r = y + h;
+	var x0 = (x > vx) ? x : vx;
+	var y0 = (y > vy) ? y : vy;
+	var x1 = (x1r < vx2) ? x1r : vx2;
+	var y1 = (y1r < vy2) ? y1r : vy2;
+	if(x1 <= x0 || y1 <= y0) return null;
+	return [Math.floor(x0), Math.floor(y0), Math.floor(x1) - Math.floor(x0), Math.floor(y1) - Math.floor(y0)];
+}
+
+// Liang–Barsky：线段 → 视口内的线段（null = 完全在外）
+function uiFlowFullClipSeg(ax, ay, bx, by, vx, vy, vx2, vy2)
+{
+	var dx = bx - ax, dy = by - ay;
+	var t0 = 0.0, t1 = 1.0;
+	var p = [0.0 - dx, dx, 0.0 - dy, dy];
+	var q = [ax - vx, vx2 - ax, ay - vy, vy2 - ay];
+	for(var i = 0; i < 4; i++)
+	{
+		var pi = 0 + p[i], qi = 0 + q[i];
+		if(pi == 0.0) { if(qi < 0.0) return null; continue; }
+		var r = qi / pi;
+		if(pi < 0.0) { if(r > t1) return null; if(r > t0) t0 = r; }
+		else { if(r < t0) return null; if(r < t1) t1 = r; }
+	}
+	var rax = Math.floor(ax + t0 * dx), ray = Math.floor(ay + t0 * dy);
+	var rbx = Math.floor(ax + t1 * dx), rby = Math.floor(ay + t1 * dy);
+	if((rbx - rax) * (rbx - rax) + (rby - ray) * (rby - ray) < 1) return null;
+	return [rax, ray, rbx, rby];
+}
+
+function uiFlowFullInRect(x, y, vx, vy, vx2, vy2)
+{
+	return (x >= vx && x <= vx2 && y >= vy && y <= vy2);
+}
+
+// ------------------------------------------------------------
+// 画一帧：节点框 → 连线 → 箭头 →（可选）标题。`cull=true` 只画与视口相交者。
+// 返回 `%[ nodes:, links:, arrows:, labels: ]`；未就绪返回 `null`。
+// ------------------------------------------------------------
+function uiFlowFullDraw(vx, vy, vw, vh, cull, withArrows, clearBg, withLabels)
+{
+	if(UIFullGeomLoaded !== true) uiFlowFullLoadGeometry();
+	var l = UIFlowFullLayer;
+	if(l === null || l === void) return null;
+	if(UIFlowGeomNodes === void || UIFlowGeomNodes === null) return null;
+	var vx2 = vx + vw, vy2 = vy + vh;
+	var nN = 0, nL = 0, nA = 0, nT = 0, i;
+	// ★ 场景级三态的实际绘制计数（供机检**可失败**地证明状态真的到了像素上）
+	var nSeen = 0, nCur = 0;
+	if(clearBg === true) { l.fillRect(0, 0, 1920, 1080, 0x101820); }   // ★ 只有离线实测才清屏
+	// ★ 分段计时（本项目纪律：只报"合计 195 ms"无法定位；见 `UIFullPerfNote`）
+	var tSeg = System.getTickCount(), tA = 0, tB = 0, tC = 0;
+
+	// ① 节点框（底 + 四边描边；与 UI 组 uiFlowFrame 同法）
+	var bw = Math.floor(2 * UIFullZoom + 0.5);
+	if(bw < 1) bw = 1;
+	for(i = 0; i < UIFlowGeomNodes.count; i++)
+	{
+		var n = UIFlowGeomNodes[i];
+		var sx = uiFlowFullSX(0 + n[0]), sy = uiFlowFullSY(0 + n[1]);
+		var sw = (0 + n[2]) * UIFullZoom, sh = (0 + n[3]) * UIFullZoom;
+		if(cull === true && (sx + sw < vx || sy + sh < vy || sx > vx2 || sy > vy2)) continue;
+		var r = uiFlowFullClipRect(sx, sy, sw, sh, vx, vy, vx2, vy2);
+		if(r === null) continue;
+		l.colorRect(r[0], r[1], r[2], r[3], UIFullColorNodeBg, 235);
+		// ★ 场景级三态描边（ISSUE-20261004-03）：当前场景 > 已读 > 未读。
+		//   已读集合在 `ui_flowscene.tjs`，**键是 scene id**（不是节点下标——分页后下标随页重排）。
+		var edgeCol = UIFullColorNodeEdge;
+		try
+		{
+			if(UIFlowGeomIds !== void && UIFlowGeomIds.count > i)
+			{
+				var sidN = "" + UIFlowGeomIds[i];
+				if(sidN != "")
+				{
+					if(sidN == UIFullSceneCur) edgeCol = UIFullColorEdgeCur;
+					else if(UIFullSceneSeen[sidN] === true) edgeCol = UIFullColorEdgeSeen;
+				}
+			}
+		}
+		catch(eES) { }
+		if(edgeCol == UIFullColorEdgeSeen) nSeen++;
+		else if(edgeCol == UIFullColorEdgeCur) nCur++;
+		// 四边：各自夹取后画（避免溢到视口外的右栏/标题区）
+		var e;
+		e = uiFlowFullClipRect(sx, sy, sw, bw, vx, vy, vx2, vy2); if(e !== null) l.colorRect(e[0], e[1], e[2], e[3], edgeCol, 255);
+		e = uiFlowFullClipRect(sx, sy + sh - bw, sw, bw, vx, vy, vx2, vy2); if(e !== null) l.colorRect(e[0], e[1], e[2], e[3], edgeCol, 255);
+		e = uiFlowFullClipRect(sx, sy, bw, sh, vx, vy, vx2, vy2); if(e !== null) l.colorRect(e[0], e[1], e[2], e[3], edgeCol, 255);
+		e = uiFlowFullClipRect(sx + sw - bw, sy, bw, sh, vx, vy, vx2, vy2); if(e !== null) l.colorRect(e[0], e[1], e[2], e[3], edgeCol, 255);
+		nN++;
+	}
+
+	tA = System.getTickCount() - tSeg;
+	tSeg = System.getTickCount();
+
+	// ② 连线（**变长点列**：同列 2 点直线、异列「折 + 贝塞尔展平」多点、枢纽总线 4 点）
+	//   ★ 分页改造（ISSUE-20261004-03）：旧格式是固定 4 个数（渲染器自己折成 L 形）；
+	//     现在几何生成器直接把**折点与贝塞尔展平后的点**写进表里 ⇒ 渲染器只认"点列"。
+	//     贝塞尔可行性证据：`layerExDraw.dll` 导出 `Path.drawBezier/drawBeziers/drawCurve/
+	//     drawPath`（UTF-16 字串表），原作 `scnchart_ui.tjs:2895-2898 _pathLinkV*` 即 `drawBezier`；
+	//     我们**在生成期展平**成折线，故不依赖运行期插件的新能力（更稳、可离线验收）。
+	if(UIFlowGeomLinks !== void && UIFlowGeomLinks !== null && UIFlowGeomLinks.count > 0)
+	{
+		var pen = new GdiPlus.Appearance();
+		pen.addPen(UIFullColorLink, %[ width: 3, lineJoin: GdiPlus.LineJoinRound,
+			startCap: GdiPlus.LineCapRound, endCap: GdiPlus.LineCapRound ], 0, 0);
+		var brush = null;
+		if(withArrows === true)
+		{
+			brush = new GdiPlus.Appearance();
+			brush.addBrush(UIFullColorLink, 0, 0);
+		}
+		for(i = 0; i < UIFlowGeomLinks.count; i++)
+		{
+			var k = UIFlowGeomLinks[i];
+			var kn = k.count;
+			if(kn < 4) continue;
+			var pts = [];
+			var j = 0;
+			for(j = 0; j + 1 < kn; j += 2)
+				pts.add([ uiFlowFullSX(0 + k[j]), uiFlowFullSY(0 + k[j + 1]) ]);
+			// 粗筛：点列包围盒与视口无交集就跳过
+			var minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9;
+			for(j = 0; j < pts.count; j++)
+			{
+				var p0 = pts[j];
+				if(p0[0] < minx) minx = p0[0];
+				if(p0[0] > maxx) maxx = p0[0];
+				if(p0[1] < miny) miny = p0[1];
+				if(p0[1] > maxy) maxy = p0[1];
+			}
+			if(maxx < vx || minx > vx2 || maxy < vy || miny > vy2) continue;
+			if(minx >= vx && maxx <= vx2 && miny >= vy && maxy <= vy2)
+			{
+				l.drawLines(pen, pts);                 // ★ 点集必须嵌套 [[x,y],…]
+				nL++;
+			}
+			else
+			{
+				for(j = 0; j + 1 < pts.count; j++)
+				{
+					var s1 = uiFlowFullClipSeg(pts[j][0], pts[j][1], pts[j + 1][0], pts[j + 1][1],
+						vx, vy, vx2, vy2);
+					if(s1 !== null) { l.drawLines(pen, [ [ s1[0], s1[1] ], [ s1[2], s1[3] ] ]); nL++; }
+				}
+			}
+			// 箭头：落在点列**末端**，朝向 = 末段方向（同列即向下；异列贝塞尔末端已竖直）
+			if(withArrows === true && pts.count >= 2)
+			{
+				var pb = pts[pts.count - 1];
+				var bx = pb[0], by = pb[1];
+				if(uiFlowFullInRect(bx, by, vx, vy, vx2, vy2))
+				{
+					var pa = pts[pts.count - 2];
+					var ddx = bx - pa[0], ddy = by - pa[1];
+					var dl = Math.sqrt(ddx * ddx + ddy * ddy);
+					var dirx = 0.0, diry = 1.0;
+					if(dl > 0.001) { dirx = ddx / dl; diry = ddy / dl; }
+					var px = 0.0 - diry, py = dirx;
+					var al = 11.0, aw = 5.5;
+					l.drawPolygon(brush, [ [ bx, by ],
+						[ Math.floor(bx - dirx * al + px * aw), Math.floor(by - diry * al + py * aw) ],
+						[ Math.floor(bx - dirx * al - px * aw), Math.floor(by - diry * al - py * aw) ] ]);
+					nA++;
+				}
+			}
+		}
+	}
+
+	tB = System.getTickCount() - tSeg;
+	tSeg = System.getTickCount();
+
+	if(withLabels === true) nT = uiFlowFullDrawLabels(l, vx, vy, vw, vh);
+	tC = System.getTickCount() - tSeg;
+
+	UIFlowFullDrawn = nN;
+	UIFullLabelDrawn = nT;
+	UIFullSeenDrawn = nSeen;
+	UIFullCurDrawn = nCur;
+	UIFullPerfNote = "节点 " + tA + " ms ｜ 连线 " + tB + " ms ｜ 标题 " + tC + " ms";
+	return %[ nodes: nN, links: nL, arrows: nA, labels: nT, seen: nSeen, cur: nCur,
+		msNodes: tA, msLinks: tB, msLabels: tC ];
+}
+
+// 在给定的 stage 上直接画（把绘制挂到流程图屏自己的层上）
+//   ★ ISSUE-20261003-18：标题**必须在本函数内**画 —— 钩子路径从没走过 `uiFlowFullInit`，
+//     `UIFlowFullLayer` 在这里是被临时替换的形参，出了作用域就还原成 null；
+//     旧的 `uiFlowFullDrawLabels(vx…, )` 读 `UIFlowFullLayer` ⇒ 一进门就 `return 0`。
+function uiFlowFullDrawOn(stage, vx, vy, vw, vh, cull, withArrows, withLabels)
+{
+	if(stage === void || stage === null) return null;
+	var keep = UIFlowFullLayer;
+	UIFlowFullLayer = stage;
+	var r = null;
+	try { r = uiFlowFullDraw(vx, vy, vw, vh, cull, withArrows, false, withLabels); }   // 画在别人的 stage 上：不清屏
+	catch(e) { Debug.message("[FLOWFULL][ERR] " + e.message); }
+	UIFlowFullLayer = keep;
+	return r;
+}
+
+// ============================================================
+// 挂屏：把自绘接到**唯一屏绘制入口** uiScreenDraw(stage)
+//   依据：UI组/krkr/game/ui_screens.tjs:4261  function uiScreenDraw(stage) —— 全屏唯一绘制入口。
+//   门槛：game/flowfull.txt（诊断开关）。成品无此开关 => UIFullHookEnabled=false，
+//         钩子仍安装但**一次也不画**，行为与改动前一致。
+//   ★ z 序（实测结论，勿再当缺口）：UI 的元素与自绘**都画进同一个 stage 位图**，
+//     顺序＝UI 先、自绘后 ⇒ 自绘会盖住同屏 UI 元素；实机截图（shot_908_flowchart.png）
+//     当时"UI 完好"是因为自绘节点与 UI 的 13 个幕级示例节点**几何不重合**。
+//     ⇒「自绘 vs UI 既有节点」的共存口径是**待用户裁决项**，本模块不做取舍。
+// ============================================================
+
+var UIFullHookInstalled = false;
+var UIFullHookOrig      = null;
+var UIFullHookEnabled   = false;
+var UIFullHookDrawn     = 0;
+var UIFullHookLastMs    = -1;
+var UIFullHookNote      = "(未挂)";
+
+// ------------------------------------------------------------
+// 自绘启用时**隐藏 UI 组的 `fc_layer` 族**（用户 2026-10-03 裁决 Q1 选项①）
+//   背景：自绘的 676 个节点（ISSUE-20261004-12 起跟随 spine 构建集；语料 712 − 去重件 36）
+//   与 UI 组屏数据里的 `fc.node*`（幕级示例节点）几何重叠
+//         （默认视图实测：我们 54 条标题里 40 条与 UI 静态元素相撞）⇒ 同屏两套、实机叠字。
+//   做法：把屏级 flag `fc_layer` 写成一个**与任何 `vis_when` 都不相等**的值
+//         （屏数据里只有 `main` 与 `frag1..frag6`）⇒ 整族 `fc_layer` 元素不显示。
+//
+//   ★★ 代价清单（一审重要-2 订正 —— 我原先写成"6 条泳道标签"，**与数据不符**，据此登记如下）：
+//     `32_flowchart.json` 里 `vis_flag=fc_layer` 共 **246 件**：
+//       · `vis_when=main` 57 件 = `fc.node*` 39（幕级示例节点）+ `fc.entry*` 12（**番外入口块**的热区）
+//         + `fc.label.*_tx` 6（**番外入口块的文字**，与 `fc.entry.*` 同坐标、不是"泳道标签"）；
+//       · `vis_when=frag1..frag6` 189 件 = `fc.fragN.NNNN` 159（53 个番外场景节点×3）
+//         + `fc.fragN_title`/`_title_bg` 12 + `fc.fragN_back`/`_back_tx`/`_back_hit` 18（**「返回主干」按钮**）。
+//     ⇒ 隐藏后：① 幕级示例节点消失（这正是裁决要的）；② **番外入口块（标签+热区）与番外独立层
+//     连同「返回主干」按钮一并消失**（自绘本身已含那 53 个 frag 节点，故信息不丢，但**入口交互丢了**）；
+//     ③ 「番外故事」页签仍可见但点击后**不再改变画面**（`uiFlowWireMode` 在自绘态直接返回）
+//     ⇒ 该页签在本模式下成为**可见但无作用的控件**；④ 真正的"泳道名"（`全量布局.json` 的 `lanes[]`，
+//     如"渡来明日香"）**本来就是 UI 与自绘都没画的**，与本改动无关。
+//   ★ 每帧幂等重写：`uiScreenReset/Push/Pop` 会把屏级 flag 复位成 `flags_default="main"`，
+//     只在装载时写一次会被冲掉（实测：全程只记一次"改写"日志 ⇒ 复位后纠正 + 稳态早退都成立）。
+var UIFullHideFlag = "selfdraw";     // 哨兵值：不与屏数据任何 vis_when 相等
+var UIFullHideAtEntry = 0;           // 「画 UI 之前」就完成隐藏的帧数（供机检证明该路径真的在跑）
+var UIFullHideFixups  = 0;           // 其中"进来时还不是哨兵、当场纠正"的次数（屏 flag 被复位过的证据）
+
+function uiFlowFullApplyHideUI()
+{
+	if(UIFullHookEnabled !== true) return false;
+	var cur = "";
+	try { cur = "" + uiScreenFlagGet("fc_layer"); } catch(e0) { return false; }
+	UIFullHideAtEntry++;
+	if(cur == UIFullHideFlag) return true;          // 稳态：已隐藏，早退（不写、不触发重绘）
+	UIFullHideFixups++;
+	try
+	{
+		uiScreenFlagSet("fc_layer", UIFullHideFlag);
+		Debug.message("[FLOWFULL] 隐藏 UI 静态节点族：fc_layer " + cur + " → " + UIFullHideFlag);
+	}
+	catch(e) { Debug.message("[FLOWFULL][ERR] 写 fc_layer 失败：" + e.message); return false; }
+	return true;
+}
+
+function uiFlowFullDrawWrapped(stage)
+{
+	// ★★ 隐藏必须在**画 UI 屏之前**生效（一审重要-1）：原先把 `ApplyHideUI()` 排在
+	//   `UIFullHookOrig(stage)` 之后 ⇒ 进流程图的那一帧 UI 仍按旧值 `main` 把静态节点画进目标层；
+	//   而「屏变了」的那一帧会走 420 ms 转场、**转场期间引擎不重画**（`startup.tjs:redraw()` 对转场在场直接 return）
+	//   ⇒ 叠字会整整显示一个转场（+ 至多一拍 120ms blink）。提前到本函数开头即可根治。
+	//   （`uiScreenFlagSet` 值相同即早退、不触发重绘，故提前调用无副作用。）
+	try
+	{
+		if(UIFullHookEnabled === true && ("" + uiScreenCurrent()) == "flowchart") uiFlowFullApplyHideUI();
+	}
+	catch(eH0) { }
+	var r = null;
+	try { r = UIFullHookOrig(stage); }
+	catch(e0) { Debug.message("[FLOWFULL][ERR] 原屏绘制抛错：" + e0.message); r = null; }
+	try
+	{
+		if(UIFullHookEnabled === true && ("" + uiScreenCurrent()) == "flowchart")
+		{
+			var vp = UIFlowGeomViewport;
+			var t0 = System.getTickCount();
+			var res = uiFlowFullDrawOn(stage, vp[0], vp[1], vp[2], vp[3], true, true, true);
+			UIFullHookLastMs = System.getTickCount() - t0;
+			if(res !== null)
+			{
+				UIFullLastResult = res;
+				UIFullHookDrawn++;
+				UIFullHookNote = "节点 " + res.nodes + "/" + res.links + "/" + res.arrows
+					+ " + 标题 " + res.labels + " → " + UIFullHookLastMs + " ms"
+					+ "（" + UIFullPerfNote + "）";
+				if(UIFullHookDrawn == 1 || (UIFullHookDrawn % 30) == 0)
+					Debug.message("[FLOWFULL] 叠加绘制 #" + UIFullHookDrawn + "：" + UIFullHookNote);
+				// ★ 页签条 + 锚点标记：画在图表**之后**（同层 ⇒ 压在最上）
+				try { uiFlowFullDrawChrome(stage, vp[0], vp[1], vp[2], vp[3]); }
+				catch(eC) { Debug.message("[FLOWFULL][ERR] 页签/锚点绘制：" + eC.message); }
+				// ★ 确认卡画在最后（模态，压在最上）
+				try { uiFlowFullDrawAsk(stage); }
+				catch(eC2) { Debug.message("[FLOWFULL][ERR] 确认卡绘制：" + eC2.message); }
+			}
+		}
+	}
+	catch(e1) { Debug.message("[FLOWFULL][ERR] 叠加绘制异常：" + e1.message); }
+	return r;
+}
+
+function uiFlowFullHookInstall()
+{
+	if(UIFullHookInstalled) return true;
+	try
+	{
+		var has = false;
+		try { has = Storages.isExistentStorage("flowfull.txt"); } catch(e2) { has = false; }
+		UIFullHookEnabled = has;
+		UIFullHookOrig = uiScreenDraw;
+		uiScreenDraw = uiFlowFullDrawWrapped;
+		UIFullHookInstalled = true;
+		Debug.message("[FLOWFULL] 已挂 uiScreenDraw（仅 flowchart 屏叠加；开关 flowfull.txt=" + (has ? "在" : "不在") + "）");
+	}
+	catch(e) { Debug.message("[FLOWFULL][ERR] 挂屏失败：" + e.message); return false; }
+	return true;
+}
+
+// ------------------------------------------------------------
+// 节点标题（自绘落地第 3 步，ISSUE-20261003-16；-18 修复"一条也没画"）
+//   字体**不自造**：从流程图屏既有的节点文字元素（`fc.node.*_tx`）上**借用字体口径**
+//   （size 19 / bold / @palette.psv_ink / 居中 / w240 / max_lines 2），排版**直接复用**
+//   UI 组的 `uiThemeLayoutText` / `uiThemeRenderText` ⇒ 折行、禁则、居中、描边与 UI 组同源。
+//   ★ 两条已实测的坑：
+//     ① `Layer.font` 是**只读属性** —— 旧的 `l.font = f` 会抛错并把整段留成 `return 0`；
+//        正解是让 `uiThemeApplyFont` 去改 `layer.font` 对象自身的字段（UI 组就是这么做的）。
+//     ② 钩子路径下 `UIFlowFullLayer` 恒为 null ⇒ 标签函数必须收**显式层参数**。
+//   尺寸随缩放：`size = round(19 × zoom)`（下限 9）；低于 `UIFullLabelMinZoom` 不画标题。
+// ------------------------------------------------------------
+var UIFullProtoFont  = null;
+var UIFullProtoSpacing = 1.0;
+
+// ★ 折行结果缓存（ISSUE-20261003-18，实测驱动的优化）：
+//   `uiThemeWrap` 逐字调 `Font.getTextWidth`，实测 54 条标题要 60 ms、83 条要 80 ms/帧
+//   （整帧 90 ms 里的大头）。折行只由**缩放**决定（文字区宽 = 240×zoom，节点标题是常量）
+//   ⇒ 按 zoom 缓存一次即可：平移不变、缩放一变即整表失效重建。
+var UIFullLabelCache     = [];
+var UIFullLabelCacheZoom = -1.0;
+
+function uiFlowFullLabelLines(l, i, ti, tw)
+{
+	if(UIFullLabelCacheZoom != UIFullZoom)
+	{
+		UIFullLabelCache = [];
+		UIFullLabelCacheZoom = UIFullZoom;
+	}
+	var c = UIFullLabelCache[i];
+	if(c !== void && c !== null) return c;
+	var wr = uiThemeWrap(l, ti, tw, 2);
+	UIFullLabelCache[i] = wr.lines;
+	return wr.lines;
+}
+
+function uiFlowFullProtoFont()
+{
+	if(UIFullProtoFont !== null) return UIFullProtoFont;
+	if(UILayoutData === void || UILayoutData.screens === void) return null;
+	var sc = UILayoutData.screens["flowchart"];
+	if(sc === void || sc.elements === void) return null;
+	for(var i = 0; i < sc.elements.count; i++)
+	{
+		var e = sc.elements[i];
+		if(e === void || e.id === void) continue;
+		if(("" + e.kind) != "text" || e.font === void) continue;
+		if(("" + e.id).indexOf("fc.node.") != 0) continue;
+		UIFullProtoFont = e.font;
+		UIFullProtoSpacing = (e.line_spacing === void) ? 1.0 : e.line_spacing;
+		Debug.message("[FLOWFULL] 已借用节点字体：" + ("" + e.id)
+			+ "（size " + e.font.size + " / bold " + e.font.bold + "）");
+		return UIFullProtoFont;
+	}
+	Debug.message("[FLOWFULL][warn] 借不到节点字体 → 跳过标题绘制");
+	return null;
+}
+
+// 在给定的层上叠加标题；返回实际画出的条数（`l` 必须显式传入，见上文坑②）
+//   ★ 字体**整帧只设一次**（`uiThemeApplyFont`），排版/居中/描边仍走 UI 组的 `uiThemeWrap` /
+//     `uiThemeTextWidth` / `uiThemeDrawLine` —— 即 `uiThemeLayoutText`+`uiThemeRenderText` 的同一算法，
+//     只是把「逐元素 `uiThemeApplyFont`」提到循环外。原因：`uiThemeApplyFont` 每次都写
+//     `font.face` / `font.height`，引擎会重建字体对象；逐条（54–83 条/帧）设字体实测代价很大。
+function uiFlowFullDrawLabels(l, vx, vy, vw, vh)
+{
+	if(l === null || l === void) return 0;
+	if(UIFlowGeomTitles === void || UIFlowGeomTitles === null) return 0;
+	if(UIFlowGeomNodes === void || UIFlowGeomNodes === null) return 0;
+	if(UIFlowGeomTitles.count < 1) return 0;
+	if(UIFullZoom < UIFullLabelMinZoom) return 0;
+	var proto = uiFlowFullProtoFont();
+	if(proto === null) return 0;
+	// ★ 排版实现用 UI 组的（折行 / 禁则 / max_lines / 居中 / valign 全在那一份）。
+	//   ⚠️ **不要**写 `typeof uiThemeLayoutText == "Function"` 之类的守卫：TJS2 的 typeof 对本机
+	//   函数**不返回 "Function"**（引擎工作原理 §5.4/§5.10：返回集是 void/Object/String/Integer/Real/Octet，
+	//   对不存在的成员返回 "undefined"）⇒ 那种守卫会**恒为假**，静默把标题一条不画
+	//   ——正是本工程反复踩的「静默不生效」形态。两个函数由 UI 组 `ui_theme.tjs` 在启动时装载，直接调用。
+	var fs = Math.floor(19 * UIFullZoom + 0.5);
+	if(fs < 9) fs = 9;
+	// 字号/加粗/行距沿用 UI 组节点文字的**量**（19 / bold / 1.0），颜色用自绘层自己的浅色
+	var spec = %[ size: fs, bold: true, color: UIFullColorText ];
+	var elSpec = %[ font: spec, line_spacing: UIFullProtoSpacing ];
+	// ★ 字体整帧只设一次（见函数头注释）
+	var f = uiThemeApplyFont(l, spec, elSpec);
+	var vx2 = vx + vw, vy2 = vy + vh;
+	var n = 0, i;
+	for(i = 0; i < UIFlowGeomNodes.count; i++)
+	{
+		if(i >= UIFlowGeomTitles.count) break;
+		var ti = "" + UIFlowGeomTitles[i];
+		if(ti == "") continue;
+		var nn = UIFlowGeomNodes[i];
+		var nw = 0 + nn[2];
+		if(nw < 150) continue;                       // 65×65 的小方块（branch，3 个）放不下字，跳过
+		var sx = uiFlowFullSX(0 + nn[0]), sy = uiFlowFullSY(0 + nn[1]);
+		var sh = Math.floor((0 + nn[3]) * UIFullZoom);
+		// 文字区 = 节点左内缩 28、宽 240（与 UI 组 `fc.node.*_tx` 的 296→240 同口径）
+		var tx = Math.floor(sx + 28 * UIFullZoom);
+		var tw = Math.floor(240 * UIFullZoom);
+		// 自绘文字无法夹取 ⇒ 文字区必须**整体**落在视口内才画
+		if(tx < vx || tx + tw > vx2) continue;
+		if(sy < vy || sy + sh > vy2) continue;
+		// 折行（含行首/行尾禁则、max_lines 截断、超框省略号）——与 UI 组同一实现，结果按 zoom 缓存
+		var lines = uiFlowFullLabelLines(l, i, ti, tw);
+		var blockH = lines.count * f.lineH;
+		var yy = sy + Math.floor((sh - blockH) / 2);            // valign: middle
+		var drew = 0;
+		for(var j = 0; j < lines.count; j++)
+		{
+			var s2 = "" + lines[j];
+			if(s2 == "") { yy += f.lineH; continue; }
+			var xx = tx + Math.floor((tw - uiThemeTextWidth(l, s2)) / 2);   // align: center
+			// ★ 直接 `drawText` 而不用 `uiThemeDrawLine`：后者末尾还会再算一次 `font.getTextWidth`
+			//   并走描边/阴影分支，对我们（描边/阴影均关）是纯开销；实测每行省一次度量。
+			//   签名：drawText(x, y, text, color(0xRRGGBB), opa, aa, shadowlevel,
+			//                  shadowcolor, shadowwidth, shadowofsx, shadowofsy)
+			l.drawText(xx, yy, s2, UIFullColorText, 255, true, 0, 0, 0, 0, 0);
+			yy += f.lineH;
+			drew++;
+		}
+		// 一审次要：原先无条件 `n++`，全空行也会计数（虚高）。改为"真画了至少一行才算一条"。
+		if(drew > 0) n++;
+	}
+	return n;
+}
+
+// ============================================================
+// 页签条 + 跨页锚点标记（ISSUE-20261004-03）
+//   为什么自绘页签条：分页后**必须**有切页入口，而"入口图标与作品→线两级入口的屏数据
+//   归 UI 组"（用户 2026-10-04 口径）⇒ 我方给一个**自绘、可整体关掉**的等价物：
+//     `UIFullChipsEnabled=false` 即整条退场，把位置让给 UI 组的入口图标，零屏数据改动。
+//   画在 stage 上（与图表同层、后画 ⇒ 压在最上），坐标是**屏幕坐标**（不随缩放平移）。
+// ============================================================
+var UIFullChipRects = [];
+
+function uiFlowFullChipLayout(vx, vy, vw, vh)
+{
+	UIFullChipRects = [];
+	var n = (UIFlowPageTable === void || UIFlowPageTable === null) ? 0 : UIFlowPageTable.count;
+	if(n < 1) return 0;
+	var pad = 10, gap = UIFullChipGap;
+	var w = Math.floor((vw - pad * 2 - gap * (n - 1)) / n);
+	if(w < 60) w = 60;
+	var y = vy + 8;
+	var i = 0;
+	for(i = 0; i < n; i++)
+	{
+		var x = vx + pad + i * (w + gap);
+		UIFullChipRects.add([ x, y, w, UIFullChipH ]);
+	}
+	return n;
+}
+
+function uiFlowFullChipAt(sx, sy)
+{
+	var i = 0;
+	for(i = 0; i < UIFullChipRects.count; i++)
+	{
+		var r = UIFullChipRects[i];
+		if(sx >= r[0] && sx <= r[0] + r[2] && sy >= r[1] && sy <= r[1] + r[3]) return i;
+	}
+	return -1;
+}
+
+// 返回画出的元素数（页签 + 锚点标记）
+function uiFlowFullDrawChrome(stage, vx, vy, vw, vh)
+{
+	if(stage === void || stage === null) return 0;
+	if(UIFlowPageTable === void || UIFlowPageTable === null || UIFlowPageTable.count < 1) return 0;
+	var l = stage;
+	var vx2 = vx + vw, vy2 = vy + vh;
+	var n = 0, i = 0;
+	var fontReady = false;
+	var f = null;
+
+	if(UIFullChipsEnabled === true)
+	{
+		uiFlowFullChipLayout(vx, vy, vw, vh);
+		l.colorRect(vx, vy, vw, UIFullChipH + 16, 0x0b1219, 225);
+		var spec = %[ size: 15, bold: true, color: 0xffffff ];
+		var elSpec = %[ font: spec, line_spacing: 1.0 ];
+		f = uiThemeApplyFont(l, spec, elSpec);
+		fontReady = true;
+		for(i = 0; i < UIFullChipRects.count; i++)
+		{
+			var r = UIFullChipRects[i];
+			var on = (i == UIFullPageCur);
+			l.colorRect(r[0], r[1], r[2], r[3], on ? UIFullColorChipOn : UIFullColorChipOff, on ? 250 : 205);
+			var sn = UIFlowPageCodes[i];
+			try { if(UIFlowPageShort.count > i) sn = "" + UIFlowPageShort[i]; } catch(eSN) { }
+			var tx = "" + UIFlowPageCodes[i] + " " + sn;
+			var tw = uiThemeTextWidth(l, tx);
+			// 双保险：短名仍可能超宽（页名是内容，会变）⇒ 超宽就只画代号
+			if(tw > r[2] - 6)
+			{
+				tx = "" + UIFlowPageCodes[i];
+				tw = uiThemeTextWidth(l, tx);
+			}
+			var xx = r[0] + Math.floor((r[2] - tw) / 2);
+			var yy = r[1] + Math.floor((r[3] - f.lineH) / 2);
+			l.drawText(xx, yy, tx, on ? 0xffffff : 0xbcd0e0, 255, true, 0, 0, 0, 0, 0);
+			n++;
+		}
+	}
+
+	// 锚点标记：入锚 = 节点左沿琥珀条；出锚 = 右沿琥珀条 + 短箭头 + 页代号
+	var aw = Math.floor(5 * UIFullZoom);
+	if(aw < 3) aw = 3;
+	for(i = 0; i < UIFullPagInAnchors.count; i++)
+	{
+		var ia = UIFullPagInAnchors[i];
+		var ni = 0 + ia[0];
+		if(ni < 0 || ni >= UIFlowGeomNodes.count) continue;
+		var nn = UIFlowGeomNodes[ni];
+		var sx = uiFlowFullSX(0 + nn[0]), sy = uiFlowFullSY(0 + nn[1]);
+		var sh = (0 + nn[3]) * UIFullZoom;
+		var rr = uiFlowFullClipRect(sx, sy, aw, sh, vx, vy, vx2, vy2);
+		if(rr !== null) { l.colorRect(rr[0], rr[1], rr[2], rr[3], UIFullColorAnchor, 255); n++; }
+	}
+	for(i = 0; i < UIFullPagOutAnchors.count; i++)
+	{
+		var oa = UIFullPagOutAnchors[i];
+		var ni2 = 0 + oa[0];
+		if(ni2 < 0 || ni2 >= UIFlowGeomNodes.count) continue;
+		var n2 = UIFlowGeomNodes[ni2];
+		var sx2 = uiFlowFullSX(0 + n2[0]), sy2 = uiFlowFullSY(0 + n2[1]);
+		var sw2 = (0 + n2[2]) * UIFullZoom, sh2 = (0 + n2[3]) * UIFullZoom;
+		var rr2 = uiFlowFullClipRect(sx2 + sw2 - aw, sy2, aw, sh2, vx, vy, vx2, vy2);
+		if(rr2 !== null) { l.colorRect(rr2[0], rr2[1], rr2[2], rr2[3], UIFullColorAnchor, 255); n++; }
+		// 短箭头 + 页代号
+		var byy = Math.floor(sy2 + sh2 / 2);
+		var x0 = Math.floor(sx2 + sw2), x1 = x0 + 26;
+		var seg = uiFlowFullClipSeg(x0, byy, x1, byy, vx, vy, vx2, vy2);
+		if(seg !== null)
+		{
+			if(fontReady !== true)
+			{
+				var spec2 = %[ size: 14, bold: true, color: UIFullColorAnchor ];
+				f = uiThemeApplyFont(l, spec2, %[ font: spec2, line_spacing: 1.0 ]);
+				fontReady = true;
+			}
+			var pen2 = new GdiPlus.Appearance();
+			pen2.addPen(UIFullColorAnchor, %[ width: 3, lineJoin: GdiPlus.LineJoinRound,
+				startCap: GdiPlus.LineCapRound, endCap: GdiPlus.LineCapRound ], 0, 0);
+			l.drawLines(pen2, [ [ seg[0], seg[1] ], [ seg[2], seg[3] ] ]);
+			var br2 = new GdiPlus.Appearance();
+			br2.addBrush(UIFullColorAnchor, 0, 0);
+			l.drawPolygon(br2, [ [ seg[2], seg[3] ], [ seg[2] - 10, seg[3] - 6 ], [ seg[2] - 10, seg[3] + 6 ] ]);
+			var lab = "→" + ("" + oa[2]);
+			if(seg[2] + 30 < vx2)
+				l.drawText(seg[2] + 6, byy - Math.floor(f.lineH / 2), lab, UIFullColorAnchor, 255, true, 0, 0, 0, 0, 0);
+			n++;
+		}
+	}
+	UIFullChromeDrawn = n;
+	return n;
+}
+var UIFullChromeDrawn = 0;
+
+// ------------------------------------------------------------
+// 点选跳转确认卡（原作 `askJump`）—— 自绘、屏幕坐标、模态。
+//   只在 `UIFullAskJump === true` 时由点击路径打开；默认关 ⇒ 不影响既有行为。
+// ------------------------------------------------------------
+function uiFlowFullAskCardRect(vx, vy, vw, vh)
+{
+	var w = 620, h = 190;
+	return [ Math.floor(vx + (vw - w) / 2), Math.floor(vy + (vh - h) / 2), w, h ];
+}
+
+function uiFlowFullAskAt(sx, sy)
+{
+	var r = null;
+	try { r = uiFlowFullAskCardRect(UIFlowGeomViewport[0], UIFlowGeomViewport[1],
+		UIFlowGeomViewport[2], UIFlowGeomViewport[3]); } catch(e0) { return 0; }
+	if(sx < r[0] || sx > r[0] + r[2] || sy < r[1] || sy > r[1] + r[3]) return 0;   // 卡外
+	if(UIFullAskYes.count == 4 && sx >= UIFullAskYes[0] && sx <= UIFullAskYes[0] + UIFullAskYes[2]
+		&& sy >= UIFullAskYes[1] && sy <= UIFullAskYes[1] + UIFullAskYes[3]) return 1;   // 「进入」
+	if(UIFullAskNo.count == 4 && sx >= UIFullAskNo[0] && sx <= UIFullAskNo[0] + UIFullAskNo[2]
+		&& sy >= UIFullAskNo[1] && sy <= UIFullAskNo[1] + UIFullAskNo[3]) return 2;   // 「取消」
+	return 3;   // 卡内空白 ⇒ 吞掉点击（模态）
+}
+
+function uiFlowFullDrawAsk(stage)
+{
+	if(UIFullAskIdx < 0) return 0;
+	var vp = UIFlowGeomViewport;
+	var r = uiFlowFullAskCardRect(vp[0], vp[1], vp[2], vp[3]);
+	var l = stage;
+	l.colorRect(r[0], r[1], r[2], r[3], 0x101a24, 252);
+	l.colorRect(r[0], r[1], r[2], 3, UIFullColorAnchor, 255);
+	l.colorRect(r[0], r[1] + r[3] - 3, r[2], 3, UIFullColorAnchor, 255);
+	l.colorRect(r[0], r[1], 3, r[3], UIFullColorAnchor, 255);
+	l.colorRect(r[0] + r[2] - 3, r[1], 3, r[3], UIFullColorAnchor, 255);
+	var spec = %[ size: 24, bold: true, color: 0xffffff ];
+	var f = uiThemeApplyFont(l, spec, %[ font: spec, line_spacing: 1.0 ]);
+	var t1 = "跳转到此场景？";
+	var w1 = uiThemeTextWidth(l, t1);
+	l.drawText(r[0] + Math.floor((r[2] - w1) / 2), r[1] + 26, t1, 0xffffff, 255, true, 0, 0, 0, 0, 0);
+	// 场景标题（可能没有 ⇒ 退化为场景 id，**这是确认框，显示标识符是有用的**）
+	var sid = "";
+	try { sid = "" + UIFlowGeomIds[UIFullAskIdx]; } catch(eS) { sid = ""; }
+	var ti = "";
+	try { if(UIFlowGeomTitles.count > UIFullAskIdx) ti = "" + UIFlowGeomTitles[UIFullAskIdx]; } catch(eT) { }
+	if(ti == "") ti = sid;
+	var spec2 = %[ size: 19, bold: false, color: 0xbcd0e0 ];
+	var f2 = uiThemeApplyFont(l, spec2, %[ font: spec2, line_spacing: 1.0 ]);
+	var w2 = uiThemeTextWidth(l, ti);
+	if(w2 > r[2] - 40) { ti = sid; w2 = uiThemeTextWidth(l, ti); }
+	l.drawText(r[0] + Math.floor((r[2] - w2) / 2), r[1] + 66, ti, 0xbcd0e0, 255, true, 0, 0, 0, 0, 0);
+	// 两枚按钮
+	var bw = 200, bh = 52, by = r[1] + r[3] - 76;
+	var bx1 = r[0] + Math.floor(r[2] / 2) - bw - 20;
+	var bx2 = r[0] + Math.floor(r[2] / 2) + 20;
+	UIFullAskYes = [ bx1, by, bw, bh ];
+	UIFullAskNo  = [ bx2, by, bw, bh ];
+	l.colorRect(bx1, by, bw, bh, 0x2f6f8f, 250);
+	l.colorRect(bx2, by, bw, bh, 0x33404d, 250);
+	var spec3 = %[ size: 22, bold: true, color: 0xffffff ];
+	var f3 = uiThemeApplyFont(l, spec3, %[ font: spec3, line_spacing: 1.0 ]);
+	var sY = "进入", sN = "取消";
+	var wy = uiThemeTextWidth(l, sY), wn = uiThemeTextWidth(l, sN);
+	l.drawText(bx1 + Math.floor((bw - wy) / 2), by + Math.floor((bh - f3.lineH) / 2), sY, 0xffffff, 255, true, 0, 0, 0, 0, 0);
+	l.drawText(bx2 + Math.floor((bw - wn) / 2), by + Math.floor((bh - f3.lineH) / 2), sN, 0xffffff, 255, true, 0, 0, 0, 0, 0);
+	return 1;
+}
+
+// ============================================================
+// 输入：纵滚 / 横移（拖动平移）/ 缩放（滚轮）/ 点选节点进入场景 —— ISSUE-20261003-18
+//
+// 只包**全局函数**（就是 UI 组窗口事件处理器内部调用的那几个，与"真实鼠标"同一批）：
+//   `uiScreenPressUpdate`（onMouseDown 左键分支）｜`uiScreenHoverUpdate`（onMouseMove）
+//   ｜`uiScreenPressClear`（onClick 开头）｜`uiScreenClick`（handleClick → uiSafeScreenClick）
+// 全部**原样回落**（bare call），不复制 UI 组任何逻辑；异常一律就地吞掉（绝不让异常冒进引擎事件分发）。
+// 门槛：`UIFullHookEnabled`（= flowfull.txt）—— 与绘制同一个开关，产品态零行为改变。
+// ============================================================
+var UIFullInInstalled = false;
+var UIFullInPressOrig = null;
+var UIFullInHoverOrig = null;
+var UIFullInClearOrig = null;
+var UIFullInClickOrig = null;
+var UIFullDragOn      = false;
+var UIFullDragX       = 0;
+var UIFullDragY       = 0;
+var UIFullDragMoved   = 0;
+var UIFullDragGap     = 6;      // 位移超过这么多像素 ⇒ 判定为"拖拽"而不是"点选"
+
+function uiFlowFullMouseInVp(x, y)
+{
+	var vp = UIFlowGeomViewport;
+	if(x < vp[0] || x > vp[0] + vp[2]) return false;
+	if(y < vp[1] || y > vp[1] + vp[3]) return false;
+	return true;
+}
+
+function uiFlowFullPressWrapped(x, y)
+{
+	var r = false;
+	try { r = UIFullInPressOrig(x, y); } catch(e0) { r = false; }
+	try
+	{
+		if(UIFullHookEnabled === true && ("" + uiScreenCurrent()) == "flowchart")
+		{
+			if(uiFlowFullMouseInVp(x, y))
+			{ UIFullDragOn = true; UIFullDragX = x; UIFullDragY = y; UIFullDragMoved = 0; }
+			else UIFullDragOn = false;
+		}
+	}
+	catch(e1) { UIFullDragOn = false; }
+	return r;
+}
+
+function uiFlowFullHoverWrapped(x, y)
+{
+	var panned = false;
+	try
+	{
+		if(UIFullDragOn === true && UIFullHookEnabled === true && ("" + uiScreenCurrent()) == "flowchart")
+		{
+			var dx = x - UIFullDragX, dy = y - UIFullDragY;
+			if(dx != 0 || dy != 0)
+			{
+				uiFlowFullPanByCanvas((0.0 - dx) / UIFullZoom, (0.0 - dy) / UIFullZoom);
+				UIFullDragX = x; UIFullDragY = y;
+				UIFullDragMoved += ((dx > 0) ? dx : (0 - dx)) + ((dy > 0) ? dy : (0 - dy));
+				panned = true;
+			}
+		}
+	}
+	catch(e1) { panned = false; }
+	var r = false;
+	try { r = UIFullInHoverOrig(x, y); } catch(e2) { r = false; }
+	return (panned || r);
+}
+
+function uiFlowFullClearWrapped()
+{
+	var r = false;
+	try { r = UIFullInClearOrig(); } catch(e0) { r = false; }
+	// ⚠️ 不在这里清拖拽态：`uiScreenPressClear` 在 `onClick` **开头**调用，而命中判定
+	//    (`uiScreenClick`) 在其后 —— 拖拽信息要留给它判断"这是拖拽还是点选"。
+	return r;
+}
+
+function uiFlowFullClickWrapped(stage, x, y)
+{
+	try
+	{
+		if(UIFullHookEnabled === true && ("" + uiScreenCurrent()) == "flowchart"
+			&& uiFlowFullMouseInVp(x, y))
+		{
+			// 与 UI 组 `uiScreenClick` 首行同法：清掉上一轮的参数化命中残留（我们绕过了它）
+			try { uiScreenHitLayerSet(""); } catch(eH) { }
+			if(UIFullDragOn === true && UIFullDragMoved > UIFullDragGap)
+			{
+				UIFullDragOn = false;
+				Debug.message("[FLOWFULL] 视口内拖拽结束（位移 " + UIFullDragMoved + " px）⇒ 不当作点选");
+				return %[ action: "", hit: false ];          // 吞掉：拖动不是点击
+			}
+			UIFullDragOn = false;
+			// ★ 确认卡打开时是**模态**：只认卡上的两枚按钮，其余点击一律吞掉
+			if(UIFullAskIdx >= 0)
+			{
+				var hitA = uiFlowFullAskAt(x, y);
+				if(hitA == 1) return %[ action: "flow_scene_enter", index: UIFullAskIdx, hit: true ];
+				if(hitA == 2) return %[ action: "flow_ask_close", index: -1, hit: true ];
+				return %[ action: "", hit: true ];
+			}
+			// ★ 页签条优先于节点命中（页签画在图表之上，命中顺序必须一致）
+			var ci = uiFlowFullChipAt(x, y);
+			if(ci >= 0 && ci != UIFullPageCur)
+			{
+				Debug.message("[FLOWFULL] 点选页签 → " + ci);
+				return %[ action: "flow_page_enter", index: ci, hit: true ];
+			}
+			var idx = uiFlowFullNodeAt(x, y);
+			if(idx >= 0)
+			{
+				// 原作 `askJump`：可配置；开着则先弹确认卡
+				if(UIFullAskJump === true)
+				{
+					Debug.message("[FLOWFULL] 点选节点 #" + idx + " ⇒ 弹确认卡（UIFullAskJump=on）");
+					return %[ action: "flow_ask_open", index: idx, hit: true ];
+				}
+				return %[ action: "flow_scene_enter", index: idx, hit: true ];
+			}
+		}
+		else UIFullDragOn = false;
+	}
+	catch(e1) { UIFullDragOn = false; }
+	try { return UIFullInClickOrig(stage, x, y); } catch(e2) { return null; }
+}
+
+function uiFlowFullInputInstall()
+{
+	if(UIFullInInstalled) return true;
+	try
+	{
+		UIFullInPressOrig = uiScreenPressUpdate;
+		UIFullInHoverOrig = uiScreenHoverUpdate;
+		UIFullInClearOrig = uiScreenPressClear;
+		UIFullInClickOrig = uiScreenClick;
+		uiScreenPressUpdate = uiFlowFullPressWrapped;
+		uiScreenHoverUpdate = uiFlowFullHoverWrapped;
+		uiScreenPressClear = uiFlowFullClearWrapped;
+		uiScreenClick      = uiFlowFullClickWrapped;
+		UIFullInInstalled = true;
+		Debug.message("[FLOWFULL] 已挂输入（按下/移动/清按下/命中；仅 flowchart 屏 + flowfull.txt 生效）");
+	}
+	catch(e) { Debug.message("[FLOWFULL][ERR] 挂输入失败：" + e.message); return false; }
+	return true;
+}

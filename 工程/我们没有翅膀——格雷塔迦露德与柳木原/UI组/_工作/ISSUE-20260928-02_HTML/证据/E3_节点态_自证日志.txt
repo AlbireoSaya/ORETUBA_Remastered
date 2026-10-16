@@ -1,0 +1,73 @@
+==============================================================================
+【口径】本批对勾色 = #255E34（现行交付件 x_ui_read_check.png，md5 5cb6c996ad38c38c80356443a6aa4183）
+        后缀 `_旧绿` 的证据件为 #3F8A5A（上一版素材）⇒ **仅供颜色前后对照，不得作颜色判据**
+【口径】HTML 侧对勾的**颜色/排版判据不能替代引擎帧**：vision 实测两端帧有 3.4% 像素差
+        （绝大多数是字形栅格化差异）⇒ 颜色与排版以**引擎帧**为准，HTML 侧只作**几何/形状参照**
+==============================================================================
+【口径】牌色期望（动态取自素材 x_ui_read_check.png 的 α=255 像素中位）= ((37, 94, 52),)
+屏数据 = E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_HTML\证据\_shadow_states\32_flowchart.screen1.json（126 元素）
+渲染栈 = E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_HTML\证据\_shadow_states\ui_layout.js
+
+=== ① 新件机制（6 件：_dim 3 + _read 3）===
+  逐件显隐（DOM 实况 vs 独立复算）：fc.node.0001_dim 可见（fc.state.0001=locked, vis_when=locked） ｜ fc.node.0003_read 可见（fc.state.0003=visited, vis_when=visited） ｜ fc.node.0006_dim 可见（fc.state.0006=locked, vis_when=locked） ｜ fc.node.0008_read 可见（fc.state.0008=visited, vis_when=visited） ｜ fc.node.0011_dim 可见（fc.state.0011=locked, vis_when=locked） ｜ fc.node.0013_read 可见（fc.state.0013=visited, vis_when=visited）
+  三态：数据里 6 件**均无 `state_assets`** ⇒ 不挂状态机；实测验：真派发 mouseenter/mousedown/mouseup/mouseleave，贴图变化件数=0（应为 0）
+      内层 `.ui-stateimage` 节点存在={False}（`_dim` 有 `.ui-nine` 属 nine 图正常，与三态无关）
+
+  `_read`/`_new` 共存性（逐节点双向）：
+    fc.node.0003 flow_state=visited   复算 _read=True  _new=False ｜ DOM _read=True  _new=False ｜ 共存=False
+    fc.node.0005 flow_state=new       复算 _read=False _new=True  ｜ DOM _read=False _new=True  ｜ 共存=False
+    fc.node.0008 flow_state=visited   复算 _read=True  _new=False ｜ DOM _read=True  _new=False ｜ 共存=False
+    fc.node.0010 flow_state=new       复算 _read=False _new=True  ｜ DOM _read=False _new=True  ｜ 共存=False
+    fc.node.0013 flow_state=visited   复算 _read=True  _new=False ｜ DOM _read=True  _new=False ｜ 共存=False
+    ⇒ 数据里 `_read.vis_when=visited` 与 `_new.vis_when=new` 互斥，且每节点 flow_state 单值 ⇒ **不可能共存**；DOM 实况与复算一致、无共存节点=True
+
+=== ② 方角修复（同节点自比：dim 开/关 + 模拟旧 rect 形制 + 旧版预览）===
+  旧版预览图：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-视觉预览\preview_A_现状_显示色.png（1920×1080，与屏数据同坐标）
+  判据：底图 **α==0（严格全透明）** 处「正常态 vs 去 dim」须逐像素相同；α∈(0,8) 的 AA 边界另列。
+  节点(locked)           底图                           α0 px   去dim≠A   αAA px 去dim≠A(AA)  旧rect≠A      预览≠A
+  fc.node.0001         x_ui_node_select_off.png       778        0      694          2      778         8
+  fc.node.0006         x_ui_node_section_off.png     2449        0      710          0     2449        33
+  fc.node.0011         x_ui_node_section_off.png     2449        0      710          0     2449        37
+  ⇒ 新版：严格 α==0 处 0 像素受 dim 影响；旧 rect 形制：同一区域被压暗数百~数千像素（即当时的方角）。
+  ⇒ **旧版预览帧（preview_A_现状_显示色.png）是「旧 rect 形制」的有效对照**：E2 组独立实测其四角 24×24 窗差 76–95 px/角（节点合计 355 / 321 / 321 px），与本侧「模拟旧 rect 在 α==0 处 100% 被压暗」的口径一致。
+     〔更正〕先前此处写「与新版在 α==0 处只差 8/33/37 px ⇒ 不能当旧版对照」**为误判**——该偏小值最可能是本次比对里**底图 alpha 掩码取窗/对位未对准**所致；预览 A 帧在底图透明处显示的正是被压暗的背景（方角暗块），故**可作有效对照**收下。
+
+=== ③ `_read` 绿对勾呈现（3 个 visited 节点）===
+  件                      牌色(中位)           勾色(最亮核)          牌对比勾     牌 vs 节点面   勾 vs 节点面   叠压
+  fc.node.0003_read      (37, 94, 52)     (239, 243, 248)  6.90     2.35       13.63      2x20 px ｜ 文字首墨列在对勾右沿之外 0 px
+      牌 vs 素材期望 (37, 94, 52)：Δmax=0（0=逐通道相同）｜ 环形 8 点采样 牌vs面 1.92–5.33 ｜ 勾vs面 1.30–16.97 ｜ 节点面中位 (33, 38, 46)
+      对勾实际覆盖 276/400 px（未被覆盖 124 px 为圆角/透明处，有/无对勾同色）｜ 被覆盖像素底下与纯节点面不同的 = 0 ⇒ 对勾底下无任何文字墨迹（未覆盖/未推动文字）
+  fc.node.0008_read      (37, 94, 52)     (239, 243, 248)  6.90     2.35       13.63      2x20 px ｜ 文字首墨列在对勾右沿之外 0 px
+      牌 vs 素材期望 (37, 94, 52)：Δmax=0（0=逐通道相同）｜ 环形 8 点采样 牌vs面 1.92–5.33 ｜ 勾vs面 1.30–16.97 ｜ 节点面中位 (33, 38, 46)
+      对勾实际覆盖 276/400 px（未被覆盖 124 px 为圆角/透明处，有/无对勾同色）｜ 被覆盖像素底下与纯节点面不同的 = 0 ⇒ 对勾底下无任何文字墨迹（未覆盖/未推动文字）
+  fc.node.0013_read      (37, 94, 52)     (239, 243, 248)  6.90     2.35       13.63      2x20 px ｜ 文字首墨列在对勾右沿之外 0 px
+      牌 vs 素材期望 (37, 94, 52)：Δmax=0（0=逐通道相同）｜ 环形 8 点采样 牌vs面 1.92–5.33 ｜ 勾vs面 1.30–16.97 ｜ 节点面中位 (33, 38, 46)
+      对勾实际覆盖 276/400 px（未被覆盖 124 px 为圆角/透明处，有/无对勾同色）｜ 被覆盖像素底下与纯节点面不同的 = 0 ⇒ 对勾底下无任何文字墨迹（未覆盖/未推动文字）
+
+=== ④ 新件素材引用（㉔d 同口径：asset_index.js 存在性）===
+
+=== ④ 全屏「㉔d 等价」扫描（states 档；含 `_read`/`_dim`）===
+  说明：states 档**没有 `flow_layer` 热区** ⇒ 自检页的 ㉔ 会在「前置」处整块早退（㉔d 根本跑不到），
+        故此处按**与 ㉔d 逐字同一口径**独立复算：`asset` / `state_assets` 三键 / rail / handle /
+        item_frame / item_buttons 必须都在 `asset_index.js`；带 hover 或 pressed 的 `state_assets` 必须 normal≠hover。
+  扫引用 125 条 ｜ state_assets 23 组（含 hover/pressed 23 组）｜ 不在清单/区分力不达标 0 条 ⇒ 全部通过
+  `_read`/`_dim` 逐件：fc.node.0001_dim→x_ui_node_select_dim.png ✓；fc.node.0003_read→x_ui_read_check.png ✓；fc.node.0006_dim→x_ui_node_section_dim.png ✓；fc.node.0008_read→x_ui_read_check.png ✓；fc.node.0011_dim→x_ui_node_section_dim.png ✓；fc.node.0013_read→x_ui_read_check.png ✓
+  fc.node.0001_dim       x_ui_node_select_dim.png           在清单 ✓
+  fc.node.0003_read      x_ui_read_check.png                在清单 ✓
+  fc.node.0006_dim       x_ui_node_section_dim.png          在清单 ✓
+  fc.node.0008_read      x_ui_read_check.png                在清单 ✓
+  fc.node.0011_dim       x_ui_node_section_dim.png          在清单 ✓
+  fc.node.0013_read      x_ui_read_check.png                在清单 ✓
+  ⇒ 6/6 在清单（asset_index.js 共 1706 处文件名引用）
+
+判定：全部通过
+  ⓘ fc.node.0001_dim 可见（fc.state.0001=locked, vis_when=locked）
+  ⓘ fc.node.0003_read 可见（fc.state.0003=visited, vis_when=visited）
+  ⓘ fc.node.0006_dim 可见（fc.state.0006=locked, vis_when=locked）
+  ⓘ fc.node.0008_read 可见（fc.state.0008=visited, vis_when=visited）
+  ⓘ fc.node.0011_dim 可见（fc.state.0011=locked, vis_when=locked）
+  ⓘ fc.node.0013_read 可见（fc.state.0013=visited, vis_when=visited）
+  ⓘ fc.node.0001：α∈(0,8) 的 AA 边界上有 2 px 变化（亚像素边界，非方角；见 α0 列为 0 即证明）
+  ⓘ fc.node.0003_read 牌 vs 节点面 2.35:1（<3.0）
+  ⓘ fc.node.0008_read 牌 vs 节点面 2.35:1（<3.0）
+  ⓘ fc.node.0013_read 牌 vs 节点面 2.35:1（<3.0）

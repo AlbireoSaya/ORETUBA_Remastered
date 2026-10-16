@@ -1,0 +1,264 @@
+<stdin>:56: SyntaxWarning: "\`" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\`"? A raw string is also an option.
+================================================================================================
+M46 · 全 UI组 `sysbar` grep 命中分类（等价于 `grep -rna "sysbar" .`；跳过 .png/.pyc）
+生成：2026-09-23 ｜ Issue ISSUE-20260923-14
+================================================================================================
+
+################################################################################################
+## [A] A  `fc.sysbar` 的**定义/取件**行 —— 流程图屏的元素 id（必须保留，不是残留）
+##   -> 5 行 / 5 文件
+################################################################################################
+  -- krkr/game/ui_layout.tjs
+     15227 | id: "fc.sysbar",
+  -- layout/ui_layout.json
+     15978 | "id": "fc.sysbar",
+  -- layout/screens/32_flowchart.json
+      1444 | "id": "fc.sysbar",
+  -- 复刻/ui_layout.js
+     15983 | "id": "fc.sysbar",
+  -- 工具/m34_build_screens.py
+      1144 | els.append(img("fc.sysbar", 20, "x_ui_sysbar.png", 1227, 32, 648, 41,
+
+################################################################################################
+## [B] B  素材名（`x_ui_sysbar.png` / `x_ui_snap_*` / `x_ui_hide_*` / `x_ui_spk_*`）（保留不删）
+##   -> 21 行 / 17 文件
+################################################################################################
+  -- M34_UI复刻总纲.md
+        60 | | 78 / 79 | 系统共通按钮 | ~~`sysbar`~~ | **新建**（底部条 1920×266）—— ★ **M46（2026-09-23，用户裁定）已删除**：用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」⇒ 屏数据 / `_index.json` 条目 / 巡演白名单 / 两端活引用全清（18 → 17 屏）；**素材保留原位不归档**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）；快照归档 `_工作
+  -- 会话交接_20260922-02_按钮文字素材交付.md
+       201 | | **已重建 13 屏** | title / sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 素材重映射的 sysmenu<br>★ **M46 后注（2026-09-23，用户裁定）**：清单中 **`sysbar`（系统条）屏已删除**（用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）；`sys
+  -- 会话交接_20260922_按钮文字生成.md
+       148 | | **已重建 13 屏** | title（竖排条）/ sysbar / quickbar / confirm / choices / dress / backlog / save / load / config / music / flowchart + 经素材重映射的 sysmenu<br>★ **M46 后注（2026-09-23，用户裁定）**：清单中 **`sysbar`（系统条）屏已删除**（用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）
+  -- 会话交接_20260923-04_高难度绘图任务前状态.md
+        58 | > 文档清单已清理；**素材一律保留原位、不归档、不删除**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。
+       104 | > 已被遵守——**本屏 4 组素材一律保留原位，一个字节未动**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar`
+       107 | - **它是一屏**：`layout\screens\34_sysbar.json`（8 元素），内容＝**常驻底部条**（`sysbar.base`，1920×266 @(0,814)，素材 `ui\x_ui_sysbar.png`）+ 三个控件：**截图**（`snap` 1570,876）、**隐藏窗口**（`hide` 1513,874）、**语音回放**（`vreplay` 345,871，用 `x_ui_spk_off.png`）+ 一个额外点击区（`hit_cl
+       110 | - **它的素材是共享件**：`ui\x_ui_sysbar.png` **同时被流程图屏的 `fc.sysbar` 使用** ⇒ 若要废除该屏，**素材不能归档**。
+  -- krkr/README_运行方式.md
+        83 | ★ **本屏 4 组素材一律保留原位、不归档、不删除**：`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` **共用**；
+  -- krkr/game/ui_layout.tjs
+     15231 | asset: "ui/x_ui_sysbar.png",
+  -- krkr/game/ui_screens.tjs
+      1482 | //   条目均已移除；**素材一律保留原位**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。
+  -- layout/ui_layout.json
+     15982 | "asset": "ui/x_ui_sysbar.png",
+  -- layout/screens/32_flowchart.json
+      1448 | "asset": "ui/x_ui_sysbar.png",
+  -- layout/screens/_index.json
+         2 | "_comment": "屏清单（主代理维护）。owner = 写权限归属模块；file = 相对 layout/screens/ 的文件名。 ★ M45（2026-09-23，用户裁定）：`sysmenu`（系统菜单，20_sysmenu.json）**已废除**（19 → 18 屏）—— 系统功能由右端竖排快捷条（quickbar，「药丸按钮系统」）承担；屏数据快照见 _工作\\M45_旧素材归档\\。 ★ M46（2026-09-23，用户裁定）：`sysbar`（系统
+  -- 复刻/asset_index.js
+        56 | "x_ui_sysbar.png",
+      3974 | "n": "x_ui_sysbar.png",
+  -- 复刻/index.html
+        46 | **素材一律保留原位、不归档、不删除**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。
+  -- 复刻/replica.js
+        99 | `_工作\M46_旧素材归档\`。**素材一律保留原位**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。 */
+  -- 复刻/ui_layout.js
+     15987 | "asset": "ui/x_ui_sysbar.png",
+  -- 工具/emit_asset_index.py
+        52 | ("系统条", "x_ui_sysbar_"), ("快捷条", "x_ui_quick_"),
+  -- 工具/m34_build_screens.py
+       254 | #   · ★ **素材一律保留原位、不归档、不删除**：`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` **共用**
+  -- 工具/test_gen_sync.py
+        66 | #   素材不归档（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用），见 `_工作\M46_旧素材归档\`。
+
+################################################################################################
+## [C] C  「已删除」说明注释 / 世代标注（本行或上下 14 行内有 M46/M45/M43/M38/M25、「已删除/不归档/保留原位」等）
+##   -> 56 行 / 12 文件
+################################################################################################
+  -- 00_UI组认知与接口契约.md
+       166 | > ★ **M46 备注（2026-09-23，用户裁定）**：本表（M16 期）从未登记 **`sysbar`（系统条）**—— 该屏是 M34 才
+       168 | > **删除**（原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）⇒ **本表无需增删「屏」行**
+       169 | > （`sysbar` 本就不在表中）；屏数据快照与回滚见 `_工作\M46_旧素材归档\`。同理，**M34 起的
+       173 | > M38 无框化后其功能改由右端快捷条 `quickbar` 承担——**与本轮删除的 `sysbar` 屏无关**。）
+  -- 会话交接_20260922-03_按钮文字与组绑定.md
+        79 | 7. **7 个屏的生成器仍未回写**（`01_title`/`36_choices`/`21_confirm`/`26_backlog`/`32_flowchart`/`34_sysbar`/`37_dress`）：
+        82 | ★ **M46（2026-09-23，用户裁定）后注**：`34_sysbar` 屏**已删除**（用户原话「把系统条 sysbar 页删了，
+        83 | 但底条素材保留（防冲突）」）—— 屏文件 / `build_sysbar()` / `test_gen_sync` 的 GENERATORS 与 ACK 条目
+        96 | | 3 | ~~生成器回写（上表 §3.7）~~ → **`01_title` 已根治（M41 改透传 + ACK 移除）**；其余 6 屏（`36_choices`/`21_confirm`/`26_backlog`/`32_flowchart`/`34_sysbar`/`37_dress`）照此办理；`m33` 生成器修缮或废弃。★ **M46 后注（2026-09-23）**：`34_sysbar` 屏已删除（生成器与 ACK 条目同删）⇒ **其余 5 屏** |
+       169 | - **建议**：其余 6 屏（`36_choices`/`21_confirm`/`26_backlog`/`32_flowchart`/`34_sysbar`/`37_dress`，现仍 `LOSS → ACK`）照此逐屏改透传或回写 override 常量。
+       170 | ★ **M46（2026-09-23，用户裁定）后注**：`34_sysbar` 屏**已删除**（生成器 `build_sysbar()` 与 `test_gen_sync`
+       171 | 的 GENERATORS/ACK 条目同删）⇒ 本行「建议」的对象**现为 5 屏**（照此办理即可，`34_sysbar` 无需再办）。
+       304 | `seen=18[title,dialog,sysicons,save,load,config,backlog,gallery,music,fragment,flowchart,ending,loading,confirm,sysbar,quickbar,choices,dress]`
+       307 | > ★ **M46（2026-09-23，用户裁定）后注**：上面这行 M45 实跑记录里的 `seen=18[…,sysbar,…]` 是**当时的真实输出**
+       308 | > （本行按「历史记录只新建不覆盖」原则保留原样，不划改）。`sysbar` 屏**现已删除**（18 → 17 屏，用户原话
+       309 | > 「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）⇒ M46 重跑为 **24 屏记账 / 23 步 / 24 张 PNG、
+       310 | > `seen=17[…,quickbar,choices,dress]`（序列里没有 `sysbar`）**，见 `_工作\ISSUE-20260923-14_M46_证据\`。
+  -- 会话交接_20260923-04_高难度绘图任务前状态.md
+        13 | ★ **M46 后注（2026-09-23，用户裁定）**：`sysbar`（系统条）屏已**删除** ⇒ 上句「18 屏」为本文写作时的数字，
+        55 | > ★ **M46 后注（2026-09-23，用户裁定）**：上列屏清单中 **`sysbar`（系统条）已删除**（用户原话「把系统条
+        56 | > sysbar 页删了，但底条素材保留（防冲突）」）——本行按「历史保留不改」原则仅作标注：原清单写作时是
+        57 | > **18 屏**（含 `sysbar`），**现为 17 屏**。屏文件 / `_index.json` 条目 / 巡演白名单 / 两端活引用 /
+        84 | | 1 | 6 屏生成器仍落后（`sysbar`/`choices`/`confirm`/`backlog`/`flowchart`/`dress`） | `test_gen_sync` 报 `LOSS→ACK`；**重跑那些生成器会回退手工改动**，动前先看 ACK 表。★ **M46 后注（2026-09-23）**：`sysbar` 屏已删除、`build_sysbar()` 与 `test_gen_sync` 的 GENERATORS/ACK 条目均已移除 ⇒ **本
+        88 | | 5 | ~~`sysbar`（系统条）**不可达**（无动作能打开它，仅巡演白名单里有）；其 4 个控件的 `action` 全为空串（待编程组定义）~~ —— ★ **M46（2026-09-23）已删除（用户 2026-09-23 裁定）**：该屏整体删除（18 → 17 屏），**素材一律保留原位不归档**；见 §六 | 见本文件 §六 |
+        96 | ## 六、`sysbar`（系统条）是什么（用户 2026-09-23 问，答复留档）
+        98 | > ★★ **M46 后注（2026-09-23，用户裁定）：本节所问的 `sysbar` 屏已删除（用户 2026-09-23 裁定）。**
+        99 | > 用户指令原话：「**把系统条 sysbar 页删了，但底条素材保留（防冲突）**」。⇒ 本节以下内容**仅作历史留档**：
+       100 | > 屏文件 `layout\screens\34_sysbar.json`（8 元素）/ `_index.json` 条目（18 → 17 屏）/ 巡演白名单
+       102 | > `_工作\M46_旧素材归档\`（`34_sysbar.json.snapshot` + `_index.json.before` + `说明.md`）。
+       109 | - **当前状态**：**不可达** —— 全工程没有任何动作能打开它（只在巡演的屏白名单里被自动追加，所以巡演 `seen=18` 里有 `sysbar`）；**四个控件的 `action` 全是空串**（按 schema「动作表未覆盖的控件允许空串、不得臆造」留给编程组定义）。
+       111 | - **与「药丸快捷条」的关系**：M36–M37 落地的 `quickbar`（右端竖排圆 icon）承担了原「系统菜单」入口；`sysbar` 是**另一件东西**（原作的底部常驻条），目前既没接线也没在界面上出现。**要废要留需用户裁定**（本轮只答疑，未动）。
+       128 | 1. **`sysbar` 答疑**（见 §六，未改动任何文件）。★ **M46 后注（2026-09-23，用户裁定）**：所答疑的 `sysbar` 屏**已删除**（18 → 17 屏，见 §六 头部后注）；本条为「本轮四」的历史记录，不改写。
+  -- krkr/README_运行方式.md
+        80 | ★ M46（2026-09-23，用户裁定）：「系统条 `sysbar`」屏**已删除**（18 类 → **17 类**；用户原话
+        81 | 「把系统条 sysbar 页删了，**但底条素材保留（防冲突）**」）⇒ 屏文件（`34_sysbar.json`）/ `_index.json`
+        94 | ★ M46：`sysbar` 底部系统条**已删除**，也不再在巡演白名单里）
+        97 | **本次实测（2026-09-23，M46 删除 `sysbar` 后重跑）：24 屏记账 / 23 步 / 24 张 PNG
+       101 | ——**序列里没有 `sysbar`**（`quickbar` 收起态 `实绘元素=0`，与 M45 一致）。
+       103 | 历史：M45 实测 25 屏记账 / 24 步 / 25 张 PNG、`seen=18`（含 `sysbar`）；M2 实测 26 屏记账 / 25 步 / 26 张 PNG；移除 `sysmenu` 步之前为 27 屏。
+  -- krkr/run_pressprobe.bat
+        29 | rem    (prior example "sysbar.hit_snap" retired 2026-09-23 with screen id "sysbar";
+  -- krkr/game/ui_dialog.tjs
+       344 | // ★ M25：原「系统条 .sysbar 命中扫描」已替换为**通用 hit 扫描**。
+  -- krkr/game/ui_screens.tjs
+      1480 | // ★ M46（2026-09-23，用户裁定）：`sysbar` 已从白名单移除 —— 该屏**已整体删除**
+      1481 | //   （用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」），屏文件与 `_index.json`
+  -- 复刻/index.html
+        42 | M46 变更（2026-09-23，用户裁定）：`sysbar`（系统条）屏**已删除**（18 → 17 屏；用户原话：
+        43 | 「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）—— `34_sysbar.json` 与
+        44 | `_index.json` 条目已删除；本页导航与 `SCREEN_CATALOG` **本就没有 `sysbar` 条目**
+  -- 复刻/replica.js
+        94 | /* ★ M46（2026-09-23，用户裁定）：`sysbar`（系统条）屏**已删除**（用户原话「把系统条
+        95 | sysbar 页删了，但底条素材保留（防冲突）」）—— 本目录（`SCREEN_CATALOG`）与复核页
+        96 | 导航**从来就没有 `sysbar` 条目**（同 `quickbar`/`choices`/`dress`：这四屏只以
+  -- 工具/m34_build_screens.py
+        14 | （`34_sysbar.json` 已于 M46 随屏删除，不再在列）
+       251 | #   · 屏数据 `layout/screens/34_sysbar.json`（8 元素）按用户裁定删除（18 → 17 屏），
+       253 | #   · 本文件的 `build_sysbar()` 与 `__main__` 的调用一并删除（M45 删 `build_sysmenu()` 同例）；
+      1151 | # ★ M46（2026-09-23，用户裁定）：`build_sysbar()` 调用**已删除** —— `sysbar` 屏已整体删除
+  -- 工具/test_click_reach.py
+         4 | ★ M43 删 `chapter` 屏后为 19 屏；★ M45 废除 `sysmenu` 屏后为 18 屏；★ M46 删 `sysbar` 屏后为 **17 屏**）
+  -- 工具/test_gen_sync.py
+        63 | # ★ M46（2026-09-23，用户裁定）：`("build_sysbar", "34_sysbar.json")` 条目**已移除** ——
+        64 | #   `sysbar`（系统条）屏已整体删除（屏文件删除、`_index.json` 条目移除、巡演白名单与两端
+        65 | #   活引用清理），生成器侧的 `build_sysbar()` 与 `__main__` 的 write 调用亦已删除 ⇒ 无产物可比。
+       132 | # ★ M46（2026-09-23，用户裁定）：`"34_sysbar.json"` 条目**已移除** —— 该屏已整体删除，
+       133 | #   生成器侧 `build_sysbar()` 亦已删除 ⇒ 不再有「重跑会丢什么」的对象（M45 移除 `sysmenu` 同例）。
+
+################################################################################################
+## [E] E  `dlg.sysbar` —— **另一个已删对象**（对话屏旧「系统条 9 键」元素，M25 删），与本屏无关
+##   -> 11 行 / 7 文件
+################################################################################################
+  -- 00_UI组认知与接口契约.md
+       172 | > （下表第 16 行提到的 `dlg.sysbar` 是**另一个东西**：对话屏早期的「系统条 9 键」元素，M25 已删、
+       192 | | 16 | `sysicons` | **右键图标浮层** | 对话屏系统条的右键展开浮层（图标化入口，非文字条）。依据：`复刻\README_复刻说明.md:57` 记「画面右键 → 回想（backlog）」；`layout\screens\10_dialog.json` 现有 `dlg.sysbar`（8 键列表）为其底座。⚠ **当前 `layout\` 尚无独立 `sysicons` 屏 / 元素，属待建项**；图标来源可用 M11 的 `x_gen_icon_01
+  -- 生图补图任务书.md
+       242 | | B | 在 `dlg.sysbar`（8 键，`item_w=88/item_h=26`）、各屏 `*_footer`/`page_btns`/`music.controls`/`ending`/`confirm` 的按钮上**加图标层**（图标 24×24 + 原文字标签并排） |
+  -- 素材裁决与图片化日文风险上报.md
+        61 | | `sm_save/load/cfg/skip/auto/win/log/ret/title/end/s_s_ret` | 11 | 612×26（`sm_auto` 1224×26） | 菜单条日文（セーブ / ロード / 環境設定 / スキップ / オート / ウィンドウ消去 / バックログ / タイトルに戻る / ゲーム終了 / キャンセル） | **引擎绘字**（`dlg.sysbar` 8 键 + `sysmenu` 10 项）。★ **M45（2026-09-2
+  -- krkr/game/ui_dialog.tjs
+       289 | // ★ M25：原「系统条 .sysbar 高亮」分支已删除 —— dlg.sysbar（系统条 9 键）按用户
+       345 | //   原因：dlg.sysbar 已按用户要求删除，本屏新增的九宫格 9 功能图标是
+  -- 复刻/replica.js
+      2901 | /* ★ M38：原表含 `dlg.window` / `dlg.cursor` / `dlg.sysbar` 三个**数据里已不存在**的 id
+      2902 | （dialog 屏无框化后 `dlg.window` 退场归档，`dlg.sysbar` 更早已删）。
+      3008 | 回想仍在浮层的 REPEAT/系统条「回想」键可达（dlg.sysbar 第 6 键 action=open_backlog）。
+  -- 工具/make_demo_sheets.py
+       484 | s.li("接入点：dlg.sysbar 8 键、各屏 footer / page_btns、music 控制条、ending 跳过、confirm 是/否")
+  -- 生图入料/示范图/README.md
+        51 | | 接入位置 | `dlg.sysbar` 8 键、各屏 `*_footer` / `page_btns`、music 控制条、ending 跳过、confirm 是/否 |
+
+################################################################################################
+## [X] !! 未分类（**需人工判定/存在活引用残留**）
+##   -> 0 行 / 0 文件
+################################################################################################
+  （无命中）
+
+################################################################################################
+## [D] D  `_工作\` 历史证据（历史记录，不改写、不覆盖）
+##   -> 1183 行 / 87 文件
+################################################################################################
+  （共 1183 行 / 87 文件——**历史证据，不改写不覆盖**；逐行完整清单见同目录
+    `M46_grep_sysbar_full.txt`。涉及目录 / 文件：）
+      - _工作/ISSUE-20260921-26_复审证据/replica_at_5fc961f.js
+      - _工作/ISSUE-20260921-26_复审证据/ui_dialog.tjs
+      - _工作/ISSUE-20260921-26_复审证据/ui_layout_at_5fc961f.js
+      - _工作/ISSUE-20260921-26_复审证据/ui_layout_at_5fc961f.json
+      - _工作/ISSUE-20260921-26_复审证据/ui_screens.tjs
+      - _工作/ISSUE-20260922-28_M1_证据/engine_tour_counts_HEAD.txt
+      - _工作/ISSUE-20260922-28_M1_证据/engine_tour_counts_M1.txt
+      - _工作/ISSUE-20260922-28_M1_证据/engine_tour_default_after_G3.txt
+      - _工作/ISSUE-20260922-28_M1_证据/engine_tour_expanded_after_G3.txt
+      - _工作/ISSUE-20260922-28_M1_证据/gate_test_click_reach_M8.txt
+      - _工作/ISSUE-20260922-28_M2_证据/ab_result.txt
+      - _工作/ISSUE-20260922-28_M2_证据/selftest_log.utf8.txt
+      - _工作/ISSUE-20260922-28_M3_证据/editor_dom_fp1.html
+      - _工作/ISSUE-20260922-28_M3_证据/edom_dialog_fp1_expanded.html
+      - _工作/ISSUE-20260922-28_M3_证据/edom_screen_quickbar.html
+      - _工作/ISSUE-20260922-28_M3_证据/edom_screen_quickbar_fp_1.html
+      - _工作/ISSUE-20260922-28_M3_证据/edom_screen_quickbar_fp_1_flags_quickbar_expanded_qbar_tip_lock_qbar_pin_1.html
+      - _工作/ISSUE-20260922-28_M3_证据/final_editor_fp1_dump.html
+      - _工作/ISSUE-20260922-28_M3_证据/replica_rev.js
+      - _工作/ISSUE-20260922-28_M3_证据/replica_rev_esc.js
+      - _工作/ISSUE-20260922-28_M4_证据/T4_note_溯源_生成器归属.txt
+      - _工作/ISSUE-20260922-28_M8_证据/J2_ack_table_full.txt
+      - _工作/ISSUE-20260922-28_M8_证据/T1_pre_m7_fail.txt
+      - _工作/ISSUE-20260922-28_M8_证据/T1_selfcheck_pre_m7.txt
+      - _工作/ISSUE-20260922-28_M8_证据/acc2_click_reach.txt
+      - _工作/ISSUE-20260922-28_M8_证据/acc3_click_reach_selfcheck.txt
+      - _工作/ISSUE-20260922-28_M8_证据/acc4_gen_sync.txt
+      - _工作/ISSUE-20260922-28_M8_证据/acc5_gen_sync_selfcheck.txt
+      - _工作/ISSUE-20260922-28_一审证据/before_md5.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_K4_巡演_强制展开_g1e.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_K4_巡演_默认收起_g1e.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_K4终态复跑_g1e.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_R3收尾自检_g1f.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_巡演_强制展开_halo64.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_巡演_悬停第2项_halo64.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_巡演_默认收起_halo64.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_验收_数据级全套.txt
+      - _工作/ISSUE-20260923-01_G2_证据/G2_验收_数据级全套_halo64.txt
+      - _工作/ISSUE-20260923-01_G2_证据/_editor_dom_probe_g1e.html
+      - _工作/ISSUE-20260923-01_M38_证据/M38_AB_旧渲染器_巡演日志.log
+      - _工作/ISSUE-20260923-01_M38_证据/M38_editor_dom.html
+      - _工作/ISSUE-20260923-01_M38_证据/M38_巡演日志_krkr.console.log
+      - _工作/ISSUE-20260923-01_M38_证据/M38_巡演日志_修后_krkr.console.log
+      - _工作/ISSUE-20260923-01_M38_证据/M38_巡演日志_新实现_krkr.console.log
+      - _工作/ISSUE-20260923-01_M39_证据/M39_verify_ui_verbose.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_六道守门.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_守门_test_click_reach.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_守门_test_gen_sync.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_巡演日志_krkr.console.log.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_巡演日志分析.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_落地_verify_ui_verbose.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_落地_守门_test_click_reach.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_落地_守门_test_gen_sync.txt
+      - _工作/ISSUE-20260923-01_M39_证据/M39_落地_巡演日志分析.txt
+      - _工作/ISSUE-20260923-04_M42_证据/M42_巡演日志_复跑_krkr.console.log
+      - _工作/ISSUE-20260923-06_M43_证据/M43_巡演日志_krkr.console.log.utf8.txt
+      - _工作/ISSUE-20260923-06_M43_证据/M43_探针日志_krkr_flowenter.console.log
+      - _工作/ISSUE-20260923-06_M43_证据/M43_验收_数据级全套.txt
+      - _工作/ISSUE-20260923-08_M45_证据/M45_grep_live_masked.txt
+      - _工作/ISSUE-20260923-08_M45_证据/M45_守门_test_click_reach.txt
+      - _工作/ISSUE-20260923-08_M45_证据/M45_守门_test_gen_sync.txt
+      - _工作/ISSUE-20260923-08_M45_证据/M45_巡演_krkr.console.utf8.txt
+      - _工作/ISSUE-20260923-08_M45_证据/M45_巡演_本次运行摘录.txt
+      - _工作/ISSUE-20260923-08_M45_证据/M45_快捷条展开_quickbar.console.utf8.txt
+      - _工作/ISSUE-20260923-14_M46_证据/M46_HTML自检.txt
+      - _工作/ISSUE-20260923-14_M46_证据/M46_grep_sysbar_full.txt
+      - _工作/ISSUE-20260923-14_M46_证据/M46_verify_ui.txt
+      - _工作/ISSUE-20260923-14_M46_证据/M46_六道守门.txt
+      - _工作/ISSUE-20260923-14_M46_证据/M46_巡演_krkr.console.utf8.txt
+      - _工作/ISSUE-20260923-14_M46_证据/M46_底条素材仍在.txt
+      - _工作/M12_备份_1280/10_dialog.json
+      - _工作/M12_证据/迁移明细.json
+      - _工作/M12_迁移报告.md
+      - _工作/M13_报告.md
+      - _工作/M18_报告.md
+      - _工作/M23_gen.py
+      - _工作/M23_报告.md
+      - _工作/M25_报告.md
+      - _工作/M34_拆件倍率登记.json
+      - _工作/M35_证据/M35_按下态_探针运行日志.txt
+      - _工作/M35_证据/M35b_实机真人鼠标_完整日志.txt
+      - _工作/M35b_热区态图迁移.py
+      - _工作/M43_旧素材归档/_index.json.before
+      - _工作/M45_旧素材归档/_index.json.before
+      - _工作/M46_旧素材归档/34_sysbar.json.snapshot
+      - _工作/M46_旧素材归档/_index.json.before
+      - _工作/M46_旧素材归档/说明.md
+
+================================================================================================
+汇总：A=5  B=21  C=56  E=11  D=1183  ｜ **未分类 X=0**（X=0 ⇒ 除 A/B/C/D/E 外无任何活引用）
+语义：A = **保留**的 fc.sysbar 定义点；B/C/E = 「保留 / 已删除 / 另一对象」说明；D = 历史证据。
+================================================================================================

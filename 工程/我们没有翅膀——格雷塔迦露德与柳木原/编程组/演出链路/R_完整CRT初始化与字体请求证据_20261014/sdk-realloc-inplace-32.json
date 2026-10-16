@@ -1,0 +1,22 @@
+{
+  "bits": 32,
+  "scope": "actual owned in-place HeapReAlloc and guest mapping growth/conflict, not source address equivalence",
+  "cases": [
+    {
+      "conflict": false,
+      "old_host": 58394040,
+      "actual_in_place_result": 58394040,
+      "actual_OS_success": true,
+      "actual_same_host_and_guest_page_growth_proven": true
+    },
+    {
+      "conflict": true,
+      "old_host": 57083320,
+      "actual_in_place_result": 57083320,
+      "actual_OS_success": true,
+      "overlap_refused_without_fake_OS_rollback": true
+    }
+  ],
+  "all_owned_cleanup_pass": true,
+  "both_expected_branches_proven": true
+}

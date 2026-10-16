@@ -1,0 +1,15 @@
+function RDynamicEval(expr)
+{
+    var r = RParameterEvaluate(this.rd, this.wr, this.rb, this.wb, this.ctx, this.base, expr, this.maps, this.string_base, this.native_cb, 10000);
+    var runIndex = this.vm_runs.count;
+    this.vm_runs.add([expr.code_start, r.vm.return_code, r.vm.steps]);
+    var trace = r.vm.trace;
+    for (var i = 0; i < trace.count; i++)
+    {
+        var row = trace[i];
+        this.vm_traces.add([runIndex, row.pc, row.opcode]);
+    }
+    if (r.bound)
+        this.bindings.add([expr.code_start]);
+    return r.value;
+}

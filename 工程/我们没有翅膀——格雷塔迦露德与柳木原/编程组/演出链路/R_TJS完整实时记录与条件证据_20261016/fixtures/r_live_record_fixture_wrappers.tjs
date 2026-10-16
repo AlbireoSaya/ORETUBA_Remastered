@@ -1,0 +1,15 @@
+// r_live_expression_entry.tjs
+// R 表达式取式入口：C = Condition，P = Parameter。
+// 仅做转发：取 global.RRExpression，并以 incontextof this 保持调用者上下文。
+
+function RRConditionExpr(p)
+{
+    var run = global.RRExpression incontextof this;
+    return run(p, "C");
+}
+
+function RRParameterExpr(p)
+{
+    var run = global.RRExpression incontextof this;
+    return run(p, "P");
+}

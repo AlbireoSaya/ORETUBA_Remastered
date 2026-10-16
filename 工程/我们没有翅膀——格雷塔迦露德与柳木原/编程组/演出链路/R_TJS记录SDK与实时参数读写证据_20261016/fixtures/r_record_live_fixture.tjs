@@ -1,0 +1,46 @@
+// r_record_live_fixture.tjs — 合成 live gate 验证 fixture；仅自有接口与数值契约，不含原作字节。
+var RLiveGateCheckCount = 0;
+
+function RLGZero(offset) { return 0; }
+
+function RLGRD(q) { this.log.add([q, 4]); return RMemoryRead32(this.mem, q); }
+
+function RLGRB(q) { this.log.add([q, 1]); return RMemoryRead8(this.mem, q); }
+
+function RLiveGateCheck(opcode, length, count, expectedRows, accepted, nextCursor)
+{
+    var s = %[
+        "mem" => RMemoryCreate([%["base" => 0x4000, "size" => 16, "read_byte" => RLGZero, "writable" => 1]]),
+        "log" => []
+    ];
+
+    // 初始化只走直接写入，不经过带日志的读取包装器。
+    RMemoryWrite32(s.mem, 0x4002, opcode);
+    RMemoryWrite8(s.mem, 0x4006, 1);
+    RMemoryWrite32(s.mem, 0x4007, length);
+    RMemoryWrite8(s.mem, 0x400b, count);
+
+    var rd = RLGRD incontextof s;
+    var rb = RLGRB incontextof s;
+
+    var prefix = RRecordLivePrefix(rd, rb, 0x4000);
+    var gate = RRecordLiveGate(rd, rb, prefix.opcode, 1, prefix.condition_cursor);
+
+    // 严格三参数比较，不改比较器。
+    RVMFCompareRows(s.log, expectedRows, "live-source-read-order");
+
+    if(gate.accepted !== accepted) { throw new Exception("RLiveGateCheck: accepted mismatch"); }
+    if(accepted)
+    {
+        if(gate.condition_value != 1) { throw new Exception("RLiveGateCheck: accepted condition_value != 1"); }
+        if(gate.item_count != count) { throw new Exception("RLiveGateCheck: accepted item_count mismatch"); }
+        if(gate.items_cursor != 0x400c) { throw new Exception("RLiveGateCheck: accepted items_cursor != 0x400c"); }
+    }
+    else
+    {
+        if(gate.condition_value != 0) { throw new Exception("RLiveGateCheck: rejected condition_value != 0"); }
+        if(gate.next_cursor != nextCursor) { throw new Exception("RLiveGateCheck: rejected next_cursor mismatch"); }
+    }
+
+    RLiveGateCheckCount++;
+}

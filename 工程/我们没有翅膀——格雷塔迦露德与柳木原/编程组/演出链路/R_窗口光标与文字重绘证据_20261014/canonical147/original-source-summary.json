@@ -1,0 +1,635 @@
+{
+  "original_request": {
+    "security_attributes": 0,
+    "stack_size": 0,
+    "start_address": 5271290,
+    "parameter": 119533696,
+    "creation_flags": 0,
+    "thread_id_out": 33569996
+  },
+  "original_return_address": 5271254,
+  "original_CRT_parameter": 119533696,
+  "original_business_start": 5213520,
+  "original_business_parameter": 33569988,
+  "parent_fs0": "8c750002",
+  "source_thread_exit_not_executed": true,
+  "source_CreateThread_consumer_not_resumed": false,
+  "scope": "bounded original worker prefix on actual owned host thread; not a complete Windows loader/TEB model",
+  "worker_guest_reservation": {
+    "source_PE_reserve": 1048576,
+    "source_PE_commit": 4096,
+    "mapped_low_high": [
+      56754176,
+      57802752
+    ],
+    "OS_guard_pages_commit_growth_TEB_not_modeled": true
+  },
+  "actual_owned_thread_handle": 4568,
+  "actual_returned_tid": 29244,
+  "guest_TID_out_not_written_until_full_request_receipt": true,
+  "original_guest_start_pointer_not_passed_to_OS": true,
+  "actual_host_worker_tid": 29244,
+  "WUV_DLL_THREAD_ATTACH": {
+    "entry": 285289965,
+    "reason": 2,
+    "next_EIP": 57802736,
+    "return_value": 1,
+    "failure": null,
+    "new_API_events": []
+  },
+  "CRT_prefix": {
+    "next_EIP": 5271379,
+    "failure": null,
+    "original_parameter_tid": 29244,
+    "new_API_events": [
+      {
+        "api": "TlsSetValue",
+        "args": [
+          13,
+          119533696
+        ],
+        "native_return_address": 5271344,
+        "actual_Windows_API": true,
+        "guest_result": 1,
+        "actual_host_pointer": 128170464
+      },
+      {
+        "api": "GetCurrentThreadId",
+        "args": [],
+        "native_return_address": 5271362,
+        "actual_Windows_API": true,
+        "guest_result": 29244
+      }
+    ],
+    "FS0": "ecff7003",
+    "source_business_call_not_executed": true
+  },
+  "original_CRT_TLS_pointer_verified": true,
+  "original_CRT_tid_matches_OS": true,
+  "park_before_resource_cleanup": {
+    "source_EIP": 1211732,
+    "actual_worker_tid": 29244,
+    "live_font_count": 5,
+    "live_selected_font_DCs": 5
+  },
+  "actual_STILL_ACTIVE_during_parent_consumers": 259,
+  "host_guard_exit_is_not_original_exit_code": true,
+  "worker_errors": [],
+  "owned_thread_handle_retained_for_parent_consumers": true,
+  "parent_context_and_FS0_restored": true,
+  "worker_permissions_retained_while_parked": true,
+  "original_font_handles_live_during_parent_consumers": [
+    {
+      "guest_font": 1777729536,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "6d2c34e67c1217593b92747b4186d8120ca243ce79b769bdb60f984656825037",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729537,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "67d4f73b68eef4bd7c21bcced13c03a639fd824a0564042399e1d0b401a61cfd",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729538,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "2fd09ae96e9e994f2718a43e9f903a03c82a8abf9f020aafe4f2accf054d603c",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729539,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "fa31ea0a8f5e3203b15c5f7877f3fc56c3fa0ef32d70221f7915b39f82e686e1",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729540,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "0f2adefaed6eb381f7d42bbf594af5c29cdfb56951311c8a22c74303a2278abe",
+      "guards_pass": true
+    }
+  ],
+  "worker_context_and_FS0_restored_on_original_OS_tid_after_release": true,
+  "repeated_original_parent_rounds": [
+    {
+      "generation": 2,
+      "worker_still_active": 259,
+      "worker_payload": {
+        "source_EIP": 1211732,
+        "actual_worker_tid": 29244,
+        "resume_failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+        "live_font_count": 5
+      },
+      "parent": {
+        "real_parent_message_queue": {
+          "original_GetMessage_return_address": 4533591,
+          "guest_MSG_pointer": 33587172,
+          "native_MSG_bytes": 32,
+          "source_filter": [
+            0,
+            0,
+            0
+          ],
+          "real_PeekMessage_NOREMOVE": 1,
+          "no_message_injected": true,
+          "no_source_DispatchMessage_executed": false,
+          "preview_wParam_lParam": [
+            0,
+            0
+          ],
+          "preview_message_id": 49445,
+          "preview_own_window_or_thread_message": true,
+          "actual_GetMessageA_result": 1,
+          "actual_error": 0,
+          "actual_message_id": 49445,
+          "explicit_HWND_mapping": 1777664000,
+          "guest_MSG_bytes": 32,
+          "guest_MSG_hex": "0000f56925c1000000000000000000008a395102260300001d02000000000000",
+          "both_output_guards_preserved": true,
+          "after_source_MSG_consumer": {
+            "next_EIP": 1211206,
+            "next_import": "TranslateAcceleratorA",
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+            "stack12": [
+              4533654,
+              1777664000,
+              1777795072,
+              33587172,
+              0,
+              0,
+              0,
+              0,
+              1777664000,
+              49445,
+              0,
+              0
+            ]
+          },
+          "actual_accelerator_consumer": {
+            "original_return_address": 4533654,
+            "actual_OS_result": 0,
+            "actual_non_key_message_id": 49445,
+            "next_EIP": 1211244,
+            "next_import": "TranslateMessage",
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+            "stack12": [
+              4533665,
+              33587172,
+              0,
+              0,
+              0,
+              0,
+              1777664000,
+              49445,
+              0,
+              0,
+              38877578,
+              806
+            ]
+          },
+          "actual_TranslateMessage_consumer": {
+            "original_return_address": 4533665,
+            "actual_OS_BOOL": 0,
+            "message_id": 49445,
+            "next_EIP": 1211186,
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)"
+          },
+          "actual_DispatchMessage_and_original_WNDPROC": {
+            "original_return_address": 4533676,
+            "actual_OS_LRESULT": 0,
+            "actual_message_id": 49445,
+            "native_callbacks": [
+              {
+                "original_WNDPROC": 4847712,
+                "actual_host_message": 49445,
+                "original_stdcall_stack_bytes": 20,
+                "original_return_value": 0,
+                "guest_HWND_token": 1777664000,
+                "original_window_object": 33567052,
+                "before_guest_object_HWND": 1777664000,
+                "after_guest_object_HWND": 1777664000,
+                "message_buffer_bytes": 0,
+                "message_input_SHA256": null,
+                "exact_CREATESTRUCT_pointer_fields_mapped": false,
+                "API_events": [
+                  {
+                    "original_API": "GetWindowLongA",
+                    "original_return_address": 4847769,
+                    "original_API_args": [
+                      1777664000,
+                      4294967275
+                    ],
+                    "actual_host_API": true,
+                    "mapped_guest_result": 33567052,
+                    "actual_error": 0,
+                    "host_API_called_only_after_outer_emu_stop": true
+                  },
+                  {
+                    "original_API": "DefWindowProcA",
+                    "original_return_address": 4847955,
+                    "original_API_args": [
+                      1777664000,
+                      49445,
+                      0,
+                      0
+                    ],
+                    "actual_host_API": true,
+                    "mapped_guest_result": 0,
+                    "actual_error": 0,
+                    "host_API_called_only_after_outer_emu_stop": true
+                  }
+                ],
+                "exact_setcursor_HWND_mapping": null,
+                "hit_test_screen_point": null,
+                "no_guest_function_registered_with_OS": true,
+                "no_outer_emu_start_active_on_host_API": true
+              }
+            ],
+            "next_EIP": 1211230,
+            "next_import": "GetMessageA",
+            "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+            "original_WNDPROC_called_without_outer_emu_active": true,
+            "other_messages_and_live_worker_scheduler_not_proven": true
+          }
+        }
+      },
+      "root_verification_failure": null
+    }
+  ],
+  "source_completed_presentation_captures_after_parent": [],
+  "source_text_actual_OS_calls": [
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "b3755004bf73c8c8ea038239c2d7e722f54c2f96ab6cc8fd29f2857c405828f5",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        14,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    },
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "d7291158c4533acd8b07c3ea9bf0c2947bc83cab6f1d507138db35f0b11a6985",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        14,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    },
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "c251701a4859889969056cb3f2ef78d2a388e1b32370f9c597f4566d8dc2e28d",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        14,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    },
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "85329da6e1f5e6e93e98934bc85386cc0a3d32385b22465e6c630d83b2e34882",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        11,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    },
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "e95c312efb229cfa498ec032c56601c5d208de0f51c4f6599a437362296cf689",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        14,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    },
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "0042b255080a82b7df93fd05737c318bd2bad676b4bb5b0b86d09f03adbdb839",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        14,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    },
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "4e7a85a6089d64cce9fdf3ad0deaf3caed9527906835c08dbbfb35ba1e533aee",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        12,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    },
+    {
+      "api": "GetTextExtentPoint32A",
+      "source_return_address": 4577136,
+      "source_bytes": 2,
+      "source_text_SHA256": "ad8a9479ae74bc932ea15d5e91040407b655be8bb68baac55fdc3155d448948f",
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_SIZE": [
+        13,
+        14
+      ],
+      "guards_preserved": true,
+      "actual_ACP_not_original_Japanese_OS_reference": true,
+      "same_live_source_font_DC": true
+    }
+  ],
+  "source_cursor_shape_actual_calls": [],
+  "business_boundary_registers": {
+    "EAX": 57736704,
+    "ECX": 36293,
+    "EDX": 1776287745,
+    "ESI": 1211732,
+    "EDI": 5443976,
+    "EBX": 6
+  },
+  "business_recent_instructions": [
+    {
+      "pc": 4794193,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 4794200,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265780,
+      "esp": 57736032,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265781,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265783,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265786,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265789,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265790,
+      "esp": 57735992,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265791,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265793,
+      "esp": 57735984,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265794,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265799,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 7
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 6
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 5
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 4
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 3
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 2
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 1
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265804,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265807,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265810,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265813,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265816,
+      "esp": 57735988,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265817,
+      "esp": 57735984,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265820,
+      "esp": 57735980,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265823,
+      "esp": 57735976,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265826,
+      "esp": 57735972,
+      "eax": 57736016,
+      "ecx": 0
+    }
+  ],
+  "actual_host_guard_exit_code_after_release": 2702180352,
+  "owned_thread_handle_closed": true,
+  "worker_errors_after_release": [],
+  "source_worker_resume": {
+    "from_EIP": 1211732,
+    "next_EIP": 1211732,
+    "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+    "actual_worker_tid": 29244,
+    "same_original_OS_tid": true,
+    "instruction_budget_per_slice": 4000000,
+    "rounds": [
+      {
+        "source_EIP": 1211732,
+        "actual_worker_tid": 29244,
+        "resume_failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+        "live_font_count": 5
+      }
+    ],
+    "not_full_original_exit": true
+  },
+  "post_parent_BitBlt_calls": [],
+  "post_parent_API_counts": {
+    "HeapAlloc": 1
+  },
+  "full_after_parent_readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": false,
+    "differing_color_bytes": 1416695,
+    "source_RGB_SHA256": "a75714c6dcb2f0ccf5b6aed66d7dae7b1c5a1fa75d756135a7e928f8818500d5",
+    "actual_RGB_SHA256": "680a1c22a8e114ea0c637847e8cc506794073a55f4350364c8a0421e7dbcc8f0",
+    "source_blits": 782,
+    "all_source_blit_sample_readbacks_match": false,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "full_before_parent_readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": false,
+    "differing_color_bytes": 1416695,
+    "source_RGB_SHA256": "a75714c6dcb2f0ccf5b6aed66d7dae7b1c5a1fa75d756135a7e928f8818500d5",
+    "actual_RGB_SHA256": "680a1c22a8e114ea0c637847e8cc506794073a55f4350364c8a0421e7dbcc8f0",
+    "source_blits": 782,
+    "all_source_blit_sample_readbacks_match": false,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "trace_local_path": "临时/ISSUE-20261011-02/r-cursor-message-canonical-147",
+  "full_trace_SHA256": "78849378eb9af1bd19e42a7b428c8f076aa5d886c303c59e036f0cd3c440588d",
+  "scope_not_full_original_rendering": true
+}

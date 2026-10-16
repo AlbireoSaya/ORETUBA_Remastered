@@ -1,0 +1,11 @@
+function RLiveRelocations(rd, wr, rb, cursorPtr, codeBase, compact, resolve)
+{
+    for (var group = 0; group <= 4; group++)
+    {
+        var count = RLiveRelocationCount(rd, wr, rb, cursorPtr, compact);
+        for (var i = 0; i < count; i++)
+        {
+            RLiveRelocationRow(rd, wr, cursorPtr, codeBase, group, resolve);
+        }
+    }
+}

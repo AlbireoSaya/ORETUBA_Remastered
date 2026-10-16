@@ -1,0 +1,17 @@
+import ctypes
+
+from lucifen_host_nccalcsize import RECT
+
+
+class PAINTSTRUCT(ctypes.Structure):
+    _fields_ = [
+        ("hdc", ctypes.c_void_p),
+        ("fErase", ctypes.c_int32),
+        ("rcPaint", RECT),
+        ("fRestore", ctypes.c_int32),
+        ("fIncUpdate", ctypes.c_int32),
+        ("rgbReserved", ctypes.c_ubyte * 32),
+    ]
+
+
+__all__ = ["PAINTSTRUCT"]

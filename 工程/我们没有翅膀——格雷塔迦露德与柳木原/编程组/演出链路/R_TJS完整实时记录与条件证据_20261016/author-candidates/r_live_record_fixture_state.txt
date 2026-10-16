@@ -1,0 +1,32 @@
+global.RRCreate = function(spec) {
+    var m = global.RRRegions(spec);
+    var i;
+
+    for (i = 0; i < spec.data.count; i = i + 1) {
+        global.RMemoryWrite8(m, spec.source + i, spec.data[i]);
+    }
+
+    var row;
+    for (i = 0; i < spec.initial_words.count; i = i + 1) {
+        row = spec.initial_words[i];
+        global.RMemoryWrite32(m, row[0], row[1]);
+    }
+
+    return %[
+        "memory" => m,
+        "source" => spec.source,
+        "source_end" => spec.source + spec.data.count,
+        "cursor_c" => spec.cursor_c,
+        "cursor_p" => spec.cursor_p,
+        "events" => [],
+        "vm_writes" => [],
+        "vm_trace" => [],
+        "vm_runs" => [],
+        "bindings" => [],
+        "calls" => [],
+        "phase" => "pre",
+        "expr_preps" => [],
+        "eval_index" => 0,
+        "current_kind" => ""
+    ];
+};

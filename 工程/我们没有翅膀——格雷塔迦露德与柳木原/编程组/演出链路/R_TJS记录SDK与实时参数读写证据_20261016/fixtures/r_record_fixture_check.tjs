@@ -1,0 +1,28 @@
+var RRecordCheckCount = 0;
+
+function RRecordFixtureFlat(record) {
+	var rows = [];
+	rows.add(["record", record.start, record.end, record.opcode, record.length_offset, record.declared_length, record.items.count]);
+	rows.add(["condition"]);
+	RRecordFixtureValue(rows, record.condition, false);
+	for (var i = 0; i < record.items.count; i++) {
+		rows.add(["item", i]);
+		RRecordFixtureValue(rows, record.items[i], true);
+	}
+	return rows;
+}
+
+function RRecordFixtureByte(q) {
+	if (q < this.base || q >= this.base + this.data.length) {
+		throw new Exception("FIXTURE_READ_BOUND");
+	}
+	return this.data[q - this.base];
+}
+
+function RRecordFixtureCheck(data, start, limit, expectedRows) {
+	var rb = (RRecordFixtureByte incontextof (%["data" => data, "base" => start]));
+	var got = RParseRecord(rb, limit, start);
+	var actualRows = RRecordFixtureFlat(got);
+	RVMFCompareRows(actualRows, expectedRows, "record");
+	RRecordCheckCount++;
+}

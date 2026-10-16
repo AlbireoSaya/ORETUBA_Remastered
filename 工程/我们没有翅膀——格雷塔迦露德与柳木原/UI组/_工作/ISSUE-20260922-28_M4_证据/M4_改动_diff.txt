@@ -1,0 +1,1221 @@
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35_生图脚本/btn_states.py b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35_生图脚本/btn_states.py
+index c643068..9a757f8 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35_生图脚本/btn_states.py
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35_生图脚本/btn_states.py
+@@ -1,32 +1,47 @@
+ # -*- coding: utf-8 -*-
+ r"""按钮文字「悬停态 / 按下态」——**由常态程序化派生**（用户 2026-09-22 选定）。
+ 
+-用户要求：「悬停时和被点击时的格式」；产出方式用户选「程序化派生两态」。
+-
+-■ 三态配方（可调，全部只动 RGB/alpha 与整体缩放，**不改字形**）
+-
+-  normal  = 入库的 `x_ui_btntxt2*_<key>.png`
+-  hover   = 提亮 + 光晕增强：
+-              RGB 向白混合 18% ｜ alpha × 1.15（截 255）
+-  pressed = 压暗 + 光晕收缩 + 整体缩到 96%（居中，画布不变）：
+-              RGB × 0.80 ｜ alpha × 0.90 ｜ 等比 × 0.96
+-
+-  ★ **为什么 hover 不做「放大」**：正文层画布里字身已占满 48px（实测字身 44–48 高），
+-    再放大会切掉笔画；故 hover 只做**色调与光晕**（提亮＝"亮起来"），
+-    「按下去」的体感由 pressed 的**缩 0.96**承担（缩小永不裁切）。
+-
+-  产物画布与常态**完全一致**（正文层 (48n+4(n-1))×48 / 合成层 (48n+4(n-1)+48)×96），
+-  因为 krkr 的 hit 会把 state_assets **拉伸进热区**（ui_widget.tjs:284），
+-  画布一致才能保证三态切换时不受拉伸影响。
+-
+-■ 适用对象（两族都出，覆盖两种接法）
++★ **本文件是产出盘上素材的那一份（唯一可复现配方）**。
++  M4（`ISSUE-20260922-28`，2026-09-22）订正：本文件曾长期落后于实际出图用的那份
++  （旧版 `hover(im)` 只提亮 18%、无白晕、`P_ALPHA=0.90`、无描边、无 `PRESS_FROM_HOVER`），
++  结果「配方可复现」在仓内**不成立**：用它重算 14 件 `_on` / 14 件 `_press` 与盘上 md5 全不同，
++  而真正能逐字节复现的版本当时只存在于**未入库**的 `工具\lyai-image-api\btn_states.py`。
++  现已把该版本**逐字节同步入仓**（同步时源 md5 = `437cd89656168a163f848eebb2f34e7b`），
++  并经 md5 复核：本文件重算 `_on` 14/14、`_press` 14/14、选择支 `x_ui_choice_press.png` 全部**逐字节相同**。
++  ⇒ 后续一律以本文件为准；`工具\lyai-image-api\` 下那份是副本，**不应再有独有改动**。
++
++用户 2026-09-22 的两次要求：
++  ①「悬停态不够亮，让它再亮一点并加上白色光晕。」
++  ②「既然如此，就不做点击态的图了……」（随后**当晚改口**：另出 7 张图标按下图 ⇒ `MAKE_PRESSED = True`）
++
++■ 悬停配方（只动 RGB/alpha + 叠加一层白色光晕，**不改字形**）
++
++  hover = **提亮**（RGB 向白混合 30% ｜ alpha ×1.25）
++        + **白色光晕**：字身掩码（alpha≥160）→ 向外膨胀 → 高斯柔化 → 铺纯白，合成在字形**下方**
++          紧晕（core）＋ 宽晕（wide）两层取较亮者，形成「贴字亮环 + 外扩柔晕」
++
++  ★ **为什么"更亮"必须靠白晕而不是继续往白里混**：字形填充本身已是近白的冰蓝渐变
++    （#DCEBFB→#FFFFFF，约 90% 白），往白里再混几乎**没有提亮余量**（实测第一版混到 32% 时肉眼仍看不出差别）。
++    真正能读出"亮起来"的是**白晕**，故把权重压在光晕上。
++  ★ **光晕半径按档做过实底比对**（`_证据/hover_on_real_titlebg.png`，贴真实标题底 `x_bg_system.png`）：
++      旧档 R7/G0.60 偏弱 → 用户判"不够亮"；R16/G0.90 在深底上**糊成一片白**（整条被冲掉）；
++      **R3/G1.00 + R8/G0.45 最合适**（明显更亮、白晕贴字，不糊底）。本文件即采用后者。
++  ★ **画布留白决定可用半径**（实测）：
++      正文层  (48n+4(n-1))×48   —— 字身 44–47 塞在 48 里，**垂直只剩 0–2px 余量** ⇒ 只能用紧晕 R1+R2
++      合成层  (48n+4(n-1)+48)×96 —— 四周 24px 留白 ⇒ 可用 R3+R8
++    故半径按族给值（`GLOW`）。**想要完整白晕就用合成层**；正文层那版只是"亮一点 + 贴字微晕"。
++
++■ 适用对象（`MAKE_PRESSED = True` ⇒ 两族都出 `_on` + `_press`）
+   正文层  x_ui_btntxt2_<key>.png   → _on（悬停）/ _press（按下）
+   合成层  x_ui_btntxt2c_<key>.png  → _on / _press
+   （羽毛层 x_ui_btntxtf_ 是静态层，不随态变化）
++
++  产物画布与常态**完全一致**（krkr 的 hit 会把 state_assets **拉伸进热区**，
++  画布一致才能保证三态切换时不受拉伸影响）。
+ """
+ import os, sys
+ sys.path.insert(0, "E:/ZCode Workspace/Galgame/工具/pylibs")
+-from PIL import Image
++from PIL import Image, ImageChops, ImageFilter
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ UI = r"E:/ZCode Workspace/Galgame/临时/wt-ui26/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组"
+@@ -34,43 +49,85 @@ ASSETS = os.path.join(UI, "krkr", "assets", "ui")
+ EVID = os.path.join(UI, "_工作", "M35_证据")
+ 
+ KEYS = ["start", "continue", "load", "flowchart", "config", "gallery", "exit"]
+-WORDS = {"start": "开始游戏", "continue": "继续游戏", "load": "读取存档",
+-         "flowchart": "流程图", "config": "设置", "gallery": "画廊", "exit": "离开游戏"}
+ 
+-# ── 配方 ──
+-H_WHITE, H_ALPHA = 0.18, 1.15      # hover
+-P_RGB, P_ALPHA, P_SCALE = 0.80, 0.90, 0.96   # pressed
++MAKE_PRESSED = True         # ★ M35b：用户 2026-09-22 晚裁定「补上 7 张按下图」→ 开启
++PRESS_FROM_HOVER = False    # ★ **从常态版**派生—— 实测订正：
++                            #   悬停版已「向白混 30%」，再 ×0.80 正好抵消回常态亮度 ⇒ 按下图
++                            #   看上去只是「常态 + 白晕」，既不比常态暗也不比悬停亮，读不出“按下”
++                            #   （实机目视确认）。改为从常态派生后，按下 = 常态 ×0.80 = 明确更暗，
++                            #   与悬停（明亮的白）形成清楚的第三态。
+ 
++# ── 悬停配方（2026-09-22 第二次调档，实底比对后定稿）──
++H_WHITE, H_ALPHA = 0.30, 1.25          # 提亮：RGB 向白 30% ＋ alpha ×1.25
++# 族 → (紧晕半径, 宽晕半径)；强度固定 core 1.00 / wide 0.45
++GLOW = {"x_ui_btntxt2_%s.png": (1, 2),      # 正文层：画布只剩 0–2px 余量
++        "x_ui_btntxt2c_%s.png": (3, 8)}     # 合成层：四周 24px 留白
++GLOW_CORE_G, GLOW_WIDE_G = 1.00, 0.45
++BODY_THR = 160                          # 字身掩码阈值（与切分阶段同一口径）
+ 
+-def _scale_alpha(im, k):
+-    r, g, b, a = im.split()
+-    a = a.point(lambda v: max(0, min(255, int(round(v * k)))))
+-    return Image.merge("RGBA", (r, g, b, a))
++# ── 按下配方（`MAKE_PRESSED=True` ⇒ 已启用；`PRESS_FROM_HOVER=False` ⇒ **从常态版**派生）──
++P_RGB, P_ALPHA, P_SCALE = 0.80, 1.00, 0.96   # 压暗 + 缩 96%
++                            # ★ P_ALPHA 由 0.90 改 1.00（实测订正）：降 alpha 会让字在
++                            #   花哨背景上“发灰透底”、更像褪色而不是按下；保留原 alpha 才是“实心压暗”。
++P_RING, P_RING_BLUR = 2, 0.6                 # 亮白 2px 描边
++
++
++def body_mask(im):
++    """字身掩码（L 模式，0/255）——不含外围柔光。"""
++    return im.split()[3].point(lambda v: 255 if v >= BODY_THR else 0)
+ 
+ 
+-def hover(im):
+-    """提亮 + 光晕增强。"""
++def white_layer(size, mask_l):
++    w = Image.new("RGBA", size, (255, 255, 255, 255))
++    w.putalpha(mask_l)
++    return w
++
++
++def hover(im, core_r, wide_r):
++    """提亮 + 白色光晕（紧晕 + 宽晕取较亮者，合成在字形下方）。"""
+     r, g, b, a = im.split()
+     rgb = Image.merge("RGB", (r, g, b))
+     rgb = Image.blend(rgb, Image.new("RGB", im.size, (255, 255, 255)), H_WHITE)
+     r2, g2, b2 = rgb.split()
+     a2 = a.point(lambda v: max(0, min(255, int(round(v * H_ALPHA)))))
+-    return Image.merge("RGBA", (r2, g2, b2, a2))
++    glyph = Image.merge("RGBA", (r2, g2, b2, a2))
++
++    m = body_mask(im)
++    core = (m.filter(ImageFilter.MaxFilter(2 * core_r + 1))
++             .filter(ImageFilter.GaussianBlur(max(0.5, core_r * 0.7)))
++             .point(lambda v: min(255, int(round(v * GLOW_CORE_G)))))
++    wide = (m.filter(ImageFilter.MaxFilter(2 * wide_r + 1))
++             .filter(ImageFilter.GaussianBlur(max(0.5, wide_r * 0.6)))
++             .point(lambda v: min(255, int(round(v * GLOW_WIDE_G)))))
++    gm = ImageChops.lighter(core, wide)
++
++    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
++    out.alpha_composite(white_layer(im.size, gm))     # 白晕在下
++    out.alpha_composite(glyph)                        # 字形在上
++    return out
+ 
+ 
+-def pressed(im):
+-    """压暗 + 光晕收缩 + 整体缩 P_SCALE（居中，画布不变）。"""
++def pressed(im, ring=P_RING):
++    """压暗 + 光晕收缩 + 整体缩 96% + 亮白 2px 描边。**默认不执行**（用户 2026-09-22 取消点击态图）。"""
+     r, g, b, a = im.split()
+     r = r.point(lambda v: int(round(v * P_RGB)))
+     g = g.point(lambda v: int(round(v * P_RGB)))
+     b = b.point(lambda v: int(round(v * P_RGB)))
+     a = a.point(lambda v: max(0, min(255, int(round(v * P_ALPHA)))))
+     base = Image.merge("RGBA", (r, g, b, a))
++
+     w, h = base.size
+     nw, nh = max(1, int(round(w * P_SCALE))), max(1, int(round(h * P_SCALE)))
+     small = base.resize((nw, nh), Image.LANCZOS)
+     out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+     out.alpha_composite(small, ((w - nw) // 2, (h - nh) // 2))
++
++    m = body_mask(out)
++    dil = m.filter(ImageFilter.MaxFilter(2 * ring + 1))
++    ringm = ImageChops.subtract(dil, m)
++    if P_RING_BLUR:
++        ringm = ringm.filter(ImageFilter.GaussianBlur(P_RING_BLUR))
++    out.alpha_composite(white_layer(out.size, ringm))
+     return out
+ 
+ 
+@@ -79,51 +136,53 @@ FAMILIES = [("x_ui_btntxt2_%s.png", "x_ui_btntxt2_%s_on.png", "x_ui_btntxt2_%s_p
+ 
+ 
+ def main():
+-    made = []
++    n = 0
+     for pat, pat_on, pat_pr in FAMILIES:
++        cr, wr = GLOW.get(pat, (2, 5))
+         for k in KEYS:
+             src = os.path.join(ASSETS, pat % k)
+             if not os.path.exists(src):
+                 print("  缺 %s" % src); continue
+             im = Image.open(src).convert("RGBA")
+-            hover(im).save(os.path.join(ASSETS, pat_on % k))
+-            pressed(im).save(os.path.join(ASSETS, pat_pr % k))
+-            made.append((k, im.size))
+-            print("  %-22s normal → _on + _press  %dx%d" % (pat % k, im.size[0], im.size[1]))
+-    print("\n共 %d 件基准 → 派生 %d 件" % (len(made), 2 * len(made)))
+-
+-    # 三态对照证据（淡底 + 灰底，4×）
++            hv = hover(im, cr, wr)
++            hv.save(os.path.join(ASSETS, pat_on % k))
++            if MAKE_PRESSED:
++                pressed(hv if PRESS_FROM_HOVER else im).save(os.path.join(ASSETS, pat_pr % k))
++            n += 1
++            print("  %-24s 悬停：提亮 %.2f ｜ 白晕 R%d+R%d ｜ %dx%d"
++                  % (pat % k, H_WHITE, cr, wr, im.size[0], im.size[1]))
++    print("\n共 %d 件基准 → 派生悬停 %d 件（按下态%s）"
++          % (n, n, "已出" if MAKE_PRESSED else "**按用户要求不做**"))
++
++    # 验收证据：常态 vs 悬停，贴**真实标题底**（x_bg_system.png 的菜单落点区域）
+     K = 4
+-    for bgname, mk in (("淡底", "pale"), ("灰底", "gray")):
+-        rows = []
+-        for k in KEYS:
+-            base = Image.open(os.path.join(ASSETS, FAMILIES[1][0] % k)).convert("RGBA")   # 用合成层做对照
+-            strip = []
+-            for pat in (FAMILIES[1][0], FAMILIES[1][1], FAMILIES[1][2]):
+-                s = Image.open(os.path.join(ASSETS, pat % k)).convert("RGBA")
+-                if mk == "pale":
+-                    bg = Image.new("RGBA", s.size, (241, 247, 252, 255))
+-                else:
+-                    bg = Image.new("RGBA", s.size, (110, 120, 132, 255))
+-                bg.alpha_composite(s)
+-                strip.append(bg.convert("RGB"))
+-            W = sum(s.width for s in strip) + 8 * (len(strip) - 1)
+-            H = max(s.height for s in strip)
+-            row = Image.new("RGB", (W, H), (241, 247, 252) if mk == "pale" else (110, 120, 132))
+-            x = 0
+-            for s in strip:
+-                row.paste(s, (x, 0)); x += s.width + 8
+-            rows.append(row.resize((W * K, H * K), Image.NEAREST))
+-        Wc = max(r.width for r in rows) + 16
+-        Hc = sum(r.height for r in rows) + 10 * (len(rows) + 1)
+-        cv = Image.new("RGB", (Wc, Hc), (241, 247, 252) if mk == "pale" else (110, 120, 132))
+-        y = 10
+-        for r in rows:
+-            cv.paste(r, (8, y)); y += r.height + 10
+-        p = os.path.join(EVID, "M35_按钮文字_三态对照_%s4x.png" % bgname)
+-        cv.save(p)
+-        print("证据 → %s  %s" % (p, cv.size))
++    base = Image.open(os.path.join(ASSETS, "x_bg_system.png")).convert("RGB")
++    rows = []
++    for k in KEYS:
++        strip = []
++        for pat in (FAMILIES[1][0], FAMILIES[1][1]):
++            s = Image.open(os.path.join(ASSETS, pat % k)).convert("RGBA")
++            bgc = base.crop((44, 360, 44 + s.width, 360 + s.height)).convert("RGBA")
++            bgc.alpha_composite(s)
++            strip.append(bgc.convert("RGB"))
++        W = sum(x.width for x in strip) + 12
++        H = max(x.height for x in strip)
++        row = Image.new("RGB", (W, H), (30, 34, 40))
++        x = 0
++        for s in strip:
++            row.paste(s, (x, 0)); x += s.width + 12
++        rows.append(row.resize((W * K, H * K), Image.NEAREST))
++    Wc = max(x.width for x in rows) + 16
++    Hc = sum(x.height for x in rows) + 12 * (len(rows) + 1)
++    cv = Image.new("RGB", (Wc, Hc), (30, 34, 40))
++    y = 12
++    for x in rows:
++        cv.paste(x, (8, y)); y += x.height + 12
++    p = os.path.join(EVID, "M35_按钮文字_悬停对照_真实标题底4x.png")
++    cv.save(p)
++    print("证据 → %s  %s（每行左=常态 右=悬停）" % (p, cv.size))
+ 
+ 
+ if __name__ == "__main__":
+     main()
++
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35b_选项按下图.py b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35b_选项按下图.py
+index 3ab089d..b0b9634 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35b_选项按下图.py
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/M35b_选项按下图.py
+@@ -6,50 +6,112 @@ r"""选项（choices）**专用按下图**（用户 2026-09-22 裁定「另出
+   于是「按下选项」看起来像「被禁用」——语义错了（这是 M34 素材重映射时按手上素材填的）。
+   用户裁定：另出一版真正的按下图。
+ 
+-■ 配方
+-  复用 `btn_states.py` 的 `pressed()`（压暗 ×0.80 + alpha ×0.90 + 整体缩 0.96），
+-  且与标题菜单按下图**同一口径**：从**常态版**（`x_ui_choice_off.png`）派生。
++■ 配方（与标题菜单按下图**同一口径**：从**常态版**派生）
++  复用 ``_工作\M35_生图脚本\btn_states.py`` 的 ``pressed()``：
++      RGB ×0.80 ｜ alpha ×1.00（保留原 alpha，不降——降了会发灰透底）｜ 整体缩 0.96（居中，画布不变）
++      ＋ 亮白 2px 描边（``P_RING=2 / P_RING_BLUR=0.6``）
++  派生基准 = **常态版** `x_ui_choice_off.png`（**不是**悬停版）。
+   （初版曾从悬停版派生，实测**读不出"按下"**——悬停版已提亮 30%，再 ×0.80 正好抵消回常态亮度；
+-    详见 `btn_states.py` 的 `PRESS_FROM_HOVER` 注释。本 docstring 曾与此相反，已订正。）
++    详见 `btn_states.py` 的 ``PRESS_FROM_HOVER`` 注释。本 docstring 曾与此相反，已订正。）
+ 
+-  产物：`krkr/assets/ui/x_ui_choice_press.png`（与 off/over 同为 1135×105，画布不变）
+-        接线：把 `ch.hit_1/2/3` 的 `state_assets.pressed` 由 `x_ui_choice_dis.png` 改为它。
+-              `x_ui_choice_dis.png` **保留**（它确实是"禁用"态美术，日后选择支禁用会用到，不删）。
++■ ★ M4 修 import（Minor-6）——**为什么必须显式指向仓内那份**
++  本脚本原来只 ``import btn_states``，而 ``_工作\`` 下**没有**这个模块：它能跑通纯属
++  ``工具\lyai-image-api\`` 这个**未入库（`.gitignore` 忽略）**目录恰好存在于本机。
++  干净检出（新 worktree / 别人机器）下 `工具\` 不存在 ⇒ `ModuleNotFoundError`，
++  「可复现管线」这条路径**按原样跑不起来**。
++  更糟的是那份副本当时**更新于仓内副本**（白晕/描边/`PRESS_FROM_HOVER` 都在它那边）——
++  即仓内 `M35_生图脚本\btn_states.py` 是旧的，用它重算**与盘上素材 md5 全不同**。
++  M4 处置：①把出图那份**逐字节同步入仓**（同步后 `_工作\M35_生图脚本\btn_states.py` 重算
++  `_on`/`_press` 全部 14/14 逐字节相同）；②本脚本改为**显式把仓内 `M35_生图脚本` 插到
++  `sys.path` 最前**，并断言解析到的 `btn_states.__file__` 就在该目录 —— 指向别处即拒跑。
++
++■ 产物
++  `krkr/assets/ui/x_ui_choice_press.png`（与 off/over 同为 1135×105，画布不变）
++  接线：把 `ch.hit_1/2/3` 的 `state_assets.pressed` 由 `x_ui_choice_dis.png` 改为它。
++        `x_ui_choice_dis.png` **保留**（它确实是"禁用"态美术，日后选择支禁用会用到，不删）。
++
++■ 用法
++  python M35b_选项按下图.py           # 出图并写盘
++  python M35b_选项按下图.py --dry     # 只重算 + 比对盘上 md5，**不写盘**（可复现性自证）
+ """
+-import os, sys
++import os, sys, io, hashlib
++
++HERE = os.path.dirname(os.path.abspath(__file__))              # ...\UI组\_工作
++UI = os.path.dirname(HERE)                                     # ...\UI组
++SCRIPTS = os.path.join(HERE, "M35_生图脚本")                    # ★ 仓内配方所在目录（tracked）
++
++# ★ 仓内配方目录插到最前（先于 `工具\lyai-image-api\`，后者是未入库副本）
++sys.path.insert(0, SCRIPTS)
+ sys.path.insert(0, "E:/ZCode Workspace/Galgame/工具/pylibs")
+-sys.path.insert(0, r"E:/ZCode Workspace/Galgame/临时/wt-ui26/工具/lyai-image-api")
+ import numpy as np
+ from PIL import Image
+ import btn_states as B          # 复用同一份 pressed() 配方，避免两处各写一套
+ 
+-UI = r"E:/ZCode Workspace/Galgame/临时/wt-ui26/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组"
+ A = os.path.join(UI, "krkr", "assets", "ui")
+ 
+ 
++def _check_module():
++    r"""断言 btn_states 解析到**仓内** `_工作\M35_生图脚本\`，否则拒跑。"""
++    got = os.path.abspath(getattr(B, "__file__", "") or "")
++    if os.path.dirname(got) != os.path.abspath(SCRIPTS):
++        print("✗ btn_states 解析到了非仓内副本：%s" % (got or "(未知)"))
++        print("  期望：%s" % os.path.join(SCRIPTS, "btn_states.py"))
++        print("  （未入库的 `工具\\lyai-image-api\\` 副本不得再承载独有改动——见本文件 docstring）")
++        return False
++    return True
++
++
+ def main():
+-    over = os.path.join(A, "x_ui_choice_over.png")
++    dry = "--dry" in sys.argv
++    if not _check_module():
++        return 1
++    print("配方模块：%s（md5 %s）" % (
++        os.path.abspath(B.__file__),
++        hashlib.md5(io.open(B.__file__, "rb").read()).hexdigest()))
++    print("  MAKE_PRESSED=%s ｜ PRESS_FROM_HOVER=%s ｜ P_RGB=%s P_ALPHA=%s P_SCALE=%s P_RING=%s"
++          % (getattr(B, "MAKE_PRESSED", "?"), getattr(B, "PRESS_FROM_HOVER", "?"),
++             getattr(B, "P_RGB", "?"), getattr(B, "P_ALPHA", "?"),
++             getattr(B, "P_SCALE", "?"), getattr(B, "P_RING", "?")))
++
+     off = os.path.join(A, "x_ui_choice_off.png")
++    over = os.path.join(A, "x_ui_choice_over.png")
+     dst = os.path.join(A, "x_ui_choice_press.png")
+     if not os.path.exists(off):
+         print("✗ 缺基准图 %s" % off); return 1
+-    # ★ 从**常态**（x_ui_choice_off）派生，与标题菜单按下图同一口径（见 btn_states.py 的订正说明）。
++    # ★ 从**常态**（x_ui_choice_off）派生，与标题菜单按下图同一口径（见 btn_states.py 的 PRESS_FROM_HOVER）。
+     base = Image.open(off).convert("RGBA")
+     src = "x_ui_choice_off.png"
+     out = B.pressed(base)
+-    out.save(dst)
++
++    def png_bytes(im):
++        bio = io.BytesIO(); im.save(bio, format="PNG"); return bio.getvalue()
+ 
+     def stat(p):
+         a = np.array(Image.open(p).convert("RGBA"))
+         return (a.shape[1], a.shape[0], int((a[..., 3] == 255).sum()), float((a[..., 3] == 0).mean() * 100))
+-    b = stat(off); c = stat(over); d = stat(dst)
+-    print("基准 %-24s %dx%d  alpha255=%d  alpha0=%.2f%%" % ("x_ui_choice_off.png",) + b[2:] if False else "")
+-    for n, s in (("x_ui_choice_off.png", b), (src, c), ("x_ui_choice_press.png", d)):
+-        print("  %-24s %dx%d  alpha255=%6d  alpha0=%.2f%%" % ((n,) + s))
+-    ok = (d[0], d[1]) == (b[0], b[1]) and d[2] > 0
+-    print("  画布一致：%s ｜ 非空：%s" % ((d[0], d[1]) == (b[0], b[1]), d[2] > 0))
++
++    b, c = stat(off), stat(over)
++    d = stat(dst) if os.path.exists(dst) else None
++    print("  %-26s %dx%d  alpha255=%6d  alpha0=%.2f%%" % (("常态 " + src,) + b))
++    print("  %-26s %dx%d  alpha255=%6d  alpha0=%.2f%%" % (("悬停 x_ui_choice_over.png",) + c))
++    if d:
++        print("  %-26s %dx%d  alpha255=%6d  alpha0=%.2f%%" % (("按下（盘上现值）",) + d))
++
++    ok = out.size == base.size and (np.array(out)[..., 3] == 255).sum() > 0
++    print("  画布一致：%s ｜ 非空：%s" % (out.size == base.size, (np.array(out)[..., 3] == 255).sum() > 0))
++
++    if dry:
++        if not os.path.exists(dst):
++            print("  （--dry：盘上无 %s，无法比对）" % os.path.basename(dst)); return 0
++        same = hashlib.md5(png_bytes(out)).hexdigest() == hashlib.md5(io.open(dst, "rb").read()).hexdigest()
++        print("  --dry：重算结果与盘上 %s **%s**（md5 %s）"
++              % (os.path.basename(dst), "逐字节相同" if same else "不同",
++                 hashlib.md5(io.open(dst, "rb").read()).hexdigest()))
++        return 0 if same else 1
++
++    out.save(dst)
+     print("  ✓ 产出 %s（由 %s 派生）" % (dst, src))
+-    return 0
++    return 0 if ok else 1
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/_schema.md b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/_schema.md
+index 81f5919..498135a 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/_schema.md
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/_schema.md
+@@ -67,6 +67,10 @@ UI组/layout/
+   "title_cn": "对话框",
+   "owner": "M2",                       // 归属模块（写权限）
+   "overlay": false,                    // 可省。true = 浮层屏（见下）
++  "attach": "quickbar",                // 可省。M1：附加层 —— 本屏绘制后再叠画该屏的数据（见下）
++  "flags_default": { "quickbar": "collapsed", "qbar_tip": "" },  // 可省。M1：屏级 flag 初值（见下）
++  "reveal": { "flag":"quickbar", "in_x":1842, "out_x":1780,     // 可省。M1：竖条屏呼出/收起参数（见下）
++              "delay_ms":400, "tip_flag":"qbar_tip" },
+   "bg": { "kind":"image", "asset":"ui/…png", "x":0,"y":0,"w":1280,"h":720, "opacity":255 },
+   "elements": [ … ]
+ }
+@@ -76,6 +80,39 @@ UI组/layout/
+ 本渲染器只画**栈顶屏**（不做整栈合成），故 `uiScreenDraw` 见到 `overlay:true` 时会**先把栈中它下面那一屏画出来**，再叠本屏 —— 这样屏内的「全屏压暗 `rect` 遮罩」压的才是**游戏画面**，而不是一张被清空的透明画面（实机表现为纯黑）。
+ 限制：浮层只回溯**一层**（栈倒数第二屏）；栈底或独占时无下层可画，浮层即叠在空画面上。
+ 
++### 屏级状态 flag（M1 新增，`ISSUE-20260922-28`）
++
++**用途**：让元素按「当前屏的**运行时** flag 值」显示/隐藏 —— 系统菜单快捷条的收起/展开、按钮说明气泡、钉住指示等。**本层只提供机制**：贴边呼出、延时收起、钉住、动作派发由 M2/M3 实现。
++
++**判定语义（唯一定义，两端必须逐字一致）**
++
++> 元素**可见 / 可点击** ⟺ `el.visible_default !== false`
++> 且（`el.vis_flag` **不存在** → 通过；**存在** → 当前 flag 值满足：
++> `vis_when === "*"` 时要求**非空字符串**，否则要求**严格相等**）
++
++| 字段 | 层级 | 类型 | 说明 |
++| --- | --- | --- | --- |
++| `flags_default` | 屏级 | object | flag 名 → **初值（字符串）**。仅「切换屏」时按新栈顶屏的此表重置；运行期改动不落回这里 |
++| `reveal` | 屏级 | object | **仅竖条屏需要**（M2/M3 读它，M1 只写数据）。**全部 6 个键**（一个不少；两端一律读数据，**不得写死任何一个**，包括 flag 名）：<br>① `flag` — 整条开关的 flag 名（如 `"quickbar"`）；② `in_x` — 鼠标 x ≥ 此值 → 展开；③ `out_x` — x < 此值 → 起计时收起（**滞回**，避免边界抖动）；④ `delay_ms` — 收起延时（毫秒）；⑤ `tip_flag` — 说明气泡的 flag 名（写「当前悬停项 key」，空串 = 不显示气泡）；⑥ `pin_flag` — **钉住** flag 名（值为 `"1"` 即钉住；钉住时立即展开且不自动收起）。实例：`{ "flag":"quickbar", "in_x":1842, "out_x":1780, "delay_ms":400, "tip_flag":"qbar_tip", "pin_flag":"qbar_pin" }`。**这些数值即画布坐标/毫秒，脚本里一律不得写死**（`verify_ui.py` 检查 [4] 会判失败） |
++| `attach` | 屏级 | string | **附加层**：该屏绘制时，其上**再叠画**此 id 的屏数据（如 dialog 屏 `"attach": "quickbar"`）。**附加层不改屏栈语义** —— 不 push/pop、不进历史、不影响 `overlay` 的一层回溯，只是「多画一层」。**flag 表处理（2026-09-22 订正，与两端实现一致）**：附加层**不切换、也不还原** flag 表，而是**并进同一张表**——承载屏入栈时即按**附加层自己的 `flags_default`** 为**承载屏未定义**的键铺初值（承载屏自己的 defaults 优先），此后附加层的运行期值（展开/气泡/钉住）持续被读写。**不重置运行值**：每帧叠画时只做「为尚未存在的键补默认」的幂等兜底，否则展开态会在下一次同步时被清空。两端实现：krkr `uiScreenFlagsEnsureFor()`（`ui_screens.tjs`）／ HTML `mergeAttachFlags()`（`replica.js`）。**原稿「由叠画方负责切换与还原」已作废**（那是切换式实现，与实际相反） |
++| `vis_flag` | 元素级 | string | 该元素的开关 flag 名（与 `vis_when` **成对出现**） |
++| `vis_when` | 元素级 | string | 需要的取值；**特殊值 `"*"` = 该 flag 非空即显示**。未给 `vis_flag` 时本字段无意义 |
++
++**两端落点（同一语义，改一处必须改另一处）**
++
++| 端 | 文件 | 表 / 接口 |
++| --- | --- | --- |
++| krkr | `krkr/game/ui_screens.tjs` | `var UIScrFlags` ｜ `uiScreenFlagSet(name,value)`（返回「是否变化」）｜ `uiScreenFlagGet(name)`（未设置返回 `""`）｜ `uiScreenFlagsInitFor(screenId)` ｜ `uiScreenElementVisible(el)` |
++| HTML | `复刻/replica.js` | `state.svFlags` ｜ `setFlag/getFlag/initFlagsFor/elementVisible` ｜ **`applyFlagVisibility()`**（经 `window.UI_REPLICA` 导出） |
++
++- **`applyFlagVisibility()` 是机制的两端落点之一**（HTML 侧，2026-09-22 主代理裁决 2 采纳）：flag 变化后它**只同步已渲染 DOM 的显隐，不重建 DOM** —— 保住 hover/press 台账与运行期节点引用（选择肢、打字机都不受惊）。它**只碰带 `vis_flag` 的元素**，绝不越权复位其它元素的 `display`（那些由对话框运行期自己管）。krkr 侧每帧由 ctx 重算，不需要对应物。
++- **★ 铁律：`visible_default` 必须为 `true` 的场合** —— 靠 `vis_flag` 控制显隐的元素，`visible_default` **必须写 `true`（或省略）**。因为判定语义里 `visible_default !== false` 是**前置与条件**，写 `false` 的元素**永远不可见**，flag 再怎么也抬不起来（那就成了死件）。「默认不显示」由 `flags_default` 给空串初值表达，不由 `visible_default:false` 表达。实例：`quick.pin_mark`（`visible_default:true` + `vis_flag:qbar_pin` + `flags_default.qbar_pin:""`）。
++- **四处可见性消费者统一走该谓词**（原先各自判 `visible_default`）：`ui_widget.tjs` 的 `uiWidgetElementVisible`（保留 `ctx.forceShow`/`ctx.hide` 覆盖后回落）、`ui_screens.tjs` 的 `uiScreenHoverAt` / `uiScreenClick` / `uiScreenKey`。
++- **换屏即重置**：krkr 的 `uiScreenReset`/`uiScreenPush`/`uiScreenPop` 与 HTML 的 `renderScreen` 在切换后按新栈顶屏的 `flags_default` 重置（HTML 侧在清空 DOM 的那支里、浮层支各自复位）。
++- **★ 铁律：重叠的覆盖式热区必须靠 `vis_flag` 互斥，不得靠 z 排序**（2026-09-22 阻断项修复 A）：「命中取最高 z」只能决定**谁赢**，不能让被覆盖者**可达**。实例：`quick.hit_toggle`（x1842 y7 w78 h898，z=96）完整覆盖 12 个 `quick.hit_*`（x1845 w75，z=95）⇒ 两态都可见时展开态点竖条任何位置都派发把手动作、12 项全不可达；故二者**互斥可见**（把手 `vis_when=collapsed`、12 项 `vis_when=expanded`）。**压 z 不是解**：那会让展开态「项间缝隙」的点击穿透到承载屏（剧情推进），而收起态又必须有一条覆盖全高的把手热区。
++- **flag 名的枚举口径（两端相同）**：TJS2 的 `Dictionary` **没有枚举接口**（无 `for...in`、无 `count`，见 `kirikiri-unpack\引擎工作原理.md` §5.1/§5.4），故两端都按「**该屏元素的 `vis_flag` ∪ `reveal.flag` ∪ `reveal.tip_flag` ∪ `reveal.pin_flag`**」逐名取 `flags_default` 的初值；`flags_default` 里**未被引用**的键不参与任何可见性判定（无行为差异）。（两端读取实现随修复 C 一并补上 `pin_flag`；`qbar_pin` 目前另经 `quick.pin_mark` 的 `vis_flag` 被引用，故行为不受影响。）
++- **默认状态不得改变现有画面**：屏不写 `flags_default` 时 flag 表为空，所有 `visible_default !== false` 的元素照常可见可点。
++
+ ### 元素类型（`kind`）
+ 
+ | kind | 用途 | 必需字段 |
+@@ -123,6 +160,8 @@ UI组/layout/
+ | `kind` | string | 见上表 |
+ | `z` | int | 绘制层序（小在下）。krkr 侧映射为子层 `order`；HTML 侧映射为 CSS `z-index` |
+ | `visible_default` | bool | 默认是否可见（krkr 子层 `visible` 默认 false，**必须显式置真**，见 `引擎工作原理.md`） |
++| `vis_flag` | string | **M1 新增**（可选）：屏级状态 flag 名 —— 该元素仅在该 flag 取值满足 `vis_when` 时可见/可点。与 `vis_when` **成对出现**；判定语义见 §四「屏级状态 flag」 |
++| `vis_when` | string | **M1 新增**（可选）：需要的取值；**`"*"` = 该 flag 非空即显示** |
+ | `nine` | object | 九宫格边距 `{"l":13,"t":5,"r":13,"b":5}`；**只在 `image` 上有效**，缺省表示不切片 |
+ | `opacity` | int 0–255 | |
+ | `color` | string | **`"@palette.<key>"` 引用**或 `"#RRGGBB"` 直写。**优先引用色板** |
+@@ -219,6 +258,17 @@ UI组/layout/
+ | `list.labels` 可为空数组 | 当槽位文字改用独立 `text` 元素精确定位时（`save`/`load` 槽内缩略图与文字需分列），`labels` 允许为空数组。**编程组实现不得假定 `list.labels` 非空** |
+ | `veil` 压暗层 | 多屏需要「底图压暗」，用 `kind:"rect"` + `opacity` 字面量即可（`opacity` 是 int，不走色板，属合规写法） |
+ 
++**M1 追加（2026-09-22，系统菜单快捷条 12 项 · `ISSUE-20260922-28`）**
++
++| 追加项 | 说明 |
++| --- | --- |
++| `quick_pin` | 快捷条第 1 项「锁定」= **钉住**（固定展开、不再自动收起），由 M2/M3 实现（`qbar_pin` flag） |
++| `next_choice` | 前进到下一选择点；与既有 `prev_choice` 成对（既有项只有「返回上一选项」） |
++| 复用既有名 | 快捷条其余 10 项直接用既有动作名：`do_quicksave` / `do_quickload` / `auto_on` / `skip_on` / `prev_choice` / `open_backlog` / `open_flowchart` / `open_config` / **`open_save`** / **`open_load`** —— **不新增同义名**。 |
++| `quick.hit_save` / `quick.hit_load` = `open_save` / `open_load` | 这两项是「**打开**存/读档画面」（**修复 B**，2026-09-22）；原先误用 `do_save` / `do_load`（那是「执行存/读第 N 槽」）——本竖条里另有 快速存档/快速读档 两项承担 qsave/qload。 |
++| `quick.hit_toggle` 的 action + 可见性 | `action=open_sysmenu`：收起把手热区点一下即**展开竖条（不钉住）**；`open_sysmenu` 的语义由 M2/M3 **重定义**（不再是「打开传统系统菜单屏」）。自动收起由屏级 `reveal` 的 `in_x`/`out_x` 滞回 + `delay_ms` 驱动；「钉住」由 `quick_pin` / `reveal.pin_flag` 负责。**★ 该热区 `vis_when=collapsed`（仅收起态存在）** —— 修复 A：它与 12 项热区矩形重叠（w78 z96 覆盖 w75 z95），两态都可见会使 12 项全部不可达（见上文「重叠的覆盖式热区」铁律）。（主代理 2026-09-22 裁决 B、修复 A） |
++| `pin_mark` 类元素的 `visible_default` | **必须为 `true`**（见 §四 铁律）：`quick.pin_mark` 靠 `qbar_pin` flag 控制显隐，写 `visible_default:false` 会使其永远不可见；「默认不显示」由 `flags_default.qbar_pin:""` 表达。（主代理 2026-09-22 裁决 A） |
++
+ 
+ ---
+ 
+@@ -230,6 +280,20 @@ python gen_layout.py          # screens/*.json + palette.json -> ui_layout.json
+ python verify_ui.py           # 引用完整性 + 两侧常量一致性 + 素材尺寸匹配（M1 产出）
+ ```
+ 
++**数据级守门（M4 起，三道；改判据 / 可见性 / 声明序 / z 后必跑）**
++
++| 脚本 | 守什么 | 反向自证 |
++| --- | --- | --- |
++| `test_verify_asset_refs.py` | `verify_ui` 的引用表覆盖 `state_assets`（含非字典异常） | — |
++| `test_state_targets.py` | ①「带 `state_assets` 的任何元素」∪「带非空 `state_group` 的 hit」共 **36 件**在**自身几何中心**可达；②**判据指纹**（`uiScreenElementVisible` / `uiScreenHoverAtIn` 的 TJS 正文 hash + TJS↔python 成对令牌） | `--selfcheck`：注入 z=999 异组遮挡、放宽 TJS 判据、把 python 判据换回宽松版 —— 三项都必须 FAIL |
++| `test_quickbar_reach.py` | `quickbar` 屏**端到端可达性**（复算 `uiScreenClick` 口径）：收起态把手独占 / 展开态 12 项各自可达且 `action` 与数据一致 | `--selfcheck`：把手改回可见、注入 z=999 异组遮挡 —— 两项都必须 FAIL |
++| `test_gate_field_granularity.py` | 「编辑器导出入库守门」**按字段粒度**：任一元素丢 `state_group` **或** `state_assets` 即拒绝落盘 | 内置 C1/C2/C3 三例，并断言被审原文件 md5 前后不变 |
++
++> ⚠️ **判据指纹是有意的强约束**：`ui_screens.tjs` 的 `uiScreenElementVisible` / `uiScreenHoverAtIn` 正文
++> 一旦被改写（哪怕只是格式），`test_state_targets.py` 就会 FAIL 并打印新旧 hash —— 目的是逼人在改判据时
++> **重新确认这道守门是否仍然成立**，再更新脚本里的 `JUDGE_FINGERPRINT` / `JUDGE_TOKENS`。
++> `--print-fingerprint` 可打印当前 hash。
++
+ **约束（生成器会强制）**：
+ 1. 元素 `id` 全局唯一；重复即报错退出。
+ 2. 引用 `@palette.<key>` 的键必须存在于 `palette.json`。
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json
+index 1567b83..f835234 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/01_title.json
+@@ -240,7 +240,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「开始游戏」（第 1 项）。与图标热区 title.menu_hit_1 **同属 state_group「title.menu_start」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_start_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_start_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「开始游戏」（第 1 项）。与图标热区 title.menu_hit_1 **同属 state_group「title.menu_start」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_start_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_start_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_start",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_start.png",
+@@ -260,7 +260,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「继续游戏」（第 2 项）。与图标热区 title.menu_hit_2 **同属 state_group「title.menu_continue」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_continue_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_continue_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「继续游戏」（第 2 项）。与图标热区 title.menu_hit_2 **同属 state_group「title.menu_continue」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_continue_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_continue_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_continue",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_continue.png",
+@@ -280,7 +280,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「读取存档」（第 3 项）。与图标热区 title.menu_hit_3 **同属 state_group「title.menu_load」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_load_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_load_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「读取存档」（第 3 项）。与图标热区 title.menu_hit_3 **同属 state_group「title.menu_load」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_load_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_load_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_load",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_load.png",
+@@ -300,7 +300,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「流程图」（第 4 项）。与图标热区 title.menu_hit_4 **同属 state_group「title.menu_flowchart」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_flowchart_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_flowchart_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「流程图」（第 4 项）。与图标热区 title.menu_hit_4 **同属 state_group「title.menu_flowchart」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_flowchart_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_flowchart_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_flowchart",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_flowchart.png",
+@@ -320,7 +320,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「设置」（第 5 项）。与图标热区 title.menu_hit_5 **同属 state_group「title.menu_config」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_config_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_config_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「设置」（第 5 项）。与图标热区 title.menu_hit_5 **同属 state_group「title.menu_config」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_config_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_config_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_config",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_config.png",
+@@ -340,7 +340,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「画廊」（第 6 项）。与图标热区 title.menu_hit_6 **同属 state_group「title.menu_gallery」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_gallery_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_gallery_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「画廊」（第 6 项）。与图标热区 title.menu_hit_6 **同属 state_group「title.menu_gallery」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_gallery_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_gallery_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_gallery",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_gallery.png",
+@@ -360,7 +360,7 @@
+       "h": 96,
+       "opacity": 255,
+       "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+-      "note": "标题菜单文字「离开游戏」（第 7 项）。与图标热区 title.menu_hit_7 **同属 state_group「title.menu_exit」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_exit_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_exit_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
++      "note": "标题菜单文字「离开游戏」（第 7 项）。与图标热区 title.menu_hit_7 **同属 state_group「title.menu_exit」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_exit_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_exit_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+       "state_group": "title.menu_exit",
+       "state_assets": {
+         "normal": "ui/x_ui_btntxt2c_exit.png",
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/36_choices.json b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/36_choices.json
+index be6834f..141141c 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/36_choices.json
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/layout/screens/36_choices.json
+@@ -16,7 +16,7 @@
+       "h": 83,
+       "opacity": 255,
+       "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+-      "note": "选择支条（PSB idx83 `選択肢/オフ`，条图 1113×83）。原作三条整图（オフ/オンマウス/無効）同矩形，本作同法。**位置为暂定**：idx83 容器本身只有 1113×83，**运行时摆放坐标不在 PSB 里**（见 `M34_交汇协奏曲UI布局规格.md` 待确认项）→ 此处按本作画布居中摆放（x404 = (1920-1113)/2，y470 居中），待编程组按选择支数量定位。（素材 1135×105 ≠ 设计 1113×83 → nine {'l': 0, 't': 0, 'r': 0, 'b': 0}） ★ M35b：接收原热区 `ch.hit_1` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.1」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_1` 用 state_group「choices.1」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
++      "note": "选择支条（PSB idx83 `選択肢/オフ`，条图 1113×83）。原作三条整图（オフ/オンマウス/無効）同矩形，本作同法。**位置为暂定**：idx83 容器本身只有 1113×83，**运行时摆放坐标不在 PSB 里**（见 `M34_交汇协奏曲UI布局规格.md` 待确认项）→ 此处按本作画布居中摆放（x404 = (1920-1113)/2，y470 居中），待编程组按选择支数量定位。（素材 1135×105 ≠ 设计 1113×83 → nine {'l': 0, 't': 0, 'r': 0, 'b': 0}） ★ M35b：接收原热区 `ch.hit_1` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.1」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_1` 用 state_group「choices.1」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
+       "nine": {
+         "l": 0,
+         "t": 0,
+@@ -113,7 +113,7 @@
+       "h": 83,
+       "opacity": 255,
+       "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+-      "note": "选择支行底（第 2 行，M35b 新增：原结构只有第 1 行有 image，行 2/3 全靠热区拉伸绘制） ★ M35b：接收原热区 `ch.hit_2` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.2」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_2` 用 state_group「choices.2」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
++      "note": "选择支行底（第 2 行，M35b 新增：原结构只有第 1 行有 image，行 2/3 全靠热区拉伸绘制） ★ M35b：接收原热区 `ch.hit_2` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.2」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_2` 用 state_group「choices.2」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
+       "nine": {
+         "l": 0,
+         "t": 0,
+@@ -186,7 +186,7 @@
+       "h": 83,
+       "opacity": 255,
+       "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+-      "note": "选择支行底（第 3 行，M35b 新增：原结构只有第 1 行有 image，行 2/3 全靠热区拉伸绘制） ★ M35b：接收原热区 `ch.hit_3` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.3」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_3` 用 state_group「choices.3」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
++      "note": "选择支行底（第 3 行，M35b 新增：原结构只有第 1 行有 image，行 2/3 全靠热区拉伸绘制） ★ M35b：接收原热区 `ch.hit_3` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.3」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_3` 用 state_group「choices.3」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
+       "nine": {
+         "l": 0,
+         "t": 0,
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md
+index cb20ee4..4eafb62 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/会话交接_20260922-03_按钮文字与组绑定.md
+@@ -104,7 +104,7 @@
+ 2. **命令行参数在本引擎版本读不到**：对照实验（`-autotour=1` 并抽掉 `autotour.txt`）——引擎把它记入「已声明设置」，但 `System.getArgument` 返回 void ⇒ `autotour = OFF`。
+    ⇒ **一切「外部开关」只能走项目根 flag 文件**（`autotour.txt` / `press_probe.tjs`）。README 里「方式① 命令行」已标注实测不可用。
+ 3. **按下态验收探针**：`krkr\run_pressprobe.bat`（`set PROBE=<元素id>`，约 45 秒自行退出，**会开一个窗口**）→ 把 `UIScrPressProbe` 写进项目根 `press_probe.tjs`（用已验证的 `Scripts.execStorage`）。默认关闭、零影响。
+-4. **⚠️ 探针天然绕开 `uiScreenHoverAt`**（它直接写 pressHit）⇒ **「某个元素能不能被状态检测命中」这类缺陷，探针与截图都发现不了**。为此新增数据级守门 **`工具\test_state_targets.py`**（复算判据与平票规则，断言 25 个「态图+组」可见元素在自己几何中心都可达）。**改判据/z/声明序后必跑它。**
++4. **⚠️ 探针天然绕开 `uiScreenHoverAt`**（它直接写 pressHit）⇒ **「某个元素能不能被状态检测命中」这类缺陷，探针与截图都发现不了**。为此新增数据级守门 **`工具\test_state_targets.py`**（复算判据与平票规则，断言「态图+组」∪「纯组热区」的 **36 件**元素在各自几何中心都可达；并带 **`uiScreenHoverAtIn` / `uiScreenElementVisible` 的判据指纹** —— 判据被放宽/改写即 FAIL）。**改判据/可见性/z/声明序后必跑它。**
+ 5. **`ImageFilter.MaxFilter(1)`（半径 0）会把 Python 解释器硬崩**（无输出、退出码 127）⇒ `btn_states.hover(im, 0, 0)` **不可用**；要「只提亮不扩光晕」请内联配方（见 `_工作\M35b_选择支悬停图.py`）。
+ 6. **别把「看起来不对」当缺陷描述**：我曾把 `bl.spk_hit` 的 1222×224 说成「热区画错尺寸」，实为 **PSB 原值**（`#rects/speaker` = 整条消息行可点）⇒ 让用户基于错误事实做了裁决，实施时才发现并重新取得裁定。**给选项前先查清「这个值是从哪来的」。**
+ 7. **同理：审查也会误报**。二审 Major-1（配置屏静音勾选框反馈被吃）**误报** —— 它没查 `visible_default`（那三件本就 `false`，整行关闭）。**收到审查意见要先用数据复算，再动手。**
+@@ -116,6 +116,14 @@
+ 10. **别写恒真断言**：B 里原有 `state.history.length === state.history.length`（自比永真，`h0` 从未使用）；**也别硬编码计数**（`=== 13` 这类 —— 数据一变就假失败，本轮正栽在这上面）。
+ 11. **shell heredoc 引号地狱（本会话反复中招）**：`python - <<'PY'` 或 `python -c "..."` 里的 `\U`/`\M` 转义、嵌套引号、`%` 都会被搞坏（表现为无输出、rc=127、或断言神秘失败）。**写脚本一律用 Write 工具落文件再 `python <文件>`**，别在 shell 里内联长代码。
+ 12. **krkr 的 `krkr.console.log` 是追加式**：从别处复制来的 runtime 会把**别人的启动块**一并带进来（本会话就在日志里遇到另一 worktree 的失败启动 + `-autotour=1` 尝试）。判读时按时间戳取自己那次。
++14. **`String.substring(start, count)` 第二参是「长度」不是结束下标**（krkrz `tjs2/tjsInterCodeExec.cpp:2698-2714` 源码定论）。按 Web 习惯写 `substring(k, k+4)` 找 `"hit_"` ⇒ **恒不命中且不抛异常**，日志 `EXCEPTION` 仍是 0（M2 首版气泡文字永远为空即此坑）。已入 skill §5.9 坑 1。
++15. **用 `function name(...){}` 函数声明去包装已被包装的全局函数 ⇒ 自递归 ⇒ 引擎段错误**（实测退出码 **139**，日志停在首帧重绘之前、无任何异常行）。包装一律用 `var base = 原函数; 原函数 = function(...) { … base(...) … };`。已入 skill §5.9 坑 2。
++16. **`.bat` 里 `xcopy` 的目标若被解析成不存在的「文件」会交互式等待** ⇒ 无人值守时表现为**命令挂住不返回**（不是报错）。目录复制加结尾反斜杠，或改用 `python -c "import shutil; shutil.copytree(...)"`。已入 skill §5.9 坑 3。
++17. ★ **一个 z 更高的「整条」热区会静默吞掉所有子项**（本轮**阻断项**：`quick.hit_toggle` z=96 的矩形包住 12 个项热区 z=95 ⇒ 展开态点竖条任何位置都只派发把手动作，**12 项全部不可达**）。**自检全绿、截图正常、日志无异常**，只有「点第 N 项是否真的派发第 N 项动作」这类**目标导向断言**才暴露。修法用 `vis_flag` 做状态互斥，**不要靠调 z 硬拼**。已入 skill §5.9 坑 4。
++18. ★ **「两端行为一致」不等于「两端都正确」**：krkr 与 HTML 复刻**各自独立**实现同一套命中规则，上述缺陷在两端**表现完全相同** ⇒ 一致性验证（A/B 逐像素相同）反而强化「没问题」的错觉。一致性是必要条件，正确性必须独立证明。
++19. **`verify_ui.py` 第 4 项会扫 `game/*.tjs` 里的硬编码坐标并判失败** ⇒ 一切阈值必须来自 layout 数据（本轮把 `in_x`／`out_x`／`delay_ms` 放进 `reveal` 对象的理由）。
++20. **屏 JSON 由生成器产出（如 `工具/m34_build_screens.py` 的 `build_quickbar()`）** ⇒ **改 JSON 必须同步改生成器**，否则下次重跑即抹掉。标准做法：改生成器 → 只 import 并重跑那一个 build 函数（`importlib`，避免动别的屏）→ 再 `gen_layout.py` → 用 **md5 相同**自证生成器↔磁盘一致。
++21. **TJS2 的 `Dictionary` 没有枚举接口**（`for...in`、`.count` 均不存在）⇒ 无法遍历所有键。本轮 `uiScreenFlagsInitFor` 只能枚举「被数据引用到的 flag 名」；**结论：flag 名必须至少被一个元素或 `reveal` 引用**。
+ 13. **`临时\` 清理要确权**：只删本次任务自己创建的目录（本会话的 `临时\wt-ui26\临时\*`、`临时\edge_m35*`）。
+ 
+ ---
+@@ -128,9 +136,15 @@ export PYTHONPATH="E:/ZCode Workspace/Galgame/工具/pylibs"
+ 
+ # 1) 生成 + 六项硬校验（唯一真相源 → 三处生成物）
+ cd 工具 && python gen_layout.py && python verify_ui.py        # 退出码须为 0
+-# 2) 两道数据级断言
++# 2) 三道数据级断言（**改判据/可见性/声明序/z 后必跑**）
+ python test_verify_asset_refs.py      # 引用表覆盖 state_assets（含非字典异常）
+-python test_state_targets.py          # 「态图+组」元素的悬停可达性（25 个全可达）
++python test_state_targets.py          # ①「态图+组」∪「纯组热区」的悬停可达性（36 件几何中心）
++                                      # ② uiScreenElementVisible / uiScreenHoverAtIn 的**判据指纹**
++                                      #    （TJS 正文 hash + 成对令牌；判据被放宽/改写即 FAIL）
++                                      # ⇒ 覆盖/不覆盖的准确边界见该脚本 docstring
++python test_quickbar_reach.py         # quickbar 端到端可达性（复算 uiScreenClick 口径）：
++                                      # 收起态把手独占 / 展开态 12 项各自可达且 action 正确
++                                      # （加 --selfcheck 跑反向自证：把手改回可见、注入异组遮挡）
+ # 3) 两套浏览器自检（无头 Edge；--user-data-dir 用 临时\ 下自建目录，用完清）
+ EDGE="C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
+ "$EDGE" --headless=new --disable-gpu --no-sandbox --user-data-dir=<临时> --hide-scrollbars \
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/test_state_targets.py b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/test_state_targets.py
+index a05c31e..4d30ac8 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/test_state_targets.py
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/test_state_targets.py
+@@ -1,47 +1,82 @@
+ # -*- coding: utf-8 -*-
+-r"""M35b · 状态目标可达性验证（**不依赖引擎、纯数据 + 判据复算**）
++r"""M35b/M4 · 状态目标可达性验证 + 判据指纹（**不依赖引擎、纯数据 + 判据复算**）
+ 
+ ■ 为什么需要它
+-  二审 Major-1 的教训：**我的探针天然绕开了 `uiScreenHoverAt`**（探针直接写 `pressHit`），
++  二审 Major-1 的教训：**探针天然绕开了 `uiScreenHoverAt`**（探针直接写 pressHit），
+   所以「某个元素能不能被状态检测命中」这一类缺陷，探针与截图**都发现不了**。
+-  本脚本把 `ui_screens.tjs` 的 `uiScreenHoverAt` 判据与平票规则**逐行复算**到数据上，
+-  断言「每个『带态图 + 带组』的元素，在它自己的几何中心都能落到自己的组上」。
+-  它是一道**数据级守门**，与引擎无关，任何改动后都能秒级复跑。
++  本脚本把 `krkr/game/ui_screens.tjs` 的判据与平票规则复算到数据上。
+ 
+-■ 判据（**必须与 krkr/game/ui_screens.tjs 的 uiScreenHoverAt 保持逐字一致**）
++■ 本脚本实际覆盖什么、不覆盖什么（**M4 订正：此前写「任何改动后都能秒级复跑」属过度宣称**）
++  覆盖：
++    ① 逐屏断言「每个参与状态检测的元素（= 带 `state_assets` 的任何元素 ∪ 带非空 `state_group` 的 hit），
++       在**它自己的几何中心**处，胜出者是它自己或同组元素」；每件元素按其**自身可见所需的 flag 取值**复算
++       （`vis_flag` 为真），故 `flags_default` 关掉的元素也会在「它应该可见的那一态」下被检查。
++    ② **判据指纹**：把 `ui_screens.tjs` 里 `uiScreenElementVisible` 与 `uiScreenHoverAtIn` 两个函数
++       的正文（去注释、去空白后）做 sha256，并与本文件内记录的指纹比对；同时用**成对令牌表**
++       （TJS 片段 ↔ 本文件的 python 复算片段）给出可读的一致性断言。
++       ⇒ **判据被放宽/改写 ⇒ 本守门 FAIL**（这正是 M35b 一审的失效点：当时把判据换回宽松版仍报全绿）。
++  不覆盖（**别把它当全量证明**）：
++    · 只查**几何中心点**，不做整屏逐像素扫描 —— 被部分遮挡（中心没被覆盖）的元素不算失败；
++      全像素扫描见 `工具\test_quickbar_reach.py`（点击/派发层）。
++    · 不查**点击派发**（`uiScreenClick` 的 hit/list 解析）—— 那是另一套判据。
++    · 不查 HTML 复刻端（`复刻/replica.js`），也不查引擎实测（探针/截图）。
++    · 只覆盖 `layout/screens/*.json` 里当前带状态字段的元素；新增屏/新增元素会自动纳入。
++
++■ 判据（**必须与 krkr/game/ui_screens.tjs 保持逐字一致**）
+   候选 = 「带 state_assets 的任何元素」∪「带非空 state_group 的 hit」
++  可见 = `visible_default !== false` 且 `vis_flag` 缺省或当前值满足 `vis_when`（`"*"` = 非空）
+   平票 = z 相等时**声明更晚者胜**（TJS2 侧是 `if(z < bestZ) continue;`）
+-  ⚠️ 改引擎判据时必须同步改本文件，否则这道守门会失效。
++  ⚠️ 改引擎判据时必须同步本文件的 `JUDGE_FINGERPRINT` 与 `JUDGE_TOKENS`，否则本守门会 FAIL
++     （这是**有意设计**：判据一动就必须有人重新确认这道守门还成立）。
+ 
+ ■ 用法
+   python 工具/test_state_targets.py        # 退出码 0 = 通过
+ """
+-import os, io, json, glob, sys
++import os, io, json, glob, sys, re, hashlib
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ UI = os.path.dirname(HERE)
+ SCREENS = os.path.join(UI, "layout", "screens")
++TJS = os.path.join(UI, "krkr", "game", "ui_screens.tjs")
+ 
+ 
++# ══════════════════════════════════════════════════════════════════════
++# 一、数据侧复算
++# ══════════════════════════════════════════════════════════════════════
+ def group_of(e):
+     return e.get("state_group") or ""
+ 
+ 
+ def is_candidate(e):
+-    """与 uiScreenHoverAt 的判据一致。"""
++    """与 uiScreenHoverAtIn 的判据一致（候选并集）。"""
+     if e.get("state_assets") is not None:
+         return True
+     return e.get("kind") == "hit" and group_of(e) != ""
+ 
+ 
+-def winner(els, x, y):
+-    """复算 uiScreenHoverAt：返回胜出元素（None = 无）。"""
++def flag_visible(e, flags):
++    """与 uiScreenElementVisible 一致：visible_default 前置 + vis_flag/vis_when。"""
++    if e.get("visible_default") is False:
++        return False
++    fn = e.get("vis_flag")
++    if fn is None or fn == "":
++        return True
++    want = e.get("vis_when")
++    want = "" if want is None else str(want)
++    cur = flags.get(fn, "")
++    if want == "*":
++        return cur != ""
++    return cur == want
++
++
++def winner(els, x, y, flags):
++    """复算 uiScreenHoverAtIn：返回胜出元素（None = 无）。"""
+     best_z, best = -1, None
+     for e in els:
+-        if e.get("visible_default") is False:
+-            continue
+         if not is_candidate(e):
+             continue
++        if not flag_visible(e, flags):
++            continue
+         if not (e["x"] <= x < e["x"] + e["w"] and e["y"] <= y < e["y"] + e["h"]):
+             continue
+         if e.get("z", 0) < best_z:
+@@ -50,36 +85,299 @@ def winner(els, x, y):
+     return best
+ 
+ 
+-def main():
+-    fails, checked = [], 0
+-    for f in sorted(glob.glob(os.path.join(SCREENS, "[0-9]*.json"))):
+-        d = json.load(io.open(f, encoding="utf-8"))
++def flags_for(e, base):
++    """让**本元素自身可见**所需的 flag 取值（其它 flag 保持屏级初值）。"""
++    f = dict(base)
++    fn = e.get("vis_flag")
++    if fn:
++        want = e.get("vis_when")
++        f[fn] = "1" if (want is None or str(want) == "*") else str(want)
++    return f
++
++
++# ══════════════════════════════════════════════════════════════════════
++# 二、判据指纹（TJS 源码 ↔ 本文件复算）
++# ══════════════════════════════════════════════════════════════════════
++JUDGE_FUNCS = ("uiScreenElementVisible", "uiScreenHoverAtIn")
++
++# ★ 记录的是「去注释、去空白」后的函数正文 sha256。判据一改即不匹配 ⇒ FAIL。
++#   更新办法：先人工核对 TJS 新判据，确认本文件的 winner()/is_candidate()/flag_visible()
++#   仍与之一致，再运行 `python 工具/test_state_targets.py --print-fingerprint` 取新值贴回。
++JUDGE_FINGERPRINT = {
++    "uiScreenElementVisible":
++        "a985f281284603ae27ec9f3468b403a8217072e38c2708a9813062d3901a259d",   # 319 字节
++    "uiScreenHoverAtIn":
++        "316b402dd04f5e18bd4b33d96f4cb7e41c3c60f9ccf8a8f8c3af0f658d6524f2",   # 528 字节
++}
++
++# 成对令牌表：(环节, TJS 片段【去空白后】, 本文件 python 片段【原样】)
++JUDGE_TOKENS = (
++    ("候选并集·带 state_assets 的任何元素",
++     'if(el.state_assets===void){', 'e.get("state_assets") is not None'),
++    ("候选并集·缺态图时只认 kind==hit",
++     'if(el.kind!="hit")continue;', 'e.get("kind") == "hit"'),
++    ("候选并集·热区必须带非空 state_group",
++     'if(uiWidgetStateGroup(el)=="")continue;', 'group_of(e) != ""'),
++    ("可见性·visible_default 前置",
++     'if(el.visible_default===false)returnfalse;', 'e.get("visible_default") is False'),
++    ("可见性·vis_flag / vis_when 成对",
++     'varfn=el.vis_flag;', 'e.get("vis_flag")'),
++    ("可见性·vis_when 通配 \"*\" = 非空即显示",
++     'if(want=="*")return(cur!="");', 'if want == "*":'),
++    ("平票·z 相等时声明更晚者胜",
++     'if(z<bestZ)continue;', 'e.get("z", 0) < best_z'),
++)
++
++
++def strip_tjs_comments(src):
++    """去掉 // 与 /* */ 注释（保留字符串字面量）。"""
++    out, i, n = [], 0, len(src)
++    while i < n:
++        if src.startswith("//", i):
++            j = src.find("\n", i)
++            i = n if j < 0 else j
++        elif src.startswith("/*", i):
++            j = src.find("*/", i + 2)
++            i = n if j < 0 else j + 2
++        elif src[i] == '"':
++            j = i + 1
++            while j < n and src[j] != '"':
++                j += 2 if src[j] == "\\" else 1
++            out.append(src[i:j + 1]); i = j + 1
++        else:
++            out.append(src[i]); i += 1
++    return "".join(out)
++
++
++def squeeze(src):
++    return re.sub(r"\s+", "", src)
++
++
++def extract_func(norm, name):
++    """从**已去注释、已去空白**的源码里取出 function <name>(...){...} 全文。"""
++    i = norm.find("function%s(" % name)
++    if i < 0:
++        return None
++    j = norm.find("{", i)
++    if j < 0:
++        return None
++    depth = 0
++    for k in range(j, len(norm)):
++        if norm[k] == "{":
++            depth += 1
++        elif norm[k] == "}":
++            depth -= 1
++            if depth == 0:
++                return norm[i:k + 1]
++    return None
++
++
++def check_fingerprint(tjs_text, print_only=False):
++    """返回 (失败清单, 打印行)；打印新指纹模式不判失败。"""
++    fails, lines = [], []
++    norm = squeeze(strip_tjs_comments(tjs_text))
++    for name in JUDGE_FUNCS:
++        body = extract_func(norm, name)
++        if body is None:
++            fails.append("判据指纹：在 ui_screens.tjs 里找不到函数 %s()（被改名/删除？）" % name)
++            continue
++        h = hashlib.sha256(body.encode("utf-8")).hexdigest()
++        lines.append("  %-26s sha256=%s  (%d 字节)" % (name, h, len(body)))
++        if print_only:
++            continue
++        if JUDGE_FINGERPRINT.get(name) != h:
++            fails.append("判据指纹：%s() 正文已被改写（期望 %s…，实际 %s…）—— 先核对新判据，"
++                         "再更新本文件的 JUDGE_FINGERPRINT"
++                         % (name, (JUDGE_FINGERPRINT.get(name) or "?")[:12], h[:12]))
++    return fails, lines
++
++
++def py_code_only(src):
++    """去掉 `JUDGE_TOKENS` 表字面量本身 —— 否则「期望令牌」会被算作「代码里有」，
++    判据真的被放宽时也照样命中（M4 自证 C 就是抓这个的）。"""
++    i = src.find("JUDGE_TOKENS = (")
++    if i < 0:
++        return src
++    j = src.find("\n)\n", i)
++    if j < 0:
++        return src
++    return src[:i] + src[j:]
++
++
++def check_tokens(tjs_text, py_text):
++    """成对令牌：TJS 判据片段与 python 复算片段必须同时存在（**表字面量除外**）。"""
++    fails, lines = [], []
++    tjs_norm = squeeze(strip_tjs_comments(tjs_text))
++    py_code = py_code_only(py_text)
++    for what, tjs_tok, py_tok in JUDGE_TOKENS:
++        bad = []
++        if tjs_tok not in tjs_norm:
++            bad.append("ui_screens.tjs 里找不到 %s" % tjs_tok)
++        if py_tok not in py_code:
++            bad.append("本文件 python 复算里找不到 %s" % py_tok)
++        if bad:
++            fails.append("判据令牌·%s：%s" % (what, "；".join(bad)))
++        else:
++            lines.append("  ✓ %s" % what)
++    return fails, lines
++
++
++def check_reach(docs):
++    """docs = [(屏名, 屏对象), …]；返回 (失败清单, 覆盖统计, 跳过清单)。"""
++    fails = []
++    n_a = n_g = 0
++    skipped = []
++    for name, d in docs:
+         els = d.get("elements") or []
+-        # 只看「带态图 + 带组」的承载体：它们是真正需要「悬停到自己就亮」的元素
++        base = d.get("flags_default") or {}
+         for e in els:
+-            if e.get("state_assets") is None or group_of(e) == "":
++            if group_of(e) == "" or not is_candidate(e):
+                 continue
+-            # ★ 跳过 visible_default=false 的元素：它们**本就被关闭**（本屏 121 件里有 35 件如此，
+-            #   例如配置屏整行关掉的静音/试听/五组滑条），不该被期望「悬停就亮」。
+-            #   二审曾因此误报一处「静音勾选框按下态丢失」——实为整行关闭，无可亮之物。
++            # 元素**永不显示**（visible_default=false 且无 vis_flag 可救）⇒ 本就不该期望它悬停可亮
+             if e.get("visible_default") is False:
++                skipped.append("%s :: %s（visible_default=false）" % (name, e.get("id")))
+                 continue
++            if e.get("state_assets") is not None:
++                n_a += 1
++            else:
++                n_g += 1
++            flags = flags_for(e, base)
+             cx = e["x"] + e["w"] / 2.0
+             cy = e["y"] + e["h"] / 2.0
+-            w = winner(els, cx, cy)
+-            checked += 1
++            w = winner(els, cx, cy, flags)
+             if w is None or group_of(w) != group_of(e):
+                 fails.append("%s :: %s 中心(%g,%g) 胜出 %s（组 %s），期望同组 %s"
+-                             % (os.path.basename(f), e["id"], cx, cy,
+-                                w["id"] if w else "(无)", group_of(w) if w else "-", group_of(e)))
++                             % (name, e["id"], cx, cy,
++                                w["id"] if w else "(无)", group_of(w) if w else "-",
++                                group_of(e)))
++    return fails, (n_a, n_g), skipped
++
++
++def load_docs():
++    out = []
++    for f in sorted(glob.glob(os.path.join(SCREENS, "[0-9]*.json"))):
++        out.append((os.path.basename(f), json.load(io.open(f, encoding="utf-8"))))
++    return out
++
++
++# ══════════════════════════════════════════════════════════════════════
++# 三、主流程
++# ══════════════════════════════════════════════════════════════════════
++def selfcheck():
++    """反向自证（全部在内存里做，**不动磁盘**）：两项都必须 FAIL。"""
++    tjs = io.open(TJS, encoding="utf-8").read()
++    py_src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
++    docs = load_docs()
++    ok = True
++
++    # ── A：注入一件 z=999 的异组遮挡，盖住某一状态目标的几何中心 ──
++    victim_f, victim = None, None
++    for name, d in docs:
++        base = d.get("flags_default") or {}
++        for e in d.get("elements") or []:
++            if group_of(e) and is_candidate(e) and e.get("visible_default") is not False:
++                victim_f, victim = name, e
++                break
++        if victim:
++            break
++    d2 = dict((n, x) for n, x in docs)
++    for name, d in docs:
++        if name != victim_f:
++            continue
++        dd = json.loads(json.dumps(d))
++        cx = victim["x"] + victim["w"] / 2.0
++        cy = victim["y"] + victim["h"] / 2.0
++        dd["elements"].append({"id": "zz.occluder", "kind": "hit", "z": 999,
++                               "action": "open_sysmenu", "label": "", "note": "自证注入",
++                               "x": cx - 2, "y": cy - 2, "w": 4, "h": 4,
++                               "state_group": "zz.other"})
++        d2[name] = dd
++    f, _, _ = check_reach([(n, d2[n]) for n, _ in docs])
++    hit = any(("zz.occluder" in x) and (victim["id"] in x) for x in f)
++    print("【A 注入 z=999 异组遮挡（盖住 %s 的中心）】必须 FAIL ⇒ %s"
++          % (victim["id"], "FAIL（符合预期）✓" if hit else "**未按预期 FAIL** ✗"))
++    for x in f[:4]:
++        if "zz.occluder" in x:
++            print("    ✗ " + x)
++    ok = ok and hit
++
++    # ── B：把 TJS 判据**临时放宽**（在内存副本里，不动原文件）──
++    loosened = tjs.replace('if(uiWidgetStateGroup(el) == "") continue;',
++                           '/* 自证：临时放宽掉「必须带非空组」 */')
++    if loosened == tjs:
++        loosened = tjs.replace('if(uiWidgetStateGroup(el) == "") continue;', '')
++    b1, _ = check_fingerprint(loosened)
++    b2, _ = check_tokens(loosened, py_src)
++    print("\n【B 把 TJS 判据临时放宽（删掉「必须带非空组」守卫）】指纹检查必须 FAIL ⇒ %s"
++          % ("FAIL（符合预期）✓" if b1 and b2 else "**未按预期 FAIL** ✗"))
++    for x in (b1 + b2)[:4]:
++        print("    ✗ " + x)
++    ok = ok and bool(b1) and bool(b2)
++
++    # ── C：把**本文件的 python 复算**放宽（= 「换回收紧前的宽松版」）──
++    py_loose = py_src.replace('    return e.get("kind") == "hit" and group_of(e) != ""',
++                              '    return e.get("kind") == "hit"')
++    assert py_loose != py_src, "自证 C 未生效：python 判据行没被改写"
++    c1, _ = check_tokens(tjs, py_loose)
++    print("\n【C 把本文件 python 判据换回**收紧前的宽松版**（候选并集去掉「必须有组」）】"
++          "令牌检查必须 FAIL ⇒ %s" % ("FAIL（符合预期）✓" if c1 else "**未按预期 FAIL** ✗"))
++    for x in c1[:4]:
++        print("    ✗ " + x)
++    ok = ok and bool(c1)
++
++    print("\n自证结果：%s" % ("三项均按预期 FAIL ✓" if ok else "**有项未按预期 FAIL** ✗"))
++    return 0 if ok else 1
++
++
++def main():
++    print_only = "--print-fingerprint" in sys.argv
++    if "--selfcheck" in sys.argv:
++        print("=" * 74)
++        print("状态目标守门 · 反向自证（内存内构造，不改磁盘）")
++        print("=" * 74)
++        return selfcheck()
++
++    tjs = io.open(TJS, encoding="utf-8").read()
++    py_src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
++    fails = []
+     print("=" * 74)
+-    print("状态目标可达性：检查 %d 个「带态图 + 带组」元素" % checked)
+-    for x in fails:
+-        print("  ✗ " + x)
++    print("状态目标可达性验证 ｜ 数据=%s" % SCREENS)
++
++    # ── 1. 判据指纹 ──
++    fp_fails, fp_lines = check_fingerprint(tjs, print_only)
++    print("\n[1] 判据指纹（ui_screens.tjs ↔ 本文件复算）")
++    for l in fp_lines:
++        print(l)
++    if print_only:
++        print("（--print-fingerprint：只打印，不判失败）")
++    fails += fp_fails
++    if not print_only:
++        tk_fails, tk_lines = check_tokens(tjs, py_src)
++        print("\n[2] 判据令牌（成对一致性）")
++        for l in tk_lines:
++            print(l)
++        for f in tk_fails:
++            print("  ✗ " + f)
++        fails += tk_fails
++
++    # ── 2. 可达性（态图+组 ∪ 纯组热区）──
++    doc_fails, (n_a, n_g), skipped = check_reach(load_docs())
++    print("\n[3] 可达性（几何中心）")
++    print("  覆盖：态图+组 %d 件 ｜ 纯组热区 %d 件 ⇒ 合计 %d 件（按各自可见所需的 flag 取值复算）"
++          % (n_a, n_g, n_a + n_g))
++    for s in skipped:
++        print("  – 跳过 " + s)
++    for f in doc_fails:
++        print("  ✗ " + f)
++    fails += doc_fails
++
++    print("\n" + "=" * 74)
+     if fails:
+-        print("结果：**%d 处不可达**（悬停自身却亮不起来 —— 判据/平票/z 有问题）" % len(fails))
++        print("结果：**%d 项失败**" % len(fails))
++        for f in fails:
++            print("  · " + f)
+         return 1
+-    print("结果：**全部可达**")
++    print("结果：**全部通过**（判据指纹一致 + %d 件元素几何中心可达）" % (n_a + n_g))
+     return 0
+ 
+ 
+diff --git a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/verify_editor_export.py b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/verify_editor_export.py
+index 5cba8a6..4d0390b 100644
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/verify_editor_export.py
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/工具/verify_editor_export.py
+@@ -10,6 +10,10 @@ r"""verify_editor_export.py —— 编辑器导出件的「一键入库 + 检验
+      `_工作\M35_编辑器回滚\<时间戳>\`（**只增不改，可随时还原**）。
+   3. **重跑生成与校验**：`gen_layout.py` → `verify_ui.py`（六项硬校验）。
+   4. **出结构 diff**：逐 id 列出「新增 / 删除 / 移动 / 改属性」，一眼看清改了什么。
++  5. **两道静默流失守门**（放行开关 `--allow-drop`）：
++     ① `@palette.` 引用数只许持平/增加；
++     ② 每一件元素的 `state_group` 与 `state_assets` **分别判定**，任一丢失即**拒绝写入**并打印
++        「元素 id + 丢的字段名」逐条明细（M4 修 Major-2：原实现只查「两件都没了」，只丢一件会放行）。
+ 
+ 用法：
+     python verify_editor_export.py                 # 自动扫 Downloads（取最新的）
+@@ -17,6 +21,7 @@ r"""verify_editor_export.py —— 编辑器导出件的「一键入库 + 检验
+     python verify_editor_export.py 01_title.json 21_confirm.json
+     python verify_editor_export.py --dry           # 只看 diff，不落盘、不跑校验
+     python verify_editor_export.py --list          # 只列出候选导出件
++    python verify_editor_export.py --allow-drop    # 守门拦下时强行入库（仍逐条打印丢失明细）
+ 
+ 退出码：0 = 校验通过；1 = 有硬失败或输入有问题。
+ """
+@@ -29,6 +34,8 @@ ROLLBACK = os.path.join(UI, "_工作", "M35_编辑器回滚")
+ DOWNLOADS = os.path.join(os.path.expanduser("~"), "Downloads")
+ 
+ GEOM_KEYS = ("x", "y", "w", "h")
++# ★ M4：守门按**字段粒度**比对的字段集（逐字段判定，逐条打印丢失明细）
++STATE_FIELDS = ("state_group", "state_assets")
+ 
+ 
+ def screen_names():
+@@ -169,7 +176,8 @@ def main():
+     ap.add_argument("--no-depalette", action="store_true",
+                     help="不还原被编辑器解析掉的 @palette 引用（默认**还原**，见 restore_palette_refs）")
+     ap.add_argument("--allow-drop", action="store_true",
+-                    help="允许守门放行：即使导出件会减少 @palette 引用或丢掉 state_group/state_assets 也照常入库")
++                    help="允许守门放行：即使导出件会减少 @palette 引用或丢掉 state_group/state_assets 也照常入库"
++                         "（放行时仍逐条打印丢失明细）")
+     args = ap.parse_args()
+ 
+     # ── 1. 定位导出件 ──
+@@ -262,10 +270,10 @@ def main():
+         else:
+             print("\n调色板引用还原：无需还原（无「旧源是引用、导出变字面值」的字段）")
+ 
+-    # ── 2.6 ★ M35b 守门（一审 Major-2 / Minor-6）：两类**静默流失**必须拦下 ──
++    # ── 2.6 ★ M35b 守门（一审 Major-2 / Minor-6）；M4 修 Major-2（按字段粒度）──
+     #     ① `@palette.` 引用数只能持平或增加，减少即报错（否则去调色板化会一路绿灯——
+     #        verify_ui 比的是解析值，任何工具都不会报）。
+-    #     ② 元素不得丢失 `state_group` / `state_assets`（旧会话导出会静默抹掉它们）。
++    #     ② 元素不得丢失 `state_group` / `state_assets` —— **两件分别判定**，任一件丢失即拦截。
+     def count_palette(node):
+         if isinstance(node, dict):
+             return sum(count_palette(v) for v in node.values())
+@@ -273,39 +281,83 @@ def main():
+             return sum(count_palette(v) for v in node)
+         return 1 if (isinstance(node, str) and node.startswith("@palette.")) else 0
+ 
+-    def state_carriers(node):
+-        """导出件里带 state_group / state_assets 的 id 集合。"""
+-        out = set()
+-        if isinstance(node, dict):
+-            if node.get("id") and (node.get("state_group") or node.get("state_assets")):
+-                out.add(node["id"])
+-            for v in node.values():
+-                out |= state_carriers(v)
+-        elif isinstance(node, list):
+-            for v in node:
+-                out |= state_carriers(v)
++    #     ★★ M4（2026-09-22）修 Major-2：**按字段粒度**判定，不再按「两件都没了」。
++    #      原实现 `state_carriers(old) - state_carriers(new)` 把 state_group / state_assets
++    #      合并成一个 id 集合比较 ⇒ **只丢其中一件仍会放行**（独立复审实测：只丢
++    #      `state_assets`、保留 `state_group` 的导出件被放行并实际覆盖落盘，rc=0）。
++    #      现在逐元素、逐字段比对，丢失即拒绝写入，并打印「元素 id + 丢的字段名」清单。
++    def state_fields(node):
++        """导出件里每个元素的 id → 它**实际持有**的状态字段集合（逐字段判定）。"""
++        out = {}
++
++        def present(v):
++            """空串 / None / 空字典视为「未持有」（与引擎侧「无组」「无态图」同口径）。"""
++            if v is None:
++                return False
++            if isinstance(v, str):
++                return v.strip() != ""
++            if isinstance(v, dict):
++                return len(v) > 0
++            return True
++
++        def walk(n):
++            if isinstance(n, dict):
++                eid = n.get("id")
++                if isinstance(eid, str) and eid:
++                    got = frozenset(f for f in STATE_FIELDS if present(n.get(f)))
++                    if got:
++                        out[eid] = got
++                for v in n.values():
++                    walk(v)
++            elif isinstance(n, list):
++                for v in n:
++                    walk(v)
++        walk(node)
++        return out
++
++    def lost_state_fields(old_map, new_map):
++        """返回 [(id, 字段名), …]：逐元素逐字段比对（元素整件消失 = 两个字段都算丢）。"""
++        out = []
++        for eid in sorted(old_map):
++            got = new_map.get(eid, frozenset())
++            for f in STATE_FIELDS:
++                if f in old_map[eid] and f not in got:
++                    out.append((eid, f))
+         return out
+ 
+-    gate = []
++    gate, detail = [], []
+     for p, name, cur, oldd, newd in plan:
+         n_old, n_new = count_palette(oldd), count_palette(newd)
+         if n_new < n_old:
+             gate.append("调色板引用减少：%s（%d → %d）——版面源被去调色板化" % (name, n_old, n_new))
+-        lost = state_carriers(oldd) - state_carriers(newd)
++        lost = lost_state_fields(state_fields(oldd), state_fields(newd))
+         if lost:
+-            gate.append("状态字段丢失：%s —— 这些元素不再带 state_group/state_assets：%s"
+-                        % (name, "、".join(sorted(lost))))
++            gate.append("状态字段丢失：%s —— %d 处（逐条明细见下）" % (name, len(lost)))
++            for eid, f in lost:
++                detail.append("元素 %-30s 丢失字段 %s" % (eid, f))
+     if gate:
+         print("\n" + "!" * 78)
+-        print("!! 守门拦截：导出件会造成静默流失，**未落盘**")
++        if args.allow_drop:
++            print("!! 守门告警（**--allow-drop 已放行，将继续落盘**）：导出件会造成静默流失")
++        else:
++            print("!! 守门拦截：导出件会造成静默流失，**未落盘**")
+         for g in gate:
+             print("   · " + g)
+-        print("   （`@palette.` 引用数只允许持平或增加；元素的 state_group/state_assets 不得丢失。")
++        if detail:
++            print("   —— 逐条丢失明细（元素 id + 字段名）——")
++            for line in detail:
++                print("     · " + line)
++        print("   （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets`"
++              " 分别判定**，任一字段丢失即拦截。")
+         print("     多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；")
+         print("     确认要强行入库时加 --allow-drop）")
+         print("!" * 78)
+         if not args.allow_drop:
+             return 1
++        print("（--allow-drop：已放行，上述逐条明细仍全部打印，**请据此核对后再提交**）")
++        if detail:
++            for line in detail:
++                print("     · 放行项 " + line)
+ 
+     if args.dry:
+         print("\n（--dry：未落盘、未跑校验）")

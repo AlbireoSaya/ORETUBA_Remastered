@@ -1,0 +1,58 @@
+// r_live_eval_fixture_reads.tjs
+//
+// Fixture-side live evaluation read entry points:
+//   RVERead32(q) / RVERead16(q) / RVERead8(q)
+//
+// Contract:
+//   - every read must first pass global.RLFWatched(this, q);
+//     unregistered reads throw UNEXPECTED_LIVE_EVAL_READ;
+//   - the read itself always really executes through
+//     global.RMemoryRead32/16/8 -- including while this.phase == "vm"
+//     (VM reads are simply not recorded in this.events);
+//   - only non-"vm" phases append [phase, "r", q, width, value]
+//     to this.events.
+//
+// Callers must invoke these as global.RVEReadNN incontextof <state>
+// (a lookup on a Dictionary state object would yield void).
+
+function RVERead32(q)
+{
+	if (!global.RLFWatched(this, q))
+	{
+		throw new global.Exception("UNEXPECTED_LIVE_EVAL_READ");
+	}
+	var v = global.RMemoryRead32(this.memory, q);
+	if (this.phase != "vm")
+	{
+		this.events.add([this.phase, "r", q, 4, v]);
+	}
+	return v;
+}
+
+function RVERead16(q)
+{
+	if (!global.RLFWatched(this, q))
+	{
+		throw new global.Exception("UNEXPECTED_LIVE_EVAL_READ");
+	}
+	var v = global.RMemoryRead16(this.memory, q);
+	if (this.phase != "vm")
+	{
+		this.events.add([this.phase, "r", q, 2, v]);
+	}
+	return v;
+}
+
+function RVERead8(q)
+{
+	if (!global.RLFWatched(this, q))
+	{
+		throw new global.Exception("UNEXPECTED_LIVE_EVAL_READ");
+	}
+	var v = global.RMemoryRead8(this.memory, q);
+	if (this.phase != "vm")
+	{
+		this.events.add([this.phase, "r", q, 1, v]);
+	}
+	return v;
+}

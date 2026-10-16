@@ -1,0 +1,16 @@
+global.RRFinalMemory = function(spec, s, seg) {
+    var i;
+    for (i = 0; i < seg.source_final.count; i++) {
+        if (global.RMemoryRead8(s.memory, spec.source + i) !== seg.source_final[i]) {
+            throw new global.Exception("LIVE_RECORD_FINAL_SOURCE");
+        }
+    }
+
+    var j;
+    for (j = 0; j < seg.final_words.count; j++) {
+        var row = seg.final_words[j];
+        if ((global.RMemoryRead32(s.memory, row[0]) & 0xffffffff) !== (row[1] & 0xffffffff)) {
+            throw new global.Exception("LIVE_RECORD_FINAL_WORD");
+        }
+    }
+};

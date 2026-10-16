@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "original_return_address": 4232940,
+      "original_RECT": [
+        -1,
+        -1,
+        799,
+        599
+      ],
+      "original_flags": 2,
+      "actual_nonnull_borrowed_HMONITOR": true,
+      "guest_monitor_token": 1765801984,
+      "actual_matches_existing_EnumDisplayMonitors_identity": true,
+      "actual_error": 0,
+      "full_host_pointer_preserved": true,
+      "RECT_input_unchanged_and_guards_preserved": true,
+      "borrowed_monitor_never_closed": true,
+      "not_original_OS_DPI_placement_equivalence_proof": true
+    }
+  ],
+  "actual_GetMonitorInfoA_rows": [
+    {
+      "api": "GetMonitorInfoA",
+      "return_address": 5165746,
+      "args": [
+        1765801984,
+        33587016
+      ],
+      "actual_host_Windows_API": true,
+      "exact_bytes": 72,
+      "actual_monitor_RECT_and_work_flags": [
+        72,
+        0,
+        0,
+        1920,
+        1080,
+        0,
+        0,
+        1920,
+        1032,
+        1
+      ],
+      "actual_result": 1
+    }
+  ]
+}

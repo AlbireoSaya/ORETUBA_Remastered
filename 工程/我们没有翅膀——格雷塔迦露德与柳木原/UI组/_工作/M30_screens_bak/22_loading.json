@@ -1,0 +1,91 @@
+{
+  "id": "loading",
+  "title_cn": "加载提示",
+  "owner": "M5",
+  "note": "加载提示屏。原版 otv/sys 的 dm00…dm11 十二件（另 config.png 与之逐字节相同）为 **320×120 的「ロード中…」日文提示图**，文字已烘焙进像素，故本屏不引用任何 dm_* 贴图；改为「全屏遮罩 rect + 320×120 九宫格提示框 + 引擎绘制中文『加载中…』」。⚠ 本屏与 _index.json required「居中提示图 320×120」有一处表述偏离：提示改为「居中提示文本 + 320×120 提示框」，理由见 M5 报告（_index.json 未改）。",
+  "elements": [
+    {
+      "id": "loading.mask",
+      "kind": "rect",
+      "z": 0,
+      "visible_default": true,
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "color": "@palette.backdrop",
+      "opacity": 255,
+      "note": "全屏遮罩（required「全屏遮罩」；不透明纯黑，完全遮盖下层画面）"
+    },
+    {
+      "id": "loading.box_fill",
+      "kind": "rect",
+      "z": 10,
+      "visible_default": true,
+      "x": 720,
+      "y": 450,
+      "w": 480,
+      "h": 180,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "居中提示框填充（320×120，与 required 的提示图同尺寸；内容改由引擎绘制）"
+    },
+    {
+      "id": "loading.box_frame",
+      "kind": "image",
+      "z": 11,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 720,
+      "y": 450,
+      "w": 480,
+      "h": 180,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 240,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png（由 if_lt/rt/lb/rb + if_tbar/bbar + if_lbar/rbar 拼合）",
+      "note": "居中提示框九宫格边框（替代原版 dm_* 的 320×120 日文提示图；该图含「ロード中…」烘焙，不得作文字层）"
+    },
+    {
+      "id": "loading.text",
+      "kind": "text",
+      "z": 20,
+      "visible_default": true,
+      "x": 744,
+      "y": 474,
+      "w": 432,
+      "h": 132,
+      "font": {
+        "size": 36,
+        "bold": false,
+        "color": "@palette.text_primary",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 3
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "加载中…",
+      "note": "居中提示文本（中文，引擎绘制；对应 required「居中提示图 320×120」的改写落点）"
+    },
+    {
+      "id": "loading.bar",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 720,
+      "y": 654,
+      "w": 480,
+      "h": 6,
+      "color": "@palette.accent",
+      "opacity": 200,
+      "note": "提示框下方的进度指示条（强调色细条；由编程组按实际进度填充长度）"
+    }
+  ]
+}

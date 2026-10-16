@@ -1,0 +1,37 @@
+ISSUE-20260927-05 · E3 二审：下伸部（descender）被裁的两端分叉 —— 修复自证摘要
+
+■ 缺陷（主代理采纳，E3 定位）
+  fc.node.0011_tx「s01_14h」的下划线 `_` 在 HTML 侧被裁、krkr 侧正常。
+  机制：wrap+max_lines ⇒ -webkit-line-clamp + overflow:hidden，裁切盒 = 行盒（= 字号 × 元素级
+        line_spacing = 19 × 1.0 = 19px）比字形盒矮 ⇒ 基线下方墨迹落在行盒外被裁。
+        krkr 自绘文字按墨迹画、不裁 ⇒ 两端分叉。
+
+■ 实测字形盒（浏览器 canvas TextMetrics 的 fontBoundingBoxAscent+Descent，微软雅黑）
+  size 16→21px(asc17+desc4) ｜ 18→24(19+5) ｜ 19→25(20+5) ｜ 20→26(21+5)
+  22→29(23+6) ｜ 27→36(29+7) ｜ 42→55(44+11)     比例 ≈1.31–1.33 em
+
+■ 被否决的做法（实测，留档）
+  ① 「加 clamp 后量 scrollHeight 判断超行」——量不出来：clamp 会把 scrollHeight 截到 N 行。
+  ② 「给裁切盒加 padding-bottom = 字形盒−行盒」——**超行时第 N+1 行字顶就在行盒底 +2px**，
+     而第 N 行下伸部要到 +3px，同一竖直带里无法用一条水平裁切界分开；实测夹具第 3 行带出现
+     986 个文字色像素（= 露出下一行字顶），且 padding 会抬高居中、连带要 valign 补偿。
+
+■ 采用的做法
+  先按不裁切铺一遍，**整屏元素入文档后**统一复量自然块高（`renderElements` 末尾），
+  只给「行数 > max_lines」的加 clamp；不超行则不裁（overflow:visible）⇒ 下伸部照画。
+  行数 = round(自然块高 ÷ 行盒)：实测自然块高 = 行数×行盒 + 3px（末行行盒小数进位），
+  直接比块高会把「正好 N 行」误判成超行（实测 fc.node.0007_tx：2 行=41px>38px ⇒ 误裁），
+  四舍五入到行数即吸收该尾巴。
+
+■ 数字（终版代码）
+  · 全 19 屏：仅 config(56px, cfg.pv_text) 与 flowchart(1758px, 13 个节点标签) 有像素变化，
+    **预期外像素 0**；其余 17 屏逐像素 0 变化。
+  · 全数据 87 个 clamp 元素：86 件判「不裁」／ 1 件判「裁」（ed.staff 30 行 > 28 行，真截断）。
+  · 超长夹具（fc.node.0003_tx 改 30 字 = 3 行 > max_lines 2）：
+      改后 vs 改前(总是 clamp) 差异 = 0 px  ⇒ 截断语义与改动前逐字相同
+      改后 vs 变异(完全不裁)   差异 = 8801 px ⇒ 夹具确实超行（①才有意义）
+  · s01_14h 下划线：krkr x=1033..1041（宽 9px, y=422）／ HTML x=1034..1042（宽 9px, y=425）
+      ⇒ **同宽 9px、同列区间（整体差 1px，与两端字形横向栅格差一致）**
+  · 渲染开销：bench 5 轮 flowchart best 6.5ms（改前口径 8.3ms）—— 无回归。
+  · 既有自检：m39 套 A = SELFTEST ALL PASS（含新 ㉓）｜ 套 B = RESULT=OK ｜
+      m02_mut_selftest_A.py 六模式全部符合期望（含 swap=ALL PASS、drift=FAILED 6 项不变）

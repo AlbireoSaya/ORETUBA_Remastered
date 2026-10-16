@@ -1,0 +1,17 @@
+from pathlib import Path
+import sys,json,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具')]
+from lucifen_tob_dynamic_structure import pack_ir
+stage=root/'临时/ISSUE-20261011-02/r-expression-vm-replay-01';assert stage.is_dir()
+rows=[];counts=collections.Counter()
+for p in sorted((root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*')):
+ if p.suffix.lower()!='.tob':continue
+ ir=pack_ir(p.read_bytes());records=[]
+ for q in ir['parts']:
+  if q['kind']!='record':continue
+  if q['condition']['kind'] in ('array','expression') or any(i['kind'] in ('array','expression') for i in q['items']):
+   records.append(q['start']);counts['dynamic_records']+=1
+   if q['opcode']==0:counts['opcode0']+=1
+ rows.append({'path':p.relative_to(root).as_posix(),'record_offsets':records})
+assert len(rows)==418 and counts['dynamic_records']==3794 and counts['opcode0']==609
+(stage/'dynamic-record-index.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(dict(counts)))

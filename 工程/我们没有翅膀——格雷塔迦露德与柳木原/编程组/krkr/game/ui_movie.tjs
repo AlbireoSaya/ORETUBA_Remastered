@@ -1,0 +1,502 @@
+// ============================================================
+// ui_movie.tjs —— 影片播放（正式功能，ISSUE-20261004-08）
+//
+// 三个槽位（用户 2026-10-04 分槽裁定，**不要当成一件事**）：
+//   ① 启动 exe 时         → `UIMovieSlotStart`（当前＝涅布厂牌标充位，用户裁定「先用它充位」）
+//   ② 正式进入游戏时       → `UIMovieSlotEnter`（当前＝本篇 OP①，用户裁定）
+//   ③ 游戏进行中被编排播放 → `UIMovieInsert`（**只接源侧有据的 2 处**，见下表依据）
+//   另有 片尾：**每条线「最后一场常规剧情戏」的末尾**播该角色的 ED（`UIMovieEndByScene`），
+//              播完**继续**接「终章 → 解纜/対決」；只有真终局（无后继）才回标题。
+//              （2026-10-04 二次订正，落点表与依据见下方 `UIMovieEndByScene` 前的大段注释）
+//
+// 引擎侧事实（源码级，详见 `工程记录\2026-10-04_…影片格式支持的修改*.md`）：
+//   · **必须走 Media Foundation**：`vo.mode = 3`（`vomMFEVR`），且**必须在 `open` 之前**设。
+//     DirectShow 路按扩展名白名单拒 `.mp4`，且本机无 DShow 的 H.264 解码器。
+//   · **EVR 合成在我方全部图层之上**（用户实机截图确认）⇒ 影片可见**不需要动图层顺序**；
+//     反过来**不能在影片之上再叠我方 UI** ⇒ 播放期间不要指望盖字（顶栏只在黑底方案里验过）。
+//   · MF 路的 `originalWidth/Height` 在 `open` 返回时**不可信**（先报 320×240 占位）⇒ 不拿它做判断。
+//   · **完成检测**：接口没给时长/状态 ⇒ 用「`position` 连续若干拍不推进」判结束（见 `UIMovieStallTicks`）。
+//
+// ⚠️ 画面正确性只能肉眼验收：EVR 内容既不在引擎位图（`exportPng` 抓不到），
+//    GDI 抓屏与 `PrintWindow(PW_RENDERFULLCONTENT)` 也读不到（实测全白）。
+//
+// ★ ISSUE-20261005-01 两项实机缺陷修复（用户 2026-10-05 实报，证据＝成品 savedata 的
+//   krkr.console.log 崩溃堆栈 + 用户截图）：
+//   ① **影片不满屏**：VideoOverlay 矩形走**画布坐标系**（主层 1920×1080），不是窗口客户区
+//      （1280×720）——旧代码 `setSize(innerWidth,innerHeight)` 实际只铺了画布左上 1280×720，
+//      屏上恰为 853×480（×setZoom(2,3)）。已改按主层尺寸铺满（`uiMoviePlay` 内）。
+//   ② **播放中按键必崩**：按键包装器必须返回**字典** `%[handled:…, action:…]`
+//      （UI 组 `handleKey` 取 `.handled`），旧代码返回裸 bool ⇒ 「不能将 (int)1 转换为
+//      Object 类型」。已改字典；**回归闸门＝`movietest.txt` 自检 t==6 的合成按键步**
+//      （`工具\run_bootcheck.py` 无人值守复跑）。
+//   ⚠️ 连带教训：无人值守自测**从不产生真实输入事件** ⇒ 输入包装器的返回形状约定
+//      必须用「合成事件」专门测，机检绿 ≠ 输入路径对。
+// ============================================================
+
+var UIMovieEnabled    = true;          // 总开关（诊断可置 false 一键退场）
+var UIMovieDir        = "movies/";     // 影片目录（随包：`编程组\krkr\game\movies\`）
+var UIMovieVolume     = true;          // 预留：将来接音频（本轮不动音频）
+var UIMovieStallTicks = 3;             // `position` 连续 N 拍不推进 ⇒ 判播放结束
+var UIMovieTickMs     = 500;
+
+// ── 槽① 启动 exe 时（用户裁定：先用涅布厂牌标充位）──────────────────────
+var UIMovieSlotStart  = "np_makerlogo";
+// ── 槽② 正式进入游戏时（用户裁定：本篇 OP①）──────────────────────────
+var UIMovieSlotEnter  = "ot_op1";
+// ── 槽③ 剧情中插入（源侧 13 处 `MoviePlay` 全部有据；编号表见 `UIMovieEndByScene` 上方注释）──
+//   用户裁定（2026-10-04/05）：「补到源侧全部有据点」；美咲短篇去重（D30）保留前奏诗集那份。
+//   属于「剧情中插播」的：
+//     `otv_M09_01`「终章 ～林田同学与我～」→ `ed_misaki`（语义上是美咲线**片尾**，源侧就放在该场末尾）
+//     `otp_p01_01d`《不过，现在比什么都想吃上饭》（前奏诗·明日香篇末场）→ `op03`
+//     `otp_p02_01e`《从头反复（回到曲首）》（前奏诗·山科京篇末场）  → `op03`
+//     `otp_p03_01d`《复苏的小美咲》（前奏诗·美咲篇末场）          → `op03`
+//     `ot_s04_06j2`「救赎之风～到外面去吧～」（D 页分支）        → `ot_op2`
+//   ★ 为什么这几处播的是 **OP 不是 ED**：它们都是《前奏诗》四短篇各自的**末场**（无后继＝该短篇完结）。
+//     原版编排读作「短篇看完 → 播 PSV 的片头 OP03」；**ED 是正片该线收束时才播**（见 `UIMovieEndByScene`），
+//     两级互不冲突。OP03 只在 PSV 版存在（源侧 Movie 11），本作三个短篇末场播的是同一支。
+//   ★ D30 去重：源侧 `P01/P02/P03/P04` 就是《前奏诗》的四个短篇（PSV 收作追加章节）→ 我方
+//     `otp_p01_01a–d`／`otp_p02_01a–e`／`otp_p03_01a–d`／`otp_p04_01a–c`+`p04_02a/b`。其中 p03 与
+//     PSV 美咲线的 `otv_P03_01A–D` 是**同一段内容的两份副本**（完全重复，见审计 TSV）⇒ 按用户裁定
+//     **保留前奏诗集那份**，`otv_P03_01A–D` 已入 spine.json `excluded`（不入主干、不入流程图），
+//     所以 OP03 的 p03 挂点是 **`otp_p03_01d`**（不是 otv_P03_01D）。
+//   ⚠️ 影片**必须随包**：`UIMovieDir` 下不存在时 `uiMoviePlay` 记「缺件，跳过」并继续（不崩，但等于不播）。
+//      包内文件名可能与表内名**大小写不同**（如 `OP03.mp4`）——Windows 下可解析，但不要依赖。
+//      **新增影片落点必须「看盘对名」**（初写 `op02` 时实走当场报缺件，教训）。
+//   ⚠️ TJS2 的字典字面量**只接受裸标识符键**（`%[ k: v ]`）；带引号的键 `%{ "k": v }`
+//      是**语法错误**（整份模块会装载失败，实测踩到）⇒ 表一律**先建空字典再逐条赋值**。
+var UIMovieInsert = %[];
+UIMovieInsert["otv_M09_01"]  = "ed_misaki";
+UIMovieInsert["otp_p01_01d"] = "op03";
+UIMovieInsert["otp_p02_01e"] = "op03";
+UIMovieInsert["otp_p03_01d"] = "op03";
+UIMovieInsert["ot_s04_06j2"] = "ot_op2";
+// ── 片尾：**该线「最后一场常规剧情戏」的末尾播它的 ED**（2026-10-04 二次订正）──
+//   ★ 定论依据＝PSV 版**明文脚本**（13 处 `MoviePlay` 全在其中；`工程\我们没有翅膀PSV\脚本解包\`）：
+//     每支 ED 都挂在源侧明确的一场，且都落在**该场的末尾**（按行计 89–99%，其后只剩
+//     `MovieStop`/淡出/`NextScene`；一审复算指出原稿写的「93–99%」偏高，已订正）；
+//     **紧随其后才是「终章（エピローグ）」** ⇒ `[最后一场常规戏 + ED] → エピローグ → 解纜/対決`。
+//     编号表（工程内已有：`我们没有翅膀PSV\工具\美咲线过程脚本\_movies.py`）：
+//       MOV={0:OP00 1:OP01 2:OP02 3:ED_ai 4:ED_asuka 5:ED_hiyoko 6:ED_kobato 7:ED_misaki
+//            8:ED_miyako 9:ED_naru 10:Poem 11:OP03}
+//     双向可验证：`Movie 7=ED_misaki` ←→ 语料 `otv_M09_01` 的 `assets[]=data\ED_misaki.mp4`；
+//               `Movie 11=OP03`     ←→ 语料 `otv_P03_01D` 的 `assets[]=data\OP03.mp4`。
+//     可移植性（逐场景核过）：PSV 脚本名与语料场景 id 基本一一对应（S02/S03C 严格相等；
+//     S01 各 114 场但有 1 处改名 `S01_01`↔`ot_s01_01a`、语料另多 1 场 `ot_s01_14k`），7 处落点**场景名逐字相同、
+//     `next` 链逐条相同**（S01 114/114、S02 83/83、S03C 55/55 完全同集；S03/S04 语料各多 1–2 场）。
+//   ⚠️ 两处**已作废的旧结论**（记此以免再犯）：
+//     ① 按 `next_kind == end`（串接链**端点**）找落点 ⇒ 误得「A/B 页没有终局、ed_asuka/ed_hiyoko 无落点」；
+//     ② 按「终章（エピローグ）场景播 ED」⇒ 落点整体**晚了一场**（ED 实际在终章**之前**那场）。
+//   ⚠️ 另一处旧解读不成立：语料里只有 2 条 `assets[].kind=="movie"`，曾被当作「源侧只插 2 处」——
+//     实为**提取面缺口**（`ot` 源的 assets 只收了 pic/se，连 bgm/chr 都没有）⇒「语料没有 movie 引用」
+//     不等于「原版没播」。
+var UIMovieEndByScene = %[];
+UIMovieEndByScene["ot_s01_15b"]  = "ed_asuka";   // 渡来明日香 ·「私もやっぱり乙女なのだ。な（略）」（终章 s01_16a 的前一场）
+UIMovieEndByScene["ot_s01_17a"]  = "ed_miyako";  // 山科京 ·「近眼たちが恋をしている」（终章 s01_18a 的前一场）
+UIMovieEndByScene["ot_s02_15c"]  = "ed_hiyoko";  // 玉泉日和子 ·「アレキサンダー花水木通り店のよくある一日」（终章 s02_16a 的前一场）
+UIMovieEndByScene["ot_s03_21c"]  = "ed_naru";    // 凤鸣 ·「ドラキュラ・イン・ザ・モーニング」（终章 s03_22a 的前一场）
+UIMovieEndByScene["otr_s03c_19a"]= "ed_ai";      // 香田亚衣 ·「ハードボイルドは死んだ」（终章 s03c_20a 的前一场）
+UIMovieEndByScene["ot_s04_27a"]  = "ed_kobato";  // 羽田小鸠 ·「いま彼らはとてものどかな国で──」（其后 s04_28a 閉幕 → s04_28b エピローグ）
+//   林田美咲（`ed_misaki`）**不列此表**：源侧把它挂在 `otv_M09_01`（该场本身就是它那条线的终章）⇒
+//   见上面的 `UIMovieInsert`，同一支不重复播。
+//   **无 ED 因而播片尾处**（源侧本就没有对应 ED，不是裁定）：I 番外 / J 前奏诗 / 后日谈（AfterStory）/
+//   涅布篇的终章小节；A 页 Bad End（`ot_s01_14j2`）同样没有。
+//   ⚠️ 旧记录里的「D 页不播片尾」是**基于错误落点**得出的裁定，已作废（原版 D 页在 `ot_s04_27a` 播）。
+// ── 运行期状态 ──────────────────────────────────────────────
+var UIMovieWin       = null;
+var UIMovieObj       = null;
+var UIMovieTimer     = null;
+var UIMovieActive    = false;
+var UIMovieName      = "";
+var UIMovieDoneCb    = null;
+var UIMovieLastPos   = -1;
+var UIMovieStall     = 0;
+var UIMovieStarted   = 0;
+var UIMovieSkipReq   = false;
+var UIMovieLogN      = 0;
+var UIMovieInStart   = false;    // 槽① 是否已播过（每次启动只播一次）
+var UIMoviePlayedEnter = false;  // 槽② 本次会话是否已播过（只在新开周目第一次）
+var UIMovieInInstalled = false;
+var UIMovieClickOrig = null;
+var UIMoviePressOrig = null;
+var UIMovieKeyOrig   = null;
+
+function uiMovieLog(m)
+{
+	Debug.message("[MOVIE] " + m);
+}
+
+function uiMovieUrl(name)
+{
+	return "" + UIMovieDir + name + ".mp4";
+}
+
+// 一个影片文件是否存在（在 game 目录内，相对存储名）
+function uiMovieExists(name)
+{
+	var ex = false;
+	try { ex = Storages.isExistentStorage(uiMovieUrl(name)); } catch(e) { ex = false; }
+	return ex;
+}
+
+function uiMoviePlaying() { return UIMovieActive == true; }
+
+// 开始播放；`cb` 为结束/跳过后的回调（可为 null）。返回是否真的开始播了。
+function uiMoviePlay(name, cb)
+{
+	if(UIMovieEnabled !== true) { if(cb !== null) cb(); return false; }
+	// 保险：不留重叠（先关旧再开新）。⚠️ 这样会**丢弃上一支的续播回调**，所以调用方必须自己保证
+	//   不在影片播放中再次触发——剧情侧由 `uiStoryGoNext` 的「播放中不重复触发」闸兜住
+	//   （ISSUE-20261004-09：缺那道闸时，自测推进链会重入本函数，把剧情续播回调丢掉而空转）。
+	if(UIMovieActive === true)
+	{
+		uiMovieLog("已有影片在播，先关旧再开新：" + UIMovieName + " → " + name);
+		uiMovieClose();
+	}
+	if(name === void || name === null || ("" + name) == "") { if(cb !== null) cb(); return false; }
+	if(!uiMovieExists(name))
+	{
+		uiMovieLog("缺件，跳过：" + name + "（" + uiMovieUrl(name) + "）");
+		if(cb !== null) cb();
+		return false;
+	}
+	try
+	{
+		var vo = new VideoOverlay(UIMovieWin);
+		vo.mode = 3;                                    // ★ Media Foundation/EVR —— 必须 open 之前
+		vo.open(uiMovieUrl(name));
+		try { vo.visible = true; } catch(eV) { }
+		try
+		{
+			// ★ ISSUE-20261005-01：VideoOverlay 的矩形走**画布坐标系**（主层 1920×1080），
+			//   不是窗口客户区（1280×720）——旧实现 setSize(innerWidth,innerHeight) 实际只铺了
+			//   画布左上 1280×720，实机表现＝影片只占窗口左上 2/3（用户 2026-10-05 截图：
+			//   实测屏占 853×480 = 1280×720 × setZoom(2,3)，与该解释吻合）。按**主层尺寸**铺满
+			//   整块画布；影片源 11 支全部 1920×1080(16:9)（同日逐件 tkhd 实测），等比铺满无变形。
+			//   全屏（画布 1:1）与窗口（画布 ×2/3 显示）共用同一坐标系，均正确。
+			var w = 1920, h = 1080;
+			try { w = UIMovieWin.primaryLayer.width; h = UIMovieWin.primaryLayer.height; } catch(eW) { }
+			vo.setSize(w, h);
+			vo.left = 0; vo.top = 0;
+			uiMovieLog("输出矩形：" + w + "×" + h + " @(" + vo.left + "," + vo.top + ")（画布系）");
+		}
+		catch(eS) { uiMovieLog("setSize 失败（不影响播放）：" + eS.message); }
+		try { vo.loop = false; } catch(eL) { }
+		vo.play();
+		UIMovieObj = vo; UIMovieActive = true; UIMovieName = "" + name;
+		UIMovieDoneCb = cb; UIMovieLastPos = -1; UIMovieStall = 0; UIMovieSkipReq = false;
+		uiMovieLog("播放开始：" + name + "（mode=3 MF）");
+		if(UIMovieTimer === null)
+		{
+			UIMovieTimer = new Timer(uiMovieTick, '');
+			UIMovieTimer.interval = UIMovieTickMs;
+		}
+		UIMovieTimer.enabled = true;
+		return true;
+	}
+	catch(e)
+	{
+		uiMovieLog("打不开：" + name + " : " + e.message);
+		UIMovieObj = null; UIMovieActive = false;
+		if(cb !== null) cb();
+		return false;
+	}
+}
+
+function uiMovieClose()
+{
+	var cb = UIMovieDoneCb;
+	UIMovieActive = false; UIMovieDoneCb = null; UIMovieLastPos = -1; UIMovieStall = 0;
+	UIMovieSkipReq = false;
+	if(UIMovieTimer !== null) { try { UIMovieTimer.enabled = false; } catch(e0) { } }
+	if(UIMovieObj !== null)
+	{
+		try { UIMovieObj.stop(); } catch(e1) { }
+		try { UIMovieObj.close(); } catch(e2) { }
+		UIMovieObj = null;
+	}
+	UIMovieStarted++;
+	uiMovieLog("播放结束：" + UIMovieName);
+	return cb;
+}
+
+function uiMovieTick()
+{
+	if(UIMovieActive !== true || UIMovieObj === null) return;
+	var p = -1;
+	try { p = 0 + UIMovieObj.position; } catch(e) { p = -1; }
+	if(UIMovieSkipReq === true)
+	{
+		uiMovieLog("用户跳过：" + UIMovieName + "（pos=" + p + "）");
+		var cb0 = uiMovieClose();
+		if(cb0 !== null) { try { cb0(); } catch(e1) { uiMovieLog("回调异常：" + e1.message); } }
+		return;
+	}
+	if(p == UIMovieLastPos) UIMovieStall++;
+	else { UIMovieStall = 0; UIMovieLastPos = p; }
+	UIMovieLogN++;
+	if((UIMovieLogN % 4) == 0) uiMovieLog("pos=" + p + "（" + UIMovieName + "）");
+	if(UIMovieStall >= UIMovieStallTicks)
+	{
+		uiMovieLog("判定播放结束（position 连续 " + UIMovieStall + " 拍不推进）：" + UIMovieName);
+		var cb = uiMovieClose();
+		if(cb !== null) { try { cb(); } catch(e2) { uiMovieLog("回调异常：" + e2.message); } }
+	}
+}
+
+// 请求跳过（由点击/按键包装器调用）
+function uiMovieRequestSkip()
+{
+	if(UIMovieActive !== true) return false;
+	UIMovieSkipReq = true;
+	return true;
+}
+
+// ------------------------------------------------------------
+// 输入接管：播放期间「点击/按键 ⇒ 跳过」，其余情况原样回落。
+//   手法照 `ui_flowfull.tjs`：**capture-then-wrap 全局函数**（不碰实例成员，
+//   免得覆盖 `ui_story.tjs` 已装在窗口实例上的 `onKeyUp`）。
+// ------------------------------------------------------------
+function uiMovieClickWrapped(stage, x, y)
+{
+	if(UIMovieActive === true)
+	{
+		uiMovieRequestSkip();
+		return %[ action: "", hit: true ];     // 吞掉：播放期间点击＝跳过
+	}
+	try { return UIMovieClickOrig(stage, x, y); } catch(e) { return null; }
+}
+
+function uiMoviePressWrapped(x, y)
+{
+	if(UIMovieActive === true) return false;
+	try { return UIMoviePressOrig(x, y); } catch(e) { return false; }
+}
+
+function uiMovieKeyWrapped(key)
+{
+	// ★ ISSUE-20261005-01：本链的返回约定是**字典** `%[ handled: …, action: … ]`——
+	//   UI 组 `startup.tjs` 的 `handleKey` 对返回值取 `.handled` 成员（`ui_screens.tjs`
+	//   的 base 与 `ui_story.tjs` 的 CTRL 包装同样返回字典）。旧实现返回**裸 bool**
+	//   ⇒ 影片播放中按任意键必崩「不能将 (int)1 转换为 Object 类型」（用户 2026-10-05
+	//   实报：厂牌标播放中按 key=18 → startup.tjs(617) `if(r.handled)` 崩溃）。
+	//   吞键时 action 用 "move"：`handleKey` 对 move **不再派发任何动作**（纯无副作用，
+	//   只重画），比派发一个未知动作更稳。
+	if(UIMovieActive === true) { uiMovieRequestSkip(); return %[ handled: true, action: "move" ]; }
+	try { return UIMovieKeyOrig(key); } catch(e) { return %[ handled: false ]; }
+}
+
+function uiMovieInstall(win)
+{
+	if(UIMovieInInstalled) return true;
+	UIMovieWin = win;
+	try
+	{
+		UIMovieClickOrig = uiScreenClick;
+		UIMoviePressOrig = uiScreenPressUpdate;
+		uiScreenClick = uiMovieClickWrapped;
+		uiScreenPressUpdate = uiMoviePressWrapped;
+		try
+		{
+			if(uiScreenKey !== void) { UIMovieKeyOrig = uiScreenKey; uiScreenKey = uiMovieKeyWrapped; }
+		}
+		catch(eK) { UIMovieKeyOrig = null; }
+		UIMovieInInstalled = true;
+		uiMovieLog("输入已挂（播放中点任意处/按任意键＝跳过）");
+	}
+	catch(e) { uiMovieLog("挂输入失败：" + e.message); return false; }
+	return true;
+}
+
+// 槽①：启动时（窗口就绪、标题屏已在场）——只播一次
+function uiMoviePlayStartup()
+{
+	if(UIMovieEnabled !== true || UIMovieInStart === true) return false;
+	UIMovieInStart = true;
+	if(UIMovieSlotStart == "") return false;
+	return uiMoviePlay(UIMovieSlotStart, null);
+}
+
+// 槽②：「开始游戏」时——先播 OP，播完/跳过后再走原流程
+function uiMoviePlayEnter(onDone)
+{
+	if(UIMovieEnabled !== true || UIMoviePlayedEnter === true) { if(onDone !== null) onDone(); return false; }
+	if(UIMovieSlotEnter == "") { if(onDone !== null) onDone(); return false; }
+	UIMoviePlayedEnter = true;
+	return uiMoviePlay(UIMovieSlotEnter, onDone);
+}
+
+// 槽③：剧情中插入（按场景 id 查表；查不到返回 false）
+function uiMovieMaybeInsert(sceneId, onDone)
+{
+	var s = "" + sceneId;
+	var nm = "";
+	try { nm = UIMovieInsert[s]; } catch(e) { nm = ""; }
+	if(nm === void || nm === null || nm == "") return false;
+	uiMovieLog("剧情插入：" + s + " → " + nm);
+	return uiMoviePlay(nm, onDone);
+}
+
+// 槽③ 查询：返回该场景要插的影片名（无则空串）
+function uiMovieInsertFor(sceneId)
+{
+	var s = "" + sceneId;
+	var nm = "";
+	try { nm = UIMovieInsert[s]; } catch(e) { nm = ""; }
+	if(nm === void || nm === null) return "";
+	return "" + nm;
+}
+
+// 槽② 是否该播（未播过 且 素材在）
+function uiMovieShouldPlayEnter()
+{
+	if(UIMovieEnabled !== true || UIMoviePlayedEnter === true) return false;
+	if(UIMovieSlotEnter == "") return false;
+	return uiMovieExists(UIMovieSlotEnter);
+}
+
+// 片尾：按终局场景查表
+function uiMovieEndFor(sceneId)
+{
+	var s = "" + sceneId;
+	var nm = "";
+	try { nm = UIMovieEndByScene[s]; } catch(e) { nm = ""; }
+	if(nm === void || nm === null) return "";
+	return "" + nm;
+}
+
+function uiMoviePlayEnding(sceneId, onDone)
+{
+	var nm = uiMovieEndFor(sceneId);
+	if(nm == "")
+	{
+		uiMovieLog("该终局不播片尾（无对应 ED）：" + sceneId);
+		if(onDone !== null) onDone();
+		return false;
+	}
+	uiMovieLog("片尾：" + sceneId + " → " + nm);
+	return uiMoviePlay(nm, onDone);
+}
+
+// ------------------------------------------------------------
+// 一次性自检（`movietest.txt` 门控）——只诊断用，成品不含。
+//   目的：① 证明槽① 真的播了并自然结束；② 驱动槽②（game_start）与**跳过**路径；
+//        ③ 把片尾/插入两张表查一遍（表查不到就没法靠点鼠标验）。
+// ------------------------------------------------------------
+var UIMovieSelfTest = null;
+var UIMovieSelfTestStep = 0;
+var UIMovieSelfTestFail = false;   // 一审 Minor-2：判别力内建——前提不成立/断言不过 ⇒ 终局打 FAIL 而非 DONE
+
+function uiMovieSelfTestArm()
+{
+	if(UIMovieSelfTest !== null) return;
+	UIMovieSelfTestStep = 0;
+	UIMovieSelfTest = new Timer(uiMovieSelfTestTick, '');
+	UIMovieSelfTest.interval = 1000;
+	UIMovieSelfTest.enabled = true;
+}
+
+function uiMovieSelfTestTick()
+{
+	UIMovieSelfTestStep++;
+	var t = UIMovieSelfTestStep;
+	if(t == 4)
+	{
+		uiMovieLog("[SELFTEST] 槽① 结束计数 = " + UIMovieStarted + "（应 ≥1 表示启动影片已播完/被跳）");
+		uiMovieLog("[SELFTEST] 触发 game_start（槽② 应开始播 " + UIMovieSlotEnter + "）");
+		try { uiActionDispatch("game_start", -1); } catch(e1) { uiMovieLog("[SELFTEST] game_start 异常：" + e1.message); }
+	}
+	else if(t == 6)
+	{
+		// ★ ISSUE-20261005-01 **真实按键回归**：槽② 播放中经引擎同一入口（Window.onKeyDown）
+		//   合成一次按键（key=18＝用户实报崩溃时的键值）。修复前：`uiMovieKeyWrapped` 返回裸
+		//   bool ⇒ UI 组 handleKey 取 `.handled` 崩溃（引擎弹窗、★MOVIETEST2★ DONE 不到）；
+		//   修复后：应吞键并置跳过标记（下一拍关片续播）。
+		//   ★ 一审 Minor-2：**先断言前提**——影片缺件/时序漂移时本步会空转（合成键走透传、
+		//     闸门照样 DONE＝「绿但没测到」）⇒ 前提不成立直接记 FAIL。
+		if(UIMovieActive !== true)
+		{
+			UIMovieSelfTestFail = true;
+			uiMovieLog("[SELFTEST] ★FAIL 前提不成立：t==6 时槽② 未在播（播放中=" + UIMovieActive
+				+ "）——查影片缺件或 game_start 时序，闸门空转");
+		}
+		else
+		{
+			uiMovieLog("[SELFTEST] 合成按键 key=18（槽② 在播：" + UIMovieName + "）");
+			try { UIStoryWin.onKeyDown(18, 2); } catch(eK2) { uiMovieLog("[SELFTEST] 合成按键异常：" + eK2.message); }
+			if(UIMovieSkipReq !== true)
+			{
+				UIMovieSelfTestFail = true;
+				uiMovieLog("[SELFTEST] ★FAIL：合成按键后跳过请求未置位（按键包装器未把按键转为跳过）");
+			}
+			else uiMovieLog("[SELFTEST] 按键后：跳过请求=1（按键已转为跳过）");
+		}
+	}
+	else if(t == 7)
+	{
+		uiMovieLog("[SELFTEST] 槽② 正在播？ " + UIMovieActive + "（影片 " + UIMovieName + "）");
+		uiMovieLog("[SELFTEST] 请求跳过（模拟玩家点击）");
+		uiMovieRequestSkip();
+	}
+	else if(t == 12)
+	{
+		// ★ 片尾路径：跳到凤鸣线**挂 ED 的那一场** `ot_s03_21c`（终章 `ot_s03_22a` 的前一场），
+		//   再推一次 ⇒ 应触发片尾（ISSUE-20261004-09 按 PSV 原版订正后的落点）
+		uiMovieLog("[SELFTEST] 跳到凤鸣的**ED 落点场景** ot_s03_21c（片尾表 → ed_naru）");
+		try { uiStoryStart("ot_s03_21c"); } catch(e3) { uiMovieLog("[SELFTEST] 开局异常：" + e3.message); }
+		uiMovieLog("[SELFTEST] 载入后 场景=" + UIStoryCur + " ｜ 行数=" + UIStoryScene.lines.count
+			+ " ｜ 选择支=" + UIStoryScene.choices.count + " ｜ next数=" + UIStoryScene.next.count);
+		// ★ 直接调 `uiStoryGoNext()`（绕开 UI 层「逐行推进」）——终局场景无后继 ⇒ 应走「到头」分支触发片尾
+		var _r = null;
+		try { _r = uiStoryGoNext(); } catch(e5) { uiMovieLog("[SELFTEST] goNext 异常：" + e5.message); }
+		uiMovieLog("[SELFTEST] uiStoryGoNext() 返回 action=" + ((_r === null || _r === void) ? "null" : ("" + _r.action)));
+	}
+	else if(t == 15)
+	{
+		uiMovieLog("[SELFTEST] 片尾是否在播？ " + UIMovieActive + " ｜ 影片=" + UIMovieName
+			+ "（应为 ed_naru）");
+	}
+	else if(t == 18)
+	{
+		uiMovieLog("[SELFTEST] 跳过片尾（模拟点击）");
+		uiMovieRequestSkip();
+	}
+	else if(t == 22)
+	{
+		uiMovieLog("[SELFTEST] 片尾后：播放中=" + UIMovieActive + " ｜ 屏=" + uiScreenCurrent()
+			+ "（有后继＝继续剧情进 dialog；真终局才回 title）");
+		// ★ 一审 Minor-2：终局判词按 fail 旗标二选一（bootcheck 以 DONE 为成功信号）
+		uiMovieLog((UIMovieSelfTestFail === true) ? "★MOVIETEST2★ FAIL（自检存在未通过断言）"
+			: "★MOVIETEST2★ DONE");
+		if(UIMovieSelfTest !== null) { try { UIMovieSelfTest.enabled = false; } catch(e5) { } }
+	}
+	else if(t == 10)
+	{
+		uiMovieLog("[SELFTEST] 跳过之后：播放中=" + UIMovieActive + " ｜ 屏=" + uiScreenCurrent()
+			+ " ｜ 当前场景=" + UIStoryCur + " ｜ 已播行数=" + UIStoryPlayed);
+		// ⚠️ TJS2 的 **Dictionary 没有 `.count`**（打出来是 void）⇒ 自己数一遍
+		var _n1 = 0, _ks = []; _ks.assign(UIMovieEndByScene);
+		for(var _i = 0; _i < _ks.count; _i += 2) _n1++;
+		var _n2 = 0, _ks2 = []; _ks2.assign(UIMovieInsert);
+		for(var _j = 0; _j < _ks2.count; _j += 2) _n2++;
+		uiMovieLog("[SELFTEST] 表检查：片尾表 " + _n1 + " 条 ｜ 插入表 " + _n2 + " 条");
+		uiMovieLog("[SELFTEST] 片尾查表（**该线最后一场常规戏**，PSV 原版落点）："
+			+ "ot_s01_15b → " + uiMovieEndFor("ot_s01_15b") + "（应 ed_asuka）"
+			+ "｜ ot_s01_17a → " + uiMovieEndFor("ot_s01_17a") + "（应 ed_miyako）"
+			+ "｜ ot_s02_15c → " + uiMovieEndFor("ot_s02_15c") + "（应 ed_hiyoko）"
+			+ "｜ ot_s03_21c → " + uiMovieEndFor("ot_s03_21c") + "（应 ed_naru）"
+			+ "｜ otr_s03c_19a → " + uiMovieEndFor("otr_s03c_19a") + "（应 ed_ai）"
+			+ "｜ ot_s04_27a → " + uiMovieEndFor("ot_s04_27a") + "（应 ed_kobato）");
+		uiMovieLog("[SELFTEST] 反例（应空=不播）：ot_s01_16a（终章）→ [" + uiMovieEndFor("ot_s01_16a")
+			+ "] ｜ ot_s04_28b（D 页终章）→ [" + uiMovieEndFor("ot_s04_28b")
+			+ "] ｜ ot_s03_24（幕间）→ [" + uiMovieEndFor("ot_s03_24")
+			+ "] ｜ ot_s04_28a（閉幕）→ [" + uiMovieEndFor("ot_s04_28a")
+			+ "]（终章/幕间一律不挂，ED 在其**前一场**）");
+		uiMovieLog("[SELFTEST] 插入查表：otv_M09_01 → " + uiMovieInsertFor("otv_M09_01")
+			+ " ｜ otp_p01_01d → " + uiMovieInsertFor("otp_p01_01d") + "（应 op03）"
+			+ " ｜ otp_p02_01e → " + uiMovieInsertFor("otp_p02_01e") + "（应 op03）"
+			+ " ｜ otp_p03_01d → " + uiMovieInsertFor("otp_p03_01d") + "（应 op03）"
+			+ " ｜ otv_P03_01D（D30 去重件）→ [" + uiMovieInsertFor("otv_P03_01D") + "]（应空）"
+			+ " ｜ ot_s04_06j2 → " + uiMovieInsertFor("ot_s04_06j2") + "（应 ot_op2）");
+		uiMovieLog("· 前半段检查完毕，继续验片尾路径（计时器不关）");
+	}
+}

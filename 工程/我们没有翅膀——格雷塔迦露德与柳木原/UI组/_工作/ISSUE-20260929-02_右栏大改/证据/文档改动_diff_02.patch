@@ -1,0 +1,278 @@
+--- a/UI组交接编程组.md
++++ b/UI组交接编程组.md
+@@ -12,7 +12,7 @@
+ | # | 交付物 | 路径 | 说明 |
+ | --- | --- | --- | --- |
+ | 1 | **krkr 可用 UI 贴图集** | `UI组\krkr\assets\ui\` | **1345 件 / 94.92 MiB**（＝99,533,701 B ≈ 99.5 MB；★ ISSUE-20260928-06 实测重钉；原记「119 件 / 14.57 MB」为早期里程碑读数），全部 krkr 可直接 `loadImages` 加载 |
+-| 2 | **布局数据（唯一数据源）** | `UI组\layout\screens\*.json` → 生成 `krkr\game\ui_layout.tjs` | **17 屏 / 1420 元素**（★ ISSUE-20260928-07 实测重钉：删 `ending` 屏后 18 屏/1427 元素 → 17 屏/1420 元素；原记「15 屏 / 5991 键」为陈旧读数）。改布局只改 `screens/*.json` 后重跑 `工具\gen_layout.py` | ★ **二审更正（ISSUE-20260928-07）**：上面的枚举**不全** —— 还漏了 `复刻\screen_index.js`（**编辑器用**屏清单，来源 `layout/screens/_index.json`）⇒ **删屏后必须重跑 `工具\emit_asset_index.py`**。本批首版就因漏跑它，导致编辑器屏选择器为空并抛 `TypeError`（一审抓出 Critical）；已修，并已把该步纳入 `run_all.py` 作常驻闸门。
++| 2 | **布局数据（唯一数据源）** | `UI组\layout\screens\*.json` → 生成 `krkr\game\ui_layout.tjs` | **17 屏 / 1410 元素**（★ **ISSUE-20260929-02 实测重钉，2026-09-29**；上一记「17 屏 / 1420 元素」＝ `ISSUE-20260928-07` 值。本次差值 **−10** 已逐项对数：右栏 `flowchart` 289→**280**（−9：删 12 件 ＋ 加 3 件）＋ `loading` 3→**2**（−1）＝ −10 ✓ 逐屏明细见 `_工作/ISSUE-20260929-02_右栏大改/证据/E3_自检报告.md` §五·补。★ **计法**：对 `layout/screens/_index.json` 列出的 17 屏逐屏 `len(elements)` 求和；`工具/gen_layout.py` 对该列表**原样透传**（只在缺 `z` 时补号、不改件数）⇒ 主代理重跑产物后 `layout/ui_layout.json` 应同为 **1410**，届时可复核）。⚠ **实测到的中间态（2026-09-29 · E3）**：三处产物此刻是 **`frag` 预设态**（`flowchart` **136** 件、合计 **1266**）—— 那是 `run_all.py` 跑预设的中间产物、**不是交付样例**；**以 `run_all.py` 末尾「还原 screen1 ⇒ 最终三处产物」两步的落盘为准**（届时合计应为 **1410**、`flowchart` **280**）。改布局只改 `screens/*.json` 后重跑 `工具\gen_layout.py` | ★ **二审更正（ISSUE-20260928-07）**：上面的枚举**不全** —— 还漏了 `复刻\screen_index.js`（**编辑器用**屏清单，来源 `layout/screens/_index.json`）⇒ **删屏后必须重跑 `工具\emit_asset_index.py`**。本批首版就因漏跑它，导致编辑器屏选择器为空并抛 `TypeError`（一审抓出 Critical）；已修，并已把该步纳入 `run_all.py` 作常驻闸门。
+ | 3 | **TJS2 UI 组件库 + 可运行演示** | `UI组\krkr\game\*.tjs` | 13 个 `.tjs`；**实机跑通**（`krkr.console.log` 无异常、**17 屏**全可见 —— ★ ISSUE-20260928-06 原记「15 屏」为陈旧读数；★ ISSUE-20260928-07 删 `ending` 后屏数以 `layout/screens/_index.json` 为准＝ **17 屏**） |
+ | 4 | **UI 清单（I3 契约）** | `UI组\UI清单.md` | 文件名 / 尺寸 / 九宫格或锚点 / 在 krkr 中的加载方式 / 对应原版 UI 元素，五列齐全 |
+ | 5 | **1:1 HTML 复刻** | `UI组\复刻\index.html`（+ **2 个专题页**：`flow.html`、`editor.html`） | 离线可双击；与 krkr 侧**逐屏一致**（同一份布局数据 + 同一批贴图）。★ ISSUE-20260928-06：原「+ 3 个专题页」中的 `fragment.html` **已随该屏删除**（`_selftest_states.html` 是自检页，不计入专题页） |
+@@ -87,7 +87,7 @@
+ 
+ > **本节是用户指令 5 的落点**（「必须在说明文档里详细介绍它们的用法，好让编程组能够高效运用」）。
+ > **数值唯一依据**＝`UI组/_工作/ISSUE-20260929-02_右栏大改/接口冻结.md` §B／§C（主代理 2026-09-29 冻结）。本屏由 `工具/gen_flow_layout.py` 生成（右栏这些件是该脚本内嵌的**静态元素快照**）⇒ **要改就改生成器，不要手改 JSON**。
+-> ✅ **落盘状态（2026-09-29 · E3 交付时实测：**全部到位**）**：① **素材** `krkr/assets/ui/x_ui_playwin_bg.png`（380×300 RGBA）与 `x_ui_pbkick_pause_{off,over,on}.png`（119×119 RGBA）**已在库**；② **生成器** `工具/gen_flow_layout.py` 已含本节全部元素契约（`STATIC_FLAG_EXEMPT = {"fc.pbkick","fc.pbkick_pause"}`、`flags_default = {fc_layer:"main", fc_replay:"play"}`）；③ **屏数据** `layout/screens/32_flowchart.json` **已重跑**（**280 件元素**；`fc.play_win`/`fc.play_view`/`fc.pbkick`/`fc.pbkick_pause` 已在、**12 件退场件零残留**）。**本节数值已与屏数据逐字段核对一致**，并附「生成器 ↔ 屏数据」两源一致性断言（共 **134 条断言全绿**，证据在 `_工作/ISSUE-20260929-02_右栏大改/证据/`）。**若日后屏数据再变，以屏数据为准并回报 UI 组。**
++> ✅ **落盘状态（2026-09-29 · E3 交付时实测：**全部到位**）**：① **素材** `krkr/assets/ui/x_ui_playwin_bg.png`（380×300 RGBA）与 `x_ui_pbkick_pause_{off,over,on}.png`（119×119 RGBA）**已在库**；② **生成器** `工具/gen_flow_layout.py` 已含本节全部元素契约（`STATIC_FLAG_EXEMPT = {"fc.pbkick","fc.pbkick_pause"}`、`flags_default = {fc_layer:"main", fc_replay:"play"}`）；③ **屏数据** `layout/screens/32_flowchart.json` **已重跑**（**280 件元素**；`fc.play_win`/`fc.play_view`/`fc.pbkick`/`fc.pbkick_pause` 已在、**12 件退场件零残留**）。**本节数值已与屏数据逐字段核对一致**，并附「生成器 ↔ 屏数据」两源一致性断言（共 **139 条断言全绿、PENDING 0**，证据在 `_工作/ISSUE-20260929-02_右栏大改/证据/`）。**若日后屏数据再变，以屏数据为准并回报 UI 组。** ★ **第 2 轮追加（2026-09-29 主代理裁决）**：两个多行槽的 **`max_lines` 由 5 改定为 4**（依据见 4·补.4 之 2）；**该改动 E2 第二轮已落盘** —— 实测 `工具/gen_flow_layout.py` 与 `layout/screens/32_flowchart.json` 两源**均为 4**，本节写 4、**三方一致**（`verify_e3.py` 另有 `--probe-maxlines5` 变异自证：强制成 5 时必须报出，见 `E3_verify_变异自证.txt`）。
+ > ★ **总口径（先读这条）**：UI 组本轮只交「**元素 + 几何 + 状态位 + 动作名**」。**画面时序／帧序列／音频的播放本身，以及一切运行期文字填充，均属编程组接线 —— 本批一律未生效，本文不声称任何功能已生效**（与既有 `bgm_playpause`、`replay_play:<行号>` 同口径）。
+ 
+ ### 4·补.1　右栏四段（栏底 `fc.smallmap` 一个字段未改）
+@@ -151,13 +151,14 @@
+ | 件 | 语义 | 几何 | 排版字段 | `sample`（现为占位） |
+ | --- | --- | --- | --- | --- |
+ | `fc.p_title_tx` | 章节**标题**（一行） | (1428, 546, 419×40) | `h:40`；`valign:"middle"`；`wrap:false`；`max_lines:1` | `"标题"` |
+-| `fc.p_text_tx` | 章节**说明**（多行） | (1437, 637, 398×159) | `valign:"top"`；`wrap:true`；`max_lines:5` | `"说明"` |
+-| `fc.p_message_tx` | **台词**（多行） | (1437, 830, 398×159) | `valign:"top"`；`wrap:true`；`max_lines:5` | `"台词"` |
++| `fc.p_text_tx` | 章节**说明**（多行） | (1437, 637, 398×159) | `valign:"top"`；`wrap:true`；`max_lines:4` | `"说明"` |
++| `fc.p_message_tx` | **台词**（多行） | (1437, 830, 398×159) | `valign:"top"`；`wrap:true`；`max_lines:4` | `"台词"` |
+ 
+ 1. **样式（三件一致）**：**白字（`@palette.text_primary` ＝ `#FFFFFF`）＋ 黑描边**（`outline:true` / `outline_color:"#000000"` / `outline_width:2`；`shadow:false`）；`font.size` **24**、`bold:true` **不变**。这是 **M38 既有机制**（krkr 侧八向描边 ／ HTML 侧 `text-shadow` 八向，**两端已通**），**纯渲染、不参与布局** ⇒ 描边既不挤字、也不改变折行与容量判据。
+-2. **容量依据（多行槽）**：槽净高 **159px** ÷（24px × **1.3** 行距 ＝ 31.2px）≈ **5.09** ⇒ `max_lines:5`（**冻结书口径**；行距取全局基线，元素**不写** `line_spacing`）。
+-   ⚠ **提醒：别写超过 5 行。** 超出部分按 `max_lines` **截断**（不绘第 6 行、也不打省略号），折行/行首行尾禁则走引擎自己的算法（krkr `ui_theme.tjs::uiThemeWrap`／`uiThemeLayoutText`；HTML 复刻侧按 `e.w / e.max_lines` 同判据实现，见 `复刻/replica.js`）。本批三槽**都不是滚动槽**；确需更长请缩短文案或回报 UI 组重排。
+-   ⚠ **待复核（E3 实测提醒，非冻结书内容）**：`layout/_root.json` 的全局 `fonts.line_spacing.body` 实为 **1.4**（`ui_theme.tjs` 的 `lineH = Math.floor(size × 行距)` ⇒ `floor(24 × 1.4) = 33px`）；按 33px 算，**5 行块高 165px > 槽净高 159px**（差 6px）。⇒ 填 **5 行**时请留意第 5 行是否越出槽底；**填 ≤4 行在任何口径下都安全**。以实机导出 PNG 为准。
++2. **★ 容量依据（多行槽 · 2026-09-29 主代理裁决，值＝`max_lines:4`）**：槽净高 **159px** ÷ 行盒 **33px**（＝ `floor(24 × 全局 fonts.line_spacing.body 1.4)`；依据 `krkr/game/ui_theme.tjs:237` 的 `lineH = Math.floor(size × uiThemeElementSpacing(el))`，元素级优先／否则全局见同文件 `:147`；`layout/_root.json` 的 `fonts.line_spacing.body = 1.4`）≈ **4.8** ⇒ **`max_lines:4`**。
++   - **为何是 4 而不是 5**：**4 行块高 ＝ 4 × 33 ＝ 132px ✓**（槽净高 159）；**5 行 ＝ 165px ✗**（**越出槽底 6px**）。本批第一版按「1.3 行距」推得 5.09⇒5，**该乘数错了**；主代理已亲自复核两端并**定论为 4**。
++   - **不加元素级 `line_spacing`**：三槽一律**沿用全局基线 1.4**（`_root.json` 不改，元素**不写** `line_spacing`）。
++   ⚠ **提醒：别写超过 4 行。** 超出部分按 `max_lines` **截断**（不绘第 5 行、也不打省略号），折行/行首行尾禁则走引擎自己的算法（krkr `ui_theme.tjs::uiThemeWrap`／`uiThemeLayoutText`；HTML 复刻侧按 `e.w / e.max_lines` 同判据实现，见 `复刻/replica.js`）。本批三槽**都不是滚动槽**；确需更长请缩短文案或回报 UI 组重排。
+ 3. **运行期怎么填**（与 `dlg.name` / `dlg.text` 同一契约）：
+    - **krkr 侧**：文本来源＝`ctx.textOverride[<元素id>]`（有则优先），否则取元素 `sample`（`krkr/game/ui_widget.tjs::uiWidgetDrawText` → `ui_theme.tjs::uiThemeLayoutText`）。ctx 在 `krkr/game/ui_screens.tjs:1906` 建；既有用法见 `krkr/game/ui_dialog.tjs:283/291/312`（说话人、正文、状态标签）—— **照这套填 `fc.p_*_tx` 即可**。
+    - **HTML 复刻侧**：直接取 `e.sample`（`复刻/replica.js:3051`）⇒ 要在 HTML 侧看到真实文案，改数据里的 `sample`（或按同一 override 思路补）。
+@@ -181,7 +182,7 @@
+ ### 4·补.6　载入屏（`loading`）：`ld.bg` 已删除
+ 
+ - `layout/screens/22_loading.json` 的**满幅底元素 `ld.bg` 已删除**（用户指令 6）；该屏由 **3 件 → 2 件**：`ld.dim`（满幅压暗 rect，`@palette.backdrop` `#000000` ×100）与 `ld.text`（引擎绘「载入中…」，白字 + 蓝描边）—— **这两件一个字段都没改**（`ld.bg` 删前 z=0，删后 `ld.dim` z=1 成为本屏最底层；该屏实际下衬什么由你们的屏栈决定，UI 组未改机制）。
+-- **素材 `ui/x_ui_backlog_bg.png` 保留不删**（1916×1080，md5 `5d05e6e90ce7b5080b7f040b3571a42f`）。★ **勘误**：原记「该素材仍被 `26_backlog` 引用、删文件即断链」**不成立** —— `26_backlog` 自 PSV 换皮（`ISSUE-20260926-06` · B 组）起底图已改引 `ui/x_ui_psv_backlog_bg.png`；删 `ld.bg` 后 `x_ui_backlog_bg.png` 在**全 17 屏屏数据中零元素引用**（仅 `复刻/asset_index.js` 素材清单仍列出它）。
++- **素材 `ui/x_ui_backlog_bg.png` 保留不删**（1916×1080，md5 `5d05e6e90ce7b5080b7f040b3571a42f`）—— **保留依据＝工程口径「旧素材一件不删」**（2026-09-29 主代理裁决追认），**不是**「共用链」。★ **勘误**：原记「该素材仍被 `26_backlog` 引用、删文件即断链」**不成立** —— `26_backlog` 自 PSV 换皮（`ISSUE-20260926-06` · B 组）起底图已改引 `ui/x_ui_psv_backlog_bg.png`；删 `ld.bg` 后 `x_ui_backlog_bg.png` 在**全 17 屏屏数据中零元素引用**（仅 `复刻/asset_index.js` 素材清单仍列出它）。冻结书 §C 的理由句已由主代理就地改为口径式表述。
+ - ⇒ 若你们的 loading 呈现需要“压死背景”，请在屏栈／过渡里处理，**不要回加满幅底图**（那是用户明确要求删除的）。
+ 
+ ---
+--- a/流程图系统_版式规范.md
++++ b/流程图系统_版式规范.md
+@@ -34,8 +34,8 @@
+ | ② | §1.1「场景回放窗 `シーン再生` 426×241 @1422,493 ｜ 回放键 119×119 @1576,555 ｜ 我方 **无**」 | **改由新的「大播放窗」承担**：底板 `fc.play_win` **(1448,214,380×300)**（素材 `ui/x_ui_playwin_bg.png`，**1:1 无 `nine`**）＋ 画面层 `fc.play_view` **(1454,220,368×288)**（`asset:null` ＋ `dynamic:"flow_scene_frames"`，运行期由编程组填该章节的游戏内画面）；**回放键改位到窗中** `(1578,304)`，并**新增同位置、互斥显示的暂停键** `fc.pbkick_pause`（同几何、同三态口径）。★ 参照作的 426×241 底板件 `ui/x_ui_replay_panel.png` **元素退场（素材保留不删）** | 冻结 §B.2／§B.3 |
+ | ③ | §三 R7「回放窗的几何一律照 §1.1」 | 「回放窗」**改指 §1.1 的新行**（大播放窗 380×300，居中于栏宽 443 ⇒ 左留 32／右留 31）；**回放键不再是回放窗的附属件，而是新四段中①段内的控件**（同位置互斥由屏级 flag `fc_replay` 决定，热区动作 `flow_replay_toggle`（拟用名）） | 冻结 §B.3／§B.4／§B.5 |
+ | ④ | §1.6「文字」与 §三 R4 的**节点标签**口径 | **右栏三槽**（`fc.p_title_tx`／`fc.p_text_tx`／`fc.p_message_tx`）改为 **白字 `@palette.text_primary` ＋ 黑描边**（`outline:true`／`outline_color:"#000000"`／`outline_width:2`）—— 这是 **M38 的元素级描边机制**，**纯渲染、不参与布局**，与 §1.6／R4 的字号与行距判据**互不影响**（节点标签口径**未变**） | 冻结 §B.3 |
+-| ⑤ | §1.1「迷你地图区」同行的栏内竖向内容 | 右栏改为**自上而下四段**：① 大播放窗(214–514) → ② 标题(536–609) → ③ 说明(631–802) → ④ 台词(824–995)；栏内上/下边距各 24、**段间 22** ⇒ 四段＋边距**恰排满 829**。多行槽 `max_lines:5`（容量依据与待复核注见 `UI组\UI组交接编程组.md` §四·补 4·补.4） | 冻结 §B.3／§B.4 |
+-| ⑥ | —（本文件原未涉及载入屏，登记备查） | **载入屏**（`layout\screens\22_loading.json`）**删除满幅底元素 `ld.bg`**（素材 `ui/x_ui_backlog_bg.png` 保留不删）；该屏 **3 件 → 2 件**（余 `ld.dim`／`ld.text`，两件零改动）。★ 勘误：原记「该素材仍被 `26_backlog` 引用」**不成立**——`26_backlog` 底图已改引 `ui/x_ui_psv_backlog_bg.png` | 冻结 §C |
++| ⑤ | §1.1「迷你地图区」同行的栏内竖向内容 | 右栏改为**自上而下四段**：① 大播放窗(214–514) → ② 标题(536–609) → ③ 说明(631–802) → ④ 台词(824–995)；栏内上/下边距各 24、**段间 22** ⇒ 四段＋边距**恰排满 829**。多行槽 **`max_lines:4`**（★ **2026-09-29 主代理裁决**：全局 `fonts.line_spacing.body = 1.4` ⇒ 行盒 `floor(24×1.4)=33px`；**4 行 = 132px ✓** ／ **5 行 = 165px 越槽底 6px ✗** —— 容量依据见 `UI组\UI组交接编程组.md` §四·补 4·补.4） | 冻结 §B.3／§B.4 ＋ 2026-09-29 裁决 |
++| ⑥ | —（本文件原未涉及载入屏，登记备查） | **载入屏**（`layout\screens\22_loading.json`）**删除满幅底元素 `ld.bg`**（素材 `ui/x_ui_backlog_bg.png` **保留不删，依据＝工程口径「旧素材一件不删」**）；该屏 **3 件 → 2 件**（余 `ld.dim`／`ld.text`，两件零改动）。★ 勘误：原记「该素材仍被 `26_backlog` 引用」**不成立**——`26_backlog` 底图已改引 `ui/x_ui_psv_backlog_bg.png`（冻结书 §C 该理由句已由主代理改为口径式表述） | 冻结 §C ＋ 2026-09-29 裁决 |
+ 
+ ---
+ 
+--- a/_工作/ISSUE-20260929-02_右栏大改/证据/verify_e3.py
++++ b/(证据)/verify_e3.py
+@@ -34,8 +34,17 @@
+ ASSETS = os.path.join(UI, "krkr", "assets", "ui")
+ 
+ fails: list[str] = []
++pend: list[str] = []          # 「已知未落盘」中间态：既不是 PASS 也不判 FAIL，但**必然打印**
+ oks = 0
+ 
++# ★ 2026-09-29 主代理裁决：两个多行槽 `max_lines` 由 5 改 **4**
++#   （全局 `fonts.line_spacing.body = 1.4` ⇒ 行盒 floor(24×1.4)=33px；4 行 132 ✓ / 5 行 165 ✗ 越槽底 6px）
++DOC_MAXLINES = 4
++
++# ★ 变异自证开关（负向对照）：`--probe-maxlines5` 把 `fc.p_text_tx` 的实测值**强制当 5**，
++#   用于证明「PENDING 分支真的会报出」，而不是一句永不触发的空话。
++PROBE5 = "--probe-maxlines5" in sys.argv
++
+ GEOM = ("x", "y", "w", "h", "z")
+ 
+ # E3 文档里写死的元素契约（id → x,y,w,h,z + 关键字段）——**必须与生成器逐字一致**
+@@ -147,6 +156,11 @@
+     scr_el, scr_obj = screen_elements()
+     landed = "fc.play_win" in scr_el
+     print("  （屏数据落盘状态：%s；元素 %d 件）" % ("**已落盘**" if landed else "尚未重跑", len(scr_obj["elements"])))
++    if landed and len(scr_obj["elements"]) != 280:
++        print("  （注：**交付样例 `screen1` 应为 280 件**；当前 %d ≠ 280 ⇒ 屏文件处于**预设态**"
++              "〔`screen2` 124 / `ref150` 103 / `states` 117 / `frag` 136〕—— 右栏四段是**各预设共用的舞台**"
++              "⇒ 本节的元素断言仍成立；但**三处产物若在此刻落盘会固化该预设**，须以「默认 screen1 ⇒ gen_layout」"
++              "的最后一次落盘为准）" % len(scr_obj["elements"]))
+     docA = io.open(DOC_A, encoding="utf-8").read()
+     docB = io.open(DOC_B, encoding="utf-8").read()
+ 
+@@ -183,10 +197,10 @@
+ 
+     P = scr_el if landed else st      # 主源：屏数据落盘后以屏数据为准
+ 
+-    # 三个文字槽的字体/排版字段
+-    for eid, valign, wrap, maxl in (("fc.p_title_tx", "middle", False, 1),
+-                                    ("fc.p_text_tx", "top", True, 5),
+-                                    ("fc.p_message_tx", "top", True, 5)):
++    # 三个文字槽的字体/排版字段（max_lines 单列处理：见下方 PENDING 逻辑）
++    for eid, valign, wrap in (("fc.p_title_tx", "middle", False),
++                              ("fc.p_text_tx", "top", True),
++                              ("fc.p_message_tx", "top", True)):
+         e = P[eid]
+         f = e["font"]
+         check(f["color"] == "@palette.text_primary", "`%s` 字色 = @palette.text_primary（白字）" % eid)
+@@ -194,8 +208,8 @@
+               and f.get("outline_width") == 2 and f.get("shadow") is False,
+               "`%s` 描边 = outline:true / #000000 / 2px / shadow:false" % eid)
+         check(f["size"] == 24 and f["bold"] is True, "`%s` 字号 24 / bold 保持" % eid)
+-        check(e["valign"] == valign and e["wrap"] is wrap and e["max_lines"] == maxl,
+-              "`%s` valign/wrap/max_lines = %s/%s/%d" % (eid, valign, wrap, maxl))
++        check(e["valign"] == valign and e["wrap"] is wrap,
++              "`%s` valign/wrap = %s/%s" % (eid, valign, wrap))
+ 
+     # 播放/暂停键
+     pb, ps = P["fc.pbkick"], P["fc.pbkick_pause"]
+@@ -214,6 +228,27 @@
+     check(P["fc.pbkick_hit"].get("action") == "flow_replay_toggle",
+           "`fc.pbkick_hit` action = flow_replay_toggle")
+ 
++    # ── 多行槽 max_lines：文档＝裁决值 4；数据若仍为 5 ⇒ PENDING（E2 尚未落盘），不判 FAIL ──
++    print("  （`max_lines` 裁决值 = %d：全局行距 1.4 ⇒ 行盒 33px；4 行 132px ✓ / 5 行 165px ✗）" % DOC_MAXLINES)
++    for eid in ("fc.p_text_tx", "fc.p_message_tx"):
++        got = P[eid].get("max_lines")
++        if PROBE5 and eid == "fc.p_text_tx":
++            got = 5              # ← 变异注入（负向对照）
++        if got == DOC_MAXLINES:
++            check(True, "`%s` max_lines = %d（＝裁决值／文档值）" % (eid, DOC_MAXLINES))
++        elif got == 5:
++            msg = ("`%s` max_lines 数据仍为 5（文档＝裁决值 4）⇒ **E2 尚未落盘**；"
++                   "落盘后本项应自动转 PASS" % eid)
++            pend.append(msg)
++            print("  PEND  " + msg)
++        else:
++            check(False, "`%s` max_lines = %r（既非裁决值 4、也非旧值 5）" % (eid, got))
++    check(docA.count("max_lines:4") >= 2, "文档（编程组交接 §四·补.4）两处均为 `max_lines:4`")
++    check("max_lines:4" in docB, "版式规范 §〇.2 ⑤ 已订正为 `max_lines:4`")
++    _seg = docA.split("### 4·补.4")[1].split("###")[0] if "### 4·补.4" in docA else ""
++    check("33px" in _seg and "× **1.3** 行距 ＝ 31.2px" not in _seg,
++          "文档 4·补.4 的容量依据已改为「行盒 33px（全局 1.4）」、**旧式「× 1.3 行距 ＝ 31.2px」已删**")
++
+     # 屏级 flag 初值（生成器常量）
+     check(re.search(r'REPLAY_FLAG\s*=\s*"fc_replay"', src) is not None,
+           "生成器 REPLAY_FLAG = \"fc_replay\"")
+@@ -286,11 +321,18 @@
+                 "flow_replay_toggle", "x_ui_playwin_bg.png"):
+         check(tok in docB, "版式规范含 `%s`" % tok)
+ 
++    if PROBE5:
++        check(len(pend) >= 1, "★ 变异自证（负向对照）：强制 max_lines=5 ⇒ PENDING 必须报出")
++
+     print("\n" + "=" * 78)
+-    print("PASS %d ｜ FAIL %d" % (oks, len(fails)))
++    print("PASS %d ｜ PENDING %d ｜ FAIL %d" % (oks, len(pend), len(fails)))
++    for m in pend:
++        print("  ⏳ PENDING  " + m)
+     for m in fails:
+         print("  ✗ " + m)
+     print("结果：**%s**" % ("全部通过" if not fails else "不通过"))
++    if pend:
++        print("（PENDING ＝ 已知「E2 第二轮尚未落盘」的中间态，不计 FAIL；落盘后复跑应变 PASS）")
+     print("=" * 78)
+     return 1 if fails else 0
+ 
+--- a/_工作/ISSUE-20260929-02_右栏大改/证据/E3_自检报告.md
++++ b/(证据)/E3_自检报告.md
+@@ -4,16 +4,18 @@
+ > 范围＝派单的 **任务 1（载入屏删 `ld.bg`）＋ 任务 2（`UI组交接编程组.md` 新增右栏章节详情）＋ 任务 3（`流程图系统_版式规范.md` 同步）**
+ > ⚠ **文件名说明**：同目录 `自检报告.md` 是**模块 E2（生成器）**的（其抬头自述），本文件是 **E3** 的；两者不覆盖，便于主代理分别留档。
+ >
+-> **本目录 E3 交付物**：本文件 ｜ `ld_bg_引用排查.tsv` ｜ `文档改动_diff.patch`（7 文件 / 280 行）｜ `verify_e3.py`（可重跑自检）｜ `E3_verify_output.txt`（**134 PASS / 0 FAIL**）｜ `E3_gate_verify_ui.txt` / `E3_gate_test_gen_sync.txt` / `E3_gate_test_screen_index_sync.txt`（闸门原始输出）
++> **本目录 E3 交付物**：本文件 ｜ `ld_bg_引用排查.tsv` ｜ `文档改动_diff.patch`（第 1 轮）｜ **`文档改动_diff_02.patch`（第 2 轮增量）** ｜ `文档改动_diff_cumulative.patch`（累计 vs HEAD）｜ `verify_e3.py`（可重跑自检）｜ `E3_verify_output.txt`（**139 PASS / 0 PENDING / 0 FAIL**）｜ `E3_verify_变异自证.txt`（负向对照）｜ `E3_gate_*.txt`（闸门原始输出）｜ `_round1_snapshot/`（第 1 轮状态快照，第 2 轮增量的 diff 基线）
++>
++> **第 2 轮（2026-09-29 主代理裁决落地）**：① `max_lines` 5 → **4**（文档改、E2 已落盘数据、checker 加 `PENDING` 中间态判据 ＋ 变异自证）；② 暂停键 id 裁决 `fc.pbkick_pause`（文档无需改）；③ `26_backlog` 勘误改为口径式表述；④ **§一 表 2 元素总数重钉 1420 → 1410**；⑤ 冻结书 §B.2/§C 笔误由主代理订正。
+ 
+ ---
+ 
+ ## 〇、一句话结论
+ 
+ 三件任务**全部完成**。`layout/screens/22_loading.json` 的 `ld.bg` 已删除（余 2 件与 HEAD **逐字段完全相同**）；`UI组交接编程组.md` 新增 §四·补（103 行，覆盖用户指令 5 的全部要求）；`流程图系统_版式规范.md` 就地订正 7 处。
+-**文档里出现的每一个元素 id / 动作名 / flag 名 / 素材文件名 / 几何数字，已与「屏数据 `32_flowchart.json`（E2 已落盘，280 件）＋ 生成器静态快照」两源逐字段核对一致**（`verify_e3.py` 134 条断言全绿）。
++**文档里出现的每一个元素 id / 动作名 / flag 名 / 素材文件名 / 几何数字，已与「屏数据 `32_flowchart.json`（E2 已落盘，280 件）＋ 生成器静态快照」两源逐字段核对一致**（`verify_e3.py` **139 条断言全绿、PENDING 0**；含 `max_lines = 4` 的裁决值核对与**变异自证**）。
+ 三层闸门（`verify_ui` / `test_gen_sync` / `test_screen_index_sync`）**退出码均 0**。
+-需主代理裁决 3 项、建议关注 4 项（§六）。
++第 2 轮已按裁决落地 5 项（见文件头）；**仍待主代理处置 2 项**（§六 的 4 与 8）。
+ 
+ ---
+ 
+@@ -128,7 +130,7 @@
+ | 退场 12 件（`fc.mini1..8`/`fc.mapview`/`fc.pbk_panel`/`fc.p_player`/`fc.p_player_tx`） | **零残留** | **零残留** | §B.1 同 | ✓ |
+ | 退场素材保留（`x_ui_replay_panel.png` 等） | 文件在库 | — | §E 同 | ✓ |
+ | 载入屏 `ld.bg` 已删；3→2 件；素材保留 | 实测 2 件；与 HEAD 逐字段比对通过 | — | §C 同（**理由句勘误**见 §1.4） | ✓（动作）/ **理由句勘误** |
+-| `max_lines:5` 容量依据「24px × **1.3** 行距 = 31.2 ⇒ 159/31.2≈5.09」 | 数据值 `max_lines:5` 同；**但全局 `fonts.line_spacing.body` 实测 = 1.4** ⇒ `floor(24×1.4)=33`，5 行块高 **165 > 159（差 6px）** | 同 | 冻结书/派单均写 1.3 | 数据值 ✓／**推导乘数有疑**（§六.2） |
++| `max_lines`（两个多行槽） | **4**（实测，E2 第二轮已落盘） | **4**（同） | 冻结书原写 5 ⇒ **2026-09-29 主代理裁决改 4** | ✓ **已定论**（推导与勘误见下） |
+ | 新增素材 `ui/x_ui_playwin_bg.png`（380×300 RGBA）、`ui/x_ui_pbkick_pause_{off,over,on}.png`（119×119 RGBA） | **已在库**，尺寸/模式断言全 PASS | — | §A 同 | ✓ |
+ 
+ ---
+@@ -149,20 +151,50 @@
+ 
+ ---
+ 
++## 五·补、屏数与元素总数逐屏明细（2026-09-29 重钉，供 `UI组交接编程组.md` §一 表 2 复核）
++
++**计法**：对 `layout/screens/_index.json` 列出的 **17 屏** 逐屏 `len(elements)` 求和；`工具/gen_layout.py` 对该列表**原样透传**（只在元素缺 `z` 时补号、不改件数）⇒ 主代理重跑产物后 `layout/ui_layout.json` 的合计应**同为 1410**。
++
++| 屏文件 | id | 元素 |
++| --- | --- | ---: |
++| `01_title.json` | title | 18 |
++| `10_dialog.json` | dialog | 10 |
++| `21_confirm.json` | confirm | 53 |
++| `22_loading.json` | loading | **2**（本批 3→2） |
++| `23_save.json` | save | 165 |
++| `24_load.json` | load | 165 |
++| `25_config.json` | config | 470 |
++| `26_backlog.json` | backlog | 11 |
++| `27_gallery.json` | gallery | 17 |
++| `28_music.json` | music | 27 |
++| `32_flowchart.json` | flowchart | **280**（本批 289→280） |
++| `33_sysicons.json` | sysicons | 20 |
++| `35_quickbar.json` | quickbar | 49 |
++| `36_choices.json` | choices | 1 |
++| `37_dress.json` | dress | 94 |
++| `38_replay.json` | replay | 11 |
++| `39_gal_shell.json` | gal_shell | 17 |
++| **合计** | **17 屏** | **1410** |
++
++**与上一记（1420）的差额对数**：`flowchart` −9（删 12 件 ＋ 加 3 件）＋ `loading` −1 ＝ **−10** ⇒ 1420 − 10 = **1410** ✓（**逐屏无其他差异**）。
++**★ 三处产物的落盘状态（2026-09-29 · E3 末次实测）**：产物**已重跑过，但此刻抓的是 `frag` 预设态** —— 实测 `layout/ui_layout.json`：`flowchart` = **136** 件（与 `_schema.md` 金标表 `frag` = 136 一致）、`loading` = `['ld.dim','ld.text']`（✓ 正确、不随预设变）、合计 **1266**。
++**⇒ 这是 `run_all.py` 跑预设的中间产物，不是交付样例态**；**必须以 `run_all.py` 末尾「还原 screen1 ⇒ 最终三处产物」两步的落盘为准**（届时应为 `flowchart` **280** / 合计 **1410**）。
++⚠ **风险提示（可复现的坑）**：`gen_flow_layout.py` 的预设与 `gen_layout.py` 的落盘**是两条独立命令** —— 任何人在**非 screen1 预设**的中间态调一次 `gen_layout.py`，`layout/ui_layout.json`、`krkr/game/ui_layout.tjs`、`复刻/ui_layout.js`（以及 HTML 自检/编辑器所读的数据）就会**静默固化成一个演示档**，而现有闸门**不会**发现（`verify_ui [3]` 只做三产物互比）。建议合并前确认最后一次跑的是「默认（screen1）⇒ gen_layout」。
++
++---
++
+ ## 六、未决问题 / 需主代理裁决
+ 
+-1. **【裁决】接口冻结书内部矛盾 · 暂停键 id**：`接口冻结.md:54`（§B.2 表）＝**`fc.play_btn_pause`**，而 `:106`（§B.6 豁免集）＝**`fc.pbkick_pause`**。
+-   **实测裁定依据**：生成器与屏数据**都用 `fc.pbkick_pause`**（生成器 14 处；`STATIC_FLAG_EXEMPT` 在 `工具/gen_flow_layout.py:365`；屏数据亦在）。本批文档取 **`fc.pbkick_pause`**。
+-   **请主代理订正冻结书 §B.2 那一格** —— 若照 §B.2 实现，豁免集不命中 ⇒ 生成器「外壳件不得带 `vis_flag`」自检会把它判为违规。
+-2. **【裁决】`max_lines:5` 的行距依据**：冻结书与派单按 **1.3** 推导；实测全局 `fonts.line_spacing.body = 1.4`（`layout/_root.json`）⇒ 行盒 33px、**5 行 165px 比槽净高 159 多 6px**。**数据值未改**（与冻结书一致）；建议在落盘后跑一次该槽的实机/HTML 导出目视，或收紧到 `max_lines:4`（≤4 行在两种口径下都安全）。已在 `UI组交接编程组.md` §四·补 4·补.4 写明（标「E3 实测提醒，非冻结书内容」）。
+-3. **【裁决】冻结书 §C 理由句勘误**：见 §1.4（`26_backlog` 不引用该素材）。建议改成依「旧素材一件不删」。
+-4. **【建议】`layout/screens/_index.json` 的 `loading.required`** 仍是旧文案「居中提示图 320×120 / 全屏遮罩」（**早于本批**即已过时：现为引擎绘字 + `ld.dim`）。归属＝**主代理维护**，未改；建议合并前顺手订正。
+-5. **【建议】`UI组交接编程组.md` §一 表 2 的元素总数**（现记 `17 屏 / 1420 元素`，`ISSUE-20260928-07` 实测值）会因本批变动（右栏 −12 ＋新 3，载入屏 −1）。**该行未改**（属 §一 既有表述，且数字须以 E2 最终屏数据为准）。
+-6. **【建议】两处跨模块注释改动**（均只动注释、不影响运行，请确认可接受）：
+-   - `krkr/game/ui_flow.tjs:478-484`（+7 行）：原文列举详情面板四槽含**本批已删的** `fc.p_player_tx` ⇒ 改为三槽并注明新旧对照出处。
+-   - `_工作/ISSUE-20260926-06_A基础组三屏换皮/复现脚本/psv_build_abasic_screens.py:115-120`（+6 行）：加**不得重跑**警示（`py_compile` 通过）。
++> ★ **2026-09-29 主代理裁决（第 2 轮）已下达，以下 1／2／3 均已裁决并落地，5 已由 E3 按裁决重钉**；仍待处置的只剩 4 与 8（均已明确归主代理）。逐条现状见各行前的 `【已裁决】/【已落地】/【仍待】` 标记。
++
++1. **【已裁决 · 已落地】暂停键 id ＝ `fc.pbkick_pause`**（我倾向被采纳）。冻结书 §B.2 与 §C 两处笔误已由主代理**就地订正**；本文档不用改（原本就写 `fc.pbkick_pause`，与生成器/屏数据一致）。
++2. **【已裁决 · 已落地】`max_lines` 由 5 改 4**：主代理亲自复核两端（`ui_theme.tjs:237` ＋ `:147` ＋ `layout/_root.json` 的 `line_spacing.body = 1.4` ⇒ 行盒 `floor(24×1.4)=33px`；**4 行 132 ✓ / 5 行 165 ✗ 越底 6px**），**不加**元素级 `line_spacing`。**E2 第二轮已落盘**（实测生成器 `:1053`/`:1093` 与屏数据 `fc.p_text_tx`/`fc.p_message_tx` **均为 4**）；本文档 4·补.4 的表格、容量依据段、「别写超过 4 行」提醒**已全部改写为 4 行口径**，原「待复核（1.4 ⇒ 5 行越界）」块**已删除并改写为已定论结论**；版式规范 §〇.2 ⑤ 同步。
++3. **【已裁决 · 已落地】`26_backlog` 勘误采纳**：冻结书 §C 理由句已由主代理按「**旧素材一件不删的工程口径**」重写；本文档 4·补.6、版式规范 §〇.2 ⑥ 已改为**口径式表述**（明写「保留依据＝工程口径，不是共用链」）。
++4. **【仍待 · 归主代理】** `layout/screens/_index.json` 的 `loading.required` 旧文案「居中提示图 320×120 / 全屏遮罩」（**早于本批**即已过时：现为 `ld.text` 引擎绘字 ＋ `ld.dim`）—— 主代理由本轮处置，我未动该文件。
++5. **【已落地】`UI组交接编程组.md` §一 表 2 元素总数已重钉**：`17 屏 / 1420 元素` → **`17 屏 / 1410 元素`**（逐屏明细与差额对数见本报告 §五·补）。**计法**＝对 `_index.json` 的 17 屏逐屏 `len(elements)` 求和；`gen_layout.py` 原样透传 ⇒ 主代理重跑产物后 `layout/ui_layout.json` 应同为 1410（届时可复核；此刻产物仍是改前态 1420）。
++6. **【已确认 · 保留】两处跨模块注释改动**（均只动注释、不影响运行）：`krkr/game/ui_flow.tjs:478-484`（+7 行）、`_工作/ISSUE-20260926-06_A基础组三屏换皮/复现脚本/psv_build_abasic_screens.py:115-120`（+6 行，`py_compile` 通过）。
+ 7. **【登记】历史中间产物里的 `ld.bg` 记录未改**：`_工作/M34_资产引用矩阵.tsv`、各 `_工作/*/证据/*` 快照与闸门日志、两份 `会话交接_*` 快照 —— 按「历史只增不改」未动；现状以 `ld_bg_引用排查.tsv` 为准。
+-8. **★★【必须补】`layout/_schema.md` 尚未登记本批右栏契约，且仍把已删元素写成现状**（该文件**禁我改**，归 E2／主代理；冻结书 §B.5 明写「须写进 `layout\_schema.md` §六 动作表」）：
++8. **【仍待 · 归主代理】** `layout/_schema.md` 尚未登记本批右栏契约、且仍把已删元素写成现状（该文件**禁我改**；冻结书 §B.5 明写「须写进 `layout\_schema.md` §六 动作表」）：
+    - **缺登记**：`flow_replay_toggle`（动作）、`fc_replay`（屏级 flag）、`fc.play_win` / `fc.play_view` / `fc.pbkick_pause`（元素）、`flow_scene_frames`（dynamic）—— 实测 `grep -n "flow_replay_toggle\|fc_replay\|pbkick_pause\|fc.play_win\|flow_scene_frames" layout/_schema.md` → **0 命中**。
+    - **反成旧态**：`_schema.md:441`（§元素表 `fc.pbk_panel` 行）与 `:456`（素材表行）仍把 **`fc.pbk_panel` 当现存元素**描述（本批已删）——与屏数据矛盾。
+    - E2 本批在 `_schema.md` 里改的是**金标 md5 表**（§七 前五行：`screen1` 289→**280** 元素、外壳 61→**52**、五个预设 md5 全部重钉）—— 与实测 `32_flowchart.json` **280 件**一致 ✓；**但 §六 与 §元素表的契约条目还没跟上**，建议合并前补齐（否则编程组按 `_schema.md` 接线会踩到不存在的 `fc.pbk_panel`）。
+@@ -175,8 +207,12 @@
+ export PYTHONPATH="E:/ZCode Workspace/Galgame/工具/pylibs"
+ cd "工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组"
+ 
+-python "_工作/ISSUE-20260929-02_右栏大改/证据/verify_e3.py"      # 期望 PASS 134 ｜ FAIL 0
+-git -c core.quotepath=false diff -- <E3 的 7 个文件>              # 对照 证据/文档改动_diff.patch
++python "_工作/ISSUE-20260929-02_右栏大改/证据/verify_e3.py"      # 期望 PASS 139 ｜ PENDING 0 ｜ FAIL 0
++python "_工作/ISSUE-20260929-02_右栏大改/证据/verify_e3.py" --probe-maxlines5
++                                                                 # 负向对照：期望 PENDING 1、且「变异自证」PASS
++git -c core.quotepath=false diff -- <E3 的 7 个文件>              # 对照 证据/文档改动_diff.patch（累计）
++diff -u "_工作/ISSUE-20260929-02_右栏大改/证据/_round1_snapshot/UI组交接编程组.md" "UI组交接编程组.md"
++                                                                 # 对照 证据/文档改动_diff_02.patch（第 2 轮增量）
+ 
+ # 合并前必跑（三处产物此刻仍是改前态；闸门查不出漏跑，见 §五 盲区）
+ python 工具/gen_flow_layout.py && python 工具/gen_layout.py

@@ -1,0 +1,334 @@
+// ============================================================================
+//  ISSUE-20260927-03  Module J  -  layerExDraw.dll feasibility POC
+//  Isolated minimal krkr app. Engine: krkrz 1.4.0.8 (tvpwin32.exe, 32bit).
+//
+//  Log output is ASCII-only (non-ASCII scrubbed) because the engine console
+//  stream mangles / drops mixed-encoding lines. The whole report is ALSO
+//  emitted as ONE single Debug.message block ("POC-REPORT-BEGIN").
+//
+//  API form confirmed from the plugin manual (readme/manual.tjs):
+//      app.addPen(colorOrBrush, widthOrOption, ox, oy)
+//        colorOrBrush : ARGB int   OR brush dictionary
+//        widthOrOption: number     OR pen option dictionary
+//  -> the COLOR goes in arg1, the OPTION DICT in arg2. (arg1-embedded dict was
+//     an earlier mistake; only plain arg2 numbers worked.)
+// ============================================================================
+
+var W = 640;
+var H = 480;
+
+var LOGDIR = "";
+try { LOGDIR = "" + Debug.logLocation; } catch(e) { LOGDIR = ""; }
+
+var ASCII_OK = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
+function esc(s)
+{
+	s = "" + s;
+	try { return s.replace(/[^\x20-\x7e]/g, "~"); }
+	catch(e)
+	{
+		var o = "";
+		for(var i = 0; i < s.length; i++)
+		{
+			var ch = s.charAt(i);
+			o += (ASCII_OK.indexOf(ch) >= 0) ? ch : "~";
+		}
+		return o;
+	}
+}
+
+function p(s) { Debug.message("[POC] " + esc(s)); }
+
+function fmtRect(r)
+{
+	if(r === void || r === null) return "(void)";
+	if(typeof r == "number") return "(number " + r + ")";
+	var s = "";
+	try { s = "left=" + r.left + " top=" + r.top + " w=" + r.width + " h=" + r.height; }
+	catch(e) { s = "(no-rect-object: " + e.message + ")"; }
+	return s;
+}
+
+function fmtErr(e)
+{
+	try { return "" + e.message; } catch(e2) { return "(no message)"; }
+}
+
+function hasLayerMethod(n)
+{
+	try
+	{
+		var v = Layer[n];
+		if(v === void) return "no(void)";
+		return "yes(" + (typeof v) + ")";
+	}
+	catch(e) { return "no(" + fmtErr(e) + ")"; }
+}
+
+var win;
+var primLayer;
+var stageLayer;   // with opaque backdrop
+var alphaLayer;   // NO backdrop -> for alpha preservation check
+var RESULTS = [];
+var PNG_OK = 0;
+var PNG_FAIL = 0;
+var LINK_OK = false;
+
+function esc2(name) { return esc(LOGDIR + name); }
+
+function exportPng(layer, name)
+{
+	try
+	{
+		var bmp = new Bitmap();
+		layer.copyToBitmapFromMainImage(bmp);
+		bmp.save(LOGDIR + name, "png");
+		PNG_OK++;
+		RESULTS.push("[5] exportPng OK   " + esc2(name));
+		return true;
+	}
+	catch(e)
+	{
+		PNG_FAIL++;
+		RESULTS.push("[5] exportPng FAIL " + esc(name) + " : " + fmtErr(e));
+		return false;
+	}
+}
+
+function main()
+{
+	RESULTS.push("[0] logLocation = " + esc(LOGDIR));
+	try { RESULTS.push("[0] dataPath    = " + esc("" + System.dataPath)); } catch(e) { }
+
+	// ---------------------------------------------------------------- 1) link
+	try
+	{
+		Plugins.link("layerExDraw.dll");
+		LINK_OK = true;
+		RESULTS.push("[1] Plugins.link(layerExDraw.dll)  OK");
+	}
+	catch(e) { RESULTS.push("[1] Plugins.link FAILED : " + fmtErr(e)); }
+
+	RESULTS.push("[2] Layer.drawLine     = " + hasLayerMethod("drawLine"));
+	RESULTS.push("[2] Layer.drawLines    = " + hasLayerMethod("drawLines"));
+	RESULTS.push("[2] Layer.drawPolygon  = " + hasLayerMethod("drawPolygon"));
+	RESULTS.push("[2] Layer.drawPath     = " + hasLayerMethod("drawPath"));
+	RESULTS.push("[2] Layer.drawString   = " + hasLayerMethod("drawString"));
+	RESULTS.push("[2] Layer.clear        = " + hasLayerMethod("clear"));
+	RESULTS.push("[2] Layer.setTransform = " + hasLayerMethod("setTransform"));
+	RESULTS.push("[2] Layer.drawText     = " + hasLayerMethod("drawText"));
+
+	var gp = (typeof GdiPlus == "void") ? "no" : "yes";
+	RESULTS.push("[2] GdiPlus ns = " + gp);
+	if(gp == "yes")
+	{
+		RESULTS.push("[2] GdiPlus values LineJoinRound=" + GdiPlus.LineJoinRound
+			+ " LineCapRound=" + GdiPlus.LineCapRound
+			+ " LineCapTriangle=" + GdiPlus.LineCapTriangle
+			+ " SmoothingModeAntiAlias=" + GdiPlus.SmoothingModeAntiAlias);
+		RESULTS.push("[2] GdiPlus.Appearance = " + ((typeof GdiPlus.Appearance == "void") ? "no" : "yes"));
+	}
+
+	if(!LINK_OK) { RESULTS.push("!!! plugin not loaded, abort drawing"); return; }
+
+	// --------------------------------------------------------- 2) window / layers
+	win = new Window();
+	win.add(primLayer = new Layer(win, null));
+	primLayer.setImageSize(W, H);
+	win.setInnerSize(W, H);
+
+	win.add(stageLayer = new Layer(win, primLayer));
+	stageLayer.left = 0; stageLayer.top = 0;
+	stageLayer.setImageSize(W, H);
+	stageLayer.setSizeToImageSize();
+	stageLayer.type = ltAlpha;
+	stageLayer.visible = true;
+
+	win.add(alphaLayer = new Layer(win, primLayer));
+	alphaLayer.left = 0; alphaLayer.top = 0;
+	alphaLayer.setImageSize(W, H);
+	alphaLayer.setSizeToImageSize();
+	alphaLayer.type = ltAlpha;
+	alphaLayer.visible = true;
+
+	RESULTS.push("[3] window=" + win.width + "x" + win.height + " canvas=" + W + "x" + H);
+	try { RESULTS.push("[3] smoothingMode default = " + stageLayer.smoothingMode); }
+	catch(e) { RESULTS.push("[3] read smoothingMode failed : " + fmtErr(e)); }
+
+	try
+	{
+		stageLayer.fillRect(0, 0, W, H, 0xff202028);
+		RESULTS.push("[3] builtin fillRect backdrop OK");
+	}
+	catch(e) { RESULTS.push("[3] builtin fillRect backdrop FAIL " + fmtErr(e)); }
+
+	// ------------------------------------------------------------- (1) line
+	// red horizontal, width 5, y=50, x 30..300
+	try
+	{
+		var a1 = new GdiPlus.Appearance();
+		a1.addPen(0xffff3030, 5, 0, 0);
+		var r = stageLayer.drawLine(a1, 30, 50, 300, 50);
+		RESULTS.push("[4a] horizontal line w=5      OK   " + fmtRect(r));
+	}
+	catch(e) { RESULTS.push("[4a] horizontal line w=5      FAIL " + fmtErr(e)); }
+
+	// ------------------------------------------------- (2) DIAGONAL thin line
+	// magenta, width 7, (30,90) -> (300,200)   (axis-aligned rects cannot do this)
+	try
+	{
+		var a2 = new GdiPlus.Appearance();
+		a2.addPen(0xffff00ff, 7, 0, 0);
+		var r = stageLayer.drawLine(a2, 30, 90, 300, 200);
+		RESULTS.push("[4b] DIAGONAL line w=7        OK   " + fmtRect(r));
+	}
+	catch(e) { RESULTS.push("[4b] DIAGONAL line w=7        FAIL " + fmtErr(e)); }
+
+	// -------------------------------------- (3) thick polyline, round join/cap
+	// amber width 18, pts [[360,60],[500,60],[500,180],[600,180]]
+	try
+	{
+		var a3 = new GdiPlus.Appearance();
+		a3.addPen(0xffffaa00, %[width:18, lineJoin:GdiPlus.LineJoinRound,
+		                       startCap:GdiPlus.LineCapRound, endCap:GdiPlus.LineCapRound], 0, 0);
+		var r = stageLayer.drawLines(a3, [[360, 60], [500, 60], [500, 180], [600, 180]]);
+		RESULTS.push("[4c] thick polyline round w=18 OK   " + fmtRect(r));
+	}
+	catch(e) { RESULTS.push("[4c] thick polyline round w=18 FAIL " + fmtErr(e)); }
+
+	// ------------------------------------------------ (4) arrow (AdjustableArrowCap)
+	//   two data points to derive the cap-size law: same cap request, pen 6 vs pen 3
+	try
+	{
+		var a4 = new GdiPlus.Appearance();
+		a4.addPen(0xff40e0ff, %[width:6, endCap:%[width:28, height:28, filled:true]], 0, 0);
+		var r = stageLayer.drawLine(a4, 30, 250, 300, 250);
+		RESULTS.push("[4d] arrow penW=6 cap=28       OK   " + fmtRect(r));
+	}
+	catch(e)
+	{
+		RESULTS.push("[4d] arrow penW=6 cap=28       FAIL " + fmtErr(e));
+
+		try
+		{
+			var a4b = new GdiPlus.Appearance();
+			a4b.addPen(0xff40e0ff, %[width:6, endCap:GdiPlus.LineCapTriangle], 0, 0);
+			var r2 = stageLayer.drawLine(a4b, 30, 250, 300, 250);
+			RESULTS.push("[4d-2] arrow LineCapTriangle  OK   " + fmtRect(r2));
+		}
+		catch(e2)
+		{
+			RESULTS.push("[4d-2] arrow LineCapTriangle  FAIL " + fmtErr(e2));
+			try
+			{
+				var a4c = new GdiPlus.Appearance();
+				a4c.addBrush(0xff40e0ff, 0, 0);
+				var r3 = stageLayer.drawPolygon(a4c, [[300, 250], [272, 236], [272, 264]]);
+				RESULTS.push("[4d-3] arrow filled triangle  OK   " + fmtRect(r3));
+			}
+			catch(e3) { RESULTS.push("[4d-3] arrow filled triangle  FAIL " + fmtErr(e3)); }
+		}
+	}
+
+	// second arrow data point: same cap request (28) with pen width 3
+	try
+	{
+		var a4p = new GdiPlus.Appearance();
+		a4p.addPen(0xff40e0ff, %[width:3, endCap:%[width:28, height:28, filled:true]], 0, 0);
+		var r4p = stageLayer.drawLine(a4p, 340, 215, 600, 215);
+		RESULTS.push("[4d-1] arrow penW=3 cap=28     OK   " + fmtRect(r4p));
+	}
+	catch(e0) { RESULTS.push("[4d-1] arrow penW=3 cap=28     FAIL " + fmtErr(e0)); }
+
+	// ------------------------------------------------------ (5) polygon FILL (alpha)
+	// semi-transparent green triangle over backdrop (also proves alpha blending)
+	try
+	{
+		var a5 = new GdiPlus.Appearance();
+		a5.addBrush(0x9920ff40, 0, 0);
+		var r = stageLayer.drawPolygon(a5, [[380, 280], [580, 280], [480, 420]]);
+		RESULTS.push("[4e] polygon fill alpha=0x99  OK   " + fmtRect(r));
+	}
+	catch(e) { RESULTS.push("[4e] polygon fill alpha=0x99  FAIL " + fmtErr(e)); }
+
+	// ------------------------------- (6) coexist with builtin Layer.drawText
+	try
+	{
+		stageLayer.drawText(30, 400, "TEXT-BEFORE", 0xffffffff, 255);
+		RESULTS.push("[4f] builtin drawText BEFORE   OK");
+	}
+	catch(e) { RESULTS.push("[4f] builtin drawText BEFORE   FAIL " + fmtErr(e)); }
+
+	try
+	{
+		var a6 = new GdiPlus.Appearance();
+		a6.addPen(0xffffffff, 3, 0, 0);
+		var r = stageLayer.drawLine(a6, 20, 412, 200, 412);
+		RESULTS.push("[4g] line ACROSS that text     OK   " + fmtRect(r));
+	}
+	catch(e) { RESULTS.push("[4g] line ACROSS that text     FAIL " + fmtErr(e)); }
+
+	try
+	{
+		// NOTE: krkr's Layer.drawText colour is 0xRRGGBB (project-established convention);
+		// 0xffffffff renders as white because the low 24 bits are kept, but the 8-digit ARGB
+		// form is NOT interpreted as alpha here.
+		stageLayer.drawText(400, 440, "TEXT-AFTER", 0x40ff40, 255);
+		RESULTS.push("[4h] builtin drawText AFTER    OK");
+	}
+	catch(e) { RESULTS.push("[4h] builtin drawText AFTER    FAIL " + fmtErr(e)); }
+
+	// --------------------------------- (7) pixel-anchor line y=468 pure green
+	try
+	{
+		var a7 = new GdiPlus.Appearance();
+		a7.addPen(0xff00ff00, 9, 0, 0);
+		var r = stageLayer.drawLine(a7, 10, 468, 630, 468);
+		RESULTS.push("[4i] anchor line green y=468   OK   " + fmtRect(r));
+	}
+	catch(e) { RESULTS.push("[4i] anchor line green y=468   FAIL " + fmtErr(e)); }
+
+	// ---------------------- (8) alpha layer: no backdrop, must stay alpha=0 elsewhere
+	try
+	{
+		var b1 = new GdiPlus.Appearance();
+		b1.addPen(0xffff0000, 5, 0, 0);
+		var rb = alphaLayer.drawLine(b1, 10, 10, 200, 10);
+		var b2 = new GdiPlus.Appearance();
+		b2.addBrush(0xff0000ff, 0, 0);
+		var rb2 = alphaLayer.drawPolygon(b2, [[10, 40], [120, 40], [10, 120]]);
+		RESULTS.push("[4j] alphaLayer line+poly      OK   " + fmtRect(rb) + " / " + fmtRect(rb2));
+	}
+	catch(e) { RESULTS.push("[4j] alphaLayer line+poly      FAIL " + fmtErr(e)); }
+}
+
+// ------------------------------------------------------------- drive + exit
+try { main(); }
+catch(e) { RESULTS.push("!!! main() threw : " + fmtErr(e)); }
+
+try { exportPng(stageLayer, "poc_layerExDraw.png"); }
+catch(e) { RESULTS.push("!!! export outer throw : " + fmtErr(e)); }
+
+try { exportPng(alphaLayer, "poc_layerExDraw_alpha.png"); }
+catch(e) { RESULTS.push("!!! export outer throw 2 : " + fmtErr(e)); }
+
+RESULTS.push("[6] PNG ok=" + PNG_OK + " fail=" + PNG_FAIL);
+
+for(var i = 0; i < RESULTS.length; i++) p(RESULTS[i]);
+
+var BLOCK = "POC-REPORT-BEGIN";
+for(var j = 0; j < RESULTS.length; j++) BLOCK += "\n" + esc(RESULTS[j]);
+BLOCK += "\nPOC-REPORT-END";
+Debug.message(BLOCK);
+
+var exitTimer = new Timer();
+exitTimer.interval = 1200;
+exitTimer.onTimer = function()
+{
+	this.enabled = false;
+	try { Debug.message("[POC] quitting via win.close()"); } catch(e) { }
+	try { win.close(); } catch(e) { }
+	try { System.exit(); } catch(e) { }
+};
+exitTimer.enabled = true;

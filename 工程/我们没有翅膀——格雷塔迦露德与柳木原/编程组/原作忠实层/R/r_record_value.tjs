@@ -1,0 +1,29 @@
+function RRecordValue(item, base, rd, evalExpr, varMap) {
+    var k = item["kind"];
+    if (k == "always") {
+        return 1;
+    } else if (k == "empty") {
+        return 0;
+    } else if (k == "literal") {
+        return item["value"];
+    } else if (k == "inline") {
+        if (item["data_size"] != 0) {
+            return (base + item["data_offset"]) & 0xffffffff;
+        } else {
+            return 0;
+        }
+    } else if (k == "array") {
+        var bankIndex = item["bank_index"];
+        var mapVal = varMap["" + bankIndex];
+        if (typeof mapVal != "Integer") {
+            throw new Exception("bank_index not integer: " + bankIndex);
+        }
+        var elementIndex = item["element_index"];
+        var address = (mapVal + 4 * elementIndex) & 0xffffffff;
+        return rd(address);
+    } else if (k == "expression") {
+        return evalExpr(item["expression"]);
+    } else {
+        throw new Exception("unknown kind: " + k);
+    }
+}

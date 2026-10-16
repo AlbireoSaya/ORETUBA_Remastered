@@ -1,0 +1,249 @@
+{
+  "id": "title",
+  "title_cn": "标题画面",
+  "owner": "M34",
+  "note": "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 84 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V1 裁决（用户 2026-09-21）**：标题菜单改**竖排条**，推翻 M28 的底部横排。",
+  "elements": [
+    {
+      "id": "title.bg",
+      "kind": "image",
+      "z": 0,
+      "visible_default": true,
+      "asset": "ui/x_bg_system.png",
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "opacity": 255,
+      "source": "M11 派生（工具/prep_generated.py）：资源组\\美术统一_超分\\CG背景\\bg63.png（2904×1440）中心裁 2560×1440 → 0.75× 下采样到 1920×1080",
+      "note": "标题背景（1920×1080 满幅铺满，不留黑边）。用户 2026-09-20 明确要求「彻底坚决使用 AI 素材代替老素材」，故不再用 x_title_bg_1280.png（M9 的氛围延展层，已废弃）。"
+    },
+    {
+      "id": "title.logo",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_gen_logo.png",
+      "x": 60,
+      "y": 45,
+      "w": 900,
+      "h": 317,
+      "opacity": 255,
+      "source": "M20 派生（工具/prep_generated.py）：生图入料\\生成结果\\游戏logo重置.png（1697×927 RGBA，真 alpha）alpha 包围盒(th=8)=(0,143,1671,732) 裁紧 1671×589 → 等比缩到宽 900（0.5386× 下采样）",
+      "note": "左上角标题 logo（**用户 2026-09-21 裁定保留**）。位置保持本作既有值 （《交汇协奏曲》的 logo 在 PSB 里是 x37 y35 w533 h276 —— 见注）。"
+    },
+    {
+      "id": "title.menu_hit_1",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 360.0,
+      "w": 96,
+      "h": 96,
+      "action": "game_start",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=game_start）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_start.png",
+        "hover": "ui/x_ui_menuicon_start_on.png",
+        "pressed": "ui/x_ui_menuicon_start_on.png"
+      }
+    },
+    {
+      "id": "title.menu_hit_2",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 460.0,
+      "w": 96,
+      "h": 96,
+      "action": "game_continue",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=game_continue）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_continue.png",
+        "hover": "ui/x_ui_menuicon_continue_on.png",
+        "pressed": "ui/x_ui_menuicon_continue_on.png"
+      }
+    },
+    {
+      "id": "title.menu_hit_3",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 560.0,
+      "w": 96,
+      "h": 96,
+      "action": "open_load",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_load）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_load.png",
+        "hover": "ui/x_ui_menuicon_load_on.png",
+        "pressed": "ui/x_ui_menuicon_load_on.png"
+      }
+    },
+    {
+      "id": "title.menu_hit_4",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 660.0,
+      "w": 96,
+      "h": 96,
+      "action": "open_flowchart",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_flowchart）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_flowchart.png",
+        "hover": "ui/x_ui_menuicon_flowchart_on.png",
+        "pressed": "ui/x_ui_menuicon_flowchart_on.png"
+      }
+    },
+    {
+      "id": "title.menu_hit_5",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 760.0,
+      "w": 96,
+      "h": 96,
+      "action": "open_config",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_config）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_config.png",
+        "hover": "ui/x_ui_menuicon_config_on.png",
+        "pressed": "ui/x_ui_menuicon_config_on.png"
+      }
+    },
+    {
+      "id": "title.menu_hit_6",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 860.0,
+      "w": 96,
+      "h": 96,
+      "action": "open_gallery",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_gallery）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_gallery.png",
+        "hover": "ui/x_ui_menuicon_gallery_on.png",
+        "pressed": "ui/x_ui_menuicon_gallery_on.png"
+      }
+    },
+    {
+      "id": "title.menu_hit_7",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 960.0,
+      "w": 96,
+      "h": 96,
+      "action": "quit_game",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=quit_game）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_exit.png",
+        "hover": "ui/x_ui_menuicon_exit_on.png",
+        "pressed": "ui/x_ui_menuicon_exit_on.png"
+      }
+    },
+    {
+      "id": "title.text_copyright",
+      "kind": "text",
+      "z": 40,
+      "visible_default": true,
+      "x": 0,
+      "y": 1029,
+      "w": 1920,
+      "h": 36,
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.text_small",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "来自个人汉化者AlbireoSaya　模型&工具:Deepseek v4.1 flash+ZCode",
+      "note": "署名行（AGENTS.md §六 署名规则；窗口标题另由 startup.tjs 写入同一串，来源为 layout/_root.json 的 signature）。★ M25：菜单移到底部横排后实测本行 y=1029..1065，与菜单排（底沿 898）**无重叠**，故**未移动**（任务书所述「现 y=686」为旧值，实际文件早已是 y=1029）。"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+global.RVMExtraOperands = function(rd, op, p) {
+    var M = 0xFFFFFFFF;
+    var p0 = p & M;
+    var a, b, d;
+
+    switch (op) {
+        case 14:
+        case 24:
+        case 25:
+        case 42:
+        case 43:
+        case 46:
+            a = rd(p0);
+            b = rd((p0 + 4) & M);
+            d = rd((p0 + 8) & M);
+            return [a, b, d, 12];
+
+        case 15:
+            b = rd((p0 + 4) & M);
+            d = rd((p0 + 8) & M);
+            a = rd(p0);
+            return [a, b, d, 12];
+
+        case 21:
+            b = rd((p0 + 4) & M);
+            a = rd(p0);
+            d = rd((p0 + 8) & M);
+            return [a, b, d, 12];
+
+        case 22:
+            a = rd(p0);
+            d = rd((p0 + 4) & M);
+            b = 0;
+            return [a, b, d, 8];
+
+        default:
+            throw new global.Exception("RVMExtraOperands: unknown opcode " + op);
+    }
+};

@@ -1,0 +1,19 @@
+function RRBankWord(group, index) {
+    var rd = global.RRRead32 incontextof this;
+    var globals = [0x5355f0, 0x5355ec, 0x5355e8];
+    var desc = rd(globals[group]);
+    var base = rd(desc + 4);
+    if (base == 0) throw new global.Exception("FIXTURE_BANK_GROWTH_UNIMPLEMENTED");
+    var end = rd(desc + 8);
+    var width = (group == 1) ? 4 : 12;
+    var capacity = int((end - base) / width);
+    if (index >= capacity) throw new global.Exception("FIXTURE_BANK_GROWTH_UNIMPLEMENTED");
+    base = rd(desc + 4);
+    return rd((base + index * width) & 0xffffffff);
+}
+
+function RRResolve(group, index, codeBase) {
+    var rd = global.RRRead32 incontextof this;
+    var bank = global.RRBankWord incontextof this;
+    return global.RLiveRelocationValue(rd, group, index, codeBase, bank);
+}

@@ -1,0 +1,25 @@
+function RInlineExprHeader(rb, limit, start) {
+  if (typeof start !== "Integer" || start < 0) throw new Exception("BAD_INLINE_EXPRESSION_START");
+  RExprNeed(limit, start, 6);
+  if (RExprByte(rb, limit, start) !== 0x5b || RExprByte(rb, limit, start + 1) !== 0x73)
+    throw new Exception("BAD_INLINE_EXPRESSION_MAGIC");
+  var n = RExprU32(rb, limit, start + 2);
+  var cs = start + 6;
+  RExprNeed(limit, cs, n);
+  var flag = cs + n;
+  RExprNeed(limit, flag, 5);
+  var tw = flag + 1;
+  var size = RExprU32(rb, limit, tw);
+  if (size < 24) throw new Exception("INLINE_RELOC_TOO_SMALL");
+  RExprNeed(limit, tw, size);
+  return %[
+    "start" => start,
+    "end" => tw + size,
+    "code_start" => cs,
+    "code_size" => n,
+    "flag_offset" => flag,
+    "compiled_flag" => RExprByte(rb, limit, flag),
+    "reloc_start" => tw,
+    "reloc_size" => size
+  ];
+}

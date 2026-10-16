@@ -1,0 +1,979 @@
+// ============================================================
+// ui_staging.tjs —— 编程组 · 逐行演出播放器（立绘 ＋ 逐行音效）
+//
+// 职责：把资源组 2026-10-02 交付的「逐行演出表」（C21 · `资源组\演出\演出_<源>.tsv`）
+//       在**运行期**落到对话框屏：按 `seq`（＝「在该行显示之前生效」）逐行追加/切换立绘、
+//       播放逐行音效。演出表已由 `build_story.py` 组装为每场景的 `UIStoryScene.stage[]`
+//       （几何/槽位/实件路径都在生成物里算好）——本模块只负责**按触发序应用**。
+//
+// 接入（**不改 UI 组任何文件**）：
+//   * 由 `ui_boot.tjs` 在 `ui_story.tjs` 之后 `uiExec` 装载；
+//   * `ui_story.tjs` 的 `uiStoryLoad()` 调 `uiStagingSceneLoad()`（换场景 ⇒ 清空立绘）、
+//     `uiStoryOnLine()` 调 `uiStagingOnLine()`（每行 ⇒ 应用该行之前的 op）。
+//
+// ★★ 摆位／层序口径（**其中五源的规则是"我方自定"，不是源侧事实**）：见 `build_story.py`
+//    文件头与工程记录；运行期只读生成物里的 `x/y/w/h/z/slot`，不另行解释。
+//
+// ★ 立绘槽位：dialog 屏**没有**立绘元素 ⇒ 运行期**追加**若干 `kind:"image"` 槽位
+//   （`stg.slot0..19`，见 `UIStageMaxSlots`），与既有「运行期改元素数据」同法（如
+//   `uiStoryFooterReturnFix` 的纯追加、`ui_demo_script.tjs` 的运行期追加）。槽位默认
+//   `visible_default:false` + `asset:void` ⇒ 不绘制、不占渲染；只有应用到某槽时才设 asset
+//   并显示。**self 场只用 0..5（构建侧 `--staging-source self` 仍按 6 槽裁剪）**，
+//   gold 场用到 0..18（金标 `slot_hint` 峰值 18）。
+//
+// ★ 立绘 z：见 `build_story.py` 的 `STAGE_Z`（背景 dlg.content=1 < 槽位=10 <
+//   底部可读性遮罩 dlg.mask_bottom=15 < 文字=22）。
+// ============================================================
+
+var UIStageSlots      = [];      // 槽位元素（元素表引用；下标＝slot）
+var UIStageSlotId     = [];      // 槽位 id（"stg.slot0"...），用于幂等探测
+var UIStageFam        = [];      // 槽位当前族（"" ＝ 空）
+var UIStageFile       = [];      // 槽位当前实件 basename（日志用）
+var UIStageCursor     = 0;       // `stage[]` 游标
+var UIStageLastSeq    = -1;      // 上次应用到哪一行（回退检测用）
+var UIStageScene      = "";      // 当前已装载演出的场景 id
+var UIStageInstalled  = false;
+var UIStageOpsApplied = 0;       // 本场景已应用 op 数
+
+var UIStageSe         = null;    // 逐行音效缓冲（voice/bgm 之外的第 3 路）
+var UIStageSeOk       = false;
+var UIStageSeCount    = 0;
+var UIStageSeCur      = "";
+
+var UIStageMaxSlots   = 20;      // 与 build_story.py 对齐：self 场用 0..5、**gold 场**用 0..18
+                                 //   （ISSUE-20261008-03 M2，用户 2026-10-08 裁决：金标同屏并发峰值 19）。
+                                 //   未用到的槽位 `visible_default:false` + `asset:void` ⇒ 不绘制。
+
+// ------------------------------------------------------------
+// ★ 立绘**平滑滑动**（用户 2026-10-03 曾裁定要用；**2026-10-03 实测后默认关闭**）
+//   · 只对 `chr_move`（＝重排/源侧移位）生效；**新入场**直接出现在自己的位置（不滑动）；
+//     **无 `dur` 的退场**直接隐藏（配合 build 侧「退场不重排」）。
+//   · 快进（`UIStorySkipOn`）时**跳过动画**直接到位（否则 30ms/行的快进会让位置永远滞后）。
+//   · Timer 必须由**全局**引用持有（交接 §六.14）；只在有动画在跑时 enable，空闲时不耗电。
+//   ★★ **实测结论：`chr_move` 的平滑动画默认关闭**。33ms 的 Timer 实测回调频率只有 **~1 次/秒**
+//     （[ANIM] 启动后 2 秒才见 tick#1；且期间剧情自测的 30ms Timer 一直在跑）——
+//     帧计数式的 300ms 滑动会被拖成数秒 ⇒ **观感比瞬间跳位更差**。
+//     代码保留、由 `slideanim.txt` 门控（实验用）。
+//     ※ krkrz 的 System 没有 `elapsedTime` 成员 ⇒ `chr_move` 用**帧计数**、不依赖任何时钟成员。
+//   ★ 注意：**带 `dur` 的退场滑出（见下节）不受 `UIStageAnimNo` 门控**，且改用**时间基准**——
+//     它是源侧事实、必须忠实呈现；时间基准也解决了「Timer 被拖慢 ⇒ 拖成数秒」的老问题。
+// ------------------------------------------------------------
+var UIStageAnim       = [];      // 每槽： %[ fx, fy, tx, ty, left, total, t0, hide, tag ]（无动画的槽为 void）
+                                 //   · left ＝ 剩余帧数（帧模式）；total ＝ 总帧数或总毫秒；
+                                 //   · t0   ＝ 时间模式的起始 tick（0 ＝ 帧模式）；hide ＝ 到位后是否真隐藏。
+var UIStageAnimTimer  = null;    // 动画驱动（33ms/帧，仅在动画期间 enable）
+var UIStageAnimTicks  = 9;       // `chr_move` 平滑动画帧数（33ms × 9 ≈ 300ms）——帧模式
+var UIStageAnimNo     = true;    // `chr_move` 平滑动画默认关闭（实测 Timer 频率不足；放 `slideanim.txt` 才启用）
+var UIStageSlideTickMs = 33;     // 退场滑出的 Timer 节拍（ms）
+var UIStageSlideFallbackW = 720; // 件宽未知（w<=0）时滑出位移用的兜底宽度（保证离开画布）
+
+// ------------------------------------------------------------
+// ★ 退场滑出（ISSUE-20261007-05，用户 2026-10-07 裁决）
+//   源侧 `chr_anime <slot>,"!l"/"!r",<ms>`（PSV `:Time = ms×0.06` 帧）＝**带时长的画外滑出**，
+//   不是瞬时删除。数据侧（另一模块）在 `chr_remove` 上产出可选字段 `dur`（毫秒）与 `dir`（"l"/"r"）；
+//   本模块只在**读到 `dur`>0 且 `slot>=0`** 时走滑出，**没带 `dur` 一律维持原瞬时隐藏**（向后兼容）。
+//
+//   复用哪套机制：与 `chr_move` 平滑动画**共用同一 `UIStageAnim` 状态数组与那个 33ms Timer**
+//   （`uiStageAnimTick` → `uiStageAnimAdvance`）——本作自有的唯一“改元素 x/y 并逐帧重画”通道。
+//   ★ 与旧 `chr_move` 动画的差别（也是它以前“实测频率不足”的解法）：
+//     滑出用**时间基准**（`System.getTickCount()` 记 `t0`，`total`＝毫秒）而非帧计数 ⇒
+//     即便 Timer 回调被拖慢，进度也按**真实经过时间**算，总时长恒 ≈ `dur`；最坏情形是
+//     第一次回调晚到时 p 已 ≥1 ⇒ 直接到位（一次跳变），**绝不会被拖成数秒**，也绝不卡死。
+//   ★ 兜底：Timer 建不出来（无窗口）⇒ 退化为瞬时隐藏；快进（`UIStorySkipOn`）⇒ 瞬时隐藏；
+//     另在每行推进（`uiStagingApplyTo`）调用 `uiStageAnimSweep`，保证 Timer 万一停摆也能收尾。
+// ------------------------------------------------------------
+
+// 当前 tick（毫秒）。取不到 ⇒ 0（调用方据此退回帧模式）。
+function uiStageAnimNow()
+{
+	var t = 0;
+	try { t = 0 + System.getTickCount(); } catch(e0) { t = 0; }
+	return t;
+}
+
+// ★ Timer **惰性创建**：krkrz 的 Timer 在主窗口建立之前创建**不会触发**（实测：装在扩展点①的
+//   `uiStagingInstall` 里时，[ANIM] 只打"启动"从不打"到位"——回调一次都没进来）。
+//   首次需要动画时主窗口必然已存在 ⇒ 在这里建。若拿不到窗口引用 ⇒ 返回 false（调用方优雅降级）。
+function uiStageAnimEnsureTimer()
+{
+	if(UIStageAnimTimer !== null && UIStageAnimTimer !== void) return true;
+	if(UIStoryWin === null || UIStoryWin === void) return false;
+	try
+	{
+		UIStageAnimTimer = new Timer(uiStageAnimTick, '');
+		UIStageAnimTimer.interval = UIStageSlideTickMs;
+		UIStageAnimTimer.enabled = false;
+		Debug.message("[STAGE][ANIM] Timer 已建立（interval=" + UIStageSlideTickMs
+			+ "，tick=" + (uiStageAnimTick === void ? "void" : "有") + "）");
+		return true;
+	}
+	catch(eT) { Debug.message("[STAGE][ERR] 滑动动画 Timer 建立失败：" + eT.message); return false; }
+}
+
+var UIStageAnimDbg = 0;
+function uiStageAnimTick()
+{
+	// ★ 诊断：前 3 次 tick 打日志（确认回调到底有没有进来）
+	if(UIStageAnimDbg < 3)
+	{
+		UIStageAnimDbg++;
+		Debug.message("[STAGE][ANIM] tick#" + UIStageAnimDbg + "（live=" + UIStageAnim.count + "）");
+	}
+	if(UIStageAnimTimer === null) return;
+	var any = uiStageAnimAdvance();
+	if(UIStoryWin !== null && UIStoryWin !== void)
+	{
+		try { UIStoryWin.redraw(); } catch(e2) { }
+	}
+	if(!any)
+	{
+		try { UIStageAnimTimer.enabled = false; } catch(e3) { }
+	}
+}
+
+// 推进全部动画一帧（tick 与 sweep 共用）：按真实时间算进度、写 el.x/el.y、到位的收尾。
+// 返回 true ⇒ 仍有未完成的动画。
+function uiStageAnimAdvance()
+{
+	var now = uiStageAnimNow();
+	var any = false;
+	for(var i = 0; i < UIStageMaxSlots; i++)
+	{
+		var a = UIStageAnim[i];
+		if(a === void || a === null) continue;
+		var total = 0 + a.total;
+		if(total <= 0) total = UIStageAnimTicks;
+		var p = 0.0, fin = false;
+		if(a.t0 !== void && a.t0 > 0)
+		{
+			// ★ 时间模式（滑出）：progress ＝ 真实经过毫秒 / 总毫秒（Timer 慢 ⇒ 首拍即到位，不会被拖长）
+			p = (now - a.t0) / (0.0 + total);
+			if(p >= 1) { p = 1; fin = true; }
+		}
+		else
+		{
+			// 帧模式（`chr_move` 平滑）：progress ＝ 已走帧数 / 总帧数
+			var done = total - a.left;
+			p = done / (0.0 + total);
+			a.left = a.left - 1;
+			if(a.left <= 0) fin = true;
+		}
+		if(p < 0) p = 0;
+		if(p > 1) p = 1;
+		// easeInOutQuad：起停都柔和
+		var e = (p < 0.5) ? (2 * p * p) : (1 - (2 - 2 * p) * (2 - 2 * p) / 2);
+		var el = UIStageSlots[i];
+		if(el !== void && el !== null)
+		{
+			try
+			{
+				el.x = Math.floor(a.fx + (a.tx - a.fx) * e + 0.5);
+				el.y = Math.floor(a.fy + (a.ty - a.fy) * e + 0.5);
+			}
+			catch(e1) { }
+		}
+		if(fin)
+		{
+			UIStageAnim[i] = void;
+			if(a.hide === true)
+			{
+				// ★ 退场滑出到位 ⇒ **真正隐藏**（清可见 + 清件 + 清族状态）
+				uiStagingHideSlot(i);
+				Debug.message("[STAGE][ANIM] 槽" + i + " 滑出到位 → 隐藏（" + ("" + a.tag) + "，x=" + a.tx + "）");
+			}
+			else
+			{
+				Debug.message("[STAGE][ANIM] 槽" + i + " 到位 " + a.tx + "," + a.ty);
+			}
+		}
+		else any = true;
+	}
+	return any;
+}
+
+// ★ 兜底收尾：Timer 万一停摆（被拖慢/不触发）时，在每行推进处把「已过截止」的动画直接结算。
+//   只结算**已到期**的（进度按真实时间），绝不提前打断还在跑的滑出。
+function uiStageAnimSweep()
+{
+	if(!uiStageAnimPending()) return 0;
+	uiStageAnimAdvance();
+	if(UIStoryWin !== null && UIStoryWin !== void)
+	{
+		try { UIStoryWin.redraw(); } catch(eS) { }
+	}
+	return 1;
+}
+
+// 是否有待推进的动画（tick / sweep / draw 四处共用同一判定）
+function uiStageAnimPending()
+{
+	for(var i = 0; i < UIStageMaxSlots; i++)
+	{
+		var a = UIStageAnim[i];
+		if(a !== void && a !== null) return true;
+	}
+	return false;
+}
+
+// ★★ 可靠帧驱动：把动画推进**挂在全屏唯一绘制入口 `uiScreenDraw(stage)` 上**。
+//   背景（实测，ISSUE-20261007-05 复现 2026-10-03 旧结论）：引擎 `Timer` 回调走主线程消息队列，
+//   **运行期新建的 Timer** 在本作 krkrz 运行时实测被严重拖慢（首个 tick 迟到 ~2s）⇒ 光靠 Timer
+//   的 300ms 滑出会被拖成一次跳变。而 UI 组在**窗口建立时**创建的光标闪烁（120ms）/打字机（60ms）
+//   Timer 一直正常 ⇒ 把推进挂到**每次重画**上：只要有帧就有推进（对话屏由 blinkTimer 每 120ms
+//   至少重画一次），滑出按真实时间算进度 ⇒ 不退化成跳变，且**必然在 dur+一帧内收尾**。
+//   ★ 包装法遵循引擎纪律（kirikiri-unpack skill §5.6）：**匿名函数赋值**包装，绝不用函数声明重包
+//     （后者会自递归，历史踩过段错误）。与 ui_flowfull 的 uiScreenDraw 包装可叠加（各存各自的 orig）。
+var UIStageDrawOrig = null;
+var UIStageDrawHook = false;
+function uiStageAnimHookInstall()
+{
+	if(UIStageDrawHook) return true;
+	try
+	{
+		if(uiScreenDraw === void) { Debug.message("[STAGE][ANIM] uiScreenDraw 未就绪，帧钩子暂缓"); return false; }
+		UIStageDrawOrig = uiScreenDraw;
+		uiScreenDraw = function(stage)
+		{
+			// ① 淡变：**先按帧计数推进**（本帧就用新 alpha），再交给原绘制——推进与绘制分离
+			if(UIStageFadeOn === true) uiStageFadeTick();
+			// ② 滑出/移位：按真实时间推进（本帧就用新 x；进度与帧率无关）
+			if(uiStageAnimPending()) uiStageAnimAdvance();
+			var r = UIStageDrawOrig(stage);
+			// ③ 淡变黑幕：画在**本屏 UI 之上**（同 stage ⇒ 全屏覆盖）；无活动淡变时一行不画
+			uiStageFadeRender(stage);
+			return r;
+		};
+		UIStageDrawHook = true;
+		Debug.message("[STAGE][ANIM] 已挂 uiScreenDraw 帧钩子（滑出/移位随每次重画推进 ＋ Fade 帧计数推进/黑幕）");
+		return true;
+	}
+	catch(eH) { Debug.message("[STAGE][ERR] 帧钩子安装失败：" + eH.message); UIStageDrawHook = false; return false; }
+}
+
+function uiStageAnimStart(slot, toX, toY)
+{
+	if(slot < 0 || slot >= UIStageSlots.count) return false;
+	var el = UIStageSlots[slot];
+	if(el === void || el === null) return false;
+	if(UIStageAnimNo || UIStorySkipOn)
+	{
+		try { el.x = toX; el.y = toY; } catch(e0) { }
+		UIStageAnim[slot] = void;
+		return false;
+	}
+	var fx = 0 + el.x, fy = 0 + el.y;
+	if((fx == toX) && (fy == toY)) { UIStageAnim[slot] = void; return false; }
+	// ★ 帧模式（left 递减；progress ＝ 已走帧数/总帧数）——`chr_move` 专用，维持原行为。
+	UIStageAnim[slot] = %[ fx: fx, fy: fy, tx: 0 + toX, ty: 0 + toY,
+		left: UIStageAnimTicks, total: UIStageAnimTicks, t0: 0 ];
+	uiStageAnimEnsureTimer();
+	if(UIStageAnimTimer !== null && UIStageAnimTimer !== void)
+	{
+		try { UIStageAnimTimer.enabled = true; } catch(e2) { }
+	}
+	Debug.message("[STAGE][ANIM] 槽" + slot + " " + fx + "," + fy + " → " + toX + "," + toY
+		+ "（" + UIStageAnimTicks + " 帧）");
+	return true;
+}
+
+// ★ 退场滑出：带 `dur` 的 `chr_remove` 专用。沿 dir（"l"/"r"）把立绘滑到画外，dur 毫秒后真正隐藏。
+//   · 左："l" ⇒ x → −(件宽)；右："r" ⇒ x → (内容区右边 + 件宽)＝画布宽 + 件宽（内容区实测全画布）。
+//   · 无效 slot / 件不可见 / 快进 / 无 Timer ⇒ 退化为瞬时隐藏（保证状态终会一致，绝不卡死）。
+function uiStagingSlideOut(slot, dir, durMs)
+{
+	if(slot < 0 || slot >= UIStageSlots.count) return false;
+	var el = UIStageSlots[slot];
+	if(el === void || el === null) return false;
+	var d = "" + dir;
+	if(d != "l" && d != "r") d = "l";                 // 方向缺省/非法 ⇒ 按左（不猜：数据侧只产 l/r）
+	var ms = 0 + durMs;
+	if(ms <= 0) { uiStagingHideSlot(slot); return true; }
+	uiStageAnimCancel(slot);                          // 同槽旧动画一律作废（含未完成的滑出）
+
+	// 已隐藏 / 无件：没有可见对象可滑 ⇒ 直接走原隐藏路径（与无 dur 行为一致）
+	var vis = false;
+	try { vis = (el.visible_default === true) && (el.asset !== void) && (el.asset !== null); } catch(eV) { vis = false; }
+	if(!vis) { uiStagingHideSlot(slot); return true; }
+
+	// 快进中不起动画（与 `chr_move`/逐行音效同一口径；快进下 30ms/行，滑出无意义）
+	if(UIStorySkipOn) { uiStagingHideSlot(slot); return true; }
+
+	var cw = 1920;
+	try { if(UI_W > 0) cw = 0 + UI_W; } catch(eW) { cw = 1920; }
+	var w = 0 + el.w;
+	if(w <= 0) w = UIStageSlideFallbackW;             // 件宽未知 ⇒ 兜底宽度，保证离开画布
+	var tx = (d == "l") ? (0 - w) : (cw + w);
+	var fx = 0 + el.x, fy = 0 + el.y;
+
+	if(!uiStageAnimEnsureTimer())
+	{
+		uiStagingHideSlot(slot);
+		Debug.message("[STAGE][ANIM] 槽" + slot + " 无 Timer ⇒ 滑出退化为瞬时隐藏（dur=" + ms + "）");
+		return true;
+	}
+	var frames = Math.floor(ms / (0.0 + UIStageSlideTickMs) + 0.5);
+	if(frames < 1) frames = 1;
+	var tag = "滑出 " + d + " " + ms + "ms";
+	var now = uiStageAnimNow();
+	if(now > 0)
+		UIStageAnim[slot] = %[ fx: fx, fy: fy, tx: tx, ty: fy, left: frames, total: ms, t0: now, hide: true, tag: tag ];
+	else
+		UIStageAnim[slot] = %[ fx: fx, fy: fy, tx: tx, ty: fy, left: frames, total: frames, t0: 0, hide: true, tag: tag ];
+	try { UIStageAnimTimer.enabled = true; } catch(eE) { }
+	if(UIStoryWin !== null && UIStoryWin !== void)
+	{
+		try { UIStoryWin.redraw(); } catch(eRd) { }     // 起帧：让帧钩子尽快推第一帧
+	}
+	Debug.message("[STAGE][ANIM] 槽" + slot + " " + tag + " x " + fx + " → " + tx
+		+ "（" + frames + " 帧，y=" + fy + "，件宽=" + (0 + el.w) + "）");
+	return true;
+}
+
+function uiStageAnimCancel(slot)
+{
+	if(slot < 0 || slot >= UIStageAnim.count) return;
+	UIStageAnim[slot] = void;
+}
+
+// ------------------------------------------------------------
+// ★★ 淡入淡出（Fade）· ISSUE-20261008-01 M2（渲染消费分支）
+//
+//   数据侧（`build_story.py --fade-source lucifen`，另一模块）在 `stage[]` 里产出
+//   `op="fade"`：`dur`＝源侧毫秒、`dir`＝"out"（源侧 FadeOut 时长载体；PC 无独立 FadeIn 节点）。
+//   本模块**只做渲染**：把它落到一个**全屏黑色遮罩**上，按 `dur` 逐帧改其不透明度。
+//
+//   ★★ 渲染口径（**本模块自定，见 M2 报告「需要裁决」**）：
+//     · 一个 `fade`(dir="out") ＝一次**完整淡变，总时长 = `dur`**：第一相 **淡出**（遮罩 alpha → 255），
+//       第二相 **淡入**（遮罩 alpha 255 → **0**）。理由＝源侧（PSV 金标，`时间线.tsv`）**每条 FadeOut(time>0)
+//       紧跟一条 FadeIn(time=0)** ⇒「淡出后必复位」；若只淡出不复位，画面会**永久全黑**
+//       （PC 侧无 FadeIn 独立节点，不能依赖后续事件复位）。故把「淡入」并进同一事件，自洽且不留黑屏。
+//     · `dir="in"` ⇒ **单相淡入**（遮罩 alpha 现有值 → **0**）；当前数据只产 "out"（此支为接口完整性而留）。
+//     · **起点**＝事件到来时遮罩的现值（通常 0）；**终点恒为 0**（与起点解耦）。见 `uiStageFadeStart`/
+//       `uiStageFadeTick` 的「归零不变量」：无论从什么 alpha 进入（含淡变进行中被覆盖），跑完一次 alpha 必为 0
+//       ⇒ 画面绝不永久压暗（ISSUE-20261008-01 M2 一审 Major 修复）。
+//
+//   ★ 驱动＝**帧计数**（用户要求）：绘制入口 `uiScreenDraw(stage)` 每被调用一次计 1 帧；
+//     每相帧数 = round(该相毫秒 / `UIStageFadeTickMs`)。**不依赖任何 Timer / `elapsedTime`**
+//     （本引擎 Timer 回调实测严重偏慢，见文件头与 `引擎工作原理.md`）。
+//     `UIStageFadeTickMs` 取 UI 层 blinkTimer 的名义节拍（120ms）——对话屏由它每 120ms 无条件重画，
+//     故淡变必然被推着走、也必然在 `dur`+一帧内收尾（绝不卡死）。
+//
+//   ★ 遮罩层 alpha **一律钳在 [0,255]**（越界会让两端静默分叉，见 `引擎工作原理.md` §5.9 坑 6）。
+//   ★ **无活动淡变（含 `--fade-source off` 的全部构建）⇒ 一个像素都不画**（`uiStageFadeRender` 在 alpha≤0 直接返回）
+//     ⇒ 关闭态逐字节/逐像素回归不变。
+//   ★ 换场景 / 回想回退（`uiStagingReset`）⇒ **立即复位为透明**（等价源侧 FadeIn(time=0) 的瞬时复位）。
+//
+//   诊断：`game\fadeshot.txt` 门控（成品不含 ⇒ 零开销、不导任何 PNG）；开时在淡出中段/峰值/淡入中段
+//   各导一张 PNG 落 `Debug.logLocation`（供 `run_storytest.py` 收集）。
+// ------------------------------------------------------------
+var UIStageFadeOn       = false;  // 是否有正在跑的淡变
+var UIStageFadeAlpha    = 0;      // 当前黑幕不透明度 0..255（恒钳位）
+var UIStageFadePhase    = 0;      // 0=第一相(淡出→255)  1=第二相(淡入→0)
+var UIStageFadeStep     = 0;      // 当前相位已走帧数
+var UIStageFadeSteps    = 1;      // 当前相位总帧数（第一相）
+var UIStageFadeStepsIn  = 1;      // 第二相（淡入）总帧数
+var UIStageFadeFrom     = 0;      // 当前相位起点 alpha
+var UIStageFadeTo       = 0;      // 当前相位终点 alpha（★末相恒为 0 ⇒ 一次淡变结束必归零）
+var UIStageFadeSingle   = false;  // true＝只有一相（dir="in"）：到 0 即结束
+var UIStageFadeTag      = "";     // 日志用
+var UIStageFadeTickMs   = 120;    // 一帧的名义毫秒（＝UI blinkTimer 节拍；**帧计数**驱动，非真实计时）
+var UIStageFadeCount    = 0;      // 累计启动次数（自证）
+var UIStageFadeShotOn   = false;  // 诊断导图（fadeshot.txt 门控）
+var UIStageFadeShotCap  = 12;     // 单次运行最多导出的证据帧数
+var UIStageFadeShotN    = 0;
+var UIStageFadeShotP0   = false;  // 已拍「淡出中段」
+var UIStageFadeShotP1   = false;  // 已拍「峰值(全黑)」
+var UIStageFadeShotP2   = false;  // 已拍「淡入中段」
+
+// 毫秒 → 帧数（TJS2 无全局 round/float ⇒ 用 Math.floor）
+function uiStageFadeFrames(ms)
+{
+	var n = Math.floor((0 + ms) / (0.0 + UIStageFadeTickMs) + 0.5);
+	if(n < 1) n = 1;
+	return n;
+}
+
+// 启动一次淡变。
+// ★★ 归零不变量（ISSUE-20261008-01 M2 一审 Major 修复）：
+//   无论**从什么 alpha 进入**（含「上一次淡变进行中被覆盖 ⇒ 起点 a0>0」），一次淡变跑完时
+//   `UIStageFadeAlpha` **必为 0** ⇒ **画面绝不永久压暗**。
+//   做法：把「渐变终点」与「起点」解耦——第一相从**当前 alpha**（a0）到 255，第二相**恒**从 255 到 **0**。
+//   `dir="in"` 单相亦以 0 为终点。（修前：第二相终点取 a0 ⇒ a0>0 时会停在 a0，永久压暗。）
+function uiStageFadeStart(dir, durMs)
+{
+	var d = "" + dir;
+	if(d != "in") d = "out";
+	var ms = 0 + durMs;
+	if(ms <= 0) ms = 1;
+	// 起点＝**当前遮罩 alpha**（>0 表示上一次淡变还在跑、被本次覆盖）；只作「起点」，不作任何终点。
+	var a0 = (UIStageFadeOn === true) ? UIStageFadeAlpha : 0;
+	if(a0 < 0) a0 = 0;
+	if(a0 > 255) a0 = 255;
+	UIStageFadeShotP0 = false; UIStageFadeShotP1 = false; UIStageFadeShotP2 = false;
+	if(d == "in")
+	{
+		// 单相淡入：当前 alpha → **0**
+		UIStageFadeSingle  = true;
+		UIStageFadePhase   = 0;
+		UIStageFadeFrom    = a0;
+		UIStageFadeTo      = 0;
+		UIStageFadeSteps   = uiStageFadeFrames(ms);
+		UIStageFadeStepsIn = 1;
+		UIStageFadeStep    = 0;
+		UIStageFadeTag     = "in " + ms + "ms";
+	}
+	else
+	{
+		// 两相：第一相 淡出(当前→255)；第二相 淡入(**恒 255→0**)
+		var halfOut = Math.floor(ms / 2);
+		if(halfOut < 1) halfOut = 1;
+		var halfIn = ms - halfOut;
+		if(halfIn < 1) halfIn = 1;
+		UIStageFadeSingle  = false;
+		UIStageFadePhase   = 0;
+		UIStageFadeFrom    = a0;
+		UIStageFadeTo      = 255;
+		UIStageFadeSteps   = uiStageFadeFrames(halfOut);
+		UIStageFadeStepsIn = uiStageFadeFrames(halfIn);
+		UIStageFadeStep    = 0;
+		UIStageFadeTag     = "out " + ms + "ms";
+	}
+	UIStageFadeOn = true;
+	UIStageFadeCount++;
+	Debug.message("[STAGE][FADE] 启动 #" + UIStageFadeCount + " dir=" + d + " dur=" + ms
+		+ "ms（帧计数 @" + UIStageFadeTickMs + "ms/帧 ｜ 第一相 " + UIStageFadeSteps
+		+ " 帧 → " + UIStageFadeTo + " / 第二相 " + ((UIStageFadeSingle === true) ? 0 : UIStageFadeStepsIn)
+		+ " 帧 → " + ((UIStageFadeSingle === true) ? "-" : "0") + " ｜ 起始 alpha=" + a0 + "）");
+}
+
+// 推进一帧（由绘制入口每帧调用一次）。返回 true ⇒ 仍有淡变在跑。
+// ★ 统一用「当前相位的 起点/终点」推进；收尾时 alpha **精确落在该相终点**（被钳过）。
+//   末相终点：dir="out" 的第二相终点 = 0；dir="in" 的单相终点 = 0 ⇒ **结束时 alpha 恒为 0**。
+function uiStageFadeTick()
+{
+	if(UIStageFadeOn !== true) return false;
+	UIStageFadeStep++;
+	var p = UIStageFadeStep / (0.0 + UIStageFadeSteps);
+	if(p > 1) p = 1;
+	UIStageFadeAlpha = Math.floor(UIStageFadeFrom + (UIStageFadeTo - UIStageFadeFrom) * p + 0.5);
+	if(UIStageFadeAlpha < 0) UIStageFadeAlpha = 0;
+	if(UIStageFadeAlpha > 255) UIStageFadeAlpha = 255;
+	if(p >= 1)
+	{
+		UIStageFadeAlpha = UIStageFadeTo;                     // ★ 收尾精确落在终点（末相恒 0）
+		if(UIStageFadeSingle !== true && UIStageFadePhase == 0)
+		{
+			// 进第二相：淡入 **255 → 0**（终点与「进入时的 alpha」无关）
+			UIStageFadePhase = 1;
+			UIStageFadeFrom  = 255;
+			UIStageFadeTo    = 0;
+			UIStageFadeSteps = UIStageFadeStepsIn;
+			UIStageFadeStep  = 0;
+		}
+		else
+		{
+			UIStageFadeOn = false;
+			Debug.message("[STAGE][FADE] 结束（" + UIStageFadeTag + "）→ alpha=" + UIStageFadeAlpha);
+		}
+	}
+	return (UIStageFadeOn === true);
+}
+
+// 画黑幕（在 UI 屏绘制**之后**、同一 stage 上 ⇒ 盖住全屏）。alpha≤0 时**一个像素都不画**。
+function uiStageFadeRender(stage)
+{
+	var a = UIStageFadeAlpha;
+	if(a < 0) a = 0;
+	if(a > 255) a = 255;
+	if(a <= 0) return;                                  // 无遮罩 ⇒ 不画（保「关态逐像素不变」）
+	if(stage === void || stage === null) return;
+	var w = 1920, h = 1080;
+	try { if(UI_W > 0) w = 0 + UI_W; } catch(eW) { w = 1920; }
+	try { if(UI_H > 0) h = 0 + UI_H; } catch(eH) { h = 1080; }
+	try { stage.colorRect(0, 0, w, h, 0x000000, a); }   // ★ Layer.colorRect 要 0xRRGGBB，alpha 单列
+	catch(eR) { Debug.message("[STAGE][FADE][ERR] 遮罩绘制失败：" + eR.message); return; }
+	// 诊断导图（fadeshot.txt 门控）单独包 try/catch —— 诊断逻辑不得影响主渲染帧
+	if(UIStageFadeShotOn === true) { try { uiStageFadeShot(a); } catch(eS) { Debug.message("[STAGE][FADE][SHOT][ERR] " + eS.message); } }
+}
+
+// 诊断导图（fadeshot.txt 门控）：淡出中段 / 峰值 / 淡入中段 各一张
+function uiStageFadeShot(a)
+{
+	if(UIStageFadeShotN >= UIStageFadeShotCap) return;
+	if(uiScreenCurrent() != "dialog") return;           // 只拍对话屏（本淡变只发生在对话屏）
+	var key = "";
+	if(UIStageFadePhase == 0 && a > 0 && a < 255 && UIStageFadeShotP0 !== true)
+	{ UIStageFadeShotP0 = true; key = "淡出中段"; }
+	else if(UIStageFadePhase == 1 && a >= 255 && UIStageFadeShotP1 !== true)
+	{ UIStageFadeShotP1 = true; key = "峰值全黑"; }
+	else if(UIStageFadePhase == 1 && a > 0 && a < 255 && UIStageFadeShotP2 !== true)
+	{ UIStageFadeShotP2 = true; key = "淡入中段"; }
+	if(key == "") return;
+	UIStageFadeShotN++;
+	try { if(UIStoryWin !== null && UIStoryWin !== void) UIStoryWin.exportPng("fade" + UIStageFadeShotN, 600 + UIStageFadeShotN); }
+	catch(eP) { Debug.message("[STAGE][FADE][SHOT][ERR] 导图失败：" + eP.message); }
+	Debug.message("[STAGE][FADE][SHOT] #" + UIStageFadeShotN + " " + key
+		+ "（相位=" + UIStageFadePhase + " alpha=" + a + "）");
+}
+
+// 复位为透明（换场景 / 回想回退）
+function uiStageFadeReset()
+{
+	if(UIStageFadeOn === true)
+		Debug.message("[STAGE][FADE] 复位（场景装载/回退）→ alpha 0");
+	UIStageFadeOn    = false;
+	UIStageFadeAlpha = 0;
+	UIStageFadePhase = 0;
+	UIStageFadeStep  = 0;
+}
+
+// ------------------------------------------------------------
+// 槽位：确保 dialog 屏上有 N 个立绘槽（幂等，纯追加）
+// ------------------------------------------------------------
+function uiStagingDialogScreen()
+{
+	if(UILayoutData === void || UILayoutData.screens === void) return void;
+	return UILayoutData.screens["dialog"];
+}
+
+function uiStagingFindEl(sc, id)
+{
+	if(sc === void || sc.elements === void) return void;
+	for(var i = 0; i < sc.elements.count; i++)
+	{
+		var e = sc.elements[i];
+		if(e === void || e.id === void) continue;
+		if(("" + e.id) == ("" + id)) return e;
+	}
+	return void;
+}
+
+function uiStagingEnsureSlots()
+{
+	if(UIStageSlots.count >= UIStageMaxSlots) return true;
+	var sc = uiStagingDialogScreen();
+	if(sc === void || sc.elements === void)
+	{
+		Debug.message("[STAGE][ERR] dialog 屏未就绪，立绘槽位**未建**");
+		return false;
+	}
+	var added = 0;
+	for(var i = 0; i < UIStageMaxSlots; i++)
+	{
+		var id = "stg.slot" + i;
+		var el = uiStagingFindEl(sc, id);
+		if(el === void)
+		{
+			el = %[
+				id: id,
+				kind: "image",
+				z: 10,
+				visible_default: false,
+				asset: void,
+				opacity: 255,
+				x: 0, y: 0, w: 0, h: 0,
+				source: "ISSUE-20261001-17 运行期补丁：逐行演出立绘槽位（编程组 ui_staging.tjs 追加）"
+			];
+			try { sc.elements.push(el); }
+			catch(eP) { Debug.message("[STAGE][ERR] 追加槽位 " + id + " 失败：" + eP.message); return false; }
+			added++;
+		}
+		UIStageSlots[i] = el;
+		UIStageSlotId[i] = id;
+		if(UIStageFam.count <= i) { UIStageFam.push(""); UIStageFile.push(""); }
+	}
+	if(added > 0)
+		Debug.message("[STAGE] 已追加 " + added + " 个立绘槽位（stg.slot0.." + (UIStageMaxSlots - 1) + "，kind=image z=10）");
+	return true;
+}
+
+// 换场景清空：隐藏并清空全部槽位状态（★ 硬边界①：五源立绘退场无信号 ⇒ 场景内保持、换场景清空）
+function uiStagingReset()
+{
+	for(var i = 0; i < UIStageSlots.count; i++)
+	{
+		var el = UIStageSlots[i];
+		if(el !== void)
+		{
+			try { el.visible_default = false; el.asset = void; } catch(e) { }
+		}
+	}
+	for(var j = 0; j < UIStageFam.count; j++) { UIStageFam[j] = ""; UIStageFile[j] = ""; }
+	// ★ 换场景/重建：作废所有在跑的动画并停表（否则已隐藏槽上的旧滑出会在新场景继续 tick）
+	for(var k = 0; k < UIStageAnim.count; k++) UIStageAnim[k] = void;
+	if(UIStageAnimTimer !== null && UIStageAnimTimer !== void)
+	{
+		try { UIStageAnimTimer.enabled = false; } catch(eAt) { }
+	}
+	uiStageFadeReset();               // ★ 淡变黑幕复位为透明（等价源侧 FadeIn(time=0) 的瞬时复位）
+	UIStageCursor = 0;
+	UIStageLastSeq = -1;
+	UIStageOpsApplied = 0;
+}
+
+// ------------------------------------------------------------
+// 场景装载入口（uiStoryLoad 调用）：建槽 + 清空 + 记录
+// ------------------------------------------------------------
+function uiStagingSceneLoad()
+{
+	if(!uiStagingEnsureSlots()) return false;
+	uiStagingReset();
+	UIStageScene = (UIStoryScene === void) ? "" : ("" + UIStoryScene.id);
+	var n = 0, inf = "无";
+	if(UIStoryScene !== void && UIStoryScene.stage !== void && UIStoryScene.stage !== null)
+		n = 0 + UIStoryScene.stage.count;
+	if(UIStoryScene !== void && UIStoryScene.stageInfo !== void && UIStoryScene.stageInfo !== null)
+	{
+		var si = UIStoryScene.stageInfo;
+		inf = "chr " + si.chr + " / se " + si.se + " / remove " + si.removed
+			+ " / chr_move(源侧) " + si.moved
+			+ " / 过滤非角色族 " + si.filtered + " / 叠加层bg " + si.bgskip;
+		// `bg`(背景层事件数) / `placed`(自造重排数) 是本轮新增字段：旧生成物可能没有 ⇒ 逐项防 void。
+		try { if(si.bg !== void) inf += " / 背景层bg " + si.bg; } catch(eB) { }
+		try { if(si.placed !== void) inf += " / chr_place " + si.placed; } catch(eP) { }
+	}
+	Debug.message("[STAGE] 场景 " + UIStageScene + " 逐行演出事件 " + n + " 条 ｜ " + inf);
+	return true;
+}
+
+// ------------------------------------------------------------
+// 槽位操作
+// ------------------------------------------------------------
+function uiStagingShowSlot(slot, t, x, y, w, h, z, fam)
+{
+	if(slot < 0 || slot >= UIStageSlots.count) return false;
+	var el = UIStageSlots[slot];
+	if(el === void) return false;
+	uiStageAnimCancel(slot);          // 新入场直接出现在自己的位置（不滑动），并取消旧动画
+	try
+	{
+		el.asset = t;
+		el.x = x; el.y = y; el.w = w; el.h = h;
+		el.z = z;
+		el.visible_default = true;
+	}
+	catch(e) { Debug.message("[STAGE][ERR] 设置槽 " + slot + " 失败：" + e.message); return false; }
+	UIStageFam[slot] = "" + fam;
+	UIStageFile[slot] = uiStagingBase("" + t);
+	return true;
+}
+
+function uiStagingHideSlot(slot)
+{
+	if(slot < 0 || slot >= UIStageSlots.count) return false;
+	uiStageAnimCancel(slot);          // 退场即隐藏（配合 build 侧「退场不重排」）
+	var el = UIStageSlots[slot];
+	if(el !== void) { try { el.visible_default = false; el.asset = void; } catch(e) { } }
+	UIStageFam[slot] = ""; UIStageFile[slot] = "";
+	return true;
+}
+
+function uiStagingMoveSlot(slot, x, y)
+{
+	if(slot < 0 || slot >= UIStageSlots.count) return false;
+	var el = UIStageSlots[slot];
+	if(el === void) return false;
+	// ★ 用户 2026-10-03 裁定：移位**不瞬间跳位**，用约 0.3 秒滑到新位置（见 `uiStageAnimStart`）。
+	//   本函数**只服务源侧真移位**（`chr_move`，实测仅 otv 28 条）；自造重排走 `uiStagingPlaceSlot`。
+	uiStageAnimStart(slot, x, y);
+	return true;
+}
+
+// ★ P0-D（ISSUE-20261006-02，治用户实报「人物乱飘」）：**自造重排瞬时落位**。
+//   背景：`build_story._emit_moves()` 在新族入场时给在场者补发移位，那是**我方自造的**（源侧无此信号）；
+//   以前发 `chr_move` ⇒ 运行期走 0.3s 滑动动画 ⇒ 实机「乱飘」。改为直接设 x/y、**不调用 uiStageAnimStart**。
+function uiStagingPlaceSlot(slot, x, y)
+{
+	if(slot < 0 || slot >= UIStageSlots.count) return false;
+	var el = UIStageSlots[slot];
+	if(el === void) return false;
+	uiStageAnimCancel(slot);          // 取消该槽可能在跑的动画，保证瞬间到位
+	try { el.x = x; el.y = y; }
+	catch(e) { Debug.message("[STAGE][ERR] 槽 " + slot + " 瞬时落位失败：" + e.message); return false; }
+	return true;
+}
+
+function uiStagingClearAll()
+{
+	for(var i = 0; i < UIStageSlots.count; i++) uiStagingHideSlot(i);
+}
+
+// ★ 层序（priority）专用（ISSUE-20261008-03 M2）：金标 `CharacterPriority` 只改某槽的 z，
+//   不改位置/件（数据侧 `build_story.py --staging-source gold` 产出 `op="chr_z"`，字段 `slot`/`z`）。
+function uiStagingZSlot(slot, z)
+{
+	if(slot < 0 || slot >= UIStageSlots.count) return false;
+	var el = UIStageSlots[slot];
+	if(el === void || el === null) return false;
+	try { el.z = 0 + z; }
+	catch(e) { Debug.message("[STAGE][ERR] 槽 " + slot + " 设层序失败：" + e.message); return false; }
+	return true;
+}
+
+function uiStagingBase(p)
+{
+	// ⚠️ TJS2 `String.substring(start, len)` 的第二参是**长度**不是结束下标（见 ui_story.tjs 注）
+	//   ⇒ 一律用**只给起点**的 `substring(start)`（取到串尾）。
+	var s = "" + p;
+	for(var i = s.length - 1; i >= 0; i--)
+		if(s.charAt(i) == "/" || s.charAt(i) == "\\") return s.substring(i + 1);
+	return s;
+}
+
+// 当前槽位状态摘要（日志：能拿它对上演出表）
+function uiStagingSlotSummary()
+{
+	var s = "";
+	for(var i = 0; i < UIStageSlots.count; i++)
+	{
+		s = s + (i > 0 ? "," : "") + "槽" + i + ":"
+			+ ((UIStageFile.count > i && UIStageFile[i] != "") ? (UIStageFam[i] + "/" + UIStageFile[i]) : "-");
+	}
+	return s;
+}
+
+// ------------------------------------------------------------
+// 音效通道（第 3 路，与 voice/bgm 独立；见 ui_audio.tjs 的 voice/bgm 两路）
+//   ★ 不动 ui_audio.tjs（不在本次可改文件之列）⇒ 自建缓冲，语义与其一致。
+// ------------------------------------------------------------
+function uiStagingEnsureSe()
+{
+	if(UIStageSeOk && UIStageSe !== null) return true;
+	var w = null;
+	try { w = Window; } catch(e0) { w = null; }
+	if(w === null) return false;
+	try
+	{
+		UIStageSe = new WaveSoundBuffer(w);
+		UIStageSeOk = true;
+		// 音量：沿用设置仓的「音效」键（若 UI 组有）；无该键时 uiAudioVol 默认 80。
+		try
+		{
+			var mute = (("" + UISettingGet("mute_vol_se")) == "on");
+			UIStageSe.volume = mute ? 0 : uiAudioScaleVol(uiAudioVol("vol_se"));
+		}
+		catch(e1) { try { UIStageSe.volume = uiAudioScaleVol(80); } catch(e1b) { } }
+		Debug.message("[STAGE][SE] 音效缓冲已建立（volume=" + UIStageSe.volume + "）");
+		return true;
+	}
+	catch(e2) { UIStageSeOk = false; Debug.message("[STAGE][SE][ERR] 音效缓冲建立失败：" + e2.message); return false; }
+}
+
+function uiStagingPlaySe(rel)
+{
+	if(uiStagingEnsureSe() === false) return false;
+	var p = "" + rel;
+	if(p == "") return false;
+	// ★ 先判存在再 open —— 不得用「抛异常再 catch」当控制流（引擎对被 catch 的异常仍打 dump）
+	var ex = false;
+	try { ex = Storages.isExistentStorage(p); } catch(e0) { ex = false; }
+	if(!ex) { Debug.message("[STAGE][SE] 音效件不存在，跳过：" + p); return false; }
+	try
+	{
+		UIStageSe.stop();
+		UIStageSe.open(p);
+		UIStageSe.play();
+		UIStageSeCur = p;
+		UIStageSeCount++;
+		Debug.message("[STAGE][SE] 播放 #" + UIStageSeCount + " : " + p);
+		return true;
+	}
+	catch(e) { Debug.message("[STAGE][SE][ERR] 播放失败：" + p + " : " + e.message); return false; }
+}
+
+function uiStagingStopSe()
+{
+	UIStageSeCur = "";
+	if(!UIStageSeOk || UIStageSe === null) return;
+	try { UIStageSe.stop(); } catch(e) { }
+}
+
+// ------------------------------------------------------------
+// 逐行应用
+// ------------------------------------------------------------
+// 应用某 op（生成物里字段：seq/op/slot/fam/t/x/y/w/h/z）
+function uiStagingApplyOne(e)
+{
+	var op = "" + e.op;
+	var seq = 0 + e.seq;
+	var slot = 0 + e.slot;
+	if(op == "bg")
+	{
+		// ★ P0-A：背景层事件（源侧时间线）。**复用 ui_story 的 dlg.content + contain 适配**
+		//   （`uiStorySetBg`），不新建元素；w/h 是素材实测尺寸（供 contain）。
+		uiStorySetBg("" + e.t, 0 + e.w, 0 + e.h);
+		Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=bg 背景=" + uiStagingBase("" + e.t));
+		return;
+	}
+	if(op == "se")
+	{
+		var t = "" + e.t;
+		if(t != "")
+		{
+			// ★ 不得破坏「快进中不播语音」的守卫：CTRL 强制快进期间**不播逐行音效**
+			//   （快进每 40ms 一行，照播会把音频糊成一片；与 uiStoryOnLine 的语音守卫同一口径）。
+			if(UIStorySkipOn)
+				Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=se 快进中跳过 " + t);
+			else
+			{
+				uiStagingPlaySe(t);
+				Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=se t=" + uiStagingBase(t));
+			}
+		}
+		else
+		{
+			uiStagingStopSe();
+			Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=se 停止全部音效");
+		}
+		return;
+	}
+	if(op == "fade")
+	{
+		// ★ 渲染消费（ISSUE-20261008-01 M2）：`dur`＝源侧毫秒、`dir`＝"out"（PC 无 FadeIn 独立节点）。
+		//   快进中不起淡变（与滑出/逐行音效同口径：快进 30–40ms/行，淡变无意义且会拖慢收尾）。
+		var fdur = 0, fdir = "out";
+		try { if(e.dur !== void && e.dur !== null) fdur = 0 + e.dur; } catch(eFd) { fdur = 0; }
+		try { if(e.dir !== void && e.dir !== null) fdir = "" + e.dir; } catch(eDr) { fdir = "out"; }
+		if(UIStorySkipOn)
+		{
+			Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=fade 快进中跳过（dur=" + fdur + "ms）");
+		}
+		else
+		{
+			uiStageFadeStart(fdir, fdur);
+			Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=fade dir=" + fdir + " dur=" + fdur + "ms");
+		}
+		return;
+	}
+	if(op == "chr_remove")
+	{
+		// ★ 可选字段 `dur`(毫秒) / `dir`("l"/"r")：数据侧（另一模块）由源侧 `chr_anime <slot>,"!l"/"!r",<ms>`
+		//   产出。**带 `dur`>0 且 slot>=0 ⇒ 沿 dir 滑出画外、dur 后隐藏；否则维持原瞬时隐藏**（向后兼容）。
+		var rdur = 0, rdir = "";
+		try { if(e.dur !== void && e.dur !== null) rdur = 0 + e.dur; } catch(eD) { rdur = 0; }
+		try { if(e.dir !== void && e.dir !== null) rdir = "" + e.dir; } catch(eDr) { rdir = ""; }
+		if(slot < 0)
+		{
+			uiStagingClearAll();
+			Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=chr_remove 清空全部立绘"
+				+ ((rdur > 0) ? "（带 dur=" + rdur + " ⇒ 清空仍按瞬时，滑出只对单槽有效）" : ""));
+		}
+		else if(rdur > 0)
+		{
+			var f1 = (UIStageFam.count > slot) ? ("" + UIStageFam[slot]) : "";
+			uiStagingSlideOut(slot, rdir, rdur);
+			Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=chr_remove 槽" + slot
+				+ "（" + f1 + "）滑出 dir=" + ((rdir == "r") ? "r" : "l") + " dur=" + rdur + "ms");
+		}
+		else
+		{
+			var f0 = (UIStageFam.count > slot) ? ("" + UIStageFam[slot]) : "";
+			uiStagingHideSlot(slot);
+			Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=chr_remove 槽" + slot + "（" + f0 + "）");
+		}
+		return;
+	}
+	if(op == "chr_place")
+	{
+		// ★ P0-D：自造重排专用——**瞬时落位、不起滑动动画**（区别于源侧 chr_move）。
+		uiStagingPlaceSlot(0 + e.slot, 0 + e.x, 0 + e.y);
+		Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=chr_place 槽" + slot
+			+ " → x=" + (0 + e.x) + " y=" + (0 + e.y) + "（瞬时，无动画）");
+		return;
+	}
+	if(op == "chr_z")
+	{
+		// ★ 层序（priority）：金标 `CharacterPriority` 只改该槽 z（ISSUE-20261008-03 M2）。
+		uiStagingZSlot(0 + e.slot, 0 + e.z);
+		Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=chr_z 槽" + slot + " z=" + (0 + e.z));
+		return;
+	}
+	if(op == "chr_move")
+	{
+		// ★ 源侧真移位（otv）：保持 0.3s 滑动（用户 2026-10-03 裁定）。
+		uiStagingMoveSlot(slot, 0 + e.x, 0 + e.y);
+		Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=chr_move 槽" + slot
+			+ " → x=" + (0 + e.x) + " y=" + (0 + e.y));
+		return;
+	}
+	// chr_add / chr_expr：同槽换图（fam）或占新槽
+	uiStagingShowSlot(slot, "" + e.t, 0 + e.x, 0 + e.y, 0 + e.w, 0 + e.h, 0 + e.z, "" + e.fam);
+	Debug.message("[STAGE] " + UIStageScene + " seq=" + seq + " op=" + op
+		+ " 槽" + slot + " fam=" + e.fam + " t=" + uiStagingBase("" + e.t)
+		+ " x=" + (0 + e.x) + " y=" + (0 + e.y) + " " + (0 + e.w) + "x" + (0 + e.h) + " z=" + (0 + e.z));
+}
+
+// 应用到「seq ≤ 目标行」的全部 op（游标推进；检测到回退则重建）
+function uiStagingApplyTo(seq)
+{
+	if(UIStoryScene === void || UIStoryScene.stage === void || UIStoryScene.stage === null) return 0;
+	var s = 0 + seq;
+	if(s < UIStageLastSeq)          // 回想跳转等回退：从头重建该行之前的演出状态
+	{
+		var keep = UIStageScene;
+		uiStagingReset();
+		UIStageScene = keep;
+	}
+	uiStageAnimSweep();              // ★ 兜底：结算已到期的退场滑出（Timer 万一停摆时仍能收尾）
+	var n = 0;
+	var cnt = UIStoryScene.stage.count;
+	while(UIStageCursor < cnt)
+	{
+		var e = UIStoryScene.stage[UIStageCursor];
+		if(e === void || e === null) { UIStageCursor++; continue; }
+		if((0 + e.seq) > s) break;
+		try { uiStagingApplyOne(e); }
+		catch(ex) { Debug.message("[STAGE][ERR] 应用 op 异常（seq=" + e.seq + " op=" + e.op + "）：" + ex.message); }
+		UIStageCursor++;
+		UIStageOpsApplied++;
+		n++;
+	}
+	UIStageLastSeq = s;
+	return n;
+}
+
+// 每行调用（uiStoryOnLine）：按当前行的 lines[].seq 应用
+function uiStagingOnLine()
+{
+	if(UIStoryScene === void) return;
+	var i = UIDlgLine;
+	if(i < 0 || i >= UIStoryScene.lines.count) return;
+	if(UIStoryScene.stage === void || UIStoryScene.stage === null) return;
+	var sq = 0;
+	try { sq = 0 + UIStoryScene.lines[i].sq; } catch(e0) { sq = 0; }
+	var n = uiStagingApplyTo(sq);
+	if(n > 0)
+		Debug.message("[STAGE] " + UIStageScene + " line=" + (i + 1) + " seq=" + sq
+			+ " 应用 " + n + " op ｜ 立绘=" + uiStagingSlotSummary());
+}
+
+function uiStagingInstall()
+{
+	if(UIStageInstalled) return true;
+	uiStagingEnsureSe();
+	if(!uiStagingEnsureSlots())
+	{
+		// 扩展点①时 layout 可能尚未就绪；真正装载会在 uiStoryLoad 时再试一次（幂等）
+		Debug.message("[STAGE] 槽位延后建立（layout 未就绪，将在首个场景装载时重试）");
+	}
+	UIStageInstalled = true;
+	// ★ 滑动动画的 Timer **不在这里建**：krkrz 的 Timer 在主窗口建立之前创建不会触发（实测），
+	//   改为**首次动画时惰性创建**（见 `uiStageAnimStart`）。
+	//   ★ 默认**关闭**（实测 33ms Timer 频率不足）；放 `slideanim.txt` 才启用（实验用）。
+	try { UIStageAnimNo = !Storages.isExistentStorage("slideanim.txt"); } catch(eA0) { }
+	// ★ Fade 诊断导图开关（`game\fadeshot.txt`，ISSUE-20261008-01 M2）：成品不含该开关 ⇒ 不开、零开销。
+	try { UIStageFadeShotOn = Storages.isExistentStorage("fadeshot.txt"); } catch(eFs) { UIStageFadeShotOn = false; }
+	// ★ 退场滑出的**可靠帧驱动**：挂 `uiScreenDraw`（详见 `uiStageAnimHookInstall`）。
+	//   在扩展点①装（早于 ui_flowfull 的重画钩子，链式叠加无冲突）；装不上也不影响其它模块。
+	uiStageAnimHookInstall();
+	Debug.message("[STAGE] 滑动动画：帧钩子=" + (UIStageDrawHook ? "已装" : "未装")
+		+ " / 惰性建 Timer（" + UIStageAnimTicks + " 帧 × 33ms / 关闭 chr_move 动画="
+		+ (UIStageAnimNo ? "是" : "否") + "）");
+	Debug.message("[STAGE] 逐行演出播放器已安装（槽位 " + UIStageSlots.count + " / 音效 ok=" + UIStageSeOk + "）");
+	return true;
+}
+
+function uiStagingSummary()
+{
+	return "演出 op " + UIStageOpsApplied + " / 音效 " + UIStageSeCount + " 次 | " + uiStagingSlotSummary();
+}

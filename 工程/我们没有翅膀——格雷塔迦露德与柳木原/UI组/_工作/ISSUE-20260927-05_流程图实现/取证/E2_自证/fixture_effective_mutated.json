@@ -1,0 +1,84 @@
+{
+  "_what": "run_e2_fixture.py 本次**实际注入**运行目录的 links（颜色已解析为 0xAARRGGBB 整数）",
+  "_tint": "(未覆盖，取自 links_fixture.json 的 color_ref → palette)",
+  "run_dir": "E:\\ZCode Workspace\\Galgame\\临时\\wt-qbicons\\临时\\ui_run_e2_fixture",
+  "links": [
+    {
+      "id": "fix.link.01",
+      "pts": [
+        [
+          248,
+          365
+        ],
+        [
+          248,
+          550
+        ]
+      ],
+      "w": 4,
+      "color": 4292886688,
+      "arrow": true
+    },
+    {
+      "id": "fix.link.02",
+      "pts": [
+        [
+          248,
+          615
+        ],
+        [
+          248,
+          682.5
+        ],
+        [
+          848,
+          682.5
+        ],
+        [
+          848,
+          750
+        ]
+      ],
+      "w": 4,
+      "color": 4292886688,
+      "arrow": true
+    },
+    {
+      "id": "fix.link.03",
+      "pts": [
+        [
+          1000,
+          833
+        ],
+        [
+          248,
+          833
+        ],
+        [
+          248,
+          900
+        ]
+      ],
+      "w": 4,
+      "color": 4292886688,
+      "arrow": true
+    },
+    {
+      "id": "fix.link.04",
+      "pts": [
+        [
+          1148,
+          365
+        ],
+        [
+          1148,
+          550
+        ]
+      ],
+      "w": 4,
+      "color": 4292886688,
+      "arrow": false
+    }
+  ],
+  "_why": "注入自证：把「实际注入数据」的颜色改成另一个色（#FFE040A0），复核机具必须跟着报 FAIL —— 证明判据取自数据而非写死"
+}

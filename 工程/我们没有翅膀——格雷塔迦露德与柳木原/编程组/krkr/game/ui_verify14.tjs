@@ -1,0 +1,334 @@
+// ============================================================
+// ui_verify14.tjs —— 【诊断专用·ISSUE-20261001-14 / -15 验证脚手架】
+//
+// 用途：用**引擎同一入口**（`UIStoryWin.onMouseDown/onClick/onKeyDown/onKeyUp`）合成真实事件，
+//   实测：
+//     ① 页脚「返回」三屏（backlog / gallery / music）——点各自页脚热区是否真能关闭弹层；
+//     ② ④music 屏按 Esc 是否真能退出（§三② 退出路径的机检证据）；
+//     ③（key 模式）对话框屏 CTRL 是否强制快进、遇选择支是否停止、空格等普通键是否仍照常。
+//
+// ★ 开关（二选一，均由 `ui_boot.tjs` 的窗口交接末尾读取）：
+//     `game\verify14.txt`     → "mouse" 模式（① 三屏页脚返回 + ② music Esc）
+//     `game\verify14skip.txt` → "key"   模式（③ CTRL 快进 + 选择支停止 + 空格回落）
+//   成品不含这两个开关 ⇒ 本文件根本不被装载、零开销、零行为改变（与 uidiag.txt 同一套路）。
+//
+// ★ 只「驱动 + 观察」，**不改任何行为**：不包装函数、不替 UI 组/剧情引擎做决定。
+// ★ 相位机用 500ms Timer（> UI 组 420ms 转场）⇒ 每拍都在转场结束后再动作。
+//   Timer 必须由**全局**引用持有，否则回调被回收、静默停止（交接 §六.14）。
+// ============================================================
+
+var UIVerify14Timer = null;
+var UIVerify14Phase = 0;
+var UIVerify14Mode  = "";
+var UIVerify14Kx    = 1.5;      // 实测换算因子（客户区→画布）；默认 1280→1920
+var UIVerify14Ky    = 1.5;
+var UIVerify14Fail  = 0;
+
+function uiVerify14Log(m) { Debug.message("[VERIFY14] " + m); }
+
+// 客户区坐标 ← 画布坐标：直接用 UI 组自己的换算函数反解（不硬编码 1.5）
+function uiVerify14Client(cx, cy)
+{
+	var rx = Math.floor(cx / UIVerify14Kx + 0.5);
+	var ry = Math.floor(cy / UIVerify14Ky + 0.5);
+	return %[ x: rx, y: ry ];
+}
+
+// 把某屏「可命中」元素（kind=hit）几何/动作打进日志（坐标能直接对上）
+function uiVerify14DumpHits(id, fixId)
+{
+	var sc = null;
+	try { sc = UILayoutData.screens["" + id]; } catch(e) { sc = null; }
+	if(sc === void || sc === null || sc.elements === void) { uiVerify14Log("屏 " + id + " 无 elements"); return; }
+	var els = sc.elements, n = 0;
+	for(var i = 0; i < els.count; i++)
+	{
+		var e = els[i];
+		if(e === void || e === null || e.id === void) continue;
+		if(("" + e.kind) != "hit") continue;
+		uiVerify14Log("  hit " + e.id + " act=" + ((e.action === void) ? "(无)" : ("" + e.action))
+			+ " rect=(" + e.x + "," + e.y + "," + e.w + "," + e.h + ") z=" + e.z);
+		n++;
+	}
+	if(fixId === void || fixId === null || ("" + fixId) == "") fixId = "bl.ret_hitfix";
+	uiVerify14Log("屏 " + id + "：kind=hit " + n + " 件 ｜ " + fixId + " 存在="
+		+ ((uiStoryFindEl(sc, "" + fixId) !== void) ? "是" : "否"));
+}
+
+function uiVerify14Start(mode)
+{
+	if(UIVerify14Timer !== null) return false;
+	UIVerify14Mode = "" + mode;
+	UIVerify14Phase = 0;
+	UIVerify14Fail = 0;
+	// 实测换算因子
+	if(UIStoryWin !== null && UIStoryWin !== void)
+	{
+		try { var cx = UIStoryWin.uiMouseCanvasX(100); if(cx > 0) UIVerify14Kx = cx / 100; } catch(e1) { }
+		try { var cy = UIStoryWin.uiMouseCanvasY(100); if(cy > 0) UIVerify14Ky = cy / 100; } catch(e2) { }
+	}
+	try
+	{
+		UIVerify14Timer = new Timer(uiVerify14Tick, '');
+		UIVerify14Timer.interval = 500;
+		UIVerify14Timer.enabled = true;
+	}
+	catch(e)
+	{
+		UIVerify14Timer = null;
+		Debug.message("[VERIFY14][ERR] Timer 建立失败：" + e.message);
+		return false;
+	}
+	uiVerify14Log("验证脚手架已武装 ｜ 模式=" + UIVerify14Mode
+		+ " ｜ 换算 kx=" + UIVerify14Kx + " ky=" + UIVerify14Ky);
+	return true;
+}
+
+function uiVerify14Done()
+{
+	if(UIVerify14Timer !== null) { try { UIVerify14Timer.enabled = false; } catch(e0) { } }
+	uiVerify14Log("★VERIFY14★ DONE ｜ 模式=" + UIVerify14Mode + " ｜ FAIL 计数=" + UIVerify14Fail);
+}
+
+function uiVerify14Tick()
+{
+	if(UIVerify14Timer === null) return;
+	UIVerify14Phase++;
+	try
+	{
+		if(UIVerify14Mode == "mouse") { uiVerify14TickMouse(); return; }
+		if(UIVerify14Mode == "key")   { uiVerify14TickKey();   return; }
+		uiVerify14Log("未知模式，收尾");
+		uiVerify14Done();
+	}
+	catch(e)
+	{
+		uiVerify14Log("[ERR] phase=" + UIVerify14Phase + " : " + e.message);
+	}
+}
+
+// ------------------------------------------------------------
+// mouse 模式：页脚「返回」三屏（backlog / gallery / music）+ ④Esc 退出路径
+//   每拍 500ms（> UI 组 420ms 转场）⇒ 每步都在转场结束后再动作。
+//   坐标：画布 → 客户区（÷ 实测换算），走**引擎同一入口**（onMouseDown + onClick / onKeyDown）。
+// ------------------------------------------------------------
+function uiVerify14TickMouse()
+{
+	// p1 基线 → 开局
+	if(UIVerify14Phase == 1)
+	{
+		uiVerify14Log("p1 基线屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+		uiActionDispatch("game_start", -1);
+		uiVerify14Log("p1 game_start 后屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+		return;
+	}
+	// p2 进 backlog
+	if(UIVerify14Phase == 2)
+	{
+		uiActionDispatch("open_backlog", -1);
+		uiVerify14Log("p2 open_backlog 后屏=" + uiScreenCurrent() + "（期望 backlog）");
+		uiVerify14DumpHits("backlog", "bl.ret_hitfix");
+		return;
+	}
+	// p3 点 backlog 页脚返回（既有样板复验）
+	if(UIVerify14Phase == 3)
+	{
+		var c = uiVerify14Client(1806, 1011);
+		uiVerify14Log("p3 ①backlog 页脚返回：屏=" + uiScreenCurrent()
+			+ " 画布中心(1806,1011) → 客户区(" + c.x + "," + c.y + ")");
+		try { UIStoryWin.onMouseDown(c.x, c.y, 0, 8); }
+		catch(eM) { uiVerify14Log("p3 onMouseDown 异常：" + eM.message); }
+		try { UIStoryWin.onClick(c.x, c.y); }
+		catch(eC) { uiVerify14Log("p3 onClick 异常：" + eC.message); }
+		return;
+	}
+	// p4 backlog 判词 + 进 gallery
+	if(UIVerify14Phase == 4)
+	{
+		var sc1 = uiScreenCurrent();
+		var ok1 = (sc1 == "dialog");
+		if(!ok1) UIVerify14Fail++;
+		uiVerify14Log("p4 ①backlog 结论：点页脚返回后屏=" + sc1
+			+ " ｜ 期望 dialog ⇒ " + (ok1 ? "PASS" : "FAIL"));
+		uiActionDispatch("open_gallery", -1);
+		uiVerify14Log("p4 open_gallery → 屏=" + uiScreenCurrent() + "（期望 gallery）");
+		uiVerify14DumpHits("gallery", "gal.ret_hitfix");
+		return;
+	}
+	// p5 点 gallery 页脚返回（矩形中心 1804,1012）
+	if(UIVerify14Phase == 5)
+	{
+		var c5 = uiVerify14Client(1804, 1012);
+		uiVerify14Log("p5 ②gallery 页脚返回：屏=" + uiScreenCurrent()
+			+ " 画布中心(1804,1012) → 客户区(" + c5.x + "," + c5.y + ")");
+		try { UIStoryWin.onMouseDown(c5.x, c5.y, 0, 8); }
+		catch(eM5) { uiVerify14Log("p5 onMouseDown 异常：" + eM5.message); }
+		try { UIStoryWin.onClick(c5.x, c5.y); }
+		catch(eC5) { uiVerify14Log("p5 onClick 异常：" + eC5.message); }
+		return;
+	}
+	// p6 gallery 判词 + 进 music（gal_shell 页签 2）
+	if(UIVerify14Phase == 6)
+	{
+		var sc2 = uiScreenCurrent();
+		var ok2 = (sc2 == "dialog");
+		if(!ok2) UIVerify14Fail++;
+		uiVerify14Log("p6 ②gallery 结论：点页脚返回后屏=" + sc2
+			+ " ｜ 期望 dialog ⇒ " + (ok2 ? "PASS" : "FAIL"));
+		uiActionDispatch("open_gallery", -1);
+		uiActionDispatch("gallery_tab_2", -1);
+		uiVerify14Log("p6 gallery_tab_2 → 屏=" + uiScreenCurrent()
+			+ "（期望 music）栈=[" + uiScreenStackText() + "]");
+		uiVerify14DumpHits("music", "mu.ret_hitfix");
+		return;
+	}
+	// p7 点 music 页脚返回（矩形中心 1623,1011）
+	if(UIVerify14Phase == 7)
+	{
+		var c7 = uiVerify14Client(1623, 1011);
+		uiVerify14Log("p7 ③music 页脚返回：屏=" + uiScreenCurrent()
+			+ " 画布中心(1623,1011) → 客户区(" + c7.x + "," + c7.y + ")");
+		try { UIStoryWin.onMouseDown(c7.x, c7.y, 0, 8); }
+		catch(eM7) { uiVerify14Log("p7 onMouseDown 异常：" + eM7.message); }
+		try { UIStoryWin.onClick(c7.x, c7.y); }
+		catch(eC7) { uiVerify14Log("p7 onClick 异常：" + eC7.message); }
+		return;
+	}
+	// p8 music 判词 + 再进 music 准备 Esc 探针
+	if(UIVerify14Phase == 8)
+	{
+		var sc3 = uiScreenCurrent();
+		var ok3 = (sc3 == "dialog");
+		if(!ok3) UIVerify14Fail++;
+		uiVerify14Log("p8 ③music 结论：点页脚返回后屏=" + sc3
+			+ " ｜ 期望 dialog ⇒ " + (ok3 ? "PASS" : "FAIL"));
+		uiActionDispatch("open_gallery", -1);
+		uiActionDispatch("gallery_tab_2", -1);
+		uiVerify14Log("p8 再进 music 屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+		return;
+	}
+	// p9 ④Esc 探针：按前/按后
+	if(UIVerify14Phase == 9)
+	{
+		uiVerify14Log("p9 ④Esc：按前屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+		try { UIStoryWin.onKeyDown(27, 0); }
+		catch(eK) { uiVerify14Log("p9 onKeyDown(27) 异常：" + eK.message); }
+		uiVerify14Log("p9 按后屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+		return;
+	}
+	// p10 ④Esc 判词 → 收尾
+	if(UIVerify14Phase == 10)
+	{
+		var sc4 = uiScreenCurrent();
+		var ok4 = (sc4 == "dialog");
+		if(!ok4) UIVerify14Fail++;
+		uiVerify14Log("p10 ④Esc 结论：按 Esc 后屏=" + sc4
+			+ " ｜ 期望 dialog ⇒ " + (ok4 ? "PASS" : "FAIL")
+			+ " ｜ 右键拦截计数=" + UIStoryRightClickBlocked);
+		uiVerify14Done();
+		return;
+	}
+}
+
+// ------------------------------------------------------------
+// key 模式：③ CTRL 快进 + 遇选择支停止 + 空格回落
+// ------------------------------------------------------------
+function uiVerify14TickKey()
+{
+	if(UIVerify14Phase == 1)
+	{
+		uiVerify14Log("p1 基线屏=" + uiScreenCurrent());
+		uiActionDispatch("game_start", -1);
+		uiVerify14Log("p1 game_start 后屏=" + uiScreenCurrent());
+		return;
+	}
+	if(UIVerify14Phase == 2)
+	{
+		uiVerify14Log("p2 屏=" + uiScreenCurrent() + " 行=" + UIDlgLine + " 场景=" + uiDialogCurrentScene()
+			+ " ｜ 按前 UIDlgSkipMode=" + UIDlgSkipMode + " UIStorySkipOn=" + UIStorySkipOn);
+		try { UIStoryWin.onKeyDown(17, 0); }
+		catch(eK) { uiVerify14Log("p2 onKeyDown(17) 异常：" + eK.message); }
+		uiVerify14Log("p2 按后 UIDlgSkipMode=" + UIDlgSkipMode + " UIStorySkipOn=" + UIStorySkipOn);
+		return;
+	}
+	if(UIVerify14Phase == 3 || UIVerify14Phase == 4)
+	{
+		uiVerify14Log("p" + UIVerify14Phase + " 快进中：屏=" + uiScreenCurrent()
+			+ " 行=" + UIDlgLine + " 场景=" + uiDialogCurrentScene()
+			+ " 拍=" + UIStorySkipTicks + " On=" + UIStorySkipOn + " SkipMode=" + UIDlgSkipMode);
+		return;
+	}
+	if(UIVerify14Phase == 5)
+	{
+		uiVerify14Log("p5 松开 CTRL（onKeyUp）前：拍=" + UIStorySkipTicks + " On=" + UIStorySkipOn);
+		try { UIStoryWin.onKeyUp(17, 0); }
+		catch(eU) { uiVerify14Log("p5 onKeyUp(17) 异常：" + eU.message); }
+		uiVerify14Log("p5 松开后 On=" + UIStorySkipOn + " UIDlgSkipMode=" + UIDlgSkipMode);
+		return;
+	}
+	// 空格回落：普通键必须仍照常推进（证明我方 uiScreenKey 包装没吃掉其它键）
+	//   ⚠️ 按一次可能只「跳过打字机、整行显示」（action=typed）、不推进行 ⇒ 连按两次再比行号。
+	if(UIVerify14Phase == 6)
+	{
+		var before = UIDlgLine;
+		uiVerify14Log("p6 空格回落：按前 行=" + before + " 场景=" + uiDialogCurrentScene()
+			+ " UIDlgTyping=" + UIDlgTyping);
+		try { UIStoryWin.onKeyDown(32, 0); }
+		catch(eS) { uiVerify14Log("p6 onKeyDown(32)#1 异常：" + eS.message); }
+		try { UIStoryWin.onKeyDown(32, 0); }
+		catch(eS2) { uiVerify14Log("p6 onKeyDown(32)#2 异常：" + eS2.message); }
+		var after = UIDlgLine;
+		var ok = (after != before);
+		if(!ok) UIVerify14Fail++;
+		uiVerify14Log("p6 按后 行=" + after + " ｜ 是否推进=" + (ok ? "是" : "否")
+			+ " ⇒ " + (ok ? "PASS（空格未被包装吃掉）" : "FAIL"));
+		return;
+	}
+	// 选择支场景：定位到末行后按 CTRL ⇒ 期望「遇到选择支 ⇒ 停止快进」且不自动选项
+	if(UIVerify14Phase == 7)
+	{
+		var loaded = false;
+		try { loaded = uiStoryLoad("ot_s01_02c"); } catch(eL) { uiVerify14Log("p7 载入异常：" + eL.message); }
+		uiVerify14Log("p7 载入 ot_s01_02c=" + loaded + " 行数=" + UIDemoLineCount
+			+ " 选择支=" + ((UIStoryScene !== void && UIStoryScene.choices !== void) ? UIStoryScene.choices.count : 0));
+		if(loaded && UIDemoLineCount > 0)
+		{
+			UIDlgLine = UIDemoLineCount - 1;
+			UIDlgTyped = 0; UIDlgTyping = false; UIDlgChoicesOpen = false;
+			uiVerify14Log("p7 定位末行 UIDlgLine=" + UIDlgLine + "（下一拍按 CTRL）");
+		}
+		return;
+	}
+	if(UIVerify14Phase == 8)
+	{
+		uiVerify14Log("p8 选择支场景按 CTRL：屏=" + uiScreenCurrent() + " 行=" + UIDlgLine
+			+ " 选择支开=" + UIDlgChoicesOpen + " ｜ 按前 On=" + UIStorySkipOn);
+		try { UIStoryWin.onKeyDown(17, 0); }
+		catch(eK2) { uiVerify14Log("p8 onKeyDown(17) 异常：" + eK2.message); }
+		uiVerify14Log("p8 按后 On=" + UIStorySkipOn + " SkipMode=" + UIDlgSkipMode);
+		return;
+	}
+	if(UIVerify14Phase == 9)
+	{
+		var stopped = (!UIStorySkipOn);
+		var choicesOpen = UIDlgChoicesOpen;
+		uiVerify14Log("p9 选择支结论：On=" + UIStorySkipOn + "（期望 false）选=" + choicesOpen
+			+ "（期望 true，即未自动选项）拍=" + UIStorySkipTicks
+			+ " ⇒ " + ((stopped && choicesOpen) ? "PASS" : "FAIL"));
+		if(!(stopped && choicesOpen)) UIVerify14Fail++;
+		return;
+	}
+	if(UIVerify14Phase == 10)
+	{
+		// 选择肢展开下再按 CTRL：守卫应使其**不启动**（否则按住 CTRL 会反复启停刷日志）
+		uiVerify14Log("p10 选择肢展开中再按 CTRL：选择支开=" + UIDlgChoicesOpen + " 按前 On=" + UIStorySkipOn);
+		try { UIStoryWin.onKeyDown(17, 0); }
+		catch(eK3) { uiVerify14Log("p10 onKeyDown(17) 异常：" + eK3.message); }
+		var ok3 = (!UIStorySkipOn);
+		if(!ok3) UIVerify14Fail++;
+		uiVerify14Log("p10 按后 On=" + UIStorySkipOn + "（期望 false）⇒ " + (ok3 ? "PASS" : "FAIL"));
+		try { UIStoryWin.onKeyUp(17, 0); } catch(eU2) { }
+		uiVerify14Done();
+		return;
+	}
+}

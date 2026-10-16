@@ -1,0 +1,3 @@
+# 2026-10-14阶段终点（更正前述待办）
+
+144实际6handoff（非计划16）；337postblit全clip2/samples过，full369555差异。parent adapter断言非源码故障。145诊断：实际WM_NCHITTEST 0x84打包屏幕XY被误拒。146验证原WNDPROC 49F860加实际DefWindowProc对0x84返回HTCLIENT1同窗口；2handoff 113postblit全过，full369369差异。下一边界为系统实际发送的WM_SETCURSOR 0x20，wParam自有HWND需host→guest映射，不支持则保守停止；无源码文本API调用。进程exit0、worker errors[]、fixture cleanup true，非完整游戏成功。源完整性核对1EXE 8LPK 3DLL 2refs 446scripts 418IR 111byte USERCFG未变。四版本目标活跃全100%未完成。不虚构额外证据。

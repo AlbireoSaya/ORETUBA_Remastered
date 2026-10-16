@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "fault": "force-rebind",
+  "bits": 64,
+  "expected_diagnostic": "RVM_COMPARE writes",
+  "failed_test_receipt_preserved": true,
+  "test_exit_code": 1,
+  "test_process": {
+    "returncode": 0,
+    "timed_out": false,
+    "cleanup_ok": true,
+    "pid": 8288
+  },
+  "original_candidate_unchanged_sha256": "43b1b12c2a0134b1542f70ddc2805f7819f5f564bb828cca1e53d0c85ee28752",
+  "injections": [
+    {
+      "path": "临时/ISSUE-20261011-02/r-target-runtime-fault-force-rebind-64-20261016-01/game/r_bind_expression.tjs",
+      "sha256": "8bb2424555e348dec9a9fcc3d53ff99dbe25c18ddc7957397a809899f56db4b3"
+    }
+  ],
+  "scope": "negative checker test only; mutated game copy, not production/candidate/original files"
+}

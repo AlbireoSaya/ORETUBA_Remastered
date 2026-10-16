@@ -1,0 +1,1446 @@
+{
+  "source_exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "scope": "9 constructor source slices x2 controlled states; original VM/native wrapper/factory prologue until original allocator; complete allocation/CFG/global states not claimed",
+  "cases": [
+    {
+      "module": "config1.sob",
+      "module_sha256": "ac69452fb88ec1326123688ee10a9a2dffbfacbbda7e219c57facb0afbf120a7",
+      "start": 10528,
+      "call": 10572,
+      "source_call_fileoffset": 30908,
+      "native_candidate": 238,
+      "handler_va": 4319312,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          2
+        ],
+        "vm_pc": 17049944,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 10528,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10540,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10548,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 10556,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 10564,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 10572,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4957902,
+          216,
+          17049936,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config1.sob",
+      "module_sha256": "ac69452fb88ec1326123688ee10a9a2dffbfacbbda7e219c57facb0afbf120a7",
+      "start": 10528,
+      "call": 10572,
+      "source_call_fileoffset": 30908,
+      "native_candidate": 238,
+      "handler_va": 4319312,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          2
+        ],
+        "vm_pc": 17049944,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 10528,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10540,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10548,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 10556,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 10564,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 10572,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4957902,
+          216,
+          17049936,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config1.sob",
+      "module_sha256": "ac69452fb88ec1326123688ee10a9a2dffbfacbbda7e219c57facb0afbf120a7",
+      "start": 11008,
+      "call": 11052,
+      "source_call_fileoffset": 31388,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17050424,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 11008,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 11020,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 11028,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 11036,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 11044,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 11052,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17050416,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config1.sob",
+      "module_sha256": "ac69452fb88ec1326123688ee10a9a2dffbfacbbda7e219c57facb0afbf120a7",
+      "start": 11008,
+      "call": 11052,
+      "source_call_fileoffset": 31388,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17050424,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 11008,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 11020,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 11028,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 11036,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 11044,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 11052,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17050416,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config1.sob",
+      "module_sha256": "ac69452fb88ec1326123688ee10a9a2dffbfacbbda7e219c57facb0afbf120a7",
+      "start": 31932,
+      "call": 31976,
+      "source_call_fileoffset": 52312,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17071348,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 31932,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 31944,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 31952,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 31960,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 31968,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 31976,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17071340,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config1.sob",
+      "module_sha256": "ac69452fb88ec1326123688ee10a9a2dffbfacbbda7e219c57facb0afbf120a7",
+      "start": 31932,
+      "call": 31976,
+      "source_call_fileoffset": 52312,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17071348,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 31932,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 31944,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 31952,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 31960,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 31968,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 31976,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17071340,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config2.sob",
+      "module_sha256": "d0a3fd19ec8217da08cf1ad05f376176a43c14b9569f313e72fbb1029a7bf54c",
+      "start": 10188,
+      "call": 10232,
+      "source_call_fileoffset": 28912,
+      "native_candidate": 238,
+      "handler_va": 4319312,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          2
+        ],
+        "vm_pc": 17049604,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 10188,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10200,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10208,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 10216,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 10224,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 10232,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4957902,
+          216,
+          17049596,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config2.sob",
+      "module_sha256": "d0a3fd19ec8217da08cf1ad05f376176a43c14b9569f313e72fbb1029a7bf54c",
+      "start": 10188,
+      "call": 10232,
+      "source_call_fileoffset": 28912,
+      "native_candidate": 238,
+      "handler_va": 4319312,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          2
+        ],
+        "vm_pc": 17049604,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 10188,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10200,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10208,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 10216,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 10224,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 10232,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4957902,
+          216,
+          17049596,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config2.sob",
+      "module_sha256": "d0a3fd19ec8217da08cf1ad05f376176a43c14b9569f313e72fbb1029a7bf54c",
+      "start": 10668,
+      "call": 10712,
+      "source_call_fileoffset": 29392,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17050084,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 10668,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10680,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10688,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 10696,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 10704,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 10712,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17050076,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config2.sob",
+      "module_sha256": "d0a3fd19ec8217da08cf1ad05f376176a43c14b9569f313e72fbb1029a7bf54c",
+      "start": 10668,
+      "call": 10712,
+      "source_call_fileoffset": 29392,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17050084,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 10668,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10680,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 10688,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 10696,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 10704,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 10712,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17050076,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config2.sob",
+      "module_sha256": "d0a3fd19ec8217da08cf1ad05f376176a43c14b9569f313e72fbb1029a7bf54c",
+      "start": 28536,
+      "call": 28580,
+      "source_call_fileoffset": 47260,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17067952,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 28536,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 28548,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 28556,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 28564,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 28572,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 28580,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17067944,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "config2.sob",
+      "module_sha256": "d0a3fd19ec8217da08cf1ad05f376176a43c14b9569f313e72fbb1029a7bf54c",
+      "start": 28536,
+      "call": 28580,
+      "source_call_fileoffset": 47260,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17067952,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 28536,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 28548,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 28556,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 28564,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 28572,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 28580,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17067944,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "gameinit.sob",
+      "module_sha256": "a5eb7ab929fdd10de995b1e33a60c7f661819cbb022fa6c9d69f166484338a43",
+      "start": 2116,
+      "call": 2160,
+      "source_call_fileoffset": 4568,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          1
+        ],
+        "vm_pc": 17041532,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 2116,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 2128,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 2136,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 2144,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 2152,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 2160,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17041524,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "gameinit.sob",
+      "module_sha256": "a5eb7ab929fdd10de995b1e33a60c7f661819cbb022fa6c9d69f166484338a43",
+      "start": 2116,
+      "call": 2160,
+      "source_call_fileoffset": 4568,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          1
+        ],
+        "vm_pc": 17041532,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 2116,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 2128,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 2136,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 2144,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 2152,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 2160,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17041524,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "saveload.sob",
+      "module_sha256": "d1fd1c948b5e78886df8ff8303411113a10e6b19f1c38606c79b975a7fe0aaf2",
+      "start": 19276,
+      "call": 19320,
+      "source_call_fileoffset": 42720,
+      "native_candidate": 238,
+      "handler_va": 4319312,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          2
+        ],
+        "vm_pc": 17058692,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 19276,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19288,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19296,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 19304,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 19312,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 19320,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4957902,
+          216,
+          17058684,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "saveload.sob",
+      "module_sha256": "d1fd1c948b5e78886df8ff8303411113a10e6b19f1c38606c79b975a7fe0aaf2",
+      "start": 19276,
+      "call": 19320,
+      "source_call_fileoffset": 42720,
+      "native_candidate": 238,
+      "handler_va": 4319312,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          2
+        ],
+        "vm_pc": 17058692,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 19276,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19288,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19296,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 19304,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 19312,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 19320,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4957902,
+          216,
+          17058684,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "saveload.sob",
+      "module_sha256": "d1fd1c948b5e78886df8ff8303411113a10e6b19f1c38606c79b975a7fe0aaf2",
+      "start": 19448,
+      "call": 19492,
+      "source_call_fileoffset": 42892,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 0,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17058864,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 19448,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19460,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19468,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 19476,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 19484,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 19492,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17058856,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    },
+    {
+      "module": "saveload.sob",
+      "module_sha256": "d1fd1c948b5e78886df8ff8303411113a10e6b19f1c38606c79b975a7fe0aaf2",
+      "start": 19448,
+      "call": 19492,
+      "source_call_fileoffset": 42892,
+      "native_candidate": 239,
+      "handler_va": 4319360,
+      "seed": 1,
+      "scope": "original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof",
+      "snapshot": {
+        "esp": 33587176,
+        "frame_ptr": 16908544,
+        "frame_words": [
+          800,
+          600,
+          32,
+          0
+        ],
+        "vm_pc": 17058864,
+        "vm_sp": 16908560
+      },
+      "trace": [
+        {
+          "codeoffset": 19448,
+          "opcode": 40,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19460,
+          "opcode": 8,
+          "vm_sp": 16908544
+        },
+        {
+          "codeoffset": 19468,
+          "opcode": 8,
+          "vm_sp": 16908548
+        },
+        {
+          "codeoffset": 19476,
+          "opcode": 8,
+          "vm_sp": 16908552
+        },
+        {
+          "codeoffset": 19484,
+          "opcode": 8,
+          "vm_sp": 16908556
+        },
+        {
+          "codeoffset": 19492,
+          "opcode": 5,
+          "vm_sp": 16908560
+        }
+      ],
+      "module_data_controls": [],
+      "VM_SP_input": 16908544,
+      "variable_adapter": "record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address",
+      "callee_body_executed": "wrapper and factory prologue only, stopped before original operator-new",
+      "allocator_snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587112,
+        "eax": 33587180,
+        "ecx": 0,
+        "edx": 800,
+        "stack_words": [
+          4958190,
+          216,
+          17058856,
+          16777216,
+          4,
+          12,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "caller_outslot_now_zero": true
+    }
+  ]
+}

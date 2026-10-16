@@ -1,0 +1,352 @@
+{
+  "id": "music",
+  "title_cn": "音乐鉴赏",
+  "owner": "M5",
+  "note": "音乐鉴赏屏。底板自建（九宫格件 panel_frame.png + rect 填充；原版 mu_bg 为 PSV 整页音乐界面文字图，属 R1 类不可用），底图沿用 tl1_bg1。曲目条列表每行由引擎绘字；原版 gl_bgm01…12（1900×37）与 mc_bgm01…96（实存 58 件，2036×37）**经 M1 目视实测确认含烘焙曲名**，一律不用（M12 备注：画布已由 1280 改为 1920，故 1900 宽现可容纳、2036 宽仍超出——但**主因仍是含烘焙曲名**，与画布宽度无关）。播放控制为引擎绘字按钮；进度条滑块取原版空白件 cf_vbar(源件 56×6)，按 ×1.5 摆放为 84×9。⚠ 曲目内容为**演示数据**。",
+  "elements": [
+    {
+      "id": "music.backdrop",
+      "kind": "rect",
+      "z": 0,
+      "visible_default": true,
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "color": "@palette.letterbox",
+      "opacity": 255,
+      "note": "画布底色（留边黑底）"
+    },
+    {
+      "id": "music.bg_art",
+      "kind": "image",
+      "z": 1,
+      "visible_default": true,
+      "asset": "ui/tl1_bg1.png",
+      "x": 60,
+      "y": 225,
+      "w": 1800,
+      "h": 675,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\tl1_bg1.png",
+      "note": "底图（幻想侧城镇风景，原版无字贴图，1:1 不缩放；全屏系统屏共用）"
+    },
+    {
+      "id": "music.veil",
+      "kind": "rect",
+      "z": 2,
+      "visible_default": true,
+      "x": 60,
+      "y": 225,
+      "w": 1800,
+      "h": 675,
+      "color": "@palette.backdrop",
+      "opacity": 150,
+      "note": "底图压暗层"
+    },
+    {
+      "id": "music.panel_fill",
+      "kind": "rect",
+      "z": 5,
+      "visible_default": true,
+      "x": 240,
+      "y": 144,
+      "w": 1440,
+      "h": 795,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "音乐鉴赏面板填充"
+    },
+    {
+      "id": "music.panel_frame",
+      "kind": "image",
+      "z": 6,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 240,
+      "y": 144,
+      "w": 1440,
+      "h": 795,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png（由 if_lt/rt/lb/rb + if_tbar/bbar + if_lbar/rbar 拼合）",
+      "note": "面板九宫格边框（原版 mu_bg 属 R1 整页图不可用，故自建）"
+    },
+    {
+      "id": "music.title",
+      "kind": "text",
+      "z": 10,
+      "visible_default": true,
+      "x": 270,
+      "y": 153,
+      "w": 1380,
+      "h": 54,
+      "font": {
+        "size": 45,
+        "bold": true,
+        "color": "@palette.text_title",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 3
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "音乐鉴赏",
+      "note": "屏标题（中文，引擎绘制）"
+    },
+    {
+      "id": "music.tracks",
+      "kind": "list",
+      "z": 20,
+      "visible_default": true,
+      "orientation": "v",
+      "x": 270,
+      "y": 225,
+      "w": 900,
+      "item_h": 51,
+      "gap": 6,
+      "max_rows": 8,
+      "labels": [
+        "曲目 01",
+        "曲目 02",
+        "曲目 03",
+        "曲目 04",
+        "曲目 05",
+        "曲目 06",
+        "曲目 07",
+        "曲目 08"
+      ],
+      "actions": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.text_primary",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "left",
+      "item_frame": {
+        "asset": "ui/panel_frame.png",
+        "nine": {
+          "l": 20,
+          "t": 8,
+          "r": 20,
+          "b": 8
+        },
+        "opacity": 200
+      },
+      "highlight": {
+        "kind": "rect",
+        "color": "@palette.highlight",
+        "opacity": "@palette.highlight_opa"
+      },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：行框用九宫格件 ui/panel_frame.png；行文本由引擎绘制（原版 mc_bgm/gl_bgm 曲目条含烘焙曲名，不引用）",
+      "note": "曲目条列表（8 条/页，演示数据；真值由编程组从素材库填充）。labels 用通用占位词「曲目 NN」，**不编造曲名**；actions 暂为空串——曲目行点击/播放语义未列入动作表，待编程组定义（见 M5 报告「需裁决点」）"
+    },
+    {
+      "id": "music.album_frame",
+      "kind": "image",
+      "z": 25,
+      "visible_default": true,
+      "asset": "ui/ga_frame.png",
+      "x": 1230,
+      "y": 225,
+      "w": 249,
+      "h": 189,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\ga_frame.png",
+      "note": "当前曲目封面框（原版相册框 ga_frame，空白件，1:1 不缩放）"
+    },
+    {
+      "id": "music.album_ph",
+      "kind": "rect",
+      "z": 24,
+      "visible_default": true,
+      "x": 1242,
+      "y": 237,
+      "w": 225,
+      "h": 165,
+      "color": "@palette.panel_fill",
+      "opacity": 200,
+      "note": "封面占位填充（本资产集无曲目封面件；真值由编程组填充或保持占位底色）"
+    },
+    {
+      "id": "music.now_playing",
+      "kind": "text",
+      "z": 30,
+      "visible_default": true,
+      "x": 1230,
+      "y": 435,
+      "w": 330,
+      "h": 84,
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.text_hint",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "left",
+      "valign": "top",
+      "wrap": true,
+      "max_lines": 3,
+      "line_spacing": 1.2,
+      "sample": "当前曲目：曲目 01\n（演示占位，真值由编程组从素材库填充）",
+      "note": "当前曲目信息（演示占位文本，非剧情文本）"
+    },
+    {
+      "id": "music.progress_track",
+      "kind": "rect",
+      "z": 30,
+      "visible_default": true,
+      "x": 270,
+      "y": 720,
+      "w": 900,
+      "h": 9,
+      "color": "@palette.panel_fill",
+      "opacity": 220,
+      "note": "播放进度条轨道（引擎绘制纯色）"
+    },
+    {
+      "id": "music.progress_knob",
+      "kind": "image",
+      "z": 31,
+      "visible_default": true,
+      "asset": "ui/cf_vbar.png",
+      "x": 270,
+      "y": 720,
+      "w": 84,
+      "h": 9,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\cf_vbar.png",
+      "note": "播放进度滑块（原版空白件 56×6，横向滑块，1:1 不缩放；位置由编程组按播放进度设置）"
+    },
+    {
+      "id": "music.controls",
+      "kind": "list",
+      "z": 35,
+      "visible_default": true,
+      "orientation": "h",
+      "x": 270,
+      "y": 765,
+      "w": 750,
+      "item_w": 165,
+      "item_h": 54,
+      "gap": 30,
+      "max_cols": 4,
+      "labels": [
+        "播放",
+        "暂停",
+        "上一曲",
+        "下一曲"
+      ],
+      "actions": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "font": {
+        "size": 27,
+        "bold": false,
+        "color": "@palette.text_menu",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "center",
+      "item_frame": {
+        "asset": "ui/panel_frame.png",
+        "nine": {
+          "l": 20,
+          "t": 8,
+          "r": 20,
+          "b": 8
+        },
+        "opacity": 225
+      },
+      "highlight": {
+        "kind": "rect",
+        "color": "@palette.highlight",
+        "opacity": "@palette.highlight_opa"
+      },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：按钮框用九宫格件 ui/panel_frame.png；标签由引擎绘制（原版 skp1_icon 256×256 经 M1 实测为状态文字雪碧图，不引用）",
+      "note": "播放控制按钮条（播放 / 暂停 / 上一曲 / 下一曲）。actions 暂为空串——播放控制语义未列入动作表，待编程组定义（见 M5 报告「需裁决点」）"
+    },
+    {
+      "id": "music.btn_ret_fill",
+      "kind": "rect",
+      "z": 40,
+      "visible_default": true,
+      "x": 1650,
+      "y": 975,
+      "w": 210,
+      "h": 66,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "返回键底"
+    },
+    {
+      "id": "music.btn_ret_frame",
+      "kind": "image",
+      "z": 41,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 1650,
+      "y": 975,
+      "w": 210,
+      "h": 66,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png",
+      "note": "返回键边框"
+    },
+    {
+      "id": "music.btn_ret",
+      "kind": "hit",
+      "z": 42,
+      "visible_default": true,
+      "x": 1650,
+      "y": 975,
+      "w": 210,
+      "h": 66,
+      "action": "close",
+      "label": "返回",
+      "font": {
+        "size": 30,
+        "bold": false,
+        "color": "@palette.text_menu",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "center",
+      "note": "返回（热区 + 引擎绘制标签）"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+E3 外壳留存自证（ISSUE-20260928-02 · HTML 侧）
+屏数据（本次实际使用）= 屏 E:/ZCode Workspace/Galgame/临时/wt-qbicons/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/ISSUE-20260928-02_HTML/证据/_shadow/32_flowchart.screen1.json 原始 cdedca7c5332d9acb621d143f30e3775（含 CRLF）｜ LF 4c8f01c0c119c3df2da5b0adfe86e05e ｜ CRLF cdedca7c5332d9acb621d143f30e3775
+渲染栈（本次实际使用）= JS E:/ZCode Workspace/Galgame/临时/wt-qbicons/工程/我们没有翅膀——格雷塔迦露德与柳木原/UI组/_工作/ISSUE-20260928-02_HTML/证据/_shadow/ui_layout.js 原始 fd6686b3cdb4043d9eeaec2df26a16a7（含 CRLF）｜ LF 9429a538bc6a6a8103bf7f27229ed20a ｜ CRLF fd6686b3cdb4043d9eeaec2df26a16a7
+渲染：index.html?screen=flowchart&chrome=0，1920×1080
+外壳件 61 ｜ 图内容层 228 ｜ 组名底板件 6（fc.frag1_title_bg、fc.frag2_title_bg、fc.frag3_title_bg、fc.frag4_title_bg、fc.frag5_title_bg、fc.frag6_title_bg）
+口径：外壳 = **不带 vis_flag**（两种层共用舞台）；层内容 = 带 vis_flag（含 `fc.frag<G>_title_bg`，为 vis_when="frag<G>" 的层内容件，**不计入外壳 61 件**）
+
+★ 锚点（冻结态是否相符）由 `e3_snapshot_stack.py` / `e3_shadow_screen1.py` 负责校验；本脚本只按**运行时读到的真实 md5** 报告，不自造自证串。
+
+①逐层截屏/探针：
+层 main   截图 E3_shell_full_main.png / 外壳专属 E3_shell_sonly_main.png ｜ DOM 探针 {"layer": "main", "shell": 61, "shell_bad": ["fc.pbk_panel:不可见", "fc.p_player:不可见", "fc.p_player_tx:不可见"], "content_visible": 63, "canvas": 1}
+层 frag1  截图 E3_shell_full_frag1.png / 外壳专属 E3_shell_sonly_frag1.png ｜ DOM 探针 {"layer": "frag1", "shell": 61, "shell_bad": ["fc.pbk_panel:不可见", "fc.p_player:不可见", "fc.p_player_tx:不可见"], "content_visible": 26, "canvas": 0}
+层 frag2  截图 E3_shell_full_frag2.png / 外壳专属 E3_shell_sonly_frag2.png ｜ DOM 探针 {"layer": "frag2", "shell": 61, "shell_bad": ["fc.pbk_panel:不可见", "fc.p_player:不可见", "fc.p_player_tx:不可见"], "content_visible": 26, "canvas": 0}
+层 frag3  截图 E3_shell_full_frag3.png / 外壳专属 E3_shell_sonly_frag3.png ｜ DOM 探针 {"layer": "frag3", "shell": 61, "shell_bad": ["fc.pbk_panel:不可见", "fc.p_player:不可见", "fc.p_player_tx:不可见"], "content_visible": 17, "canvas": 0}
+层 frag4  截图 E3_shell_full_frag4.png / 外壳专属 E3_shell_sonly_frag4.png ｜ DOM 探针 {"layer": "frag4", "shell": 61, "shell_bad": ["fc.pbk_panel:不可见", "fc.p_player:不可见", "fc.p_player_tx:不可见"], "content_visible": 35, "canvas": 0}
+层 frag5  截图 E3_shell_full_frag5.png / 外壳专属 E3_shell_sonly_frag5.png ｜ DOM 探针 {"layer": "frag5", "shell": 61, "shell_bad": ["fc.pbk_panel:不可见", "fc.p_player:不可见", "fc.p_player_tx:不可见"], "content_visible": 20, "canvas": 0}
+层 frag6  截图 E3_shell_full_frag6.png / 外壳专属 E3_shell_sonly_frag6.png ｜ DOM 探针 {"layer": "frag6", "shell": 61, "shell_bad": ["fc.pbk_panel:不可见", "fc.p_player:不可见", "fc.p_player_tx:不可见"], "content_visible": 41, "canvas": 0}
+
+②DOM 侧外壳异常清单：无（3 件设计默认隐藏七层一致；其余全部可见）
+③外壳专属截屏 main vs 各层全画布差异：全 0 像素（六层逐像素相同）
+④逐件量化表差异：61 件 × 6 层全部 0 像素

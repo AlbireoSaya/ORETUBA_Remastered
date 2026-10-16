@@ -1,0 +1,9 @@
+function RMemoryRegionCopy(r) {
+  if (typeof r !== "Object") throw new Exception("INVALID_MEMORY_REGION");
+  if (typeof r.base !== "Integer" || typeof r.size !== "Integer") throw new Exception("INVALID_MEMORY_REGION");
+  if (typeof r.read_byte !== "Object") throw new Exception("INVALID_MEMORY_REGION");
+  if (typeof r.writable !== "Integer" || (r.writable !== 0 && r.writable !== 1)) throw new Exception("INVALID_MEMORY_REGION");
+  if (r.base < 0 || r.base > 0xffffffff) throw new Exception("INVALID_MEMORY_REGION");
+  if (r.size <= 0 || r.size > 0x100000000 - r.base) throw new Exception("INVALID_MEMORY_REGION");
+  return %["base" => r.base, "size" => r.size, "read_byte" => r.read_byte, "writable" => r.writable];
+}

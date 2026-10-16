@@ -1,0 +1,76 @@
+//======================================================================
+//  flow_scene.tjs -- "scene storage" of the flowchart demo
+//  ISSUE-20260917-02 / KiriKiri Z self-made flowchart demo
+//
+//  角色定位：这是流程图节点「跳转目标」所指的存储（storage）。
+//  flow_nodes.csv 的 storage 列指向本文件，label 列指向本字典的键。
+//  演示中的「跳转」= 解析 (storage, label) 并取出对应的场景文本，
+//  与真实游戏里「跳到某个脚本文件的某个标签」是同一套寻址模型，
+//  只是这里取出来的是一段数据而不是一段脚本。
+//
+//  由 startup.tjs 通过 Scripts.execStorage("flow_scene.tjs") 加载，
+//  加载后在全局作用域留下 flowSceneTexts 这一个字典。
+//  内容为本工作区自拟的中性文本，不含任何既有作品的素材或角色。
+//======================================================================
+
+var flowSceneTexts = %[
+	"n01" => "放学后的教室安静得能听见时钟走动的声音。|黑板角落还留着今天的日程，明天大概也会一样。",
+	"n02" => "走廊尽头分成两条路。|图书室的灯还亮着，旧校舍那边只有月光。",
+	"n03" => "图书室里有一股旧纸的味道。|最里面的书架旁，有人抬起头看我。",
+	"n04" => "旧校舍的木门推起来会发出很响的声音。|屋里堆着去年文化祭留下的展板。",
+	"n05" => "借阅台的角落里压着一张被撕下的残页。|上面的日期被雨水晕开了一小半。",
+	"n06" => "抽屉最里面躺着一把旧钥匙。|钥匙牌上的房间号，去年就已经拆掉了。",
+	"n07" => "我把手里的线索一件件摊在桌上。|接下来要说的话，会改变很多事情。",
+	"n08" => "我把线索重新收进包里。|今天先到这里，明天再说也不迟。",
+	"n09" => "我把知道的事情全部说了出来。|对方沉默了很久，然后点了点头。",
+	"n10" => "我什么也没有说。|有些话一旦说出口，就再也收不回来了。",
+	"n11" => "一切都得到了解释。|窗外已经完全黑了下来。",
+	"n12" => "话没有说完，但这也没有关系。|我们都还有时间。",
+	"n13" => "又一个普通的傍晚。|明天大概也和今天一样。",
+	"n14" => "很久以后，我又路过那间教室。|窗户开着，风把窗帘吹了起来。"
+];
+
+// 取场景文本；标签不存在时返回一句明确的提示，方便排错
+function flowSceneGet(label)
+{
+	try
+	{
+		var t = flowSceneTexts[label];
+		if(t === void) return "(没有标签 " + label + " 的场景文本)";
+		return t;
+	}
+	catch(e)
+	{
+		return "(flow_scene.tjs 取文本失败:" + e.message + ")";
+	}
+}
+
+Debug.message("[FLOW] flow_scene.tjs executed : labels=" + flowSceneTexts.count);
+
+// 一致性自检：节点表里出现的每个 (storage,label) 都必须在本文件里有对应文本。
+// 只打日志、不改状态，属于「可诊断」要求的一部分。
+try
+{
+	var miss = 0;
+	for(var i = 0; i < flowNodeTable.count; i++)
+	{
+		var n = flowNodeTable[i];
+		if(n["storage"] != "flow_scene.tjs")
+		{
+			Debug.message("[FLOW][WARN] 节点 " + n["id"] + " 的 storage 不是 flow_scene.tjs : "
+				+ n["storage"] + "（本演示只实现这一个存储）");
+			miss++;
+			continue;
+		}
+		if(flowSceneTexts[n["label"]] === void)
+		{
+			Debug.message("[FLOW][WARN] 节点 " + n["id"] + " 的 label " + n["label"] + " 在本文件里没有文本");
+			miss++;
+		}
+	}
+	Debug.message("[FLOW] scene label check : " + flowNodeTable.count + " nodes, missing=" + miss);
+}
+catch(e)
+{
+	Debug.message("[FLOW] scene label check FAILED : " + e.message);
+}

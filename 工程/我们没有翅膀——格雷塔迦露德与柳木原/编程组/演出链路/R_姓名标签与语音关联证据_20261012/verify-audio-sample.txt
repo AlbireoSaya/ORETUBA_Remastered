@@ -1,0 +1,15 @@
+from pathlib import Path
+import json,sys,subprocess,hashlib
+root=Path.cwd();s=root/'临时/ISSUE-20261011-02/r-speaker-voice-replay-01';sys.path.insert(0,str(root/'工程/我们没有翅膀R/工具'));import lpk_media as M
+lp=M.load(str(root/'备份/我们没有翅膀R-安装介质/SET_UP/VOICE.LPK'))
+try:data=M.read(lp,'tak1004.ogg')
+finally:lp['mm'].close();lp['f'].close()
+ffprobe=Path('D:/ffmpeg-master-latest-win64-lgpl/bin/ffprobe.exe');ffmpeg=ffprobe.with_name('ffmpeg.exe')
+r=subprocess.run([str(ffprobe),'-v','error','-show_streams','-show_format','-of','json','-i','pipe:0'],input=data,stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=root,timeout=30)
+assert r.returncode==0 and not r.stderr
+meta=json.loads(r.stdout);stream=meta['streams'][0];assert len(meta['streams'])==1 and stream['codec_name']=='vorbis' and stream['sample_rate']=='44100' and stream['channels']==1
+a=subprocess.run([str(ffmpeg),'-v','error','-i','pipe:0','-map','0:a:0','-f','null','-'],input=data,stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=root,timeout=30)
+assert a.returncode==0 and not a.stderr and not a.stdout
+v={'decoded_entry_sha256':hashlib.sha256(data).hexdigest(),'decoded_entry_bytes':len(data),'ffprobe_sha256':hashlib.sha256(ffprobe.read_bytes()).hexdigest(),'ffmpeg_sha256':hashlib.sha256(ffmpeg.read_bytes()).hexdigest(),'metadata':meta,'ffprobe_exit':r.returncode,'ffmpeg_decode_exit':a.returncode,'scope':'one original archive voice entry fully decoded by mature local ffmpeg to discarded stdout; no original native playback/audio timing/all-file decoding proof'}
+p=s/'voice-audio-sample.json';assert not p.exists();p.write_text(json.dumps(v,indent=2),encoding='utf-8');print(json.dumps({'codec':'vorbis','sample_rate':44100,'channels':1,'full_sample_decode_passed':True}))
+

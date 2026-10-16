@@ -1,0 +1,35 @@
+import pathlib,sys,ctypes as C,json
+r=pathlib.Path.cwd();w=r/'临时/ISSUE-20261011-02'/('full-Cinit-SDK-'+__import__('uuid').uuid4().hex);w.mkdir(exist_ok=False);g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具'),str(r/'工具/unicorn-2.1.4-win32-py313') if C.sizeof(C.c_void_p)==4 else str(r/'工具/unicorn-2.1.4-py314')]
+from lucifen_host_realloc_memory import HostReallocMemory
+from lucifen_guest_realloc_bridge import GuestReallocBlocks
+from unicorn import Uc,UC_ARCH_X86,UC_MODE_32,UcError
+bits=C.sizeof(C.c_void_p)*8;out={'bits':bits,'scope':'real owned heap resize plus finite guest passport remapping, not source heap layout equivalence','checks':{},'rows':[]};checks=out['checks']
+mem=HostReallocMemory();u=Uc(UC_ARCH_X86,UC_MODE_32);m=GuestReallocBlocks(u,mem,start=0x7000000,stop=0x9000000)
+heap=mem.heap_create(0,0,0);assert heap
+host=mem.heap_alloc(heap,8,128);assert host
+guest=m.bind(host);pattern=bytes(range(128));u.mem_write(guest,pattern);m.sync(guest)
+try:
+    for size in [144,8192,64]:
+        before=m.sync(guest);oldhost=host;oldguest=guest
+        host=mem.heap_realloc(heap,8,oldhost,size);assert host
+        guest=m.remap_after_realloc(oldguest,host)
+        prefix=min(len(before),size);assert mem.read(host,prefix)==before[:prefix] and bytes(u.mem_read(guest,prefix))==before[:prefix]
+        if size>len(before):assert mem.read(host,size)[len(before):]==bytes(size-len(before))
+        assert m.size(guest)==size and mem.size(host)==size
+        if host==oldhost:assert guest==oldguest
+        else:
+            assert guest!=oldguest and oldhost not in mem._blocks and oldguest not in m._by_guest
+            try:u.mem_read(oldguest,1);raise AssertionError('moved old mapping remains live')
+            except UcError:pass
+        out['rows'].append({'new_size':size,'actual_old_host':oldhost,'actual_new_host':host,'host_moved':host!=oldhost,'guest_moved':guest!=oldguest,'prefix_preserved':True,'zero_growth_preserved':True})
+    checks['real_resize_and_passport_updates']=True
+    oldsize=mem.size(host);oldcount=len(mem._blocks)
+    for args in [(heap,4,host,128),(heap,0,host,0),(heap,0,host,True),(heap,0,host+1,128),(heap+1,0,host,128)]:
+        try:mem.heap_realloc(*args);raise AssertionError('invalid request accepted')
+        except (TypeError,ValueError):pass
+    checks['invalid_calls_leave_passports']=mem.size(host)==oldsize and len(mem._blocks)==oldcount
+finally:
+    for ptr in list(m._by_guest):m.sync(ptr);m.unmap(ptr)
+    mem.close_all();checks['all_owned_blocks_and_guests_released']=not m._by_guest and not mem._blocks and not mem._heaps
+out['pass']=all(checks.values());(w/('sdk-realloc-%s.json'%bits)).write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8')
+print(json.dumps(out));assert out['pass']

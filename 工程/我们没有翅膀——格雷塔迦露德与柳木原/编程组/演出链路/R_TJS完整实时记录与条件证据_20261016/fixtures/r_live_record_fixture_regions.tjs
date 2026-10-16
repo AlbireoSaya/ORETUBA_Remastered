@@ -1,0 +1,32 @@
+// r_live_record_fixture_regions.tjs
+// 本文件仅实现三个有限接口：RRZero / RRRegions / RRWatched。
+// 不包含其他逻辑，不依赖 class/JS 语法，跨文件函数均加 global. 前缀。
+
+function RRZero(offset) {
+    return 0;
+}
+
+function RRRegions(spec) {
+    var count = spec.data.count;
+    var n = int((count + 4095) / 4096) * 4096;
+    if (n < 4096) n = 4096;
+
+    var regions = [
+        %[ "base" => 0,          "size" => 4096,     "read_byte" => global.RRZero, "writable" => 1 ],
+        %[ "base" => 0x530000,   "size" => 0x10000,  "read_byte" => global.RRZero, "writable" => 1 ],
+        %[ "base" => 0x1000000,  "size" => 0x100000, "read_byte" => global.RRZero, "writable" => 1 ],
+        %[ "base" => 0x2000000,  "size" => 0x10000,  "read_byte" => global.RRZero, "writable" => 1 ],
+        %[ "base" => spec.source, "size" => n,        "read_byte" => global.RRZero, "writable" => 1 ]
+    ];
+
+    return global.RMemoryCreate(regions);
+}
+
+function RRWatched(s, q) {
+    if (q >= 0 && q < 4096) return true;
+    if (q >= 0x530000 && q < 0x540000) return true;
+    if (q >= 0x1000000 && q < 0x1100000) return true;
+    if (q >= s.source && q < s.source_end) return true;
+    if (q == s.cursor_c || q == s.cursor_p) return true;
+    return false;
+}

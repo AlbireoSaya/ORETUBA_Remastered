@@ -1,0 +1,27 @@
+var RLiveBindCaseCount = 0;
+
+function RLiveBindCheck(spec) {
+    var s = RLFCreate(spec);
+    RLFRun(spec, s);
+
+    RVMFCompareRows(s.events, spec.events, spec.label);
+
+    var i;
+    for (i = 0; i < spec.source_final.count; i++) {
+        var got8 = RMemoryRead8(s.memory, spec.source + i);
+        if (got8 !== spec.source_final[i]) {
+            throw new Exception("LIVE_BIND_FINAL_SOURCE@" + i + ": " + got8 + " != " + spec.source_final[i]);
+        }
+    }
+
+    for (i = 0; i < spec.final_words.count; i++) {
+        var row = spec.final_words[i];
+        var got32 = RMemoryRead32(s.memory, row[0]) & 0xffffffff;
+        var want32 = row[1] & 0xffffffff;
+        if (got32 !== want32) {
+            throw new Exception("LIVE_BIND_FINAL_WORD@" + row[0] + ": " + got32 + " != " + want32);
+        }
+    }
+
+    RLiveBindCaseCount++;
+}

@@ -1,0 +1,601 @@
+// ============================================================
+// ui_debug.tjs —— 【Debug 开发版】运行期屏幕标注层
+//                 （编程组 · ISSUE-20261008-05 D1）
+//
+// 用途（用户 2026-10-08 需求原话）：
+//   「对每个出现的元素（立绘/CG背景/当前剧情文件编号）都在屏幕上进行标注，
+//     将目前的版本作为"Debug 开发版"，这样我可以更清晰更准确地向你反馈哪里出了问题。」
+//
+// 做法：把**当前画面上的元素与游标直接画在屏上**，供用户对着截图反馈问题。
+//   逐项内容：
+//     ① 剧情游标：scene_id ／ 源(ot/otr/ota/otp/otv/np) ／ 剧本文件名 ／ 行号＋lines[].seq
+//     ② 在场立绘（逐个）：槽号 / 族 / 实件 basename / x,y / z
+//     ③ 在场背景：交付路径
+//     ④ 当前屏名（dialog/backlog/config/…）＋ 最近一次演出事件（fade/chr_*/bg/se，简短）
+//     ⑤ 顶部固定一行 **`Debug 开发版`**（字面）＋ 右侧高亮版本标记块（机检用精确色）
+//
+// 数据来源（**直接读既有状态，不另建一套**——否则标注会跟画面不一致）：
+//   · 游标      ← `ui_story.tjs`：UIStoryCur / UIStoryScene.src / UIStoryScene.id
+//   · 行号/seq  ← `ui_story.tjs`：UIDlgLine ／ `UIStoryScene.lines[UIDlgLine].sq`
+//                 （★ `sq` 就是源侧 `lines[].seq`——见 `build_story.py` 的
+//                  `sq=(l.get("seq") …)`；生成物里字段名写作 `sq`）
+//   · 立绘      ← `ui_staging.tjs`：UIStageSlots[] / UIStageFam[] / UIStageFile[] + el.x/y/z
+//   · 背景      ← `ui_story.tjs`：UIStoryLastBgAsset（＋复用 dlg.content 的实件）
+//   · 演出事件  ← `ui_staging.tjs`：UIStoryScene.stage[] + UIStageCursor（游标前一条＝最近一次）
+//   · 屏名      ← UI 组：uiScreenCurrent()
+//
+// ★★ 开关（与工程既有 `flowfull.txt` / `uidiag.txt` / `slideanim.txt` 同一套模式）：
+//   `game\debugannot.txt` 存在 ⇒ 开。**缺该文件时本文件根本不被 ui_boot.tjs 装载**
+//   ⇒ 一行不执行、逐字节等于现状（「关态零影响」由此保证，不靠运行期 if 兜）。
+//   另有 `debugannot_pos.txt` 可选（不影响开关语义）——预留，当前未用于换位。
+//
+// ★★ 绝不抛异常：整段标注过程包 try/catch；取不到的数据**跳过该项**，
+//   绝不让画面卡住或崩（用户的游戏崩了就没法反馈了）。所有 alpha 一律钳在 [0,255]。
+//
+// ★★ 性能：文本**只在「场景/行/演出/可见槽位几何」签名变化时重建**
+//   （`uiDebugSig` → `uiDebugBuild`），每帧只做 `colorRect` + `drawText`（十几次），
+//   不做重计算、不每帧重建大字符串数组。
+//
+// ★ TJS2 硬坑遵守：无 for...in ／ 无 lastIndexOf ／ 无 parseInt（一律 `0 + v`）
+//   ／ 嵌套（匿名）函数只读**全局**变量、不读外层函数局部 ／ `drawText` 颜色 0xRRGGBB。
+// ============================================================
+
+// ------------------------------------------------------------
+// 状态（TJS2 顶层 var **无提升**，一律声明在使用之前）
+// ------------------------------------------------------------
+var UIDbgEnabled   = false;    // 开关（由 ui_boot 判定文件在否后交给 uiDebugInstall）
+var UIDbgInstalled = false;
+var UIDbgDrawOrig  = null;     // uiScreenDraw 链式保存
+var UIDbgHookOk    = false;    // 帧钩子是否挂上
+var UIDbgKeyOrig   = null;     // uiScreenKey 链式保存
+var UIDbgKeyOk     = false;
+var UIDbgFrames    = 0;        // 已参与绘制的帧数（自证）
+var UIDbgBuilds    = 0;        // 文本缓存重建次数（性能自证）
+var UIDbgKeySig    = "\u0001init";   // 缓存签名（初值不可能与真实签名相等）
+var UIDbgLines     = [];       // 缓存： %[ t:文本, c:颜色, w:实测宽(-1=未测) ]
+var UIDbgPanelW    = 0;        // 面板宽（按最长行实测，惰性；0=需重测）
+var UIDbgPos       = 0;        // 面板位置：0 左上 / 1 右上 / 2 右中
+var UIDbgPosName   = ["左上", "右上", "右中"];
+var UIDbgVerdict   = 0;        // 0 未判 / 1 已判 PASS / -1 已判 FAIL
+var UIDbgDrawErrs  = 0;        // 绘制异常计数（只记前几条日志，绝不影响主渲染）
+var UIDbgVisSlots  = 0;        // 本次缓存里的在场立绘数
+// ★ F9 自检（诊断用；`debugannot_f9test.txt` 门控，成品不含该文件 ⇒ 不跑）
+var UIDbgF9TestOn   = false;
+var UIDbgF9TestDone = false;
+
+// 版式常量（1080 画布）
+var UIDbgFontSize   = 20;      // 字号（用户口径：1080 下约 20px）
+var UIDbgPadX       = 12;
+var UIDbgPadY       = 10;
+var UIDbgBannerH    = 40;      // 顶部固定「Debug 开发版」条高
+var UIDbgPanelMaxW  = 1020;    // 面板最大宽（实测最长行，超出则截断宽度）
+var UIDbgBottomSafe = 720;     // 面板下沿不得越过此值（对话框底图 dlg.mask_bottom 自 y=730 起）
+
+var UIDbgColorBg     = 0x0b1219;   // 面板底（半透明深色）
+var UIDbgColorBanner = 0x101820;   // 顶条底
+var UIDbgColorText   = 0xe8f6ff;
+var UIDbgColorDim    = 0x9fc0d8;
+var UIDbgColorHead   = 0x7fd4ff;
+var UIDbgColorWarn   = 0xffd479;
+var UIDbgColorMark   = 0x00ff66;   // 顶栏最右版本标记块（机检用**精确色**，aa 无关）
+
+// ------------------------------------------------------------
+// 小工具
+// ------------------------------------------------------------
+function uiDebugS(v)
+{
+	if(v === void || v === null) return "";
+	return "" + v;
+}
+
+// void/null → 0；其余按数取（TJS2 里 `0 + void` 可能抛 ⇒ 一律先判空）
+function uiDebugN(v)
+{
+	if(v === void || v === null) return 0;
+	return 0 + v;
+}
+
+function uiDebugClampA(a)
+{
+	var x = 0 + a;
+	if(x < 0) x = 0;
+	if(x > 255) x = 255;
+	return x;
+}
+
+// 演出事件短描述（`stage[]` 一条 → 一行字）
+function uiDebugEvDesc(e)
+{
+	if(e === void || e === null) return "(无)";
+	var op = "";
+	try { op = "" + e.op; } catch(e0) { return "(?)"; }
+	var sq = uiDebugN(e.seq);
+	var s = op;
+	try
+	{
+		if(op == "bg")
+			s = "bg " + uiStagingBase(uiDebugS(e.t));
+		else if(op == "se")
+		{
+			var t2 = uiDebugS(e.t);
+			s = (t2 == "") ? "se 停止" : ("se " + uiStagingBase(t2));
+		}
+		else if(op == "fade")
+			s = "fade " + uiDebugS(e.dir) + " " + uiDebugN(e.dur) + "ms";
+		else if(op == "chr_add" || op == "chr_expr")
+			s = op + " 槽" + uiDebugN(e.slot) + " " + uiStagingBase(uiDebugS(e.t));
+		else if(op == "chr_remove")
+			s = "chr_remove 槽" + uiDebugN(e.slot);
+		else if(op == "chr_move" || op == "chr_place")
+			s = op + " 槽" + uiDebugN(e.slot) + " (" + uiDebugN(e.x) + "," + uiDebugN(e.y) + ")";
+		else if(op == "chr_z")
+			s = "chr_z 槽" + uiDebugN(e.slot) + " z" + uiDebugN(e.z);
+	}
+	catch(e2) { }
+	return s + " @seq" + sq;
+}
+
+// 「最近一次演出事件」＝ `stage[]` 里游标前一条（**精确**，不另建事件流）。
+//   `uiStagingApplyTo` 按 seq 推进 `UIStageCursor`；回退重建时游标回到 0 再重放 ⇒ 仍取到正确一条。
+function uiDebugLastEv()
+{
+	try
+	{
+		if(UIStoryScene === void || UIStoryScene === null) return "(无)";
+		var st = UIStoryScene.stage;
+		if(st === void || st === null) return "(无)";
+		if(st.count < 1) return "(无)";
+		var ci = 0 + UIStageCursor - 1;
+		if(ci < 0) return "(无：本场尚无演出事件)";
+		if(ci >= st.count) ci = st.count - 1;
+		return uiDebugEvDesc(st[ci]);
+	}
+	catch(e0) { return "(取不到)"; }
+}
+
+// 槽位是否**真的在画**（与 ui_staging 的判据同源：可见 + 有件）
+function uiDebugSlotVisible(el)
+{
+	if(el === void || el === null) return false;
+	try { return (el.visible_default === true) && (el.asset !== void) && (el.asset !== null); }
+	catch(e0) { return false; }
+}
+
+// ------------------------------------------------------------
+// 缓存签名：任何会改变标注内容的量都进签名 ⇒ 变了才重建文本
+// ------------------------------------------------------------
+// ★ 本模块的铁律：**预期的缺失一律用显式判空挡在最前面，不靠抛异常再 catch**
+//   —— krkrz 对**被 catch 的异常仍打整段 dump**（`An exception occured…`），
+//      用异常当控制流会污染「EXCEPTION 0」判定线（工程内反复踩过）。
+//   故每个取数点都先 `=== void` / 边界判断；try/catch 只留给**非预期**错误。
+function uiDebugSig()
+{
+	var s = "";
+	try { s = s + uiScreenCurrent(); } catch(e0) { s = s + "?"; }
+	try { s = s + "|" + UIStoryCur; } catch(e1) { }
+	try { s = s + "|" + UIDlgLine; } catch(e2) { }
+	try
+	{
+		if(UIStoryScene !== void && UIStoryScene !== null
+			&& UIStoryScene.lines !== void && UIStoryScene.lines !== null)
+		{
+			var n0 = 0 + UIStoryScene.lines.count;
+			var li0 = 0 + UIDlgLine;
+			if(li0 >= 0 && li0 < n0) s = s + "|sq" + (0 + UIStoryScene.lines[li0].sq);
+		}
+	}
+	catch(e3) { }
+	try { s = s + "|" + UIStoryPlayed; } catch(e4) { }
+	try { s = s + "|" + UIStoryLastBgAsset + ":" + UIStoryLastBgW + "x" + UIStoryLastBgH; } catch(e5) { }
+	try { s = s + "|cursor" + UIStageCursor; } catch(e6) { }
+	try { s = s + "|ops" + UIStageOpsApplied; } catch(e7) { }
+	try { s = s + "|fade" + ((UIStageFadeOn === true) ? "1" : "0") + ":" + (0 + UIStageFadeAlpha); } catch(e8) { }
+	// 可见槽位的几何/层序（滑出/移位动画期间也会变 ⇒ 标注跟着画面走）
+	try
+	{
+		if(UIStageSlots !== void && UIStageSlots !== null)
+		{
+			for(var i = 0; i < UIStageSlots.count; i++)
+			{
+				var el = UIStageSlots[i];
+				if(!uiDebugSlotVisible(el)) continue;
+				s = s + "|s" + i + ":" + (0 + el.x) + "," + (0 + el.y) + "," + (0 + el.z);
+			}
+		}
+	}
+	catch(e9) { }
+	return s;
+}
+
+// ------------------------------------------------------------
+// 文本缓存构建
+// ------------------------------------------------------------
+function uiDebugAdd(t, c)
+{
+	UIDbgLines.push(%[ t: "" + t, c: 0 + c, w: -1 ]);
+}
+
+function uiDebugBuild()
+{
+	UIDbgLines = [];
+	UIDbgVisSlots = 0;
+
+	var scr = "";
+	try { scr = "" + uiScreenCurrent(); } catch(e0) { scr = "?"; }
+
+	var sid = "";
+	try { sid = uiDebugS(UIStoryCur); } catch(e1) { sid = ""; }
+
+	// ★ 场景数据可能不存在（标题屏等）：**先判空再取**，不靠异常（见上方铁律）
+	var hasScene = false;
+	try { hasScene = (UIStoryScene !== void && UIStoryScene !== null); } catch(e2) { hasScene = false; }
+	var hasLines = false;
+	if(hasScene)
+	{
+		try { hasLines = (UIStoryScene.lines !== void && UIStoryScene.lines !== null); } catch(e2b) { hasLines = false; }
+	}
+	var src = "";
+	if(hasScene) { try { src = uiDebugS(UIStoryScene.src); } catch(e2c) { src = ""; } }
+
+	var nLines = 0;
+	if(hasLines) { try { nLines = 0 + UIStoryScene.lines.count; } catch(e3) { nLines = 0; } }
+	var li = -1;
+	try { li = 0 + UIDlgLine; } catch(e4) { li = -1; }
+	var sq = -1;
+	if(hasLines && li >= 0 && li < nLines)
+	{
+		try { sq = 0 + UIStoryScene.lines[li].sq; } catch(e5) { sq = -1; }
+	}
+	var played = 0;
+	try { played = 0 + UIStoryPlayed; } catch(e6) { played = 0; }
+
+	// ① 游标（scene_id + 源）
+	if(sid == "")
+		uiDebugAdd("游标  （无场景）", UIDbgColorWarn);
+	else
+		uiDebugAdd("游标  " + sid + "   ｜ 源 " + ((src == "") ? "?" : src), UIDbgColorHead);
+
+	// ①' 剧本文件名（引擎实际装载的那一份）
+	if(sid == "")
+		uiDebugAdd("剧本  （未装载）", UIDbgColorDim);
+	else
+		uiDebugAdd("剧本  story/scene_" + sid + ".tjs", UIDbgColorText);
+
+	// ①'' 行号 / lines[].seq（生成物字段名 `sq`，即源侧 `seq`）
+	uiDebugAdd("行  " + ((li >= 0) ? (li + 1) : "-") + "/" + nLines
+		+ "   ｜ lines[].seq(sq)=" + ((sq >= 0) ? sq : "-")
+		+ "   ｜ 已播 " + played + " 行", UIDbgColorText);
+
+	// ④ 当前屏名
+	uiDebugAdd("屏  " + scr, UIDbgColorText);
+
+	// ③ 在场背景（交付路径）
+	var bga = "";
+	try { bga = uiDebugS(UIStoryLastBgAsset); } catch(e7) { bga = ""; }
+	uiDebugAdd("背景  " + ((bga == "") ? "（未设 / 已隐藏）" : bga),
+		(bga == "") ? UIDbgColorDim : UIDbgColorText);
+
+	// ② 在场立绘（逐个列出）
+	var rows = [];
+	var hasSlots = false;
+	try { hasSlots = (UIStageSlots !== void && UIStageSlots !== null); } catch(eS0) { hasSlots = false; }
+	if(hasSlots)
+	{
+		try
+		{
+			var nSlots = 0 + UIStageSlots.count;
+			for(var i = 0; i < nSlots; i++)
+			{
+				var el = UIStageSlots[i];
+				if(!uiDebugSlotVisible(el)) continue;
+				UIDbgVisSlots++;
+				var fam = "";
+				try { if(UIStageFam !== void && UIStageFam !== null && UIStageFam.count > i) fam = uiDebugS(UIStageFam[i]); } catch(ef) { fam = ""; }
+				var fl = "";
+				try { if(UIStageFile !== void && UIStageFile !== null && UIStageFile.count > i) fl = uiDebugS(UIStageFile[i]); } catch(efl) { fl = ""; }
+				var ex = 0, ey = 0, ez = 0;
+				try { ex = uiDebugN(el.x); ey = uiDebugN(el.y); } catch(ep) { }
+				try { ez = uiDebugN(el.z); } catch(ez2) { }
+				rows.push("  槽" + i + "  fam=" + ((fam == "") ? "-" : fam)
+					+ "  " + ((fl == "") ? "(件名未知)" : fl)
+					+ "  @(" + ex + "," + ey + ") z=" + ez);
+			}
+		}
+		catch(eAll) { }
+	}
+	uiDebugAdd("立绘  在场 " + UIDbgVisSlots + " 个" + ((UIDbgVisSlots == 0) ? "（空）" : ""),
+		(UIDbgVisSlots == 0) ? UIDbgColorDim : UIDbgColorHead);
+	for(var k = 0; k < rows.count; k++) uiDebugAdd(rows[k], UIDbgColorText);
+
+	// ④' 最近一次演出事件
+	uiDebugAdd("演出  最近  " + uiDebugLastEv(), UIDbgColorWarn);
+	var ops = 0;
+	try { ops = 0 + UIStageOpsApplied; } catch(e8) { ops = 0; }
+	var fdt = "off";
+	try { if(UIStageFadeOn === true) fdt = "on α" + uiDebugClampA(UIStageFadeAlpha); } catch(e9) { fdt = "?"; }
+	uiDebugAdd("演出  本场已应用 " + ops + " op   ｜ fade " + fdt, UIDbgColorDim);
+}
+
+// 每帧调用：签名变了才重建（**不每帧重建大字符串数组**）
+function uiDebugEnsureCache()
+{
+	var sig = uiDebugSig();
+	if(sig == UIDbgKeySig) return;
+	UIDbgKeySig = sig;
+	uiDebugBuild();
+	UIDbgPanelW = 0;            // 文本变了 ⇒ 宽度需重测
+	UIDbgBuilds++;
+}
+
+// ------------------------------------------------------------
+// 字体 / 度量（借 UI 组的字体口径；`Layer.font` 是**只读属性**，只改其字段）
+// ------------------------------------------------------------
+function uiDebugApplyFont(l)
+{
+	try
+	{
+		return uiThemeApplyFont(l, %[ size: UIDbgFontSize, bold: true, color: UIDbgColorText ], void);
+	}
+	catch(e0)
+	{
+		// 兜底：直接改层字体对象自身字段（不写 `l.font = …`）
+		try
+		{
+			var ff = l.font;
+			ff.height = UIDbgFontSize;
+			ff.bold = true;
+			return %[ size: UIDbgFontSize, lineH: UIDbgFontSize + 3 ];
+		}
+		catch(e1) { return null; }
+	}
+}
+
+// 面板宽：按最长行实测（只在缓存重建后测一次）
+function uiDebugMeasure(l)
+{
+	if(UIDbgPanelW > 0) return UIDbgPanelW;
+	var mx = 0;
+	for(var i = 0; i < UIDbgLines.count; i++)
+	{
+		var w = 0;
+		try { w = 0 + uiThemeTextWidth(l, "" + UIDbgLines[i].t); } catch(e0) { w = 0; }
+		if(w > mx) mx = w;
+	}
+	if(mx < 280) mx = 280;
+	if(mx > UIDbgPanelMaxW) mx = UIDbgPanelMaxW;
+	UIDbgPanelW = mx + UIDbgPadX * 2;
+	return UIDbgPanelW;
+}
+
+// ------------------------------------------------------------
+// 绘制（每帧；画在**原屏绘制之后** ⇒ 最上层）
+// ------------------------------------------------------------
+function uiDebugDrawAnnot(stage)
+{
+	if(UIDbgEnabled !== true) return;
+	if(stage === void || stage === null) return;
+	UIDbgFrames++;
+	try
+	{
+		uiDebugEnsureCache();
+
+		var W = 1920, H = 1080;
+		try { if(UI_W > 0) W = 0 + UI_W; } catch(eW) { W = 1920; }
+		try { if(UI_H > 0) H = 0 + UI_H; } catch(eH) { H = 1080; }
+
+		var f = uiDebugApplyFont(stage);
+		var lh = (f === null) ? (UIDbgFontSize + 3) : (0 + f.lineH);
+		if(lh < 14) lh = UIDbgFontSize + 3;
+
+		// ---- ⑤ 顶部固定一行「Debug 开发版」（字面）＋ 右端精确色版本标记块 ----
+		var scr = "";
+		try { scr = "" + uiScreenCurrent(); } catch(eS) { scr = "?"; }
+		stage.colorRect(0, 0, W, UIDbgBannerH, UIDbgColorBanner, 225);
+		stage.colorRect(W - 6, 0, 6, UIDbgBannerH, UIDbgColorMark, 255);
+		stage.drawText(UIDbgPadX, 7,
+			"Debug 开发版   ｜ 屏 " + scr + " ｜ F9 换位(" + UIDbgPosName[UIDbgPos] + ")"
+			+ " ｜ 帧 " + UIDbgFrames,
+			UIDbgColorText, 255, true, 0, 0, 0, 0, 0);
+
+		// ---- 面板几何（默认左上起排；不得遮住对话框文字区：下沿 ≤ 720）----
+		var pw = uiDebugMeasure(stage);
+		var ph = UIDbgLines.count * lh + UIDbgPadY * 2;
+		var px = UIDbgPadX;
+		var py = UIDbgBannerH + 8;
+		if(UIDbgPos == 1 || UIDbgPos == 2)
+			px = (W - pw - UIDbgPadX > UIDbgPadX) ? (W - pw - UIDbgPadX) : UIDbgPadX;
+		if(UIDbgPos == 2)
+		{
+			var yc = Math.floor((H - ph) / 2);
+			var ymax = UIDbgBottomSafe - ph;
+			if(yc > ymax) yc = ymax;
+			if(yc < UIDbgBannerH + 8) yc = UIDbgBannerH + 8;
+			py = yc;
+		}
+		if(px < 0) px = 0;
+		if(py < UIDbgBannerH + 4) py = UIDbgBannerH + 4;
+
+		stage.colorRect(px, py, pw, ph, UIDbgColorBg, 190);              // 半透明深色底条
+		stage.colorRect(px, py, 4, ph, UIDbgColorHead, 255);             // 左侧高亮竖条
+
+		var yy = py + UIDbgPadY;
+		for(var i = 0; i < UIDbgLines.count; i++)
+		{
+			stage.drawText(px + UIDbgPadX, yy, "" + UIDbgLines[i].t,
+				0 + UIDbgLines[i].c, 255, true, 0, 0, 0, 0, 0);
+			yy += lh;
+		}
+
+		// ---- 自检判词（可失败；开关关掉时本文件不被装载 ⇒ 判词**根本不出现**）----
+		if(UIDbgVerdict == 0) uiDebugVerdictCheck(scr);
+		// ---- F9 换位自检（仅 debugannot_f9test.txt 在时才跑）----
+		if(UIDbgF9TestOn === true) uiDebugF9SelfTest();
+	}
+	catch(e)
+	{
+		UIDbgDrawErrs++;
+		if(UIDbgDrawErrs <= 3)
+			Debug.message("[DBG][ERR] 标注绘制异常（第 " + UIDbgDrawErrs + " 次）：" + e.message);
+	}
+}
+
+// ★DEBUGANNOT★ 判词：
+//   PASS 条件＝**真的在对话屏上、有真实场景、有行、标注行数成规模、且已画够帧**
+//   （任一项不成立就不给 PASS ⇒ 不是恒真）。
+//   FAIL 条件＝画了 ≥400 帧仍不满足 PASS（例如场景没装载 / 标注没内容）。
+//   开关关掉时本文件不被装载 ⇒ 判词不出现（「关态零影响」的另一半证据）。
+function uiDebugVerdictCheck(scr)
+{
+	var ok = false;
+	try
+	{
+		ok = (scr == "dialog")
+			&& (uiDebugS(UIStoryCur) != "")
+			&& (UIDbgLines.count >= 8)
+			&& (UIDbgFrames >= 3)
+			&& (UIDbgPanelW > 0);
+	}
+	catch(e0) { ok = false; }
+	if(ok)
+	{
+		UIDbgVerdict = 1;
+		// ★ 先判空再取（不靠异常——被 catch 的异常 krkrz 仍打 dump）
+		var sq = -1;
+		var lineNo = -1;
+		try { lineNo = 0 + UIDlgLine; } catch(eLn) { lineNo = -1; }
+		try
+		{
+			if(UIStoryScene !== void && UIStoryScene !== null
+				&& UIStoryScene.lines !== void && UIStoryScene.lines !== null
+				&& lineNo >= 0 && lineNo < (0 + UIStoryScene.lines.count))
+				sq = 0 + UIStoryScene.lines[lineNo].sq;
+		}
+		catch(eSq) { sq = -1; }
+		var bga = "";
+		try { bga = uiDebugS(UIStoryLastBgAsset); } catch(eBg) { bga = ""; }
+		Debug.message("[DBG] ★DEBUGANNOT★ PASS ｜ 对话屏标注已出：帧=" + UIDbgFrames
+			+ " 面板行=" + UIDbgLines.count + " 缓存重建=" + UIDbgBuilds
+			+ " 场景=" + uiDebugS(UIStoryCur) + " 行=" + lineNo
+			+ " lines[].seq=" + sq + " 立绘=" + UIDbgVisSlots + " 背景=" + bga
+			+ " 屏=" + scr);
+		return;
+	}
+	if(UIDbgFrames >= 400)
+	{
+		UIDbgVerdict = -1;
+		var sid = "";
+		try { sid = uiDebugS(UIStoryCur); } catch(e1) { sid = "?"; }
+		Debug.message("[DBG] ★DEBUGANNOT★ FAIL ｜ 已画 " + UIDbgFrames
+			+ " 帧仍未取得可标注的剧情数据（屏=" + scr + " 场景=" + sid
+			+ " 标注行=" + UIDbgLines.count + "）");
+	}
+}
+
+// ------------------------------------------------------------
+// 安装
+// ------------------------------------------------------------
+// ① 帧钩子：挂 `uiScreenDraw(stage)`（全屏唯一绘制入口）。装在**最外层**
+//    （ui_boot 在 flowfull 之后调用）⇒ 标注画在自绘/淡变黑幕**之上**。
+//    ★ 匿名函数**只读全局**（不读外层局部），与 ui_staging 同法。
+function uiDebugHookInstall()
+{
+	if(UIDbgHookOk === true) return true;
+	try
+	{
+		if(uiScreenDraw === void) { Debug.message("[DBG][ERR] uiScreenDraw 未就绪 ⇒ 标注帧钩子未挂"); return false; }
+		UIDbgDrawOrig = uiScreenDraw;
+		uiScreenDraw = function(stage)
+		{
+			var r = null;
+			try { r = UIDbgDrawOrig(stage); }
+			catch(e0) { Debug.message("[DBG][ERR] 原屏绘制抛错（标注层回落到不画）：" + e0.message); r = null; }
+			try { uiDebugDrawAnnot(stage); } catch(e1) { }
+			return r;
+		};
+		UIDbgHookOk = true;
+		Debug.message("[DBG] 已挂 uiScreenDraw 帧钩子（标注画在原绘制之后 ⇒ 最上层）");
+		return true;
+	}
+	catch(eH) { Debug.message("[DBG][ERR] 帧钩子安装失败：" + eH.message); UIDbgHookOk = false; return false; }
+}
+
+// ② 键包装（F9 ⇒ 循环切换标注位置）。**只拦 key==120**，其余原样回落上一层。
+//    返回 `%[handled:true, action:"move"]`：UI 组 handleKey 对 move 直接重画、不派发动作
+//    ⇒ 不产生「未实现的动作」日志噪声，也不需要自定动作。
+function uiDebugKeyWrap(key)
+{
+	try
+	{
+		if(key == 120)
+		{
+			UIDbgPos = (UIDbgPos + 1) % 3;
+			Debug.message("[DBG] F9 → 标注位置 " + UIDbgPosName[UIDbgPos]);
+			return %[ handled: true, action: "move" ];
+		}
+	}
+	catch(e0) { }
+	if(UIDbgKeyOrig === void || UIDbgKeyOrig === null) return %[ handled: false, action: "" ];
+	return UIDbgKeyOrig(key);
+}
+
+function uiDebugKeyInstall()
+{
+	if(UIDbgKeyOk === true) return true;
+	try
+	{
+		if(uiScreenKey === void)
+		{
+			Debug.message("[DBG][warn] uiScreenKey 未就绪 ⇒ F9 换位未接（不影响标注本体）");
+			return false;
+		}
+		UIDbgKeyOrig = uiScreenKey;
+		uiScreenKey = uiDebugKeyWrap;
+		UIDbgKeyOk = true;
+		Debug.message("[DBG] 已包装 uiScreenKey（F9=120 ⇒ 循环切换标注位置）");
+		return true;
+	}
+	catch(eK) { Debug.message("[DBG][warn] 键包装失败（不影响标注本体）：" + eK.message); return false; }
+}
+
+// ★ F9 换位自检（仅当 `game\debugannot_f9test.txt` 存在时跑一次）：
+//   直接调**全局 `uiScreenKey(120)`**（此时已被本模块包装）——即引擎键路径
+//   `UiWindow.onKeyDown → handleKey → uiScreenKey` 里的**关键一跳**。
+//   判据（可失败）：位置必须按 (p+1)%3 前进，且返回字典 `handled` 必须为真。
+//   ⚠ 刻意**不**合成 `UIStoryWin.onKeyDown`：那会触发 `this.redraw()` ⇒ 在绘制钩子内递归进
+//     `uiScreenDraw`（潜在栈溢出）。`uiScreenKey` 调用本身无副作用、不重绘，安全。
+function uiDebugF9SelfTest()
+{
+	if(UIDbgF9TestDone === true) return;
+	if(UIDbgFrames < 5) return;
+	UIDbgF9TestDone = true;
+	var p0 = UIDbgPos;
+	var r = null;
+	try { r = uiScreenKey(120); } catch(e0) { r = null; }
+	// ⚠ TJS2 里布尔真经 `"" +` 串接得到 "1"（不是 "true"）——两种写法都收
+	var raw = "?";
+	var hb = false;
+	try {
+		raw = "" + r.handled;
+		hb = (r.handled === true) || (raw == "1");
+	} catch(e1) { raw = "?"; hb = false; }
+	var p1 = UIDbgPos;
+	var ok = (p1 == ((p0 + 1) % 3)) && (hb === true);
+	Debug.message("[DBG] ★DEBUGANNOT-F9★ " + (ok ? "PASS" : "FAIL")
+		+ " ｜ 位置 " + p0 + "→" + p1 + "（" + UIDbgPosName[p0] + "→" + UIDbgPosName[p1] + "）"
+		+ " ｜ uiScreenKey(120).handled=" + raw);
+}
+
+function uiDebugInstall(win)
+{
+	if(UIDbgInstalled === true) return true;
+	UIDbgEnabled = true;
+	try { UIDbgF9TestOn = Storages.isExistentStorage("debugannot_f9test.txt"); } catch(eF9) { UIDbgF9TestOn = false; }
+	uiDebugHookInstall();
+	uiDebugKeyInstall();
+	UIDbgInstalled = true;
+	Debug.message("[DBG] 【Debug 开发版】屏幕标注已安装 ｜ 面板位置=" + UIDbgPosName[UIDbgPos]
+		+ "（F9 换位）｜ 帧钩子=" + (UIDbgHookOk ? "已挂" : "**未挂**")
+		+ " ｜ 键包装=" + (UIDbgKeyOk ? "已装" : "未装")
+		+ " ｜ F9 自检=" + (UIDbgF9TestOn ? "武装" : "未武装"));
+	return true;
+}

@@ -1,0 +1,49 @@
+===== HTML DOM 断言（★M08CHECK★）=====
+  [OK] grid.count       网格项 24（期望 24）
+  [OK] grid.varThumb    缩略图 23（留空 1 栏 ⇒ 期望 23）
+  [OK] var.next         点 next：缩略图 x_ui_cfg_tab_on.png → x_ui_cfg_name_sel.png，n/N 1/3 → 2/3，派发 gallery_next:0 行号 0
+  [OK] var.prev         点 prev：回到 1/3（x_ui_cfg_tab_on.png）
+  [OK] var.clamp        边界 clamp：第 1 张再点 prev ⇒ 仍 1/3（派发仍发生 2 → 3）
+  [OK] var.empty-row    留空栏（frames=[]）不画：缩略图=false 按钮=false
+  [OK] var.no-reject    合法数据下守卫判词 0 条（期望 0）
+  [OK] guard.container  容器级非法逐条 REJECT：★M08VARIANT-REJECT★ __gal_grid.list[(item_variants)] item_variants 不是对象；★M08VARIANT-REJECT★ __gal_grid.list[(frames)] frames 不是数组；缩略图节点 0（期望 0）
+  [OK] guard.row        逐栏非法逐条 REJECT：★M08VARIANT-REJECT★ __gal_grid.list[frames[7]] 第 7 栏差分列表不是数组；★M08VARIANT-REJECT★ __gal_grid.list[frames[8]] 差分素材为空（第 1 张）；坏栏 DOM 节点 0（期望 0）
+  [OK] page.flip        页内翻页：首栏全局序号 0 → 24 → 0
+  [OK] coexist.render   同行三件共存：逐项态行 3/3、逐块按钮 3/3、差分按钮 6/6、差分缩略图 3/3
+  [OK] coexist.frame-state 悬停第 2 行 ⇒ 逐项 frame 换 hover 图（x_ui_cfg_tab_on.png → x_ui_cfg_name_sel.png），差分缩略图不受影响（x_ui_cfg_name_sel.png）
+  [OK] coexist.priority-btn 点逐块按钮 ⇒ 派发它自己的 action 且 `%row%` 换成该行（toast="未实现的动作：coexist_btn:1"）
+  [OK] coexist.priority-var 点差分按钮（同一行上还挂着逐块按钮）⇒ 仍派发 gallery_next:1（实得 gallery_next:1 行号 1）
+  [OK] attach.gallery   承载屏 gallery：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=gallery（期望 gallery）
+  [OK] attach.music     承载屏 music：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=music（期望 music）
+  [OK] attach.dress     承载屏 dress：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=dress（期望 dress）
+  [OK] attach.replay    承载屏 replay：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=replay（期望 replay）
+  [OK] DONE             断言结束
+
+===== HTML 无头截图 =====
+  html_gallery.png       页签条区非背景 0.476
+  html_music.png         页签条区非背景 0.509
+  html_dress.png         页签条区非背景 0.541
+  html_replay.png        页签条区非背景 0.510
+
+===== 两端一致量化（引擎自导 PNG vs HTML 无头截图）=====
+  引擎导图目录：E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_r2fix\runtime\savedata
+  网格首栏区 (57, 187, 348, 353)：引擎非背景 0.837 / HTML 非背景 0.367 / 平均绝对差 80.5/255
+  （测试页自比，仅登记）首栏底部带 (57, 315, 348, 353)（左右差分按钮 + n/N 文本）：平均绝对差 108.9/255
+  两端一致（**真实数据**，引擎 --real 导图 vs HTML 同屏截图）：
+    gallery  页签条区 引擎 0.469 / HTML 0.476，MAD 44.8 ｜ 内容区 MAD 5.7
+    music    页签条区 引擎 0.509 / HTML 0.509，MAD 43.4 ｜ 内容区 MAD 20.5
+    dress    页签条区 引擎 0.541 / HTML 0.541，MAD 42.0 ｜ 内容区 MAD 3.4
+  （测试页自比）页签条区 gallery：MAD 44.8/255
+
+===== 判定 =====
+MODE=NORMAL
+  网格首栏区 (57, 187, 348, 353)：引擎非背景 0.837 / HTML 非背景 0.367 / 平均绝对差 80.5/255
+  （测试页自比，仅登记）首栏底部带 (57, 315, 348, 353)（左右差分按钮 + n/N 文本）：平均绝对差 108.9/255
+  两端一致（**真实数据**，引擎 --real 导图 vs HTML 同屏截图）：
+    gallery  页签条区 引擎 0.469 / HTML 0.476，MAD 44.8 ｜ 内容区 MAD 5.7
+    music    页签条区 引擎 0.509 / HTML 0.509，MAD 43.4 ｜ 内容区 MAD 20.5
+    dress    页签条区 引擎 0.541 / HTML 0.541，MAD 42.0 ｜ 内容区 MAD 3.4
+  （测试页自比）页签条区 gallery：MAD 44.8/255
+  全部断言通过
+RESULT=OK
+★ 退出码： 0

@@ -1,0 +1,28 @@
+from pathlib import Path
+import sys,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具'),str(root/'工程/我们没有翅膀R/工具')]
+from lucifen_tob_dynamic_structure import pack_ir
+import lpk_media as M
+out=root/'临时/ISSUE-20261011-02/r-speaker-voice-replay-01';assert not out.exists();out.mkdir()
+(out/'lucifen_host_ansi_bridge.py').write_bytes((root/'子代理工作区/ISSUE-20261011-02/r-speaker-voice-01/lucifen_host_ansi_bridge.py').read_bytes())
+archive=root/'备份/我们没有翅膀R-安装介质/SET_UP/VOICE.LPK';before=hashlib.file_digest(archive.open('rb'),'sha256').hexdigest();lp=M.load(str(archive));names=M.names(lp);rows=[];matches=0;empty=0;missing=[];invalid=[];speakers=collections.Counter();stems=set()
+try:
+ for p in sorted((root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*.TOB')):
+  raw=p.read_bytes()
+  for r in pack_ir(raw)['parts']:
+   if r['kind']!='record' or r['opcode']!=25:continue
+   strings=[raw[x['data_offset']:x['data_offset']+x['data_size']].split(b'\0')[0] if x['kind']=='inline' else b'' for x in r['items']];speakers[strings[0].hex()]+=1
+   if not strings[1]:empty+=1;entry=None
+   else:
+    try:stem=strings[1].decode('ascii');name=stem.lower()+'.ogg';entry=M.info(lp,name);stems.add(stem.lower())
+    except UnicodeDecodeError:invalid.append({'path':p.relative_to(root).as_posix(),'offset':r['start'],'id_hex':strings[1].hex()});entry=None
+    if entry:matches+=1
+    else:missing.append({'path':p.relative_to(root).as_posix(),'offset':r['start'],'id_hex':strings[1].hex()})
+   rows.append({'path':p.relative_to(root).as_posix(),'record_offset':r['start'],'speaker_cp932_hex':strings[0].hex(),'voice_id_hex':strings[1].hex(),'archive_entry':entry,'status':'no_voice' if not strings[1] else 'matched' if entry else 'missing'})
+  assert p.read_bytes()==raw
+ example=M.read(lp,'tak1004.ogg');sample={'archive_entry':M.info(lp,'tak1004.ogg'),'decoded_bytes':len(example),'first16_hex':example[:16].hex(),'starts_ogg':example.startswith(b'OggS')}
+finally:lp['mm'].close();lp['f'].close()
+after=hashlib.file_digest(archive.open('rb'),'sha256').hexdigest();assert before==after and len(rows)==35472
+summary={'records':len(rows),'archive_entries':len(names),'voice_archive_sha256':before,'matched_records':matches,'no_voice_records':empty,'missing_records':len(missing),'non_ascii_voice_ids':len(invalid),'unique_voice_stems':len(stems),'unique_speaker_byte_strings':len(speakers),'missing':missing,'invalid':invalid,'ogg_sample':sample,'scope':'exact original command25 second metadata field to original VOICE.LPK entry names; decoded Ogg signature sample only, not complete decoder/audio playback/rendering proof'}
+(out/'source-voice-mapping-results.json').write_text(json.dumps(rows,ensure_ascii=False,separators=(',',':')),encoding='utf-8');(out/'source-voice-mapping-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(summary,ensure_ascii=False),flush=True)
+

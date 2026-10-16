@@ -1,0 +1,372 @@
+// ============================================================
+// ui_fragment.tjs —— 番外（Fragment）选择（M4 建立 / **M14 重写**）
+//
+// ★★ ISSUE-20260928-06（2026-09-28，用户裁定）：**本模块对应的 `fragment` 屏已整体删除** ★★
+//   屏文件（`layout\screens\31_fragment.json`）与 `_index.json` 条目均已移除（19 → 18 屏）；
+//   番外 6 组内容已由**流程图屏 `flowchart` 的独立层**承载（`action:"flow_layer"` ＋
+//   `layer:"frag1".."frag6"`）—— 实测原 40 格 **⊂** 流程图层 45 格、文案 40/40 逐字相同。
+//   **本模块按用户「只删屏、保留动作/素材」保留**，但**已无触发路径**（屏永不为 current ⇒
+//   下面各 hook 里的 `id == "fragment"` 判据恒不成立）。⇒ **不得删本文件**：
+//   `startup.tjs:132` 仍会 `uiExec` 它，删文件会使 `uiBootOK=false` ⇒ 启动期 FATAL。
+//   动作 `open_fragment` / `fragment_enter` 与素材 `ui/x_gen_fragpage.png`、数据 `fragments` 一并保留。
+//
+// M14 变更（2026-09-20，用户要求「彻底坚决使用新素材代替老素材」）
+// ------------------------------------------------------------------
+//   旧版：6 个 `list` 格阵（按 spine.json 的 6 个组）+ 收集计数 + 详情栏 + 进入键。
+//   新版：背景换 AI 生图底图 ui/x_gen_fragpage.png（1920×1080 满幅，**自带标题
+//         「Fragment 碎片故事」与面板边框**，故不再叠引擎标题 / 九宫格边框）；
+//         底图实测有 **40 个格子（5 列 × 8 行，行优先）**，逐格一个 `hit`
+//         （action=fragment_enter）+ 一个 `text`（番外标题）。
+//   用户原话：「这是 Fragment(番外页)的 UI 底图，**每一个矩形框都是一段剧情，
+//              可以被点击进入**」。
+//
+//   为什么不再自绘格子（旧版要 hide + 自绘的理由已消失）：
+//     旧版用 `list` 是因为格阵等宽重复；新版 40 格是**底图实测的不等宽矩形**
+//     （宽 335–340），`list` 表达不了，故改为一格一元素（几何全在 layout 里）。
+//     于是 M2 的通用渲染器就能直接画底图 + 40 个标题 + 40 个热区；
+//     本模块只**叠加**「已收集环 / 选中框」两样状态，并改写标题颜色。
+//
+//   为什么点击命中要包装 uiScreenClick：
+//     M2 的 uiScreenClick 对 `hit` 元素只回 `%[action, index:-1, hit:true]`，
+//     **不带元素 id**（只有 `list` 才带项序号）。本屏 40 个 hit 需要知道点的是哪一格，
+//     故本模块把 uiScreenClick 包一层：先按几何判出被点的格子记进 UIFragClickCell，
+//     再交回原函数。**M2 文件一字未改**，且包装全程 try/catch + 回落原路径。
+//
+// TJS2 坑（M8 已踩过，本文件继续遵守）
+//   · 无全局 parseInt / 无 String.charCodeAt / 无 String.lastIndexOf
+//   · 未定义标识符报「未找到 Member」；包装他人函数必须全程 try/catch 并回落
+//   · 子层 visible 需显式置真（本文件不建子层，交给 M2 的 stage）
+//
+// 数据来源（只读）：UIFlowData.fragments.cells —— 由 工具/gen_flow_data.py 从
+//   资源组\剧本\spine.json 的 side_stories[] 取**前 40 条**的 title_cn / title_jp /
+//   scene_id / group（**标题不得手写**）；total=53 为番外总条数。
+//   layout 里的 fragment.cN_title.sample 已是标题正文，本模块只改颜色与计数，
+//   **不改写标题文本**（避免与 layout 数据源不一致）。
+//
+// 装载顺序：ui_flow_data.tjs → ui_flow.tjs → ui_fragment.tjs（本文件）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 常量（本文件唯一允许出现数值字面量的地方；绘制行只引用标识符）
+// ------------------------------------------------------------
+var UIFragCols          = 5;    // 底图实测：5 列
+var UIFragRows          = 8;    // 底图实测：8 行（5 × 8 = 40 格）
+var UIFragRingThick     = 3;    // 「已收集」状态环线宽
+var UIFragCursorPad     = 4;    // 选中框相对格子外扩像素
+var UIFragCursorThick   = 3;    // 选中框线宽
+
+// 演示占位（**非剧情进度**）：播种 1 格为「已收集」，只为让「已收集」态在
+//   截图与复刻页可见。置 "" 即完全不播种。首次运行（无状态文件）时生效。
+var UIFragDemoSeedCell  = "c0";
+
+// ------------------------------------------------------------
+// 状态
+// ------------------------------------------------------------
+var UIFragCells        = [];   // Array<String>：格 id "c0".."c39"（**无补零**，TJS2 无 sprintf）
+var UIFragCellInfo     = [];   // Array<Dictionary>：UIFlowData.fragments.cells 的镜像
+var UIFragCursor       = "";   // 当前选中格 id
+var UIFragClickCell    = "";   // 最近一次点击命中的格 id（由 uiScreenClick 包装器写入）
+var UIFragMsg          = "";
+var UIFragReady        = false;
+var UIFragClickWrapped = false;
+var UIFragNoTitle      = 0;    // 统计：layout 里找不到标题元素的格子数（正常应为 0）
+
+// ★ M18 修复（**阻断级**）：原函数的引用必须存**全局变量**，不能存 uiFragmentWrapClick() 的局部变量。
+//   实测（_工作\M18_证据\console_cr1.utf8.log）：TJS2 里匿名函数**取不到外层函数的局部变量**，
+//   原写法 `var orig = uiScreenClick;` + `return orig(...)` 使每次调用 uiScreenClick 都抛
+//   「未找到 Member "orig"」（ui_fragment.tjs:289），后果：
+//     ① 左键点击全站失效；② handleClick 的 sysicons 分支在 uiScreenClick 处中断，
+//     uiScreenPop() 永不执行 → **浮层点不掉**；③ 异常冒进引擎事件分发 → **引擎冻结**
+//     （日志停止增长、进程常驻不退出；随后被 taskkill /F 即得 EXIT=1）。
+//   ui_flow.tjs 的三个包装器用的是全局引用（UIFlowOrigDraw 等），本文件此处与之对齐。
+var UIFragOrigClick    = null; // 被包装前的 uiScreenClick（供包装器回落调用）
+
+// ------------------------------------------------------------
+// 初始化
+// ------------------------------------------------------------
+function uiFragmentInit()
+{
+	if(UIFragReady) return;
+	UIFragReady = true;
+
+	var src = UIFlowData.fragments.cells;   // 生成器给的前 40 条（含 title_cn / title_jp / scene_id / group）
+	if(src === void) src = [];
+	for(var i = 0; i < src.count; i++)
+	{
+		UIFragCells.push("c" + i);
+		UIFragCellInfo.push(src[i]);
+	}
+
+	if(UIFragDemoSeedCell != "" && UIFlowFirstRun
+		&& UIFragCollected[UIFragDemoSeedCell] !== true)
+	{
+		UIFragCollected[UIFragDemoSeedCell] = true;
+		UIFragCollectedList.push(UIFragDemoSeedCell);
+		uiFlowLog("番外演示占位播种：" + UIFragDemoSeedCell
+			+ "（非剧情进度，置 UIFragDemoSeedCell=\"\" 可关闭）");
+	}
+
+	if(UIFragCursor == "" && UIFragCells.count > 0) UIFragCursor = UIFragCells[0];
+
+	uiFlowLog("fragment ready : 上屏格 " + UIFragCells.count + " / " + UIFragCols + "×" + UIFragRows
+		+ " ｜ 番外总 " + UIFlowData.fragments.total
+		+ " 条 / " + UIFlowData.fragments.group_count + " 组"
+		+ " ｜ 已收集 " + UIFragCollectedList.count);
+}
+
+// 格 id -> 序号（找不到返回 -1）
+function uiFragmentIndexOf(cellId)
+{
+	var want = "" + cellId;
+	for(var i = 0; i < UIFragCells.count; i++)
+		if(UIFragCells[i] == want) return i;
+	return -1;
+}
+
+// 格 id -> 元素 id（TJS2 无 sprintf，用字符串拼接）
+function uiFragmentElId(cellId, suffix)
+{
+	return "fragment." + ("" + cellId) + "_" + suffix;
+}
+
+// 由「点击命中 / 列表项序号 / 当前光标」定位格 id；都拿不到则回落 UIFragCursor
+function uiFragmentCellAt(index)
+{
+	if(UIFragClickCell != "")
+	{
+		if(uiFragmentIndexOf(UIFragClickCell) >= 0) return UIFragClickCell;
+	}
+	if(index !== void && index >= 0 && index < UIFragCells.count) return UIFragCells[index];
+	return UIFragCursor;
+}
+
+// 格子描述（用于日志/提示）
+function uiFragmentCellText(cellId)
+{
+	var i = uiFragmentIndexOf(cellId);
+	if(i < 0 || i >= UIFragCellInfo.count) return ("" + cellId);
+	var info = UIFragCellInfo[i];
+	return "第 " + (i + 1) + " 格「" + info.title_cn + "」";
+}
+
+// ------------------------------------------------------------
+// 绘制：M2 通用渲染器画底图 + 40 标题 + 40 热区；
+//       本模块叠加「已收集环 / 选中框」并改写标题颜色与计数
+// ------------------------------------------------------------
+function uiFragmentDrawScreen(stage)
+{
+	uiFragmentInit();
+	var sc = UILayoutData.screens["fragment"];
+	if(sc === void) return -1;
+
+	var ctx = uiScreenCtx(sc);
+
+	// ① 绘制前把标题颜色按收集态写进元素（M2 会读 el.font.color）
+	for(var i = 0; i < UIFragCells.count; i++)
+	{
+		var t = uiFlowEl(sc, uiFragmentElId(UIFragCells[i], "title"));
+		if(t === void) { UIFragNoTitle++; continue; }
+		if(t.font !== void)
+			t.font.color = uiThemePalette(
+				(UIFragCollected[UIFragCells[i]] === true) ? "highlight" : "text_disabled");
+	}
+
+	// ② 交给 M2 通用渲染器（底图 / 标题 / 热区 / 返回键 / 计数）
+	var drawn = uiWidgetDrawScreen(stage, sc, ctx);
+	var selfDrawn = 0;
+
+	// ③ 叠加状态：已收集环（格内）＋ 选中框（格外）
+	for(var j = 0; j < UIFragCells.count; j++)
+	{
+		var cid = UIFragCells[j];
+		var el = uiFlowEl(sc, uiFragmentElId(cid, "hit"));
+		if(el === void) continue;
+		if(UIFragCollected[cid] === true)
+		{
+			uiFlowFrame(stage, el.x, el.y, el.w, el.h,
+				uiThemePalette("node_available"), UIFragRingThick);
+			selfDrawn++;
+		}
+		if(cid == UIFragCursor)
+		{
+			uiFlowFrame(stage, el.x - UIFragCursorPad, el.y - UIFragCursorPad,
+				el.w + UIFragCursorPad + UIFragCursorPad,
+				el.h + UIFragCursorPad + UIFragCursorPad,
+				uiThemePalette("node_current"), UIFragCursorThick);
+			selfDrawn++;
+		}
+	}
+
+	// ④ 计数行（**不遮挡格子**：位于面板底部空白带）
+	var cnt = uiFlowEl(sc, "fragment.count");
+	if(cnt !== void)
+		cnt.sample = "已收集 " + UIFragCollectedList.count + " / " + UIFragCells.count
+			+ "（本期上屏）｜ 番外总 " + UIFlowData.fragments.total + " 条 / "
+			+ UIFlowData.fragments.group_count + " 组"
+			+ "（余 " + (UIFlowData.fragments.total - UIFragCells.count) + " 条呈现方式待定）";
+
+	return drawn + selfDrawn;
+}
+
+// ------------------------------------------------------------
+// 键盘：5 列 × 8 行格阵内移动；Enter = 进入
+// ------------------------------------------------------------
+function uiFragmentKey(key)
+{
+	if(key == 37 || key == 39 || key == 38 || key == 40)
+	{
+		var n = UIFragCells.count;
+		if(n <= 0) return %[ handled: false, action: "" ];
+		var i = uiFragmentIndexOf(UIFragCursor);
+		if(i < 0) i = 0;
+		var col = i % UIFragCols;
+		if(key == 37)      i = (col == 0) ? i + UIFragCols - 1 : i - 1;               // 左（行内环绕）
+		else if(key == 39) i = (col == UIFragCols - 1) ? i - UIFragCols + 1 : i + 1;  // 右（行内环绕）
+		else if(key == 38) i = i - UIFragCols;                                        // 上
+		else               i = i + UIFragCols;                                        // 下
+		while(i < 0) i += n;
+		while(i >= n) i -= n;
+		UIFragCursor = UIFragCells[i];
+		UIFragMsg = "选中 " + uiFragmentCellText(UIFragCursor) + "（Enter 进入）";
+		return %[ handled: true, action: "move" ];
+	}
+	if(key == 13) return %[ handled: true, action: "fragment_enter" ];
+	return %[ handled: false, action: "" ];
+}
+
+// ------------------------------------------------------------
+// 动作：进入某番外
+//   ★ M14：只**更新进度 + 持久化**，**不跳转剧情**（跳转属编程组）。
+// ------------------------------------------------------------
+function uiFragmentDispatch(index)
+{
+	uiFragmentInit();
+	var cid = uiFragmentCellAt(index);
+	if(cid == "") return %[ handled: false, effect: "", msg: "番外屏无可用格子" ];
+	UIFragCursor = cid;
+	UIFragClickCell = "";
+
+	if(uiFragmentIndexOf(cid) < 0)
+		return %[ handled: false, effect: "", msg: "没有格子 " + cid ];
+
+	var first = (UIFragCollected[cid] !== true);
+	if(first)
+	{
+		UIFragCollected[cid] = true;
+		UIFragCollectedList.push(cid);
+		uiFlowSaveState();                       // 持久化（复用 ui_flow.tjs 的状态文件）
+		UIFragMsg = "进入番外 " + uiFragmentCellText(cid) + "（首次进入，已记录进度；剧情跳转由编程组实现）";
+	}
+	else
+	{
+		UIFragMsg = "进入番外 " + uiFragmentCellText(cid) + "（重入；剧情跳转由编程组实现）";
+	}
+	uiFlowLog(UIFragMsg + " ｜ 已收集 " + UIFragCollectedList.count + " / " + UIFragCells.count);
+	return %[ handled: true, effect: "", msg: UIFragMsg ];
+}
+
+// ------------------------------------------------------------
+// 包装 M2 的 uiScreenClick：为番外屏补上「点的是哪一格」
+//   M2 原实现对 hit 只回 %[action, index:-1]，不带元素 id；
+//   本屏 40 个 hit 必须知道格子。包装器只做几何判定并记录，随后**原样调用原函数**，
+//   返回值不经改动 —— 命中优先级（z 最大者）仍由 M2 决定。
+// ------------------------------------------------------------
+function uiFragmentWrapClick()
+{
+	if(UIFragClickWrapped) return true;
+	if(uiScreenClick === void) return false;
+	try
+	{
+		// ★ M18 修复：存**全局** UIFragOrigClick（原为局部 var orig —— 匿名函数取不到，见上方说明）
+		UIFragOrigClick = uiScreenClick;
+		uiScreenClick = function(stage, x, y)
+		{
+			try
+			{
+				if(uiScreenCurrent() == "fragment")
+				{
+					uiFragmentInit();
+					var sc = UILayoutData.screens["fragment"];
+					if(sc !== void)
+					{
+						for(var i = 0; i < UIFragCells.count; i++)
+						{
+							var el = uiFlowEl(sc, uiFragmentElId(UIFragCells[i], "hit"));
+							if(el === void) continue;
+							if(x >= el.x && x < el.x + el.w && y >= el.y && y < el.y + el.h)
+							{
+								UIFragClickCell = UIFragCells[i];
+								break;
+							}
+						}
+					}
+				}
+			}
+			catch(e)
+			{
+				uiFlowErr("fragment 点击前置异常", e);
+			}
+			// ★ M18：回落调用也套 try/catch —— 被包装函数若抛错，本包装器**不得把异常
+			//   外溢**（异常一旦冒进引擎事件分发，引擎会冻结，见上方说明）。
+			if(UIFragOrigClick === null || UIFragOrigClick === void)
+				return %[ action: "", hit: false ];
+			return UIFragOrigClick(stage, x, y);          // 回落：原点击路径
+		};
+		UIFragClickWrapped = true;
+		uiFlowLog("ui_fragment.tjs：uiScreenClick 已包装（补记被点格子）");
+		return true;
+	}
+	catch(e2)
+	{
+		uiFlowErr("fragment 点击包装失败", e2);
+		return false;
+	}
+}
+
+// ------------------------------------------------------------
+// 外部 API（供编程组 / 演示层调用）
+// ------------------------------------------------------------
+function uiFragmentSetCollected(cellId, on)
+{
+	uiFragmentInit();
+	var cid = "" + cellId;
+	if(on)
+	{
+		if(UIFragCollected[cid] !== true)
+		{
+			UIFragCollected[cid] = true;
+			UIFragCollectedList.push(cid);
+		}
+	}
+	else
+	{
+		if(UIFragCollected[cid] === true)
+		{
+			UIFragCollected[cid] = void;
+			var keep = [];
+			for(var i = 0; i < UIFragCollectedList.count; i++)
+				if(UIFragCollectedList[i] != cid) keep.push(UIFragCollectedList[i]);
+			UIFragCollectedList = keep;
+		}
+	}
+	uiFlowSaveState();
+}
+
+function uiFragmentSummary()
+{
+	return "fragment 格 " + UIFragCells.count + "/" + (UIFragCols * UIFragRows)
+		+ " ｜ 已收集 " + UIFragCollectedList.count
+		+ "/" + UIFlowData.fragments.total
+		+ " ｜ 选中 " + UIFragCursor
+		+ " ｜ 缺标题元素 " + UIFragNoTitle;
+}
+
+// ------------------------------------------------------------
+// 填入 ui_flow.tjs 的 hook
+// ------------------------------------------------------------
+UIFragDrawHook     = uiFragmentDrawScreen;
+UIFragKeyHook      = uiFragmentKey;
+UIFragDispatchHook = uiFragmentDispatch;
+UIFragInitHook     = uiFragmentInit;
+try { uiFragmentWrapClick(); } catch(e) { uiFlowLog("fragment wrapClick 异常：" + e.message); }
+uiFlowLog("ui_fragment.tjs 已装载（M14 40 格版）：hook 已填入（draw/key/dispatch/init）+ click 已包装");

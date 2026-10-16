@@ -1,0 +1,22 @@
+// r_memory_callbacks.tjs
+// 唯一提供四个内存读写回调，供 memory 对象 incontextof 调用；本文件不保存 self 回调，避免自环。
+
+function RMemoryRD(q)
+{
+	return RMemoryRead32(this, q);
+}
+
+function RMemoryRB(q)
+{
+	return RMemoryRead8(this, q);
+}
+
+function RMemoryWR(q, v)
+{
+	RMemoryWrite32(this, q, v);
+}
+
+function RMemoryWB(q, v)
+{
+	RMemoryWrite8(this, q, v);
+}

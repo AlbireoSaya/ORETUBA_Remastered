@@ -1,0 +1,40 @@
+{
+  "scope": "owned SDK fixture only; no original guest worker completion",
+  "bits": 64,
+  "checks": {
+    "six_dwords": true,
+    "entry_frame": true,
+    "short_request": true,
+    "long_request": true,
+    "negative_frame": true,
+    "overflow_frame": true,
+    "invalid_registration": true,
+    "register_worker": true,
+    "suspended_still_active": true,
+    "priority_actual_success": true,
+    "resume_count": true,
+    "blocked_at_depth_two": true,
+    "other_slot_prevents_free": true,
+    "active_registration_prevents_close": true,
+    "parent_tls_unchanged": true,
+    "blocked_at_depth_one": true,
+    "wrong_holder_rejected": true,
+    "actual_wait_signalled": true,
+    "host_fixture_exit_code": true,
+    "parent_tls_survived_worker_exit": true,
+    "free_after_both_clear": true,
+    "close_thread_handle": true,
+    "no_remaining_resources": true
+  },
+  "worker": {
+    "actual_tid": 26072,
+    "tls_independent": true,
+    "cleaned_on_own_thread": true
+  },
+  "owned_handle": 84,
+  "returned_tid": 26072,
+  "actual_exit_code": 12648430,
+  "errors": [],
+  "tls_close": [],
+  "pass": true
+}

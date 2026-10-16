@@ -1,0 +1,1 @@
+2026-10-15 R作品技术增量：新增11项SDK验证与3项自检，32/64位通过。范围含光标消息坐标、自有HWND映射、借用HCURSOR；0..64灰度原样、DWORD行对齐；nativePAINT64/72映射guest64，Begin/End配对。原程序150/151八字形查询、八缓冲读取、16次文字测量及BeginPaint成功；当前字体环境非日文原OS像素golden。父WM_PAINT因worker持锁受控停，EndPaint仅fixture清理；光标20源调用未证。对应阶段R_窗口光标与文字重绘证据_20261014。四版本100%及忠实TJS/画音/全路线仍未完成。

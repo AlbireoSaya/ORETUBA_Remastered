@@ -1,0 +1,25 @@
+from pathlib import Path
+import sys,json,hashlib,shutil,uuid,time
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015';sys.path.insert(0,str(g/'工具'))
+from performance_runtime import execute
+bits=int(sys.argv[1]);tag=sys.argv[2];manifest_path=Path(sys.argv[3]).resolve();manifest=json.loads(manifest_path.read_text(encoding='utf8'));timeout=float(sys.argv[4])if len(sys.argv)>4 else 60
+assert bits in(32,64)and 0<timeout<=60 and '/'not in tag and '\\'not in tag
+rows=manifest['files'];expected=sum(x['cases']for x in rows);segments=sum(x['segments']for x in rows)
+out=r/'临时/ISSUE-20261011-02'/tag;assert not out.exists();game=out/'game';save=out/'savedata';ev=out/'evidence'
+for p in[game,save,ev]:p.mkdir(parents=True)
+names=['r_u32.tjs','r_vm_entry.tjs','r_vm_memory.tjs','r_vm_control.tjs','r_vm_value.tjs','r_vm_step.tjs','r_vm_run.tjs','r_vm_native_flags_fixture.tjs','r_vm_native_keyboard_fixture.tjs','r_vm_native_query_fixture.tjs','r_vm_native_control_fixture.tjs','r_vm_native_dispatch_fixture.tjs','r_vm_fixture_range.tjs','r_vm_fixture_read.tjs','r_vm_fixture_write.tjs','r_vm_fixture_compare.tjs','r_vm_fixture_nativecall.tjs','r_vm_fixture_state.tjs','r_vm_fixture_segment.tjs','r_vm_fixture_case.tjs']
+provenance=[]
+for name in names:
+    src=g/'原作忠实层/R'/name if name in ['r_u32.tjs', 'r_vm_control.tjs', 'r_vm_entry.tjs', 'r_vm_memory.tjs', 'r_vm_run.tjs', 'r_vm_step.tjs', 'r_vm_value.tjs'] else w/name;shutil.copyfile(src,game/name);provenance.append({'name':name,'source':src.relative_to(r).as_posix(),'SHA256':hashlib.sha256(src.read_bytes()).hexdigest()})
+mutation=sys.argv[5]
+name='r_vm_entry.tjs'if mutation=='warm-restart'else'r_vm_memory.tjs';p=game/name;body=p.read_text(encoding='utf8')
+old,new=('if (resume == 1)','if (resume == 1 && false)')if mutation=='warm-restart'else('(rd(ptr) + 1)','(rd(ptr) + 2)')
+assert body.count(old)==1;body=body.replace(old,new);p.write_text(body,encoding='utf8');provenance.append({'fault_injection_only':True,'mutation':mutation,'file':name,'mutated_SHA256':hashlib.sha256(p.read_bytes()).hexdigest()})
+nonce=uuid.uuid4().hex;commands=['Debug.startLogToFile();','try {',f'Debug.message("RVM_BEGIN {nonce} {expected} {segments}");']+[f'Scripts.execStorage("{name}");'for name in names]
+for i,row in enumerate(rows):
+    src=r/row['source'];dest=game/f'cases-{i:04d}.tjs';shutil.copyfile(src,dest);digest=hashlib.sha256(src.read_bytes()).hexdigest();assert digest==row['sha256'];provenance.append({'name':dest.name,'source':row['source'],'SHA256':digest});commands.extend([f'Scripts.execStorage("{dest.name}");',f'Debug.message("RVM_BATCH {nonce} {i} "+RVMFCaseCount+" "+RVMFSegmentCount);'])
+commands.extend([f'if(RVMFCaseCount !== {expected} || RVMFSegmentCount !== {segments}) throw new Exception("WRONG_VM_COUNTS");',f'Debug.message("RVM_PASS {nonce} "+RVMFCaseCount+" "+RVMFSegmentCount);','} catch(e) {',f'Debug.message("RVM_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));','}','System.exit();'])
+(game/'startup.tjs').write_text('\n'.join(commands)+'\n',encoding='utf8');engine=r/f'工具/krkrz/krkrz_20171225/tvpwin{bits}.exe';start=time.time_ns();argv=[str(engine),str(game),'-datapath='+str(save)+'/','-readencoding=UTF-8','-startup=startup.tjs','-userconf=no'];process=execute(argv,out,timeout,ev);log=save/'krkr.console.log';raw=log.read_bytes()if log.exists()else b'';text=raw.decode('utf-16')if raw.startswith(b'\xff\xfe')else raw.decode('utf-16-le',errors='replace');fresh=log.exists()and log.stat().st_mtime_ns>=start
+passed=process['returncode']==0 and not process['timed_out']and process['cleanup_ok']and fresh and f'RVM_PASS {nonce} {expected} {segments}'in text and f'RVM_EXCEPTION {nonce}'not in text
+receipt={'passed':passed,'bits':bits,'nonce':nonce,'cases':expected,'segments':segments,'fresh_log':fresh,'process':process,'engine_SHA256':hashlib.sha256(engine.read_bytes()).hexdigest(),'sources':provenance,'console_SHA256':hashlib.sha256(raw).hexdigest(),'input_manifest':manifest_path.relative_to(r).as_posix(),'full_native_lifecycle_or_game_fidelity_proven':False}
+(ev/'verdict.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf8');(ev/'console.utf8.txt').write_text(text,encoding='utf8');print(json.dumps({k:receipt[k]for k in['passed','bits','cases','segments','process']}));print('\n'.join(line for line in text.splitlines()if'RVM_'in line)[-4000:]);sys.exit(0 if passed else 1)

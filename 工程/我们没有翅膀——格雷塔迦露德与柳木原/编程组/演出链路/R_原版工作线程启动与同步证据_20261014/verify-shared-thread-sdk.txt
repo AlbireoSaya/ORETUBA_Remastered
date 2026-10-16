@@ -1,0 +1,97 @@
+import ctypes as C
+import json, pathlib, struct, sys, threading, traceback
+root=pathlib.Path(r'E:\ZCode Workspace\Galgame')
+work=root/'临时/ISSUE-20261011-02'/('thread-sdk-'+__import__('uuid').uuid4().hex);work.mkdir(exist_ok=False)
+sdk=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'
+sys.path[:0]=[str(work),str(sdk)]
+from lucifen_host_memory import HostMemory
+from lucifen_host_tls import current_thread_id,E_THREAD,E_NOTEMPTY,E_INDEX
+from lucifen_host_shared_tls import HostSharedTLS
+from lucifen_host_shared_critical import HostSharedCritical
+from lucifen_host_thread_create import CreateThread,HOST_THREADPROC
+from lucifen_host_thread_resume import ResumeThread
+from lucifen_host_thread_exit_code import GetExitCodeThread
+from lucifen_host_thread_priority_set import SetThreadPriority
+from lucifen_guest_thread_request import decode_create_thread_request
+from lucifen_guest_thread_entry_frame import pack_thread_entry_frame
+k=C.WinDLL('kernel32',use_last_error=True)
+k.WaitForSingleObject.argtypes=[C.c_void_p,C.c_uint32];k.WaitForSingleObject.restype=C.c_uint32
+k.CloseHandle.argtypes=[C.c_void_p];k.CloseHandle.restype=C.c_int
+bits=C.sizeof(C.c_void_p)*8
+out={'scope':'owned SDK fixture only; no original guest worker completion','bits':bits,'checks':{},'worker':{}}
+check=out['checks']
+check['six_dwords']=decode_create_thread_request(struct.pack('<6I',0,0,0x506efa,0x7000000,0,0x2003ccc))==dict(security_attributes=0,stack_size=0,start_address=0x506efa,parameter=0x7000000,creation_flags=0,thread_id_out=0x2003ccc)
+check['entry_frame']=pack_thread_entry_frame(0xabcdef01,0x12345678)==bytes.fromhex('01efcdab78563412')
+for name,fn in [('short_request',lambda:decode_create_thread_request(bytes(20))),('long_request',lambda:decode_create_thread_request(bytes(28))),('negative_frame',lambda:pack_thread_entry_frame(-1,0)),('overflow_frame',lambda:pack_thread_entry_frame(0,1<<32))]:
+    try:fn();check[name]=False
+    except struct.error:check[name]=True
+mem=HostMemory();tls=HostSharedTLS(mem);cs=HostSharedCritical()
+heap=mem.heap_create(0,0,0);assert heap
+a=mem.heap_alloc(heap,8,32);b=mem.heap_alloc(heap,8,32);assert a and b
+idx,err=tls.alloc();assert not err
+assert tls.set(idx,a)==(True,0)
+key=0x1000;cs.init(key);cs.enter(key);cs.enter(key)
+check['invalid_registration']=tls.register_thread(True)==(False,E_INDEX) and not cs.register_thread(True)
+ready=threading.Event();entered=threading.Event();release=threading.Event()
+errors=[];tid=C.c_uint32();handle=None;resumed=False
+@HOST_THREADPROC
+def guarded(parameter):
+    try:
+        wt=current_thread_id();out['worker']['actual_tid']=wt
+        assert wt==tid.value
+        assert tls.get(idx)==(0,0)
+        assert tls.set(idx,b)==(True,0) and tls.get(idx)==(b,0)
+        out['worker']['tls_independent']=True
+        ready.set()
+        cs.enter(key);cs.enter(key);entered.set()
+        assert cs._holders[key]==wt and cs._sections[key][1]==2
+        assert release.wait(5)
+        cs.leave(key);cs.leave(key)
+        tls.unregister_current_thread();cs.unregister_current_thread()
+        out['worker']['cleaned_on_own_thread']=True
+        return 0x00c0ffee
+    except BaseException:
+        errors.append(traceback.format_exc())
+        ready.set();entered.set()
+        return 0xe0000001
+try:
+    handle=CreateThread(None,0,guarded,None,4,C.byref(tid));assert handle and tid.value
+    out['owned_handle']=int(handle);out['returned_tid']=tid.value
+    check['register_worker']=tls.register_thread(tid.value)==(True,None) and cs.register_thread(tid.value)
+    code=C.c_uint32();assert GetExitCodeThread(handle,C.byref(code))
+    check['suspended_still_active']=code.value==259
+    check['priority_actual_success']=SetThreadPriority(handle,0)!=0
+    prior=ResumeThread(handle);resumed=True;check['resume_count']=prior==1
+    assert ready.wait(5) and not errors
+    check['blocked_at_depth_two']=not entered.wait(.15)
+    check['other_slot_prevents_free']=tls.free(idx)==(False,E_NOTEMPTY)
+    check['active_registration_prevents_close']=tls.close_all()==[(None,E_THREAD)]
+    check['parent_tls_unchanged']=tls.get(idx)==(a,0)
+    cs.leave(key);check['blocked_at_depth_one']=not entered.wait(.15)
+    cs.leave(key);assert entered.wait(5) and not errors
+    # The parent must never unlock a lock currently held by the worker.
+    try:cs.leave(key);check['wrong_holder_rejected']=False
+    except RuntimeError:check['wrong_holder_rejected']=True
+    release.set();wait=k.WaitForSingleObject(handle,5000)
+    check['actual_wait_signalled']=wait==0
+    assert GetExitCodeThread(handle,C.byref(code))
+    out['actual_exit_code']=code.value;check['host_fixture_exit_code']=code.value==0xc0ffee
+    assert not errors
+    check['parent_tls_survived_worker_exit']=tls.get(idx)==(a,0)
+    assert tls.set(idx,0)==(True,0)
+    check['free_after_both_clear']=tls.free(idx)==(True,0)
+finally:
+    while cs._sections.get(key,(None,0))[1] and cs._holders.get(key)==current_thread_id():cs.leave(key)
+    release.set()
+    if handle:
+        if not resumed:ResumeThread(handle)
+        assert k.WaitForSingleObject(handle,5000)==0,'owned fixture worker did not join'
+        check['close_thread_handle']=k.CloseHandle(handle)!=0
+    out['errors']=errors
+    out['tls_close']=tls.close_all()
+    cs.close_all();mem.close_all()
+    check['no_remaining_resources']=not tls.owned and not cs._sections and not mem._blocks and not mem._heaps
+    out['pass']=all(check.values()) and not errors and not out['tls_close']
+    (work/('sdk-thread-%s.json'%bits)).write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'bits':bits,'pass':out['pass'],'checks':check},ensure_ascii=False))
+assert out['pass']

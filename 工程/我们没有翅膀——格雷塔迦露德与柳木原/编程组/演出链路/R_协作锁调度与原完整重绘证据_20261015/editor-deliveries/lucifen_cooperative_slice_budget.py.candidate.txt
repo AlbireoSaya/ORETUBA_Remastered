@@ -1,0 +1,43 @@
+```python
+"""Cooperative slice budget: all-or-nothing instruction reservation."""
+
+
+class CooperativeSliceBudget:
+    MAX_SLICES_LIMIT = 100000
+    MAX_INSTRUCTIONS_LIMIT = 1000000000
+
+    def __init__(self, max_slices, max_instructions):
+        self._max_slices = self._checked(max_slices, "max_slices", self.MAX_SLICES_LIMIT)
+        self._max_instructions = self._checked(
+            max_instructions, "max_instructions", self.MAX_INSTRUCTIONS_LIMIT
+        )
+        self._used = 0
+        self._reserved = 0
+
+    @staticmethod
+    def _checked(value, name, bound):
+        if type(value) is not int or value <= 0 or value > bound:
+            raise ValueError(f"{name} must be an int in 1..{bound}, got {value!r}")
+        return value
+
+    def reserve(self, instructions):
+        if type(instructions) is not int or instructions <= 0:
+            raise ValueError(f"instructions must be a positive int, got {instructions!r}")
+        if self._used + 1 > self._max_slices or self._reserved + instructions > self._max_instructions:
+            raise RuntimeError("reservation would exceed the cooperative slice budget")
+        self._used += 1
+        self._reserved += instructions
+        return {
+            "slice": self._used,
+            "instruction_budget": instructions,
+        }
+
+    @property
+    def snapshot(self):
+        return {
+            "used_slices": self._used,
+            "reserved_instructions": self._reserved,
+            "max_slices": self._max_slices,
+            "max_instructions": self._max_instructions,
+        }
+```

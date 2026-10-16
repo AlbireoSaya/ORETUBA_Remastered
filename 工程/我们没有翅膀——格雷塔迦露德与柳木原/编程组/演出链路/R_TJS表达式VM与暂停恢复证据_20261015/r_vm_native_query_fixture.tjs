@@ -1,0 +1,39 @@
+// r_vm_native_query_fixture.tjs
+// 仅验证用：RVMNQuery / RVMNChannel。不实际播放或停止音频。
+
+function RVMNQuery(rd, f)
+{
+    var app = rd(0x530c94);
+    var obj = rd(app + 0x1ab8);
+    var begin = rd(obj + 0x5c);
+    var end = rd(obj + 0x60);
+    var n = end - begin;
+    if (n < 0 || n > 12288 || n % 12 != 0) {
+        throw new Exception("RVMNQuery: invalid range");
+    }
+    var target = rd(f + 4);
+    var i;
+    for (i = 0; i < n; i += 12) {
+        if (rd(begin + i) == target) {
+            return (i / 12) | 0;
+        }
+    }
+    return 0xffffffff;
+}
+
+function RVMNChannel(rd, f)
+{
+    var i = rd(f) & 0xffffffff;
+    if (i >= 0x80000000) {
+        i = i - 0x100000000;
+    }
+    var mgr = rd(0x531098);
+    var count = rd(mgr + 0x1f4) & 0xffffffff;
+    if (count >= 0x80000000) {
+        count = count - 0x100000000;
+    }
+    if (i < 0 || i >= count) {
+        return 1;
+    }
+    throw new Exception("VALID_CHANNEL_LIFECYCLE_UNSUPPORTED");
+}

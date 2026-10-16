@@ -1,0 +1,81 @@
+########## Q 验收（gen_layout / verify_ui / test_quickbar_reach）
+
+### gen_layout.py
+
+[OK] 已生成：
+  layout\ui_layout.json  (20 屏)
+  krkr\game\ui_layout.tjs
+  复刻\ui_layout.js
+EXIT=0
+
+### verify_ui.py
+==============================================================================
+verify_ui.py · UI 组 M1 一致性校验
+  layout : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout
+  assets : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\assets\ui
+  game   : E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\game
+  canvas : 1920x1080（canvas_baseline=1920x1080）  ← 读自 layout/_root.json
+==============================================================================
+  [1] 引用完整性      ：842 条引用 / 163 条唯一 → 通过
+  [2] 尺寸一致性      ：313 个 image（其中九宫格 280）→ 通过
+  [3] 三处数据一致    ：json 17408 键 / tjs 17408 键 / js 17408 键 → 通过
+  [4] 硬编码坐标扫描  ：扫 12 个 .tjs（排除自动生成的 ui_layout.tjs）→ 可疑清单为空，通过
+      白名单：W1 值∈{0,1,2,3} ｜ W2 值==255 ｜ W3 行含 interval/Timer/period ｜ W4 疑似数组下标 ｜ W5 十六进制字面量 ｜ W6 行含 UILayout/uiTheme/uiAsset
+  [5] PNG 合法性      ：443 件 → 通过
+      P 模式（索引色）清单：无
+      L 模式（灰度）清单  ：无
+  [6] 体积预算        ：443 件 / 38.92 MB（56 MB 预算）→ 通过
+------------------------------------------------------------------------------
+汇总：引用 0 ｜ 尺寸 0 ｜ 三处一致 0 ｜ 硬编码可疑 0 行 ｜ PNG 0 ｜ 预算 0 处
+资产：443 件 / 38.92 MB
+结果：**全部通过**（退出码 0）
+==============================================================================
+EXIT=0
+
+### test_quickbar_reach.py
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 49 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ⓪ 结构：药丸素材：PNG 66x64；丸体 y=12..51（40 高，居中）；画布四缘 alpha=0（外晕未被裁） ✓
+  ⓪ 结构：旧结构（整条/把手/高面板）确已退场 ✓
+  ⓪ 结构：12×(icon 64×64 两态（= PNG 实测）+ 药丸九宫格 + 白字 + 热区) 齐备且 key 对应 ✓
+  ⓪ 结构：icon 与热区同组、圆心偏差 ≤1px、icon 完整落在热区内 ✓
+  ⓪ 结构：丸体右缘 = icon 左缘 − 8；药丸宽度 = 生成器公式 pill_w(字数)（= 21×n + 2×24 + 2×4，逐条独立） ✓
+  ① 收起态：整条区域 (1845, 7, 75, 898) 共 67350 点**全部无命中**（右端无可点热区，12 项不可见）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+EXIT=0
+
+### test_quickbar_reach.py --selfcheck
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 49 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ⓪ 结构：药丸素材：PNG 66x64；丸体 y=12..51（40 高，居中）；画布四缘 alpha=0（外晕未被裁） ✓
+  ⓪ 结构：旧结构（整条/把手/高面板）确已退场 ✓
+  ⓪ 结构：12×(icon 64×64 两态（= PNG 实测）+ 药丸九宫格 + 白字 + 热区) 齐备且 key 对应 ✓
+  ⓪ 结构：icon 与热区同组、圆心偏差 ≤1px、icon 完整落在热区内 ✓
+  ⓪ 结构：丸体右缘 = icon 左缘 − 8；药丸宽度 = 生成器公式 pill_w(字数)（= 21×n + 2×24 + 2×4，逐条独立） ✓
+  ① 收起态：整条区域 (1845, 7, 75, 898) 共 67350 点**全部无命中**（右端无可点热区，12 项不可见）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+
+==========================================================================
+反向自证（全部在内存里做，**不动磁盘**）
+==========================================================================
+
+【A 注入 z=999 异组遮挡（盖住第 1 项中心）】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ ① 收起态：整条区域 (1845, 7, 75, 898) 内有 5475 点被派发（期望**全部无命中** = 完全隐藏）：{'quick.zz_occluder': 5475}
+    ✗ ② 中心(1882.5,43.5) 被 **quick.zz_occluder**(z=999) 吞掉 —— 期望 quick.hit_lock(z=95)；两者重叠 5475 点
+    ✗ ③ 中心(1882.5,43.5) 被 **quick.zz_occluder**(z=999) 吞掉 —— 期望 quick.hit_lock(z=95)；两者重叠 5475 点
+
+【B 抹掉 12 项热区的 vis_flag（收起态也可见）】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ ① 收起态：12 项里有 12 件在本态**可见**（期望全部不可见）：quick.hit_lock、quick.hit_save、quick.hit_load、quick.hit_qsave、quick.hit_qload、quick.hit_auto、quick.hit_skip、quick.hit_next、quick.hit_prev、quick.hit_log、quick.hit_chart、quick.hit_option
+    ✗ ① 收起态：整条区域 (1845, 7, 75, 898) 内有 65700 点被派发（期望**全部无命中** = 完全隐藏）：{'quick.hit_lock': 5475, 'quick.hit_save': 5475, 'quick.hit_load': 5475, 'quick.hit_qsave': 5475, 'quick.hit_qload': 5475, 'quick.hit_auto': 5475, 'quick.hit_skip': 5475, 'quick.hit_next': 5475, 'quick.hit_prev': 5475, 'quick.hit_log': 5475, 'quick.hit_chart': 5475, 'quick.hit_option': 5475}
+    ✗ ② 无法构造「展开态」：12 项热区没有 vis_flag —— 无法推出「展开态」（本屏的展收互斥靠 vis_flag）
+
+自证结果：两项均按预期 FAIL ✓
+EXIT=0

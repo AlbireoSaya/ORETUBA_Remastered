@@ -1,0 +1,112 @@
+##### test_state_targets #####
+[2] 判据令牌（成对一致性）
+  ✓ 候选并集·带 state_assets 的任何元素
+  ✓ 候选并集·缺态图时只认 kind==hit
+  ✓ 候选并集·热区必须带非空 state_group
+  ✓ 可见性·visible_default 前置
+  ✓ 可见性·vis_flag / vis_when 成对
+  ✓ 可见性·vis_when 通配 "*" = 非空即显示
+  ✓ 平票·z 相等时声明更晚者胜
+
+[3] 可达性（几何中心）
+  覆盖：态图+组 37 件 ｜ 纯组热区 23 件 ⇒ 合计 60 件（按各自可见所需的 flag 取值复算）
+  – 跳过 25_config.json :: cfg.mute_off（visible_default=false）
+  – 跳过 25_config.json :: cfg.mute_hit（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay_hit（visible_default=false）
+
+==========================================================================
+结果：**全部通过**（判据指纹一致 + 60 件元素几何中心可达）
+rc=0
+##### test_verify_asset_refs #####
+========================================================================
+verify_ui.iter_asset_refs 覆盖性自测（state_assets）
+========================================================================
+  OK   state_assets.normal 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.hover 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.pressed 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   空串/None 不产生引用  —— ['ui/n.png']
+  OK   asset 与 state_assets 并存  —— ['ui/bg.png', 'ui/n.png']
+  OK   item_frame/asset 未回归  —— ['ui/a.png', 'ui/f.png']
+  OK   深层 list 下标路径  —— ['screens.s.elements[0].state_assets.pressed']
+  OK   真实 layout 上收到 state_assets 引用（>0）  —— state_assets=210 / 总 844
+  OK   非三键的自定义态也被收集（Minor-10）  —— ['ui/dis.png', 'ui/focus.png', 'ui/n.png']
+  OK   state_assets 非字典 -> 计入引用表（供 [1] 报缺件）  —— [('ui/typo.png', 'state_assets')]
+------------------------------------------------------------------------
+结果：**全部通过**
+rc=0
+##### test_click_reach #####
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_06_load(z=35) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_07_config(z=36) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_08_close(z=37) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_09_repeat(z=38) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [豁免·DESIGN] sysicons.dismiss 可达面积 96.0%（被覆盖 4.0%）被 sysicons.hit_05_save 吞掉中心
+       理由：浮层的「点击空白关闭」全屏热区，**铁律二 / schema §六 规定的做法**：「整块区域热区（低 z）+ 块内具体控件（高 z，此处为 9 个功能图标 z30..38）」⇒ 具体控件赢，正是「点图标不关屏」想要的。它本身**不是**被吞死的元素：矩形 1920×1080、被 9 个图标合计覆盖仅 ~4%，其余 96% 面积仍是它的命中区（本脚本打印实测值 96.0%）。
+
+── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+
+── 35_quickbar.json OK  元素  49（可点  12）｜ 状态 13 ｜ 重叠对 0 ｜ 中心检查 144
+
+── 36_choices.json  OK  元素   9（可点   3）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 3
+
+── 37_dress.json    OK  元素 107（可点  42）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 42
+
+------------------------------------------------------------------------------
+合计：屏 20 ｜ 重叠对 22 ｜ 中心可达性检查 437 次 ｜ 豁免命中 4 条
+结果：**全部通过**（无未登记的可达性缺陷；豁免项均已在表中写明理由）
+rc=0
+##### test_quickbar_reach #####
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 49 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ⓪ 结构：药丸素材：PNG 66x64；丸体 y=12..51（40 高，居中）；画布四缘 alpha=0（外晕未被裁） ✓
+  ⓪ 结构：旧结构（整条/把手/高面板）确已退场 ✓
+  ⓪ 结构：12×(icon 64×64 两态（= PNG 实测）+ 药丸九宫格 + 白字 + 热区) 齐备且 key 对应 ✓
+  ⓪ 结构：icon 与热区同组、圆心偏差 ≤1px、icon 完整落在热区内 ✓
+  ⓪ 结构：丸体右缘 = icon 左缘 − 8；药丸宽度 = 生成器公式 pill_w(字数)（= 21×n + 2×24 + 2×4，逐条独立） ✓
+  ① 收起态：整条区域 (1845, 7, 75, 898) 共 67350 点**全部无命中**（右端无可点热区，12 项不可见）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+rc=0
+##### test_gate_field_granularity #####
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | !! 守门告警（**--allow-drop 已放行，将继续落盘**）：导出件会造成静默流失
+   |    · 状态字段丢失：01_title.json —— 1 处（逐条明细见下）
+   |    —— 逐条丢失明细（元素 id + 字段名）——
+   |      · 元素 title.menu_hit_1               丢失字段 state_assets
+   |    （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets` 分别判定**，任一字段丢失即拦截。
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | （--allow-drop：已放行，上述逐条明细仍全部打印，**请据此核对后再提交**）
+   |      · 放行项 元素 title.menu_hit_1               丢失字段 state_assets
+   | 
+   | （--dry：未落盘、未跑校验）
+   ⇒ 退出码 0（期望 0）；逐条明细已打印=True；原文件 md5 b15740d7e5fefaf8bee6b99ed2a41cd5 ⇒ 符合预期 ✓
+
+==============================================================================
+结果：三项全部符合预期 ✓
+（被审原文件 01_title.json md5 始终 = b15740d7e5fefaf8bee6b99ed2a41cd5）
+rc=0
+##### test_gen_sync #####
+    · [22_loading.json] 元素 `ld.plate` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 34, 'r': 0, 'b': 34}
+    · [22_loading.json] 元素 `ld.spin_a` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 元素 `ld.spin_b` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 元素 `ld.spin_c` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 与失效生成器有 10 处值差异
+
+### 无 build 函数的屏（不会被任何生成器重跑抹掉）
+  10_dialog.json       来源：M23_gen.py（系统条改通用 hit 扫描 + 对话框换图）＋ migrate_1920.py
+  27_gallery.json      来源：_工作/M14_gen_screens.py
+  29_ending.json       来源：早期直接写盘（无生成器；改动无回写对象）
+  30_chapter.json      来源：早期直接写盘（无生成器；改动无回写对象）
+  31_fragment.json     来源：_工作/M14_gen_screens.py
+  33_sysicons.json     来源：_工作/M23_gen.py
+
+------------------------------------------------------------------------------
+覆盖：生成器产出屏 14 个 ｜ 登记表 ACK 命中 7 条 ｜ 失效生成器待处置 17 条
+落盘自证：运行前后 layout/screens/*.json 的 md5 **完全一致** ✓（21 个文件）
+结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）
+rc=0

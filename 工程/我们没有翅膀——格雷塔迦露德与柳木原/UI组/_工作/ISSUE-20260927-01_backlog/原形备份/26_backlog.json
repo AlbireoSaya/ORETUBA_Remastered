@@ -1,0 +1,301 @@
+{
+  "id": "backlog",
+  "title_cn": "回想",
+  "owner": "M34 / PSV-B组",
+  "note": "**PSV 换皮（2026-09-26，ISSUE-20260926-06 · B 组）· 26 通话记录**。用户裁决见 `PSV换皮_素材与文字处置清单.md` §七。\n★ 底图换 `ui/x_ui_psv_backlog_bg.png`（PSV 整屏：题字 BACKLOG + 高光内容板 1604×788 + 右缘滚动条槽；1:1；题字按用户裁决保留原样）。\n★ `bl.list` 按**板内可用高度**重排：x169 y158 w1526、4 行 × `item_h188` + `gap4` = 764 （= 板高 788 − 上下各 12 内缩）；`item_text` 1291×168（更宽 ⇒ 所需行数只减不增）。\n★ `item_frame` = `ui/x_ui_psv_bklog_row.png`（从底图板内取的 1526×188 行板，1:1、`opacity=110`）—— PSV 板无逐行底板，「每行一块」以同图同倍率像素半透明叠加解决。\n★ `bl.close` 几何未动；`bl.up/slider/down` x 对齐滚动条槽中心 1723、y 对齐槽纵向 227..876；4 个 hit 随件重排（左沿 1696 不压列表矩形）。\n★ 页脚日语两项（y988..1032）为**待定区**（用户双路对比中），本轮不动该条带。\n★ 本屏无 `item_buttons` 之外的机制改动；`backlog_jump:%row%` / `backlog_replay:%row%` 原样。",
+  "elements": [
+    {
+      "id": "bl.bg",
+      "kind": "image",
+      "z": 2,
+      "visible_default": true,
+      "asset": "ui/x_ui_psv_backlog_bg.png",
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "opacity": 255,
+      "note": "PSV 通话记录整屏底图（1920×1080：题字 BACKLOG + 高光内容板 + 右缘滚动条槽；1:1）。用户裁决「英文题字 BACKLOG 保留原样」。z=2（`bl.dim` z=1 之上、列表之下）⇒ `bl.dim` 实机不可见（保留不删）。页脚 y988..1032 的日语两项为**待定区**（用户双路对比中），本轮不动该条带。",
+      "source": "PSV系统UI参考\\超分2x\\otv_bklog.png（按屏区 y0..1088 裁 1920×1080）"
+    },
+    {
+      "id": "bl.dim",
+      "kind": "rect",
+      "z": 1,
+      "visible_default": true,
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "color": "@palette.backdrop",
+      "opacity": 60,
+      "note": "全屏压暗遮罩。**PSV 换皮后位于 `bl.bg`（z=2，不透明满屏）之下 ⇒ 实机不可见**；保留而非删除的理由：不动既有元素与豁免表（save/load 的 `sv.hit_back` 豁免条目）零风险，移除动作留给主代理一并处理。"
+    },
+    {
+      "id": "bl.list",
+      "kind": "list",
+      "z": 20,
+      "visible_default": true,
+      "orientation": "v",
+      "x": 169,
+      "y": 158,
+      "w": 1526,
+      "item_h": 188,
+      "gap": 4,
+      "max_rows": 4,
+      "labels": [
+        "这里是回想文本区（占位文案，真实台词运行期灌入）。",
+        "每块 205 高、块间无间隙；可见 4 块，超出部分由右侧滑块翻页滚动。",
+        "每块左栏两个按钮：跳转 94×29（x28,y26）、重新播放 44×44（x154,y18）。",
+        "文本区块内局部 219,19 1117×173，字号 30 / 行距 42 / 最多 4 行（实测语料最多 4 行、0 截断）。"
+      ],
+      "actions": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "font": {
+        "size": 30,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "left",
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "item_frame": {
+        "asset": "ui/x_ui_psv_bklog_row.png",
+        "opacity": 150
+      },
+      "note": "回想消息块列表。**PSV 换皮（2026-09-26，ISSUE-20260926-06 · B 组）**：\n★ **版式按 PSV 内容板重排**（板实测 x157..1761 × y146..934，画布口径 1604×788）：板内缩 12 ⇒ 列表 x=169 y=158，宽 1526（右沿 1695，止于滚动条槽 1712 之前 17px）；4 行 `item_h=188`、`gap=4` ⇒ 4×188+3×4 = 764 = 788−2×12 **恰好填满板内可用高度**。\n★ **`item_frame` 换 PSV 自家像素**：`ui/x_ui_psv_bklog_row.png`（1526×188，1:1 无 nine）= 从**同一张底图**的板内取的一条 1526×188 行板（取件框 (169,450)、带内平均亮度 213.7 = 板内 4 行区平均 ⇒ 最「平」的带，不含雪晶），以 `opacity=150` 半透明叠在板上（**上下各 32px α 余弦羽化，见取件脚本 docstring**）⇒ 只做**行带明度差**，不引入第二个面板：PSV 的通话记录屏**没有逐行底板**（板是整块、无行分隔），「每行一块板」只能这样解决；取同图同倍率像素可保证与板同色同纹。取件脚本 `工具\\psv_make_backlog_row.py`（幂等、判据可复算）。\n★ **文本区** `item_text`：块内 (219,10) 1291×168，字号 30 / 行距 1.4 ⇒ 行高 42 / 最多 4 行（= 168）。框宽 1117→**1291 更宽** ⇒ 同字号下所需行数只减不增 ⇒ 旧「4 行 0 截断」实测结论**仍然成立且更宽松**（M06 容量实测见其 note）。\n★ **逐块按钮**（跳转 94×29 @(28,26) / 重新播放 44×44 @(154,18)）几何未改：两块都在新块高 188 内、且在 4 行文本区左侧栏内。\n★ **旧件 `x_ui_msgblock.png` 不再被引用**（按工程惯例**保留不删**）。",
+      "item_text": {
+        "x": 219,
+        "y": 10,
+        "w": 1291,
+        "h": 168,
+        "wrap": true,
+        "max_lines": 4,
+        "align": "left",
+        "valign": "top"
+      },
+      "item_buttons": [
+        {
+          "key": "jump",
+          "x": 28,
+          "y": 26,
+          "w": 94,
+          "h": 29,
+          "asset": "ui/x_ui_jump_off.png",
+          "nine": {
+            "l": 13,
+            "t": 7,
+            "r": 13,
+            "b": 7
+          },
+          "state_assets": {
+            "normal": "ui/x_ui_jump_off.png",
+            "hover": "ui/x_ui_jump_over.png",
+            "pressed": "ui/x_ui_jump_on.png"
+          },
+          "action": "backlog_jump:%row%",
+          "label": "跳转",
+          "font": {
+            "size": 20,
+            "bold": true,
+            "color": "@palette.node_locked",
+            "shadow": false,
+            "shadow_color": "@palette.shadow",
+            "shadow_ofs": 0
+          },
+          "align": "center",
+          "note": "跳转键：块内局部矩形（x28 = PSB `バックログ/オフ/JUMP` 的 223−208=15，+13 形体修正；y26 = 与文本区首行中心(≈40)垂直居中）。文字「跳转」由引擎绘制（`label`+`font`，本工程铁律禁止文字烘焙进图）。矩形 94×29 与素材 nine 同现状、未改尺寸。"
+        },
+        {
+          "key": "replay",
+          "x": 154,
+          "y": 18,
+          "w": 44,
+          "h": 44,
+          "asset": "ui/x_ui_spk2_off.png",
+          "state_assets": {
+            "normal": "ui/x_ui_spk2_off.png",
+            "hover": "ui/x_ui_spk2_over.png",
+            "pressed": "ui/x_ui_spk2_on.png"
+          },
+          "action": "backlog_replay:%row%",
+          "note": "重新播放键（用户点名「太小」⇒ 由 25×27/37×40 重做为 44×44 新件，旧件保留不删）。块内局部矩形 x154 = PSB `スピーカー` 的 349−208=141，+13 形体修正；y18 = 与首行中心(≈40)对齐。**1:1 件、无 nine** ⇒ w/h 必须 = 素材 44×44。"
+        }
+      ]
+    },
+    {
+      "id": "bl.close",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_close_off.png",
+      "x": 1648,
+      "y": 64,
+      "w": 26,
+      "h": 26,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "关闭（PSB idx73 `バックログ/オフ/关闭`，x1648 y64 w26 h26）（素材 24×26 ≠ 设计 26×26 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ PSV 换皮：**几何未动**（在板上方、题字带右端，无 PSV 对应件；板内不许放关闭键，底图该处是雪晶装饰带）。",
+      "nine": {
+        "l": 6,
+        "t": 6,
+        "r": 6,
+        "b": 6
+      }
+    },
+    {
+      "id": "bl.close_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 1613,
+      "y": 58,
+      "w": 101,
+      "h": 38,
+      "action": "close",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "关闭 热区（PSB `#rects/close` 101 宽）"
+    },
+    {
+      "id": "bl.up",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_up.png",
+      "x": 1708,
+      "y": 227,
+      "w": 31,
+      "h": 31,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "上滚（PSB idx73 `バックログ/オフ/上滚`，x1645 y100 w31 h31）（素材 29×31 ≠ 设计 31×31 → nine {'l': 7, 't': 7, 'r': 7, 'b': 7}） ★ PSV 换皮：**x 对齐 PSV 滚动条槽**（槽实测 x1712..1734，中心 1723；y 对齐槽纵向 227..876：上箭头贴顶、下箭头贴底、滑块居中）。我方件宽 31 vs 槽宽 22 ⇒ 左右各溢出约 4.5px，仍在槽内居中。",
+      "nine": {
+        "l": 7,
+        "t": 7,
+        "r": 7,
+        "b": 7
+      }
+    },
+    {
+      "id": "bl.up_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 1696,
+      "y": 221,
+      "w": 76,
+      "h": 43,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "上滚 热区（PSB `#rects/up` 101 宽） ★ PSV 换皮：随件重排（x=1696、宽 76 —— **左沿 1696 > 列表右沿 1695**，刻意不压列表矩形，避免新增点击可达性重叠；右沿 1772 略出板缘 1761，属不可见热区）。"
+    },
+    {
+      "id": "bl.slider",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_scroll_knob.png",
+      "x": 1708,
+      "y": 516,
+      "w": 31,
+      "h": 71,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "滑块（PSB idx73 `バックログ/オフ/滑块`，x1645 y345 w31 h71）（素材 18×71 ≠ 设计 31×71 → nine {'l': 4, 't': 17, 'r': 4, 'b': 17}） ★ PSV 换皮：**x 对齐 PSV 滚动条槽**（槽实测 x1712..1734，中心 1723；y 对齐槽纵向 227..876：上箭头贴顶、下箭头贴底、滑块居中）。我方件宽 31 vs 槽宽 22 ⇒ 左右各溢出约 4.5px，仍在槽内居中。",
+      "nine": {
+        "l": 4,
+        "t": 17,
+        "r": 4,
+        "b": 17
+      }
+    },
+    {
+      "id": "bl.slider_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 1696,
+      "y": 510,
+      "w": 76,
+      "h": 83,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "滑块 热区（PSB `#rects/slider` 101 宽） ★ PSV 换皮：随件重排（x=1696、宽 76 —— **左沿 1696 > 列表右沿 1695**，刻意不压列表矩形，避免新增点击可达性重叠；右沿 1772 略出板缘 1761，属不可见热区）。"
+    },
+    {
+      "id": "bl.down",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_down.png",
+      "x": 1708,
+      "y": 845,
+      "w": 31,
+      "h": 31,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "下滚（PSB idx73 `バックログ/オフ/下滚`，x1645 y952 w31 h31）（素材 29×31 ≠ 设计 31×31 → nine {'l': 7, 't': 7, 'r': 7, 'b': 7}） ★ PSV 换皮：**x 对齐 PSV 滚动条槽**（槽实测 x1712..1734，中心 1723；y 对齐槽纵向 227..876：上箭头贴顶、下箭头贴底、滑块居中）。我方件宽 31 vs 槽宽 22 ⇒ 左右各溢出约 4.5px，仍在槽内居中。",
+      "nine": {
+        "l": 7,
+        "t": 7,
+        "r": 7,
+        "b": 7
+      }
+    },
+    {
+      "id": "bl.down_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 1696,
+      "y": 839,
+      "w": 76,
+      "h": 43,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "下滚 热区（PSB `#rects/down` 101 宽） ★ PSV 换皮：随件重排（x=1696、宽 76 —— **左沿 1696 > 列表右沿 1695**，刻意不压列表矩形，避免新增点击可达性重叠；右沿 1772 略出板缘 1761，属不可见热区）。"
+    }
+  ]
+}

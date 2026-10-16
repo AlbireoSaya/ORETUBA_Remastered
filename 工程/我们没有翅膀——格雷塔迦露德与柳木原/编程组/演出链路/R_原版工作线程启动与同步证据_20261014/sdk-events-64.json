@@ -1,0 +1,38 @@
+{
+  "scope": "owned SDK fixtures; no original source thread",
+  "bits": 64,
+  "checks": {
+    "unauthorized_wait_refused": true,
+    "no_waiter_leak_after_refusal": true,
+    "thread_id_matches_os": true,
+    "signed_priority_binding": true,
+    "all_handles_closed": true
+  },
+  "cases": [
+    {
+      "manual_reset": 0,
+      "worker_result": [
+        0
+      ],
+      "actual_exit_code": 123,
+      "close_while_waiting_refused": true,
+      "close_all_while_registered_refused": true,
+      "after_wait_result": 258,
+      "worker_errors": [],
+      "waiters_empty": true
+    },
+    {
+      "manual_reset": 1,
+      "worker_result": [
+        0
+      ],
+      "actual_exit_code": 123,
+      "close_while_waiting_refused": true,
+      "close_all_while_registered_refused": true,
+      "after_wait_result": 0,
+      "worker_errors": [],
+      "waiters_empty": true
+    }
+  ],
+  "pass": true
+}

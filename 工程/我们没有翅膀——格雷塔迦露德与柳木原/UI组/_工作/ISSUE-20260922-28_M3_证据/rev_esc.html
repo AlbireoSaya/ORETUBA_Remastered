@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>REV H3 · Esc 行为反向验证夹具（M3 证据，不参与交付）</title>
+<!-- ==========================================================================
+     M3 / H3 反向验证：本页加载**把 Esc 映射换回旧行为**（`doAction('open_sysmenu')`，
+     即「Esc = 展开竖条」）的 replica.js 副本，跑与正式页同一套 ?selftest=1 断言。
+     期望：三条 esc.* 断言全部 FAIL（证明它们真的在验「Esc 键位映射」而不是恒真）。
+     仅作证据；正式交付不含本目录。
+     ========================================================================== -->
+<link rel="stylesheet" href="../../复刻/replica.css">
+</head>
+<body>
+
+<div id="stage-wrap">
+  <div id="stage">
+    <div id="canvas"></div>
+  </div>
+</div>
+
+<script>window.UI_ASSET_BASE = '../../krkr/assets/ui/';</script>
+<script src="../../复刻/ui_layout.js"></script>
+<script src="replica_rev_esc.js"></script>
+
+</body>
+</html>

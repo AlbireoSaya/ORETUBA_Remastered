@@ -1,0 +1,14 @@
+// r_memory_read16.tjs — 16 位 guest 内存读取；复用 RMemoryRead8，错误码沿用 INVALID_MEMORY_ACCESS
+function RMemoryRead16(s, q) {
+  if (typeof q !== "Integer" || q < 0 || q > 0xfffffffe) {
+    throw new Exception("INVALID_MEMORY_ACCESS");
+  }
+  var b0 = RMemoryRead8(s, q);
+  var b1 = RMemoryRead8(s, q + 1);
+  return (b0 | (b1 << 8)) & 0xffff;
+}
+
+// incontextof 绑定现有 memory 对象时用；不保存 self 回调
+function RMemoryRH(q) {
+  return RMemoryRead16(this, q);
+}

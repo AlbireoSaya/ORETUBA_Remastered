@@ -1,0 +1,91 @@
+{
+  "passed": true,
+  "host_bits": 64,
+  "POINT_bytes": 8,
+  "MINMAXINFO_bytes": 40,
+  "CREATESTRUCTA_bytes": 80,
+  "CREATESTRUCTA_offsets": {
+    "lpCreateParams": 0,
+    "hInstance": 8,
+    "hMenu": 16,
+    "hwndParent": 24,
+    "cy": 32,
+    "cx": 36,
+    "y": 40,
+    "x": 44,
+    "style": 48,
+    "lpszName": 56,
+    "lpszClass": 64,
+    "dwExStyle": 72
+  },
+  "actual_CreateWindowExA_nonnull": true,
+  "actual_CreateWindowExA_error": 0,
+  "actual_GetSetWindowLong_pointer_identity_preserved": true,
+  "native_events": [
+    {
+      "message": 36,
+      "nonnull_owned_host_HWND": true,
+      "MINMAXINFO_bytes": 40,
+      "ptMinTrackSize": [
+        136,
+        39
+      ]
+    },
+    {
+      "message": 129,
+      "nonnull_owned_host_HWND": true,
+      "CREATESTRUCTA_bytes": 80,
+      "original_fixture_parameter_identity_exact": true,
+      "host_instance_identity_exact": true,
+      "dimensions": [
+        820,
+        643
+      ],
+      "exstyle": 768,
+      "style": 13303808,
+      "real_userdata_full_host_pointer_identity_preserved": true,
+      "userdata_exceeds_32bit": true
+    },
+    {
+      "message": 131,
+      "nonnull_owned_host_HWND": true
+    },
+    {
+      "message": 1,
+      "nonnull_owned_host_HWND": true,
+      "CREATESTRUCTA_bytes": 80,
+      "original_fixture_parameter_identity_exact": true,
+      "host_instance_identity_exact": true,
+      "dimensions": [
+        820,
+        643
+      ],
+      "exstyle": 768,
+      "style": 13303808,
+      "real_userdata_full_host_pointer_identity_preserved": true,
+      "userdata_exceeds_32bit": true
+    },
+    {
+      "message": 144,
+      "nonnull_owned_host_HWND": true
+    },
+    {
+      "message": 2,
+      "nonnull_owned_host_HWND": true,
+      "real_userdata_full_host_pointer_identity_preserved": true,
+      "userdata_exceeds_32bit": true
+    },
+    {
+      "message": 130,
+      "nonnull_owned_host_HWND": true,
+      "real_userdata_full_host_pointer_identity_preserved": true,
+      "userdata_exceeds_32bit": true
+    }
+  ],
+  "callback_errors": [],
+  "actual_DestroyWindow_and_UnregisterClass": true,
+  "guarded_own_parameter_and_name_unchanged": true,
+  "not_original_WinMain_WNDPROC_or_guest_callback_proof": true,
+  "only_own_class_callback_buffers_no_original_PE_loaded": true,
+  "no_ShowWindow_or_message_pump": true
+}

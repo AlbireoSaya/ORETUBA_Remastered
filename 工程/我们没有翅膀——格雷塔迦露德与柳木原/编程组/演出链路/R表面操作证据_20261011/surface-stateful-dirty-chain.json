@@ -1,0 +1,88 @@
+{
+  "status": "PASS_ORIGINAL_FILL_3_STEP_STATEFUL_DIRTY_RECT_CHAIN",
+  "steps": [
+    {
+      "DLL_backend": true,
+      "request": [
+        1,
+        1,
+        3,
+        2
+      ],
+      "clipped": [
+        1,
+        1,
+        3,
+        2
+      ],
+      "member_AL": 1,
+      "global_last_DLL_rect": [
+        1,
+        1,
+        3,
+        2
+      ],
+      "caller_dirty": [
+        1,
+        1,
+        3,
+        2
+      ],
+      "buffer_sha256": "44b818499895dff353c04de97cd6901309224e9d4ba24e2720ee686bf80857b4"
+    },
+    {
+      "DLL_backend": false,
+      "request": [
+        3,
+        2,
+        5,
+        4
+      ],
+      "clipped": [
+        3,
+        2,
+        5,
+        4
+      ],
+      "member_AL": 1,
+      "global_last_DLL_rect": [
+        1,
+        1,
+        3,
+        2
+      ],
+      "caller_dirty": [
+        3,
+        2,
+        5,
+        4
+      ],
+      "buffer_sha256": "7eb73d033324d32c478a0ff29e7dfaa727167732957a15f714d4c9e5b77e8198"
+    },
+    {
+      "DLL_backend": true,
+      "request": [
+        8,
+        1,
+        10,
+        3
+      ],
+      "clipped": null,
+      "member_AL": 1,
+      "global_last_DLL_rect": [
+        1,
+        1,
+        3,
+        2
+      ],
+      "caller_dirty": [
+        1,
+        1,
+        3,
+        2
+      ],
+      "buffer_sha256": "7eb73d033324d32c478a0ff29e7dfaa727167732957a15f714d4c9e5b77e8198"
+    }
+  ],
+  "scope": "Controlled backend word toggles, not actual dynamic DLL unload/reload; original member/backend code and shared dirty state, synthetic pixel plane. Successful fallback changes pixels/caller dirty but does not replace DLL last rectangle; next DLL no-op returns stale last DLL rect."
+}

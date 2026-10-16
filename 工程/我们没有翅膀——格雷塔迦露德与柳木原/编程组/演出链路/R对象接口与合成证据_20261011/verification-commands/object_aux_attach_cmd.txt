@@ -1,0 +1,32 @@
+@'
+from pathlib import Path
+import sys,struct,json,importlib.util,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')];from pe_min import PE;from lucifen_vm_micro import map_pe;from lucifen_thiscall_probe import invoke_thiscall_args
+from unicorn.x86_const import UC_X86_REG_ESI,UC_X86_REG_EBX,UC_X86_REG_ESP,UC_X86_REG_EIP
+spec=importlib.util.spec_from_file_location('observer',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');outer,src,aux,frame,pix=0x1002000,0x1004000,0x1006000,0x1008000,0x100a000;records=[]
+def word(u,p):return struct.unpack('<I',u.mem_read(p,4))[0]
+def prepare(kind=9,link=False):
+ u=map_pe(pe);u.mem_map(0,0x1000);u.mem_write(outer,b'\xa5'*0xd8);u.reg_write(UC_X86_REG_ESI,outer);u.reg_write(UC_X86_REG_EBX,0);u.reg_write(UC_X86_REG_ESP,0x2008000)
+ a,z,vt,ivt=(0x4ba6df,0x4ba70a,0x519038,0x519094) if kind==9 else (0x4ba7ff,0x4ba82a,0x518f7c,0x518fd8)
+ u.emu_start(a,z,count=10000,timeout=1000000);assert u.reg_read(UC_X86_REG_EIP)==z and word(u,outer)==vt and word(u,outer+0x30)==ivt and word(u,outer+0xbc)==0
+ invoke_thiscall_args(u,0x4540b0,src,());invoke_thiscall_args(u,0x459dc0,aux,());assert word(u,aux)==0x5199ec and word(u,aux+8)==0
+ u.mem_write(src+0x3c,struct.pack('<I',pix));u.mem_write(pix,b'\x12'*64)
+ if link:u.mem_write(outer+0xbc,struct.pack('<I',aux))
+ return u
+
+rows=[]
+for kind in [9,10]:
+ for notify in [0,1]:
+  u=prepare(kind,True);dst=outer+0x34
+  for bmp,pixels in [(src,pix),(dst,0x100c000)]:
+   u.mem_write(bmp+4,struct.pack('<III',2,2,8));u.mem_write(bmp+0x14,struct.pack('<4i',0,0,2,2));u.mem_write(bmp+0x3c,struct.pack('<II',pixels,32));u.mem_write(pixels,b'\x55'*64)
+  before=bytes(u.mem_read(aux,0x98))
+  try:
+   ret=invoke_thiscall_args(u,0x459ee0,aux,(dst,notify));status='returned'
+  except Exception as ex:ret=None;status=type(ex).__name__+':'+str(ex)
+  rows.append({'type':kind,'notify_arg':notify,'status':status,'return':ret,'aux_bitmap':word(u,aux+8),'expected_bitmap':dst,'aux_changed_bytes':[i for i,(a,z) in enumerate(zip(before,bytes(u.mem_read(aux,0x98)))) if a!=z]})
+  if status=='returned': assert ret==0 and word(u,aux+8)==dst
+p=b/'aux-attach-observation.json';assert not p.exists();p.write_text(json.dumps({'scope':'preallocated controlled component states, original attach function, original allocation not run','cases':rows},indent=2),encoding='utf-8');print(json.dumps(rows))
+
+'@ | python -X utf8 -B -

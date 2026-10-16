@@ -1,0 +1,77 @@
+"""Root platform orchestration; actual VM kernel and exact editor comparator."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import sys
+import time
+import uuid
+
+r=Path.cwd().resolve();g=r/"工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+w=r/"子代理工作区/ISSUE-20261011-02/r-target-live-eval-20261016"
+sys.path.insert(0,str(g/"工具"))
+from performance_runtime import execute
+
+bits,tag,mp=int(sys.argv[1]),sys.argv[2],Path(sys.argv[3]).resolve()
+installed=len(sys.argv)>4 and sys.argv[4]=="installed"
+override=Path(sys.argv[4]).resolve()if len(sys.argv)>4 and not installed else None
+assert bits in(32,64)and "/"not in tag and "\\"not in tag and mp.is_relative_to(r)
+assert override is None or override.is_relative_to(r/"临时/ISSUE-20261011-02")
+m=json.loads(mp.read_text(encoding="utf-8-sig"));assert 1<=m["cases"]<=1000 and m["records"]>=m["cases"]
+ref=mp.parent/"original-results.json"
+if not ref.exists():ref=r/m["original_result_source"]
+def valid(path,raw,canonical=None):
+    return hashlib.sha256(path.read_bytes()).hexdigest()==raw or(canonical is not None and hashlib.sha256(path.read_bytes().replace(b"\r\n",b"\n")).hexdigest()==canonical)
+assert ref.resolve().is_relative_to(r)and valid(ref,m["original_result_sha256"],m.get("original_result_sha256_lf"))
+original=json.loads(ref.read_text(encoding="utf-8-sig"));assert original["passed"]
+trace_count=m.get("vm_steps",sum(len(seg["vm_trace"])for c in original["results"]for seg in c["segments"]))
+out=r/"临时/ISSUE-20261011-02"/tag;assert not out.exists()
+game,save,evidence=out/"game",out/"savedata",out/"evidence"
+for p in(game,save,evidence):p.mkdir(parents=True)
+sdk=g/"原作忠实层/R";oldfixture=g/"演出链路/R_TJS实时绑定与游标别名证据_20261016/fixtures"
+memory=["r_memory_region.tjs","r_memory_create.tjs","r_memory_access.tjs","r_memory_find.tjs","r_memory_read.tjs","r_memory_write8.tjs","r_memory_write32.tjs","r_memory_read16.tjs"]
+vm=["r_u32.tjs","r_vm_entry.tjs","r_vm_memory.tjs","r_vm_control.tjs","r_vm_value.tjs","r_vm_step.tjs","r_vm_run.tjs"]
+binding=["r_live_relocation_count.tjs","r_live_relocation_row.tjs","r_live_relocations.tjs","r_live_relocation_value.tjs","r_live_expression_header.tjs","r_live_expression_bind.tjs"]
+params=["r_record_live_item_prefix.tjs","r_record_live_payload.tjs","r_record_live_item.tjs","r_record_live_parameters.tjs"]
+backing=["r_live_bind_fixture_regions.tjs","r_live_bind_fixture_state.tjs","r_live_bind_fixture_reads.tjs"]
+stage=g/"演出链路/R_TJS实时求值与后置读取证据_20261016"
+inventory=json.loads((stage/"delivery-inventory.json").read_text(encoding="utf-8"))if installed else[]
+installed_sources={row["name"]:row for row in inventory}
+owned=list(installed_sources)if installed else list(json.loads((w/"accepted-map.json").read_text(encoding="utf-8-sig")))
+assert len(owned)==11
+names=memory+vm+binding+params+backing+owned+["r_vm_fixture_compare.tjs"]
+assert len(names)==len(set(names))
+sources=[]
+for name in names:
+    src=sdk/name if name in memory+vm+binding+params else oldfixture/name if name in backing else w/name if name in owned else g/"演出链路/R_TJS表达式VM与暂停恢复证据_20261015"/name
+    if installed and name in installed_sources:
+        src=r/installed_sources[name]["destination"];assert hashlib.sha256(src.read_bytes().replace(b"\r\n",b"\n")).hexdigest()==installed_sources[name]["sha256_lf"]
+    if override is not None and(override/name).exists():src=override/name
+    shutil.copyfile(src,game/name)
+    sources.append({"name":name,"source":src.relative_to(r).as_posix(),"sha256":hashlib.sha256(src.read_bytes()).hexdigest()})
+nonce=uuid.uuid4().hex
+commands=["Debug.startLogToFile();","try {",f'Debug.message("REVAL_BEGIN {nonce}");']
+for name in names:commands.extend((f'Debug.message("REVAL_LOAD {nonce} {name}");',f'Scripts.execStorage("{name}");'))
+for i,row in enumerate(m["files"]):
+    src=r/row["source"];assert src.resolve().is_relative_to(r)and valid(src,row["sha256"],row.get("sha256_lf"))
+    dest=f"cases-{i:04d}.tjs";shutil.copyfile(src,game/dest);commands.append(f'Scripts.execStorage("{dest}");')
+expected=[m["cases"],m["records"],trace_count];counters=["RLiveEvalCaseCount","RLiveEvalRecordCount","RLiveEvalTraceCount"]
+condition="||".join(f"{name}!=={value}"for name,value in zip(counters,expected))
+commands.extend((f'if({condition})throw new Exception("WRONG_LIVE_EVAL_COUNTS");',f'Debug.message("REVAL_PASS {nonce} '+" ".join(map(str,expected))+'");',"} catch(e) {",
+                 f'Debug.message("REVAL_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));',"}","System.exit();"))
+(game/"startup.tjs").write_text("\n".join(commands)+"\n",encoding="utf-8")
+engine=r/f"工具/krkrz/krkrz_20171225/tvpwin{bits}.exe";start=time.time_ns()
+process=execute([str(engine),str(game),"-datapath="+str(save)+"/","-readencoding=UTF-8","-startup=startup.tjs","-userconf=no"],out,45,evidence)
+log=save/"krkr.console.log";raw=log.read_bytes()if log.exists()else b"";console=raw.decode("utf-16")if raw.startswith(b"\xff\xfe")else raw.decode("utf-16-le",errors="replace")
+fresh=log.exists()and log.stat().st_mtime_ns>=start
+marker=f"REVAL_PASS {nonce} "+" ".join(map(str,expected))
+passed=process["returncode"]==0 and not process["timed_out"]and process["cleanup_ok"]and fresh and marker in console and f"REVAL_EXCEPTION {nonce}"not in console
+receipt={"passed":passed,"bits":bits,"cases":m["cases"],"records":m["records"],"vm_steps":trace_count,"caller_events":m["caller_events"],"vm_writes":m["vm_writes"],
+         "nonce":nonce,"fresh_log":fresh,"process":process,"sources":sources,"input_manifest":mp.relative_to(r).as_posix(),"original_result_sha256":m["original_result_sha256"],
+         "engine_sha256":hashlib.sha256(engine.read_bytes()).hexdigest(),"console_sha256":hashlib.sha256(raw).hexdigest(),
+         "scope":"actual unmodified RVMRun via transparent adapter; exact caller pre/post events, ordered VM writes/trace/return, final source/words/cursors; VM reads/native stack and remaining47-opcodes/full game not proven"}
+(evidence/"verdict.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+(evidence/"console.utf8.txt").write_text(console,encoding="utf-8")
+print(json.dumps({k:receipt[k]for k in("passed","bits","cases","records","vm_steps","caller_events","vm_writes","process")}))
+print("\n".join(line for line in console.splitlines()if "REVAL_"in line)[-1200:])
+sys.exit(0 if passed else 1)

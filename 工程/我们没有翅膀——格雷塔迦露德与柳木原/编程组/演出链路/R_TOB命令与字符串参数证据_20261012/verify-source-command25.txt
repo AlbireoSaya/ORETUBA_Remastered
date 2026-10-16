@@ -1,0 +1,57 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'子代理工作区/ISSUE-20261011-02/r-tob-dynamic-control';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+from lucifen_tob_dynamic_structure import pack_ir
+from lucifen_cdecl_observer import observe_cdecl_until
+from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EBP
+stage=root/'临时/ISSUE-20261011-02/r-tob-command-audit-replay-01';out=stage/'source-command25-results.json';assert not out.exists()
+registrations=json.loads((stage/'command-source-census.json').read_text('utf-8'))['commands'];params,cmdtable=0x1020000,0x102c000
+rows=[];shapes=collections.Counter();files=0
+for p in sorted((root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*.TOB')):
+ raw=p.read_bytes();records=[r for r in pack_ir(raw)['parts'] if r['kind']=='record' and r['opcode']==25]
+ if not records:continue
+ u,maps=prepare(raw,0);pe_before=bytes(u.mem_read(pe.image_base,pe.size_image));u.mem_write(cmdtable,b''.join(struct.pack('<I',x['handler_va']) for x in registrations))
+ for r in records:
+  assert r['condition']['kind']=='always' and len(r['items'])==2
+  u.mem_write(ctx,b'\0'*0x8000);u.mem_write(ctx+0x434,struct.pack('<I',params));u.mem_write(ctx+0x653c,struct.pack('<I',cmdtable));u.mem_write(ctx+0x64d1,b'\xa9'*33)
+  u.mem_write(params-16,b'\xb2'*16+b'\xc3'*16+b'\xb2'*16)
+  first=r['items'][0]['kind']=='inline';target=0x43fdc0 if first else 0x43fddc
+  o=observe_cdecl_until(u,0x42fb50,buffer+r['start']+1,target,0,{'ecx':ctx},count=50000,timeout=0)
+  assert o['stop_reached'] and not o['error'],(p,r['start'],o)
+  sp=u.reg_read(UC_X86_REG_ESP);actual=list(struct.unpack('<3I',u.mem_read(sp,12)));item=r['items'][0 if first else 1];expected=[ctx+(0x64d1 if first else 0x64e2),buffer+item['data_offset'],17 if first else 16]
+  assert actual==expected and u.reg_read(UC_X86_REG_EBP)==struct.unpack('<I',pe.read_rva(0x518188-pe.image_base,4))[0]
+  words=[]
+  for i in r['items']:
+   if i['kind']=='inline':words.extend([i['flags'],buffer+i['data_offset'] if i['data_size'] else 0])
+   else:assert i['kind']=='empty';words.extend([0,0])
+  assert list(struct.unpack('<4I',u.mem_read(params,16)))==words
+  assert bytes(u.mem_read(params-16,16))==b'\xb2'*16 and bytes(u.mem_read(params+16,16))==b'\xb2'*16
+  assert bytes(u.mem_read(ctx+0x64d1,33))== (b'\xa9'*33 if first else b'\0'+b'\xa9'*32)
+  shape=tuple(i['kind'] for i in r['items']);shapes[shape]+=1
+  rows.append({'path':p.relative_to(root).as_posix(),'record_offset':r['start'],'shape':list(shape),'stopped_before_import_call':target,'actual_call_arguments':actual,'all_parameter_words':words,'passed':True})
+ assert bytes(u.mem_read(buffer,len(raw)))==raw and p.read_bytes()==raw and bytes(u.mem_read(pe.image_base,pe.size_image))==pe_before
+ files+=1
+ if files%50==0:print(json.dumps({'source_files':files,'cases':len(rows)}),flush=True)
+assert len(rows)==35472
+summary={'cases':len(rows),'source_files':files,'shape_counts':[{'shape':list(k),'count':v} for k,v in shapes.items()],'passed':True,'scope':'all original command25 records through real parser/real dispatcher/real handler to first lstrcpynA import call boundary; exact both parameter words, first call args and metadata null-side effect; no executed import/whole handler/semantic voice name proof'}
+out.write_text(json.dumps(rows,ensure_ascii=False,separators=(',',':')),encoding='utf-8');(stage/'source-command25-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(summary,ensure_ascii=False),flush=True)
+

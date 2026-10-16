@@ -1,0 +1,21 @@
+{
+  "_comment": "布局根元数据（主代理维护）。与 layout/_schema.md §三 一一对应。",
+  "canvas": { "width": 1280, "height": 720 },
+  "content_boxes": {
+    "ot":  { "x": 240, "y": 60, "w": 800, "h": 600 },
+    "otr": { "x": 240, "y": 60, "w": 800, "h": 600 },
+    "ota": { "x": 240, "y": 60, "w": 800, "h": 600 },
+    "otp": { "x": 240, "y": 60, "w": 800, "h": 600 },
+    "otv": { "x": 160, "y": 88, "w": 960, "h": 544 },
+    "np":  { "x": 0,   "y": 0,  "w": 1280, "h": 720 }
+  },
+  "content_box_rule": "D1：4:3 源 800×600 原生 1:1 居中（左右各 240、上下各 60 黑边）；otv 960×544 原生 1:1 居中；np 1280×720 满幅。素材本体一律不缩放。",
+  "fonts": {
+    "fallback_faces": ["微软雅黑", "Microsoft YaHei", "黑体", "SimHei", "宋体", "SimSun", "MS Gothic"],
+    "sizes": { "title": 46, "subtitle": 24, "name": 20, "body": 24, "menu": 22, "small": 16, "tag": 18 },
+    "line_spacing": { "body": 1.4, "menu": 1.2 }
+  },
+  "font_rule": "krkr 不自带字体，靠系统字体 + 运行时 Font.getList() 探测回退（工程缺口 G2）。字号按 1280×720 画布重新定，不得沿用 800×600 时代字号。",
+  "asset_root": "krkr/assets/ui/",
+  "signature": "来自个人汉化者AlbireoSaya 模型&工具:Deepseek v4.1 flash+ZCode"
+}

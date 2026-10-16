@@ -1,0 +1,599 @@
+{
+  "source_Cinit": 5271496,
+  "cold_loader_events": [
+    {
+      "api": "GetModuleHandleA",
+      "source_return_address": 5275916,
+      "source_name": "KERNEL32",
+      "actual_host_borrowed_module": 1961426944,
+      "actual_error": 0,
+      "guest_module": 1775304704,
+      "borrowed_not_FreeLibrary": true
+    },
+    {
+      "api": "GetProcAddress",
+      "source_return_address": 5275932,
+      "source_name": "IsProcessorFeaturePresent",
+      "actual_host_procedure": 1961541920,
+      "full_pointer_not_truncated": true,
+      "exact_declared_system_function_verified": true,
+      "actual_error": 0
+    },
+    {
+      "api": "IsProcessorFeaturePresent",
+      "source_return_address": 5275940,
+      "feature": 0,
+      "actual_OS_BOOL": 0
+    }
+  ],
+  "cold_codepage_events": [
+    {
+      "api": "GetACP",
+      "source_return_address": 5300541,
+      "actual_OS_codepage": 936,
+      "not_forced_to_932": true
+    },
+    {
+      "api": "GetCPInfo",
+      "source_return_address": 5301138,
+      "codepage": 936,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "actual_MaxCharSize": 2,
+      "CPINFO_bytes": 20,
+      "exact_OS_bytes_copied": true,
+      "both_guards_preserved": true
+    }
+  ],
+  "cold_encoding_events": [
+    {
+      "api": "GetStringTypeW",
+      "source_return_address": 5294406,
+      "locale": null,
+      "info": 1,
+      "count": 1,
+      "output_words_capacity": 1,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "guards_and_original_input_preserved": true,
+      "exact_OS_output_bytes_copied": true,
+      "input_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+      "output_sha256": "3da5c199770b6698291ece54d9da2d5168b04db7638739527d8bb69881e15985"
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5294540,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5294626,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "GetStringTypeW",
+      "source_return_address": 5294644,
+      "locale": null,
+      "info": 1,
+      "count": 256,
+      "output_words_capacity": 256,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "guards_and_original_input_preserved": true,
+      "exact_OS_output_bytes_copied": true,
+      "input_sha256": "834328d6df70a05fdf1322b4a9169dcacd9b085074aeb33ef33ff6322bd9a5ed",
+      "output_sha256": "32e7bba2b34d6152ca1142dc1949b2c7623cdd37cd668b615fec4bed12ddc0e5"
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304287,
+      "locale": 0,
+      "flags": 256,
+      "input_count": 1,
+      "output_capacity": 0,
+      "actual_return": 1,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304444,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304532,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304554,
+      "locale": 2052,
+      "flags": 256,
+      "input_count": 256,
+      "output_capacity": 0,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304709,
+      "locale": 2052,
+      "flags": 256,
+      "input_count": 256,
+      "output_capacity": 256,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "WideCharToMultiByte",
+      "source_return_address": 5304746,
+      "codepage": 936,
+      "flags": 544,
+      "input_units": 256,
+      "output_bytes_capacity": 256,
+      "actual_return_bytes": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_and_optional_BOOL_copied": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304444,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304532,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304554,
+      "locale": 2052,
+      "flags": 512,
+      "input_count": 256,
+      "output_capacity": 0,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304709,
+      "locale": 2052,
+      "flags": 512,
+      "input_count": 256,
+      "output_capacity": 256,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "WideCharToMultiByte",
+      "source_return_address": 5304746,
+      "codepage": 936,
+      "flags": 544,
+      "input_units": 256,
+      "output_bytes_capacity": 256,
+      "actual_return_bytes": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_and_optional_BOOL_copied": true
+    }
+  ],
+  "source_Cxx_table": [
+    5406720,
+    5407164
+  ],
+  "source_C_table": [
+    5407168,
+    5407188
+  ],
+  "source_initializer_entries_observed": [
+    5264240,
+    5301501,
+    5303222,
+    5277498
+  ],
+  "source_initializer_unique_count": 4,
+  "source_expected_nonzero_count": 114,
+  "result": null,
+  "next_EIP": 1210378,
+  "next_import": "SetUnhandledExceptionFilter",
+  "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+  "stack12": [
+    5277509,
+    5277428,
+    5271777,
+    0,
+    5271522,
+    5407168,
+    5407188,
+    33615872,
+    1,
+    0,
+    0,
+    0
+  ],
+  "recent": [
+    {
+      "pc": 5303380,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303386,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303341,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303343,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303345,
+      "esp": 33587176,
+      "eax": 2,
+      "ecx": 2
+    },
+    {
+      "pc": 5303348,
+      "esp": 33587176,
+      "eax": 2,
+      "ecx": 2
+    },
+    {
+      "pc": 5303351,
+      "esp": 33587176,
+      "eax": 2,
+      "ecx": 2
+    },
+    {
+      "pc": 5303358,
+      "esp": 33587176,
+      "eax": 2,
+      "ecx": 2
+    },
+    {
+      "pc": 5303361,
+      "esp": 33587176,
+      "eax": 18,
+      "ecx": 2
+    },
+    {
+      "pc": 5303364,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303367,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303369,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303371,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303373,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303376,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303379,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 2
+    },
+    {
+      "pc": 5303380,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5303386,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5303388,
+      "esp": 33587176,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5303389,
+      "esp": 33587180,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5271777,
+      "esp": 33587184,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5271780,
+      "esp": 33587184,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5271763,
+      "esp": 33587184,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5271767,
+      "esp": 33587184,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5271769,
+      "esp": 33587184,
+      "eax": 0,
+      "ecx": 3
+    },
+    {
+      "pc": 5271771,
+      "esp": 33587184,
+      "eax": 5277498,
+      "ecx": 3
+    },
+    {
+      "pc": 5271773,
+      "esp": 33587184,
+      "eax": 5277498,
+      "ecx": 3
+    },
+    {
+      "pc": 5271775,
+      "esp": 33587184,
+      "eax": 5277498,
+      "ecx": 3
+    },
+    {
+      "pc": 5277498,
+      "esp": 33587180,
+      "eax": 5277498,
+      "ecx": 3
+    },
+    {
+      "pc": 5277503,
+      "esp": 33587176,
+      "eax": 5277498,
+      "ecx": 3
+    }
+  ],
+  "new_API_tail": [
+    {
+      "api": "HeapCreate",
+      "args": [
+        0,
+        4096,
+        0
+      ],
+      "native_return_address": 5284145,
+      "guest_result": 1744830464
+    },
+    {
+      "api": "GetVersionExA",
+      "args": [
+        33587040
+      ],
+      "native_return_address": 5283831,
+      "observed_version": [
+        148,
+        10,
+        0,
+        22621,
+        2
+      ],
+      "guest_result": 1
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664392,
+      "return_address": 5277140,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664440,
+      "return_address": 5277148,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664416,
+      "return_address": 5277156,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664368,
+      "return_address": 5277164,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        128
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 128,
+      "guest_result": 117440640
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        128
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 128,
+      "guest_result": 117444736
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117448832
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664392,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 117448832,
+      "return_address": 5277233,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664392,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 117448832,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 117448832,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        8,
+        2048
+      ],
+      "native_return_address": 5291962,
+      "rounded_allocation_size": 2048,
+      "guest_result": 117452928
+    }
+  ],
+  "all_initializers_not_assumed_complete": true,
+  "original_WinMain_not_entered": true
+}

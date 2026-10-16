@@ -1,0 +1,14 @@
+function RLiveExpressionBind(rd, wr, rh, rb, wb, p, cursorPtr, resolve)
+{
+    var h = RLiveExpressionHeader(rh, p);
+    var bound = false;
+    if(rb(h.flag_address) == 0)
+    {
+        wb(h.flag_address, 1);
+        wr(cursorPtr, (h.table_start + 2) & 0xffffffff);
+        RLiveRelocations(rd, wr, rb, cursorPtr, h.code_start, 1, resolve);
+        bound = true;
+    }
+    h.bound = bound;
+    return h;
+}

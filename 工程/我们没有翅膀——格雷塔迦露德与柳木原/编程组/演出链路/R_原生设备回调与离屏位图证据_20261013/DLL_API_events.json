@@ -1,0 +1,1417 @@
+[
+  {
+    "api": "GetVersion",
+    "return_address": 285289767,
+    "args": [],
+    "CPython_manifest_not_original_OS_version": true,
+    "result": 1482489866
+  },
+  {
+    "api": "HeapCreate",
+    "return_address": 285303139,
+    "args": [
+      0,
+      4096,
+      0
+    ],
+    "result": 1744896000
+  },
+  {
+    "api": "GetVersionExA",
+    "return_address": 285302825,
+    "args": [
+      50364216
+    ],
+    "result": 1
+  },
+  {
+    "api": "InitializeCriticalSection",
+    "return_address": 285293844,
+    "args": [
+      285391808
+    ],
+    "result": null
+  },
+  {
+    "api": "InitializeCriticalSection",
+    "return_address": 285293852,
+    "args": [
+      285391856
+    ],
+    "result": null
+  },
+  {
+    "api": "InitializeCriticalSection",
+    "return_address": 285293860,
+    "args": [
+      285391832
+    ],
+    "result": null
+  },
+  {
+    "api": "InitializeCriticalSection",
+    "return_address": 285293868,
+    "args": [
+      285391784
+    ],
+    "result": null
+  },
+  {
+    "api": "TlsAlloc",
+    "return_address": 285299048,
+    "args": [],
+    "result": 14
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285315783,
+    "args": [
+      1744896000,
+      8,
+      128
+    ],
+    "result": 268435584
+  },
+  {
+    "api": "TlsSetValue",
+    "return_address": 285299088,
+    "args": [
+      14,
+      268435584
+    ],
+    "result": true
+  },
+  {
+    "api": "GetCurrentThreadId",
+    "return_address": 285299105,
+    "args": [],
+    "result": 25464
+  },
+  {
+    "api": "GetCommandLineA",
+    "return_address": 285289854,
+    "args": [],
+    "actual_host_commandline_not_original_commandline": true,
+    "byte_length_only": 164,
+    "result": 17039360
+  },
+  {
+    "api": "GetEnvironmentStringsW",
+    "return_address": 285307881,
+    "args": [],
+    "actual_host_env_not_original_env": true,
+    "content_never_logged": true,
+    "byte_length_only": 10418,
+    "result": 17104896
+  },
+  {
+    "api": "WideCharToMultiByte",
+    "return_address": 285308001,
+    "args": [
+      0,
+      0,
+      17104896,
+      5209,
+      0,
+      0,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "environment_content_not_logged": true,
+    "result": 5209
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      5216
+    ],
+    "result": 268439680
+  },
+  {
+    "api": "WideCharToMultiByte",
+    "return_address": 285308035,
+    "args": [
+      0,
+      0,
+      17104896,
+      5209,
+      268439680,
+      5209,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "environment_content_not_logged": true,
+    "result": 5209
+  },
+  {
+    "api": "FreeEnvironmentStringsW",
+    "return_address": 285308064,
+    "args": [
+      17104896
+    ],
+    "result": 1
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      1152
+    ],
+    "result": 268447872
+  },
+  {
+    "api": "GetStartupInfoA",
+    "return_address": 285300300,
+    "args": [
+      50364304
+    ],
+    "host_pointer_bits": 32,
+    "actual_host_STARTUPINFOA_translated_to_guest32": true,
+    "not_original_process_startup_info": true,
+    "cbReserved2": 0,
+    "result": null
+  },
+  {
+    "api": "GetStdHandle",
+    "return_address": 285300570,
+    "args": [
+      4294967286
+    ],
+    "borrowed_host_standard_handle_not_owned": true,
+    "result": 1795162115
+  },
+  {
+    "api": "GetFileType",
+    "return_address": 285300584,
+    "args": [
+      1795162115
+    ],
+    "actual_error": 0,
+    "result": 2
+  },
+  {
+    "api": "GetStdHandle",
+    "return_address": 285300570,
+    "args": [
+      4294967285
+    ],
+    "borrowed_host_standard_handle_not_owned": true,
+    "result": 1795162116
+  },
+  {
+    "api": "GetFileType",
+    "return_address": 285300584,
+    "args": [
+      1795162116
+    ],
+    "actual_error": 0,
+    "result": 3
+  },
+  {
+    "api": "GetStdHandle",
+    "return_address": 285300570,
+    "args": [
+      4294967284
+    ],
+    "borrowed_host_standard_handle_not_owned": true,
+    "result": 1795162117
+  },
+  {
+    "api": "GetFileType",
+    "return_address": 285300584,
+    "args": [
+      1795162117
+    ],
+    "actual_error": 0,
+    "result": 3
+  },
+  {
+    "api": "SetHandleCount",
+    "return_address": 285300639,
+    "args": [
+      32
+    ],
+    "actual_Win32_API_no_effect_on_current_Windows": true,
+    "result": 32
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268451968
+  },
+  {
+    "api": "EnterCriticalSection",
+    "return_address": 285294072,
+    "args": [
+      285391808
+    ],
+    "result": null
+  },
+  {
+    "api": "InitializeCriticalSection",
+    "return_address": 285294045,
+    "args": [
+      268451968
+    ],
+    "result": null
+  },
+  {
+    "api": "LeaveCriticalSection",
+    "return_address": 285294094,
+    "args": [
+      285391808
+    ],
+    "result": null
+  },
+  {
+    "api": "EnterCriticalSection",
+    "return_address": 285294072,
+    "args": [
+      268451968
+    ],
+    "result": null
+  },
+  {
+    "api": "GetACP",
+    "return_address": 285318762,
+    "args": [],
+    "result": 936
+  },
+  {
+    "api": "GetCPInfo",
+    "return_address": 285319359,
+    "args": [
+      936,
+      50364276
+    ],
+    "bytes": 20,
+    "result": 1
+  },
+  {
+    "api": "GetStringTypeW",
+    "return_address": 285311503,
+    "args": [
+      1,
+      285329496,
+      1,
+      50362928
+    ],
+    "actual_error": 0,
+    "result": 1
+  },
+  {
+    "api": "MultiByteToWideChar",
+    "return_address": 285311637,
+    "args": [
+      936,
+      1,
+      50364020,
+      256,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "MultiByteToWideChar",
+    "return_address": 285311723,
+    "args": [
+      936,
+      1,
+      50364020,
+      256,
+      50362392,
+      256
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "GetStringTypeW",
+    "return_address": 285311741,
+    "args": [
+      1,
+      50362392,
+      256,
+      50362996
+    ],
+    "actual_error": 0,
+    "result": 1
+  },
+  {
+    "api": "LCMapStringW",
+    "return_address": 285294168,
+    "args": [
+      0,
+      256,
+      285329496,
+      1,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "result": 1
+  },
+  {
+    "api": "MultiByteToWideChar",
+    "return_address": 285294325,
+    "args": [
+      936,
+      1,
+      50364020,
+      256,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "MultiByteToWideChar",
+    "return_address": 285294413,
+    "args": [
+      936,
+      1,
+      50364020,
+      256,
+      50362356,
+      256
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "LCMapStringW",
+    "return_address": 285294435,
+    "args": [
+      2052,
+      256,
+      50362356,
+      256,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "LCMapStringW",
+    "return_address": 285294590,
+    "args": [
+      2052,
+      256,
+      50362356,
+      256,
+      50361844,
+      256
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "WideCharToMultiByte",
+    "return_address": 285294627,
+    "args": [
+      936,
+      544,
+      50361844,
+      256,
+      50363764,
+      256,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "environment_content_not_logged": true,
+    "result": 256
+  },
+  {
+    "api": "MultiByteToWideChar",
+    "return_address": 285294325,
+    "args": [
+      936,
+      1,
+      50364020,
+      256,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "MultiByteToWideChar",
+    "return_address": 285294413,
+    "args": [
+      936,
+      1,
+      50364020,
+      256,
+      50362324,
+      256
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "LCMapStringW",
+    "return_address": 285294435,
+    "args": [
+      2052,
+      512,
+      50362324,
+      256,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "LCMapStringW",
+    "return_address": 285294590,
+    "args": [
+      2052,
+      512,
+      50362324,
+      256,
+      50361812,
+      256
+    ],
+    "actual_error": 0,
+    "result": 256
+  },
+  {
+    "api": "WideCharToMultiByte",
+    "return_address": 285294627,
+    "args": [
+      936,
+      544,
+      50361812,
+      256,
+      50363508,
+      256,
+      0,
+      0
+    ],
+    "actual_error": 0,
+    "environment_content_not_logged": true,
+    "result": 256
+  },
+  {
+    "api": "LeaveCriticalSection",
+    "return_address": 285294094,
+    "args": [
+      268451968
+    ],
+    "result": null
+  },
+  {
+    "api": "GetModuleFileNameA",
+    "return_address": 285307304,
+    "args": [
+      0,
+      285391948,
+      260
+    ],
+    "registered_guest_metadata_not_host_API": true,
+    "result": 74
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      192
+    ],
+    "result": 268456064
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      336
+    ],
+    "result": 268460160
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268464256
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268468352
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268472448
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268476544
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      112
+    ],
+    "result": 268480640
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268484736
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      96
+    ],
+    "result": 268488832
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268492928
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      96
+    ],
+    "result": 268497024
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268501120
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268505216
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      128
+    ],
+    "result": 268509312
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268513408
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268517504
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268521600
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268525696
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      112
+    ],
+    "result": 268529792
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      144
+    ],
+    "result": 268533888
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268537984
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268542080
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268546176
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268550272
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268554368
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268558464
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268562560
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268566656
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268570752
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268574848
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268578944
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268583040
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268587136
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268591232
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268595328
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268599424
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268603520
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268607616
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268611712
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268615808
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268619904
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268624000
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268628096
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268632192
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268636288
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268640384
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268644480
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268648576
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268652672
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268656768
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268660864
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268664960
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268669056
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268673152
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268677248
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268681344
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      1840
+    ],
+    "result": 268685440
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      80
+    ],
+    "result": 268689536
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268693632
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268697728
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      80
+    ],
+    "result": 268701824
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268705920
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268710016
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268714112
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268718208
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268722304
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268726400
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      384
+    ],
+    "result": 268730496
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268734592
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268738688
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      64
+    ],
+    "result": 268742784
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268746880
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268750976
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268755072
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      16
+    ],
+    "result": 268759168
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268763264
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268767360
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268771456
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268775552
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      48
+    ],
+    "result": 268779648
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268783744
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268787840
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285289275,
+    "args": [
+      1744896000,
+      0,
+      32
+    ],
+    "result": 268791936
+  },
+  {
+    "api": "HeapFree",
+    "return_address": 285289508,
+    "args": [
+      1744896000,
+      0,
+      268439680
+    ],
+    "result": 1
+  },
+  {
+    "api": "GetModuleHandleA",
+    "return_address": 285290264,
+    "args": [
+      285329292
+    ],
+    "system_module": "KERNEL32",
+    "result": 1778384896
+  },
+  {
+    "api": "GetProcAddress",
+    "return_address": 285290280,
+    "args": [
+      1778384896,
+      285329264
+    ],
+    "system_proc": "IsProcessorFeaturePresent",
+    "result": 50388992
+  },
+  {
+    "api": "IsProcessorFeaturePresent",
+    "index": 0,
+    "actual_result": 0,
+    "actual_host_API": true
+  },
+  {
+    "api": "HeapAlloc",
+    "return_address": 285315783,
+    "args": [
+      1744896000,
+      8,
+      2048
+    ],
+    "result": 268796032
+  },
+  {
+    "api": "SetUnhandledExceptionFilter",
+    "return_address": 285299829,
+    "args": [
+      285299748
+    ],
+    "controlled_guest_filter_only_not_host_OS_registration": true,
+    "result": 0
+  }
+]

@@ -1,0 +1,23 @@
+模块 I · ② 套 B 快捷条图标断言的负向对照（内存/临时副本改写，不落盘生产数据）
+临时副本：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-03_墨迹与套B\取证\_muttmp ｜ 断言两条：flags.icon-hover-material-guard / flags.icon-hover-material-via-group
+====================================================================================================
+[OK ] mut=none               期望 PASS → 实测 PASS ✓ ｜ 线上路径一字不改：守护件与行为断言都必须全绿
+     guard PASS —— 三态均在清单（1677 件）且区分力达标：save=x_ui_qbicon_save.png/x_ui_qbicon_save_on.png，load=x_ui_qbicon_load.png/x_ui_qbicon_load_on.png（清单来源：已动态装载｜asset_index.js）
+     main  PASS —— 数据期望 save=x_ui_qbicon_save.png→x_ui_qbicon_save_on.png（悬停）/ x_ui_qbicon_save.png（移出），load 恒为 x_ui_qbicon_load.png；悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=x_ui_qbicon_
+[OK ] mut=missing            期望 FAIL → 实测 FAIL ✓ ｜ 素材存在性锚点：数据指向不存在的文件 ⇒ 必须报警
+     guard FAIL —— quick.ic_save.hover="__mut_no_such_asset__.png" 不在素材清单；quick.ic_save.pressed="__mut_no_such_asset__.png" 不在素材清单
+     main  PASS —— 数据期望 save=x_ui_qbicon_save.png→__mut_no_such_asset__.png（悬停）/ x_ui_qbicon_save.png（移出），load 恒为 x_ui_qbicon_load.png；悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=__mut_no_s
+[OK ] mut=foldhover          期望 FAIL → 实测 FAIL ✓ ｜ 区分力锚点：normal==hover（回落）⇒「换态图」断言恒真 ⇒ 必须报警
+     guard FAIL —— quick.ic_save：normal 与 hover 同为 "x_ui_qbicon_save.png" ⇒ 「换态图」断言恒真（失去区分力）
+     main  PASS —— 数据期望 save=x_ui_qbicon_save.png→x_ui_qbicon_save.png（悬停）/ x_ui_qbicon_save.png（移出），load 恒为 x_ui_qbicon_load.png；悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=x_ui_qbicon_sav
+[OK ] mut=rename             期望 PASS → 实测 PASS ✓ ｜ ★ 合法改名（改指另一组存在的素材）⇒ 必须仍然全绿 = 本修复的目的
+     guard PASS —— 三态均在清单（1677 件）且区分力达标：save=x_ui_qbicon_log.png/x_ui_qbicon_log_on.png，load=x_ui_qbicon_chart.png/x_ui_qbicon_chart_on.png（清单来源：已动态装载｜asset_index.js）
+     main  PASS —— 数据期望 save=x_ui_qbicon_log.png→x_ui_qbicon_log_on.png（悬停）/ x_ui_qbicon_log.png（移出），load 恒为 x_ui_qbicon_chart.png；悬停前 save/load=x_ui_qbicon_log.png/x_ui_qbicon_chart.png；悬停存档热区后=x_ui_qbicon_lo
+[OK ] mut=ungroup            期望 FAIL → 实测 FAIL ✓ ｜ 变异自证：打废组绑定机制（数据仍合法）⇒ 行为断言必须报警
+     guard PASS —— 三态均在清单（1677 件）且区分力达标：save=x_ui_qbicon_save.png/x_ui_qbicon_save_on.png，load=x_ui_qbicon_load.png/x_ui_qbicon_load_on.png（清单来源：已动态装载｜asset_index.js）
+     main  FAIL —— 数据期望 save=x_ui_qbicon_save.png→x_ui_qbicon_save_on.png（悬停）/ x_ui_qbicon_save.png（移出），load 恒为 x_ui_qbicon_load.png；悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=x_ui_qbicon_
+[OK ] mut=rename    (legacy) 期望 FAIL → 实测 FAIL ✓ ｜ 回归夹具：退到修前「写死素材名」口径 + 合法改名 ⇒ 修前即红（一审 Major 判定复现）
+     guard PASS —— 三态均在清单（1677 件）且区分力达标：save=x_ui_qbicon_log.png/x_ui_qbicon_log_on.png，load=x_ui_qbicon_chart.png/x_ui_qbicon_chart_on.png（清单来源：已动态装载｜asset_index.js）
+     main  FAIL —— 数据期望 save=x_ui_qbicon_log.png→x_ui_qbicon_log_on.png（悬停）/ x_ui_qbicon_log.png（移出），load 恒为 x_ui_qbicon_chart.png；悬停前 save/load=x_ui_qbicon_log.png/x_ui_qbicon_chart.png；悬停存档热区后=x_ui_qbicon_lo
+====================================================================================================
+结论：五档全部符合预期 ✓

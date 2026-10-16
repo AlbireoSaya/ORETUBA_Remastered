@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "original_heap_init": 5284122,
+  "original_controller_constructor": 4305872,
+  "original_controller_deleting_destructor": 4306064,
+  "actual_control_native_registration": [
+    4305824,
+    4305792,
+    4305856
+  ],
+  "original_stack_capacity_words": 16384,
+  "live_after_ctor": 4,
+  "actual_guest_API_counts": {
+    "HeapCreate": 1,
+    "GetVersionExA": 1,
+    "HeapAlloc": 16,
+    "HeapFree": 16
+  },
+  "all_original_owned_blocks_released": true,
+  "809_ordered_natives_equal_static_calls": true,
+  "native_handlers_unique": 803,
+  "registration_block": [
+    4254044,
+    4263725
+  ],
+  "scope": "original CRT/direct private heap; original allocator-created controller object, original controller constructor and destructor, actual host heap APIs; actual 806 app native-registration instructions and 3 child constructor registrations, not full parent application constructor or native bodies, SOB publication or staging"
+}

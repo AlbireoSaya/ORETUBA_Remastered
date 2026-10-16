@@ -1,0 +1,68 @@
+23:27:50 [REACH] timer armed (300ms/tick) —— 端到端可达性断言开始
+23:27:50 [REACH] PASS reset->dialog | 屏栈 = dialog
+23:27:51 [REACH] PASS open_sysmenu → expanded | quickbar=expanded ｜ 屏栈 = dialog（必须仍是 dialog）
+23:27:51 [REACH] PASS 屏栈不变 | 当前屏 = dialog
+23:27:51 [REACH] PASS quick_pin 钉住（断言期稳定） | qbar_pin=1 ｜ quickbar=expanded
+23:27:51 [REACH] INFO collect | 附加层 = quickbar ｜ 展开态可见项 = 12 ｜ 不可见（收起态专属）热区 = quick.hit_toggle
+23:27:51 [REACH] PASS collect-count | 期望 12 项，实为 12
+23:27:51 [REACH] PASS item0 胜者 | quick.hit_lock @1882,43 → 胜者=quick.hit_lock
+23:27:51 [REACH] PASS item0 动作 | quick.hit_lock → action=quick_pin（数据 quick_pin；把手动作 open_sysmenu）
+23:27:51 [REACH] PASS item1 胜者 | quick.hit_save @1882,118 → 胜者=quick.hit_save
+23:27:51 [REACH] PASS item1 动作 | quick.hit_save → action=open_save（数据 open_save；把手动作 open_sysmenu）
+23:27:52 [REACH] PASS item2 胜者 | quick.hit_load @1882,193 → 胜者=quick.hit_load
+23:27:52 [REACH] PASS item2 动作 | quick.hit_load → action=open_load（数据 open_load；把手动作 open_sysmenu）
+23:27:52 [REACH] PASS item3 胜者 | quick.hit_qsave @1882,268 → 胜者=quick.hit_qsave
+23:27:52 [REACH] PASS item3 动作 | quick.hit_qsave → action=do_quicksave（数据 do_quicksave；把手动作 open_sysmenu）
+23:27:52 [REACH] PASS item4 胜者 | quick.hit_qload @1882,343 → 胜者=quick.hit_qload
+23:27:52 [REACH] PASS item4 动作 | quick.hit_qload → action=do_quickload（数据 do_quickload；把手动作 open_sysmenu）
+23:27:52 [REACH] PASS item5 胜者 | quick.hit_auto @1882,418 → 胜者=quick.hit_auto
+23:27:52 [REACH] PASS item5 动作 | quick.hit_auto → action=auto_on（数据 auto_on；把手动作 open_sysmenu）
+23:27:53 [REACH] PASS item6 胜者 | quick.hit_skip @1882,493 → 胜者=quick.hit_skip
+23:27:53 [REACH] PASS item6 动作 | quick.hit_skip → action=skip_on（数据 skip_on；把手动作 open_sysmenu）
+23:27:53 [REACH] PASS item7 胜者 | quick.hit_next @1882,568 → 胜者=quick.hit_next
+23:27:53 [REACH] PASS item7 动作 | quick.hit_next → action=next_choice（数据 next_choice；把手动作 open_sysmenu）
+23:27:53 [REACH] PASS item8 胜者 | quick.hit_prev @1882,643 → 胜者=quick.hit_prev
+23:27:53 [REACH] PASS item8 动作 | quick.hit_prev → action=prev_choice（数据 prev_choice；把手动作 open_sysmenu）
+23:27:54 [REACH] PASS item9 胜者 | quick.hit_log @1882,718 → 胜者=quick.hit_log
+23:27:54 [REACH] PASS item9 动作 | quick.hit_log → action=open_backlog（数据 open_backlog；把手动作 open_sysmenu）
+23:27:54 [REACH] PASS item10 胜者 | quick.hit_chart @1882,793 → 胜者=quick.hit_chart
+23:27:54 [REACH] PASS item10 动作 | quick.hit_chart → action=open_flowchart（数据 open_flowchart；把手动作 open_sysmenu）
+23:27:54 [REACH] PASS item11 胜者 | quick.hit_option @1882,868 → 胜者=quick.hit_option
+23:27:54 [REACH] PASS item11 动作 | quick.hit_option → action=open_config（数据 open_config；把手动作 open_sysmenu）
+23:27:55 [REACH] PASS tip quick.hit_lock | 中心 1882,43 → qbar_tip='lock'（期望 'lock'）
+23:27:55 [REACH] PASS tip quick.hit_save | 中心 1882,118 → qbar_tip='save'（期望 'save'）
+23:27:55 [REACH] PASS tip quick.hit_load | 中心 1882,193 → qbar_tip='load'（期望 'load'）
+23:27:55 [REACH] PASS tip quick.hit_qsave | 中心 1882,268 → qbar_tip='qsave'（期望 'qsave'）
+23:27:55 [REACH] PASS tip quick.hit_qload | 中心 1882,343 → qbar_tip='qload'（期望 'qload'）
+23:27:55 [REACH] PASS tip quick.hit_auto | 中心 1882,418 → qbar_tip='auto'（期望 'auto'）
+23:27:55 [REACH] PASS tip quick.hit_skip | 中心 1882,493 → qbar_tip='skip'（期望 'skip'）
+23:27:55 [REACH] PASS tip quick.hit_next | 中心 1882,568 → qbar_tip='next'（期望 'next'）
+23:27:55 [REACH] PASS tip quick.hit_prev | 中心 1882,643 → qbar_tip='prev'（期望 'prev'）
+23:27:55 [REACH] PASS tip quick.hit_log | 中心 1882,718 → qbar_tip='log'（期望 'log'）
+23:27:55 [REACH] PASS tip quick.hit_chart | 中心 1882,793 → qbar_tip='chart'（期望 'chart'）
+23:27:55 [REACH] PASS tip quick.hit_option | 中心 1882,868 → qbar_tip='option'（期望 'option'）
+23:27:55 [REACH] PASS tip 空白区清空 | 1900,930 → qbar_tip=''（期望 ''）
+23:27:55 [REACH] PASS keyKnown(lock)=true | 同屏 .tx_* 有 lock
+23:27:55 [REACH] PASS keyKnown(toggle)=false | 把手 key 无对应说明文字 ⇒ 不得点亮空白气泡
+23:27:55 [REACH] PASS 边界 含点 (x+w-1,y+h-1) | quick.hit_lock @1919,79 → 胜者=quick.hit_lock
+23:27:55 [REACH] PASS 边界 排点 (x+w,y) 不命中该项 | quick.hit_lock @1920,79 → 胜者=
+23:27:55 [REACH] PASS 边界 排点 (x,y+h) 不命中该项 | quick.hit_lock @1919,80 → 胜者=
+23:27:55 [REACH] PASS 收起态 12 项全部不可见 | 可见项数 = 0
+23:27:55 [REACH] PASS 收起态 把手胜出 | quick.hit_toggle @1881,456 → 胜者=quick.hit_toggle action=open_sysmenu
+23:27:55 [REACH] PASS dispatch quick_pin | quick.hit_lock → handled=1 msg=取消钉住（指针离开右端后按 delay_ms 自动收起） ｜ 屏 dialog→dialog
+23:27:55 [REACH] PASS dispatch open_save | quick.hit_save → handled=1 msg=打开 save ｜ 屏 dialog→save（已回收 save）
+23:27:55 [REACH] PASS dispatch open_load | quick.hit_load → handled=1 msg=打开 load ｜ 屏 dialog→load（已回收 load）
+23:27:55 [REACH] PASS dispatch do_quicksave | quick.hit_qsave → handled=1 msg=快速存档 -> file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run_quickbar/runtime/savedata/ui_state.txt ｜ 屏 dialog→dialog
+23:27:55 [REACH] PASS dispatch do_quickload | quick.hit_qload → handled=1 msg=快速读档 -> [OK] file://./e/zcode workspace/galgame/临时/wt-ui26/临时/ui_run_quickbar/runtime/savedata/ui_state.txt   ｜ 屏 dialog→dialog
+23:27:55 [REACH] PASS dispatch auto_on | quick.hit_auto → handled=1 msg=自动播放 开 ｜ 屏 dialog→dialog
+23:27:55 [REACH] PASS dispatch skip_on | quick.hit_skip → handled=1 msg=快进 开 ｜ 屏 dialog→dialog
+23:27:55 [REACH] PASS dispatch next_choice | quick.hit_next → handled=1 msg=前进到下一选择点（演示层无前向数据，仅登记动作） ｜ 屏 dialog→dialog
+23:27:55 [REACH] PASS dispatch prev_choice | quick.hit_prev → handled=1 msg=返回上一选择点（演示层无回溯数据，仅登记动作） ｜ 屏 dialog→dialog
+23:27:55 [REACH] PASS dispatch open_backlog | quick.hit_log → handled=1 msg=打开 backlog ｜ 屏 dialog→backlog（已回收 backlog）
+23:27:55 [REACH] PASS dispatch open_flowchart | quick.hit_chart → handled=1 msg=打开 flowchart ｜ 屏 dialog→flowchart（已回收 flowchart）
+23:27:55 [REACH] PASS dispatch open_config | quick.hit_option → handled=1 msg=打开 config ｜ 屏 dialog→config（已回收 config）
+23:27:56 [REACH] PASS key集 由数据推出 | vis_flag=='qbar_tip' 且 vis_when!='*' 的取值 = 12 个
+23:27:56 [REACH] PASS key集 实现⊇期望 | 12 项 key 逐个对拍 全通过
+23:27:56 [REACH] PASS key集 规则⇔实现 逐 key 一致 | 对拍 18 个 key（12 项 + 探针 toggle/expanded/collapsed/'*'(底图)/空串/不存在词） 全部一致
+23:27:56 [REACH] PASS key集 排除 vis_when='*'（气泡底图） | * → 实现判 false（`quick.tips` 的 vis_when='*' 不产生项 key）
+23:27:56 [REACH] ===== 断言结束：PASS 65 / FAIL 0 / 共 65 条 =====

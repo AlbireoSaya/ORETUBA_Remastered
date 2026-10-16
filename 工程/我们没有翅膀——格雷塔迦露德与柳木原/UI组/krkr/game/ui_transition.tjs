@@ -1,0 +1,170 @@
+// ============================================================
+// ui_transition.tjs —— 遮罩转场（M2 · UI 组）
+//
+// 结论先行（实测依据见 _工作\M2_证据\报告_实测结论.md）：
+//   * krkr **自带** `universal` 转场，且其 options 支持 `rule` 字段——
+//     引擎会把 rule 图片按 **8bpp（灰度）** 载入并缩放到目标尺寸，
+//     作为逐像素阈值表参与混合 ⇒ **rule*.png 灰度遮罩转场可直接用引擎内建实现**，
+//     不需要自写像素合成，也不需要 setMaskImage（krkr 没有该 API）。
+//     依据：krkrz 1.4.0r2 源码 visual/TransIntf.cpp:777 附近
+//           （options->GetAsString("rule") → imagepro->LoadImage(rulename, 8, 0x02ffffff, w, h, &scpro)）
+//
+// ★★★ D-02 重大订正（2026-10-01 · `ISSUE-20261001-11`）——**转场语义被用反了** ★★★
+//   原来的注释（本文件首版）写着「`beginTransition(name, withchildren, transsrc, options)` 的
+//   transsrc 是**起始画面**，目标层的当前内容是**结束画面**」——**错**。源码实测：
+//     ① 内建淡入类处理器（`crossfade` / `universal`）一律报 **`TransType = ttExchange`**
+//        （visual/TransIntf.cpp:502）——**转场结束时引擎会把「目标层」与「transsrc」整体互换**
+//        （visual/LayerIntf.cpp 的 `InternalStopTransition` → `Exchange(TransSrc)`：换节点、换
+//         left/top、并交换两者 visible）。
+//     ② 混合方向由 `tTVPCrossFadeTransHandler::Process`（visual/TransIntf.cpp）写死：
+//        **Phase 0 显示 Src1（＝目标层** 自己的**内容）→ PhaseMax 显示 Src2（＝transsrc 的内容）**。
+//        ⇒ 语义实为「**从目标层当前内容过渡到 transsrc 的内容**，且结束后目标层留住 transsrc 的内容」。
+//   ⇒ **`transsrc` 是终点（要显示出来的新画面），不是起点。** 正确用法＝**乒乓双缓冲**：
+//        旧画面留在 A（可见），**新画面画进 B（不可见）**，然后 `A.beginTransition(name, true, B, …)`
+//        ⇒ 动画 旧→新；结束后 **B 变可见并占住 A 的原位置、A 变不可见**
+//        ⇒ **调用方必须把自己的 A/B 两个引用互换**（本作 = `startup.tjs` 的
+//        `stageLayer`/`snapLayer` 成员，结算见 `startup.tjs::uiTransSettle`）。
+//
+//   旧写法（`uiTransSnapshot` 把**旧**画面拷进 snap → 新画面画进 stage → 传 snap 当 transsrc）
+//   有三重错：**方向反了（新→旧）**、**结束后新画面永远看不见（可见的是 snap 里那张旧画面）**、
+//   且 `redraw()` 每 120ms 还在往那层上清屏重画（引擎要求先 `stopTransition` 才能再建转场
+//   ⇒ 快速切屏时抛「在使用新的 Transition 之前需要先停止之前的」）。
+//   实机表现（用户 2026-10-01 两次报）：**点开始游戏后有声、状态全对，但画面恒停在标题屏**。
+//   ⇒ 本版把 `uiTransSnapshot` / `uiTransSetPending` / `uiTransAfterDraw` **整组撤除**，
+//     改为一次到位的 `uiTransStart(stage, snap, …)`：**不再需要快照拷贝**（引擎的交换就是"免拷贝"）。
+//
+// 降级策略（都不崩、都记日志）：
+//   ① rule 图缺件  → 退化为内建 crossfade（仍是可见转场）
+//   ② 转场整体失败 → 记 [UI][TRANS][MISS] 并返回 false（画面由调用方改走"瞬时切屏"路径）
+// ============================================================
+
+var UITransRuleAsset = "";      // 最近一次使用的 rule 素材（layout 里的 asset 串）
+var UITransTimeMs    = 0;
+var UITransVague     = 0;
+var UITransOK        = 0;
+var UITransFail      = 0;
+var UITransDegrade   = 0;
+var UITransLastNote  = "未使用";
+
+// ── ★ D-02：转场「在场」状态（供 startup.tjs 判定是否可触碰图层） ──
+var UITransInFlight  = false;   // true ⇒ 引擎正锁着两层做转场，**任何一层都不能清屏/重画**
+var UITransStartTick = 0;       // System.getTickCount() 起始值（0 = 未知）
+var UITransFlyN      = 0;       // 起转次数（自证用）
+var UITransSwapN     = 0;       // 结算中确认发生交换的次数（自证用）
+var UITransLateN     = 0;       // 超时放行次数（自证用；>0 说明 onTransitionCompleted 没到）
+var UITransPassN     = 0;       // 调用方把在场标志关掉的次数（自证用）
+var UITransOscPass   = 0;       // ★ D-02 自证：巡演每屏"可见层=stageLayer"通过次数
+var UITransOscFail   = 0;       // ★ D-02 自证：失败次数（>0 ⇒ 画面会停在旧屏）
+
+// 标一次「转场已起」。只记时间与时长——**不碰图层**。
+function uiTransMarkStarted(timeMs)
+{
+	UITransInFlight  = true;
+	UITransTimeMs    = timeMs;
+	UITransStartTick = 0;
+	try { UITransStartTick = System.getTickCount(); } catch(e) { UITransStartTick = 0; }
+	UITransFlyN++;
+	return true;
+}
+
+// 转场是否仍在场。
+//   ★ 超时（时长 + 120ms 余量）自动放行：`onTransitionCompleted` 若因故没到，
+//     绝不能让它**永久冻住整个重画**；放行后由调用方（`startup.tjs::uiTransSettle`）
+//     按「引擎可观测的交换事实」兜底结算。
+function uiTransInFlight()
+{
+	if(!UITransInFlight) return false;
+	var el = 0;
+	try { el = (UITransStartTick > 0) ? (System.getTickCount() - UITransStartTick) : 0; } catch(e) { el = 0; }
+	if(UITransStartTick > 0 && el > UITransTimeMs + 120)
+	{
+		UITransLateN++;
+		UITransLastNote = "转场超时放行（" + el + "ms > " + UITransTimeMs + "+120）⇒ 交 uiTransSettle 兜底";
+		Debug.message("[UI][TRANS][LATE] " + UITransLastNote);
+		UITransInFlight = false;
+		return false;
+	}
+	return true;
+}
+
+// 调用方结算完毕（无论走事件、超时还是强制终止）后调用，只清标志。
+function uiTransMarkSettled()
+{
+	if(UITransInFlight) { UITransInFlight = false; UITransPassN++; }
+	return true;
+}
+
+// ------------------------------------------------------------
+// 起一次转场（★ D-02：一次到位，取代旧的 uiTransSnapshot/uiTransSetPending/uiTransAfterDraw 两步式）
+//   stage = **前层**（可见；里面是**旧**画面）—— 转场的"起点"
+//   snap  = **后层**（不可见；里面是我们刚画好的**新**画面）—— 转场的"终点"
+//   返回 true ⇒ 转场已起（调用方**必须**在结束时互换这两个引用；见 startup.tjs::uiTransSettle）
+//   返回 false ⇒ 未起（缺件且 crossfade 也失败）⇒ 调用方须把新画面直接搬到前层，绝不留旧屏
+// ------------------------------------------------------------
+function uiTransStart(stage, snap, ruleAsset, timeMs, vague)
+{
+	if(stage === void || stage === null || snap === void || snap === null) return false;
+	if(timeMs === void || timeMs < 2) timeMs = 420;
+
+	UITransRuleAsset = (ruleAsset === void) ? "" : ("" + ruleAsset);
+	UITransTimeMs    = timeMs;
+	UITransVague     = vague;
+
+	// ① 先试 rule 遮罩（内建 universal + rule 选项）
+	if(UITransRuleAsset != "")
+	{
+		var loc = uiAssetLocate(UITransRuleAsset);
+		if(loc.found)
+		{
+			try
+			{
+				stage.beginTransition("universal", true, snap,
+					%[ time: timeMs, vague: vague, rule: loc.name ]);
+				UITransOK++;
+				UITransLastNote = "universal+rule OK : " + loc.name
+					+ " time=" + timeMs + " vague=" + vague;
+				Debug.message("[UI][TRANS] " + UITransLastNote);
+				return uiTransMarkStarted(timeMs);
+			}
+			catch(e)
+			{
+				UITransFail++;
+				UITransLastNote = "universal+rule 失败：" + e.message;
+				Debug.message("[UI][TRANS][MISS] " + UITransLastNote);
+			}
+		}
+		else
+		{
+			UITransDegrade++;
+			UITransLastNote = "rule 缺件（试过 " + loc.tried.join(" / ") + "），降级 crossfade";
+			Debug.message("[UI][TRANS][MISS] " + UITransLastNote);
+		}
+	}
+
+	// ② 降级：内建 crossfade
+	try
+	{
+		stage.beginTransition("crossfade", true, snap, %[ time: timeMs ]);
+		UITransOK++;
+		UITransDegrade++;
+		UITransLastNote = "crossfade OK（降级）time=" + timeMs;
+		Debug.message("[UI][TRANS] " + UITransLastNote);
+		return uiTransMarkStarted(timeMs);
+	}
+	catch(e2)
+	{
+		UITransFail++;
+		UITransLastNote = "crossfade 也失败：" + e2.message;
+		Debug.message("[UI][TRANS][MISS] " + UITransLastNote);
+	}
+
+	// ③ 彻底放弃转场：不阻塞，交调用方走"瞬时切屏"
+	return false;
+}
+
+function uiTransSummary()
+{
+	return "转场 成功 " + UITransOK + " / 失败 " + UITransFail + " / 降级 " + UITransDegrade
+		+ " | 起转 " + UITransFlyN + " / 交换结算 " + UITransSwapN + " / 超时放行 " + UITransLateN
+		+ " | 最近：" + UITransLastNote;
+}

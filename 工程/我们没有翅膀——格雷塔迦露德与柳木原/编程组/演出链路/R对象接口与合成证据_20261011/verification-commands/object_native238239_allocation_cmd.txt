@@ -1,0 +1,17 @@
+@'
+from pathlib import Path
+import sys,importlib.util,struct,json,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')];from pe_min import PE;from lucifen_vm_micro import map_pe
+spec=importlib.util.spec_from_file_location('observer',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');cases=[];frame=0x1004000;manager=0x1009000
+values=[(640,480,0x11223320,0x66778802),(0xffffffff,0x80000000,0xaabbcc08,0xdeadbe00),(0,0,0xff000010,0x000001ff),(1,1,32,1)]
+
+records=[]
+for slot,entry,return_from_allocator in [(238,0x41e850,0x4ba6ce),(239,0x41e880,0x4ba7ee)]:
+ for words in values:
+  u=map_pe(pe);u.mem_map(0,0x1000);raw=struct.pack('<4I',*words);u.mem_write(frame,raw);u.mem_write(0x530c9c,struct.pack('<I',manager));r=m.observe_cdecl_until(u,entry,frame,0x50577f,8,{'ecx':0xa1b2c3d4,'edx':0xf1f2f3f4})
+  actual_output=struct.unpack('<I',u.mem_read(0x2008004,4))[0];assert r['stop_reached'] and not r['returned'] and not r['error'];assert actual_output==0 and r['stack_words'][:2]==[return_from_allocator,0xd8] and bytes(u.mem_read(frame,16))==raw
+  records.append({'slot_candidate':slot,'frame_words':words,'snapshot':r,'caller_output_slot_before_allocator':actual_output,'object_size_request':0xd8,'frame_unchanged':True})
+p=b/'native238239-factory-allocation-boundary.json';assert not p.exists();p.write_text(json.dumps({'scope':'original wrapper+factory prologue until original operator-new; no fake allocator result or full factory return','cases':records},indent=2),encoding='utf-8');print('PASS',len(records),'wrapper/factory original allocator boundaries')
+
+'@ | python -X utf8 -B -

@@ -1,0 +1,18 @@
+来源：https://github.com/HIllya51/ORE_TUBA_Chinese.git （commit 9ce8a41 "Update pack.py"）
+
+本副本由 ISSUE-20260917-10（2026-09-17）从 `子代理工作区/ISSUE-ORETUBAR-R/GBK/ref_repo/`
+抢救抄录而来——子代理工作区被 .gitignore 忽略，原处副本不受版本控制。
+
+抄录范围（仅文本源码）：
+  steps.txt  README.md  chs.rc  ffmpeg.txt
+  text/ 下的 pack.py、packextra.py、unpack.py、solvetitle.py、tips.py
+  text/lucifen/ 下的 lucifen.cpp（引擎源码）、FileName.cpp、CMakeLists.txt
+  text/sys_not_sob_raw/ 与 text/sys_not_sob_solved/（非 SOB 系统文件的原/译样本）
+  patch/ 下的 patch.cpp、uitext.txt、CMakeLists.txt
+
+未抄录：Detours-4.0.1 二进制库与头文件、PNG 素材、build 产物，以及
+text/lucifen/json.hpp（939KB 的 nlohmann/json 第三方单头文件——随时可从上游仓库或
+github.com/nlohmann/json 取得，仅在编译 lucifen.cpp 时才需要）。
+
+注意：本目录下的 config.dat / sob_init.dat / voiceinf.dat 因 .gitignore 的通用 `*.dat`
+规则**不会入库**，只在磁盘上存在（它们只是汉化源工程的辅助样本数据）。

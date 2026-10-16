@@ -1,0 +1,137 @@
+events=[];counts=collections.Counter();memory=HostMemory();mirror=GuestMemoryBlocks(u,memory,start=0x10000000,stop=0x11000000);tls=HostTLS(memory);cs=HostCritical();heaps={};host_modules={};api_map={};environments={};std_handles={};startup_strings={};guest_filter=GuestExceptionFilter()
+irva,isz=pe.ddirs[1]
+while True:
+ ilt,ts,fw,dn,iat=struct.unpack('<5I',pe.read_rva(irva,20))
+ if not (ilt or dn or iat):break
+ for j in range(4096):
+  hint=struct.unpack('<I',pe.read_rva((ilt or iat)+j*4,4))[0]
+  if not hint:break
+  assert hint&0x80000000==0
+  name=pe.read_rva(hint+2,128).split(b'\0')[0].decode('ascii');api_map[name]=pe.image_base+iat+j*4
+ irva+=20
+specs={'GetVersion':0,'GetCommandLineA':0,'GetEnvironmentStringsW':0,'WideCharToMultiByte':32,'GetStringTypeW':16,'GetStringTypeA':20,'MultiByteToWideChar':24,'LCMapStringW':24,'LCMapStringA':24,'GetCPInfo':8,'GetModuleFileNameA':12,'GetStartupInfoA':4,'GetStdHandle':4,'GetFileType':4,'SetHandleCount':4,'SetUnhandledExceptionFilter':4,'FreeEnvironmentStringsW':4,'GetACP':0,'GetOEMCP':0,'HeapCreate':12,'HeapDestroy':4,'HeapAlloc':12,'HeapFree':12,'GetCurrentThreadId':0,'TlsAlloc':0,'TlsFree':4,'TlsGetValue':4,'TlsSetValue':8,'GetLastError':0,'SetLastError':4,'InitializeCriticalSection':4,'EnterCriticalSection':4,'LeaveCriticalSection':4,'DeleteCriticalSection':4,'GetVersionExA':4,'GetModuleHandleA':4,'GetProcAddress':8}
+proxies={0x300c000+16*i:(name,argc)for i,(name,argc)in enumerate(specs.items())}
+feature_proxy=0x300e000;u.mem_write(feature_proxy,b'\xc2\x04\x00')
+def feature_hook(uc,a,n,ud):
+ sp=uc.reg_read(UC_X86_REG_ESP);ra,index=struct.unpack('<2I',uc.mem_read(sp,8));assert index==0
+ v=int(IsProcessorFeaturePresent(index));events.append({'api':'IsProcessorFeaturePresent','index':index,'actual_result':v,'actual_host_API':True});counts['IsProcessorFeaturePresent']+=1;uc.reg_write(UC_X86_REG_EAX,v)
+u.hook_add(UC_HOOK_CODE,feature_hook,begin=feature_proxy,end=feature_proxy)
+def api_hook(uc,a,n,ud):
+ name,argc=proxies[a];sp=uc.reg_read(UC_X86_REG_ESP);v=struct.unpack('<%dI'%(1+argc//4),uc.mem_read(sp,4+argc));ra=v[0];args=v[1:];e={'api':name,'return_address':ra,'args':list(args)}
+ if name=='GetVersion':value=int(GetVersion());e['CPython_manifest_not_original_OS_version']=True
+ elif name=='GetCommandLineA':
+  host=GetCommandLineA();assert host
+  blob=ctypes.string_at(host);assert len(blob)<8192 and b'api_key'not in blob.lower()
+  value=0x1040000;uc.mem_write(value,blob+b'\0');e['actual_host_commandline_not_original_commandline']=True;e['byte_length_only']=len(blob)
+ elif name=='GetEnvironmentStringsW':
+  host=GetEnvironmentStringsW();assert host;blob=bytearray()
+  for off in range(0,262144,2):
+   b=ctypes.string_at(host+off,2);blob+=b
+   if len(blob)>=4 and blob[-4:]==b'\0'*4:break
+  else:raise RuntimeError('environment block exceeds bound')
+  value=0x1050000;assert value not in environments;uc.mem_write(value,bytes(blob));environments[value]=(host,len(blob));e['actual_host_env_not_original_env']=True;e['content_never_logged']=True;e['byte_length_only']=len(blob)
+ elif name=='FreeEnvironmentStringsW':
+  q=args[0];assert q in environments;host,sz=environments[q];value=int(FreeEnvironmentStringsW(ctypes.c_void_p(host)));assert value;del environments[q];uc.mem_write(q,b'\0'*sz)
+ elif name=='WideCharToMultiByte':
+  cp,flags,src,units,dst,cap,default,used=args;assert cp in(0,936) and flags in(0,544) and 0<units<131072 and default==0 and used==0 and 0<=cap<262144
+  data=bytes(uc.mem_read(src,units*2));guard=b'\xa5'*32;ib=ctypes.create_string_buffer(guard+data+guard,len(data)+64)
+  if cap:
+   assert dst;before=bytes(uc.mem_read(dst,cap));ob=ctypes.create_string_buffer(guard+before+guard,cap+64);op=ctypes.byref(ob,32)
+  else:assert dst==0;ob=None;op=None
+  ctypes.set_last_error(0);value=int(WideCharToMultiByte(cp,flags,ctypes.byref(ib,32),units,op,cap,None,None));err=ctypes.get_last_error();assert value>0 and ib.raw[:32]==guard and ib.raw[-32:]==guard
+  if ob:
+   assert value<=cap and ob.raw[:32]==guard and ob.raw[-32:]==guard;uc.mem_write(dst,ob.raw[32:-32]);mirror.sync(dst)if dst in mirror._by_guest else None
+  e['actual_error']=err;e['environment_content_not_logged']=True
+ elif name=='GetCPInfo':
+  cp,dst=args;assert cp in(0,936,65001);guard=b'\xa5'*32;before=bytes(uc.mem_read(dst,20));buf=ctypes.create_string_buffer(guard+before+guard,84)
+  value=int(GetCPInfo(cp,ctypes.byref(buf,32)));assert value and buf.raw[:32]==guard and buf.raw[-32:]==guard;uc.mem_write(dst,buf.raw[32:-32]);e['bytes']=20
+ elif name=='GetModuleFileNameA':
+  module,dst,capacity=args;assert module in(0,main_pe.image_base,pe.image_base)and 0<capacity<=260
+  chosen_path=exe_path if module!=pe.image_base else root/'备份/我们没有翅膀R-安装介质/SET_UP/wuvorbis.dll';registered_base=main_pe.image_base if module!=pe.image_base else pe.image_base
+  value,data=registered_module_filename_a(module,registered_base,str(chosen_path).encode('mbcs'),capacity);uc.mem_write(dst,data);e['registered_guest_metadata_not_host_API']=True
+ elif name=='GetStartupInfoA':
+  host_bits=ctypes.sizeof(ctypes.c_void_p)*8;assert host_bits in(32,64);layout=startup_layout['STARTUPINFOA_LAYOUT_'+str(host_bits)];size=layout['size'];fmt=layout['pointer_format'];dst=args[0];guard=b'\xa5'*32;raw=bytearray(size);struct.pack_into('<I',raw,0,size);buf=ctypes.create_string_buffer(guard+raw+guard,size+64);GetStartupInfoA(ctypes.byref(buf,32))
+  assert buf.raw[:32]==guard and buf.raw[-32:]==guard;raw=buf.raw[32:-32];assert struct.unpack_from('<I',raw,0)[0]==size
+  reserved_length=struct.unpack_from('<H',raw,layout['reserved_length_offset'])[0];reserved_pointer=struct.unpack_from(fmt,raw,layout['reserved_pointer_offset'])[0];assert reserved_length==0 and reserved_pointer==0
+  ptrs=[]
+  for index,off in enumerate(layout['string_offsets']):
+   host=struct.unpack_from(fmt,raw,off)[0]
+   if host:
+    content=ctypes.string_at(host);assert len(content)<4096;q=0x1030000+index*4096;uc.mem_write(q,content+b'\0');startup_strings[q]=len(content);ptrs.append(q)
+   else:ptrs.append(0)
+  scalars=struct.unpack_from('<8I',raw,layout['scalar_offset']);words=struct.unpack_from('<2H',raw,layout['word_offset']);std=[]
+  for off in layout['standard_handle_offsets']:
+   host=struct.unpack_from(fmt,raw,off)[0]
+   if host==0:key=0
+   elif host==ctypes.c_void_p(-1).value:key=0xffffffff
+   else:key=0x6b000000+len(std_handles);std_handles[key]=host
+   std.append(key)
+  data=struct.pack('<4I8I2HI3I',68,*ptrs,*scalars,*words,0,*std);assert len(data)==68;uc.mem_write(dst,data);value=None
+  e['host_pointer_bits']=host_bits;e['actual_host_STARTUPINFOA_translated_to_guest32']=True;e['not_original_process_startup_info']=True;e['cbReserved2']=reserved_length
+ elif name=='GetStdHandle':
+  identifier=args[0];assert identifier in(0xfffffff6,0xfffffff5,0xfffffff4)
+  host=GetStdHandle(identifier)
+  if host is None:value=0
+  elif host==ctypes.c_void_p(-1).value:value=0xffffffff
+  else:value=0x6b000000+len(std_handles);std_handles[value]=int(host)
+  e['borrowed_host_standard_handle_not_owned']=True
+ elif name=='GetFileType':
+  key=args[0];assert key in std_handles;ctypes.set_last_error(0);value=int(GetFileType(ctypes.c_void_p(std_handles[key])));e['actual_error']=ctypes.get_last_error()
+ elif name=='SetHandleCount':
+  assert args==(32,);value=int(SetHandleCount(32));e['actual_Win32_API_no_effect_on_current_Windows']=True
+ elif name in('GetStringTypeW','GetStringTypeA'):
+  if name=='GetStringTypeW':kind,src,units,dst=args;width=2;assert kind==1;params=(kind,)
+  else:locale,kind,src,units,dst=args;width=1;assert kind==1;params=(locale,kind)
+  assert 0<units<=4096;guard=b'\xa5'*32;data=bytes(uc.mem_read(src,width*units));ib=ctypes.create_string_buffer(guard+data+guard,len(data)+64);before=bytes(uc.mem_read(dst,2*units));ob=ctypes.create_string_buffer(guard+before+guard,len(before)+64)
+  fn=GetStringTypeW if width==2 else GetStringTypeA;ctypes.set_last_error(0);value=int(fn(*params,ctypes.byref(ib,32),units,ctypes.byref(ob,32)));err=ctypes.get_last_error()
+  assert ib.raw[:32]==guard and ib.raw[-32:]==guard and ob.raw[:32]==guard and ob.raw[-32:]==guard;uc.mem_write(dst,ob.raw[32:-32]);e['actual_error']=err
+ elif name in('LCMapStringA','LCMapStringW','MultiByteToWideChar'):
+  locale,flags,src,units,dst,cap=args;width=2 if name=='LCMapStringW'else 1;out_width=1 if name=='LCMapStringA'else 2
+  assert 0<units<=4096 and 0<=cap<=8192;guard=b'\xa5'*32;data=bytes(uc.mem_read(src,width*units));ib=ctypes.create_string_buffer(guard+data+guard,len(data)+64)
+  if cap:assert dst;before=bytes(uc.mem_read(dst,cap*out_width));ob=ctypes.create_string_buffer(guard+before+guard,len(before)+64);op=ctypes.byref(ob,32)
+  else:assert dst==0;ob=None;op=None
+  fn={'LCMapStringW':LCMapStringW,'LCMapStringA':LCMapStringA,'MultiByteToWideChar':MultiByteToWideChar}[name];ctypes.set_last_error(0);value=int(fn(locale,flags,ctypes.byref(ib,32),units,op,cap));err=ctypes.get_last_error();assert ib.raw[:32]==guard and ib.raw[-32:]==guard
+  if ob:assert ob.raw[:32]==guard and ob.raw[-32:]==guard;uc.mem_write(dst,ob.raw[32:-32])
+  e['actual_error']=err
+ elif name=='SetUnhandledExceptionFilter':
+  pointer=args[0];assert pointer==0 or any(pe.image_base+s['vaddr']<=pointer<pe.image_base+s['vaddr']+max(s['rawsize'],s['vsize'])and s['chars']&0x20000000 for s in pe.sections)
+  value=guest_filter.exchange(pointer);e['controlled_guest_filter_only_not_host_OS_registration']=True
+ elif name=='GetACP':value=int(GetACP())
+ elif name=='GetOEMCP':value=int(GetOEMCP())
+ elif name=='HeapCreate':
+  host=memory.heap_create(*args);assert host;value=0x68010000+len(heaps);heaps[value]=host
+ elif name=='HeapDestroy':
+  key=args[0];assert key in heaps;value=int(memory.heap_destroy(heaps[key]));assert value==1;del heaps[key]
+ elif name=='HeapAlloc':
+  key,flags,size=args;assert key in heaps
+  host=memory.heap_alloc(heaps[key],flags,size);assert host;value=mirror.bind(host)
+ elif name=='HeapFree':
+  key,flags,q=args;assert key in heaps and flags==0;host=mirror.host_pointer(q);mirror.sync(q);value=int(memory.heap_free(heaps[key],flags,host));assert value;mirror.unmap(q)
+ elif name=='GetCurrentThreadId':value=current_thread_id()
+ elif name=='TlsAlloc':value,err=tls.alloc();set_last_error(err);assert value!=0xffffffff
+ elif name=='TlsFree':value,err=tls.free(args[0]);set_last_error(err)
+ elif name=='TlsGetValue':
+  host,err=tls.get(args[0]);set_last_error(err);value=mirror._by_host[host] if host else 0
+ elif name=='TlsSetValue':
+  index,q=args;host=mirror.host_pointer(q)if q else 0
+  if q:mirror.sync(q)
+  value,err=tls.set(index,host);set_last_error(err)
+ elif name=='GetLastError':value=get_last_error()
+ elif name=='SetLastError':set_last_error(args[0]);value=None
+ elif name=='InitializeCriticalSection':cs.init(args[0]);value=None
+ elif name=='EnterCriticalSection':cs.enter(args[0]);value=None
+ elif name=='LeaveCriticalSection':cs.leave(args[0]);value=None
+ elif name=='DeleteCriticalSection':cs.delete(args[0]);value=None
+ elif name=='GetVersionExA':
+  dst=args[0];before=bytes(uc.mem_read(dst,148));ok,data,err=host_version_ex_a(before);assert ok and err==0;value=int(ok);uc.mem_write(dst,data)
+ elif name=='GetModuleHandleA':
+  name_bytes=read_z(lambda q,n:bytes(uc.mem_read(q,n)),args[0],256);assert name_bytes.upper()in(b'KERNEL32',b'KERNEL32.DLL')
+  host=GetModuleHandleA(name_bytes);assert host;value=0x6a000000;host_modules[value]=host;e['system_module']=name_bytes.decode('ascii')
+ else:
+  key,p=args;assert key in host_modules;label=read_z(lambda q,n:bytes(uc.mem_read(q,n)),p,256);assert label==b'IsProcessorFeaturePresent'
+  host=GetProcAddress(ctypes.c_void_p(host_modules[key]),label);assert host;value=feature_proxy;e['system_proc']=label.decode('ascii')
+ e['result']=value;events.append(e);counts[name]+=1
+ if value is not None:uc.reg_write(UC_X86_REG_EAX,value&0xffffffff)
+for addr,(name,argc)in proxies.items():
+ assert name in api_map;u.mem_write(api_map[name],struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc)if argc else b'\xc3')
+u.hook_add(UC_HOOK_CODE,api_hook,begin=min(proxies),end=max(proxies))

@@ -1,0 +1,71 @@
+// r_byteflow_verify.tjs —— 字节流自测辅助（仅本地自测；无数据生成、无 IO；成功不写日志）
+// 失败一律抛 Exception，标识前缀「RBFSelfCheck: 」，由 startup 统一处理。
+
+var RBFChecks = 0;
+var RBFSelfMark = "RBFSelfCheck: ";
+
+function RBFFail(msg)
+{
+    throw new Exception(RBFSelfMark + msg);
+}
+
+// 显式 context 读取器：不依赖 lexical closure，只经 this.data / this.base 取字节。
+function RBFReadByte(q)
+{
+    return this.data[q - this.base];
+}
+
+function RCheckValue(op, a, b, expected)
+{
+    var got = RValueOp(op, a, b);
+    if (got !== expected) {
+        RBFFail("RCheckValue op=" + op + " a=" + a + " b=" + b + " got=" + got + " expected=" + expected);
+    }
+    RBFChecks++;
+}
+
+function RCheckLiteral(data, base, expectedEnd, expectedStop, widths)
+{
+    if (typeof data != "Octet") RBFFail("RCheckLiteral: data must be Octet");
+    if (typeof widths != "String") RBFFail("RCheckLiteral: widths must be String");
+
+    var reader = RBFReadByte incontextof %["data" => data, "base" => base];
+    var res = RLiteralRun(reader, base, base + data.length);
+
+    if (res.start !== base) RBFFail("literal start=" + res.start + " expected=" + base);
+    if (res.end !== expectedEnd) RBFFail("literal end=" + res.end + " expected=" + expectedEnd);
+    if (res.stop !== expectedStop) RBFFail("literal stop=" + res.stop + " expected=" + expectedStop);
+
+    var units = res.units;
+    if (units.count !== widths.length) RBFFail("units.count=" + units.count + " expected=" + widths.length);
+
+    var pos = base;
+    for (var i = 0; i < widths.length; i++) {
+        var w = widths.charAt(i);
+        var u = units[i];
+        if (u[0] !== pos) RBFFail("units[" + i + "].position=" + u[0] + " expected=" + pos);
+        if (("" + u[1]) !== w) RBFFail("units[" + i + "].width=" + u[1] + " expected=" + w);
+        pos += (w == "1") ? 1 : 2;
+    }
+    if (pos !== expectedEnd) RBFFail("units accumulated pos=" + pos + " expected=" + expectedEnd);
+
+    var payload = res.payload;
+    if (payload.count !== expectedEnd - base) RBFFail("payload.count=" + payload.count + " expected=" + (expectedEnd - base));
+    for (var j = 0; j < payload.count; j++) {
+        if (payload[j] !== data[j]) RBFFail("payload[" + j + "]=" + payload[j] + " data=" + data[j]);
+    }
+
+    RBFChecks++;
+}
+
+function RCheckReject(callback)
+{
+    var thrown = false;
+    try {
+        callback();
+    } catch (e) {
+        thrown = true;
+    }
+    if (!thrown) RBFFail("RCheckReject: callback did not throw");
+    RBFChecks++;
+}

@@ -1,0 +1,42 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'临时/ISSUE-20261011-02/r-tob-dynamic-replay-01';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+rows=[]
+for file_index,(path,exprs) in enumerate(grouped.items()):
+ data=(root/path).read_bytes()
+ for seed in (0,1):
+  u,maps=prepare(data,seed);baseline=bytes(u.mem_read(0x1000000,0x100000))
+  for e in exprs:
+   u.mem_write(buffer,data);u.mem_write(cursor,struct.pack('<I',buffer+e['reloc_start']+2));shadow=bytearray(data)
+   writes=relocation_writes(e,buffer+e['code_start'],maps,0x10d0000+seed*0x1000)
+   for a,v in writes:struct.pack_into('<I',shadow,a-buffer,v)
+   invoke_thiscall_args(u,0x430090,ctx,(cursor,buffer+e['code_start'],1),timeout=0)
+   assert struct.unpack('<I',u.mem_read(cursor,4))[0]==buffer+e['reloc_start']+e['reloc_size'],(path,e['code_start'])
+   assert bytes(u.mem_read(buffer,len(data)))==bytes(shadow),(path,e['code_start'])
+   expected_memory=bytearray(baseline);struct.pack_into('<I',expected_memory,cursor-0x1000000,buffer+e['reloc_start']+e['reloc_size'])
+   assert bytes(u.mem_read(0x1000000,0x100000))==bytes(expected_memory)
+   rows.append({'path':path,'source_sha256':hashlib.sha256(data).hexdigest(),'record_offset':e['record_offset'],'position':e['position'],'code_start':e['code_start'],'code_size':e['code_size'],'reloc_count':len(writes),'seed':seed,'patched_source_sha256':hashlib.sha256(shadow).hexdigest(),'passed':True})
+  assert (root/path).read_bytes()==data
+ if (file_index+1)%100==0:print(json.dumps({'files_completed':file_index+1,'expression_cases':len(rows)}),flush=True)
+summary={'expressions':len(meta),'cases':len(rows),'files_with_expressions':len(grouped),'seed_states':2,'passed':True,'scope':'complete original 430090 compact-five-table binder on preallocated banks; source guest changes only expected relocation words; no expression VM, native callbacks or allocation proof'}
+for n,v in [('native-expression-binding-results.json',rows),('native-expression-binding-summary.json',summary)]:
+ p=b/n;assert not p.exists();p.write_text(json.dumps(v,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary))

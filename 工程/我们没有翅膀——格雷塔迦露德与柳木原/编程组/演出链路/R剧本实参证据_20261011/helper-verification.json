@@ -1,0 +1,17 @@
+{
+  "scope": "synthetic helper guard, read-only snapshot, reference arithmetic/self-modification/budget controls; no full VM coverage claim",
+  "groups": [
+    "snapshot live unsigned and readonly",
+    "zero-count no frame deref",
+    "unmapped frame actual UcError propagated",
+    "six snapshot invalid controls",
+    "self-modification re-read and add wrap32",
+    "reference indirect/stack read 0xaabbccdd",
+    "reference indirect/stack read 0x33445566",
+    "unknown op rejected without skip",
+    "budget partial mutation retained not return",
+    "six reference invalid controls before callbacks",
+    "32bit pc and sp wrap preserved",
+    "missing memory callback error propagated"
+  ]
+}

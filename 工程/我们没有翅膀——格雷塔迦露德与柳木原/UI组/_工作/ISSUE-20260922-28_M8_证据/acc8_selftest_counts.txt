@@ -1,0 +1,8 @@
+### 两套浏览器自检条数（M8 实测）
+A（_selftest_states.html）
+  断言行 36 条 ｜ OK 36 ｜ FAIL 0
+  末行：SELFTEST ALL PASS
+
+B（index.html?selftest=1）
+  断言行 36 条 ｜ PASS 35 ｜ FAIL 0 ｜ SKIP 1 ｜ RESULT=OK
+  SKIP 明细：SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）

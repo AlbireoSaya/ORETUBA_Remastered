@@ -1,0 +1,923 @@
+//======================================================================
+//  flow_lib.tjs -- 数据模型 + 解锁状态机 + 持久化
+//  ISSUE-20260917-02 / KiriKiri Z 自建「流程图（フローチャート）」演示
+//
+//  由 startup.tjs 通过 Scripts.execStorage("flow_lib.tjs") 加载。
+//  本文件只放数据与状态逻辑，不画图、不碰窗口（画图在 flow_draw.tjs）。
+//
+//  全部数据来自两个 UTF-8 文本表：
+//     flow_nodes.csv   节点表
+//     flow_edges.csv   边表（同时也是「分支选项」表）
+//  两表都是普通文本，改表即改流程图，不需要改脚本。
+//
+//  本文件不含任何既有作品（Applique 等）的素材、文本或角色名，
+//  演示数据全部由本工作区自拟。
+//
+//----------------------------------------------------------------------
+//  本文件用到的引擎 API 及其依据（krkrz 1.4.0r2 源码在本机
+//  工具\krkrz\src\krkrz-1.4.0r2\，实机日志见 poc\runtime\savedata\krkr.console.log）
+//----------------------------------------------------------------------
+//  * Scripts.execStorage("flow_lib.tjs")
+//      base/ScriptMgnIntf.cpp:726 TVPExecuteStorage → TVPSearchPlacedPath
+//      → TVPGetPlacedPath：相对名由「当前项目目录」解析。
+//      实测：松散模式（日志 06:16:42 项目目录 = .../poc/game/）与
+//            XP3 模式（日志 06:01:54 项目目录 = .../poc/poc.xp3#）下
+//            Scripts.execStorage("poc_lib.tjs") 都成功执行。
+//  * Array.load(name) / Array.save(name, "w")
+//      tjs2/tjsArray.cpp:257 load / :405 save（逐行文本）。
+//      读取：base/StorageIntf.cpp:1292 _TVPCreateStream 在 READ 时走
+//            TVPGetPlacedPath —— 与 execStorage 完全同一条解析路径，
+//            所以「数据表放在项目目录里、用相对名读」成立。
+//      写入：走 TVPNormalizeStorageName + 文件媒体 Open；
+//            base/win32/StorageImpl.cpp:152 tTVPFileMedia::GetLocallyAccessibleName
+//            只接受 "./<盘符>/..." 形式，裸相对名会被当成 UNC 名而失败；
+//            因此状态文件用绝对名写（见 flowBuildStoragePaths）。
+//  * Debug.logLocation
+//      utils/DebugIntf.cpp:565 TVPSetLogLocation(loc) 先把 datapath
+//      规范化（TVPNormalizeStorageName）再保存，logLocation 返回的就是
+//      这个规范化后的可写绝对名，形如 "file://./e/.../savedata/"。
+//      传入者：base/win32/SysInitImpl.cpp:1708 TVPSetLogLocation(TVPNativeDataPath)。
+//      实测日志：[POC] Debug.logLocation = file://./e/.../poc/runtime/savedata/
+//      → 该目录就是 <exe 同级>\savedata\，跨存档可用。
+//  * 文本编码：base/TextStream.cpp:645 TVPCreateTextStreamForRead 用
+//      DefaultReadEncoding；宏 TVP_TEXT_READ_ANSI_MBCS 在本编译中未定义
+//      （全源码树只有 TextStream.cpp:27 的 #ifdef 一处），故默认 = UTF-8
+//      （TextStream.cpp:28-31）→ UTF-8 的 CSV 会被正确解码，无需 BOM。
+//  * 数值转换：TJS2 的 '+' 遇字符串会做拼接（"28" + 96 == "2896"），
+//      所以 CSV 里的 x/y 必须在读表时转成数值（flowInt），否则几何计算全错。
+//======================================================================
+
+//----------------------------------------------------------------------
+// 0. 常量
+//----------------------------------------------------------------------
+var FLOW_STATE_NAME    = "flow_state.txt";   // 状态文件名（写在 datapath / savedata 下）
+var FLOW_STATE_VERSION = "1";
+
+// 窗口尺寸与节点盒尺寸（flow_draw.tjs 与 startup.tjs 会用到）
+var FLOW_WIN_W = 1000;
+var FLOW_WIN_H = 640;
+var FLOW_BOX_W = 96;
+var FLOW_BOX_H = 42;
+
+// 保底自动退出（秒）：即使无人看管，也会自行退出，不残留 GUI 进程
+var FLOW_AUTO_EXIT_SEC    = 180;
+// 启动后忽略输入的时长（秒）：窗口弹出瞬间可能正好落在鼠标下，
+// Windows 会把随后的那一次点击送给新窗口，故开头这段时间忽略一切输入
+var FLOW_IGNORE_INPUT_SEC = 8;
+
+// 数据表文件名（相对名；引擎从「当前项目目录」解析，松散/XP3 两种模式都成立）
+var FLOW_NODES_CSV = "flow_nodes.csv";
+var FLOW_EDGES_CSV = "flow_edges.csv";
+
+// 启动时刻（用于静默期与倒计时）
+var FLOW_START_TICK = 0;
+try { FLOW_START_TICK = System.getTickCount(); } catch(e) { }
+
+//----------------------------------------------------------------------
+// 1. 状态（全局）
+//----------------------------------------------------------------------
+var flowNodeTable   = [];    // Array of Dictionary（表顺序）
+var flowEdgeTable   = [];    // Array of Dictionary（表顺序）
+var flowNodeIndex   = %[];   // id -> node
+var flowEdgeIndex   = %[];   // id -> edge
+var flowOutEdges    = %[];   // id -> Array of edges
+var flowInEdges     = %[];   // id -> Array of edges
+var flowRoots       = [];    // 没有入边的节点 id
+
+var flowVisited     = %[];   // id -> true
+var flowTaken       = %[];   // edge id -> true
+var flowFlags       = %[];   // flag name -> true
+// TJS2 **不支持 for...in**（本机实测：`for(var k in d)` 与 `for(k in d)` 均报
+// 「语法有误 （syntax error）」，见 2026-09-17 主代理微测试），因此 flag 集合
+// 额外用一个「已置位名字数组」并行维护，供遍历使用。
+var flowFlagNames   = [];    // 已置位 flag 名（去重，顺序=置位顺序）
+var flowCurrent     = "";
+var flowLastMessage = "(尚未操作)";
+var flowWarnings    = [];
+
+var flowStoragePaths = [];   // 持久化候选名（按优先级）
+var flowLoadReport   = "(未加载)";
+var flowLoadPath     = "";
+var flowSaveReport   = "(未保存)";
+var flowSavePath     = "";
+var flowSaveOK       = false;
+var flowFirstRun     = false;
+
+//----------------------------------------------------------------------
+// 2. 小工具
+//----------------------------------------------------------------------
+function flowTrim(s)
+{
+	s = "" + s;
+	var a = 0, b = s.length;
+	while(a < b && (s.charAt(a) == " " || s.charAt(a) == "\t" || s.charAt(a) == "\r")) a++;
+	while(b > a && (s.charAt(b - 1) == " " || s.charAt(b - 1) == "\t" || s.charAt(b - 1) == "\r")) b--;
+	return s.substring(a, b);
+}
+
+function flowSlashToBack(s)
+{
+	try { return ("" + s).split("/").join("\\"); }
+	catch(e) { return "" + s; }
+}
+
+// 按逗号切分（本演示的数据表不使用引号字段）
+function flowSplitComma(line)
+{
+	try { return ("" + line).split(","); }
+	catch(e) { return []; }
+}
+
+// 安全取数组元素（越界返回空串）
+function flowField(arr, i)
+{
+	if(arr === void || arr === null) return "";
+	if(i < 0 || i >= arr.count) return "";
+	var v = arr[i];
+	if(v === void || v === null) return "";
+	return flowTrim(v);
+}
+
+// 强制转整数：不能用 "+0"（TJS2 的 '+' 遇字符串会拼接），改用 "*1"
+function flowInt(s)
+{
+	try
+	{
+		var n = ("" + s) * 1;
+		if(n !== n) return 0;             // NaN 自比较为假
+		return Math.floor(n);
+	}
+	catch(e) { return 0; }
+}
+
+function flowWarn(msg)
+{
+	flowWarnings.push(msg);
+	Debug.message("[FLOW][WARN] " + msg);
+}
+
+// 字典里是否存在某个键。TJS2 里「不存在的成员」可能给出 void 也可能是 null，
+// 两种都按「不存在」处理，避免把判断写死在某一种实现细节上。
+// 置位一个 flag（**唯一的写入入口**，保证 flowFlagNames 与 flowFlags 同步）
+function flowSetFlag(name)
+{
+	if(name === void || name === null || name == "") return;
+	if(flowFlags[name] === true) return;
+	flowFlags[name] = true;
+	flowFlagNames.push(name);
+}
+
+function flowExists(d, key)
+{
+	if(d === void || d === null) return false;
+	try
+	{
+		var v = d[key];
+		if(v === void || v === null) return false;
+		return true;
+	}
+	catch(e) { return false; }
+}
+
+// 取字符串尾部（用于把长路径压短后显示在界面上）
+function flowTail(s, n)
+{
+	s = "" + s;
+	if(s.length <= n) return s;
+	return "..." + s.substring(s.length - (n - 3));
+}
+
+function flowShortName(p)
+{
+	try { return flowTail(("" + p).split("file://./").join(""), 50); }
+	catch(e) { return flowTail("" + p, 50); }
+}
+
+//----------------------------------------------------------------------
+// 3. 时间相关（静默期 / 倒计时）
+//----------------------------------------------------------------------
+function flowElapsedSec()
+{
+	if(FLOW_START_TICK <= 0) return 0;
+	try { return Math.floor((System.getTickCount() - FLOW_START_TICK) / 1000); }
+	catch(e) { return 0; }
+}
+
+// 是否处于「忽略输入」的启动静默期
+function flowMuted()
+{
+	if(FLOW_IGNORE_INPUT_SEC <= 0) return false;
+	return flowElapsedSec() < FLOW_IGNORE_INPUT_SEC;
+}
+
+function flowSecondsLeft()
+{
+	var left = FLOW_AUTO_EXIT_SEC - flowElapsedSec();
+	if(left < 0) left = 0;
+	return left;
+}
+
+//----------------------------------------------------------------------
+// 4. 读取数据表
+//----------------------------------------------------------------------
+// 用 Array.load() 读文本表；相对名失败时再试一次 "./" 前缀写法。
+// 返回 Array of string（文件行）；读不到返回 null。
+function flowReadTextLines(name, tag)
+{
+	var cands = [name, "./" + name];
+	var lastErr = "";
+	for(var c = 0; c < cands.count; c++)
+	{
+		try
+		{
+			var a = new Array();
+			a.load(cands[c]);
+			Debug.message("[FLOW] " + tag + " : Array.load(\"" + cands[c] + "\") OK, file lines=" + a.count);
+			return a;
+		}
+		catch(e)
+		{
+			lastErr = cands[c] + " -> " + e.message;
+			Debug.message("[FLOW] " + tag + " : Array.load FAILED : " + lastErr);
+		}
+	}
+	flowWarn("读不到数据表 " + tag + "（" + FLOW_NODES_CSV + " / " + FLOW_EDGES_CSV
+		+ "，最后错误：" + lastErr + "）");
+	return null;
+}
+
+// 过滤空行 / '#' 注释行，按逗号切成字段数组
+function flowReadCsvRows(name, tag)
+{
+	var lines = flowReadTextLines(name, tag);
+	if(lines === null) return null;
+
+	var rows = [];
+	for(var i = 0; i < lines.count; i++)
+	{
+		var line = flowTrim("" + lines[i]);
+		if(line == "") continue;
+		if(line.charAt(0) == "#") continue;
+		rows.push(flowSplitComma(line));
+	}
+	Debug.message("[FLOW] " + tag + " : data rows = " + rows.count);
+	return rows;
+}
+
+function flowLoadNodes()
+{
+	var rows = flowReadCsvRows(FLOW_NODES_CSV, "nodes");
+	if(rows === null) return false;
+	flowNodeTable = [];
+	flowNodeIndex = %[];
+
+	for(var i = 0; i < rows.count; i++)
+	{
+		var f = rows[i];
+		if(f.count < 10)
+		{
+			flowWarn(FLOW_NODES_CSV + " 第 " + (i + 1) + " 数据行列数不足(" + f.count + ")，已跳过");
+			continue;
+		}
+		var id = flowField(f, 0);
+		if(id == "") { flowWarn(FLOW_NODES_CSV + " 有行为空 id，已跳过"); continue; }
+		// 防御：万一表头又被写成非注释行，这里直接跳过（表头 id 列就是字面量 id）
+		if(id == "id") { Debug.message("[FLOW] nodes : 跳过疑似表头行"); continue; }
+		if(flowExists(flowNodeIndex, id))
+		{
+			flowWarn("节点 id 重复:" + id + "，已跳过后者");
+			continue;
+		}
+		var node = %[
+			"id"      => id,
+			"title"   => flowField(f, 1),
+			"route"   => flowField(f, 2),
+			"level"   => flowInt(flowField(f, 3)),
+			"x"       => flowInt(flowField(f, 4)),      // 必须转数值，见文件头注释
+			"y"       => flowInt(flowField(f, 5)),
+			"story"   => flowField(f, 6),
+			"inFlag"  => flowField(f, 7),
+			"storage" => flowField(f, 8),
+			"label"   => flowField(f, 9)
+		];
+		if(node["title"] == "") flowWarn("节点 " + id + " 没有 title 字段");
+		flowNodeTable.push(node);
+		flowNodeIndex[id] = node;
+	}
+	return flowNodeTable.count > 0;
+}
+
+function flowLoadEdges()
+{
+	var rows = flowReadCsvRows(FLOW_EDGES_CSV, "edges");
+	if(rows === null) return false;
+	flowEdgeTable = [];
+	flowEdgeIndex = %[];
+
+	for(var i = 0; i < rows.count; i++)
+	{
+		var f = rows[i];
+		if(f.count < 7)
+		{
+			flowWarn(FLOW_EDGES_CSV + " 第 " + (i + 1) + " 数据行列数不足(" + f.count + ")，已跳过");
+			continue;
+		}
+		var eid = flowField(f, 0);
+		if(eid == "") { flowWarn(FLOW_EDGES_CSV + " 有行为空 id，已跳过"); continue; }
+		if(eid == "id" || flowField(f, 1) == "from") { Debug.message("[FLOW] edges : 跳过疑似表头行"); continue; }
+		if(flowExists(flowEdgeIndex, eid)) { flowWarn("边 id 重复:" + eid + "，已跳过后者"); continue; }
+		var e = %[
+			"id"      => eid,
+			"from"    => flowField(f, 1),
+			"to"      => flowField(f, 2),
+			"label"   => flowField(f, 3),
+			"reqFlag" => flowField(f, 4),
+			"setFlag" => flowField(f, 5),
+			"key"     => flowField(f, 6)
+		];
+		if(e["from"] == "" || e["to"] == "") { flowWarn("边 " + eid + " 有空字段，已跳过"); continue; }
+		if(!flowExists(flowNodeIndex, e["from"])) { flowWarn("边 " + eid + " 的 from 节点不存在:" + e["from"] + "，已跳过"); continue; }
+		if(!flowExists(flowNodeIndex, e["to"])) { flowWarn("边 " + eid + " 的 to 节点不存在:" + e["to"] + "，已跳过"); continue; }
+		flowEdgeTable.push(e);
+		flowEdgeIndex[eid] = e;
+	}
+	return flowEdgeTable.count > 0;
+}
+
+// 建索引：出边 / 入边 / 根节点
+function flowBuildIndex()
+{
+	flowOutEdges = %[];
+	flowInEdges  = %[];
+	flowRoots    = [];
+
+	for(var i = 0; i < flowNodeTable.count; i++)
+	{
+		var id = flowNodeTable[i]["id"];
+		flowOutEdges[id] = [];
+		flowInEdges[id]  = [];
+	}
+	for(var i = 0; i < flowEdgeTable.count; i++)
+	{
+		var e = flowEdgeTable[i];
+		flowOutEdges[e["from"]].push(e);
+		flowInEdges[e["to"]].push(e);
+	}
+	for(var i = 0; i < flowNodeTable.count; i++)
+	{
+		var id = flowNodeTable[i]["id"];
+		if(flowInEdges[id].count == 0) flowRoots.push(id);
+	}
+	Debug.message("[FLOW] graph built : nodes=" + flowNodeTable.count
+		+ " edges=" + flowEdgeTable.count
+		+ " roots=[" + flowRoots.join(",") + "]");
+}
+
+//----------------------------------------------------------------------
+// 5. 状态判定（解锁规则集中在这里）
+//----------------------------------------------------------------------
+function flowIsFlagSet(name)
+{
+	if(name == "") return true;                    // 空条件恒真
+	return flowFlags[name] === true;
+}
+
+// 边是否「成立」：源已到达 + 其 reqFlag 已置位
+function flowEdgeSatisfied(e)
+{
+	if(flowVisited[e["from"]] !== true) return false;
+	return flowIsFlagSet(e["reqFlag"]);
+}
+
+// 边在当前状态下是否可选（剧情视图里的分支是否可选）
+function flowEdgeAvailable(e)
+{
+	return flowIsFlagSet(e["reqFlag"]);
+}
+
+// 节点是否解锁：根节点恒解锁；否则入边中至少有一条成立
+function flowIsUnlocked(id)
+{
+	if(!flowExists(flowNodeIndex, id)) return false;
+	if(flowVisited[id] === true) return true;
+	if(!flowExists(flowInEdges, id)) return true;
+	var ins = flowInEdges[id];
+	if(ins === void || ins === null || ins.count == 0) return true;
+	for(var i = 0; i < ins.count; i++)
+	{
+		if(flowEdgeSatisfied(ins[i])) return true;
+	}
+	return false;
+}
+
+function flowIsVisited(id)
+{
+	return flowVisited[id] === true;
+}
+
+// 未解锁原因（给人看的说明；也写进日志，便于排错）
+function flowUnlockHint(id)
+{
+	if(!flowExists(flowNodeIndex, id)) return "节点不存在";
+	if(!flowExists(flowInEdges, id)) return "无条件";
+	var ins = flowInEdges[id];
+	if(ins === void || ins.count == 0) return "无条件";
+	var parts = [];
+	for(var i = 0; i < ins.count; i++)
+	{
+		var e = ins[i];
+		var t = "先到达 " + e["from"];
+		if(e["reqFlag"] != "") t += "（并满足标记 " + e["reqFlag"] + "）";
+		parts.push(t);
+	}
+	return parts.join(" 或 ");
+}
+
+// story 字段里 '|' 表示换行
+function flowStoryLines(storyField)
+{
+	try { return ("" + storyField).split("|"); }
+	catch(e) { return ["" + storyField]; }
+}
+
+//----------------------------------------------------------------------
+// 6. 状态迁移
+//----------------------------------------------------------------------
+// 已到达某节点：置 visited、执行 inFlag、更新当前节点、保存
+function flowReachNode(id, isJump)
+{
+	if(!flowExists(flowNodeIndex, id))
+	{
+		flowLastMessage = "到达失败：没有节点 " + id;
+		Debug.message("[FLOW] " + flowLastMessage);
+		return false;
+	}
+	var node = flowNodeIndex[id];
+
+	var wasVisited = (flowVisited[id] === true);
+	flowVisited[id] = true;
+	flowSetFlag(node["inFlag"]);
+	flowCurrent = id;
+
+	// 本次到达新解锁了哪些后继
+	var newly = [];
+	if(flowExists(flowOutEdges, id))
+	{
+		var outs = flowOutEdges[id];
+		for(var i = 0; i < outs.count; i++)
+		{
+			var t = outs[i]["to"];
+			if(flowIsUnlocked(t) && flowVisited[t] !== true) newly.push(t);
+		}
+	}
+
+	var head = isJump ? "【跳转】已跳转到 " : "【到达】";
+	flowLastMessage = head + id + " " + node["title"]
+		+ "　→　" + node["storage"] + " *" + node["label"];
+	if(newly.count > 0) flowLastMessage += "　解锁:" + newly.join(" ");
+
+	Debug.message("[FLOW] reach " + id + " (jump=" + (isJump ? "yes" : "no")
+		+ ", again=" + (wasVisited ? "yes" : "no") + ") : " + flowLastMessage
+		+ " | visited=" + flowVisitedCount() + "/" + flowNodeTable.count);
+
+	flowSaveState();
+	return true;
+}
+
+// 跳转（点击节点 / Enter）：未解锁则拒绝，指针不动。
+// 跳转同时「走掉」一条已成立的入边（置位其 setFlag、记为已走），
+// 这样点击式跳转与剧情式分支推进共用同一套 flag 语义：
+// 否则只靠点击永远置不上分支 flag，后半张图会永久灰着。
+function flowJumpTo(id)
+{
+	if(!flowExists(flowNodeIndex, id))
+	{
+		flowLastMessage = "【无效】跳转失败：没有节点 " + id;
+		Debug.message("[FLOW] " + flowLastMessage);
+		return false;
+	}
+	if(flowVisited[id] !== true && !flowIsUnlocked(id))
+	{
+		flowLastMessage = "【无效】" + id + " " + flowNodeIndex[id]["title"]
+			+ " 尚未解锁，点击无效（" + flowUnlockHint(id) + "）";
+		Debug.message("[FLOW] jump REJECTED : " + flowLastMessage);
+		return false;
+	}
+
+	var via = flowPickInEdge(id);
+	if(via !== null && flowTaken[via["id"]] !== true)
+	{
+		flowTaken[via["id"]] = true;
+		flowSetFlag(via["setFlag"]);
+		Debug.message("[FLOW] jump takes edge " + via["id"] + " ("
+			+ via["from"] + " -> " + via["to"] + ")"
+			+ ((via["setFlag"] != "") ? " setFlag=" + via["setFlag"] : ""));
+	}
+	return flowReachNode(id, true);
+}
+
+// 挑一条入边当作「本次跳转所走的路线」：优先已成立且未走过的
+function flowPickInEdge(id)
+{
+	if(!flowExists(flowInEdges, id)) return null;
+	var ins = flowInEdges[id];
+	if(ins === void || ins.count == 0) return null;
+	var fallback = null;
+	for(var i = 0; i < ins.count; i++)
+	{
+		var e = ins[i];
+		if(!flowEdgeSatisfied(e)) continue;
+		if(fallback === null) fallback = e;
+		if(flowTaken[e["id"]] !== true) return e;
+	}
+	return fallback;
+}
+
+// 走一条边：置 setFlag、记录已走、到达目标
+function flowTakeEdge(edgeId)
+{
+	if(!flowExists(flowEdgeIndex, edgeId)) { Debug.message("[FLOW] take edge FAILED, no edge " + edgeId); return false; }
+	var e = flowEdgeIndex[edgeId];
+	if(!flowEdgeAvailable(e))
+	{
+		flowLastMessage = "【无效】分支 " + edgeId + " 需要标记 " + e["reqFlag"] + "，当前不可选";
+		Debug.message("[FLOW] " + flowLastMessage);
+		return false;
+	}
+	flowTaken[edgeId] = true;
+	flowSetFlag(e["setFlag"]);
+	return flowReachNode(e["to"], false);
+}
+
+// 剧情视图里按数字键选分支
+function flowTakeEdgeByKey(ch)
+{
+	var outs = flowChoicesOf(flowCurrent);
+	for(var i = 0; i < outs.count; i++)
+	{
+		if(outs[i]["key"] == ch) return flowTakeEdge(outs[i]["id"]);
+	}
+	flowLastMessage = "【无效】当前节点 " + flowCurrent + " 没有按键 " + ch + " 对应的可选分支";
+	Debug.message("[FLOW] " + flowLastMessage);
+	return false;
+}
+
+function flowVisitedCount()
+{
+	var n = 0;
+	for(var i = 0; i < flowNodeTable.count; i++)
+		if(flowVisited[flowNodeTable[i]["id"]] === true) n++;
+	return n;
+}
+
+function flowTakenCount()
+{
+	var n = 0;
+	for(var i = 0; i < flowEdgeTable.count; i++)
+		if(flowTaken[flowEdgeTable[i]["id"]] === true) n++;
+	return n;
+}
+
+function flowFlagCount()
+{
+	var n = 0;
+	for(var i = 0; i < flowFlagNames.count; i++) if(flowFlags[flowFlagNames[i]] === true) n++;
+	return n;
+}
+
+function flowFlagNameList()
+{
+	var out = [];
+	for(var i = 0; i < flowFlagNames.count; i++)
+		if(flowFlags[flowFlagNames[i]] === true) out.push(flowFlagNames[i]);
+	try { return out.join(","); } catch(e) { return ""; }
+}
+
+function flowUnlockedCount()
+{
+	var n = 0;
+	for(var i = 0; i < flowNodeTable.count; i++)
+		if(flowIsUnlocked(flowNodeTable[i]["id"])) n++;
+	return n;
+}
+
+function flowStateSummary()
+{
+	var title = "(无)";
+	if(flowExists(flowNodeIndex, flowCurrent)) title = flowNodeIndex[flowCurrent]["title"];
+	return "已到达 " + flowVisitedCount() + "/" + flowNodeTable.count
+		+ " ｜ 已解锁 " + flowUnlockedCount() + "/" + flowNodeTable.count
+		+ " ｜ 已走分支 " + flowTakenCount() + "/" + flowEdgeTable.count
+		+ " ｜ 标记 " + flowFlagCount()
+		+ " ｜ 当前 " + flowCurrent + " " + title;
+}
+
+// 当前节点的可选分支（剧情视图用）
+function flowChoicesOf(id)
+{
+	var out = [];
+	if(!flowExists(flowOutEdges, id)) return out;
+	var outs = flowOutEdges[id];
+	if(outs === void) return out;
+	for(var i = 0; i < outs.count; i++)
+	{
+		if(flowEdgeAvailable(outs[i])) out.push(outs[i]);
+	}
+	return out;
+}
+
+// 界面底部用的一行诊断：状态文件在哪、读回有没有成功、保存有没有成功
+function flowDiagLine()
+{
+	var s = "状态文件: " + (flowSavePath != "" ? flowShortName(flowSavePath) : flowShortName(FLOW_STATE_NAME));
+	s += "　｜　本次启动: ";
+	if(flowFirstRun) s += "无状态文件(首次运行，已新建)";
+	else if(flowLoadPath != "") s += "已读回 " + flowShortName(flowLoadPath);
+	else s += "读取失败";
+	s += "　｜　最近保存: " + (flowSaveOK ? "成功" : "失败");
+	return s;
+}
+
+//----------------------------------------------------------------------
+// 7. 持久化
+//----------------------------------------------------------------------
+// 候选状态文件名（按优先级）：
+//   ① Debug.logLocation（= datapath/savedata，规范化后的绝对可写名）
+//   ② 由 ① 推出的盘符原生写法（冗余保底，引擎会再规范化回 ①）
+//   ③ 项目目录下的相对名（松散模式下可写；XP3 模式下引擎会拒绝，属预期内）
+function flowNativeFromStorage(dir)
+{
+	var pfx = "file://./";
+	if(dir.length <= pfx.length) return "";
+	if(dir.indexOf(pfx) != 0) return "";
+	var rest = dir.substring(pfx.length);            // "e/zcode workspace/.../savedata/"
+	if(rest.length < 2) return "";
+	var drive = rest.substring(0, 1).toUpperCase();
+	var tail  = flowSlashToBack(rest.substring(1));  // "\zcode workspace\...\savedata\"
+	return drive + ":" + tail;
+}
+
+function flowBuildStoragePaths()
+{
+	flowStoragePaths = [];
+	var dir = "";
+	try { dir = "" + Debug.logLocation; } catch(e) { dir = ""; }
+	Debug.message("[FLOW] Debug.logLocation = [" + dir + "]");
+
+	if(dir != "")
+	{
+		var last = dir.charAt(dir.length - 1);
+		if(last != "/" && last != "\\" && last != "#") dir += "/";
+		flowStoragePaths.push(dir + FLOW_STATE_NAME);
+		var native = flowNativeFromStorage(dir);
+		if(native != "" && native != dir) flowStoragePaths.push(native + FLOW_STATE_NAME);
+	}
+	else
+	{
+		flowWarn("Debug.logLocation 为空，状态文件只能试着写在项目目录");
+	}
+	flowStoragePaths.push(FLOW_STATE_NAME);
+
+	Debug.message("[FLOW] state storage candidates = " + flowStoragePaths.join("  |  "));
+}
+
+function flowStateLines()
+{
+	var vis = [];
+	for(var i = 0; i < flowNodeTable.count; i++)
+	{
+		var id = flowNodeTable[i]["id"];
+		if(flowVisited[id] === true) vis.push(id);
+	}
+	var tk = [];
+	for(var i = 0; i < flowEdgeTable.count; i++)
+	{
+		var id = flowEdgeTable[i]["id"];
+		if(flowTaken[id] === true) tk.push(id);
+	}
+	var fl = [];
+	for(var i = 0; i < flowFlagNames.count; i++)
+		if(flowFlags[flowFlagNames[i]] === true) fl.push(flowFlagNames[i] + "=1");
+
+	return [
+		"# flow_state v" + FLOW_STATE_VERSION + " : visited / taken / flags of the flowchart demo",
+		"# written by Array.save() (UTF-16LE+BOM); one record per line; read back by Array.load()",
+		"version=" + FLOW_STATE_VERSION,
+		"current=" + flowCurrent,
+		"visited=" + vis.join(","),
+		"taken=" + tk.join(","),
+		"flags=" + fl.join(","),
+		"count=" + vis.count + "/" + flowNodeTable.count
+	];
+}
+
+function flowSaveState()
+{
+	var lines = flowStateLines();
+	var ok = false, report = "", winner = "";
+
+	for(var i = 0; i < flowStoragePaths.count; i++)
+	{
+		var p = flowStoragePaths[i];
+		try
+		{
+			var a = new Array();
+			for(var k = 0; k < lines.count; k++) a.push(lines[k]);
+			a.save(p, "w");
+			ok = true; winner = p;
+			report += "[OK] " + p + "  ";
+			break;   // 第一个能写进去的就是正式位置，不再写第二份，避免两份状态互相矛盾
+		}
+		catch(e)
+		{
+			report += "[FAIL] " + p + " (" + e.message + ")  ";
+		}
+	}
+
+	flowSaveOK   = ok;
+	flowSavePath = winner;
+	flowSaveReport = report;
+	Debug.message("[FLOW] saveState -> " + (ok ? "OK" : "FAILED") + " : " + report);
+	return ok;
+}
+
+function flowApplyLines(a)
+{
+	var before = flowVisitedCount();
+
+	for(var i = 0; i < a.count; i++)
+	{
+		var line = flowTrim("" + a[i]);
+		if(line == "") continue;
+		if(line.charAt(0) == "#") continue;
+		var eq = line.indexOf("=");
+		if(eq < 0) continue;
+		var k = flowTrim(line.substring(0, eq));
+		var v = flowTrim(line.substring(eq + 1));
+
+		if(k == "version")
+		{
+			if(v != FLOW_STATE_VERSION)
+				flowWarn("状态文件版本 " + v + " != " + FLOW_STATE_VERSION + "，按当前版本尽力解析");
+		}
+		else if(k == "current")
+		{
+			flowCurrent = v;
+		}
+		else if(k == "visited")
+		{
+			var vids = (v == "") ? [] : v.split(",");
+			for(var j = 0; j < vids.count; j++)
+			{
+				var vid = flowTrim(vids[j]);
+				if(vid == "") continue;
+				if(!flowExists(flowNodeIndex, vid)) { flowWarn("状态文件里的节点 " + vid + " 不在表内，已忽略"); continue; }
+				flowVisited[vid] = true;
+			}
+		}
+		else if(k == "taken")
+		{
+			var tids = (v == "") ? [] : v.split(",");
+			for(var j = 0; j < tids.count; j++)
+			{
+				var tid = flowTrim(tids[j]);
+				if(tid == "") continue;
+				if(!flowExists(flowEdgeIndex, tid)) { flowWarn("状态文件里的边 " + tid + " 不在表内，已忽略"); continue; }
+				flowTaken[tid] = true;
+			}
+		}
+		else if(k == "flags")
+		{
+			var fs = (v == "") ? [] : v.split(",");
+			for(var j = 0; j < fs.count; j++)
+			{
+				var kv = flowTrim(fs[j]);
+				if(kv == "") continue;
+				var eq2 = kv.indexOf("=");
+				var name = (eq2 < 0) ? kv : flowTrim(kv.substring(0, eq2));
+				flowSetFlag(name);
+			}
+		}
+	}
+
+	// 兜底：当前节点必须是表内节点
+	if(flowCurrent == "" || !flowExists(flowNodeIndex, flowCurrent))
+	{
+		if(flowRoots.count > 0)
+		{
+			if(flowCurrent != "") flowWarn("状态文件的 current=" + flowCurrent + " 不在表内，改回根节点");
+			flowCurrent = flowRoots[0];
+		}
+	}
+	if(flowCurrent != "" && flowVisited[flowCurrent] !== true) flowVisited[flowCurrent] = true;
+
+	var curTitle = "";
+	if(flowExists(flowNodeIndex, flowCurrent)) curTitle = flowNodeIndex[flowCurrent]["title"];
+	flowLastMessage = "【恢复】读回进度：已到达 " + before + " → " + flowVisitedCount()
+		+ "，当前 " + flowCurrent + " " + curTitle;
+	Debug.message("[FLOW] " + flowLastMessage + "  flags=" + flowFlagNameList());
+}
+
+function flowLoadState()
+{
+	flowVisited = %[];
+	flowTaken   = %[];
+	flowFlags   = %[];
+	flowFlagNames = [];
+	flowCurrent = "";
+
+	for(var i = 0; i < flowStoragePaths.count; i++)
+	{
+		var p = flowStoragePaths[i];
+		try
+		{
+			var a = new Array();
+			a.load(p);
+			flowApplyLines(a);
+			flowLoadReport = "loaded from " + p + " (lines=" + a.count + ")";
+			flowLoadPath   = p;
+			Debug.message("[FLOW] loadState -> " + flowLoadReport);
+			return true;
+		}
+		catch(e)
+		{
+			Debug.message("[FLOW] loadState miss : " + p + " (" + e.message + ")");
+		}
+	}
+	flowLoadReport = "no state file (first run)";
+	flowLoadPath   = "";
+	Debug.message("[FLOW] loadState -> " + flowLoadReport);
+	return false;
+}
+
+// 清空进度（演示用：界面上按 C）
+function flowResetState()
+{
+	flowVisited = %[];
+	flowTaken   = %[];
+	flowFlags   = %[];
+	flowFlagNames = [];
+	flowCurrent = "";
+	if(flowRoots.count > 0)
+	{
+		var root = flowRoots[0];
+		flowVisited[root] = true;
+		flowCurrent = root;
+		var n = flowNodeIndex[root];
+		flowSetFlag(n["inFlag"]);
+	}
+	flowLastMessage = "【重置】进度已清空并重新保存到状态文件";
+	Debug.message("[FLOW] " + flowLastMessage);
+	flowSaveState();
+}
+
+//----------------------------------------------------------------------
+// 8. 汇总初始化
+//----------------------------------------------------------------------
+function flowInitAll()
+{
+	flowWarnings = [];
+	flowBuildStoragePaths();
+
+	var okN = false, okE = false;
+	try { okN = flowLoadNodes(); } catch(e) { flowWarn("flowLoadNodes 异常:" + e.message); }
+	try { okE = flowLoadEdges(); } catch(e) { flowWarn("flowLoadEdges 异常:" + e.message); }
+	if(!okN || !okE)
+	{
+		Debug.message("[FLOW] FATAL : node/edge table not loaded (nodes=" + okN + " edges=" + okE + ")");
+		return false;
+	}
+	flowBuildIndex();
+
+	if(flowLoadState())
+	{
+		flowFirstRun = false;      // 已有进度：沿用（解锁进度跨存档恢复）
+		// 读回后立即回写一次：① 让 flowSavePath 立刻有值，界面的持久化诊断行才有路径可显示；
+		// ② 顺带在启动阶段就验证一次「写权限」，写不进去的话第一次点击前就能在日志里发现。
+		flowSaveState();
+	}
+	else
+	{
+		flowFirstRun = true;       // 首次运行：从根节点开始，并立刻落盘
+		if(flowRoots.count > 0)
+		{
+			flowReachNode(flowRoots[0], false);   // 内部会保存状态文件
+			var n = flowNodeIndex[flowCurrent];
+			flowLastMessage = "【新游戏】起始节点 " + flowCurrent + " " + n["title"]
+				+ "（状态文件已创建）";
+			Debug.message("[FLOW] " + flowLastMessage);
+		}
+		else
+		{
+			flowLastMessage = "【异常】找不到根节点（没有任何无入边的节点）";
+			flowWarn(flowLastMessage);
+		}
+	}
+
+	Debug.message("[FLOW] init done : " + flowStateSummary()
+		+ " | warnings=" + flowWarnings.count
+		+ " | firstRun=" + flowFirstRun);
+	for(var i = 0; i < flowWarnings.count; i++)
+		Debug.message("[FLOW] warn[" + i + "] " + flowWarnings[i]);
+	return true;
+}

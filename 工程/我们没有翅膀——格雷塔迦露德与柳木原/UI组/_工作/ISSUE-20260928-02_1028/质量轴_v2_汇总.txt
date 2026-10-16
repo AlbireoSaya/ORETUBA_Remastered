@@ -1,0 +1,143 @@
+判据 v2 汇总（n=640）｜ 参考带内移 REF_SHIFT=10 列 ｜ 门：灰度 25 ＋ ramp_ch 25 ＋ 单侧分带中位 25
+
+== ① 逐通道 |ramp| / 单侧分带量 分布（复现 vision 教师值）==
+   ramp_ch  p50 36.19  p90 68.52  p99 96.01  max 105.02
+   ramp_ch >= 25 : 485 件   （vision 报 485 件；差 +0）★口径逐值复现
+   灰度 |ramp| >= 25 : 272 件（v1 报 272 / vision 272）
+   单侧分带中位 p50 40.19 p90 77.59 max 121.31 ｜ >=25: 552 件
+   分带最大（6带×3通道）p50 82.56 p90 128.38 max 208.08 ｜ >=25: 628 件
+   [核对 vision 点名件]
+     yy_19.png    灰度|ramp|=13.65（vision 13.65/6.0–6.2） ramp_ch=42.98（vision 43.0/50.2–50.5） 分带中位=40.19 分带最大=59.94 带内luma最大=27.48（vision 带内 −27.6）
+     kob68.png    灰度|ramp|=6.09（vision 13.65/6.0–6.2） ramp_ch=50.35（vision 43.0/50.2–50.5） 分带中位=46.59 分带最大=108.44 带内luma最大=83.14（vision 带内 −27.6）
+     kob68a.png   灰度|ramp|=6.18（vision 13.65/6.0–6.2） ramp_ch=50.48（vision 43.0/50.2–50.5） 分带中位=46.81 分带最大=108.61 带内luma最大=82.88（vision 带内 −27.6）
+     kob68b.png   灰度|ramp|=6.11（vision 13.65/6.0–6.2） ramp_ch=50.26（vision 43.0/50.2–50.5） 分带中位=47.13 分带最大=108.47 带内luma最大=83.14（vision 带内 −27.6）
+     kob68c.png   灰度|ramp|=6.01（vision 13.65/6.0–6.2） ramp_ch=50.24（vision 43.0/50.2–50.5） 分带中位=46.83 分带最大=108.41 带内luma最大=83.38（vision 带内 −27.6）
+   ★ banding 细节差异（**如实记录，未调参**）：派单写「6 带 × 3 通道取最大」，本机按字面实现
+     ⇒ kob68 族分带中位 = 46.6/46.8/47.1/46.8，而 vision 报 44.4–45.3（差 +2.2~2.6）。
+     换 5 带复算得 44.6/45.2/44.8/45.5（与 vision 值差 ≤0.3），且 vision 30 件色相缺陷在 5 带/6 带
+     下**均全部 >=25**（5 带最小 miy63=25.7；6 带最小 miy63=31.7）⇒ 两种 banding 对分桶无影响。
+     本机主口径保留**字面 6 带**，5 带值作为敏感性对照。
+
+== ② 内容参考带内移（shift 0..16）：对判据与 pass 残留的影响（只读 outpaint/tonematch）==
+  160/640
+  320/640
+  480/640
+  640/640
+n_outpaint=640 n_tonematch=349
+shift  | outpaint(640) 灰度/通道 >=15 />=25 | tonematch(349) 灰度/通道        
+   0   | p50 23.20 max  76.20 | >=15 509 >=25 272 | >=15 613 | p50  0.09 max   5.61 | >=15   0(0.0%) >=25   0 | >=15  23
+   2   | p50 23.35 max  75.90 | >=15 507 >=25 269 | >=15 614 | p50  0.42 max  13.70 | >=15   0(0.0%) >=25   0 | >=15  26
+   4   | p50 23.31 max  75.61 | >=15 504 >=25 269 | >=15 614 | p50  0.95 max  13.37 | >=15   0(0.0%) >=25   0 | >=15  30
+   6   | p50 23.11 max  75.84 | >=15 497 >=25 273 | >=15 614 | p50  1.40 max  20.68 | >=15   3(0.9%) >=25   0 | >=15  38
+   8   | p50 23.10 max  76.66 | >=15 495 >=25 270 | >=15 615 | p50  1.87 max  27.33 | >=15   4(1.1%) >=25   3 | >=15  41
+  10   | p50 22.98 max  77.55 | >=15 496 >=25 270 | >=15 616 | p50  2.29 max  32.95 | >=15   8(2.3%) >=25   3 | >=15  46
+  12   | p50 22.80 max  77.87 | >=15 503 >=25 274 | >=15 618 | p50  2.51 max  37.00 | >=15  13(3.7%) >=25   3 | >=15  56
+  16   | p50 22.88 max  77.60 | >=15 509 >=25 272 | >=15 622 | p50  3.48 max  44.35 | >=15  20(5.7%) >=25   6 | >=15  66
+shift= 0 tonematch 残留>=15: 0 件 -> 
+shift=10 tonematch 残留>=15: 8 件 -> cg_eri02a.png(32.9), cg_eri02.png(32.9), cg_eri02b.png(32.9), kob69.png(17.9), kob65c.png(16.5), kob65b.png(16.5), kob65a.png(16.4), kob65.png(16.4)
+   选定 REF_SHIFT=10 列的理由：
+     ① 与 vision 自己的复算带（251–259 列 = xl+10..xl+18）逐列一致，便于直接对照；
+     ② 数据：帧线族内容自带的装饰只占缝内前 1–3 列（sl 列 241=236.2 亮线、243=159.1 暗线，
+        244 起即帧体色 164）；内移 10 列后参考带完全落在**帧体色平台**上（[251,259) 均值 165.5
+        vs 平台 165.7 ⇒ 残留 0.2 级），既清掉装饰、又不进入内容深处；
+     ③ 敏感性：原样 640 件的灰度门几乎不动（>=25 由 272 → 270 件）——换的是更干净的尺子，不是换标准；
+        它的真正作用是**审计 pass 的自证**（pass 的锚点正是 [xl,xl+8)，用同一带自证等于恒真）。
+   [pass 残留] tonematch 349 件：内移前（shift 0）>=15 级 0 件；内移后（shift 10）>=15 级 8 件
+     ⇒ 内移把 pass 的盲区暴露出来：tonematch 后仍有 8 件相对**帧体色**残留 >=15 级
+     件名（按残留降序）: cg_eri02a.png(32.9), cg_eri02.png(32.9), cg_eri02b.png(32.9), kob69.png(17.9), kob65c.png(16.5), kob65b.png(16.5), kob65a.png(16.4), kob65.png(16.4)
+
+== ③ er 口径修正（原样 640 件）==
+   旧 er = gx[缝]/mean(gx[内容内侧])，分子**跨越缝**：它把「内容自带的相框亮线」当成 seam 缺陷。
+   er_fill = （缝外侧 40 列内、填充区内部的 1px 逐列均值梯度，分 6 带取最大）/ max(内容内侧平均梯度, 0.5)
+   旧 er                                     p50    0.67 p90    1.13 p99    2.73 max   32.82 ｜ >=4:   6 件 ｜ >=2:  13 件
+   er_fill 修正（分带）                           p50    0.78 p90    2.59 p99    7.87 max   31.54 ｜ >=4:  25 件 ｜ >=2: 102 件
+   er_fill 全高平均版（对照）                        p50    0.23 p90    0.66 p99    1.88 max   25.53 ｜ >=4:   3 件 ｜ >=2:   7 件
+   er_fill 分子绝对值（灰度级）                       p50    3.33 p90   13.10 p99   30.29 max  101.47 ｜ >=4: 292 件 ｜ >=2: 405 件
+   缝处跨缝单列阶跃（内容自带，单列不计入 er）                  p50    3.73 p90    6.13 p99   15.29 max   82.58 ｜ >=4: 290 件 ｜ >=2: 553 件
+   -- geo 3 件：修正前后 HARD 判定 --
+   sl_01.png  旧 er= 15.41 -> HARD     ｜ er_fill=0.067（分子 0.3 级）-> 非HARD    ｜ 缝处跨缝分带阶跃=107.1 级（内容自带相框亮线所致）
+   sl_02.png  旧 er= 16.29 -> HARD     ｜ er_fill=0.072（分子 0.3 级）-> 非HARD    ｜ 缝处跨缝分带阶跃=106.9 级（内容自带相框亮线所致）
+   sl_03.png  旧 er= 24.69 -> HARD     ｜ er_fill=0.109（分子 0.3 级）-> 非HARD    ｜ 缝处跨缝分带阶跃=106.8 级（内容自带相框亮线所致）
+   ⇒ **判据修正后 geo 通过**（3 件均不再判 HARD；er_fill 0.07/0.07/0.11，缝处那个 106–107 级台阶由内容自带相框亮线造成，任何把填充锚在帧体色的正确做法都消不掉，不属缺陷）
+
+== ④ 装配口径四桶（互斥；每件取 geo(帧线) > tonematch > outpaint 的最优产物后过门）==
+   放行        196 件   30.6%
+   需色相匹配      80 件   12.5%
+   精修        290 件   45.3%
+   重绘         74 件   11.6%
+   求和核对: 640（应 = 640）｜ 采用产物: geo=3 / outpaint=291 / tonematch=346
+
+== ⑤ 放行集合（可直接装配，无需人工）==
+   **196 件** ｜ vision 报 133 件（41 + 89 + 3）⇒ 差 +63 件（+47.4%）
+   来源: geo=3 / outpaint=28 / tonematch=165
+   [差异分解 —— 逐条查口径，未调参]
+     · vision 的 89 件：按 vision 口径（v1『色调匹配』桶 ∩ 结构触发集全 false）复算 = **89 件**（逐件吻合）
+     · vision 的 41 件：按同一口径（v1『可直接采用』∩ 三门全假）复算 = **34 件**（vision 报 41）；
+       vision 名单比复算多 7 件（cin090 cin091 kob15 nar23a nar23b nar23c yy_31），其**单侧分带中位
+       25.4–33.8 均已过 25 门** ⇒ vision 的名单与它自己提出的 OR 门不自洽；本机按门执行，这 7 件
+       不进放行集合（偏严方向，对结论无风险）。
+     · sr 族（81 件）：v1 判 12『可直接采用』/4『色调匹配』/65『精修』（ramp 18–25 落 v1 的 MID 线，
+       而 v1 色调桶只认 >=25）；v2 下**整族 81/81 件**进入放行集合——该族 mL4<0.55 / mRGB4<1.4，
+       无任何结构缺陷，唯一缺陷是色调漂移，而全族都有 outpaint_tonematch 产物（pass 后 ramp_ch p50 3.3、
+       单侧分带中位 p50 3.9）。vision 的 133 只把其中 16 件算进放行（41 名单的 12 张 sr 卡 + 89 里的 4 件）。
+       按 vision 自己补的装配规则（『只要 outpaint_tonematch 有对应件就用它、与分桶无关』），这 65 件本就该放行。
+     · 非 sr 件：本机放行 115 件 vs vision 口径非 sr 117 件 ⇒ 差 -2（我的门略严）。
+   ⇒ 结论：196 与 133 的差额 = **+65 件 sr 族（按 vision 装配规则本就该放行）+ -2 件非 sr**，
+     逐条可归因（81 sr 放行 − vision 记的 16 sr = +65）；不存在口径不一致导致的错误放行，
+     也不存在 vision 点名的缺陷件被漏放（下节逐件核对）。
+
+== ⑥ 与 vision 点名的 30 件色相缺陷逐件核对 ==
+   nar20b     v2 桶=需色相匹配    采用=outpaint   ramp= 17.3 ramp_ch= 45.0 分带中位= 51.0 ｜ 已挡住（不进放行集合）
+   nar20c     v2 桶=需色相匹配    采用=outpaint   ramp= 17.4 ramp_ch= 45.0 分带中位= 51.1 ｜ 已挡住（不进放行集合）
+   kob68      v2 桶=需色相匹配    采用=outpaint   ramp=  6.1 ramp_ch= 50.3 分带中位= 46.6 ｜ 已挡住（不进放行集合）
+   kob68a     v2 桶=需色相匹配    采用=outpaint   ramp=  6.2 ramp_ch= 50.5 分带中位= 46.8 ｜ 已挡住（不进放行集合）
+   kob68b     v2 桶=需色相匹配    采用=outpaint   ramp=  6.1 ramp_ch= 50.3 分带中位= 47.1 ｜ 已挡住（不进放行集合）
+   kob68c     v2 桶=需色相匹配    采用=outpaint   ramp=  6.0 ramp_ch= 50.2 分带中位= 46.8 ｜ 已挡住（不进放行集合）
+   cg_hiy05   v2 桶=需色相匹配    采用=outpaint   ramp= 17.9 ramp_ch= 46.4 分带中位= 47.9 ｜ 已挡住（不进放行集合）
+   yy_19      v2 桶=需色相匹配    采用=outpaint   ramp= 13.6 ramp_ch= 43.0 分带中位= 40.2 ｜ 已挡住（不进放行集合）
+   yy_18      v2 桶=需色相匹配    采用=outpaint   ramp= 14.2 ramp_ch= 41.5 分带中位= 41.2 ｜ 已挡住（不进放行集合）
+   cg_nar02   v2 桶=需色相匹配    采用=outpaint   ramp= 14.7 ramp_ch= 27.4 分带中位= 49.8 ｜ 已挡住（不进放行集合）
+   cg_nar02a  v2 桶=需色相匹配    采用=outpaint   ramp= 14.2 ramp_ch= 25.6 分带中位= 48.6 ｜ 已挡住（不进放行集合）
+   cg_nar02b  v2 桶=需色相匹配    采用=outpaint   ramp= 15.0 ramp_ch= 31.4 分带中位= 49.8 ｜ 已挡住（不进放行集合）
+   yy_11      v2 桶=需色相匹配    采用=outpaint   ramp=  5.8 ramp_ch= 37.7 分带中位= 39.8 ｜ 已挡住（不进放行集合）
+   yy_12      v2 桶=需色相匹配    采用=outpaint   ramp= 17.6 ramp_ch= 33.7 分带中位= 26.5 ｜ 已挡住（不进放行集合）
+   yy_16      v2 桶=需色相匹配    采用=outpaint   ramp=  6.6 ramp_ch= 27.5 分带中位= 28.6 ｜ 已挡住（不进放行集合）
+   cin092     v2 桶=需色相匹配    采用=outpaint   ramp=  8.3 ramp_ch= 34.0 分带中位= 38.8 ｜ 已挡住（不进放行集合）
+   cin093     v2 桶=需色相匹配    采用=outpaint   ramp=  8.3 ramp_ch= 32.9 分带中位= 37.9 ｜ 已挡住（不进放行集合）
+   miy62a     v2 桶=需色相匹配    采用=outpaint   ramp= 14.8 ramp_ch= 38.7 分带中位= 38.0 ｜ 已挡住（不进放行集合）
+   miy63      v2 桶=需色相匹配    采用=outpaint   ramp= 12.1 ramp_ch= 25.3 分带中位= 31.7 ｜ 已挡住（不进放行集合）
+   miy63a     v2 桶=需色相匹配    采用=outpaint   ramp= 12.7 ramp_ch= 25.8 分带中位= 32.2 ｜ 已挡住（不进放行集合）
+   miy63b     v2 桶=需色相匹配    采用=outpaint   ramp= 12.5 ramp_ch= 25.9 分带中位= 32.2 ｜ 已挡住（不进放行集合）
+   miy63c     v2 桶=需色相匹配    采用=outpaint   ramp= 12.7 ramp_ch= 25.9 分带中位= 31.8 ｜ 已挡住（不进放行集合）
+   cg_ai_01   v2 桶=需色相匹配    采用=outpaint   ramp=  9.3 ramp_ch= 24.3 分带中位= 39.8 ｜ 已挡住（不进放行集合）
+   cg_ai_03   v2 桶=需色相匹配    采用=outpaint   ramp=  2.1 ramp_ch= 29.2 分带中位= 37.5 ｜ 已挡住（不进放行集合）
+   cg_kob08   v2 桶=需色相匹配    采用=outpaint   ramp= 10.8 ramp_ch= 30.0 分带中位= 36.7 ｜ 已挡住（不进放行集合）
+   cg_kob08a  v2 桶=需色相匹配    采用=outpaint   ramp= 10.6 ramp_ch= 29.7 分带中位= 36.1 ｜ 已挡住（不进放行集合）
+   cg_kob08b  v2 桶=需色相匹配    采用=outpaint   ramp= 10.7 ramp_ch= 29.8 分带中位= 36.5 ｜ 已挡住（不进放行集合）
+   kob27      v2 桶=需色相匹配    采用=outpaint   ramp=  6.1 ramp_ch= 18.3 分带中位= 38.6 ｜ 已挡住（不进放行集合）
+   kob27a     v2 桶=需色相匹配    采用=outpaint   ramp=  5.8 ramp_ch= 17.8 分带中位= 38.0 ｜ 已挡住（不进放行集合）
+   kob27b     v2 桶=需色相匹配    采用=outpaint   ramp=  7.9 ramp_ch= 34.2 分带中位= 38.3 ｜ 已挡住（不进放行集合）
+   ⇒ 30 件中被挡住 30 / 30；漏判 0 件（无）
+
+== ⑦ 须补跑色调 pass 的件（仅被逐通道/分带门抓到、而现无 tonematch 产物）: 80 件 ==
+   ai_61.png, ai_61a.png, ai_61b.png, ai_61c.png, asu72.png, asu72a.png, asu72b.png, asu72c.png, cg_ai_01.png, cg_ai_02.png, cg_ai_03.png, cg_hiy02.png, cg_hiy05.png, cg_hiy05a.png, cg_kob04c.png, cg_kob08.png, cg_kob08a.png, cg_kob08b.png, cg_nar02.png, cg_nar02a.png, cg_nar02b.png, cg_nar05a.png, cg_nar05b.png, cin090.png, cin091.png, cin092.png, cin093.png, hiy19.png, hiy19a.png, hiy19b.png, hiy19c.png, kob10.png, kob11.png, kob11a.png, kob11b.png, kob15.png, kob22.png, kob22a.png, kob22b.png, kob22c.png, kob26.png, kob26a.png, kob26b.png, kob26c.png, kob27.png, kob27a.png, kob27b.png, kob68.png, kob68a.png, kob68b.png, kob68c.png, miy53a.png, miy62a.png, miy63.png, miy63a.png, miy63b.png, miy63c.png, nar17b.png, nar17c.png, nar20.png, nar20a.png, nar20b.png, nar20c.png, nar23a.png, nar23b.png, nar23c.png, nar65.png, nar65a.png, nar65b.png, ten54.png, ten56.png, yy_10a.png, yy_11.png, yy_12.png, yy_13.png, yy_15.png, yy_16.png, yy_18.png, yy_19.png, yy_31.png
+
+== ⑧ 与 v1 的差异 ==
+   精修 -> 精修                 117 件   例: 
+   色调匹配 -> 精修                95 件   例: ai_34.png, ai_35.png, ai_36.png, ai_36a.png, asu12.png, asu18a.png, asu18b.png, asu21.png
+   色调匹配 -> 放行                87 件   例: asu17.png, asu17a.png, asu17b.png, asu18.png, asu61.png, asu70.png, asu70a.png, asu70b.png
+   重绘扩展区 -> 精修               77 件   例: ai_33.png, ai_33a.png, ai_33b.png, ai_38.png, ai_39.png, aki61.png, aki61a.png, aki61b.png
+   精修 -> 放行                  70 件   例: kob09.png, kob09c.png, kob18c.png, kob23.png, kob23a.png, sr0_01.png, sr0_02.png, sr0_03.png
+   重绘扩展区 -> 重绘               64 件   例: ai_37.png, asu14.png, asu14a.png, asu14b.png, asu20.png, asu52.png, asu54.png, asu63.png
+   精修 -> 需色相匹配               43 件   例: ai_61.png, ai_61a.png, ai_61b.png, ai_61c.png, asu72.png, asu72a.png, asu72b.png, asu72c.png
+   可直接采用 -> 需色相匹配            37 件   例: cg_ai_01.png, cg_ai_03.png, cg_hiy05.png, cg_kob08.png, cg_kob08a.png, cg_kob08b.png, cg_nar02.png, cg_nar02a.png
+   可直接采用 -> 放行               33 件   例: ai_62.png, ai_62a.png, ai_62b.png, asu11.png, asu11a.png, cg_kob06.png, hiy13.png, hiy13a.png
+   精修 -> 重绘                   9 件   例: asu68.png, kob21.png, kob21a.png, kob21b.png, kob21c.png, nar62.png, nar62a.png, nar62b.png
+   重绘扩展区 -> 放行                3 件   例: ld_bg.png, ld_over.png, sv_over.png
+   几何延展 -> 放行                 3 件   例: sl_01.png, sl_02.png, sl_03.png
+   可直接采用 -> 精修                1 件   例: kob62.png
+   色调匹配 -> 重绘                 1 件   例: kob69.png
+
+须处置清单_v2: E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_1028\须处置清单_v2.tsv（640 行）
+须处置清单（同名主文件，内容同 v2）: E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_1028\须处置清单.tsv
+放行清单_v2:     E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_1028\放行清单_v2.tsv（196 行）

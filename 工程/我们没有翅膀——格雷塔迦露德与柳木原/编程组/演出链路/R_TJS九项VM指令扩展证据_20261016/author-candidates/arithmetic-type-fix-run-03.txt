@@ -1,0 +1,20 @@
+[
+  {
+    "file": "r_value_extra_arithmetic.tjs",
+    "count": 1,
+    "patches": [
+      {
+        "old": "    if (!(op instanceof Integer) || !(a instanceof Integer) || !(b instanceof Integer)) {",
+        "new": "    if (typeof op !== \"Integer\" || typeof a !== \"Integer\" || typeof b !== \"Integer\") {"
+      },
+      {
+        "old": "        throw new Error(\"RValueExtraArithmetic: op, a, b must be Integer\");",
+        "new": "        throw new global.Exception(\"RValueExtraArithmetic: op, a, b must be Integer\");"
+      },
+      {
+        "old": "    throw new Error(\"RValueExtraArithmetic: unsupported op \" + op);",
+        "new": "    throw new global.Exception(\"RValueExtraArithmetic: unsupported op \" + op);"
+      }
+    ]
+  }
+]

@@ -1,0 +1,12 @@
+function RVMExtraMem37(rd, wr, ctx, p)
+{
+    var sp = rd((ctx + 12) & 0xffffffff) & 0xffffffff;
+    var srcOff = rd(p & 0xffffffff) & 0xffffffff;
+    var src = (sp - srcOff) & 0xffffffff;
+    var destOff = rd((p + 4) & 0xffffffff) & 0xffffffff;
+    var dest = (sp - destOff) & 0xffffffff;
+    var value = rd(src) & 0xffffffff;
+    wr(dest, value);
+    var pc = rd((ctx + 8) & 0xffffffff) & 0xffffffff;
+    wr((ctx + 8) & 0xffffffff, (pc + 8) & 0xffffffff);
+}

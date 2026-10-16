@@ -1,0 +1,8 @@
+[
+  {
+    "file": "verify-legacy-vm-runtime.txt",
+    "count": 1,
+    "old": "assert digest==row['sha256'];provenance.append(",
+    "new": "assert digest==row['sha256'] or (row.get('sha256_lf') and hashlib.sha256(src.read_bytes().replace(b'\\r\\n', b'\\n')).hexdigest()==row['sha256_lf']);provenance.append("
+  }
+]

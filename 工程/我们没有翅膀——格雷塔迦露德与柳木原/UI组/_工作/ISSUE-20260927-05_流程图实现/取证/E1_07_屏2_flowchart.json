@@ -1,0 +1,2848 @@
+{
+  "id": "flowchart",
+  "title_cn": "剧情流程图",
+  "owner": "M34",
+  "note": "★ 本屏由 `工具\\gen_flow_layout.py`（ISSUE-20260927-05）**从真实剧情数据生成**，禁止手工摆版。\n· 数据源：`资源组\\08_全系列章节流程图.html` 的 `const DATA`（712 节点 / 760 边 / 6 段 19 道）＋ `资源组\\剧本\\spine.json`（side_stories 番外入口）。\n· 接口契约：`_工作\\ISSUE-20260927-05_流程图实现\\边与节点数据契约.md`（v1.1）——节点 296×65（素材 <296 宽者用 nine 横向拉伸）；文字 19px / **行距 1.0** / 文字盒 240（居中 x_node+28）/ 最多 2 行 / wrap；连线为**顶层键 `links`**（不走 elements 管道），`pts` 为生成器算好的正交折线，两端只描线 + 画箭头。\n· §一 列出的既有静态元素（视口 / 迷你地图 / 缩放平移滚条 / 页签 / 标题牌 / 关闭 / 付箋 / 回放 / 进入本章）**原样透传**，id 与几何一字未改；被替换的只有旧图内容层 `fc.n_section*`/`fc.n_select*`/`fc.n_extra*`/`fc.label*`/`fc.branch`/`fc.newmark`（旧 `fc.mini1..8` 保留原样）。\n· ★ 收尾轮裁决（2026-09-27）：`fc.sep`（旧样板的固定坐标章分隔线）**不再透传**（它横穿新布局第二行节点）；章分隔线应由生成器在**段边界**处产出，本屏样例只有一段 ⇒ 不产。\n· ★ 文字（修正轮 V2 裁决）：字号 **19px**、**行距 1.0**（元素级 `line_spacing`，覆盖全局基线 1.4）、文字盒 **240 宽**（`x = x_node + 28` 水平居中）、`valign:「middle」` 垂直居中、最多 2 行、wrap。\n· ★ 竖向判据的由来（**不是元素高 65**）：三类底图的**可见实体面**（逐行平均 alpha>200）只有 **rows 8..55 ＝ 48px**（select 8..56 ＝ 49px）；上一轮按元素高判竖向容量 ⇒ 23px 两行的墨迹跨度 58px 越出实体面、实机第一行「切头」（vision 实测上溢 7–8px）。⇒ 判据改为**对准实体面**：\n    A 首行上留 = 首行墨迹顶 − 实体面上沿 ≥ **5px**；B 末行下留 = 实体面下沿 − 末行墨迹底 ≥ **5px**；C 任一行横向墨迹 ≤ **263px**（可见实体面宽实测 ≈282 ⇒ 左右各留 ≥9px）；D 712/712 **零截断**。\n    **712 条实测最小值：上留 5px / 下留 5px / 最宽行 255px / 截断 0**（`--text-fit-report` 可复跑）。19px 是这四条判据下的**字号上限**（两行需 `2×lineH ≤ 39 ⇒ lineH ≤ 19`，而 `lineH ≥ size`）。\n    ⚠ 上一轮「按元素高 65 判」的结论（含 f=23 那组参数）在新判据下全部作废。\n· ★ 连线色（修正轮）：`@palette.edge_normal` = **#266080**（深蓝，参照作 noroute/query 色 ⇒ 0xFF266080；用户 2026-09-27 裁决——原冰蓝 #65B1D4 与 select 节底色 #5FABD2 的 ΔE76 仅 3.2、几乎同色）；`pts` 为整数像素（§三 末）。\n· ★ 本屏所有**产出元素**整体落在图表视口内（x∈[60,1295]、y∈[190,1017]）：番外入口列整列摆在视口一侧，道带在剩余宽度里居中（§九 裁决 5）。\n· ★ 具名预设（无参 = `screen1` = **本交付样例**；禁手工摆版）：\n    `python 工具\\gen_flow_layout.py`（= `--preset screen1`）→ 屏1；`--preset screen2` → 含 frag 的屏2；`--preset ref150` = **参照作口径变体、不是交付样例**（跑它会把本屏换成变体）。\n    （三个预设的规模与 md5 金标见 `工具\\gen_flow_layout.py` 文件头的预设表与 `--help`。）\n· ★ 入口列落点次序（可判读）：① 按 `entry_suggestion` 关键词锚到**已落盘节点**所在行；② 该行已被上一组占用 ⇒ **下移整数个行距**直到空行；③ 下移后「标记+标签」放不下视口 ⇒ **回落**到入口列自上而下的第一个空行；④ 标签默认在标记**下方**，下方放不下则转**上方**。（`entry_after` 全为 null、无原作证据 ⇒ 落点属占位。）\n· ★ 已知排版现象（**不是缺陷**）：19px 下每行可容 **12 字**（228px）⇒ **11–12 字标题变单行**；孤字只出现在 **≥13 字**标题上（13 字 = 247px，需靠禁则并字成 1 行，或折成 12+1）。\n· 素材与材质沿用 M34 的《交汇协奏曲》PSB 复刻件（`ui/x_ui_*.png`），无雪花要素（用户 2026-09-21 裁定）。\n· **番外入口标记为占位件**（`x_ui_fusen_off.png` 充当，真 FC-4 图标未生成）；节点运行态（未解锁 / 已读 / 可前往 / 当前 / 悬停）**尚未定义**，本轮只用既有 `state_assets` 三态图，不编造。\n· ★ 本文件由**预设 screen2** 产出（交付样例·屏2（含 frag 番外节点；section 4 / select 5 / frag 9；本段数据无跨道边 ⇒ 只有直线））；参数：段[3] 道 [1, 2] from [0, 0] limit 9 step_y 95 vert_x 375 entry_side=left。改回交付样例＝跑一次无参 `python 工具\\gen_flow_layout.py`。",
+  "elements": [
+    {
+      "id": "fc.dim",
+      "kind": "rect",
+      "z": 1,
+      "visible_default": true,
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "color": "@palette.backdrop",
+      "opacity": 60,
+      "note": "全屏压暗遮罩"
+    },
+    {
+      "id": "fc.mtab1",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_ui_ftab_on.png",
+      "x": 34,
+      "y": 33,
+      "w": 179,
+      "h": 44,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "模式页签 1「序章」（PSB `modetabs/1` x34 y33 w179 h44）（素材 103×44 ≠ 设计 179×44 → nine {'l': 25, 't': 11, 'r': 25, 'b': 11}）",
+      "nine": {
+        "l": 25,
+        "t": 11,
+        "r": 25,
+        "b": 11
+      }
+    },
+    {
+      "id": "fc.mtab1_tx",
+      "kind": "text",
+      "z": 20,
+      "visible_default": true,
+      "x": 34,
+      "y": 33,
+      "w": 179,
+      "h": 44,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "序章",
+      "note": "页签名（引擎绘制）"
+    },
+    {
+      "id": "fc.mtab1_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 34,
+      "y": 33,
+      "w": 179,
+      "h": 44,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "页签热区"
+    },
+    {
+      "id": "fc.mtab2",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_ui_ftab_off.png",
+      "x": 304,
+      "y": 33,
+      "w": 157,
+      "h": 44,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "模式页签 2「本篇」（PSB `modetabs/2` x304 y33 w157 h44）（素材 79×34 ≠ 设计 157×44 → nine {'l': 19, 't': 8, 'r': 19, 'b': 8}）",
+      "nine": {
+        "l": 19,
+        "t": 8,
+        "r": 19,
+        "b": 8
+      }
+    },
+    {
+      "id": "fc.mtab2_tx",
+      "kind": "text",
+      "z": 20,
+      "visible_default": true,
+      "x": 304,
+      "y": 33,
+      "w": 157,
+      "h": 44,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "本篇",
+      "note": "页签名（引擎绘制）"
+    },
+    {
+      "id": "fc.mtab2_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 304,
+      "y": 33,
+      "w": 157,
+      "h": 44,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "页签热区"
+    },
+    {
+      "id": "fc.mtab3",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_ui_ftab_off.png",
+      "x": 559,
+      "y": 33,
+      "w": 236,
+      "h": 44,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "模式页签 3「After Story」（PSB `modetabs/3` x559 y33 w236 h44）（素材 79×34 ≠ 设计 236×44 → nine {'l': 19, 't': 8, 'r': 19, 'b': 8}）",
+      "nine": {
+        "l": 19,
+        "t": 8,
+        "r": 19,
+        "b": 8
+      }
+    },
+    {
+      "id": "fc.mtab3_tx",
+      "kind": "text",
+      "z": 20,
+      "visible_default": true,
+      "x": 559,
+      "y": 33,
+      "w": 236,
+      "h": 44,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "After Story",
+      "note": "页签名（引擎绘制）"
+    },
+    {
+      "id": "fc.mtab3_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 559,
+      "y": 33,
+      "w": 236,
+      "h": 44,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "页签热区"
+    },
+    {
+      "id": "fc.mtab4",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_ui_ftab_off.png",
+      "x": 859,
+      "y": 33,
+      "w": 193,
+      "h": 44,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "模式页签 4「Fragment」（PSB `modetabs/1` x859 y33 w193 h44）（素材 79×34 ≠ 设计 193×44 → nine {'l': 19, 't': 8, 'r': 19, 'b': 8}）",
+      "nine": {
+        "l": 19,
+        "t": 8,
+        "r": 19,
+        "b": 8
+      }
+    },
+    {
+      "id": "fc.mtab4_tx",
+      "kind": "text",
+      "z": 20,
+      "visible_default": true,
+      "x": 859,
+      "y": 33,
+      "w": 193,
+      "h": 44,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "Fragment",
+      "note": "页签名（引擎绘制）"
+    },
+    {
+      "id": "fc.mtab4_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 859,
+      "y": 33,
+      "w": 193,
+      "h": 44,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "页签热区"
+    },
+    {
+      "id": "fc.titleplate",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_ui_dress_top.png",
+      "x": 58,
+      "y": 93,
+      "w": 385,
+      "h": 68,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "标题牌（PSB `フローチャート/Flowchart` x58 y93 w385 h68）（素材 1946×122 ≠ 设计 385×68 → nine {'l': 0, 't': 0, 'r': 0, 'b': 0}）",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      }
+    },
+    {
+      "id": "fc.title",
+      "kind": "text",
+      "z": 11,
+      "visible_default": true,
+      "x": 58,
+      "y": 93,
+      "w": 385,
+      "h": 68,
+      "font": {
+        "size": 27,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "剧情流程图",
+      "note": "屏标题（引擎绘制）"
+    },
+    {
+      "id": "fc.scroll",
+      "kind": "rect",
+      "z": 5,
+      "visible_default": true,
+      "x": 60,
+      "y": 190,
+      "w": 1235,
+      "h": 827,
+      "color": "@palette.panel_edge",
+      "opacity": 40,
+      "note": "流程图滚动视口底（PSB `#rects/scroll` x60 y190 w1235 h827；程序化 rect）"
+    },
+    {
+      "id": "fc.p_title",
+      "kind": "rect",
+      "z": 6,
+      "visible_default": true,
+      "x": 1416,
+      "y": 214,
+      "w": 443,
+      "h": 73,
+      "color": "@palette.panel_edge",
+      "opacity": 35,
+      "note": "右栏「标题」视口底（PSB `#rects/title` x1416 y214 w443 h73；程序化 rect）"
+    },
+    {
+      "id": "fc.p_title_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 1428,
+      "y": 224,
+      "w": 419,
+      "h": 40,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "left",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "标题",
+      "note": "「标题」标签（引擎绘制）"
+    },
+    {
+      "id": "fc.p_text",
+      "kind": "rect",
+      "z": 6,
+      "visible_default": true,
+      "x": 1425,
+      "y": 309,
+      "w": 422,
+      "h": 171,
+      "color": "@palette.panel_edge",
+      "opacity": 35,
+      "note": "右栏「说明」视口底（PSB `#rects/text` x1425 y309 w422 h171；程序化 rect）"
+    },
+    {
+      "id": "fc.p_text_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 1437,
+      "y": 319,
+      "w": 398,
+      "h": 40,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "left",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "说明",
+      "note": "「说明」标签（引擎绘制）"
+    },
+    {
+      "id": "fc.p_player",
+      "kind": "rect",
+      "z": 6,
+      "visible_default": false,
+      "x": 1423,
+      "y": 495,
+      "w": 424,
+      "h": 237,
+      "color": "@palette.panel_edge",
+      "opacity": 35,
+      "note": "右栏「场景回放」视口底（PSB `#rects/player` x1423 y495 w424 h237；程序化 rect）　★ M34 互斥态分组：与 minimap 重叠，默认隐藏。"
+    },
+    {
+      "id": "fc.p_player_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": false,
+      "x": 1435,
+      "y": 505,
+      "w": 400,
+      "h": 40,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "left",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "场景回放",
+      "note": "「场景回放」标签（引擎绘制）　★ M34 互斥态分组：与 minimap 重叠，默认隐藏。"
+    },
+    {
+      "id": "fc.p_message",
+      "kind": "rect",
+      "z": 6,
+      "visible_default": true,
+      "x": 1425,
+      "y": 750,
+      "w": 422,
+      "h": 171,
+      "color": "@palette.panel_edge",
+      "opacity": 35,
+      "note": "右栏「台词」视口底（PSB `#rects/message` x1425 y750 w422 h171；程序化 rect）"
+    },
+    {
+      "id": "fc.p_message_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 1437,
+      "y": 760,
+      "w": 398,
+      "h": 40,
+      "font": {
+        "size": 24,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "left",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "台词",
+      "note": "「台词」标签（引擎绘制）"
+    },
+    {
+      "id": "fc.smallmap",
+      "kind": "rect",
+      "z": 5,
+      "visible_default": true,
+      "x": 1416,
+      "y": 190,
+      "w": 443,
+      "h": 829,
+      "color": "@palette.panel_edge",
+      "opacity": 40,
+      "note": "缩略总览（minimap）底（PSB `#rects/smallmap` x1416 y190 w443 h829）"
+    },
+    {
+      "id": "fc.mini1",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1450,
+      "y": 240,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mini2",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1650,
+      "y": 240,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mini3",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1450,
+      "y": 390,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mini4",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1650,
+      "y": 390,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mini5",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1450,
+      "y": 540,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mini6",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1650,
+      "y": 540,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mini7",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1450,
+      "y": 690,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mini8",
+      "kind": "rect",
+      "z": 20,
+      "visible_default": true,
+      "x": 1650,
+      "y": 690,
+      "w": 150,
+      "h": 70,
+      "color": "@palette.node_available",
+      "opacity": 180,
+      "note": "缩略图节点块（程序化 rect）"
+    },
+    {
+      "id": "fc.mapview",
+      "kind": "rect",
+      "z": 21,
+      "visible_default": true,
+      "x": 1440,
+      "y": 225,
+      "w": 380,
+      "h": 300,
+      "color": "@palette.accent",
+      "opacity": 60,
+      "note": "缩略图可视区框（程序化 rect）"
+    },
+    {
+      "id": "fc.scr_up",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_up.png",
+      "x": 1321,
+      "y": 190,
+      "w": 31,
+      "h": 31,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "滚动上（PSB `ボタン/上` x1321 y190 w31 h31）（素材 29×31 ≠ 设计 31×31 → nine {'l': 7, 't': 7, 'r': 7, 'b': 7}）",
+      "nine": {
+        "l": 7,
+        "t": 7,
+        "r": 7,
+        "b": 7
+      }
+    },
+    {
+      "id": "fc.scr_knob",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_scroll_knob.png",
+      "x": 1321,
+      "y": 556,
+      "w": 31,
+      "h": 73,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "滚动滑块（PSB `ボタン/滑块` x1321 y556 w31 h73）（素材 18×71 ≠ 设计 31×73 → nine {'l': 4, 't': 17, 'r': 4, 'b': 17}）",
+      "nine": {
+        "l": 4,
+        "t": 17,
+        "r": 4,
+        "b": 17
+      }
+    },
+    {
+      "id": "fc.scr_dn",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_down.png",
+      "x": 1321,
+      "y": 987,
+      "w": 31,
+      "h": 30,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "滚动下（PSB `ボタン/下` x1321 y987 w31 h30）（素材 29×31 ≠ 设计 31×30 → nine {'l': 7, 't': 7, 'r': 7, 'b': 7}）",
+      "nine": {
+        "l": 7,
+        "t": 7,
+        "r": 7,
+        "b": 7
+      }
+    },
+    {
+      "id": "fc.scr_rail",
+      "kind": "rect",
+      "z": 19,
+      "visible_default": true,
+      "x": 1321,
+      "y": 221,
+      "w": 31,
+      "h": 766,
+      "color": "@palette.letterbox",
+      "opacity": 140,
+      "note": "滚动条轨（PSB `フローチャート/スクロールバー` 31×767）"
+    },
+    {
+      "id": "fc.zoom_rail",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_zoom_rail.png",
+      "x": 1047,
+      "y": 112,
+      "w": 270,
+      "h": 31,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "缩放条轨（PSB `zoom/rail` x1047 y112 w270 h31）（素材 123×31 ≠ 设计 270×31 → nine {'l': 30, 't': 7, 'r': 30, 'b': 7}）",
+      "nine": {
+        "l": 30,
+        "t": 7,
+        "r": 30,
+        "b": 7
+      }
+    },
+    {
+      "id": "fc.zoom_knob",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_zoom_knob.png",
+      "x": 1174,
+      "y": 112,
+      "w": 40,
+      "h": 31,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "缩放条滑块（PSB `zoom/slider` x1174 y112 w40 h31）（素材 29×16 ≠ 设计 40×31 → nine {'l': 7, 't': 4, 'r': 7, 'b': 4}）",
+      "nine": {
+        "l": 7,
+        "t": 4,
+        "r": 7,
+        "b": 4
+      }
+    },
+    {
+      "id": "fc.zoom_minus",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_left.png",
+      "x": 1006,
+      "y": 123,
+      "w": 29,
+      "h": 8,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "缩放「－」（PSB `zoom/オフ/－` x1006 y123 w29 h8）（素材 29×31 ≠ 设计 29×8 → nine {'l': 0, 't': 0, 'r': 0, 'b': 0}）",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      }
+    },
+    {
+      "id": "fc.zoom_plus",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_right.png",
+      "x": 1321,
+      "y": 112,
+      "w": 29,
+      "h": 29,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "缩放「＋」（PSB `zoom/オフ/＋` x1321 y112 w29 h29）（素材 29×31 ≠ 设计 29×29 → nine {'l': 0, 't': 0, 'r': 0, 'b': 0}）",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      }
+    },
+    {
+      "id": "fc.shift_rail",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_shift_rail.png",
+      "x": 130,
+      "y": 1018,
+      "w": 1094,
+      "h": 25,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "平移条轨（PSB `shift/rail` x130 y1018 w1094 h25）（素材 80×25 ≠ 设计 1094×25 → nine {'l': 20, 't': 6, 'r': 20, 'b': 6}）",
+      "nine": {
+        "l": 20,
+        "t": 6,
+        "r": 20,
+        "b": 6
+      }
+    },
+    {
+      "id": "fc.shift_knob",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_shift_knob.png",
+      "x": 466,
+      "y": 1018,
+      "w": 73,
+      "h": 25,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "平移条滑块（PSB `shift/slider` x466 y1018 w73 h25）（素材 16×25 ≠ 设计 73×25 → nine {'l': 4, 't': 6, 'r': 4, 'b': 6}）",
+      "nine": {
+        "l": 4,
+        "t": 6,
+        "r": 4,
+        "b": 6
+      }
+    },
+    {
+      "id": "fc.shift_lf",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_left.png",
+      "x": 100,
+      "y": 1018,
+      "w": 31,
+      "h": 25,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "平移「左」（PSB `shift/ボタン/オフ/左` x100 y1018 w31 h25）（素材 29×31 ≠ 设计 31×25 → nine {'l': 7, 't': 7, 'r': 7, 'b': 7}）",
+      "nine": {
+        "l": 7,
+        "t": 7,
+        "r": 7,
+        "b": 7
+      }
+    },
+    {
+      "id": "fc.shift_rg",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_arrow_right.png",
+      "x": 1224,
+      "y": 1018,
+      "w": 30,
+      "h": 25,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "平移「右」（PSB `shift/ボタン/オフ/右` x1224 y1018 w30 h25）（素材 29×31 ≠ 设计 30×25 → nine {'l': 7, 't': 7, 'r': 7, 'b': 7}）",
+      "nine": {
+        "l": 7,
+        "t": 7,
+        "r": 7,
+        "b": 7
+      }
+    },
+    {
+      "id": "fc.jump",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_jumpfc_off.png",
+      "x": 1474,
+      "y": 943,
+      "w": 328,
+      "h": 61,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "「读取剧情」键（PSB `ボタン/オフ/シナリオを読み込む` x1474 y943 w328 h61）（素材 157×61 ≠ 设计 328×61 → nine {'l': 39, 't': 15, 'r': 39, 'b': 15}）★ M43（2026-09-23，用户裁定）：本键现承担「进入本章」（动作 `flow_enter`，热区见 fc.jump_hit、文案见 fc.jump_tx）。",
+      "nine": {
+        "l": 39,
+        "t": 15,
+        "r": 39,
+        "b": 15
+      }
+    },
+    {
+      "id": "fc.jump_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 1474,
+      "y": 943,
+      "w": 328,
+      "h": 61,
+      "font": {
+        "size": 27,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "进入本章",
+      "note": "按钮文字（引擎绘制）★ M43（2026-09-23，用户裁定）：文案由「读取剧情」改为「进入本章」。原 PSB 标签是 `ボタン/オフ/シナリオを読み込む`（= 读取剧情）；`chapter` 屏删除后，「进入剧情」的能力由本键承担，故按用户裁定改名。动作名 = `flow_enter`（见 fc.jump_hit）。"
+    },
+    {
+      "id": "fc.jump_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 1474,
+      "y": 943,
+      "w": 328,
+      "h": 61,
+      "action": "flow_enter",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "「进入本章」热区（PSB 原按钮 `ボタン/#rect` 的 1:1 复刻位）。★ M43（2026-09-23，用户裁定）：接上新动作 `flow_enter` —— 取当前光标节点 UIFlowCursor：未解锁 → 只提示解锁条件、不进剧情；已解锁 → 标记该节点已读 + 置当前节点 + 存状态，然后重置对话框并进入 dialog 屏（与原 `chapter` 屏的 `chapter_enter` 同口径，该屏已删除）。两端实现：krkr `ui_flow.tjs::uiFlowEnterCurrent()` ／ HTML `replica.js::flowEnter()`。"
+    },
+    {
+      "id": "fc.fusen_edit",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 499,
+      "y": 99,
+      "w": 145,
+      "h": 48,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "「编辑备注」键（PSB `fusen/オフ/编辑备注` x499 y99 w145 h48）（素材 86×48 ≠ 设计 145×48 → nine {'l': 21, 't': 12, 'r': 21, 'b': 12}）",
+      "nine": {
+        "l": 21,
+        "t": 12,
+        "r": 21,
+        "b": 12
+      }
+    },
+    {
+      "id": "fc.fusen_edit_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 499,
+      "y": 99,
+      "w": 145,
+      "h": 48,
+      "font": {
+        "size": 20,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "编辑备注",
+      "note": "按钮文字（引擎绘制）"
+    },
+    {
+      "id": "fc.fusen_edit_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 499,
+      "y": 99,
+      "w": 145,
+      "h": 48,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "「编辑备注」热区"
+    },
+    {
+      "id": "fc.fusen_reset",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 679,
+      "y": 99,
+      "w": 145,
+      "h": 48,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "「备注初始化」键（PSB `fusen/オフ/备注初始化` x679 y99 w145 h48）（素材 86×48 ≠ 设计 145×48 → nine {'l': 21, 't': 12, 'r': 21, 'b': 12}）",
+      "nine": {
+        "l": 21,
+        "t": 12,
+        "r": 21,
+        "b": 12
+      }
+    },
+    {
+      "id": "fc.fusen_reset_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 679,
+      "y": 99,
+      "w": 145,
+      "h": 48,
+      "font": {
+        "size": 20,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "备注初始化",
+      "note": "按钮文字（引擎绘制）"
+    },
+    {
+      "id": "fc.fusen_reset_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 679,
+      "y": 99,
+      "w": 145,
+      "h": 48,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "「备注初始化」热区"
+    },
+    {
+      "id": "fc.pbkick",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_branch_l.png",
+      "x": 1576,
+      "y": 555,
+      "w": 119,
+      "h": 119,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "场景回放键（PSB `pbkick/@pbkick:n:off` x1576 y555 w119 h119）（素材 118×119 ≠ 设计 119×119 → nine {'l': 29, 't': 29, 'r': 29, 'b': 29}）",
+      "nine": {
+        "l": 29,
+        "t": 29,
+        "r": 29,
+        "b": 29
+      }
+    },
+    {
+      "id": "fc.pbkick_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 1573,
+      "y": 552,
+      "w": 125,
+      "h": 125,
+      "action": "",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "场景回放热区"
+    },
+    {
+      "id": "fc.close",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_close_off.png",
+      "x": 1843,
+      "y": 177,
+      "w": 26,
+      "h": 26,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "关闭键（PSB `close/off` x1843 y177 w26 h26）（素材 24×26 ≠ 设计 26×26 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `fc.close_hit` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「flowchart.close」联动。",
+      "nine": {
+        "l": 6,
+        "t": 6,
+        "r": 6,
+        "b": 6
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_close_off.png",
+        "hover": "ui/x_ui_close_over.png",
+        "pressed": "ui/x_ui_close_on.png"
+      },
+      "state_group": "flowchart.close"
+    },
+    {
+      "id": "fc.close_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 1830,
+      "y": 159,
+      "w": 56,
+      "h": 56,
+      "action": "close",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "关闭热区（PSB `close/#rect`） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `fc.close` 绘制，两者 state_group「flowchart.close」联动。",
+      "state_group": "flowchart.close"
+    },
+    {
+      "id": "fc.sysbar",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_sysbar.png",
+      "x": 1227,
+      "y": 32,
+      "w": 648,
+      "h": 41,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "系统共通条（PSB `システム共通` x1227 y32 w648 h41）（素材 1946×292 ≠ 设计 648×41 → nine {'l': 0, 't': 0, 'r': 0, 'b': 0}）",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      }
+    },
+    {
+      "id": "fc.node.0001",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_section_off.png",
+      "x": 516,
+      "y": 190,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 16,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_section_off.png",
+        "hover": "ui/x_ui_node_section_on.png",
+        "pressed": "ui/x_ui_node_section_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=section）· script=24_1a · DATA.sections[3].lanes[1] nodes[0] · spine=act 10 After Story·主线· 素材 x_ui_node_section_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0001_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 190,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "引言：假统合的崩溃",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0001_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 190,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_1a · DATA.sections[3].lanes[1] nodes[0] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0002",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_select_off.png",
+      "x": 516,
+      "y": 285,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 13,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_select_off.png",
+        "hover": "ui/x_ui_node_select_on.png",
+        "pressed": "ui/x_ui_node_select_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=select）· script=24_1b · DATA.sections[3].lanes[1] nodes[1] · spine=act 10 After Story·主线· 素材 x_ui_node_select_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0002_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 285,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "晨间遭遇：小鸠",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0002_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 285,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_1b · DATA.sections[3].lanes[1] nodes[1] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0003",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_section_off.png",
+      "x": 516,
+      "y": 380,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 16,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_section_off.png",
+        "hover": "ui/x_ui_node_section_on.png",
+        "pressed": "ui/x_ui_node_section_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=section）· script=24_2a · DATA.sections[3].lanes[1] nodes[2] · spine=act 10 After Story·主线· 素材 x_ui_node_section_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0003_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 380,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "间奏：从自宅到学校",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0003_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 380,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_2a · DATA.sections[3].lanes[1] nodes[2] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0004",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_select_off.png",
+      "x": 516,
+      "y": 475,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 13,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_select_off.png",
+        "hover": "ui/x_ui_node_select_on.png",
+        "pressed": "ui/x_ui_node_select_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=select）· script=24_2b · DATA.sections[3].lanes[1] nodes[3] · spine=act 10 After Story·主线· 素材 x_ui_node_select_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0004_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 475,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "午间遭遇：明日香",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0004_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 475,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_2b · DATA.sections[3].lanes[1] nodes[3] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0005",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_select_off.png",
+      "x": 516,
+      "y": 570,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 13,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_select_off.png",
+        "hover": "ui/x_ui_node_select_on.png",
+        "pressed": "ui/x_ui_node_select_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=select）· script=24_2c · DATA.sections[3].lanes[1] nodes[4] · spine=act 10 After Story·主线· 素材 x_ui_node_select_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0005_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 570,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "午间遭遇：京",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0005_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 570,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_2c · DATA.sections[3].lanes[1] nodes[4] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0006",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_select_off.png",
+      "x": 516,
+      "y": 665,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 13,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_select_off.png",
+        "hover": "ui/x_ui_node_select_on.png",
+        "pressed": "ui/x_ui_node_select_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=select）· script=24_2d · DATA.sections[3].lanes[1] nodes[5] · spine=act 10 After Story·主线· 素材 x_ui_node_select_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0006_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 665,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "午间遭遇：高内",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0006_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 665,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_2d · DATA.sections[3].lanes[1] nodes[5] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0007",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_section_off.png",
+      "x": 516,
+      "y": 760,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 16,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_section_off.png",
+        "hover": "ui/x_ui_node_section_on.png",
+        "pressed": "ui/x_ui_node_section_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=section）· script=24_2e · DATA.sections[3].lanes[1] nodes[6] · spine=act 10 After Story·主线· 素材 x_ui_node_section_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0007_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 760,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "午间遭遇：美咲",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0007_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 760,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_2e · DATA.sections[3].lanes[1] nodes[6] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0008",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_section_off.png",
+      "x": 516,
+      "y": 855,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 16,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_section_off.png",
+        "hover": "ui/x_ui_node_section_on.png",
+        "pressed": "ui/x_ui_node_section_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=section）· script=24_3a · DATA.sections[3].lanes[1] nodes[7] · spine=act 10 After Story·主线· 素材 x_ui_node_section_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0008_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 855,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "间奏：从学校到打工",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0008_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 855,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_3a · DATA.sections[3].lanes[1] nodes[7] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0009",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_select_off.png",
+      "x": 516,
+      "y": 950,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 13,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_select_off.png",
+        "hover": "ui/x_ui_node_select_on.png",
+        "pressed": "ui/x_ui_node_select_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=select）· script=24_3b · DATA.sections[3].lanes[1] nodes[8] · spine=act 10 After Story·主线· 素材 x_ui_node_select_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0009_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 544,
+      "y": 950,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "傍晚遭遇：日和子",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0009_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 516,
+      "y": 950,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=24_3b · DATA.sections[3].lanes[1] nodes[8] · spine=act 10 After Story·主线· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0010",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 190,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=51_1 · DATA.sections[3].lanes[2] nodes[0] · spine=side_stories（番外·おれつば剧场）· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0010_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 190,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "没翅剧场～女人们的决战～",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0010_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 190,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=51_1 · DATA.sections[3].lanes[2] nodes[0] · spine=side_stories（番外·おれつば剧场）· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0011",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 285,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=22_1a · DATA.sections[3].lanes[2] nodes[1] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0011_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 285,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "如今我们的胸部再度开始",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0011_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 285,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=22_1a · DATA.sections[3].lanes[2] nodes[1] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0012",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 380,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=22_2a · DATA.sections[3].lanes[2] nodes[2] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0012_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 380,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "回归招牌女孩",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0012_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 380,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=22_2a · DATA.sections[3].lanes[2] nodes[2] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0013",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 475,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=22_2b · DATA.sections[3].lanes[2] nodes[3] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0013_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 475,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "超级·上等·帮手",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0013_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 475,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=22_2b · DATA.sections[3].lanes[2] nodes[3] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0014",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 570,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=22_2c · DATA.sections[3].lanes[2] nodes[4] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0014_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 570,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "忙碌女编辑的烦恼",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0014_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 570,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=22_2c · DATA.sections[3].lanes[2] nodes[4] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0015",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 665,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=22_2d · DATA.sections[3].lanes[2] nodes[5] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0015_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 665,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "恐怖！怪人黑内裤大猩猩的逆袭",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0015_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 665,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=22_2d · DATA.sections[3].lanes[2] nodes[5] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0016",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 760,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=22_2e · DATA.sections[3].lanes[2] nodes[6] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0016_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 760,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "不平安的平安夜",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0016_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 760,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=22_2e · DATA.sections[3].lanes[2] nodes[6] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0017",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 855,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=22_2f · DATA.sections[3].lanes[2] nodes[7] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0017_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 855,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "我们的奶子啊直到永远",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0017_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 855,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=22_2f · DATA.sections[3].lanes[2] nodes[7] · spine=side_stories（番外·阿雷克桑德平安夜（おっぱい系列））· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.node.0018",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_node_frag_off.png",
+      "x": 892,
+      "y": 950,
+      "w": 296,
+      "h": 65,
+      "opacity": 255,
+      "nine": {
+        "l": 14,
+        "t": 0,
+        "r": 15,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_node_frag_off.png",
+        "hover": "ui/x_ui_node_frag_on.png",
+        "pressed": "ui/x_ui_node_frag_on.png"
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "流程图节点（kind=frag）· script=23_1a · DATA.sections[3].lanes[2] nodes[8] · spine=side_stories（番外·苍女X日）· 素材 x_ui_node_frag_off.png（源尺寸≠296 ⇒ nine 横向拉伸，契约 §二.2）· state_assets 三态图；**不带 state_group**（本屏无配对待联动的热区，能过闸门的最简写法，见报告）"
+    },
+    {
+      "id": "fc.node.0018_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 920,
+      "y": 950,
+      "w": 240,
+      "h": 65,
+      "font": {
+        "size": 19,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "line_spacing": 1.0,
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 2,
+      "sample": "４天前：今日的苍女",
+      "note": "节点标签（引擎绘制，不烘焙进图）· 文案 = DATA.nodes[].cn（jp 不上屏） · 字号 19 / **行距 1.0**（元素级 `line_spacing`，两端都读：krkr uiThemeElementSpacing / HTML lineSpacing()）/ 文字盒宽 240（居中于 296 宽节点：x_node+28）/ 最多 2 行 / wrap （四判据：上留≥5px、下留≥5px＝对准**可见实体面** rows (8, 55)、行墨迹≤263px、712/712 零截断）"
+    },
+    {
+      "id": "fc.node.0018_hit",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 892,
+      "y": 950,
+      "w": 296,
+      "h": 65,
+      "action": "",
+      "label": "",
+      "note": "节点热区· script=23_1a · DATA.sections[3].lanes[2] nodes[8] · spine=side_stories（番外·苍女X日）· action 本轮**留空**（点节点＝标记已读 + 定位属编程组，契约 §二）"
+    },
+    {
+      "id": "fc.entry.0001",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 183,
+      "y": 190,
+      "w": 86,
+      "h": 48,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "占位件（非最终美术）：M34 PSB 复刻付箋件 x_ui_fusen_off.png（86×48，实测 alpha bbox 4,7,82,40）；真「番外入口」图标见 26 件生图任务书 FC-4，尚未生成",
+      "note": "番外入口标记（**占位，非最终美术**）· 组=番外·阿雷克桑德平安夜（おっぱい系列）（7 章）· entry_suggestion=「AS 主线之后；或 21 与 24 之间可选触发（建议，无原作证据）」· 锚点 21_ 未在本屏落盘（或该行已被占用且下移后放不下）⇒ **回落**入口列次行（本屏 --section 3 未选该锚点所在段/道）；entry_after 全为 null（无原作证据）"
+    },
+    {
+      "id": "fc.label.0001",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_label_off.png",
+      "x": 60,
+      "y": 242,
+      "w": 333,
+      "h": 38,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "关联标签底板（番外组名）· 置于入口标记下方 52px"
+    },
+    {
+      "id": "fc.label.0001_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 60,
+      "y": 242,
+      "w": 333,
+      "h": 38,
+      "font": {
+        "size": 16,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 1,
+      "sample": "番外·阿雷克桑德平安夜（おっぱい系列）",
+      "note": "关联标签文字（引擎绘制）· 文案 = spine.json side_stories[].group"
+    },
+    {
+      "id": "fc.entry.0002",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 183,
+      "y": 285,
+      "w": 86,
+      "h": 48,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "占位件（非最终美术）：M34 PSB 复刻付箋件 x_ui_fusen_off.png（86×48，实测 alpha bbox 4,7,82,40）；真「番外入口」图标见 26 件生图任务书 FC-4，尚未生成",
+      "note": "番外入口标记（**占位，非最终美术**）· 组=番外·苍女X日（7 章）· entry_suggestion=「AS 主线之后；或 21 与 24 之间可选触发（建议，无原作证据）」· 锚点 21_ 未在本屏落盘（或该行已被占用且下移后放不下）⇒ **回落**入口列次行（本屏 --section 3 未选该锚点所在段/道）；entry_after 全为 null（无原作证据）"
+    },
+    {
+      "id": "fc.label.0002",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_label_off.png",
+      "x": 60,
+      "y": 337,
+      "w": 333,
+      "h": 38,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "关联标签底板（番外组名）· 置于入口标记下方 52px"
+    },
+    {
+      "id": "fc.label.0002_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 60,
+      "y": 337,
+      "w": 333,
+      "h": 38,
+      "font": {
+        "size": 16,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 1,
+      "sample": "番外·苍女X日",
+      "note": "关联标签文字（引擎绘制）· 文案 = spine.json side_stories[].group"
+    },
+    {
+      "id": "fc.entry.0003",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 183,
+      "y": 380,
+      "w": 86,
+      "h": 48,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "占位件（非最终美术）：M34 PSB 复刻付箋件 x_ui_fusen_off.png（86×48，实测 alpha bbox 4,7,82,40）；真「番外入口」图标见 26 件生图任务书 FC-4，尚未生成",
+      "note": "番外入口标记（**占位，非最终美术**）· 组=番外·各线 after（4 章）· entry_suggestion=「各对应角色线之后 / AS 主线之后（建议，无原作证据）」· 锚点 24_ 未在本屏落盘（或该行已被占用且下移后放不下）⇒ **回落**入口列次行（本屏 --section 3 未选该锚点所在段/道）；entry_after 全为 null（无原作证据）"
+    },
+    {
+      "id": "fc.label.0003",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_label_off.png",
+      "x": 60,
+      "y": 432,
+      "w": 333,
+      "h": 38,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "关联标签底板（番外组名）· 置于入口标记下方 52px"
+    },
+    {
+      "id": "fc.label.0003_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 60,
+      "y": 432,
+      "w": 333,
+      "h": 38,
+      "font": {
+        "size": 16,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 1,
+      "sample": "番外·各线 after",
+      "note": "关联标签文字（引擎绘制）· 文案 = spine.json side_stories[].group"
+    },
+    {
+      "id": "fc.entry.0004",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 183,
+      "y": 475,
+      "w": 86,
+      "h": 48,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "占位件（非最终美术）：M34 PSB 复刻付箋件 x_ui_fusen_off.png（86×48，实测 alpha bbox 4,7,82,40）；真「番外入口」图标见 26 件生图任务书 FC-4，尚未生成",
+      "note": "番外入口标记（**占位，非最终美术**）· 组=番外·群像（新年行军 / 格兰玛尼耶）（10 章）· entry_suggestion=「AS 主线之后（年末–新年时点，建议，无原作证据）」· 锚点 24_ 未在本屏落盘（或该行已被占用且下移后放不下）⇒ **回落**入口列次行（本屏 --section 3 未选该锚点所在段/道）；entry_after 全为 null（无原作证据）"
+    },
+    {
+      "id": "fc.label.0004",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_label_off.png",
+      "x": 60,
+      "y": 527,
+      "w": 333,
+      "h": 38,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "关联标签底板（番外组名）· 置于入口标记下方 52px"
+    },
+    {
+      "id": "fc.label.0004_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 60,
+      "y": 527,
+      "w": 333,
+      "h": 38,
+      "font": {
+        "size": 16,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 1,
+      "sample": "番外·群像（新年行军 / 格兰玛尼耶）",
+      "note": "关联标签文字（引擎绘制）· 文案 = spine.json side_stories[].group"
+    },
+    {
+      "id": "fc.entry.0005",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 183,
+      "y": 570,
+      "w": 86,
+      "h": 48,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "占位件（非最终美术）：M34 PSB 复刻付箋件 x_ui_fusen_off.png（86×48，实测 alpha bbox 4,7,82,40）；真「番外入口」图标见 26 件生图任务书 FC-4，尚未生成",
+      "note": "番外入口标记（**占位，非最终美术**）· 组=番外·おれつば剧场（5 章）· entry_suggestion=「任意时点可选（剧场式短篇，建议，无原作证据）」· 锚点 50_ 未在本屏落盘（或该行已被占用且下移后放不下）⇒ **回落**入口列次行（本屏 --section 3 未选该锚点所在段/道）；entry_after 全为 null（无原作证据）"
+    },
+    {
+      "id": "fc.label.0005",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_label_off.png",
+      "x": 60,
+      "y": 622,
+      "w": 333,
+      "h": 38,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "关联标签底板（番外组名）· 置于入口标记下方 52px"
+    },
+    {
+      "id": "fc.label.0005_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 60,
+      "y": 622,
+      "w": 333,
+      "h": 38,
+      "font": {
+        "size": 16,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 1,
+      "sample": "番外·おれつば剧场",
+      "note": "关联标签文字（引擎绘制）· 文案 = spine.json side_stories[].group"
+    },
+    {
+      "id": "fc.entry.0006",
+      "kind": "image",
+      "z": 21,
+      "visible_default": true,
+      "asset": "ui/x_ui_fusen_off.png",
+      "x": 183,
+      "y": 665,
+      "w": 86,
+      "h": 48,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "占位件（非最终美术）：M34 PSB 复刻付箋件 x_ui_fusen_off.png（86×48，实测 alpha bbox 4,7,82,40）；真「番外入口」图标见 26 件生图任务书 FC-4，尚未生成",
+      "note": "番外入口标记（**占位，非最终美术**）· 组=番外·おまけ（成人向）（20 章）· entry_suggestion=「任意时点可选（おまけ/成人向短篇，建议，无原作证据）」· 锚点 61_ 未在本屏落盘（或该行已被占用且下移后放不下）⇒ **回落**入口列次行（本屏 --section 3 未选该锚点所在段/道）；entry_after 全为 null（无原作证据）"
+    },
+    {
+      "id": "fc.label.0006",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_label_off.png",
+      "x": 60,
+      "y": 717,
+      "w": 333,
+      "h": 38,
+      "opacity": 255,
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器（M34 复刻件，实测尺寸与 nine 见契约 §二.2）",
+      "note": "关联标签底板（番外组名）· 置于入口标记下方 52px"
+    },
+    {
+      "id": "fc.label.0006_tx",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 60,
+      "y": 717,
+      "w": 333,
+      "h": 38,
+      "font": {
+        "size": 16,
+        "bold": true,
+        "color": "@palette.psv_ink"
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": true,
+      "max_lines": 1,
+      "sample": "番外·おまけ（成人向）",
+      "note": "关联标签文字（引擎绘制）· 文案 = spine.json side_stories[].group"
+    }
+  ],
+  "links": [
+    {
+      "id": "fc.link.0001",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          255
+        ],
+        [
+          664,
+          285
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0002",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          350
+        ],
+        [
+          664,
+          380
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0003",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          445
+        ],
+        [
+          664,
+          475
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0004",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          540
+        ],
+        [
+          664,
+          570
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0005",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          635
+        ],
+        [
+          664,
+          665
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0006",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          730
+        ],
+        [
+          664,
+          760
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0007",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          825
+        ],
+        [
+          664,
+          855
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0008",
+      "kind": "normal",
+      "pts": [
+        [
+          664,
+          920
+        ],
+        [
+          664,
+          950
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0009",
+      "kind": "normal",
+      "pts": [
+        [
+          1040,
+          350
+        ],
+        [
+          1040,
+          380
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0010",
+      "kind": "normal",
+      "pts": [
+        [
+          1040,
+          445
+        ],
+        [
+          1040,
+          475
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0011",
+      "kind": "normal",
+      "pts": [
+        [
+          1040,
+          540
+        ],
+        [
+          1040,
+          570
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0012",
+      "kind": "normal",
+      "pts": [
+        [
+          1040,
+          635
+        ],
+        [
+          1040,
+          665
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0013",
+      "kind": "normal",
+      "pts": [
+        [
+          1040,
+          730
+        ],
+        [
+          1040,
+          760
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    },
+    {
+      "id": "fc.link.0014",
+      "kind": "normal",
+      "pts": [
+        [
+          1040,
+          825
+        ],
+        [
+          1040,
+          855
+        ]
+      ],
+      "w": 4,
+      "color": 4280705152,
+      "arrow": true
+    }
+  ]
+}

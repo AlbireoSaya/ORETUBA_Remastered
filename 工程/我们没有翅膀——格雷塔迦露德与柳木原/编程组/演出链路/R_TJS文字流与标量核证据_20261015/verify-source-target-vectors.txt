@@ -1,0 +1,23 @@
+from pathlib import Path
+from types import SimpleNamespace
+import sys,json,hashlib,collections
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-target-byteflow-20261015';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具')]
+from r_tjs_ir_payload import load_payload
+from r_tjs_ir_parts import island_vectors
+from r_tjs_case_lines import literal_line
+ir=r/'子代理工作区/ISSUE-20261011-02/r-tob-lossless-ir-02';meta=json.loads((ir/'manifest.json').read_text(encoding='utf8'));assert meta['structural_only']is True and len(meta['files'])==418
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir();rows=[];batch=[];stops=collections.Counter();cases=source_bytes=island_bytes=payload_bytes=units=0;sources=[]
+def flush():
+ if not batch:return
+ name=f'batch-{len(rows)+1:04d}.tjs';p=out/name;p.write_text('\n'.join(batch)+'\n',encoding='utf8');rows.append({'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'cases':len(batch),'bytes':p.stat().st_size});batch.clear()
+for entry in meta['files']:
+ raw,obj=load_payload(ir,SimpleNamespace(**entry));source_bytes+=len(raw);sources.append({'source':entry['path'],'source_SHA256':entry['source_sha256'],'ir_SHA256':entry['ir_sha256']})
+ for row in island_vectors(raw,obj['parts']):
+  res=row['result'];batch.append(literal_line(row['data'],row['base'],res));cases+=1;island_bytes+=len(row['data']);payload_bytes+=len(res['payload']);units+=len(res['units']);stops[res['stop']]+=1
+  if len(batch)==128:flush()
+flush();assert(cases,island_bytes,payload_bytes,units)==(59367,4118728,3904210,1952105);assert dict(stops)=={'limit':57959,'marker':990,'nul':418},stops
+summary={'schema':'r-tjs-literal-vector-manifest/1','source_files':418,'source_bytes':source_bytes,'cases':cases,'island_bytes':island_bytes,'payload_bytes':payload_bytes,'units':units,'stops':dict(stops),'batches':len(rows),'fixture_bytes':sum(x['bytes']for x in rows),'scope':'only first literal run of each IR island; command/inline expression body/scheduling/visual/audio not executed','files':rows,'sources':sources}
+(out/'manifest.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf8');(out/'generation-summary.json').write_text(json.dumps({k:v for k,v in summary.items()if k not in('files','sources')},indent=2),encoding='utf8')
+for group in range(4):
+ selected=rows[group::4];spec={'expected':sum(x['cases']for x in selected),'files':selected};(out/f'source-data-group-{group}.json').write_text(json.dumps(spec,ensure_ascii=False,indent=2),encoding='utf8')
+print(json.dumps({k:v for k,v in summary.items()if k not in('files','sources')}))

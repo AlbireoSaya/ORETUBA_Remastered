@@ -1,0 +1,68 @@
+{
+  "compiler": "C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe",
+  "compiler_sha256": "bf26bfa321f45db027fdde1084d058e3f6f280d18da2bf1abb319dbc55bf453b",
+  "flags": [
+    "/nologo",
+    "/utf8output",
+    "/platform:x86",
+    "/target:exe"
+  ],
+  "TEMP_TMP": "临时/original-host-20261011/compile-01",
+  "executables_not_in_git": [
+    {
+      "name": "RestrictedWriteProbe.exe",
+      "size": 8192,
+      "sha256": "16370bff83b0f1c497811b1055b1b553b44429b1ba2f0aa6dcbf107d021f5956",
+      "machine": "x86 0x14c"
+    },
+    {
+      "name": "RestrictedFileChild.exe",
+      "size": 6656,
+      "sha256": "a55943c0906a5a4759be3ad00f79ddd3cce08efad5fb18ce10adaa2a856eec29",
+      "machine": "x86 0x14c"
+    },
+    {
+      "name": "RestrictedFileParent.exe",
+      "size": 9216,
+      "sha256": "065c02cf9984e294bf407d1594eeaa5c3c484f2410cedd50494176226efbed0a",
+      "machine": "x86 0x14c"
+    },
+    {
+      "name": "RestrictedFileParent.Detached.exe",
+      "size": 9216,
+      "sha256": "b71a845489b17a30f85d144012a834d32f359cd7ba8c5c085221d8c635ca76c9",
+      "machine": "x86 0x14c"
+    }
+  ],
+  "scope": "self-generated file-access fixtures, not game/DLL host",
+  "references": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-createrestrictedtoken",
+    "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessasuserw",
+    "https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags",
+    "https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55"
+  ],
+  "host_os": {
+    "caption": "Microsoft Windows 11 专业版",
+    "version": "10.0.22621",
+    "build": "22621"
+  },
+  "formal_compile_result": "all four source compilations exit 0; formal Thread execution subsequently denied and exe absent",
+  "formal_sources": [
+    {
+      "path": "工程\\我们没有翅膀——格雷塔迦露德与柳木原\\编程组\\工具\\windows_write_guard_probe\\RestrictedFileChild.cs",
+      "sha256": "0d84a5c0caff5ede55de230fb4f5988857557781e7f86d07ee0dd396c9025ebf"
+    },
+    {
+      "path": "工程\\我们没有翅膀——格雷塔迦露德与柳木原\\编程组\\工具\\windows_write_guard_probe\\RestrictedFileParent.Detached.cs",
+      "sha256": "68ed665f8e87a46525e00dc9b2999832f015dc24b6917cae2b741fadf0de7841"
+    },
+    {
+      "path": "工程\\我们没有翅膀——格雷塔迦露德与柳木原\\编程组\\工具\\windows_write_guard_probe\\RestrictedFileParent.NoWindow.cs",
+      "sha256": "94eb27351add22c501b5b59a01ba8c9d3f57488102400ee8d891dac34b48904b"
+    },
+    {
+      "path": "工程\\我们没有翅膀——格雷塔迦露德与柳木原\\编程组\\工具\\windows_write_guard_probe\\RestrictedThreadProbe.cs",
+      "sha256": "74685c65c9e2c74288614ae2d2eed2f9f23d11c5f2ae1faa570c7c3d0ab126a2"
+    }
+  ]
+}

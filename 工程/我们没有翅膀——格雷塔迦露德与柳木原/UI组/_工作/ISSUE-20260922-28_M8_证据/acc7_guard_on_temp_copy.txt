@@ -1,0 +1,41 @@
+### _工作/M8_guard_test.py（临时副本上验证 m34 防静默清空守门）
+==========================================================================
+守门验证：SCR 指向临时副本 E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\M8_guard_test\screens
+==========================================================================
+
+【1】build_title()（磁盘有 M35b 的 7 件文字图 + state_group）⇒ 期望**拒绝写入**
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! 拒绝写入 01_title.json —— 本次重跑会**丢数据**（防静默清空守门，M8）
+!!   ✗ 元素 `title.menu_txt_config`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_continue`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_exit`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_flowchart`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_gallery`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_load`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_txt_start`（磁盘有、本次不产出 ⇒ 会被删掉）
+!!   ✗ 元素 `title.menu_hit_1` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_start'
+!!   ✗ 元素 `title.menu_hit_2` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_continue'
+!!   ✗ 元素 `title.menu_hit_3` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_load'
+!!   ✗ 元素 `title.menu_hit_4` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_flowchart'
+!!   ✗ 元素 `title.menu_hit_5` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_config'
+!!   ✗ 元素 `title.menu_hit_6` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_gallery'
+!!   ✗ 元素 `title.menu_hit_7` 的字段 `state_group`（磁盘有、本次不产出）：'title.menu_exit'
+!! 正确做法：把盘上的这些改动**回写进本文件**（提成 override 常量），
+!!          再跑 `python 工具\test_gen_sync.py` 自证「生成器可完整复现磁盘」。
+!! 确需强行覆盖：`python 工具/m34_build_screens.py --force`（或 set M34_FORCE=1）
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  → SystemExit(2) ✓ 拒绝写入（符合预期）
+
+【2】build_saveload('save', ...)（23_save 生成器已能复现磁盘）⇒ 期望**放行**
+23_save.json           118 元素
+  副本写入成功（f8f05373 → f8f05373）
+  副本内容 vs 真磁盘：一致 ✓
+  真磁盘 23_save.json md5 = f8f053735bacdbe998f84f6df1398c7e（应始终不变）
+
+【3】真目录 md5 自证
+  layout/screens/*.json md5 **完全一致** ✓（21 个文件）
+
+临时副本已删除：E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\M8_guard_test（存在？False）
+结论：守门按预期工作（拒绝丢数据的写入 / 放行等价写入 / 真数据未被触碰）✓
+EXIT=0

@@ -1,0 +1,17 @@
+var UIStoryScene = void;
+var UIStorySkipOn = false;
+// Private C0 harness. Never loads production UI or creates a Window.
+Scripts.execStorage("config.tjs");
+Debug.startLogToFile();
+Debug.message("C0_BEGIN " + C0Nonce);
+try {
+    Scripts.execStorage("ui_scene_layers.tjs");
+    Scripts.execStorage("ui_scene_layers_fixture.tjs");
+    var C0Result = uiSceneLayersFixtureRun();
+    Debug.message("C0_VERDICT " + C0Nonce + ((C0Result.fail == 0) ? " PASS " : " FAIL ")
+        + C0Result.pass + "/" + (C0Result.pass + C0Result.fail));
+} catch(C0Error) {
+    Debug.message("C0_EXCEPTION " + C0Nonce + " " + C0Error.message);
+    Debug.message("C0_VERDICT " + C0Nonce + " FAIL 0/0");
+}
+System.exit();

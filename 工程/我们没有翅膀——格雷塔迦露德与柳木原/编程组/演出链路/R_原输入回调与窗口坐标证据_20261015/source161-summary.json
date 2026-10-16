@@ -1,0 +1,209 @@
+{
+  "actual_host_worker_tid": 29292,
+  "worker_errors_after_release": [],
+  "owned_thread_handle_closed": true,
+  "actual_original_paint_calls": [
+    {
+      "api": "BeginPaint",
+      "original_return_address": 4249283,
+      "actual_HDC_nonnull": true,
+      "mapped_guest_HDC": 1764753408,
+      "native_bytes": 64,
+      "guest_bytes": 64,
+      "actual_rcPaint": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_fErase": 0,
+      "guards_preserved": true,
+      "EndPaint_pair_required": true
+    },
+    {
+      "api": "EndPaint",
+      "original_return_address": 4249700,
+      "actual_BOOL": 1,
+      "same_actual_acquiring_thread": true,
+      "source_EndPaint_not_ReleaseDC": true
+    }
+  ],
+  "explicit_controlled_START_mouse_inputs": [
+    {
+      "logical_parent_round": 4,
+      "owner_generation": 5,
+      "explicit_owned_window_only": true,
+      "message": 512,
+      "wparam": 0,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    },
+    {
+      "logical_parent_round": 5,
+      "owner_generation": 6,
+      "explicit_owned_window_only": true,
+      "message": 513,
+      "wparam": 1,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    },
+    {
+      "logical_parent_round": 6,
+      "owner_generation": 7,
+      "explicit_owned_window_only": true,
+      "message": 514,
+      "wparam": 0,
+      "lparam": 25232075,
+      "client_point": [
+        715,
+        385
+      ],
+      "actual_PostMessage_BOOL": 1,
+      "actual_error": 0,
+      "synthetic_fixture_input_not_physical_mouse": true,
+      "not_original_script_bytes_modified": true
+    }
+  ],
+  "actual_rect_calls_and_finite_cap": {
+    "count": 3148,
+    "cap": 8192,
+    "root_verification_budget_not_game_limit": true
+  },
+  "cooperative_parent_CS_waits": [
+    {
+      "key": 33569908,
+      "holder_before": 29292,
+      "requester": 28376,
+      "generation_before": 3,
+      "generation_after": 4,
+      "wait_worker_slices": 1,
+      "parent_CPU_and_FS0_restored": true,
+      "actual_parent_enter_after_actual_worker_leave": true,
+      "worker_still_parked_at_parent_enter": true,
+      "not_complete_original_Windows_scheduler": true
+    }
+  ],
+  "reserved_worker_budget_not_actual_instruction_count": {
+    "used_slices": 41,
+    "reserved_instructions": 164000000,
+    "max_slices": 128,
+    "max_instructions": 512000000
+  },
+  "source_completed_presentation_captures_after_parent": [
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 856,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "831557a38b770bfc6598c48c60bd781fe79ab39b2260a2eb82de79ebb50d1a4c",
+      "actual_RGB_sha256": "faf553436f43088cfa8287cec8d9372c801790eb5f7ac37a2baef58ba3a5bf7c",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 1221511,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 913,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "fdc50b7dea7407ec2ad6c2d1d235d494b6399788a7907e95aac4d29cd5d2fb17",
+      "actual_RGB_sha256": "13028515ec87f9872d5ac5211ad8fce44a13c4049de4e839c05f1c82864e496e",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 970,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "fa6bada95028c0b5e60d724f71bc7d1cb7379e00a4b7f4a3050c34c170b1a2c0",
+      "actual_RGB_sha256": "41adf3a987ad990b9a7900d6d9b40fe30c0dd3ec078d8caf5894a6174e24ee5b",
+      "full_800_600_RGB_match": false,
+      "differing_color_bytes": 351009,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1028,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "10e92fb4be6c8c1980741010b2325a28bd6200869ad51cce6b3525be196920a3",
+      "actual_RGB_sha256": "10e92fb4be6c8c1980741010b2325a28bd6200869ad51cce6b3525be196920a3",
+      "full_800_600_RGB_match": true,
+      "differing_color_bytes": 0,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1085,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "707fb6d3755d46d902b95b396c574bf67fef9a95bfff6cb0d00b975ac2dabf45",
+      "actual_RGB_sha256": "707fb6d3755d46d902b95b396c574bf67fef9a95bfff6cb0d00b975ac2dabf45",
+      "full_800_600_RGB_match": true,
+      "differing_color_bytes": 0,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1142,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "4dd53fc1228f0568c343c4b2838f08fe64a8e2c6c15e4a70c36ffcc63339e532",
+      "actual_RGB_sha256": "4dd53fc1228f0568c343c4b2838f08fe64a8e2c6c15e4a70c36ffcc63339e532",
+      "full_800_600_RGB_match": true,
+      "differing_color_bytes": 0,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1199,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "1275f661c713543c8399f03003b60d6775c3da14ac81da92913ae5483457a5e9",
+      "actual_RGB_sha256": "1275f661c713543c8399f03003b60d6775c3da14ac81da92913ae5483457a5e9",
+      "full_800_600_RGB_match": true,
+      "differing_color_bytes": 0,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    },
+    {
+      "source_ReleaseDC_return_address": 4569352,
+      "source_blit_calls_at_capture": 1256,
+      "actual_copy_BOOL": 1,
+      "source_RGB_sha256": "1b3288b785f29036a796c7e61afcf813cd157558fab07470ae04a0f3b26f59f3",
+      "actual_RGB_sha256": "1b3288b785f29036a796c7e61afcf813cd157558fab07470ae04a0f3b26f59f3",
+      "full_800_600_RGB_match": true,
+      "differing_color_bytes": 0,
+      "capture_on_same_actual_worker_before_original_ReleaseDC": true,
+      "not_original_Japanese_OS_or_all_routes_reference": true
+    }
+  ],
+  "worker_resume": {
+    "from_EIP": 302236397,
+    "next_EIP": 5089738,
+    "failure": null,
+    "actual_worker_tid": 29292,
+    "same_original_OS_tid": true,
+    "instruction_budget_per_slice": 4000000,
+    "not_full_original_exit": true
+  },
+  "round_count": 40,
+  "full_trace_local_path": "\u4e34\u65f6/ISSUE-20261011-02/r-original-input-late-OS-canonical-161/original-thread-prefix.json",
+  "full_trace_SHA256": "470f1ebbdd67916fb0ad70faa688bbff9676e71b434a55021ba0c7fbf7b0df71",
+  "not_original_complete_shutdown": true
+}

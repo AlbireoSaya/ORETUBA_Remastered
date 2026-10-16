@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>UI 组 · 超框省略号探针（冻结期望表 × HTML 实现）</title>
+
+<!-- ==========================================================================
+     复刻\_probe_text_ellipsis.html —— **超框省略号的 HTML 侧探针页**（ISSUE-20260930-02 · E2）
+
+     为什么需要它：冻结书 §五 要求「超框省略号」三处实现同判据。HTML 侧的实现是
+     `复刻/replica.js::wrapEllipsisLines()`（渲染路径也走它，见 `resolveClampCands`）。
+     本页**不复制任何判定逻辑** —— 它加载**同一份** `replica.js`，直接调
+     `window.UI_REPLICA.wrapEllipsisLines()`，把「输入串 → 返回行」原样交给判定脚本。
+
+     ★ 期望表**不写在本页**：由 `工具/test_text_ellipsis.py` 以 `?table=<base64(JSON)>`
+       传入（同一张表同时喂给 Python 侧折算实现）⇒ 不存在「探针自带一份期望」的假自证。
+     ★ 度量口径与 replica.js 的 `dynMeasure` 逐条一致（离屏 span 挂 body + 拷 computed font），
+       差别仅在于宿主元素由本页按期望表给的 family/size/bold 现建。
+     ★ 干扰项：本页**不建** `#canvas` 宿主的完整外壳 —— `replica.js::boot()` 在
+       `DOMContentLoaded` 之后才会跑（本页脚本在解析期已执行完并写好结果），
+       它中途抛错也不影响本页输出。
+     ★ 变异自证：`&noellip=1` 时 replica.js 会关掉省略号收尾（= 改前的「整行丢弃」）
+       ⇒ `工具/test_text_ellipsis.py --selfcheck` 必须报失败。
+
+     用法（无头；由 test_text_ellipsis.py 调用）：
+       msedge --headless=new --disable-gpu --no-sandbox --user-data-dir=… \
+              --virtual-time-budget=15000 --dump-dom "file:///…/_probe_text_ellipsis.html?table=…"
+       stdout 里 grep 结果标记 `RESULT_` + `JSON_START` … 同名的收尾标记（本注释刻意不写出完整标记串，
+       以免解析脚本的正则先命中注释）。
+     ========================================================================== -->
+
+<style>#out{font:12px/1.5 monospace;white-space:pre-wrap;padding:8px}</style>
+<script src="ui_layout.js"></script>
+<script src="replica.js"></script>
+</head>
+<body>
+<!-- boot() 的最小宿主（避免它一开头就在 null 上抛错；抛错也不影响本页结果） -->
+<div id="stage-wrap" style="position:absolute;left:-100000px;top:0"><div id="stage"><div id="canvas"></div></div></div>
+<pre id="out">PENDING</pre>
+<script>
+(function () {
+  'use strict';
+  var outEl = document.getElementById('out');
+  function fail(msg) { outEl.textContent = 'PROBE_ERROR ' + msg; }
+  try {
+    var R = window.UI_REPLICA;
+    if (!R || typeof R.wrapEllipsisLines !== 'function') { fail('UI_REPLICA.wrapEllipsisLines 不可用'); return; }
+    var m = /[?&]table=([^&]+)/.exec(location.search || '');
+    if (!m) { fail('缺 ?table=<base64(JSON)>'); return; }
+    var b64 = decodeURIComponent(m[1]);
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    var cfg = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+
+    /* 度量宿主：按期望表给的字体规格建，**必须在文档内**（文档外量宽恒为 0）。 */
+    var host = document.createElement('div');
+    host.style.position = 'absolute';
+    host.style.left = '-100000px';
+    host.style.top = '0';
+    host.style.whiteSpace = 'pre';
+    host.style.fontFamily = cfg.family;
+    host.style.fontSize = cfg.size + 'px';
+    host.style.fontWeight = cfg.bold ? 'bold' : 'normal';
+    document.body.appendChild(host);
+
+    /* 同款离屏度量（= replica.js::dynMeasure 的口径） */
+    var probe = document.createElement('span');
+    probe.style.position = 'absolute';
+    probe.style.left = '-100000px';
+    probe.style.top = '0';
+    probe.style.whiteSpace = 'pre';
+    probe.style.visibility = 'hidden';
+    probe.style.pointerEvents = 'none';
+    document.body.appendChild(probe);
+    var cs = getComputedStyle(host);
+    probe.style.fontFamily = cs.fontFamily;
+    probe.style.fontSize = cs.fontSize;
+    probe.style.fontWeight = cs.fontWeight;
+    probe.style.fontStyle = cs.fontStyle;
+    probe.style.letterSpacing = cs.letterSpacing;
+    function measure(s) { probe.textContent = s; return probe.getBoundingClientRect().width; }
+
+    var cases = [];
+    (cfg.cases || []).forEach(function (c) {
+      var r = R.wrapEllipsisLines(host, c.text, c.maxW, c.maxLines);
+      var w = [];
+      for (var j = 0; j < r.lines.length; j++) w.push(measure(r.lines[j]));
+      cases.push({ id: c.id, lines: r.lines, widths: w,
+                   truncated: !!r.truncated, dropped: !!r.dropped });
+    });
+    outEl.textContent = 'RESULT_JSON_START' + JSON.stringify({
+      ok: true, cases: cases, dots: R.ELLIPSIS_DOTS,
+      nohead: R.WRAP_NOHEAD, notail: R.WRAP_NOTAIL,
+      family: getComputedStyle(host).fontFamily, size: cfg.size, bold: !!cfg.bold,
+      dotsW: measure(R.ELLIPSIS_DOTS), charW: measure('字')
+    }) + 'RESULT_JSON_END';
+  } catch (e) {
+    fail((e && e.message) ? e.message : String(e));
+  }
+})();
+</script>
+</body>
+</html>

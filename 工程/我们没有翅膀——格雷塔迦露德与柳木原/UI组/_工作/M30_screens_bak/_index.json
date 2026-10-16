@@ -1,0 +1,209 @@
+{
+  "_comment": "屏清单（主代理维护）。owner = 写权限归属模块；file = 相对 layout/screens/ 的文件名。",
+  "screens": [
+    {
+      "id": "title",
+      "file": "01_title.json",
+      "title_cn": "标题画面",
+      "owner": "M13",
+      "required": [
+        "满幅背景图（x_bg_system，不留黑边）",
+        "标题 logo",
+        "主菜单 7 项（图上烘焙中英文，439×122 的 image + hit 各 7，按内容右边缘居右对齐）",
+        "署名行"
+      ]
+    },
+    {
+      "id": "dialog",
+      "file": "10_dialog.json",
+      "title_cn": "对话框/名字框/系统条/选择肢",
+      "owner": "M13",
+      "required": [
+        "留黑底（letterbox）",
+        "剧情背景层（dlg.content，dynamic:story_background）",
+        "对话窗底（x_gen_dialog2，含名字框，1628×319 整图 1:1 贴底居中、下留 36 px）",
+        "角色名文本",
+        "正文文本区（打字机）",
+        "文本光标（闪烁）",
+        "系统条 9 键（快速存档/快速读档/快进/返回上一选项/存档/读档/设置/隐藏对话框/重复语音）",
+        "选择肢列表",
+        "自动·快进状态标签",
+        "右键功能提示行"
+      ]
+    },
+    {
+      "id": "sysmenu",
+      "file": "20_sysmenu.json",
+      "title_cn": "系统菜单",
+      "owner": "M5",
+      "required": [
+        "面板",
+        "菜单项 10 条",
+        "关闭键"
+      ]
+    },
+    {
+      "id": "confirm",
+      "file": "21_confirm.json",
+      "title_cn": "确认框",
+      "owner": "M5",
+      "required": [
+        "九宫格边框",
+        "提示文本",
+        "是/否 按钮"
+      ]
+    },
+    {
+      "id": "loading",
+      "file": "22_loading.json",
+      "title_cn": "加载提示",
+      "owner": "M5",
+      "required": [
+        "居中提示图 320×120",
+        "全屏遮罩"
+      ]
+    },
+    {
+      "id": "save",
+      "file": "23_save.json",
+      "title_cn": "存档",
+      "owner": "M5",
+      "required": [
+        "底图",
+        "槽列表 8 槽",
+        "槽内缩略图/日期/摘要",
+        "翻页",
+        "返回"
+      ]
+    },
+    {
+      "id": "load",
+      "file": "24_load.json",
+      "title_cn": "读档",
+      "owner": "M5",
+      "required": [
+        "底图",
+        "槽列表 8 槽",
+        "翻页",
+        "返回"
+      ]
+    },
+    {
+      "id": "config",
+      "file": "25_config.json",
+      "title_cn": "配置",
+      "owner": "M5",
+      "required": [
+        "底图",
+        "设置项列表 ≥12 项",
+        "说明栏",
+        "返回"
+      ]
+    },
+    {
+      "id": "backlog",
+      "file": "26_backlog.json",
+      "title_cn": "回想",
+      "owner": "M5",
+      "required": [
+        "底板",
+        "文本列表",
+        "滚动条",
+        "返回"
+      ]
+    },
+    {
+      "id": "gallery",
+      "file": "27_gallery.json",
+      "title_cn": "CG 画廊",
+      "owner": "M5",
+      "required": [
+        "满幅底图（x_gen_gallerypage，1920×1080，不叠引擎边框）",
+        "左侧 4 项选择框（各一热区 + 一名称文本）",
+        "右侧预览大框（asset:null + dynamic:gallery_preview，运行期由编程组填图）",
+        "章节名条（深色）",
+        "4 条简介文本",
+        "页码 + 上一页/下一页",
+        "返回"
+      ]
+    },
+    {
+      "id": "music",
+      "file": "28_music.json",
+      "title_cn": "音乐鉴赏",
+      "owner": "M5",
+      "required": [
+        "底板",
+        "曲目条列表",
+        "播放控制",
+        "返回"
+      ]
+    },
+    {
+      "id": "ending",
+      "file": "29_ending.json",
+      "title_cn": "片尾（STAFF/歌词）",
+      "owner": "M5",
+      "required": [
+        "滚动区",
+        "歌词条",
+        "跳过"
+      ]
+    },
+    {
+      "id": "chapter",
+      "file": "30_chapter.json",
+      "title_cn": "主线·章节选择",
+      "owner": "M4",
+      "required": [
+        "幕/章卡片列表",
+        "选中态",
+        "进入键",
+        "返回"
+      ]
+    },
+    {
+      "id": "fragment",
+      "file": "31_fragment.json",
+      "title_cn": "番外（Fragment）选择",
+      "owner": "M4",
+      "required": [
+        "满幅底图（x_gen_fragpage，自带标题与面板边框）",
+        "40 个格子（每格一个热区 action=fragment_enter + 一个标题文本，几何取自底图实测 5×8）",
+        "已收集环",
+        "选中框",
+        "底部收集计数",
+        "返回"
+      ]
+    },
+    {
+      "id": "flowchart",
+      "file": "32_flowchart.json",
+      "title_cn": "剧情流程图",
+      "owner": "M4",
+      "required": [
+        "13 个节点方框图（562–584×108–112，1:1 无缩放、无 nine，居中于 584×112 槽位）",
+        "节点标签（幕名/分歧点名 + 来源·规模）",
+        "节点热区（action=flow_node_<id>）",
+        "三态色环（已读/可前往/未解锁）",
+        "当前节点标记 + 键盘选中框",
+        "连线（同列纵向连接条 / 跨列续接线 / E02 左侧旁路 / 汇流总线与短横条）",
+        "4 行方框类型图例",
+        "节点详情行",
+        "返回"
+      ]
+    },
+    {
+      "id": "sysicons",
+      "file": "33_sysicons.json",
+      "title_cn": "右键图标浮层",
+      "owner": "M13",
+      "required": [
+        "全屏压暗遮罩",
+        "点击空白收起热区",
+        "9 个功能图标（qsave/qload/skip/prev/save/load/config/close/repeat；统一 351×234，3×3 网格 1:1）",
+        "每项点击热区"
+      ]
+    }
+  ]
+}

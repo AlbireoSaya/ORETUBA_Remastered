@@ -1,0 +1,20 @@
+[
+  {
+    "file": "README.md",
+    "new": "`next = (table + (size & 0xffff)) & 0xffffffff`。",
+    "count": 1,
+    "old": "`next = table + size` 低 16。"
+  },
+  {
+    "file": "README.md",
+    "new": "248 是 VM 写，trace 为 62 条 PC/op",
+    "count": 1,
+    "old": "248 是 VM 写与 trace"
+  },
+  {
+    "file": "README.md",
+    "new": "每次 runVM 的最后一个实参为 false，进入真实 VM 时重新压零",
+    "count": 1,
+    "old": "每次 runVM 末尾返回 false 并重新压零"
+  }
+]

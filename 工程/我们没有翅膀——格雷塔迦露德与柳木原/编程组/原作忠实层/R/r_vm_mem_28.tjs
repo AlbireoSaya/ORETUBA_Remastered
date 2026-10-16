@@ -1,0 +1,10 @@
+function RVMExtraMem28(rd, wr, ctx, p)
+{
+    var sp = rd((ctx + 12) & 0xffffffff) & 0xffffffff;
+    var off = rd(p & 0xffffffff) & 0xffffffff;
+    var addr = (sp - off) & 0xffffffff;
+    var v = rd(addr) & 0xffffffff;
+    wr(addr, (v + 1) & 0xffffffff);
+    var pc = rd((ctx + 8) & 0xffffffff) & 0xffffffff;
+    wr((ctx + 8) & 0xffffffff, (pc + 4) & 0xffffffff);
+}

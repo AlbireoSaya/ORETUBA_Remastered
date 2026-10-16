@@ -1,0 +1,48 @@
+{
+  "process_exit0_verified": true,
+  "worker_errors": [],
+  "wait_count": 63,
+  "wait_budget_ms": 766,
+  "native_resumes": [
+    {
+      "from_EIP": 4918630,
+      "next_EIP": 33612864,
+      "failure": "ValueError: fmt must be exactly b'%d.%02d.%04d'",
+      "instruction_budget_per_slice": 1000000
+    }
+  ],
+  "next_EIP": 33612864,
+  "stack": [
+    4314373,
+    57736700,
+    5411888,
+    98,
+    129397336,
+    119541956,
+    4,
+    12,
+    0,
+    4294967168,
+    118141088,
+    119230592
+  ],
+  "source_blits": 127,
+  "readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": true,
+    "differing_color_bytes": 0,
+    "source_RGB_SHA256": "680a1c22a8e114ea0c637847e8cc506794073a55f4350364c8a0421e7dbcc8f0",
+    "actual_RGB_SHA256": "680a1c22a8e114ea0c637847e8cc506794073a55f4350364c8a0421e7dbcc8f0",
+    "source_blits": 127,
+    "all_source_blit_sample_readbacks_match": true,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "cleanup": true
+}

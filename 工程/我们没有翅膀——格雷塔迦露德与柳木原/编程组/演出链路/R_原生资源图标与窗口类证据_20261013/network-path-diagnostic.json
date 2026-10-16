@@ -1,0 +1,22 @@
+{
+  "credential_free_HEAD_only": true,
+  "host": "api.commandcode.ai",
+  "rows": [
+    {
+      "path": "default",
+      "error_class": "URLError",
+      "reason": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)"
+    },
+    {
+      "path": "direct",
+      "HTTP_status": 403,
+      "TLS_handshake_completed": true
+    },
+    {
+      "path": "direct_TLS12",
+      "HTTP_status": 403,
+      "TLS_handshake_completed": true
+    }
+  ],
+  "TLS_certificate_verification_enabled_all_paths": true
+}

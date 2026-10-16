@@ -1,0 +1,102 @@
+{
+  "id": "dialog",
+  "title_cn": "对话框/名字框/系统条/选择肢",
+  "owner": "M0",
+  "note": "本屏是游戏主界面的常驻层。对话窗底用 meswin（1057×174，原版空白贴图，无日文烘焙）1:1 居中贴底；名字框用 nm_frm_b（222×36）。所有文字由引擎绘制。",
+  "elements": [
+    {
+      "id": "dlg.letterbox", "kind": "rect", "z": 0, "visible_default": true,
+      "x": 0, "y": 0, "w": 1280, "h": 720,
+      "color": "@palette.letterbox", "opacity": 255,
+      "note": "留边底（最先绘制，铺满黑）。D1：4:3 源内容 1:1 居中，左右各 240px 黑边即由此而来。"
+    },
+    {
+      "id": "dlg.content", "kind": "image", "z": 1, "visible_default": true,
+      "asset": null, "dynamic": "story_background", "content_box": "@auto",
+      "x": 240, "y": 60, "w": 800, "h": 600,
+      "opacity": 255,
+      "note": "剧情背景层（压在留边底之上）：由编程组/演示层按当前场景源代号从根 content_boxes 取框位后填入（ot/otr/ota/otp→240,60,800,600；otv→160,88,960,544；np→0,0,1280,720）。此处 x/y/w/h 为 ot 框位默认值。"
+    },
+    {
+      "id": "dlg.window", "kind": "image", "z": 20, "visible_default": true,
+      "asset": "ui/meswin.png", "x": 112, "y": 522, "w": 1057, "h": 174,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\meswin.png",
+      "note": "对话窗底（原版空白贴图；宽 1057 = 画布 82.6%，比例与 1280×720 画布协调，无需拉伸）"
+    },
+    {
+      "id": "dlg.namebox", "kind": "image", "z": 21, "visible_default": true,
+      "asset": "ui/nm_frm_b.png", "x": 150, "y": 486, "w": 222, "h": 36,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\nm_frm_b.png",
+      "note": "角色名框（原版贴图 1:1，置于对话窗左上外侧）"
+    },
+    {
+      "id": "dlg.name", "kind": "text", "z": 22, "visible_default": true,
+      "x": 158, "y": 492, "w": 206, "h": 24,
+      "font": { "size": 20, "bold": false, "color": "@palette.text_name", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "渡来同学",
+      "note": "角色名（取自 scene_*.jsonl 的 lines[].speaker 中文；空说话人时隐藏名字框与名字）"
+    },
+    {
+      "id": "dlg.text", "kind": "text", "z": 22, "visible_default": true,
+      "x": 152, "y": 550, "w": 977, "h": 118,
+      "font": { "size": 24, "bold": false, "color": "@palette.text_primary", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 2 },
+      "align": "left", "valign": "top", "wrap": true, "max_lines": 3, "line_spacing": 1.4,
+      "sample": "……羽田君。这个时间，你怎么会在这里？",
+      "note": "对话正文区（3 行 × 24px × 1.4 = 100.8px，容于 118px 高）"
+    },
+    {
+      "id": "dlg.cursor", "kind": "image", "z": 23, "visible_default": true,
+      "asset": "ui/ms_cursr.png", "x": 1002, "y": 668, "w": 138, "h": 11,
+      "opacity": 255,
+      "anim": { "mode": "blink", "period_ms": 700 },
+      "source": "资源组\\美术统一\\系统UI\\ms_cursr.png",
+      "note": "文本推进光标（原版贴图 1:1，闪烁）"
+    },
+    {
+      "id": "dlg.sysbar", "kind": "list", "z": 25, "visible_default": true,
+      "orientation": "h", "x": 510, "y": 490, "w": 746,
+      "item_w": 88, "item_h": 26, "gap": 6, "max_cols": 8,
+      "labels": ["存档", "读档", "快进", "自动", "隐藏", "回想", "配置", "菜单"],
+      "actions": ["open_save", "open_load", "skip_on", "auto_on", "hide_window", "open_backlog", "open_config", "open_sysmenu"],
+      "font": { "size": 18, "bold": false, "color": "@palette.text_menu", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 210 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png（由 if_lt/rt/lb/rb + if_tbar/bbar + if_lbar/rbar 拼合）；标签由引擎绘制",
+      "note": "常驻系统条（8 键）。原版 sm_* 612×26 菜单条内**烘焙日文**，故不用其贴图，改用 UI 组自制的九宫格边框件 + 引擎绘制中文标签。原版贴图不可用的逐件理由见 UI组\\素材裁决与图片化日文风险上报.md。"
+    },
+    {
+      "id": "dlg.choices", "kind": "list", "z": 30, "visible_default": false,
+      "orientation": "v", "x": 360, "w": 560, "stack_bottom": 470,
+      "item_h": 44, "gap": 10, "max_rows": 6,
+      "labels": ["为了国家与民众", "为了阿斯嘉公主"],
+      "actions": ["select_choice", "select_choice"],
+      "font": { "size": 22, "bold": false, "color": "@palette.text_menu", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 2 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 225 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；标签由引擎绘制",
+      "note": "选择肢列表（默认隐藏）。原版 op_* 40 件为**选项文本图**（日文烘焙），不可复用；故用九宫格边框 + 引擎文字。示例选项文本取自 资源组\\剧本\\主线编排方案.md:257-286 的 ot_s01_02c。"
+    },
+    {
+      "id": "dlg.mode_tag", "kind": "text", "z": 26, "visible_default": false,
+      "x": 1060, "y": 24, "w": 200, "h": 28,
+      "font": { "size": 18, "bold": false, "color": "@palette.accent", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "right", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "自动播放中",
+      "note": "状态标签（自动/快进时显示）"
+    },
+    {
+      "id": "dlg.hint", "kind": "text", "z": 26, "visible_default": true,
+      "x": 24, "y": 24, "w": 420, "h": 24,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_small", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "右键：回想　空格：快进　Esc：菜单",
+      "note": "操作提示（可在配置中关闭）"
+    }
+  ]
+}

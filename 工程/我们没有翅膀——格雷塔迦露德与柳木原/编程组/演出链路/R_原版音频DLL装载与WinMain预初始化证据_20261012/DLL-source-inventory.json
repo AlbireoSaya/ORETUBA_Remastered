@@ -1,0 +1,908 @@
+{
+  "files": [
+    {
+      "relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\wuvorbis.dll",
+      "sha256": "302b1eb97ed0f6110904e84c11bf7436e4cdddd414f4d24d105aba687f32b47f",
+      "bytes": 200704,
+      "machine": 332,
+      "magic": 267,
+      "OS_load_performed": false,
+      "base": 285212672,
+      "entry_rva": 77293,
+      "image_size": 208896,
+      "imports": [
+        {
+          "dll": "KERNEL32.dll",
+          "names": [
+            "GetACP",
+            "InterlockedIncrement",
+            "InterlockedDecrement",
+            "ExitProcess",
+            "TerminateProcess",
+            "GetCurrentProcess",
+            "RtlUnwind",
+            "RaiseException",
+            "HeapAlloc",
+            "HeapFree",
+            "GetCommandLineA",
+            "GetVersion",
+            "GetProcAddress",
+            "GetModuleHandleA",
+            "InitializeCriticalSection",
+            "DeleteCriticalSection",
+            "EnterCriticalSection",
+            "LeaveCriticalSection",
+            "WideCharToMultiByte",
+            "MultiByteToWideChar",
+            "LCMapStringA",
+            "LCMapStringW",
+            "GetCurrentThreadId",
+            "TlsSetValue",
+            "TlsAlloc",
+            "TlsFree",
+            "SetLastError",
+            "TlsGetValue",
+            "GetLastError",
+            "SetUnhandledExceptionFilter",
+            "SetHandleCount",
+            "GetStdHandle",
+            "GetFileType",
+            "GetStartupInfoA",
+            "SetFilePointer",
+            "CloseHandle",
+            "GetModuleFileNameA",
+            "GetEnvironmentVariableA",
+            "GetVersionExA",
+            "HeapDestroy",
+            "HeapCreate",
+            "VirtualFree",
+            "VirtualAlloc",
+            "HeapReAlloc",
+            "IsBadWritePtr",
+            "FreeEnvironmentStringsA",
+            "FreeEnvironmentStringsW",
+            "GetEnvironmentStrings",
+            "GetEnvironmentStringsW",
+            "WriteFile",
+            "GetCPInfo",
+            "GetStringTypeA",
+            "GetStringTypeW",
+            "IsBadReadPtr",
+            "IsBadCodePtr",
+            "SetStdHandle",
+            "FlushFileBuffers",
+            "GetOEMCP",
+            "LoadLibraryA"
+          ]
+        }
+      ],
+      "exports": {
+        "GetModuleInstance": {
+          "ordinal": 1,
+          "rva": 67440,
+          "va": 285280112,
+          "forwarded": false
+        },
+        "GetOptionDesc": {
+          "ordinal": 37,
+          "rva": 69120,
+          "va": 285281792,
+          "forwarded": false
+        },
+        "Query_sizeof_OggVorbis_File": {
+          "ordinal": 38,
+          "rva": 69376,
+          "va": 285282048,
+          "forwarded": false
+        },
+        "V2Link": {
+          "ordinal": 39,
+          "rva": 67504,
+          "va": 285280176,
+          "forwarded": false
+        },
+        "V2Unlink": {
+          "ordinal": 40,
+          "rva": 69104,
+          "va": 285281776,
+          "forwarded": false
+        },
+        "wu_DetectCPU": {
+          "ordinal": 2,
+          "rva": 70400,
+          "va": 285283072,
+          "forwarded": false
+        },
+        "wu_ScaleOutput": {
+          "ordinal": 3,
+          "rva": 70416,
+          "va": 285283088,
+          "forwarded": false
+        },
+        "wu_SetCPUType": {
+          "ordinal": 4,
+          "rva": 70384,
+          "va": 285283056,
+          "forwarded": false
+        },
+        "wu_ov_bitrate": {
+          "ordinal": 5,
+          "rva": 69728,
+          "va": 285282400,
+          "forwarded": false
+        },
+        "wu_ov_bitrate_instant": {
+          "ordinal": 6,
+          "rva": 69744,
+          "va": 285282416,
+          "forwarded": false
+        },
+        "wu_ov_clear": {
+          "ordinal": 7,
+          "rva": 69568,
+          "va": 285282240,
+          "forwarded": false
+        },
+        "wu_ov_comment": {
+          "ordinal": 8,
+          "rva": 70240,
+          "va": 285282912,
+          "forwarded": false
+        },
+        "wu_ov_crosslap": {
+          "ordinal": 9,
+          "rva": 70336,
+          "va": 285283008,
+          "forwarded": false
+        },
+        "wu_ov_halfrate": {
+          "ordinal": 10,
+          "rva": 70352,
+          "va": 285283024,
+          "forwarded": false
+        },
+        "wu_ov_halfrate_p": {
+          "ordinal": 11,
+          "rva": 70368,
+          "va": 285283040,
+          "forwarded": false
+        },
+        "wu_ov_info": {
+          "ordinal": 12,
+          "rva": 70224,
+          "va": 285282896,
+          "forwarded": false
+        },
+        "wu_ov_open_callbacks": {
+          "ordinal": 13,
+          "rva": 69584,
+          "va": 285282256,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek": {
+          "ordinal": 14,
+          "rva": 69888,
+          "va": 285282560,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek_lap": {
+          "ordinal": 15,
+          "rva": 70048,
+          "va": 285282720,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek_page": {
+          "ordinal": 16,
+          "rva": 69920,
+          "va": 285282592,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek_page_lap": {
+          "ordinal": 17,
+          "rva": 70080,
+          "va": 285282752,
+          "forwarded": false
+        },
+        "wu_ov_pcm_tell": {
+          "ordinal": 18,
+          "rva": 70192,
+          "va": 285282864,
+          "forwarded": false
+        },
+        "wu_ov_pcm_total": {
+          "ordinal": 19,
+          "rva": 69824,
+          "va": 285282496,
+          "forwarded": false
+        },
+        "wu_ov_raw_seek": {
+          "ordinal": 20,
+          "rva": 69856,
+          "va": 285282528,
+          "forwarded": false
+        },
+        "wu_ov_raw_seek_lap": {
+          "ordinal": 21,
+          "rva": 70016,
+          "va": 285282688,
+          "forwarded": false
+        },
+        "wu_ov_raw_tell": {
+          "ordinal": 22,
+          "rva": 70176,
+          "va": 285282848,
+          "forwarded": false
+        },
+        "wu_ov_raw_total": {
+          "ordinal": 23,
+          "rva": 69808,
+          "va": 285282480,
+          "forwarded": false
+        },
+        "wu_ov_read": {
+          "ordinal": 24,
+          "rva": 70288,
+          "va": 285282960,
+          "forwarded": false
+        },
+        "wu_ov_read_float": {
+          "ordinal": 25,
+          "rva": 70256,
+          "va": 285282928,
+          "forwarded": false
+        },
+        "wu_ov_seekable": {
+          "ordinal": 26,
+          "rva": 69776,
+          "va": 285282448,
+          "forwarded": false
+        },
+        "wu_ov_serialnumber": {
+          "ordinal": 27,
+          "rva": 69792,
+          "va": 285282464,
+          "forwarded": false
+        },
+        "wu_ov_streams": {
+          "ordinal": 28,
+          "rva": 69760,
+          "va": 285282432,
+          "forwarded": false
+        },
+        "wu_ov_test_callbacks": {
+          "ordinal": 29,
+          "rva": 69648,
+          "va": 285282320,
+          "forwarded": false
+        },
+        "wu_ov_test_open": {
+          "ordinal": 30,
+          "rva": 69712,
+          "va": 285282384,
+          "forwarded": false
+        },
+        "wu_ov_time_seek": {
+          "ordinal": 31,
+          "rva": 69952,
+          "va": 285282624,
+          "forwarded": false
+        },
+        "wu_ov_time_seek_lap": {
+          "ordinal": 32,
+          "rva": 70112,
+          "va": 285282784,
+          "forwarded": false
+        },
+        "wu_ov_time_seek_page": {
+          "ordinal": 33,
+          "rva": 69984,
+          "va": 285282656,
+          "forwarded": false
+        },
+        "wu_ov_time_seek_page_lap": {
+          "ordinal": 34,
+          "rva": 70144,
+          "va": 285282816,
+          "forwarded": false
+        },
+        "wu_ov_time_tell": {
+          "ordinal": 35,
+          "rva": 70208,
+          "va": 285282880,
+          "forwarded": false
+        },
+        "wu_ov_time_total": {
+          "ordinal": 36,
+          "rva": 69840,
+          "va": 285282512,
+          "forwarded": false
+        }
+      }
+    },
+    {
+      "relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\DS_SPRITE.DLL",
+      "sha256": "8d02ffd1ab33b7f68c8dbe30607ead11d45c1b35774bd3a4d4293840ae0fc433",
+      "bytes": 118784,
+      "machine": 332,
+      "magic": 267,
+      "OS_load_performed": false,
+      "base": 1610612736,
+      "entry_rva": 16427,
+      "image_size": 122880,
+      "imports": [
+        {
+          "dll": "KERNEL32.dll",
+          "names": [
+            "IsBadCodePtr",
+            "DeleteCriticalSection",
+            "LeaveCriticalSection",
+            "EnterCriticalSection",
+            "WaitForSingleObject",
+            "SetEvent",
+            "ResetEvent",
+            "GetLastError",
+            "CreateThread",
+            "CloseHandle",
+            "WaitForMultipleObjects",
+            "MultiByteToWideChar",
+            "DisableThreadLibraryCalls",
+            "GetCurrentThreadId",
+            "GlobalFree",
+            "GlobalAlloc",
+            "GetOEMCP",
+            "LoadLibraryA",
+            "InterlockedDecrement",
+            "IsBadReadPtr",
+            "RtlUnwind",
+            "RaiseException",
+            "GetCommandLineA",
+            "GetVersion",
+            "TlsSetValue",
+            "TlsAlloc",
+            "TlsFree",
+            "SetLastError",
+            "TlsGetValue",
+            "GetCurrentThread",
+            "HeapFree",
+            "HeapAlloc",
+            "GetProcAddress",
+            "GetModuleHandleA",
+            "ExitProcess",
+            "SetUnhandledExceptionFilter",
+            "TerminateProcess",
+            "GetCurrentProcess",
+            "SetHandleCount",
+            "GetStdHandle",
+            "GetFileType",
+            "GetStartupInfoA",
+            "GetModuleFileNameA",
+            "FreeEnvironmentStringsA",
+            "FreeEnvironmentStringsW",
+            "WideCharToMultiByte",
+            "GetEnvironmentStrings",
+            "GetEnvironmentStringsW",
+            "GetEnvironmentVariableA",
+            "GetVersionExA",
+            "HeapDestroy",
+            "HeapCreate",
+            "VirtualFree",
+            "WriteFile",
+            "GetSystemInfo",
+            "IsBadWritePtr",
+            "InitializeCriticalSection",
+            "VirtualAlloc",
+            "HeapReAlloc",
+            "InterlockedIncrement",
+            "GetCPInfo",
+            "GetACP",
+            "MulDiv",
+            "FreeLibrary",
+            "GetStringTypeA",
+            "GetStringTypeW",
+            "Sleep",
+            "LCMapStringA",
+            "LCMapStringW",
+            "CreateEventA",
+            "CreateSemaphoreA",
+            "SetThreadPriority",
+            "GetThreadPriority",
+            "GetTickCount",
+            "ReleaseSemaphore"
+          ]
+        },
+        {
+          "dll": "ole32.dll",
+          "names": [
+            "CoTaskMemAlloc",
+            "CoFreeUnusedLibraries",
+            "CoTaskMemFree",
+            "CoUninitialize",
+            "CoInitialize",
+            "CoCreateInstance"
+          ]
+        },
+        {
+          "dll": "USER32.dll",
+          "names": [
+            "PostThreadMessageA",
+            "PeekMessageA",
+            "MsgWaitForMultipleObjects",
+            "RegisterWindowMessageA",
+            "GetQueueStatus",
+            "DispatchMessageA"
+          ]
+        },
+        {
+          "dll": "WINMM.dll",
+          "names": [
+            "timeBeginPeriod",
+            "timeEndPeriod",
+            "timeSetEvent",
+            "timeGetTime",
+            "timeKillEvent"
+          ]
+        }
+      ],
+      "exports": {
+        "GetDShowGdiSpriteCtrl": {
+          "ordinal": 1,
+          "rva": 14112,
+          "va": 1610626848,
+          "forwarded": false
+        },
+        "GetDllVersion": {
+          "ordinal": 2,
+          "rva": 14272,
+          "va": 1610627008,
+          "forwarded": false
+        }
+      }
+    },
+    {
+      "relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\DS_MOVIE.DLL",
+      "sha256": "7eaad1746376f3a583b5b04c8c75a8dc57c1f0f334c22d21d269077857cc7ebb",
+      "bytes": 94208,
+      "machine": 332,
+      "magic": 267,
+      "OS_load_performed": false,
+      "base": 1610612736,
+      "entry_rva": 17995,
+      "image_size": 98304,
+      "imports": [
+        {
+          "dll": "KERNEL32.dll",
+          "names": [
+            "WriteFile",
+            "DeleteCriticalSection",
+            "LeaveCriticalSection",
+            "EnterCriticalSection",
+            "WaitForSingleObject",
+            "SetEvent",
+            "ResetEvent",
+            "GetLastError",
+            "CreateThread",
+            "CloseHandle",
+            "WaitForMultipleObjects",
+            "MultiByteToWideChar",
+            "DisableThreadLibraryCalls",
+            "InterlockedDecrement",
+            "InterlockedIncrement",
+            "VirtualFree",
+            "GetSystemInfo",
+            "InitializeCriticalSection",
+            "RtlUnwind",
+            "RaiseException",
+            "GetCommandLineA",
+            "GetVersion",
+            "GetCurrentThreadId",
+            "TlsSetValue",
+            "TlsAlloc",
+            "TlsFree",
+            "SetLastError",
+            "TlsGetValue",
+            "HeapFree",
+            "HeapAlloc",
+            "GetProcAddress",
+            "GetModuleHandleA",
+            "ExitProcess",
+            "SetUnhandledExceptionFilter",
+            "TerminateProcess",
+            "GetCurrentProcess",
+            "SetHandleCount",
+            "GetStdHandle",
+            "GetFileType",
+            "GetStartupInfoA",
+            "GetModuleFileNameA",
+            "FreeEnvironmentStringsA",
+            "FreeEnvironmentStringsW",
+            "WideCharToMultiByte",
+            "GetEnvironmentStrings",
+            "GetEnvironmentStringsW",
+            "GetEnvironmentVariableA",
+            "GetVersionExA",
+            "HeapDestroy",
+            "HeapCreate",
+            "LCMapStringA",
+            "IsBadReadPtr",
+            "IsBadWritePtr",
+            "IsBadCodePtr",
+            "VirtualAlloc",
+            "HeapReAlloc",
+            "ReleaseSemaphore",
+            "FreeLibrary",
+            "GetCPInfo",
+            "GetACP",
+            "GetOEMCP",
+            "LoadLibraryA",
+            "GetStringTypeA",
+            "GetStringTypeW",
+            "LCMapStringW",
+            "CreateEventA",
+            "CreateSemaphoreA"
+          ]
+        },
+        {
+          "dll": "USER32.dll",
+          "names": [
+            "SetRect"
+          ]
+        },
+        {
+          "dll": "ole32.dll",
+          "names": [
+            "CoTaskMemFree",
+            "CoInitialize",
+            "CoUninitialize",
+            "CoFreeUnusedLibraries",
+            "CoCreateInstance",
+            "CoTaskMemAlloc"
+          ]
+        }
+      ],
+      "exports": {
+        "GetDllVersion": {
+          "ordinal": 1,
+          "rva": 16256,
+          "va": 1610628992,
+          "forwarded": false
+        },
+        "GetMovieObject": {
+          "ordinal": 2,
+          "rva": 16112,
+          "va": 1610628848,
+          "forwarded": false
+        }
+      }
+    },
+    {
+      "relative_path": "工具\\krkrz\\krkrz_20171225\\plugin\\wuvorbis.dll",
+      "sha256": "6867cd5e481326315383e9d3cfc18f9f63a5ba38ae53d5ca5833a14366c3f0c7",
+      "bytes": 263680,
+      "machine": 332,
+      "magic": 267,
+      "OS_load_performed": false,
+      "base": 285212672,
+      "entry_rva": 79028,
+      "image_size": 274432,
+      "imports": [
+        {
+          "dll": "KERNEL32.dll",
+          "names": [
+            "UnhandledExceptionFilter",
+            "SetUnhandledExceptionFilter",
+            "GetCurrentProcess",
+            "TerminateProcess",
+            "IsProcessorFeaturePresent",
+            "QueryPerformanceCounter",
+            "GetCurrentProcessId",
+            "GetCurrentThreadId",
+            "GetSystemTimeAsFileTime",
+            "InitializeSListHead",
+            "IsDebuggerPresent",
+            "GetStartupInfoW",
+            "GetModuleHandleW",
+            "RtlUnwind",
+            "RaiseException",
+            "InterlockedFlushSList",
+            "GetLastError",
+            "SetLastError",
+            "EncodePointer",
+            "EnterCriticalSection",
+            "LeaveCriticalSection",
+            "DeleteCriticalSection",
+            "InitializeCriticalSectionAndSpinCount",
+            "TlsAlloc",
+            "TlsGetValue",
+            "TlsSetValue",
+            "TlsFree",
+            "FreeLibrary",
+            "GetProcAddress",
+            "LoadLibraryExW",
+            "ExitProcess",
+            "GetModuleHandleExW",
+            "GetModuleFileNameA",
+            "MultiByteToWideChar",
+            "WideCharToMultiByte",
+            "HeapFree",
+            "HeapAlloc",
+            "GetACP",
+            "SetFilePointerEx",
+            "GetConsoleMode",
+            "GetStdHandle",
+            "GetFileType",
+            "CloseHandle",
+            "GetStringTypeW",
+            "FindClose",
+            "FindFirstFileExA",
+            "FindNextFileA",
+            "IsValidCodePage",
+            "GetOEMCP",
+            "GetCPInfo",
+            "GetCommandLineA",
+            "GetCommandLineW",
+            "GetEnvironmentStringsW",
+            "FreeEnvironmentStringsW",
+            "LCMapStringW",
+            "GetProcessHeap",
+            "SetStdHandle",
+            "FlushFileBuffers",
+            "WriteFile",
+            "GetConsoleCP",
+            "HeapSize",
+            "HeapReAlloc",
+            "CreateFileW",
+            "WriteConsoleW",
+            "DecodePointer"
+          ]
+        }
+      ],
+      "exports": {
+        "GetModuleInstance": {
+          "ordinal": 1,
+          "rva": 74112,
+          "va": 285286784,
+          "forwarded": false
+        },
+        "Query_sizeof_OggVorbis_File": {
+          "ordinal": 37,
+          "rva": 76096,
+          "va": 285288768,
+          "forwarded": false
+        },
+        "V2Link": {
+          "ordinal": 38,
+          "rva": 74160,
+          "va": 285286832,
+          "forwarded": false
+        },
+        "V2Unlink": {
+          "ordinal": 39,
+          "rva": 75808,
+          "va": 285288480,
+          "forwarded": false
+        },
+        "wu_DetectCPU": {
+          "ordinal": 2,
+          "rva": 78112,
+          "va": 285290784,
+          "forwarded": false
+        },
+        "wu_ScaleOutput": {
+          "ordinal": 3,
+          "rva": 78128,
+          "va": 285290800,
+          "forwarded": false
+        },
+        "wu_SetCPUType": {
+          "ordinal": 4,
+          "rva": 78032,
+          "va": 285290704,
+          "forwarded": false
+        },
+        "wu_ov_bitrate": {
+          "ordinal": 5,
+          "rva": 76560,
+          "va": 285289232,
+          "forwarded": false
+        },
+        "wu_ov_bitrate_instant": {
+          "ordinal": 6,
+          "rva": 76576,
+          "va": 285289248,
+          "forwarded": false
+        },
+        "wu_ov_clear": {
+          "ordinal": 7,
+          "rva": 76272,
+          "va": 285288944,
+          "forwarded": false
+        },
+        "wu_ov_comment": {
+          "ordinal": 8,
+          "rva": 77632,
+          "va": 285290304,
+          "forwarded": false
+        },
+        "wu_ov_crosslap": {
+          "ordinal": 9,
+          "rva": 77968,
+          "va": 285290640,
+          "forwarded": false
+        },
+        "wu_ov_halfrate": {
+          "ordinal": 10,
+          "rva": 77984,
+          "va": 285290656,
+          "forwarded": false
+        },
+        "wu_ov_halfrate_p": {
+          "ordinal": 11,
+          "rva": 78000,
+          "va": 285290672,
+          "forwarded": false
+        },
+        "wu_ov_info": {
+          "ordinal": 12,
+          "rva": 77568,
+          "va": 285290240,
+          "forwarded": false
+        },
+        "wu_ov_open_callbacks": {
+          "ordinal": 13,
+          "rva": 76288,
+          "va": 285288960,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek": {
+          "ordinal": 14,
+          "rva": 76880,
+          "va": 285289552,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek_lap": {
+          "ordinal": 15,
+          "rva": 77040,
+          "va": 285289712,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek_page": {
+          "ordinal": 16,
+          "rva": 76912,
+          "va": 285289584,
+          "forwarded": false
+        },
+        "wu_ov_pcm_seek_page_lap": {
+          "ordinal": 17,
+          "rva": 77072,
+          "va": 285289744,
+          "forwarded": false
+        },
+        "wu_ov_pcm_tell": {
+          "ordinal": 18,
+          "rva": 77200,
+          "va": 285289872,
+          "forwarded": false
+        },
+        "wu_ov_pcm_total": {
+          "ordinal": 19,
+          "rva": 76800,
+          "va": 285289472,
+          "forwarded": false
+        },
+        "wu_ov_raw_seek": {
+          "ordinal": 20,
+          "rva": 76848,
+          "va": 285289520,
+          "forwarded": false
+        },
+        "wu_ov_raw_seek_lap": {
+          "ordinal": 21,
+          "rva": 77008,
+          "va": 285289680,
+          "forwarded": false
+        },
+        "wu_ov_raw_tell": {
+          "ordinal": 22,
+          "rva": 77168,
+          "va": 285289840,
+          "forwarded": false
+        },
+        "wu_ov_raw_total": {
+          "ordinal": 23,
+          "rva": 76784,
+          "va": 285289456,
+          "forwarded": false
+        },
+        "wu_ov_read": {
+          "ordinal": 24,
+          "rva": 77936,
+          "va": 285290608,
+          "forwarded": false
+        },
+        "wu_ov_read_float": {
+          "ordinal": 25,
+          "rva": 77696,
+          "va": 285290368,
+          "forwarded": false
+        },
+        "wu_ov_seekable": {
+          "ordinal": 26,
+          "rva": 76704,
+          "va": 285289376,
+          "forwarded": false
+        },
+        "wu_ov_serialnumber": {
+          "ordinal": 27,
+          "rva": 76720,
+          "va": 285289392,
+          "forwarded": false
+        },
+        "wu_ov_streams": {
+          "ordinal": 28,
+          "rva": 76688,
+          "va": 285289360,
+          "forwarded": false
+        },
+        "wu_ov_test_callbacks": {
+          "ordinal": 29,
+          "rva": 76416,
+          "va": 285289088,
+          "forwarded": false
+        },
+        "wu_ov_test_open": {
+          "ordinal": 30,
+          "rva": 76464,
+          "va": 285289136,
+          "forwarded": false
+        },
+        "wu_ov_time_seek": {
+          "ordinal": 31,
+          "rva": 76944,
+          "va": 285289616,
+          "forwarded": false
+        },
+        "wu_ov_time_seek_lap": {
+          "ordinal": 32,
+          "rva": 77104,
+          "va": 285289776,
+          "forwarded": false
+        },
+        "wu_ov_time_seek_page": {
+          "ordinal": 33,
+          "rva": 76976,
+          "va": 285289648,
+          "forwarded": false
+        },
+        "wu_ov_time_seek_page_lap": {
+          "ordinal": 34,
+          "rva": 77136,
+          "va": 285289808,
+          "forwarded": false
+        },
+        "wu_ov_time_tell": {
+          "ordinal": 35,
+          "rva": 77232,
+          "va": 285289904,
+          "forwarded": false
+        },
+        "wu_ov_time_total": {
+          "ordinal": 36,
+          "rva": 76816,
+          "va": 285289488,
+          "forwarded": false
+        }
+      }
+    },
+    {
+      "relative_path": "工具\\krkrz\\krkrz_20171225\\plugin64\\wuvorbis.dll",
+      "sha256": "0f314d0935295e6c1da95d62087c3f26418ce1886377ee1d359ed7b8c1f554f0",
+      "bytes": 270336,
+      "machine": 34404,
+      "magic": 523,
+      "OS_load_performed": false,
+      "PE64_fields_not_interpreted_by_PE32_parser": true
+    }
+  ],
+  "original_source_readonly": true,
+  "version_or_PCM_identity_not_proved": true
+}

@@ -1,0 +1,64 @@
+{
+  "status": "PASS_ORIGINAL_R_NATIVE2_MICROCASE",
+  "source_exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "scope": "synthetic bytecode/context; original SOB VM and native slot2 handler; read-only observers; no WinAPI stubs or host PE execution",
+  "fixture": [
+    40,
+    0,
+    16842772,
+    5,
+    4305856,
+    0,
+    16973824,
+    0
+  ],
+  "runtime_argument_observations": [
+    {
+      "handler_va": 4305856,
+      "arg_word": 16908288
+    }
+  ],
+  "state_5355c0": 3,
+  "native_return_word": 0,
+  "result": {
+    "error": "",
+    "EIP": 33615872,
+    "EAX": 1,
+    "pc": 16842784,
+    "sp": 16908288,
+    "words": [
+      40,
+      0,
+      16842772,
+      5,
+      4305856,
+      16908288,
+      16973824,
+      0
+    ],
+    "dest_word": 0,
+    "stack_words": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "trace": [
+      {
+        "pc": 16842752,
+        "opcode": 40
+      },
+      {
+        "pc": 16842764,
+        "opcode": 5
+      },
+      {
+        "pc": 16842780,
+        "opcode": 0
+      }
+    ],
+    "returned": true
+  },
+  "handler_semantic_name": "unresolved_state3_not_assumed_script_return",
+  "original_scene_replay": false
+}

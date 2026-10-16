@@ -1,0 +1,17 @@
+[
+  {
+    "file": "r_live_record_fixture_state.tjs",
+    "patches": [
+      {
+        "op": "replace",
+        "old": "    var m = global.RRRegions(spec);",
+        "new": "    var m = global.RSourceRegions(spec);"
+      },
+      {
+        "op": "delete",
+        "old": "    for (i = 0; i < spec.data.count; i = i + 1) {\n        global.RMemoryWrite8(m, spec.source + i, spec.data[i]);\n    }\n\n",
+        "new": ""
+      }
+    ]
+  }
+]

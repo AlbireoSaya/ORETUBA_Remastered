@@ -1,0 +1,108 @@
+{
+  "status": "PASS_ORIGINAL_MAIN_SCHEDULER_TO_GAMEINIT_LOAD_REQUEST",
+  "exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "sources": [
+    {
+      "name": "main.sob",
+      "base": 50331648,
+      "ss": 3364,
+      "source_sha256": "f776e63097d1a1421360d7abe845d54d1d7e632a73654dd116363da0a1b626fa"
+    },
+    {
+      "name": "func_lib.sob",
+      "base": 100663296,
+      "ss": 25236,
+      "source_sha256": "89a4998a50fa4c2340fc39a79a167cd8da3d86dfdef88d6398f38bd7058e0be0"
+    }
+  ],
+  "original_instructions": [
+    {
+      "module": "main.sob",
+      "offset": 0,
+      "opcode": 6
+    },
+    {
+      "module": "main.sob",
+      "offset": 8,
+      "opcode": 11
+    },
+    {
+      "module": "main.sob",
+      "offset": 16,
+      "opcode": 32
+    },
+    {
+      "module": "main.sob",
+      "offset": 28,
+      "opcode": 30
+    },
+    {
+      "module": "main.sob",
+      "offset": 908,
+      "opcode": 40
+    },
+    {
+      "module": "main.sob",
+      "offset": 920,
+      "opcode": 8
+    },
+    {
+      "module": "main.sob",
+      "offset": 928,
+      "opcode": 5
+    },
+    {
+      "module": "main.sob",
+      "offset": 944,
+      "opcode": 12
+    },
+    {
+      "module": "main.sob",
+      "offset": 952,
+      "opcode": 0
+    }
+  ],
+  "native_calls": [
+    {
+      "handler_va": 4305824,
+      "indices": [
+        0
+      ],
+      "argument_pointer": 16810000
+    }
+  ],
+  "api_model_calls": [
+    {
+      "destination": 5461180,
+      "source": 50335092,
+      "return_va": 4305852,
+      "esp_before": 33587152,
+      "esp_after": 33587164
+    }
+  ],
+  "requests": [
+    {
+      "method_va": 4308368,
+      "this": 16777216,
+      "return_va": 4308851,
+      "name_argument": 0,
+      "context_argument": 0,
+      "queued_ASCII": "GameInit",
+      "state_word": 2,
+      "saved_PC": 50332604,
+      "saved_PC_address": 16810000,
+      "VM_SP": 16810004,
+      "VM_PC": 50332604
+    }
+  ],
+  "startup_word_input": {
+    "symbol": "retAppProc",
+    "value": 0,
+    "observed_real_startup_value": false
+  },
+  "API_model_scope": "lstrcpyA mapped disjoint NUL string success only, guest stdcall return; not original Windows kernel execution, errors/SEH not emulated",
+  "stop_reason": "before original 41BD90 module-load body",
+  "real_game_scene_replay": false,
+  "scope": "original main, VM, native0 and scheduler executed with controlled guest context plus documented WinAPI success-path model; no unknown native return stub",
+  "review_correction": "Initial review measured stack+4 and failed because main reserves 12 local bytes. Final saved PC read at runtime VM_SP-4; full guest source unchanged."
+}

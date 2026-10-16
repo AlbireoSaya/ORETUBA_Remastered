@@ -1,0 +1,28 @@
+; V=0x20E64  core=0x20E64..0x20EB8（8 条）  过程=0x20E64..0x20F60（3 块/24 条，段数 1）
+; native=[9, 676, 668]
+; 内嵌串 core=-
+; 库内 CALL -> -
+00020E64  LEA_STK       0x0[-] 0x185F658[L_20E88]                ★ V 入口
+00020E70  PUSH          0x3[-]                                   
+00020E78  PUSH          0x4[-]                                   
+00020E80  CALLNATIVE    0xA[native#9] 0x0[-] 0x185F66C[L_20E9C]  
+00020E90  SP_DROP       0x8[-]                                   
+00020E98  EQZ           0x0[-] 0x185F678[L_20EA8]                
+00020EA4  JZ            0x0[-] 0x185F688[L_20EB8]                
+00020EB0  RETVAL_RET    0x0[-]                                   
+00020EB8  LEA_STK       0x0[-] 0x185F6C0[L_20EF0]                
+00020EC4  PUSH          0x5[-]                                   
+00020ECC  LD_STK        0xC[-] 0x185F6AC[L_20EDC]                
+00020ED8  PUSH          0x0[-]                                   
+00020EE0  PUSH          0x0[-]                                   
+00020EE8  CALLNATIVE    0x2A5[native#676] 0x0[-] 0x185F6D4[L_20F04] 
+00020EF8  SP_DROP       0xC[-]                                   
+00020F00  LT            0x0[-] 0xFFFFFFFF[-] 0x185F6E4[L_20F14]  
+00020F10  JZ            0x0[-] 0x185F6F4[L_20F24]                
+00020F1C  RETVAL_RET    0x0[-]                                   
+00020F24  LEA_STK       0x0[-] 0x185F718[L_20F48]                
+00020F30  PUSH          0x5[-]                                   
+00020F38  PUSH          0x0[-]                                   
+00020F40  CALLNATIVE    0x29D[native#668] 0x0[-] 0x1869F06[str@""] 
+00020F50  SP_DROP       0x8[-]                                   
+00020F58  RETVAL_RET    0x1[-]                                   

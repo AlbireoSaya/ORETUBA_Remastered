@@ -1,0 +1,22 @@
+from pathlib import Path
+import ctypes,json,hashlib,sys
+r=Path.cwd();d=(r/(sys.argv[1]if len(sys.argv)>1 else '临时/ISSUE-20261011-02/r-storage-host-replay-04')).resolve();assert d.is_relative_to((r/'临时/ISSUE-20261011-02').resolve());d.mkdir(exist_ok=False)
+s={};p=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_storage_bindings.py';exec(compile(p.read_text(encoding='utf-8'),str(p),'exec'),s)
+rows=[];folder=d/'路径夹';b=ctypes.create_unicode_buffer(str(folder));ctypes.set_last_error(0);v=int(s['CreateDirectoryW'](b,None));assert v and folder.is_dir();rows.append({'case':'create_mapped_unicode_directory','result':v})
+ctypes.set_last_error(0);v=int(s['CreateDirectoryW'](b,None));e=ctypes.get_last_error();assert v==0 and e==183;rows.append({'case':'existing_directory','result':v,'error':e})
+src=d/'source.txt';src.write_bytes(b'own test payload 123');target=folder/'copied.txt';b1=ctypes.create_unicode_buffer(str(src));b2=ctypes.create_unicode_buffer(str(target));ctypes.set_last_error(0);v=int(s['CopyFileW'](b1,b2,1));assert v and target.read_bytes()==src.read_bytes();rows.append({'case':'copy_exact_payload','result':v,'sha256':hashlib.sha256(target.read_bytes()).hexdigest()})
+ctypes.set_last_error(0);v=int(s['CopyFileW'](b1,b2,1));e=ctypes.get_last_error();assert v==0 and e==80;rows.append({'case':'copy_existing_fail_if_exists','result':v,'error':e})
+ctypes.set_last_error(0);v=int(s['SetFileAttributesW'](b2,0x80));assert v;rows.append({'case':'set_normal_attributes','result':v})
+ctypes.set_last_error(0);v=int(s['SetFileAttributesW'](ctypes.create_unicode_buffer(str(folder/'missing.txt')),0x80));e=ctypes.get_last_error();assert v==0 and e==2;rows.append({'case':'missing_attribute_target','result':v,'error':e})
+import sys
+sys.path.insert(0,str(r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from lucifen_readonly_io_bridge import ReadOnlyFiles
+with ReadOnlyFiles([target])as files:
+ token,err=files.open(target);assert err==0;assert files.seek(token,3,0)==(3,0);guard=b'\xa5'*32;high=ctypes.create_string_buffer(guard+b'\xa5'*4+guard,68);ctypes.set_last_error(0)
+ size=int(s['GetFileSize'](ctypes.c_void_p(files._live_handle(token)),ctypes.byref(high,32)));err=ctypes.get_last_error()
+ assert size==len(target.read_bytes())and int.from_bytes(high.raw[32:36],'little')==0 and high.raw[:32]==guard and high.raw[-32:]==guard and err==0
+ ok,data,err=files.read(token,5);assert ok and err==0 and data==target.read_bytes()[3:8];rows.append({'case':'GetFileSize_guarded_high_part_and_unchanged_position','size':size})
+ assert files.close_all()==[]
+ctypes.set_last_error(0);v=int(s['GetFileSize'](ctypes.c_void_p(-1),None));e=ctypes.get_last_error();assert v==0xffffffff and e==6;rows.append({'case':'GetFileSize_invalid_handle','result':v,'error':e})
+out={'passed':True,'cases':rows,'all_writes_within_workdir':True,'original_data_not_used':True}
+(d/'result.json').write_text(json.dumps(out,indent=2),encoding='utf-8');print(json.dumps(out))

@@ -1,0 +1,54 @@
+from pathlib import Path
+import sys,json
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(g/'工具'),str(r/'工具/unicorn-2.1.4-py314')]
+from lucifen_host_memory import HostMemory
+from lucifen_host_version import host_upper_ascii_z
+from lucifen_guest_memory_bridge import GuestMemoryBlocks
+from unicorn import Uc,UC_ARCH_X86,UC_MODE_32
+stage=r/'临时/ISSUE-20261011-02/r-guest-memory-fixtures-formal-01';stage.mkdir(exist_ok=False)
+cases=[];rejects=[]
+for payload in (b'',bytes(range(1,128)),b'script.Lpk',b'a'*4095):
+ assert host_upper_ascii_z(payload)==payload.upper()
+ cases.append({'case':'actual CharUpperA','length':len(payload),'exact':True})
+for payload in(None,bytearray(),b'\0',b'\x80',b'a'*4096):
+ try:host_upper_ascii_z(payload)
+ except(TypeError,ValueError):rejects.append('invalid CharUpperA')
+ else:raise AssertionError('invalid upper accepted')
+u=Uc(UC_ARCH_X86,UC_MODE_32)
+with HostMemory()as m:
+ h=m.heap_create(0,0,0);p=m.heap_alloc(h,8,4097);m.write(p,b'\x6c'*4097)
+ mirror=GuestMemoryBlocks(u,m,start=0x7000000,stop=0x7004000)
+ a=mirror.bind(p);assert a==0x7000080 and mirror.size(a)==4097 and mirror.host_pointer(a)==p
+ assert bytes(u.mem_read(a,4097))==m.read(p,4097);u.mem_write(a,b'\x4f'*4097);assert mirror.sync(a)==b'\x4f'*4097 and m.read(p,4097)==b'\x4f'*4097
+ cases.append({'case':'actual host allocation bound and synced','size':4097,'host_pointer_not_truncated':True})
+ for fn in(lambda:mirror.bind(p),lambda:mirror.bind(True),lambda:mirror.bind(1),lambda:mirror.size(a+1),lambda:mirror.sync(True),lambda:GuestMemoryBlocks(u,m,start=True),lambda:GuestMemoryBlocks(u,m,start=3),lambda:GuestMemoryBlocks(u,m,start=0x7000000,stop=0x7000000)):
+  count=mirror.live_count
+  try:fn()
+  except(TypeError,ValueError,KeyError):rejects.append('registration or arena rejection')
+  else:raise AssertionError('invalid mirror accepted')
+  assert mirror.live_count==count and m.read(p,4097)==b'\x4f'*4097
+ for guardpos in(a-128,a+4097):
+  u.mem_write(guardpos,b'\x00')
+  for fn in(lambda:mirror.sync(a),lambda:mirror.unmap(a)):
+   try:fn()
+   except ValueError:rejects.append('corrupted guard rejected')
+   else:raise AssertionError('guard accepted')
+   assert mirror.live_count==1 and m.read(p,4097)==b'\x4f'*4097
+  u.mem_write(guardpos,b'\xa5')
+ cases.append({'case':'both guards checked before sync and unmap','host_memory_unchanged_on_rejection':True})
+ mirror.unmap(a);assert mirror.live_count==0 and m.size(p)==4097 and m.heap_free(h,0,p)
+ cases.append({'case':'guest unmap does not release real host allocation','separate_actual_free':True})
+ p=m.global_alloc(0,1);q=m.global_alloc(0,1);x=mirror.bind(p);assert x==0x7002080
+ mirror.unmap(x);assert m.global_free(p)==0
+ y=mirror.bind(q);assert y==0x7003080;mirror.unmap(y);assert m.global_free(q)==0
+ z=m.global_alloc(0,1);before=len(m._blocks)
+ try:mirror.bind(z)
+ except MemoryError:rejects.append('monotonic arena exhausted')
+ else:raise AssertionError('arena accepted')
+ assert mirror.live_count==0 and len(m._blocks)==before and m.global_free(z)==0
+ cases.append({'case':'monotonic arena exhaustion retains caller host ownership','unmapped_addresses_not_reused':True})
+ assert not m._blocks and m.heap_destroy(h)
+summary={'passed':True,'successful_checks':cases,'unsupported_or_guard_rejections':rejects,'all_real_host_blocks_and_heaps_released':True,'scope':'actual Windows host memory and actual Unicorn mirrors, host CharUpperA; rejects before writes; not forced OS/map/bookkeeping failures or native game execution'}
+(stage/'guest-memory-fixtures.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps({'passed':True,'successful_checks':len(cases),'rejections':len(rejects)}),flush=True)

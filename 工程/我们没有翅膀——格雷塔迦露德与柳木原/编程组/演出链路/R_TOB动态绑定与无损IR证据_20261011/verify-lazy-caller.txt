@@ -1,0 +1,73 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'临时/ISSUE-20261011-02/r-tob-dynamic-replay-01';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+from lucifen_tob_dynamic_structure import parse_record
+from lucifen_cdecl_observer import observe_cdecl_until
+from unicorn import UC_HOOK_CODE
+first_by_record={}
+for e in meta:
+ key=(e['path'],e['record_offset'])
+ if key not in first_by_record or e['code_start']<first_by_record[key]['code_start']:first_by_record[key]=e
+rows=[];grouped_records=collections.defaultdict(list)
+for key,e in first_by_record.items():grouped_records[key[0]].append(e)
+params=0x1020000
+for fi,(path,exprs) in enumerate(grouped_records.items()):
+ data=(root/path).read_bytes()
+ for seed in (0,1):
+  u,maps=prepare(data,seed)
+  for a in maps[0].values():u.mem_write(a,struct.pack('<I',1))
+  for e in exprs:
+   r=parse_record(data,e['record_offset']);u.mem_write(buffer,data);context=bytearray(0x8000);context[0x434:0x438]=struct.pack('<I',params);u.mem_write(ctx,bytes(context))
+   if r['condition']['kind']=='array' and r['opcode']==0:u.mem_write(maps[0][r['condition']['bank_index']]+4*r['condition']['element_index'],struct.pack('<I',0))
+   elif r['condition']['kind']=='array':u.mem_write(maps[0][r['condition']['bank_index']]+4*r['condition']['element_index'],struct.pack('<I',1))
+   expected_params=bytearray(b'\xbb'*4096)
+   if e['position']=='item':
+    found=False
+    for j,item in enumerate(r['items']):
+     if item['kind']=='expression':
+      assert item['expression']['code_start']==e['code_start'];struct.pack_into('<I',expected_params,j*8,item['flags']);found=True;break
+     value=0 if item['kind']=='empty' else item['value'] if item['kind']=='literal' else (buffer+item['data_offset'] if item['data_size'] else 0) if item['kind']=='inline' else struct.unpack('<I',u.mem_read(maps[0][item['bank_index']]+item['element_index']*4,4))[0]
+     struct.pack_into('<II',expected_params,j*8,item['flags'],value)
+    assert found
+   shadow=bytearray(data)
+   for a,v in relocation_writes(e,buffer+e['code_start'],maps,0x10d0000+seed*0x1000):struct.pack_into('<I',shadow,a-buffer,v)
+   shadow[e['flag_offset']]=1
+   for warm in (False,True):
+    guard=b'\x98'*16;u.mem_write(params-16,guard+b'\xbb'*4096+guard);calls=[]
+    def hook(uc,a,n,x):
+     if a==0x430090:calls.append(a)
+    handle=u.hook_add(UC_HOOK_CODE,hook)
+    try:obs=observe_cdecl_until(u,0x42fb50,buffer+r['start']+1,0x4a7a30,2,{'ecx':ctx},timeout=0)
+    finally:u.hook_del(handle)
+    assert obs['stop_reached'] and not obs['error'],(path,r['start'],r['condition'],obs)
+    assert obs['stack_words']==[0x42fc1f if e['position']=='condition' else 0x42fd81,buffer+e['code_start']] and obs['ecx']==ctx+0x651c
+    assert len(calls)==(0 if warm else 1),(path,r['start'],warm,calls)
+    assert bytes(u.mem_read(buffer,len(data)))==bytes(shadow)
+    assert bytes(u.mem_read(params-16,4128))==guard+bytes(expected_params)+guard
+    assert bytes(u.mem_read(ctx,len(context)))==bytes(context)
+    rows.append({'path':path,'record_offset':r['start'],'position':e['position'],'seed':seed,'warm':warm,'binding_calls':len(calls),'passed':True})
+  assert (root/path).read_bytes()==data
+ if (fi+1)%100==0:print(json.dumps({'files_completed':fi+1,'caller_cases':len(rows)}),flush=True)
+summary={'unique_records_with_expressions':len(first_by_record),'cases':len(rows),'cold_and_warm':True,'states':2,'passed':True,'scope':'complete original record caller to first expression VM entry, original cold binding then warm skip; VM not executed; controlled variable banks; no actual allocation or final演出'}
+for n,v in [('native-lazy-expression-caller-results.json',rows),('native-lazy-expression-caller-summary.json',summary)]:
+ p=b/n;assert not p.exists();p.write_text(json.dumps(v,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary))

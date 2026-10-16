@@ -1,0 +1,15 @@
+function RMemoryCreate(regions)
+{
+    var copy = [];
+    for (var i = 0; i < regions.count; i++)
+    {
+        var r = RMemoryRegionCopy(regions[i]);
+        for (var j = 0; j < copy.count; j++)
+        {
+            var p = copy[j];
+            if (r.base < p.base + p.size && p.base < r.base + r.size) throw new Exception("OVERLAPPING_MEMORY_REGION");
+        }
+        copy.add(r);
+    }
+    return %["regions" => copy, "dirty" => %[]];
+}

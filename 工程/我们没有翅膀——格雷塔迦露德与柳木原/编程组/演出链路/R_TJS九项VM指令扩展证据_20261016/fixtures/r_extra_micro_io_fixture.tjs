@@ -1,0 +1,14 @@
+function RExtraRD(q)
+{
+    var rd = global.RVMFRD incontextof this;
+    var v = rd(q);
+    this.events.add(["r", q, 4, v]);
+    return v;
+}
+
+function RExtraWR(q, v)
+{
+    this.events.add(["w", q, 4, v & 0xffffffff]);
+    var wr = global.RVMFWR incontextof this;
+    wr(q, v);
+}

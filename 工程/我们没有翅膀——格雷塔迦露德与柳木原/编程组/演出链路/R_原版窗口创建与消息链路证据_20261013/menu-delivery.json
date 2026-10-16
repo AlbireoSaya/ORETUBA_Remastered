@@ -1,0 +1,21 @@
+{
+  "source": "\u5b50\u4ee3\u7406\u5de5\u4f5c\u533a/ISSUE-20261011-02/r-window-create-20261013/menu-06/candidate.txt",
+  "source_sha256": "017dfeac8f1bf823e69623f8a8ffda8edbbdbdf39467ec4452dbac11ca21650c",
+  "candidate": "\u5b50\u4ee3\u7406\u5de5\u4f5c\u533a/ISSUE-20261011-02/r-window-create-20261013/lucifen_host_menu_bindings_candidate.py",
+  "candidate_LF_SHA256": "e4d465903ccf3d8878a0bef16b73137acdf6aa8182a0655dc827ecdfa130ccfc",
+  "exact_editor_patches": [
+    {
+      "old": "# UINT EnableMenuItem(HMENU hMenu, UINT uIDEnableItem, UINT uEnable);",
+      "new": "# BOOL EnableMenuItem(HMENU hMenu, UINT uIDEnableItem, UINT uEnable);"
+    },
+    {
+      "old": "EnableMenuItem.restype = ctypes.c_uint32",
+      "new": "EnableMenuItem.restype = ctypes.c_int"
+    },
+    {
+      "old": "\u771f\u5b9e\u7684 c_uint32 0xFFFFFFFF\uff08-1\uff09",
+      "new": "\u771f\u5b9e\u7684 BOOL -1\uff0832 \u4f4d\u4f4d\u5f62 0xFFFFFFFF\uff09"
+    }
+  ],
+  "official_EnableMenuItem_BOOL_signature_preserved": true
+}

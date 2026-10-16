@@ -1,0 +1,68 @@
+from pathlib import Path
+import sys,json,threading
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(g/'工具')]
+from lucifen_host_memory import HostMemory
+from lucifen_host_tls import HostTLS,current_thread_id,get_last_error,set_last_error
+from lucifen_guest_unwind import plan_current_frame_unwind as plan,UnsupportedUnwind
+from lucifen_host_read_probe import host_bad_read_bytes,host_bad_read_null
+from lucifen_host_write_probe import host_bad_write_bytes,host_bad_write_null
+out=root/'临时/ISSUE-20261011-02/r-Cxx-fixtures-formal-01';out.mkdir(exist_ok=False)
+n=0
+for f in (host_bad_read_bytes,host_bad_write_bytes):
+ for v in (b'x',b'xyz',b'\x00'*1048576):assert f(v)==0;n+=1
+ for bad in (b'',b'x'*1048577,None,'x',bytearray(b'x'),1,True):
+  try:f(bad)
+  except (ValueError,TypeError):n+=1
+  else:raise AssertionError('accepted bad payload')
+for f in (host_bad_read_null,host_bad_write_null):
+ assert f(0)==0 and f(1)!=0 and f(1048576)!=0;n+=3
+ for bad in (-1,1048577,True,None,1.0):
+  try:f(bad)
+  except (ValueError,TypeError):n+=1
+  else:raise AssertionError('accepted bad count')
+tlschecks=0
+with HostMemory() as memory:
+ ptr=memory.global_alloc(0,128);assert ptr>0xffffffff
+ memory.write(ptr,b'Q'*128)
+ tls=HostTLS(memory);index,err=tls.alloc();assert err==0 and index in tls.owned;tlschecks+=1
+ assert tls.get(index)==(0,0);tlschecks+=1
+ set_last_error(123);assert get_last_error()==123;tlschecks+=1
+ assert tls.get(index)==(0,0) and get_last_error()==0;tlschecks+=1
+ assert tls.set(index,ptr)==(True,0) and tls.get(index)==(ptr,0);tlschecks+=2
+ assert tls.free(index)==(False,-5) and index in tls.owned;tlschecks+=1
+ for bad in (True,-1,1<<64,ptr+1,None,1.5):
+  assert tls.set(index,bad)==(False,-4) and tls.get(index)==(ptr,0);tlschecks+=1
+ other=(index+100000)&0xffffffff
+ for method in (tls.get,tls.free):
+  assert method(other)[1]==-3
+  assert method(True)[1]==-2;tlschecks+=2
+ assert tls.set(other,0)==(False,-3);tlschecks+=1
+ before=set(tls.owned);cross=[]
+ def wrongthread():
+  cross.extend([tls.alloc(),tls.get(index),tls.set(index,0),tls.free(index),tls.close_all()])
+ thread=threading.Thread(target=wrongthread);thread.start();thread.join()
+ assert cross==[(0xffffffff,-1),(0,-1),(False,-1),(False,-1),[(None,-1)]]
+ assert set(tls.owned)==before and tls.get(index)==(ptr,0);tlschecks+=5
+ assert tls.set(index,0)==(True,0) and tls.free(index)==(True,0) and not tls.owned;tlschecks+=2
+ assert tls.get(index)==(0,-3);tlschecks+=1
+ second,e=tls.alloc();assert e==0 and tls.set(second,ptr)==(True,0)
+ assert tls.close_all()==[] and not tls.owned and memory.read(ptr,128)==b'Q'*128;tlschecks+=2
+ assert memory.global_free(ptr)==0
+base=dict(record_flags=1,head=0x2000,target_frame=0x2000,target_ip=0x401000,return_value=123,esp=0x1800,return_address=0x401000,stack_low=0x1000,stack_high=0x3000,executable_ranges=[(0x400000,0x402000)])
+assert plan(**base)==dict(flags=3,esp=0x1814,eip=0x401000,eax=123,frames_unwound=0,emulated_os_boundary=True)
+accepted=1;reject=0
+for key in base:
+ if key=='executable_ranges':continue
+ for bad in (True,-1,1<<32,None):
+  altered=dict(base);altered[key]=bad
+  try:plan(**altered)
+  except UnsupportedUnwind:reject+=1
+  else:raise AssertionError((key,bad))
+for changes in [dict(record_flags=2),dict(target_frame=0),dict(target_frame=0x2100),dict(target_ip=0x401004),dict(esp=0x1801),dict(head=0x2001),dict(head=0x180c,target_frame=0x180c),dict(stack_low=0x3000),dict(stack_high=0x2004),dict(esp=0x2ff0),dict(executable_ranges=[]),dict(executable_ranges=[(0x500000,0x600000)]),dict(executable_ranges=[(0x400000,0x402000),(2,1)]),dict(executable_ranges=None),dict(executable_ranges=['bad']),dict(executable_ranges=[(True,0x402000)]),dict(executable_ranges=[(0x400000,0x402000,3)])]:
+ altered=dict(base);altered.update(changes)
+ try:plan(**altered)
+ except UnsupportedUnwind:reject+=1
+ else:raise AssertionError(changes)
+result={'passed':True,'pointer_surrogate_checks':n,'TLS_checks':tlschecks,'unwind_accept':accepted,'unwind_reject':reject,'actual_host_pointer_preserved_above_32_bits':True,'owned_TLS_empty_after_actual_free':True,'memory_not_freed_by_TLS_wrapper':True,'cross_thread_rejected_before_mutation':True,'unwind_scope':'explicit OS emulation only, zero frames above current head; unsupported target rejected'}
+(out/'fixtures.json').write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))

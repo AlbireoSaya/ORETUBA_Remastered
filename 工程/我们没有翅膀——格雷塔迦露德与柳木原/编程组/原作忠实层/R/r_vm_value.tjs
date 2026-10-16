@@ -1,0 +1,19 @@
+function RVMValueStep(rd, wr, ctx, op, p)
+{
+    if (op == 23) {
+        wr(rd(p + 4), RValueOp(23, rd(p)));
+        wr(ctx + 8, rd(ctx + 8) + 8);
+        return;
+    }
+
+    if (op == 13 || op == 19 || op == 20 || op == 41 || op == 44 || op == 45) {
+        var a = rd(p);
+        var b = rd(p + 4);
+        var d = rd(p + 8);
+        wr(d, RValueOp(op, a, b));
+        wr(ctx + 8, rd(ctx + 8) + 12);
+        return;
+    }
+
+    throw new Exception("UNSUPPORTED_VALUE_OPCODE " + op);
+}

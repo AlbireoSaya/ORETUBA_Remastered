@@ -1,0 +1,8 @@
+// videoplay.template.tjs —— 肉眼验收播发单（由「看片尾_肉眼验证.bat」拷成 gameideoplay.tjs）
+// 基路径＝用户投喂的交付目录（2026-10-04：22 支 1920×1080 60fps H.264）；mode 3 = Media Foundation(EVR)。
+UIVideoBase = "file://./e/zcode workspace/galgame/工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/视频超分_1080p60_H264_交付/";
+UIVideoPlayList = [
+  %[f:"01_OP与PV_4比3_800x600/ot_op1.mp4",       mode:3, tag:"OP1（1920x1080 60fps，14.5 Mbps）"],
+  %[f:"02_OP_16比9_1280x720/np_makerlogo.mp4",   mode:3, tag:"涅布 maker logo（1080p60）"],
+  %[f:"03_ED与PSV_960x544/ed_asuka.mp4",         mode:3, tag:"片尾 渡来明日香（1080p60）"]
+];

@@ -1,0 +1,150 @@
+"""Root verification recipe: three existing source files, tiny synthetic cases; no emulator."""
+from pathlib import Path
+import collections
+import hashlib
+import json
+import struct
+import sys
+
+root = Path.cwd()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+sys.path.insert(0, str(group / "工具"))
+from lucifen_tob_dynamic_structure import parse_record
+from r_vm_tjs_literal import tjs_literal as lit
+
+out = Path(sys.argv[1]).resolve()
+assert out.is_relative_to(root / "临时/ISSUE-20261011-02") and not out.exists()
+out.mkdir()
+index_path = root / "临时/ISSUE-20261011-02/r-expression-vm-replay-01/dynamic-record-index.json"
+index = json.loads(index_path.read_text(encoding="utf-8"))
+proof_path = group / "演出链路/R_TOB动态绑定与无损IR证据_20261011/lossless-ir-independent-results.json"
+proof = {p["path"].replace("\\", "/"): p for p in json.loads(proof_path.read_text(encoding="utf-8"))}
+raw_files, source_receipts, lines, case_rows, rejections = {}, [], [], [], []
+kind_counts, condition_tags, selector_counts = collections.Counter(), collections.Counter(), collections.Counter()
+
+def octet(data):
+    return "<% " + " ".join(f"{v:02X}" for v in data) + " %>"
+
+def expression_rows(rows, expr):
+    rows.append(["expression", *[expr[k] for k in ("code_start", "code_size", "flag_offset", "compiled_flag", "reloc_start", "reloc_size")], len(expr["relocations"])])
+    rows.extend(["relocation", r["group"], r["slot_offset"], r["index"]] for r in expr["relocations"])
+
+def value_rows(rows, value, is_item):
+    rows.append(["value", value["tag"], value["kind"]])
+    if is_item:
+        rows.append(["flags", value["flags"]])
+    if "selector" in value:
+        rows.append(["selector", value["selector"]])
+    kind = value["kind"]
+    if kind in ("empty", "literal"):
+        rows.append(["literal", value["value"]])
+    elif kind == "array":
+        rows.append(["array", value["bank_index"], value["element_index"]])
+    elif kind == "inline":
+        rows.append(["inline", value["data_offset"], value["data_size"]])
+    elif kind == "expression":
+        expression_rows(rows, value["expression"])
+    else:
+        assert kind == "always"
+
+def record_rows(record):
+    rows = [["record", *[record[k] for k in ("start", "end", "opcode", "length_offset", "declared_length")], len(record["items"])], ["condition"]]
+    value_rows(rows, record["condition"], False)
+    for i, item in enumerate(record["items"]):
+        rows.append(["item", i])
+        value_rows(rows, item, True)
+    return rows
+
+def check(label, data, start, source=None):
+    record = parse_record(data, start)
+    raw = data[start:record["end"]]
+    assert len(raw) <= 65536
+    lines.append(f"RRecordFixtureCheck({octet(raw)},{start},{len(data)},{lit(record_rows(record))});")
+    condition_tags[record["condition"]["tag"]] += 1
+    for item in record["items"]:
+        kind_counts[item["kind"]] += 1
+        if "selector" in item:
+            selector_counts[item["selector"]] += 1
+    case_rows.append({"label": label, "source": source, "start": start, "end": record["end"], "record_sha256": hashlib.sha256(raw).hexdigest()})
+
+for file_index in (0, 48, 144):
+    entry = index[file_index]
+    path = entry["path"]
+    source = root / path
+    assert source.stat().st_size < 4 * 1024 * 1024
+    data = source.read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    assert proof[path]["source_sha256"] == digest and proof[path]["byte_exact_reconstruction"]
+    raw_files[path] = data
+    for start in entry["record_offsets"]:
+        check(f"source-{file_index}-{start}", data, start, path)
+    assert source.read_bytes() == data
+    source_receipts.append({"path": path, "file_index": file_index, "sha256": digest, "bytes": len(data), "records": len(entry["record_offsets"]), "matches_existing_lossless_proof": True})
+
+def u32(v):
+    return struct.pack("<I", v)
+
+def expression():
+    groups = [[(1, 3), (1, 3)], [], [], [(0, 7)], [(4, 2)]]
+    table = b"".join(bytes([len(g)]) + b"".join(u32(o) + u32(i) for o, i in g) for g in groups)
+    return struct.pack("<H", 8) + b"\0" * 8 + b"\xff" + struct.pack("<H", len(table) + 2) + table
+
+def record(tag, payload, items, opcode=0):
+    body = bytes([len(items)]) + b"".join(items)
+    return b"[ " + u32(opcode) + bytes([tag]) + payload + u32(4 + len(body)) + body
+
+items = [b"\0", b"\x02" + u32(0xffffffff), b"\x07\0" + u32(17),
+         b"\x05\x01\x03\0\0\x81\xff", b"\x05\x01\0\0",
+         b"\x09\x02" + u32(3) + u32(4), b"\x0b\x03" + expression()]
+for tag, payload in enumerate((u32(0xffffffff), b"", u32(17) + u32(0xffffffff), expression())):
+    start = 19 + 3 * tag
+    check(f"synthetic-condition-{tag}", b"\xa5" * start + record(tag, payload, items, 0xffffffff - tag), start)
+
+def reject(label, data, expected):
+    try:
+        parse_record(data, 0)
+    except (ValueError, NotImplementedError):
+        pass
+    else:
+        raise AssertionError(("reference accepted malformed record", label))
+    lines.append(f"RRecordFixtureReject({octet(data)},0,{len(data)},{lit(expected)});")
+    rejections.append({"label": label, "expected_message": expected, "bytes": len(data)})
+
+minimal = record(1, b"", [])
+for cut in range(len(minimal)):
+    reject(f"truncated-prefix-frame-{cut}", minimal[:cut], "TRUNCATED_EXPRESSION")
+reject("bad-magic", b"?" + minimal[1:], "BAD_RECORD_HEADER")
+reject("unknown-condition", minimal[:6] + b"\x04" + minimal[7:], "UNSUPPORTED_CONDITION_TAG")
+reject("short-length", minimal[:7] + u32(4) + minimal[11:], "RECORD_LENGTH_TOO_SMALL")
+reject("oversized-length", minimal[:7] + u32(6) + minimal[11:], "TRUNCATED_EXPRESSION")
+reject("missing-counted-item", minimal[:-1] + b"\x01", "TRUNCATED_EXPRESSION")
+reject("trailing-byte", minimal[:7] + u32(6) + b"\0\x99", "RECORD_ITEMS_END_MISMATCH")
+reject("unknown-selector", record(1, b"", [b"\x07\x04"]), "UNSUPPORTED_RECORD_SELECTOR")
+reject("truncated-inline", record(1, b"", [b"\x07\x01\x01\0"]), "TRUNCATED_EXPRESSION")
+reject("truncated-array", record(1, b"", [b"\x09\x02" + u32(3)]), "TRUNCATED_EXPRESSION")
+reject("truncated-literal", record(1, b"", [b"\x02\x12\x34"]), "TRUNCATED_EXPRESSION")
+
+old_manifest_path = root / "临时/ISSUE-20261011-02/r-target-record-sixstate-sample-03/manifest.json"
+old_manifest = json.loads(old_manifest_path.read_text(encoding="utf-8-sig"))
+old_data = root / old_manifest["files"][0]["source"]
+assert hashlib.sha256(old_data.read_bytes()).hexdigest() == old_manifest["files"][0]["sha256"]
+old_lines = old_data.read_text(encoding="utf-8").splitlines()
+assert len(old_lines) == len(old_manifest["selected"]) == 12
+for selected, line in zip(old_manifest["selected"], old_lines):
+    source = index[selected["file_index"]]["path"]
+    data = raw_files[source]
+    start = selected["offset"]
+    parsed = parse_record(data, start)
+    assert line.startswith("RDynamicCheck(") and line.endswith(");")
+    lines.append(f"RDynamicParsedCheck({octet(data[start:parsed['end']])},{start},{len(data)}," + line[len("RDynamicCheck("):])
+
+target = out / "cases.tjs"
+target.write_text("\n".join(lines) + "\n", encoding="utf-8")
+manifest = {"limited": True, "checks": len(case_rows), "rejects": len(rejections), "dynamic_cases": 12, "dynamic_records": 24,
+            "source_files": source_receipts, "condition_tags": dict(condition_tags), "item_kinds": dict(kind_counts), "selectors": dict(selector_counts),
+            "source_reference_proof": proof_path.relative_to(root).as_posix(), "source_reference_sha256": hashlib.sha256(proof_path.read_bytes()).hexdigest(),
+            "previous_dynamic_manifest": old_manifest_path.relative_to(root).as_posix(), "previous_dynamic_manifest_sha256": hashlib.sha256(old_manifest_path.read_bytes()).hexdigest(),
+            "cases": case_rows, "rejection_cases": rejections, "files": [{"source": target.relative_to(root).as_posix(), "sha256": hashlib.sha256(target.read_bytes()).hexdigest()}],
+            "scope": "small local structural/reference comparison plus existing controlled dynamic fixtures; no fresh original CPU or game fidelity claim"}
+(out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+print(json.dumps({key: manifest[key] for key in ("checks", "rejects", "dynamic_cases", "dynamic_records", "condition_tags", "item_kinds", "selectors")}))

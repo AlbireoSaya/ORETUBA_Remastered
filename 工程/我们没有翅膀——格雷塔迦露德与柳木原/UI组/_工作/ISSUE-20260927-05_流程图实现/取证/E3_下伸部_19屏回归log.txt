@@ -1,0 +1,38 @@
+E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-05_流程图实现\复现脚本\E3_descender_regression.py:214: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  return sum(1 for v in d.getdata() if v > 8)
+wrap&&max_lines 元素：7 屏 / 87 件；其中需要下伸余量（字形盒>行盒）的 54 件
+============================================================================================================================
+screen     changed   noise     unexpected  受影响元素（新像素所在允许区）
+============================================================================================================================
+title      0         0         0           （无）
+dialog     0         0         0           （无）
+confirm    0         0         0           （无）
+loading    0         0         0           （无）
+save       0         0         0           （无）
+load       0         0         0           （无）
+config     56        0         0           cfg.pv_text
+backlog    0         0         0           （无）
+gallery    0         0         0           （无）
+music      0         0         0           （无）
+ending     0         0         0           （无）
+fragment   0         0         0           （无）
+flowchart  1758      0         0           fc.node.0001_tx、fc.node.0002_tx、fc.node.0003_tx、fc.node.0004_tx、fc.node.0005_tx、fc.node.0006_tx、fc.node.0007_tx、fc.node.0008_tx、fc.node.0009_tx、fc.node.0010_tx、fc.node.0011_tx、fc.node.0012_tx、fc.node.0013_tx
+sysicons   0         0         0           （无）
+quickbar   0         0         0           （无）
+choices    0         0         0           （无）
+dress      0         0         0           （无）
+replay     0         0         0           （无）
+gal_shell  0         0         0           （无）
+============================================================================================================================
+附：`max_lines` 截断语义保持（夹具：fc.node.0003_tx 的 sample 改为超长串，3 行 > max_lines=2）
+   改后 vs 改前(总是 clamp)：差异>8 = 0（期望 0 ⇒ 超行时与改动前逐字相同）
+   改后 vs 变异(完全不裁)  ：差异>8 = 8801（期望 >0 ⇒ 该夹具确实超行，①才有意义）
+附：自检 ㉓（clamp 裁切决策）三变体
+   [normal] 期望 ㉓ OK ｜ 总判定 ALL PASS         ✓
+            SELFTEST OK   ㉓ clamp 裁切决策：逐元素「是否裁切」== 独立复量的「是否超行」（7 屏 + 夹具）  —— 不裁 105 件 / 裁 1 件 ｜ 夹具（fc.node.0001_tx ×3 串）应判「裁」 ｜ 全部一致
+   [always] 期望 ㉓ FAIL ｜ 总判定 FAILED 1 项       ✓
+            SELFTEST FAIL ㉓ clamp 裁切决策：逐元素「是否裁切」== 独立复量的「是否超行」（7 屏 + 夹具）  —— 不裁 0 件 / 裁 106 件 ｜ 夹具（fc.node.0001_tx ×3 串）应判「裁」 ｜ ✗ dlg.text 决策裁≠实测未超行（自然块高 52px ÷ 行盒 50.4 ⇒ 1 行 / 上限 4 行）；sv.info1 决策裁≠实测未超行（自然块高 50px ÷ 行盒 25.2 ⇒ 2 行 / 上限 3 行）；sv.info2 决策裁
+   [never ] 期望 ㉓ FAIL ｜ 总判定 FAILED 1 项       ✓
+            SELFTEST FAIL ㉓ clamp 裁切决策：逐元素「是否裁切」== 独立复量的「是否超行」（7 屏 + 夹具）  —— 不裁 104 件 / 裁 0 件 ｜ 夹具（fc.node.0001_tx ×3 串）应判「裁」 ｜ ✗ ed.staff 决策不裁≠实测超行（自然块高 957px ÷ 行盒 31.9 ⇒ 30 行 / 上限 28 行）
+============================================================================================================================
+判定：全 19 屏除「下伸部」外无预期外像素变化 + 截断语义保持 ✓

@@ -1,0 +1,11 @@
+## 2026-10-14 原资源解码与阶段终点
+- 本批10个SDK/32及64 OS或ABI自测通过。
+- 131：原始ReadFile实际1,571,162字节，8片段执行预算停，非缺资源。
+- 132：root 30秒观察deadline中止缺完整receipt，不判断原游戏失败；先前“进行中”文本由本补充纠正。
+- 133：短10秒观察循环等待有限worker，22个1M原码片段退出0/cleanup通过，停在原tvpgl执行区0x12039486（根取证续跑仅限EXE原因，不是未知API）。
+- 134：扩原EXE/4DLL已核验可执行区，26个片段退出0，停Root旧SelectObject将所有worker对象路由为font；原owned bitmap不是font。
+- 135：按registered object kind区分实际字体与bitmap，44个片段真实EXE/tvpgl执行、源bitmap选择成功，退出0/worker_errors空/cleanup通过，停SetCursorPos原请求[960,540]，source return 44E009、hint 126D2E。
+- 两次类型/导入/observer误判均为root验证器边界；未改原码、未伪造结果。
+- 现状：尚未达完整初始化/动画/音频/生存线程/WM_PAINT/键鼠或四版TJS 100%；NULLREGION反例未宣称修复；源资料最终完整性复验前保持待审。
+- 下一步：有界接Cursor API，将source parent/worker以实际OS活线程与资源生命周期的串行Unicorn协作模式接通，随后走原素材画音/忠实TJS/全四版全部路线。
+- 规范引用保留正确WM_DWMNCRENDERINGCHANGED；不复制巨大trace。

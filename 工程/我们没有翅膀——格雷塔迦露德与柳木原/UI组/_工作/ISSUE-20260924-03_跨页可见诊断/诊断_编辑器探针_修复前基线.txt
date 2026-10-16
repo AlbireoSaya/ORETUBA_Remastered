@@ -1,0 +1,23 @@
+原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-03_跨页可见诊断\复现脚本\诊断_编辑器探针.dom.html
+PAGESCOPEOUT
+① 值键→页映射（从本屏数据导出，共 17 项）：cfg_v_display=sys cfg_v_facewindow=sys cfg_v_drama=sys cfg_v_effect=sys cfg_v_voicecut=sys cfg_v_curhide=sys cfg_v_savedialog=sys cfg_v_loaddialog=sys cfg_v_allskip=sys cfg_v_textcolchg=sys cfg_v_mute_vol_master=snd cfg_v_mute_vol_bgm=snd cfg_v_mute_vol_se=snd cfg_v_mute_vol_sysse=snd cfg_v_mute_vol_voice=snd cfg_v_mute_vol_char=snd cfg_vchar=snd
+② 编辑器「按 flag 预览」开关：true
+   [A1 编辑器·原始 flag 覆盖：cfg_page=sys（DOM＝判据）] 可见总数=119 | cfg_page 页元素 sys=81 snd=0 | 本页值/选中元素=17 | **跨页残留=4**
+   [A2 编辑器·原始 flag 覆盖：cfg_page=snd（DOM＝判据）] 可见总数=204 | cfg_page 页元素 sys=0 snd=166 | 本页值/选中元素=4 | **跨页残留=17**
+   ⇒ A1（系统页）的跨页残留 4 件、A2（声音页）的跨页残留 17 件（编辑器只写 flag、不跑派生）
+   A1（系统页）残留：cfg_vchar:cfg.pv_face_asu , cfg_vchar:cfg.pv_name_asu , cfg_vchar:cfg.ch_asu_pill , cfg_vchar:cfg.ch_asu_tx_sel
+   A2（声音页）残留：cfg_v_display:cfg.o_display_on , cfg_v_display:cfg.o_display_on_tx_sel , cfg_v_facewindow:cfg.o_facewindow_on , cfg_v_facewindow:cfg.o_facewindow_on_tx_sel , cfg_v_drama:cfg.o_drama_on , cfg_v_drama:cfg.o_drama_on_tx_sel , cfg_v_effect:cfg.o_effect_on , cfg_v_effect:cfg.o_effect_on_tx_sel , cfg_v_voicecut:cfg.o_voicecut_on_tx , cfg_v_curhide:cfg.o_curhide_on_tx , cfg_v_savedialog:cfg.o_savedialog_on , cfg_v_savedialog:cfg.o_savedialog_on_tx_sel , cfg_v_loaddialog:cfg.o_loaddialog_on , cfg_v_loaddialog:cfg.o_loaddialog_on_tx_sel , cfg_v_allskip:cfg.o_allskip_on_tx , cfg_v_textcolchg:cfg.o_textcolchg_on , cfg_v_textcolchg:cfg.o_textcolchg_on_tx_sel
+   [A2 声音页] 名单里当前可见：系统页值元素 17/17 件、声音页角色元素 4/5 件
+      · 可见的系统页值元素：cfg.o_display_on_tx_sel, cfg.o_display_on, cfg.o_facewindow_on_tx_sel, cfg.o_facewindow_on, cfg.o_drama_on_tx_sel, cfg.o_drama_on, cfg.o_effect_on_tx_sel, cfg.o_effect_on, cfg.o_voicecut_on_tx, cfg.o_curhide_on_tx, cfg.o_savedialog_on_tx_sel, cfg.o_savedialog_on, cfg.o_loaddialog_on_tx_sel, cfg.o_loaddialog_on, cfg.o_allskip_on_tx, cfg.o_textcolchg_on_tx_sel, cfg.o_textcolchg_on
+      · 可见的声音页角色元素：cfg.ch_asu_tx_sel, cfg.ch_asu_pill, cfg.pv_name_asu, cfg.pv_face_asu
+   [A1 系统页] 名单里当前可见：系统页值元素 17/17 件、声音页角色元素 4/5 件
+      · 可见的系统页值元素：cfg.o_display_on_tx_sel, cfg.o_display_on, cfg.o_facewindow_on_tx_sel, cfg.o_facewindow_on, cfg.o_drama_on_tx_sel, cfg.o_drama_on, cfg.o_effect_on_tx_sel, cfg.o_effect_on, cfg.o_voicecut_on_tx, cfg.o_curhide_on_tx, cfg.o_savedialog_on_tx_sel, cfg.o_savedialog_on, cfg.o_loaddialog_on_tx_sel, cfg.o_loaddialog_on, cfg.o_allskip_on_tx, cfg.o_textcolchg_on_tx_sel, cfg.o_textcolchg_on
+      · 可见的声音页角色元素：cfg.ch_asu_tx_sel, cfg.ch_asu_pill, cfg.pv_name_asu, cfg.pv_face_asu
+③ 机制侧派生（按当前页= snd 派生，返回值=10 项发生变化）之后：
+   [B 机制侧派生后：cfg_page=snd（只看 DOM）] 可见总数=187 | cfg_page 页元素 sys=0 snd=166 | 本页值/选中元素=4 | **跨页残留=0**
+   ⇒ 跨页残留 0 件
+③b 机制侧派生（按当前页= sys 派生，返回值=17 项发生变化）之后：
+   [C 机制侧派生后：cfg_page=sys（只看 DOM）] 可见总数=115 | cfg_page 页元素 sys=81 snd=0 | 本页值/选中元素=17 | **跨页残留=0**
+   ⇒ 跨页残留 0 件
+④ 判据出处：editor_core.js isVisible()＝逐元素比对 （visible_default → vis_flag 空则可见 → 比对 flagVals 与 vis_when），**无派生**；引擎/HTML 的派生挂在动作里（config_tab_1/2、config_reset、config_char_*、config_set_*）。
+PAGESCOPEEND

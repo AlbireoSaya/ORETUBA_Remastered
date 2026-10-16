@@ -1,0 +1,587 @@
+// ============================================================
+// ui_flow_links.tjs —— 流程图连线渲染（纯渲染 · 不做任何布局/路由计算）
+//
+// 归属：ISSUE-20260927-05（流程图系统第 1 步实现）· 模块 E2（krkr 端连线）
+// 契约：_工作\ISSUE-20260927-05_流程图实现\边与节点数据契约.md
+//       §三（描线/箭头口径 · 失败降级）＋ **§三.1（层序与取整）** ＋ §九.2（配色）
+//
+// 【职责边界】—— 本模块**只描线画箭头，不算任何坐标、不读任何硬编码几何/色值**
+//   · 路由形态（直线 / VZ / VL）与折线点集 `pts` 由**生成器**算好，写进
+//     `layout\screens\32_flowchart.json` 的顶层键 `links`（**不走 elements 管道**）；
+//   · `工具\gen_layout.py` 原样透传整份屏数据 ⇒ 运行期取到
+//     `UILayoutData.screens.flowchart.links`（`color` 一律从数据读，不写死）；
+//   · 本模块只做两件事：① 按 `pts` 顺序描折线（圆角连接 + 圆端帽，线宽 `w`）；
+//     ② `arrow:true` 时在末点补一个**实心三角多边形**。
+//
+// 【层序】（**契约 §三.1 裁决**）连线画在「压暗/视口底板之上、节点元素之下」：
+//   正常路径走 `uiFlowLinksDrawScreenLayered(stage, screen, ctx)` —— 它按推导出的
+//   linksZ 把元素表切成两半、两趟调用既有渲染器（详见该函数注释）。
+//   单层的 `uiFlowLinksDrawScreen(stage, screen)` 只是「在当前位置画一遍连线」的原语。
+//
+// 【层（layer）硬判据】（冻结 §四.1 · 第 2 步 ISSUE-20260928-02）
+//   `fc_layer != "main"` ⇒ **一律不画任何连线**（不进入连线趟）。两端同一句话；
+//   HTML 侧由 `复刻/replica.js` 以同一判据实现（不 `drawLinks`）。
+//   · flag 名**从数据推导**（`uiFlowLinkLayerFlagName`：取 `fc.node.<NNNN>` 族元素的 `vis_flag`），
+//     不写死 —— 冻结 §二 明写主干 117 件全部挂同一个屏级 flag；
+//   · 推导不到（无节点族的旧数据 / 别的屏）⇒ 视为**没有层概念** ⇒ 照旧画连线（不误伤）；
+//   · 「`current` 高亮环」不在本模块 —— 见 `ui_flow_layer.tjs`（本模块只负责连线）。
+//
+// 【绘制后端】layerExDraw.dll（GdiPlus，32 位，VS2008 静态 CRT）
+//   · `Plugins.link("layerExDraw.dll")` **包 try/catch + 能力探测**；
+//     失败 ⇒ **一条线都不画**、往日志写一句可读中文提示、**绝不抛异常、绝不半画**。
+//   · 箭头**不用** GdiPlus 端帽（`AdjustableArrowCap`）：端帽尺寸**随笔宽相乘**、
+//     且「线端向前伸多少」在 GDI+ 与 canvas 两侧语义不同 ⇒ 两端无法像素对齐。
+//     契约要求改画**显式三角多边形**（本轮**唯一**有意偏离参照作之处，已登记）。
+//
+// 【为什么没有缓存 / 增量重绘】
+//   stageLayer 由 startup.tjs 的 redraw() 每帧 `fillRect` 清空后**整屏重绘**
+//   （见 startup.tjs 的 redraw，与既有 drawText/drawImage 同频），故「缓存一份位图」
+//   并不省下重绘，反而多一份生命周期要管（换屏失效 / 层尺寸 / 与转场快照的顺序）。
+//   连线本身很轻（每屏数十条折线，POC 已实测一帧 735 条折线 + 200 箭头可用）
+//   ⇒ **无缓存 ⇒ 无需失效逻辑**。本屏数据是静态的，逐帧重绘结果恒定。
+//
+// 【日志编码坑】（POC 实测，见 _工作\ISSUE-20260927-03_dllPOC\复现说明.md §二）
+//   krkr 往 Windows 控制台写**混合编码**行会丢行 ⇒ 本模块日志行一律 ASCII 主体；
+//   唯一的中文提示**单独占一整行且不含 ASCII**，避免同行混合。
+//
+// 【已知现象 · 主代理 2026-09-28 裁决「接受，不再为它改运行脚本」】
+//   `Plugins.link` **失败时必然多出 1 段异常 dump**（负向轮＝把 layerExDraw.dll 移出镜像时）：
+//     `==== An exception occured at ui_flow_links.tjs(NN)[(function) uiFlowLinkEnsure] ====`
+//     ＋ `-- Disassembled VM code --` / `-- Register dump --`
+//   · 成因：**本机引擎对被 `try/catch` 捕获的异常也照样打整段 dump**
+//     出处：`.zcode\skills\kirikiri-unpack\引擎工作原理.md` **§5 坑 7**
+//     （「异常即使被 `try/catch` 捕获，引擎仍会打整段 dump」）＋ 实测：dump 的反汇编
+//     正是 `#(NN) try { ret = Plugins.link(UIFlowLinkPluginName); }`，且其后
+//     `LINK=FAIL` 行照常打印 ⇒ 捕获成功、只是噪音。
+//   · 为何**不能**用 `Storages.isExistentStorage` 预判掉它：插件 DLL 落在
+//     **exe 同级\plugin\**（storage 根**之外**），而 storage 根是工程根 `game\`
+//     （引擎工作原理.md §3.2 查找顺序）⇒ 预判会把「插件其实可用」误判为缺失，
+//     反而把正向路径打成降级（不可接受）⇒ 宁留 1 段噪音。
+//   · 口径：**成品环境（插件在位）零 dump**；降级路径的 3→1 是本轮**已接受**的净改善
+//     （另 2 段来自 `uiFlowLinkAscii` 的 RegExp，已修）。
+//
+// 【TJS2 约束】（.zcode\skills\kirikiri-unpack\引擎工作原理.md §5）
+//   无 `for...in`、无闭包（嵌套函数取不到外层变量）、`Dictionary` 无 `count`；
+//   本文件全部为顶层函数，遍历一律整数下标 + `.count`。
+//   ★ 本机 TJS2 的 `RegExp` **走不通**（`new RegExp(...)._compile()` 必抛，见
+//     `uiFlowLinkAscii` 上方注释）⇒ 凡是"按字符类过滤"的活，一律用
+//     **白名单表 + `String.indexOf` 逐字符判成员**（`ui_theme.tjs` 同款手法），
+//     **不要用正则字面量**。
+// ============================================================
+
+// ------------------------------------------------------------
+// 模块级状态
+// ------------------------------------------------------------
+var UIFlowLinkPluginName = "layerExDraw.dll";
+var UIFlowLinkTried      = false;   // Plugins.link 已尝试（只试一次）
+var UIFlowLinkOK         = false;   // 插件可用（link 成功 **且** 能力探测通过）
+var UIFlowLinkReason     = "";      // 不可用的原因（ASCII，供日志）
+// 诊断（供日志 / 摘要；巡演验收读它）
+var UIFlowLinkSeenLast   = 0;       // 上一帧屏数据里的 links 条数
+var UIFlowLinkDrawnLast  = 0;       // 上一帧实际画出的条数
+var UIFlowLinkSkipLast   = 0;       // 上一帧被跳过的条数（数据非法）
+var UIFlowLinkLoggedSum  = false;   // 首次绘制摘要只发一次
+var UIFlowLinkErrLogged  = 0;       // 绘制异常日志条数上限计数
+var UIFlowLinkWarnedDraw = false;   // 「有 links 但插件不可用」提示只发一次
+var UIFlowLinkLayerLogged = false;  // 层序推导（linksZ / 两趟元素数）只记一次
+// ★ 第 2 步（冻结 §四.1）：层判据 + 主干层名
+var UIFlowLinkLayerMain      = "main";  // 主干层名（冻结 §二：`flags_default` 的初值）
+var UIFlowLinkLayerHiddenLogged = false; // 「因层判据而跳过连线」只记一次
+
+// ------------------------------------------------------------
+// 日志（ASCII 主体；中文整行单独发）
+// ------------------------------------------------------------
+function uiFlowLinkLog(s)
+{
+	try { Debug.message("[UI][FLOWLINK] " + s); } catch(e) { }
+}
+
+// ------------------------------------------------------------
+// 非 ASCII 一律用 "~" 顶替（日志纪律：ASCII 主体；POC 同款口径）
+//
+// ★★ 为什么**不用 RegExp**（本机实测 · ISSUE-20260928-02 第 2 轮）★★
+//   原写法 `s.replace(/[^\x20-\x7e]/g, "~")` 在 **krkrz 1.4.0.8** 上**必抛异常**——
+//   负向轮（R5：把 layerExDraw.dll 移出镜像）实测日志：
+//     `==== An exception occured at ui_flow_links.tjs(83)[(function) uiFlowLinkAscii], VM ip = 25 ====`
+//     ＋ 整段 `-- Disassembled VM code --` / `-- Register dump --`；
+//   同段 dump 的反汇编把成因写得很清楚：编译器把正则字面量降级成
+//     `new %1, RegExp("//g/[^\\x20-\\x7e]")` 再 `.call(_compile)`
+//   ⇒ 本机 `RegExp._compile` 对这条模式**抛异常**（不是"匹配不中"）。
+//   ⚠ 后果不对称：`uiFlowLinkAscii` 只在**失败路径**被调用 ⇒「插件缺失」这一条降级
+//     路径每轮固定多打 2 段 dump，且原因串退化成 `(non-ascii)`（真原因被吃掉）。
+//   替代手法（**与 `ui_theme.tjs` 的 `UIThemeNoHeadChars.indexOf(ch) >= 0` 同一套**）：
+//     **可打印 ASCII 白名单表 + `String.indexOf` 逐字符判成员**。
+//   TJS2 **没有 `String.charCodeAt`**（引擎工作原理.md §5.1 / §5.7）⇒ 不能按码点范围判，
+//   只能查表（表 = 0x20..0x7E 共 95 个字符；`"` 与 `\` 按 TJS2 字符串转义写作 \" 与 \\）。
+// ------------------------------------------------------------
+var UIFlowLinkAsciiTable =
+	" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+
+function uiFlowLinkAscii(s)
+{
+	s = "" + s;
+	var out = "";
+	for(var i = 0; i < s.length; i++)
+	{
+		var c = s.charAt(i);
+		if(UIFlowLinkAsciiTable.indexOf(c) >= 0) out = out + c;   // 可打印 ASCII：原样
+		else out = out + "~";                                    // 其余（含中文 / 控制符）：顶替
+	}
+	return out;
+}
+
+function uiFlowLinkErr(where, e)
+{
+	var m = "";
+	try { m = "" + e.message; } catch(e2) { m = "(no message)"; }
+	if(UIFlowLinkErrLogged < 2)
+	{
+		UIFlowLinkErrLogged++;
+		uiFlowLinkLog("ERR " + where + " : " + uiFlowLinkAscii(m));
+	}
+}
+
+// ------------------------------------------------------------
+// 插件装载（幂等，只试一次）—— 成功/失败都记在模块级标志
+// ------------------------------------------------------------
+function uiFlowLinkEnsure()
+{
+	if(UIFlowLinkTried) return UIFlowLinkOK;
+	UIFlowLinkTried = true;
+
+	var threw = false;
+	var emsg = "";
+	var ret = null;
+	try { ret = Plugins.link(UIFlowLinkPluginName); }
+	catch(e) { threw = true; try { emsg = "" + e.message; } catch(e2) { emsg = "(no message)"; } }
+
+	if(threw)
+	{
+		UIFlowLinkOK = false;
+		UIFlowLinkReason = "link threw : " + uiFlowLinkAscii(emsg);
+	}
+	else if(ret === false)
+	{
+		UIFlowLinkOK = false;
+		UIFlowLinkReason = "link returned false";
+	}
+	else
+	{
+		// 能力探测：link 不抛 ≠ 扩展真的挂上了（POC 口径）
+		var hasLines = false, hasGdi = false;
+		try { hasLines = (Layer["drawLines"] !== void); } catch(e3) { hasLines = false; }
+		try { hasGdi   = (typeof GdiPlus != "void"); }    catch(e4) { hasGdi = false; }
+		if(hasLines && hasGdi)
+		{
+			UIFlowLinkOK = true;
+			UIFlowLinkReason = "";
+		}
+		else
+		{
+			UIFlowLinkOK = false;
+			UIFlowLinkReason = "capability probe failed (drawLines=" + hasLines
+				+ ",GdiPlus=" + hasGdi + ")";
+		}
+	}
+
+	if(UIFlowLinkOK)
+	{
+		uiFlowLinkLog("plugin=" + UIFlowLinkPluginName + " LINK=OK (drawLines+GdiPlus present)");
+	}
+	else
+	{
+		if(UIFlowLinkReason == "") UIFlowLinkReason = "unknown";
+		uiFlowLinkLog("plugin=" + UIFlowLinkPluginName + " LINK=FAIL reason="
+			+ uiFlowLinkAscii(UIFlowLinkReason));
+		// ★ 唯一的中文提示：单独一整行、不含 ASCII（混合编码会丢行）
+		Debug.message("流程图连线插件缺失，连线不显示");
+	}
+	return UIFlowLinkOK;
+}
+
+// ------------------------------------------------------------
+// 单条边：描折线 + 可选箭头
+//   口径逐字照契约 §三：
+//     · 描线：按 pts 顺序连线；圆角连接 + 圆端帽（不做半径圆弧）；线宽 = w
+//     · 箭头：实心三角；顶点 = pts[-1]；沿末段方向后退 L = 2.0 * w 为底边中点；
+//             底边半宽 = 1.5 * w
+// ------------------------------------------------------------
+
+// ★ TJS2 的 `typeof` **不返回 "number"**：整数是 `"Integer"`、浮点是 `"Real"`
+//   （引擎工作原理.md §5.1：typeof 本体返回 void/Object/String/Integer/Real/Octet）。
+//   自证实测踩坑：写成 `typeof w != "number"` 会把**每一条**边都判为非法
+//   （日志 `first draw: links=5 drawn=0 skipped=5`）⇒ 必须用本函数判数值。
+function uiFlowLinkIsNum(v)
+{
+	if(v === void || v === null) return false;
+	var t = typeof v;
+	return (t == "Integer" || t == "Real");
+}
+
+// 本屏数据里的 links 条数（0 = 无 links / 字段缺失）——供诊断计数，不参与绘制
+function uiFlowLinkSeenCount(screen)
+{
+	if(screen === void || screen === null || typeof screen != "Object") return 0;
+	var links = screen.links;
+	if(links === void || links === null || typeof links != "Object") return 0;
+	if(links.count === void) return 0;
+	return links.count;
+}
+
+function uiFlowLinkArrowPts(pts, w)
+{
+	var n = pts.count;
+	var a = pts[n - 2];
+	var b = pts[n - 1];
+	if(a === void || a === null || typeof a != "Object") return null;
+	if(b === void || b === null || typeof b != "Object") return null;
+
+	var ax = a[0], ay = a[1], bx = b[0], by = b[1];
+	if(!uiFlowLinkIsNum(ax) || !uiFlowLinkIsNum(ay)) return null;
+	if(!uiFlowLinkIsNum(bx) || !uiFlowLinkIsNum(by)) return null;
+
+	var dx = bx - ax, dy = by - ay;
+	var len = Math.sqrt(dx * dx + dy * dy);
+	if(len <= 0) return null;                 // 零长末段：画不出方向，放弃箭头（折线照画）
+	dx = dx / len; dy = dy / len;
+
+	var back = 2.0 * w;                       // 底边中点后退距离
+	var half = 1.5 * w;                       // 底边半宽
+	var mx = bx - dx * back, my = by - dy * back;
+	var ux = -dy, uy = dx;                    // 单位法线（末段方向左转 90°）
+
+	return [ [bx, by],
+	         [mx + ux * half, my + uy * half],
+	         [mx - ux * half, my - uy * half] ];
+}
+
+function uiFlowLinkDrawOne(stage, lk)
+{
+	if(lk === void || lk === null || typeof lk != "Object") return false;
+
+	var pts = lk.pts;
+	if(pts === void || pts === null || typeof pts != "Object" || pts.count === void) return false;
+	var n = pts.count;
+	if(n < 2) return false;
+
+	var w = lk.w;
+	if(!uiFlowLinkIsNum(w)) return false;
+	w = Math.round(w);
+	if(w <= 0) return false;
+
+	var color = lk.color;
+	if(!uiFlowLinkIsNum(color)) return false;
+	// 色值不取整：契约里它就是 0xAARRGGBB 整数（TJS2 Integer 是 int64，>2^31 合法，
+	// POC 已实测 0xffff3030 形式可用），原样透传给 addPen/addBrush。
+
+	// ① 折线：圆角连接 + 圆端帽（无箭头机制，箭头另行画多边形）
+	var pen = new GdiPlus.Appearance();
+	pen.addPen(color, %[
+		width: w,
+		lineJoin: GdiPlus.LineJoinRound,
+		startCap: GdiPlus.LineCapRound,
+		endCap: GdiPlus.LineCapRound
+	], 0, 0);
+	stage.drawLines(pen, pts);
+
+	// ② 箭头：实心三角多边形（同色填充）
+	if(lk.arrow === true)
+	{
+		var tri = uiFlowLinkArrowPts(pts, w);
+		if(tri !== null)
+		{
+			var brush = new GdiPlus.Appearance();
+			brush.addBrush(color, 0, 0);
+			stage.drawPolygon(brush, tri);
+		}
+	}
+	return true;
+}
+
+// ------------------------------------------------------------
+// 对外入口：画本屏的连线（由 ui_screens.tjs 的 uiScreenDraw 调用）
+//   stage  : 合成层（stageLayer）
+//   screen : 屏数据（UILayoutData.screens[id]）
+//   返回   : 本帧实际画出的条数（0 = 无 links / 插件不可用 / 全部非法）
+//   保证   : 任何异常都在此吞掉并记一行，绝不冒进引擎事件分发（本工程既有纪律）
+// ------------------------------------------------------------
+function uiFlowLinksDrawScreen(stage, screen)
+{
+	UIFlowLinkSeenLast = 0;
+	UIFlowLinkDrawnLast = 0;
+	UIFlowLinkSkipLast = 0;
+
+	if(stage === void || stage === null) return 0;
+	if(screen === void || screen === null || typeof screen != "Object") return 0;
+
+	var links = screen.links;
+	if(links === void || links === null) return 0;
+	if(typeof links != "Object" || links.count === void) return 0;
+	if(links.count <= 0) return 0;
+
+	UIFlowLinkSeenLast = links.count;
+
+	// ★ 冻结 §四.1（第 2 步）：层判据 —— `fc_layer != "main"` ⇒ **一条都不画**
+	//   （这一层是**双保险**：正常路径 `uiFlowLinkLayerZ` 已返回 null ⇒ 分层入口根本不会
+	//     调到这里；本行保证「谁直接调这个原语」也守同一条判据）
+	if(!uiFlowLinkLayerIsMain(screen))
+	{
+		uiFlowLinkLogLayerHidden(screen);
+		return 0;
+	}
+
+	if(!uiFlowLinkEnsure())
+	{
+		// 降级：不画线（**一条都不画**，绝不半画），提示只发一次
+		if(!UIFlowLinkWarnedDraw)
+		{
+			UIFlowLinkWarnedDraw = true;
+			uiFlowLinkLog("links=" + links.count + " present but plugin unavailable -> 0 drawn (degraded)");
+		}
+		return 0;
+	}
+
+	var drawn = 0;
+	var skipped = 0;
+	for(var i = 0; i < links.count; i++)
+	{
+		try
+		{
+			if(uiFlowLinkDrawOne(stage, links[i])) drawn++;
+			else skipped++;
+		}
+		catch(e)
+		{
+			skipped++;
+			uiFlowLinkErr("draw[" + i + "]", e);
+		}
+	}
+
+	UIFlowLinkDrawnLast = drawn;
+	UIFlowLinkSkipLast = skipped;
+	if(!UIFlowLinkLoggedSum)
+	{
+		UIFlowLinkLoggedSum = true;
+		uiFlowLinkLog("first draw: links=" + links.count + " drawn=" + drawn
+			+ " skipped=" + skipped);
+	}
+	return drawn;
+}
+
+// ------------------------------------------------------------
+// 连线层 z 推导（**契约 §三.1 · 主代理裁决 2026-09-27，两端共用同一条推导规则**）
+//
+//   裁决：`links` 必须画在**压暗/视口底板之上、节点元素之下**。
+//     主规则（真实数据与本轮夹具都走这条）：
+//       linksZ = min(所有 `fc.node.*` 元素的 z) − 1
+//       依据实测：`fc.node.<NNNN>` 及 `_tx`(z=25) / `_hit`(z=95) 的最小 z = 20
+//       ⇒ linksZ = 19 ⇒ 在 `fc.dim`(1) / `fc.scroll`(5) / 面板 rect(6) / 页签(10) 之上，
+//          在全部 z≥20 的节点族与系统件之下。**不再被 dim(opa60)+scroll(opa40) 叠压改色。**
+//     兜底（**旧样板数据**：无 `fc.node.*` 族时）：
+//       linksZ = max(「底板/压暗层」rect 的 z) + 1
+//       其中「底板/压暗层」的**结构性判据**＝ `kind=="rect"` 且 面积 ≥ 画布面积的 30%
+//       （本屏即 `fc.dim` 1920×1080 = 100% 与 `fc.scroll` 1235×827 ≈ 49%）——
+//       即契约措辞「越过全画布压暗层、贴到第一层内容之上 +1」的可执行化。
+//       ⚠ 本条兜底**本轮无任何实跑覆盖**（真实数据与夹具都有节点族），已在报告中登记；
+//         30% 这个阈值是为落实裁决措辞而选的**结构性启发式**，若主代理另有口径请改此一处。
+// ------------------------------------------------------------
+function uiFlowLinkIsNodeId(id)
+{
+	// 契约 §二：节点族 id 形如 `fc.node.<NNNN>` / `fc.node.<NNNN>_tx` / `fc.node.<NNNN>_hit`
+	var s = "" + id;
+	return (s.indexOf("fc.node.") == 0);
+}
+
+// 节点**底图** id（`fc.node.<NNNN>`，不带 `_tx`/`_hit`/`_dim`/`_new` 后缀）
+//   用途：取层 flag 名（冻结 §二：主干与独立层元素共用同一个屏级 flag）
+function uiFlowLinkIsNodeImageId(id)
+{
+	var s = "" + id;
+	if(s.indexOf("fc.node.") != 0) return false;
+	return (s.indexOf("_") < 0);
+}
+
+// ------------------------------------------------------------
+// 层 flag 名推导 + 硬判据（冻结 §四.1；第 2 步 ISSUE-20260928-02）
+//   推导口径：本屏 `fc.node.<NNNN>` 底图元素的 `vis_flag`（数据里 = `fc_layer`）。
+//   为什么从数据取而不是写死字符串：写死会在数据换版时**静默分叉**（本工程既有教训）；
+//   取不到就返回 ""，调用方按「无层概念」处理（照旧画连线，不误伤别的屏）。
+// ------------------------------------------------------------
+function uiFlowLinkLayerFlagName(screen)
+{
+	if(screen === void || screen === null || typeof screen != "Object") return "";
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void) return "";
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;
+		if(el.kind != "image") continue;
+		if(!uiFlowLinkIsNodeImageId(el.id)) continue;
+		var fn = el.vis_flag;
+		if(fn === void || fn === null || ("" + fn) == "") continue;
+		return "" + fn;
+	}
+	return "";
+}
+
+// 层判据（**两端同一句话**）：无层概念 ⇒ true（照旧画）；有 ⇒ 仅 `"main"` 才画。
+function uiFlowLinkLayerIsMain(screen)
+{
+	var flag = uiFlowLinkLayerFlagName(screen);
+	if(flag == "") return true;
+	var v = uiScreenFlagGet(flag);
+	return (v == UIFlowLinkLayerMain);
+}
+
+// 判据被触发时记一行（只记一次），供巡演日志判读「为什么没有连线」
+function uiFlowLinkLogLayerHidden(screen)
+{
+	if(UIFlowLinkLayerHiddenLogged) return;
+	UIFlowLinkLayerHiddenLogged = true;
+	var flag = uiFlowLinkLayerFlagName(screen);
+	uiFlowLinkLog("layer=" + flag + " cur=" + uiScreenFlagGet(flag)
+		+ " != " + UIFlowLinkLayerMain
+		+ " -> links skipped (0 drawn, layer criterion)");
+}
+
+function uiFlowLinkIsBackdropRect(el)
+{
+	if(el === void || el === null || typeof el != "Object") return false;
+	if(el.kind != "rect") return false;
+	var w = uiWidgetNum(el, "w", 0);
+	var h = uiWidgetNum(el, "h", 0);
+	if(w <= 0 || h <= 0) return false;
+	var canvas = uiThemeCanvasW() * uiThemeCanvasH();
+	if(canvas <= 0) return false;
+	return (w * h * 100 >= canvas * 30);          // 占画布 ≥30% 的 rect ⇒ 压暗层 / 视口底板
+}
+
+// 返回连线层的 z 阈值（元素 z < 阈值 ⇒ 画在连线之下；z ≥ 阈值 ⇒ 画在连线之上）；
+// 本屏没有可画的 links 时返回 **null**（调用方据此走原样单趟绘制）。
+//   ★ 冻结 §四.1（第 2 步）：`fc_layer != "main"` 时同样返回 null
+//     ⇒ 分层入口走**单趟**绘制、**不进入连线趟**（这就是「一律不画任何连线」的落点）。
+function uiFlowLinkLayerZ(screen)
+{
+	if(screen === void || screen === null || typeof screen != "Object") return null;
+	var links = screen.links;
+	if(links === void || links === null || typeof links != "Object" || links.count === void) return null;
+	if(links.count <= 0) return null;
+	// ★ 层判据（与 uiFlowLinksDrawScreen 同一句话，两端同判）
+	if(!uiFlowLinkLayerIsMain(screen))
+	{
+		uiFlowLinkLogLayerHidden(screen);
+		return null;
+	}
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void || els.count <= 0) return null;
+
+	var nodeMin = -1;
+	var backMax = -1;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(uiFlowLinkIsNodeId(el.id))
+		{
+			var z = uiWidgetNum(el, "z", 0);
+			if(nodeMin < 0 || z < nodeMin) nodeMin = z;
+		}
+		else if(uiFlowLinkIsBackdropRect(el))
+		{
+			var bz = uiWidgetNum(el, "z", 0);
+			if(bz > backMax) backMax = bz;
+		}
+	}
+	if(nodeMin >= 0) return nodeMin - 1;           // 主规则
+	if(backMax >= 0) return backMax + 1;           // 兜底（旧样板数据）
+	return 0;
+}
+
+// ------------------------------------------------------------
+// 分层绘制入口（**本屏的正常路径**，由 ui_screens.tjs 调用）
+//   做法：把元素表按 linksZ 临时切成两半，两趟各调一次 uiWidgetDrawScreen（**不改
+//   ui_widget.tjs 一行**，也不需要复制 ctx —— 渲染器按 screen.elements 取表，
+//   故把「本趟不该画的那一半」从表里摘掉即可，摘完必须还原）。
+//   为什么不用 ctx.hide：`uiWidgetElementVisible` 里 forceShow 优先于 hide，
+//   天然要处理两表交集；而临时换表对 forceShow / 任何未来新增的 ctx 键都零依赖。
+//   返回：两趟实绘元素数之和（与单趟口径一致）。
+// ------------------------------------------------------------
+function uiFlowLinksDrawScreenLayered(stage, screen, ctx)
+{
+	if(screen === void || screen === null || typeof screen != "Object") return 0;
+	var els = screen.elements;
+	if(els === void || els === null || els.count === void) return uiWidgetDrawScreen(stage, screen, ctx);
+
+	var lz = uiFlowLinkLayerZ(screen);
+	if(lz === null)
+	{
+		// 无 links / `links.count<=0` / **层判据命中**（`fc_layer != "main"`）⇒ 原样单趟绘制。
+		// ★ 诊断口径：把「本帧数据里有几条 links、实际画了几条」如实记进模块级计数 ——
+		//   层判据下就是 `seen=13 drawn=0`（巡演日志/摘要据此自证「不画连线」不是没数据）。
+		UIFlowLinkSeenLast  = uiFlowLinkSeenCount(screen);
+		UIFlowLinkDrawnLast = 0;
+		UIFlowLinkSkipLast  = 0;
+		return uiWidgetDrawScreen(stage, screen, ctx);
+	}
+
+	var lo = [], hi = [];
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(uiWidgetNum(el, "z", 0) < lz) lo.push(el); else hi.push(el);
+	}
+
+	var drawn = 0;
+	try
+	{
+		screen.elements = lo;                                  // 趟 A：压暗/底板（z < linksZ）
+		drawn += uiWidgetDrawScreen(stage, screen, ctx);
+		screen.elements = els;                                 // 连线层（夹在两趟之间）
+		// 连线数**不计入返回值**：本入口的返回值即巡演日志的「实绘元素」，
+		// 语义是**元素**条数（连线不是 elements）⇒ 与单趟口径逐字一致，
+		// 不让流程图屏的这个指标凭空变大。连线条数另有 `first draw: links=...` 一行。
+		uiFlowLinksDrawScreen(stage, screen);
+		screen.elements = hi;                                  // 趟 B：节点族及其上（z ≥ linksZ）
+		drawn += uiWidgetDrawScreen(stage, screen, ctx);
+	}
+	catch(eLayer)
+	{
+		uiFlowLinkErr("layered draw", eLayer);
+	}
+	screen.elements = els;                                     // **必须还原**
+
+	if(!UIFlowLinkLayerLogged)
+	{
+		UIFlowLinkLayerLogged = true;
+		uiFlowLinkLog("layer z=" + lz + " below(z<" + lz + ")=" + lo.count
+			+ " above(z>=" + lz + ")=" + hi.count);
+	}
+	return drawn;
+}
+
+// ------------------------------------------------------------
+// 诊断摘要（供报告 / 巡演日志；不改变任何绘制行为）
+// ------------------------------------------------------------
+function uiFlowLinkSummary()
+{
+	// ★ 第 2 步：附上当前屏的层值（巡演退出汇总行据此判读 `fc_layer` 落在哪一层）
+	var extra = "";
+	var sid = uiScreenCurrent();
+	if(uiScreenExists(sid))
+	{
+		var fn = uiFlowLinkLayerFlagName(UILayoutData.screens[sid]);
+		if(fn != "") extra = " layer=" + fn + ":" + uiScreenFlagGet(fn);
+	}
+	return "links plugin=" + UIFlowLinkPluginName
+		+ " ok=" + (UIFlowLinkOK ? "yes" : "no")
+		+ " seen=" + UIFlowLinkSeenLast
+		+ " drawn=" + UIFlowLinkDrawnLast
+		+ " skipped=" + UIFlowLinkSkipLast
+		+ extra
+		+ ((UIFlowLinkReason == "") ? "" : (" reason=" + uiFlowLinkAscii(UIFlowLinkReason)));
+}
+
+// ------------------------------------------------------------
+// 装载时即尝试 link（模块级标志一次定案；流程图屏没被打开时也有据可查）
+// ------------------------------------------------------------
+uiFlowLinkEnsure();

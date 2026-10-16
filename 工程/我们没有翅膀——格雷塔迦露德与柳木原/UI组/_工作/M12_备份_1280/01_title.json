@@ -1,0 +1,48 @@
+{
+  "id": "title",
+  "title_cn": "标题画面",
+  "owner": "M0",
+  "note": "按《我们没有翅膀》原版标题屏版式重做（2026-09-19，用户要求）：左上角中文标题 logo，右侧竖排 7 键。背景中央为原版 tl2_bg1.png（800×600）1:1 原字节，四周为同源氛围延展层（见 工具/make_title_assets.py）。菜单字体用 DejaVu Sans Mono Bold（拉丁字），故菜单项为英文——与原生标题屏一致（START/LOAD/…）。",
+  "elements": [
+    {
+      "id": "title.bg", "kind": "image", "z": 0, "visible_default": true,
+      "asset": "ui/x_title_bg_1280.png", "x": 0, "y": 0, "w": 1280, "h": 720,
+      "opacity": 255,
+      "source": "UI 组自制（工具/make_title_assets.py）：中央 = 资源组\\美术统一\\系统UI\\tl2_bg1.png 1:1 原字节；四周 = 同图重度模糊压暗的氛围延展层",
+      "note": "标题背景（1280×720 满幅）"
+    },
+    {
+      "id": "title.logo", "kind": "image", "z": 10, "visible_default": true,
+      "asset": "ui/x_title_logo.png", "x": 40, "y": 30, "w": 482, "h": 168,
+      "opacity": 255,
+      "source": "UI 组自制（工具/make_title_assets.py）：羽毛带取自 资源组\\美术统一\\系统UI\\tl1_logo.png 的 y>=118 无字区（1:1 原像素）；「我们没有翅膀」用楷体绘制（simkai.ttf）；副题 under the innocent sky 用 DejaVu Sans Mono Oblique",
+      "note": "左上角中文标题 logo（原版 logo 的日文位于 y<118，与雪花交错无法干净分离，故只用其无字羽毛带；见 _工作/M9_证据/logo_diag.png）"
+    },
+    {
+      "id": "title.menu", "kind": "list", "z": 20, "visible_default": true,
+      "orientation": "v", "x": 620, "y": 378, "w": 612,
+      "item_h": 46, "gap": 0, "max_rows": 7,
+      "labels": ["START", "LOAD", "CONTINUE", "FLOWCHART", "GALLERY", "CONFIG", "EXIT"],
+      "actions": ["game_start", "open_load", "game_continue", "open_flowchart", "open_gallery", "open_config", "quit_game"],
+      "font": {
+        "size": 34, "bold": true,
+        "faces": ["DejaVu Sans Mono", "DejaVu Sans Mono Bold", "DejaVu Sans"],
+        "color": "#FFFFFF",
+        "shadow": true, "shadow_color": "#0A1428", "shadow_ofs": 3
+      },
+      "align": "right",
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "#FFE9A8",
+      "source": "UI 组自制：标签由引擎以 DejaVu Sans Mono Bold 绘制（该字体不含 CJK 字形，故菜单为英文，与原版标题屏一致）",
+      "note": "右侧竖排 7 键（顺序按用户指定：开始游戏 / 读档 / 继续(快速读档) / 流程图 / 鉴赏模式 / 设置 / 退出）。原版无按钮底板，故不设 item_frame——与原生标题屏一致。"
+    },
+    {
+      "id": "title.text_copyright", "kind": "text", "z": 20, "visible_default": true,
+      "x": 0, "y": 686, "w": 1280, "h": 24,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_small", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "来自个人汉化者AlbireoSaya　模型&工具:Deepseek v4.1 flash+ZCode",
+      "note": "署名行（AGENTS.md §六 署名规则；窗口标题另由 startup.tjs 写入同一串）"
+    }
+  ]
+}

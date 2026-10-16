@@ -1,0 +1,30 @@
+global.RLiveRecordCaseCount = 0;
+global.RLiveRecordSegmentCount = 0;
+global.RLiveRecordTraceCount = 0;
+global.RLiveRecordVMCount = 0;
+global.RLiveRecordNativeCount = 0;
+
+function RLiveRecordCheck(spec) {
+    var s = global.RRCreate(spec);
+    s.vmctx = spec.vmctx;
+    for (var i = 0; i < spec.segments.count; i++) {
+        var seg = spec.segments[i];
+        s.events = [];
+        s.vm_writes = [];
+        s.vm_trace = [];
+        s.vm_runs = [];
+        s.bindings = [];
+        s.calls = [];
+        s.phase = "pre";
+        s.expr_preps = seg.expr_preps;
+        s.eval_index = 0;
+        s.current_kind = "";
+        var r = global.RRExecute(spec, s);
+        global.RRCompare(spec, s, seg, r);
+        global.RLiveRecordSegmentCount++;
+        global.RLiveRecordTraceCount += s.vm_trace.count;
+        global.RLiveRecordVMCount += s.vm_runs.count;
+        global.RLiveRecordNativeCount += s.calls.count;
+    }
+    global.RLiveRecordCaseCount++;
+}

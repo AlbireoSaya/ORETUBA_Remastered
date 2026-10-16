@@ -1,0 +1,222 @@
+{
+ "V1": {
+  "manifest_rows": 1647,
+  "products": 1647,
+  "groups": 1647,
+  "unique_names": 1647,
+  "dup_names": [],
+  "manifest_eq_products": true,
+  "one_product_per_group": true,
+  "ok": true
+ },
+ "V2": {
+  "sum_of_group_candidates": 3741,
+  "expected_total": 3741,
+  "per_source_disk": {
+   "ot": 989,
+   "ota": 1264,
+   "otp": 591,
+   "otr": 353,
+   "otv": 253,
+   "np": 291
+  },
+  "conservation_ok": true,
+  "note": "组内候选数之和 == 磁盘实数 == 3741；每组候选数取自清单第 8 列"
+ },
+ "V3a": {
+  "checked": 1647,
+  "mismatches": 0,
+  "examples": [],
+  "ok": true
+ },
+ "V3b": {
+  "groups_recomputed": 1647,
+  "expected_groups": 1647,
+  "mismatches": 0,
+  "examples": [],
+  "ok": true
+ },
+ "V3c": {
+  "canvas_padding_groups": 236,
+  "by_selected_source": {
+   "otv": 236
+  },
+  "content_bbox_counterfactual": {
+   "otv->ota": 59,
+   "otv->ot": 127,
+   "otv->otp": 30,
+   "otv->otr": 20
+  },
+  "note": "这些组按 §3.2 的 w*h 选中了画布更大的 otv 版，但其内容 bbox 面积小于组内另一候选 —— 属 §3.2 字面规则下的「选对了画布、选小了画」反例，已全部列入待复核；content_bbox_counterfactual = 若改按内容 bbox 面积选会换成哪个源"
+ },
+ "V4": {
+  "np_files_total": 291,
+  "np_name_heuristic_merged": 3,
+  "np_content_merged": 64,
+  "np_merged_target_groups": 22,
+  "np_independent": 224,
+  "np_rejected": 32,
+  "thresholds": {
+   "full_mad_le": 35.0,
+   "iou_ge": 0.93,
+   "aspect_filter": 0.06,
+   "cluster_mad_le": 3.0,
+   "ambig_margin_lt": 2.0,
+   "head_margin_lt": 1.0
+  }
+ },
+ "V5": {
+  "rows": 773,
+  "by_class": {
+   "diff_res_same_drawing": 226,
+   "same_res_diff": 66,
+   "diff_res_diff_drawing": 51,
+   "same_res_same": 110,
+   "single": 64,
+   "np_unpaired": 224,
+   "np_pose_ambiguous": 19,
+   "np_low_confidence": 13
+  },
+  "same_res_diff": 66,
+  "diff_res_diff_drawing": 51,
+  "ok": true
+ },
+ "V6": {
+  "sampled": 20,
+  "mismatch": 0,
+  "examples": [],
+  "sample_detail": [
+   [
+    "mis01k.png",
+    "otv:otv_st_mis01k.png",
+    "e5201d384c98",
+    "e5201d384c98"
+   ],
+   [
+    "asu03j.png",
+    "ot:ot_asu03j.png",
+    "00b9c3657791",
+    "00b9c3657791"
+   ],
+   [
+    "f_mis03i.png",
+    "ota:ota_f_mis03i.png",
+    "2ef109e43b67",
+    "2ef109e43b67"
+   ],
+   [
+    "asu_b02l.png",
+    "np:np_asu_b02l.png",
+    "a39b70b8e86a",
+    "a39b70b8e86a"
+   ],
+   [
+    "yuu01l.png",
+    "ot:ot_yuu01l.png",
+    "a56bf7b4432a",
+    "a56bf7b4432a"
+   ],
+   [
+    "mis04j.png",
+    "otv:otv_st_mis04j.png",
+    "a066faa68340",
+    "a066faa68340"
+   ],
+   [
+    "pon01c.png",
+    "otp:otp_pon01c.png",
+    "63efa769bb24",
+    "63efa769bb24"
+   ],
+   [
+    "saw01b.png",
+    "ot:ot_saw01b.png",
+    "9d675a0b8ad6",
+    "9d675a0b8ad6"
+   ],
+   [
+    "f_mis01n.png",
+    "ota:ota_f_mis01n.png",
+    "169ad0b3c130",
+    "169ad0b3c130"
+   ],
+   [
+    "hiy04i.png",
+    "ot:ot_hiy04i.png",
+    "b981e5fdb9bc",
+    "b981e5fdb9bc"
+   ],
+   [
+    "nar03f.png",
+    "ot:ot_nar03f.png",
+    "2fff876ffa33",
+    "2fff876ffa33"
+   ],
+   [
+    "kob05c.png",
+    "ot:ot_kob05c.png",
+    "62456667b8ef",
+    "62456667b8ef"
+   ],
+   [
+    "cin235.png",
+    "ota:ota_cin235.png",
+    "ae75454bb96a",
+    "ae75454bb96a"
+   ],
+   [
+    "aki02l.png",
+    "ota:ota_aki02l.png",
+    "c52017babd28",
+    "c52017babd28"
+   ],
+   [
+    "aki03l.png",
+    "ota:ota_aki03l.png",
+    "9774d4db69cc",
+    "9774d4db69cc"
+   ],
+   [
+    "hiy_c01s.png",
+    "np:np_hiy_c01s.png",
+    "26c6a5501ae7",
+    "26c6a5501ae7"
+   ],
+   [
+    "asu02n.png",
+    "otv:otv_st_asu02n.png",
+    "99cec1a56884",
+    "99cec1a56884"
+   ],
+   [
+    "kob02b.png",
+    "otv:otv_st_kob02b.png",
+    "adcd9d16651e",
+    "adcd9d16651e"
+   ],
+   [
+    "ai_04a.png",
+    "ot:ot_ai_04a.png",
+    "a15a9f93418a",
+    "a15a9f93418a"
+   ],
+   [
+    "eri02b.png",
+    "ot:ot_eri02b.png",
+    "1315584cf25e",
+    "1315584cf25e"
+   ]
+  ],
+  "ok": true
+ },
+ "V7": {
+  "unidentified_groups": 181,
+  "np_unpaired": 224,
+  "np_rejected": 32,
+  "note": "无法判定者一律标「未识别」或列入待复核，未做任何猜测性归并"
+ },
+ "_summary": {
+  "all_ok": true,
+  "failed": []
+ }
+}

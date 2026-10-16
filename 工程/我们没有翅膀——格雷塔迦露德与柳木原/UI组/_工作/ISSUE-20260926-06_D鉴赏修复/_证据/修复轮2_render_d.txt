@@ -1,0 +1,141 @@
+== A/B/D：外壳条带、网格公式、PSV 滚动区 ==
+  OK   A 27_gallery.json：非底图元素均不被外壳条带压住（越界：无）
+  OK   27_gallery.json gal.bg 面积为正（1920x1080）
+  OK   B 27_gallery.json：gal.list 外框 == 网格公式 1806x611（实为 1806x611）
+  OK      gal.list 不出画布（57,230,1806,611）
+  OK   27_gallery.json gal.page_prev 面积为正（56x56）
+  OK   27_gallery.json gal.page_next 面积为正（56x56）
+  OK   L gal.bg：底图为 1:1 全屏 PSV 件（(0, 0, 1920, 1080)）
+  OK   A 28_music.json：非底图元素均不被外壳条带压住（越界：无）
+  OK   28_music.json mu.bg 面积为正（1920x1080）
+  OK   B 28_music.json：mu.list 外框 == 网格公式 1580x419（实为 1580x419）
+  OK      mu.list 不出画布（169,504,1580,419）
+  OK   28_music.json mu.pg_prev 面积为正（56x56）
+  OK   28_music.json mu.pg_next 面积为正（56x56）
+  OK   28_music.json mu.pb_none 面积为正（59x59）
+  OK   28_music.json mu.pb_one 面积为正（59x59）
+  OK   28_music.json mu.pb_all 面积为正（59x59）
+  OK   28_music.json mu.pb_rnd 面积为正（59x59）
+  OK   28_music.json mu.pb_prev 面积为正（59x59）
+  OK   28_music.json mu.pb_playpause 面积为正（59x59）
+  OK   28_music.json mu.pb_stop 面积为正（59x59）
+  OK   28_music.json mu.pb_next 面积为正（59x59）
+  OK   L mu.bg：底图为 1:1 全屏 PSV 件（(0, 0, 1920, 1080)）
+  OK   A 37_dress.json：非底图元素均不被外壳条带压住（越界：无）
+  OK   37_dress.json dr.bg 面积为正（1920x1080）
+  OK   37_dress.json dr.namelist 面积为正（182x446）
+  OK   37_dress.json dr.ctrl 面积为正（755x38）
+  OK   37_dress.json dr.big 面积为正（829x460）
+  OK   37_dress.json dr.btn_face 面积为正（187x56）
+  OK   37_dress.json dr.btn_keep 面积为正（131x56）
+  OK   37_dress.json dr.btn_hide 面积为正（131x56）
+  OK   37_dress.json dr.btn_dress0 面积为正（131x56）
+  OK   37_dress.json dr.btn_dress1 面积为正（131x56）
+  OK   37_dress.json dr.btn_dress2 面积为正（131x56）
+  OK   37_dress.json dr.btn_dress3 面积为正（131x56）
+  OK   37_dress.json dr.btn_dress4 面积为正（131x56）
+  OK   37_dress.json dr.btn_pose0 面积为正（56x56）
+  OK   37_dress.json dr.btn_pose1 面积为正（56x56）
+  OK   37_dress.json dr.btn_pose2 面积为正（56x56）
+  OK   37_dress.json dr.btn_diff0 面积为正（56x56）
+  OK   37_dress.json dr.btn_diff1 面积为正（56x56）
+  OK   37_dress.json dr.btn_diff3 面积为正（56x56）
+  OK   37_dress.json dr.btn_level0 面积为正（56x56）
+  OK   37_dress.json dr.btn_level1 面积为正（56x56）
+  OK   37_dress.json dr.btn_level2 面积为正（56x56）
+  OK   37_dress.json dr.btn_faceright 面积为正（53x30）
+  OK   37_dress.json dr.time_day 面积为正（29x29）
+  OK   37_dress.json dr.time_dusk 面积为正（29x16）
+  OK   37_dress.json dr.time_night 面积为正（26x26）
+  OK   37_dress.json dr.time_night2 面积为正（26x26）
+  OK   37_dress.json dr.reset 面积为正（77x40）
+  OK   L dr.bg：底图为 1:1 全屏 PSV 件（(0, 0, 1920, 1080)）
+  OK   A 38_replay.json：非底图元素均不被外壳条带压住（越界：无）
+  OK   38_replay.json rp.bg 面积为正（1920x1080）
+  OK   38_replay.json rp.preview 面积为正（542x702）
+  OK   B 38_replay.json：rp.list 外框 == 网格公式 1147x671（实为 1147x671）
+  OK      rp.list 不出画布（680,208,1147,671）
+  OK   38_replay.json rp.pg_prev 面积为正（56x56）
+  OK   38_replay.json rp.pg_next 面积为正（56x56）
+  OK   L rp.bg：底图为 1:1 全屏 PSV 件（(0, 0, 1920, 1080)）
+  OK   D gal.list ⊂ PSV CG 滚动区 187..884（230..841）
+  OK   D rp.list 在 rp.preview 右侧（680 ≥ 630）
+== C：28 控件落位与空区 ==
+  OK   C mu.list ⊂ PSV 列表框 (156,477,1607,473)：(169,504,1580,419)
+  OK   C mu.pb_none ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.pb_one ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.pb_all ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.pb_rnd ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.pb_prev ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.pb_playpause ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.pb_stop ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.pb_next ⊂ PSV 信息框可见内区（y=275..334）
+  OK   C mu.vol ⊂ 信息框可见内区（360..389）
+  OK   C 控键底 334 ↔ 滑块顶 360 间隙 26 ≤ 30（改前 73）
+  OK   C 8 控键同一行（y=275）
+  OK   C 8 控键同高（h=59）
+== F/G/H/I：37 面板安全区、名单、末行按钮框、计数 ==
+   主面板可见内区 (209, 217, 975, 589) ／ 内容包围盒 (217, 225, 967, 581)
+  OK   F 37 面板内容四边内边距 ≥6px（左8 右8 上8 下8）
+  OK   F 37 左右内边距对齐（左8 == 右8）
+   名单底板可见内区 (18.9,211.0)-(174.3,636.3) ／ 7 行 220..627
+  OK   G 37 名单首行距上/左边框 ≥6px（上 9.0 / 左 28.1）
+  OK   G 37 名单末行距下边框 ≥6px（9.3）且不越右边框
+  OK   G 37 名单文字与热区逐行同 y
+  OK   H 37 末行补了按钮框 dr.btn_face
+  OK   H 37 末行按钮框与其余行**同素材同九宫格**（ui/x_ui_sqkey_s_off.png {'l': 13, 't': 12, 'r': 13, 'b': 12}）
+  OK   H 37 末行按钮框几何 == 名槽矩形 (276, 525, 187, 56)
+  OK   H 37 按钮框在文字之下（z 20 < 25）且无 action/state_group
+  OK   H 37 末行名槽距下边框 ≥6px（8）
+  OK   I 37 hit 数 36（实为 36）
+  OK   I 37 text 数 31（实为 31）
+  OK   I 37 36 个 hit 的 action 仍全为空串
+== E/J：39 外壳热区与选中框 ==
+  OK   E gs.tab1_hit 热区落在条带内 (360, 12, 171, 76)
+  OK   E gs.tab1_hit 与 gs.tab2_hit 热区不重叠
+  OK   E gs.tab1_hit 与 gs.tab3_hit 热区不重叠
+  OK   E gs.tab1_hit 与 gs.tab4_hit 热区不重叠
+  OK   E gs.tab1_hit 与 gs.back_hit 热区不重叠
+  OK   E gs.tab2_hit 热区落在条带内 (541, 12, 220, 76)
+  OK   E gs.tab2_hit 与 gs.tab3_hit 热区不重叠
+  OK   E gs.tab2_hit 与 gs.tab4_hit 热区不重叠
+  OK   E gs.tab2_hit 与 gs.back_hit 热区不重叠
+  OK   E gs.tab3_hit 热区落在条带内 (771, 12, 258, 76)
+  OK   E gs.tab3_hit 与 gs.tab4_hit 热区不重叠
+  OK   E gs.tab3_hit 与 gs.back_hit 热区不重叠
+  OK   E gs.tab4_hit 热区落在条带内 (1039, 12, 229, 76)
+  OK   E gs.tab4_hit 与 gs.back_hit 热区不重叠
+  OK   E gs.back_hit 热区落在条带内 (1660, 22, 230, 56)
+  OK   J 39 四条选中框宽度统一 = 171（[171, 171, 171, 171]）
+  OK   J 39 第1页签选中框居中于标签（偏差 0.0px）
+  OK   J 39 第1页签选中框与文字同 y/h
+  OK   J 39 第2页签选中框居中于标签（偏差 0.5px）
+  OK   J 39 第2页签选中框与文字同 y/h
+  OK   J 39 第3页签选中框居中于标签（偏差 0.5px）
+  OK   J 39 第3页签选中框与文字同 y/h
+  OK   J 39 第4页签选中框居中于标签（偏差 0.0px）
+  OK   J 39 第4页签选中框与文字同 y/h
+  OK   J 39 元素总数 17 / 热区 5 不变
+  OK   J 39 五个 action 不变
+== K：底图件复核（按**改后落盘件**实测）==
+  OK   K 38 槽1 无残线（横 5.3/纵 6.1）且无跨框台阶（1.00/3.33）
+  OK   K 38 槽2 无残线（横 7.6/纵 5.3）且无跨框台阶（0.00/3.33）
+  OK   K 38 槽3 无残线（横 7.8/纵 5.3）且无跨框台阶（0.50/3.33）
+  OK   K 38 槽4 无残线（横 2.7/纵 2.7）且无跨框台阶（1.00/0.67）
+  OK   K 38 槽区间干净带与 ALBUM 底版一致（还原口径成立）
+  FAIL K 28 走带条带内亮残留占比 0.66213 < 0.002
+  FAIL K 28 带内无明暗结构（行中位极差 16.0）
+  OK   K 28 y=101 跨缝 Δ=0.00 < 4
+  OK   K 28 y=187 跨缝 Δ=0.00 < 4
+== 出图 ==
+wrote _工作\ISSUE-20260926-06_D鉴赏修复\_证据\annot_27_gallery.png
+wrote _工作\ISSUE-20260926-06_D鉴赏修复\_证据\annot_28_music.png
+wrote _工作\ISSUE-20260926-06_D鉴赏修复\_证据\annot_37_dress.png
+wrote _工作\ISSUE-20260926-06_D鉴赏修复\_证据\annot_38_replay.png
+wrote E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260926-06_D鉴赏修复\_证据\fromdata_gallery.png (1920, 1080)
+wrote E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260926-06_D鉴赏修复\_证据\fromdata_music.png (1920, 1080)
+wrote E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260926-06_D鉴赏修复\_证据\fromdata_dress.png (1920, 1080)
+wrote E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260926-06_D鉴赏修复\_证据\fromdata_replay.png (1920, 1080)
+wrote E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260926-06_D鉴赏修复\_证据\fromdata_39_only.png (1920, 1080)
+
+断言：**不通过**（2 项失败）

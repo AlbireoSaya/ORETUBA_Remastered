@@ -1,0 +1,218 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "branch": "issue/ISSUE-20261011-02-original-fidelity",
+  "previous_goal_turn_classification": "progress: six-state dynamic samples and pause/atomic guards",
+  "candidate_files": 14,
+  "new_production_candidates": 8,
+  "fixture_candidates": 6,
+  "staged_only": true,
+  "review_status": "pending major phase review; not merged",
+  "parser_checks_per_architecture": 30,
+  "exact_rejections_per_architecture": 22,
+  "parsed_dynamic_pairs_per_architecture": 12,
+  "parsed_dynamic_records_per_architecture": 24,
+  "fresh_original_synthetic_read_order_calls": 3,
+  "live_gate_cases_per_architecture": 3,
+  "critical_finding": "accepted original path skips declared length without reading it; declined path reads length and skips count, cursor can wrap; strict structural parser is not live executor",
+  "original_evidence": "original-record-read-order-results.json",
+  "original_evidence_sha256": "dc614c936b9aedb509a4d1b86a10815766c0299c50da2f294779fe500196b7b3",
+  "api_requests": 17,
+  "api": [
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_dynamic_parsed_check-run-03\\status.json",
+      "module": "r_dynamic_parsed_check.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_parse_record-fix-run-02\\status.json",
+      "module": "r_parse_record.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_parse_record-run-01\\status.json",
+      "module": "r_parse_record.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_condition-run-01\\status.json",
+      "module": "r_record_condition.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_fixture_check-run-02\\status.json",
+      "module": "r_record_fixture_check.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_fixture_expression-run-02\\status.json",
+      "module": "r_record_fixture_expression.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_fixture_reject-run-03\\status.json",
+      "module": "r_record_fixture_reject.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_fixture_value-run-02\\status.json",
+      "module": "r_record_fixture_value.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_frame-run-01\\status.json",
+      "module": "r_record_frame.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_item-run-01\\status.json",
+      "module": "r_record_item.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_items-run-01\\status.json",
+      "module": "r_record_items.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_live_fixture-run-04\\status.json",
+      "module": "r_record_live_fixture.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_live_gate-fix-run-05\\status.json",
+      "module": "r_record_live_gate.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_live_gate-run-04\\status.json",
+      "module": "r_record_live_gate.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_live_prefix-fix-run-05\\status.json",
+      "module": "r_record_live_prefix.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_live_prefix-run-04\\status.json",
+      "module": "r_record_live_prefix.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    },
+    {
+      "path": "子代理工作区\\ISSUE-20261011-02\\r-target-record-bytes-20261015\\r_record_prefix-run-01\\status.json",
+      "module": "r_record_prefix.tjs",
+      "finish_reason": "stop",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "reasoning_effort": "high"
+    }
+  ],
+  "runtime_receipts": [
+    {
+      "path": "临时\\ISSUE-20261011-02\\r-target-record-bytes-32-lowload-01\\evidence\\verdict.json",
+      "sha256": "de1832aabe7f65b395bf29021d13be82aa0a54ede7292356d00d71656c92b725",
+      "bits": 32,
+      "counts": {
+        "checks": 30,
+        "rejects": 22,
+        "dynamic_cases": 12,
+        "dynamic_records": 24
+      },
+      "cases": null,
+      "passed": true
+    },
+    {
+      "path": "临时\\ISSUE-20261011-02\\r-target-record-bytes-64-lowload-01\\evidence\\verdict.json",
+      "sha256": "ab2b8886ca955a67fa1f3c6000c08d782be94ba78b7139d347b39e40ca3da18c",
+      "bits": 64,
+      "counts": {
+        "checks": 30,
+        "rejects": 22,
+        "dynamic_cases": 12,
+        "dynamic_records": 24
+      },
+      "cases": null,
+      "passed": true
+    },
+    {
+      "path": "临时\\ISSUE-20261011-02\\r-target-record-live-32-lowload-01\\evidence\\verdict.json",
+      "sha256": "0d9f1090fd08b47e48f57a32a63fa625f7e5ebb53ad472ca7b3d05d0598a8630",
+      "bits": 32,
+      "counts": null,
+      "cases": 3,
+      "passed": true
+    },
+    {
+      "path": "临时\\ISSUE-20261011-02\\r-target-record-live-64-lowload-01\\evidence\\verdict.json",
+      "sha256": "e54c342604a8a5c0633d18d8b28f2d8453d0d51bbe4412ad7ae4cb626634234c",
+      "bits": 64,
+      "counts": null,
+      "cases": 3,
+      "passed": true
+    }
+  ],
+  "resource_limits": [
+    {
+      "path": "runtime32-resource-01.json",
+      "sha256": "85269ea0ba0a2429c2975cd67a245b71bb316b6b6198800b899250cd9ba17730",
+      "queried": true,
+      "affinity": 2048,
+      "engine_cpu_rate": 100
+    },
+    {
+      "path": "runtime64-resource-01.json",
+      "sha256": "85269ea0ba0a2429c2975cd67a245b71bb316b6b6198800b899250cd9ba17730",
+      "queried": true,
+      "affinity": 2048,
+      "engine_cpu_rate": 100
+    },
+    {
+      "path": "live32-resource-01.json",
+      "sha256": "a59eface0b6f4e65090cee0bf3268383b95140b8f466f091f207bf488401a04b",
+      "queried": true,
+      "affinity": 2048,
+      "engine_cpu_rate": 100
+    },
+    {
+      "path": "live64-resource-01.json",
+      "sha256": "a59eface0b6f4e65090cee0bf3268383b95140b8f466f091f207bf488401a04b",
+      "queried": true,
+      "affinity": 2048,
+      "engine_cpu_rate": 100
+    }
+  ],
+  "no_original_bytes_sent_to_provider": true,
+  "full_target_matrix_passed": false,
+  "full_native_lifecycle_or_four_version_fidelity_proven": false
+}

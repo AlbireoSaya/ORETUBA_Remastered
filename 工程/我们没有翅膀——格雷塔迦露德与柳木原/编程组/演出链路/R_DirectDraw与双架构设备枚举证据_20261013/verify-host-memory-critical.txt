@@ -1,0 +1,16 @@
+from pathlib import Path
+import sys,ctypes,json
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path.insert(0,str(g/'工具'))
+from lucifen_host_memory import HostMemory
+from lucifen_host_critical import HostCritical
+from lucifen_host_startupinfo_layout import STARTUPINFOA_LAYOUT_32,STARTUPINFOA_LAYOUT_64
+bits=ctypes.sizeof(ctypes.c_void_p)*8;assert bits in(32,64);out=r/'临时/ISSUE-20261011-02'/('host-memory-critical-'+str(bits)+'-19.json');assert not out.exists()
+memory=HostMemory();critical=HostCritical();heap=memory.heap_create(0,0,0);assert heap
+try:
+ block=memory.heap_alloc(heap,8,17);assert block and memory.read(block,17)==bytes(17);data=bytes(range(17));memory.write(block,data);assert memory.read(block,17)==data and memory.size(block)==17;assert memory.heap_free(heap,0,block);assert memory.heap_destroy(heap)
+ global_block=memory.global_alloc(0,17);memory.write(global_block,data);assert memory.read(global_block,17)==data;assert memory.global_free(global_block)==0
+ critical.init(0x123400);buffer,depth=critical._sections[0x123400];actual_size=ctypes.sizeof(buffer);assert actual_size==(24 if bits==32 else 40)
+ critical.enter(0x123400);critical.enter(0x123400);assert critical._sections[0x123400][1]==2;critical.leave(0x123400);critical.leave(0x123400);critical.delete(0x123400);assert critical.live_count==0
+finally:critical.close_all();memory.close_all()
+assert not memory._blocks and not memory._heaps;layouts={32:STARTUPINFOA_LAYOUT_32,64:STARTUPINFOA_LAYOUT_64};layout=layouts[bits];assert layout['size']==(68 if bits==32 else 104) and layout['standard_handle_offsets'][-1]+ctypes.sizeof(ctypes.c_void_p)==layout['size']
+report={'passed':True,'host_pointer_bits':bits,'actual_HeapAlloc_17_byte_zero_and_roundtrip':True,'actual_GlobalAlloc_17_byte_roundtrip':True,'actual_critical_section_bytes':actual_size,'actual_Enter_twice_Leave_twice_Delete':True,'owned_host_allocations':0,'owned_critical_sections':0,'native_WinMain_checks_in_separate_phase':True};out.write_text(json.dumps(report,indent=2),encoding='utf-8');print(json.dumps(report))

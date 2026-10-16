@@ -1,0 +1,20 @@
+// r_record_prefix.tjs
+// 仅解析记录前缀（magic / opcode / condition_tag）；不解析条件、不读 items。
+
+function RRecordPrefix(rb, limit, start) {
+    if (typeof start != "Integer" || start < 0 || start > 0xffffffff) {
+        throw new Exception("BAD_RECORD_HEADER");
+    }
+    RExprNeed(limit, start, 7);
+    if (RExprByte(rb, limit, start) != 0x5b || RExprByte(rb, limit, start + 1) != 0x20) {
+        throw new Exception("BAD_RECORD_HEADER");
+    }
+    var opcode = RExprU32(rb, limit, start + 2);
+    var condition_tag = RExprByte(rb, limit, start + 6);
+    return %[
+        "start" => start,
+        "opcode" => opcode,
+        "condition_tag" => condition_tag,
+        "condition_offset" => start + 7
+    ];
+}

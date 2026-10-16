@@ -1,0 +1,123 @@
+{
+  "cases": [
+    {
+      "name": "stop_before_ret",
+      "result": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4194309,
+        "esp": 33587200,
+        "eax": 305419896,
+        "ecx": 0,
+        "edx": 0,
+        "stack_words": [
+          33615872,
+          16777216,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      }
+    },
+    {
+      "name": "true_return_and_hook_removed",
+      "result": {
+        "stop_reached": false,
+        "returned": true,
+        "eip": 33615872,
+        "esp": 33587204,
+        "eax": 305419896,
+        "ecx": 0,
+        "edx": 0,
+        "stack_words": [
+          16777216,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      }
+    },
+    {
+      "name": "actual_call_push_no_fake_return",
+      "result": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4194314,
+        "esp": 33587196,
+        "eax": 0,
+        "ecx": 0,
+        "edx": 0,
+        "stack_words": [
+          4194309,
+          33615872,
+          16777216,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      }
+    },
+    {
+      "name": "budget_loop_not_return",
+      "result": {
+        "stop_reached": false,
+        "returned": false,
+        "eip": 4194304,
+        "esp": 33587200,
+        "eax": 0,
+        "ecx": 0,
+        "edx": 0,
+        "stack_words": [
+          33615872,
+          16777216,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      }
+    },
+    {
+      "name": "unmapped_read_recorded",
+      "result": {
+        "stop_reached": false,
+        "returned": false,
+        "eip": 4194304,
+        "esp": 33587200,
+        "eax": 0,
+        "ecx": 0,
+        "edx": 0,
+        "stack_words": [
+          33615872,
+          16777216,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": "Invalid memory read (UC_ERR_READ_UNMAPPED)"
+      }
+    },
+    {
+      "name": "three_invalid_u32_no_write"
+    }
+  ],
+  "scope": "synthetic original-call-boundary observer, no engine behavior claim"
+}

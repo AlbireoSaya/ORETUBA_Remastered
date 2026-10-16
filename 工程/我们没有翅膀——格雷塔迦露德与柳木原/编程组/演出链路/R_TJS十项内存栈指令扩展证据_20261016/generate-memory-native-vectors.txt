@@ -1,0 +1,105 @@
+"""Root local CPU witness: self-authored arithmetic programs and handler microstates."""
+from pathlib import Path
+import hashlib,itertools,json,struct,sys
+r=Path.cwd().resolve();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(r/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_MEM_READ,UC_HOOK_MEM_WRITE,UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EIP,UC_X86_REG_ESI,UC_X86_REG_EDI,UC_X86_REG_EBP,UC_X86_REG_EBX
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+exe=r/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE';pe=PE(exe);digest=hashlib.sha256(pe.data).hexdigest();assert digest=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+u=map_pe(pe);source=0x3000000;u.mem_map(source,4096);ctx=0x1002000;sb=0x1028000;dst=0x102f000;ops=[27,28,29,33,34,35,36,37,38,39];pack=lambda v:struct.pack('<I',v&0xffffffff)
+values=[0,1,2,0x7fffffff,0x80000000,0xffffffff,0xffff,0x10000,0xaaaa5555,0x5555aaaa,0xdeadbeef,0xffff0001]
+baseline=bytearray(0x100000);baseline[ctx-0x1000000+4:ctx-0x1000000+8]=pack(sb);baseline[ctx-0x1000000+12:ctx-0x1000000+16]=pack(sb);baseline[sb-0x1000000:sb-0x1000000+4096]=b'\x92'*4096
+baseline=bytes(baseline)
+state={};initial_heap=b'';initial_source=b''
+def watched(a):return 0x1000000<=a<0x1100000 or source<=a<source+4096
+def remember(a,n):
+ if watched(a):state['touched'].update(range(a&~3,(a+n+3)&~3,4))
+def rd(uc,access,a,n,value,user):
+ if not watched(a):return
+ remember(a,n)
+ if state['micro']:state['events'].append(['r',a,n,int.from_bytes(uc.mem_read(a,n),'little')])
+def wr(uc,access,a,n,value,user):
+ if not watched(a):return
+ remember(a,n);value&=(1<<(8*n))-1;state['writes'].append([n,a,value])
+ if state['micro']:state['events'].append(['w',a,n,value])
+def code(uc,a,n,user):
+ if a==0x4a7a75 and state['micro']:
+  uc.emu_stop();return
+ if a==0x4a7a75 and not state['micro']:
+  pc=int.from_bytes(uc.mem_read(ctx+8,4),'little');state['trace'].append([pc,int.from_bytes(uc.mem_read(pc,4),'little')])
+handles=[u.hook_add(UC_HOOK_MEM_READ,rd),u.hook_add(UC_HOOK_MEM_WRITE,wr),u.hook_add(UC_HOOK_CODE,code)]
+def pairs(initial=False):
+ rows=[]
+ for a in sorted(state['touched']):
+  raw=(initial_heap[a-0x1000000:a-0x1000000+4]if a<source else initial_source[a-source:a-source+4])if initial else u.mem_read(a,4)
+  assert len(raw)==4;rows.append([a,int.from_bytes(raw,'little')])
+ return rows
+
+slot=dst+0x100;dataaddr=dst+0x200;U32=0xffffffff
+def modecount(op,micro):
+ return 1 if op in(27,28,29,34) else 2 if op==38 and not micro else 3
+def make(op,mode,target,v,p,sp,micro):
+ seeds={target:v,dataaddr:v};a=[]
+ if op==27:a=[target]
+ elif op in(28,29):a=[(sp-target)&U32]
+ elif op==33:
+  s=slot if mode==0 else p if mode==1 else p+4
+  seeds[s]=target;a=[target if mode==1 else v,s]
+ elif op==34:a=[v,(sp-target)&U32]
+ elif op in(35,36,37):
+  src=dataaddr if mode==0 else p if mode==1 else p+4
+  if src==dataaddr:seeds[src]=v
+  if op==35:a=[(sp-src)&U32,target]
+  elif op==36:a=[src,(sp-target)&U32]
+  else:a=[(sp-src)&U32,(sp-target)&U32]
+ elif op==38:
+  s=slot if mode==0 else p+4 if mode==1 else p
+  if mode==0:seeds[s]=dataaddr
+  if mode==2:sp=(p+dataaddr)&U32
+  a=[(sp-s)&U32,target]
+ elif op==39:
+  s=slot if mode==0 else p if mode==1 else p+4
+  if mode==0:seeds[s]=dataaddr
+  a=[s,target]
+ else:raise AssertionError(op)
+ return a,seeds,sp
+full=[];micro=[]
+for op in ops:
+ n=1 if op in(27,28,29)else 2
+ for mode in range(modecount(op,False)):
+  for vi,v in enumerate([0,1,0x7fffffff,0x80000000,0xffffffff]):
+   targets=[dst,dst+1,source+4]+([]if n==1 else[source+8])
+   for ti,target in enumerate(targets):
+    p=source+4;a,seeds,sp=make(op,mode,target,v,p,sb+4,False);assert sp==sb+4
+    u.mem_write(0x1000000,baseline);u.mem_write(source,bytes(4096))
+    for q,val in seeds.items():u.mem_write(q,pack(val))
+    u.mem_write(source,b''.join(pack(x)for x in[op]+a+[1]));initial_heap=bytes(u.mem_read(0x1000000,0x100000));initial_source=bytes(u.mem_read(source,4096));state=dict(micro=False,touched=set(),events=[],writes=[],trace=[])
+    result=invoke_thiscall_args(u,0x4a7a30,ctx,[source],count=1000,timeout=0);assert result==0 and len(state['trace'])==2,(op,mode,vi,ti)
+    seg=dict(resume=0,return_code=result,steps=2,trace=state['trace'],writes=state['writes'],calls=[],final=pairs(),pc=int.from_bytes(u.mem_read(ctx+8,4),'little'),sp=int.from_bytes(u.mem_read(ctx+12,4),'little'))
+    full.append(dict(id=f'memory-{op}-{mode}-{vi}-{ti}',ctx=ctx,entry=source,ranges=[[0x1000000,0x1100000],[source,source+4096]],write_ranges=[[0x1000000,0x1100000],[source,source+4096]],initial=pairs(True),segments=[seg]))
+ for mode in range(modecount(op,True)):
+  for vi,v in enumerate([0,0xffffffff,0x80000000]):
+   p=source+(vi&1)
+   for si,sp in enumerate([sb+4,0]):
+    for ti,target in enumerate([dst,dst+1,ctx+8,ctx+12,p,p+4,p+8,slot,dataaddr]):
+     a,seeds,actualsp=make(op,mode,target,v,p,sp,True)
+     u.mem_write(0x1000000,baseline);u.mem_write(source,bytes(4096))
+     for q,val in seeds.items():u.mem_write(q,pack(val))
+     u.mem_write(ctx+8,pack(v if target==ctx+8 else p));u.mem_write(ctx+12,pack(actualsp));u.mem_write(p,b''.join(pack(x)for x in a));initial_heap=bytes(u.mem_read(0x1000000,0x100000));initial_source=bytes(u.mem_read(source,4096));state=dict(micro=True,touched=set(),events=[],writes=[],trace=[])
+     handler=struct.unpack_from('<I',pe.data,pe.rva_to_off(0x4a7f54+op*4-pe.image_base))[0];u.reg_write(UC_X86_REG_ESI,ctx);u.reg_write(UC_X86_REG_EDI,p);u.reg_write(UC_X86_REG_EBP,4);u.reg_write(UC_X86_REG_EBX,12)
+     try:u.emu_start(handler,0x4a7a75,count=100,timeout=0)
+     except Exception as exc:raise RuntimeError((op,mode,vi,si,ti,hex(u.reg_read(UC_X86_REG_EIP)),state['events']))from exc
+     assert u.reg_read(UC_X86_REG_EIP)==0x4a7a75 and len(state['writes'])==2
+     micro.append(dict(id=f'memory-micro-{op}-{mode}-{vi}-{si}-{ti}',ctx=ctx,op=op,p=p,ranges=[[0x1000000,0x1100000],[source,source+4096]],write_ranges=[[0x1000000,0x1100000],[source,source+4096]],initial=pairs(True),events=state['events'],final=pairs()))
+for h in handles:u.hook_del(h)
+assert exe.read_bytes()==pe.data
+for kind,rows,call in [('full',full,'RVMFRunCase'),('micro',micro,'RMemoryMicroCheck')]:
+ folder=out/kind;folder.mkdir();files=[]
+ for i,start in enumerate(range(0,len(rows),32)):
+  batch=rows[start:start+32];p=folder/f'cases-{i:03d}.tjs';p.write_text('\n'.join(call+'('+lit(spec)+');'for spec in batch)+'\n',encoding='utf-8');files.append(dict(source=p.relative_to(r).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest(),cases=len(batch),segments=len(batch)))
+ m=dict(passed=True,kind=kind,cases=len(rows),segments=len(rows),ops=ops,original_exe_sha256=digest,self_authored_inputs=True,CPU_writes_and_final_words=True,operand_reads_compared=kind=='micro',files=files);(folder/'manifest.json').write_text(json.dumps(m,indent=2),encoding='utf-8')
+print(json.dumps(dict(passed=True,full_cases=len(full),micro_cases=len(micro),ops=ops)))

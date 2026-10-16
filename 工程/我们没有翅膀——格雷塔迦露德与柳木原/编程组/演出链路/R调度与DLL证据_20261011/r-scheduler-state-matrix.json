@@ -1,0 +1,172 @@
+{
+  "status": "PASS_11_ORIGINAL_SCHEDULER_FIRST_BOUNDARY_CASES",
+  "exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "entry_va": 4308704,
+  "cases": [
+    {
+      "state_input": 0,
+      "VM_program_opcode": 0,
+      "nested_input": 0,
+      "observed": "RETURN",
+      "scheduler_return": 1,
+      "VM_entries": 1,
+      "state_after": 0,
+      "VM_PC": 16842756,
+      "VM_SP": 16908292,
+      "top_word": 0,
+      "boundary": null
+    },
+    {
+      "state_input": 0,
+      "VM_program_opcode": 1,
+      "nested_input": 0,
+      "observed": "RETURN",
+      "scheduler_return": 0,
+      "VM_entries": 1,
+      "state_after": 0,
+      "VM_PC": 16842756,
+      "VM_SP": 16908288,
+      "top_word": 0,
+      "boundary": null
+    },
+    {
+      "state_input": 0,
+      "VM_program_opcode": 1,
+      "nested_input": 1,
+      "observed": "CLEANUP_BOUNDARY",
+      "scheduler_return": null,
+      "VM_entries": 1,
+      "state_after": 0,
+      "VM_PC": 16842756,
+      "VM_SP": 16908288,
+      "top_word": 0,
+      "boundary": {
+        "kind": "CLEANUP_BOUNDARY",
+        "va": 4878896,
+        "ECX": 16777216
+      }
+    },
+    {
+      "state_input": 1,
+      "VM_program_opcode": 0,
+      "nested_input": 0,
+      "observed": "RETURN",
+      "scheduler_return": 2,
+      "VM_entries": 1,
+      "state_after": 1,
+      "VM_PC": 16842756,
+      "VM_SP": 16908292,
+      "top_word": 0,
+      "boundary": null
+    },
+    {
+      "state_input": 1,
+      "VM_program_opcode": 1,
+      "nested_input": 0,
+      "observed": "CLEANUP_BOUNDARY",
+      "scheduler_return": null,
+      "VM_entries": 1,
+      "state_after": 1,
+      "VM_PC": 16842756,
+      "VM_SP": 16908288,
+      "top_word": 0,
+      "boundary": {
+        "kind": "CLEANUP_BOUNDARY",
+        "va": 4878896,
+        "ECX": 16777216
+      }
+    },
+    {
+      "state_input": 2,
+      "VM_program_opcode": 0,
+      "nested_input": 0,
+      "observed": "LOAD_BOUNDARY",
+      "scheduler_return": null,
+      "VM_entries": 1,
+      "state_after": 2,
+      "VM_PC": 16842756,
+      "VM_SP": 16908296,
+      "top_word": 16842756,
+      "boundary": {
+        "kind": "LOAD_BOUNDARY",
+        "va": 4308368,
+        "ECX": 16777216
+      }
+    },
+    {
+      "state_input": 2,
+      "VM_program_opcode": 1,
+      "nested_input": 0,
+      "observed": "RETURN",
+      "scheduler_return": 2,
+      "VM_entries": 1,
+      "state_after": 2,
+      "VM_PC": 16842756,
+      "VM_SP": 16908288,
+      "top_word": 0,
+      "boundary": null
+    },
+    {
+      "state_input": 3,
+      "VM_program_opcode": 0,
+      "nested_input": 0,
+      "observed": "RETURN",
+      "scheduler_return": 0,
+      "VM_entries": 1,
+      "state_after": 3,
+      "VM_PC": 16842756,
+      "VM_SP": 16908292,
+      "top_word": 0,
+      "boundary": null
+    },
+    {
+      "state_input": 3,
+      "VM_program_opcode": 1,
+      "nested_input": 0,
+      "observed": "RETURN",
+      "scheduler_return": 0,
+      "VM_entries": 1,
+      "state_after": 3,
+      "VM_PC": 16842756,
+      "VM_SP": 16908288,
+      "top_word": 0,
+      "boundary": null
+    },
+    {
+      "state_input": 4,
+      "VM_program_opcode": 0,
+      "nested_input": 0,
+      "observed": "VM_REENTRY",
+      "scheduler_return": null,
+      "VM_entries": 2,
+      "state_after": 0,
+      "VM_PC": 16842756,
+      "VM_SP": 16908292,
+      "top_word": 0,
+      "boundary": {
+        "kind": "VM_REENTRY",
+        "va": 4880976,
+        "ECX": 16777220
+      }
+    },
+    {
+      "state_input": 4294967295,
+      "VM_program_opcode": 0,
+      "nested_input": 0,
+      "observed": "VM_REENTRY",
+      "scheduler_return": null,
+      "VM_entries": 2,
+      "state_after": 0,
+      "VM_PC": 16842756,
+      "VM_SP": 16908292,
+      "top_word": 0,
+      "boundary": {
+        "kind": "VM_REENTRY",
+        "va": 4880976,
+        "ECX": 16777220
+      }
+    }
+  ],
+  "scope": "original VM and scheduler on one-op synthetic programs; cleanup/load/reentry stopped before external body; no success/error loader return injected",
+  "original_scene_replay": false
+}

@@ -1,0 +1,16 @@
+from pathlib import Path
+import sys,ctypes as C,json
+r=Path.cwd();w=r/'临时/ISSUE-20261011-02'/('full-Cinit-SDK-'+__import__('uuid').uuid4().hex);w.mkdir(exist_ok=False);g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具')]
+from lucifen_host_time_caps import TIMECAPS,timeGetDevCaps
+from lucifen_host_time_get import timeGetTime
+from lucifen_host_timer_period import timeBeginPeriod,timeEndPeriod
+bits=C.sizeof(C.c_void_p)*8;guard=b'\xa5'*32;buf=C.create_string_buffer(guard+bytes(8)+guard,72)
+assert C.sizeof(TIMECAPS)==8 and TIMECAPS.wPeriodMax.offset==4
+result=timeGetDevCaps(C.cast(C.byref(buf,32),C.POINTER(TIMECAPS)),8);assert result==0 and buf.raw[:32]==buf.raw[-32:]==guard
+caps=TIMECAPS.from_buffer_copy(buf.raw[32:-32]);assert 0<caps.wPeriodMin<=caps.wPeriodMax
+begin=timeBeginPeriod(caps.wPeriodMin);end=None
+try:t0=int(timeGetTime());t1=int(timeGetTime());assert 0<=t0<=0xffffffff and 0<=t1<=0xffffffff
+finally:
+ if begin==0:end=int(timeEndPeriod(caps.wPeriodMin));assert end==0
+out={'bits':bits,'timeGetDevCaps_MMRESULT':result,'min_max_ms':[caps.wPeriodMin,caps.wPeriodMax],'timeBeginPeriod_MMRESULT':begin,'timeEndPeriod_MMRESULT':end,'tick_values':[t0,t1],'guard_and_full_U32_pass':True,'own_timer_request_released_or_actual_failure_preserved':True,'not_source_frame_timing_equivalence':True}
+(w/('sdk-timer-%s.json'%bits)).write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8');print(json.dumps(out))

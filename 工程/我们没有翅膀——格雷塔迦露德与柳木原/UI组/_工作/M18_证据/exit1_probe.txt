@@ -1,0 +1,30 @@
+M18 证据 · 「静默 EXIT=1」的成因实验
+============================================================================
+问题：M14 报告称 sysicons 浮层「收起时引擎以 EXIT=1 静默退出」（3 次实测非确定性）。
+
+A. 源码路径（krkr 1.4.0r2，工具\krkrz\src\krkrz-1.4.0r2）
+  environ/win32/Application.h:130    void Terminate() { ::PostQuitMessage(0); }
+  environ/win32/Application.cpp:560  TVPTerminateCode = (int)msg.wParam;   // 取自 WM_QUIT 的 wParam
+  environ/win32/Application.cpp:222  return TVPTerminateCode;              // wWinMain 的返回值 = 进程退出码
+  ⇒ 全树只有一处 PostQuitMessage，参数恒为 0；**代码路径给不出 1**。
+    1 只能来自 TerminateProcess —— 而 taskkill /F 的默认退出码正是 1。
+
+B. 实测（本次会话）
+  $ powershell: Start-Process tvpwin32.exe → 等 8 秒 → taskkill /PID <pid> /F → 读 ExitCode
+  输出：
+      8 秒后仍存活 = True
+      taskkill /F 之后的 ExitCode = 1
+
+C. 对照（同一会话、不杀进程的完整巡演）
+  M18 修复后完整巡演：EXIT=0（见 console_m18final.utf8.log；日志以 [UI] quit (autotour done) 自然收尾）
+  修复前完整巡演：EXIT=0（4 次，见 console_repro / full1 / full2 / full3）
+
+结论：
+  1. 「EXIT=1 且日志无异常、无 [UI] quit 行」= 进程被外部**强杀**，不是代码缺陷。
+     M13 报告 §七.5 自述其脚本用过 taskkill /IM tvpwin32.exe /F（按映像名杀全部实例），
+     并「可能误杀过 M14 的巡演引擎进程」；M14 自己的脚本开头也有同一条按映像名的 taskkill。
+     两个模块并行跑同一套巡演 ⇒ 互相强杀 ⇒ 非确定性 EXIT=1。
+  2. 本模块因此把杀进程改为**按 PID + 命令行含 ui_run_m18 过滤**（见 _工作\M18_run_autotour.sh 末尾），
+     不再按映像名整批杀。
+  3. 真正的代码缺陷另有其一：ui_fragment.tjs 的 uiScreenClick 包装器（见 console_cr1.utf8.log），
+     它会让引擎**冻结**（而非退出）—— 冻结后被任何 taskkill 收掉，就表现为「静默 EXIT=1」。

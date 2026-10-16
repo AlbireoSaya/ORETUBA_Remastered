@@ -1,0 +1,8603 @@
+{
+  "scope": "static direct-function walk; indirect gaps and shared tail ownership remain unresolved; raw original instruction operands kept local only",
+  "source_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "functions": [
+    {
+      "edges": [
+        {
+          "site": 4880954,
+          "target": 4880848,
+          "kind": "call"
+        },
+        {
+          "site": 4880961,
+          "target": 4880976,
+          "kind": "call"
+        }
+      ],
+      "entry": 4880944,
+      "unresolved": [],
+      "diagnostics": [],
+      "instruction_count": 9,
+      "instructions": [
+        {
+          "site": 4880944,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esp + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4880948,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880949,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "esi, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "esi"
+          ]
+        },
+        {
+          "site": 4880951,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 8], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4880954,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x4a79d0",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4880848
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880959,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4880961,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x4a7a50",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4880976
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880966,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4880967,
+          "size": 3,
+          "mnemonic": "ret",
+          "op_str": "4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4880976,
+      "unresolved": [
+        {
+          "site": 4880996,
+          "kind": "indirect_call"
+        },
+        {
+          "site": 4881024,
+          "kind": "indirect_jump"
+        }
+      ],
+      "diagnostics": [],
+      "instruction_count": 24,
+      "instructions": [
+        {
+          "site": 4880976,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880977,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebp",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebp"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880978,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880979,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "esi, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "esi"
+          ]
+        },
+        {
+          "site": 4880981,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880982,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "al, byte ptr [esi + 0x18]",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 24
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "al"
+          ]
+        },
+        {
+          "site": 4880985,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "al, al",
+          "operands": [
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            }
+          ],
+          "regs_read": [
+            "al"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4880987,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x4a7a6b",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4881003
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4880989,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 0x14]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 20
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4880992,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4880994,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x4a7a6b",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4881003
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4880996,
+          "size": 2,
+          "mnemonic": "call",
+          "op_str": "dword ptr [eax]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "eax",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4880998,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "edi"
+          ]
+        },
+        {
+          "site": 4880999,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4881000,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "ebp",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebp"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "ebp"
+          ]
+        },
+        {
+          "site": 4881001,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "ebx"
+          ]
+        },
+        {
+          "site": 4881002,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4881003,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "ebp, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "ebp"
+          ]
+        },
+        {
+          "site": 4881008,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "ebx, 0xc",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 12
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "ebx"
+          ]
+        },
+        {
+          "site": 4881013,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4881016,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [eax]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "eax",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4881018,
+          "size": 3,
+          "mnemonic": "lea",
+          "op_str": "edi, [eax + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "eax",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "edi"
+          ]
+        },
+        {
+          "site": 4881021,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 8], edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "edi"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4881024,
+          "size": 7,
+          "mnemonic": "jmp",
+          "op_str": "dword ptr [ecx*4 + 0x4a7f54]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "ecx",
+              "scale": 4,
+              "disp": 4882260
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": []
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4880848,
+      "unresolved": [],
+      "diagnostics": [],
+      "instruction_count": 7,
+      "instructions": [
+        {
+          "site": 4880848,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [ecx + 0xc]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 12
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4880851,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [eax], 0",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "eax",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 0
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4880857,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [ecx + 0xc]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 12
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4880860,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "eax, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4880863,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [ecx + 0xc], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 12
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4880866,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4880868,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4267072,
+      "unresolved": [
+        {
+          "site": 4267099,
+          "kind": "indirect_jump"
+        }
+      ],
+      "diagnostics": [],
+      "instruction_count": 10,
+      "instructions": [
+        {
+          "site": 4267072,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [esp + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4267076,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [0x530c94]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 5442708
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4267081,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dl, byte ptr [ecx + 4]",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "reg",
+              "reg": "dl"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "dl"
+          ]
+        },
+        {
+          "site": 4267084,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [ecx]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4267086,
+          "size": 3,
+          "mnemonic": "cmp",
+          "op_str": "ecx, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4267089,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esp + 4], dl",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "dl"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "dl"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4267093,
+          "size": 6,
+          "mnemonic": "ja",
+          "op_str": "0x412056",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4268118
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4267099,
+          "size": 7,
+          "mnemonic": "jmp",
+          "op_str": "dword ptr [ecx*4 + 0x41205c]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "ecx",
+              "scale": 4,
+              "disp": 4268124
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4268118,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4268120,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4294224,
+      "unresolved": [
+        {
+          "site": 4294243,
+          "kind": "indirect_jump"
+        }
+      ],
+      "diagnostics": [],
+      "instruction_count": 9,
+      "instructions": [
+        {
+          "site": 4294224,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4294225,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "esi, dword ptr [esp + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esi"
+          ]
+        },
+        {
+          "site": 4294229,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4294231,
+          "size": 3,
+          "mnemonic": "cmp",
+          "op_str": "eax, 0xb",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 11
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4294234,
+          "size": 2,
+          "mnemonic": "jbe",
+          "op_str": "0x418663",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4294243
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4294236,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "eax, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4294241,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4294242,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4294243,
+          "size": 7,
+          "mnemonic": "jmp",
+          "op_str": "dword ptr [eax*4 + 0x4187e0]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "eax",
+              "scale": 4,
+              "disp": 4294624
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": []
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4276576,
+      "unresolved": [
+        {
+          "site": 4276629,
+          "kind": "indirect_call"
+        },
+        {
+          "site": 4276649,
+          "kind": "indirect_call"
+        }
+      ],
+      "diagnostics": [],
+      "instruction_count": 30,
+      "instructions": [
+        {
+          "site": 4276576,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [0x530c94]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 5442708
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4276581,
+          "size": 3,
+          "mnemonic": "sub",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4276584,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "cl, byte ptr [eax + 0xf92]",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "reg",
+              "reg": "cl"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "eax",
+              "index": "",
+              "scale": 1,
+              "disp": 3986
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "cl"
+          ]
+        },
+        {
+          "site": 4276590,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "cl, cl",
+          "operands": [
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "cl"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "cl"
+            }
+          ],
+          "regs_read": [
+            "cl"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4276592,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x41417e",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4276606
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4276594,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esp], 0x1d",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 29
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4276599,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esp + 4], 0x9d",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 157
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4276604,
+          "size": 2,
+          "mnemonic": "jmp",
+          "op_str": "0x414188",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4276616
+            }
+          ],
+          "regs_read": [],
+          "regs_write": []
+        },
+        {
+          "site": 4276606,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esp], 0x2a",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 42
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4276611,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esp + 4], 0x36",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 54
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4276616,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [0x530ca4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 5442724
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4276622,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esp]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4276626,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4276627,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [ecx]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4276629,
+          "size": 3,
+          "mnemonic": "call",
+          "op_str": "dword ptr [edx + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edx",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4276632,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "al, al",
+          "operands": [
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            }
+          ],
+          "regs_read": [
+            "al"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4276634,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x4141b6",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4276662
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4276636,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [0x530ca4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 5442724
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4276642,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esp + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4276646,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4276647,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [ecx]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4276649,
+          "size": 3,
+          "mnemonic": "call",
+          "op_str": "dword ptr [edx + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edx",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4276652,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "al, al",
+          "operands": [
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            }
+          ],
+          "regs_read": [
+            "al"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4276654,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x4141b6",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4276662
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4276656,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4276658,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4276661,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4276662,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "eax, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4276667,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4276670,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [
+        {
+          "site": 4694550,
+          "target": 4694928,
+          "kind": "call"
+        }
+      ],
+      "entry": 4694480,
+      "unresolved": [],
+      "diagnostics": [],
+      "instruction_count": 28,
+      "instructions": [
+        {
+          "site": 4694480,
+          "size": 2,
+          "mnemonic": "push",
+          "op_str": "-1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": -1
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694482,
+          "size": 5,
+          "mnemonic": "push",
+          "op_str": "0x515078",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 5329016
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694487,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr fs:[0]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "fs",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "fs"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4694493,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694494,
+          "size": 7,
+          "mnemonic": "mov",
+          "op_str": "dword ptr fs:[0], esp",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "fs",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esp"
+            }
+          ],
+          "regs_read": [
+            "fs",
+            "esp"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694501,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ecx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694502,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694503,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "esi, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "esi"
+          ]
+        },
+        {
+          "site": 4694505,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694506,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esp + 8], esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694510,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4694512,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "ecx, 0x80",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 128
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4694517,
+          "size": 3,
+          "mnemonic": "lea",
+          "op_str": "edi, [esi + 5]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 5
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "edi"
+          ]
+        },
+        {
+          "site": 4694520,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi], 0x51a054",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 5349460
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694526,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esi + 4], al",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "al"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694529,
+          "size": 7,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esi + 0x208], 1",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 520
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694536,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 0x20c], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 524
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694542,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esp + 0x14], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 20
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694546,
+          "size": 2,
+          "mnemonic": "rep stosd",
+          "op_str": "dword ptr es:[edi], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "es",
+              "base": "edi",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax",
+            "edi",
+            "eflags",
+            "ecx",
+            "es"
+          ],
+          "regs_write": [
+            "edi",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4694548,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4694550,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x47a390",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4694928
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694555,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [esp + 0xc]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 12
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4694559,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "eax, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4694561,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "edi"
+          ]
+        },
+        {
+          "site": 4694562,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4694563,
+          "size": 7,
+          "mnemonic": "mov",
+          "op_str": "dword ptr fs:[0], ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "fs",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "fs",
+            "ecx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694570,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 0x10",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 16
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4694573,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4694576,
+      "unresolved": [],
+      "diagnostics": [],
+      "instruction_count": 10,
+      "instructions": [
+        {
+          "site": 4694576,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [esp + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4694580,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4694582,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "al, byte ptr [ecx + 4]",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "al"
+          ]
+        },
+        {
+          "site": 4694585,
+          "size": 6,
+          "mnemonic": "and",
+          "op_str": "edx, 0xff",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 255
+            }
+          ],
+          "regs_read": [
+            "edx"
+          ],
+          "regs_write": [
+            "eflags",
+            "edx"
+          ]
+        },
+        {
+          "site": 4694591,
+          "size": 3,
+          "mnemonic": "xor",
+          "op_str": "eax, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4694594,
+          "size": 3,
+          "mnemonic": "shl",
+          "op_str": "eax, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4694597,
+          "size": 2,
+          "mnemonic": "add",
+          "op_str": "ecx, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4694599,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "al, byte ptr [edx + ecx + 5]",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edx",
+              "index": "ecx",
+              "scale": 1,
+              "disp": 5
+            }
+          ],
+          "regs_read": [
+            "edx",
+            "ecx"
+          ],
+          "regs_write": [
+            "al"
+          ]
+        },
+        {
+          "site": 4694603,
+          "size": 3,
+          "mnemonic": "shr",
+          "op_str": "al, 7",
+          "operands": [
+            {
+              "size": 1,
+              "access": 3,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 7
+            }
+          ],
+          "regs_read": [
+            "al"
+          ],
+          "regs_write": [
+            "eflags",
+            "al"
+          ]
+        },
+        {
+          "site": 4694606,
+          "size": 3,
+          "mnemonic": "ret",
+          "op_str": "4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4694928,
+      "unresolved": [
+        {
+          "site": 4694943,
+          "kind": "indirect_call"
+        },
+        {
+          "site": 4694955,
+          "kind": "indirect_call"
+        },
+        {
+          "site": 4694970,
+          "kind": "indirect_call"
+        }
+      ],
+      "diagnostics": [],
+      "instruction_count": 19,
+      "instructions": [
+        {
+          "site": 4694928,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694929,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694930,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "edi, dword ptr [0x51832c]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "",
+              "scale": 1,
+              "disp": 5341996
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "edi"
+          ]
+        },
+        {
+          "site": 4694936,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "esi, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "esi"
+          ]
+        },
+        {
+          "site": 4694938,
+          "size": 5,
+          "mnemonic": "push",
+          "op_str": "0x91",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 145
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694943,
+          "size": 2,
+          "mnemonic": "call",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694945,
+          "size": 2,
+          "mnemonic": "and",
+          "op_str": "al, 1",
+          "operands": [
+            {
+              "size": 1,
+              "access": 3,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "al"
+          ],
+          "regs_write": [
+            "eflags",
+            "al"
+          ]
+        },
+        {
+          "site": 4694947,
+          "size": 2,
+          "mnemonic": "push",
+          "op_str": "0x14",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 20
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694949,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esi + 0x205], al",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 517
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "al"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694955,
+          "size": 2,
+          "mnemonic": "call",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694957,
+          "size": 2,
+          "mnemonic": "and",
+          "op_str": "al, 1",
+          "operands": [
+            {
+              "size": 1,
+              "access": 3,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "al"
+          ],
+          "regs_write": [
+            "eflags",
+            "al"
+          ]
+        },
+        {
+          "site": 4694959,
+          "size": 5,
+          "mnemonic": "push",
+          "op_str": "0x90",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 144
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694964,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esi + 0x206], al",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 518
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "al"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694970,
+          "size": 2,
+          "mnemonic": "call",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4694972,
+          "size": 2,
+          "mnemonic": "and",
+          "op_str": "al, 1",
+          "operands": [
+            {
+              "size": 1,
+              "access": 3,
+              "type": "reg",
+              "reg": "al"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "al"
+          ],
+          "regs_write": [
+            "eflags",
+            "al"
+          ]
+        },
+        {
+          "site": 4694974,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "edi"
+          ]
+        },
+        {
+          "site": 4694975,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esi + 0x207], al",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 519
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "al"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "al"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4694981,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4694982,
+          "size": 1,
+          "mnemonic": "ret",
+          "op_str": "",
+          "operands": [],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [
+        {
+          "site": 4392223,
+          "target": 5265279,
+          "kind": "call"
+        },
+        {
+          "site": 4392246,
+          "target": 4393024,
+          "kind": "call"
+        },
+        {
+          "site": 4392274,
+          "target": 4745248,
+          "kind": "call"
+        },
+        {
+          "site": 4392290,
+          "target": 4880336,
+          "kind": "call"
+        },
+        {
+          "site": 4392305,
+          "target": 5245360,
+          "kind": "call"
+        },
+        {
+          "site": 4392314,
+          "target": 4503216,
+          "kind": "call"
+        },
+        {
+          "site": 4392415,
+          "target": 4880336,
+          "kind": "call"
+        },
+        {
+          "site": 4392446,
+          "target": 4745248,
+          "kind": "call"
+        },
+        {
+          "site": 4392498,
+          "target": 4880336,
+          "kind": "call"
+        }
+      ],
+      "entry": 4392128,
+      "unresolved": [],
+      "diagnostics": [],
+      "instruction_count": 174,
+      "instructions": [
+        {
+          "site": 4392128,
+          "size": 6,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [ecx + 0x6540]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 25920
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392134,
+          "size": 3,
+          "mnemonic": "sub",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392137,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392138,
+          "size": 6,
+          "mnemonic": "lea",
+          "op_str": "esi, [ecx + 0x6538]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 25912
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "esi"
+          ]
+        },
+        {
+          "site": 4392144,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392145,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "edi, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "edi"
+          ]
+        },
+        {
+          "site": 4392147,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [esi + 0xc]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 12
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392150,
+          "size": 2,
+          "mnemonic": "sub",
+          "op_str": "ecx, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392152,
+          "size": 3,
+          "mnemonic": "sar",
+          "op_str": "ecx, 2",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 2
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392155,
+          "size": 3,
+          "mnemonic": "cmp",
+          "op_str": "ecx, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392158,
+          "size": 6,
+          "mnemonic": "jae",
+          "op_str": "0x4305cb",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392395
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392164,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [esi + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392167,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "edx, edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "edx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392169,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x4304f7",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392183
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392171,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392173,
+          "size": 2,
+          "mnemonic": "sub",
+          "op_str": "ecx, edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "edx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392175,
+          "size": 3,
+          "mnemonic": "sar",
+          "op_str": "ecx, 2",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 2
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392178,
+          "size": 3,
+          "mnemonic": "cmp",
+          "op_str": "ecx, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392181,
+          "size": 2,
+          "mnemonic": "ja",
+          "op_str": "0x4304fc",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392188
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392183,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "ecx, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392188,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "edx, edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "edx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392190,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x430504",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392196
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392192,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392194,
+          "size": 2,
+          "mnemonic": "jmp",
+          "op_str": "0x430509",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392201
+            }
+          ],
+          "regs_read": [],
+          "regs_write": []
+        },
+        {
+          "site": 4392196,
+          "size": 2,
+          "mnemonic": "sub",
+          "op_str": "eax, edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "eax",
+            "edx"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392198,
+          "size": 3,
+          "mnemonic": "sar",
+          "op_str": "eax, 2",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 2
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392201,
+          "size": 2,
+          "mnemonic": "add",
+          "op_str": "eax, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "eax",
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392203,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392205,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esp + 0xc], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 12
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392209,
+          "size": 2,
+          "mnemonic": "jge",
+          "op_str": "0x430515",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392213
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392211,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392213,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392214,
+          "size": 7,
+          "mnemonic": "lea",
+          "op_str": "edx, [eax*4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "eax",
+              "scale": 4,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392221,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebp",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebp"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392222,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392223,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x50577f",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 5265279
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392228,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "ebp, dword ptr [esi + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebp"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ebp"
+          ]
+        },
+        {
+          "site": 4392231,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392234,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "ebp, edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebp"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "ebp",
+            "edi"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392236,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esp + 0x10], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 16
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392240,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ebx, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "ebx"
+          ]
+        },
+        {
+          "site": 4392242,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x430548",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392264
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392244,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebp",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebp"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392245,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392246,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x430840",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4393024
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392251,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "ebp, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ebp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "ebp"
+          ],
+          "regs_write": [
+            "eflags",
+            "ebp"
+          ]
+        },
+        {
+          "site": 4392254,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392257,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "ebx, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ebx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "ebx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ebx"
+          ]
+        },
+        {
+          "site": 4392260,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "ebp, edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebp"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "ebp",
+            "edi"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392262,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x430534",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392244
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392264,
+          "size": 4,
+          "mnemonic": "lea",
+          "op_str": "eax, [esp + 0x1c]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 28
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392268,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392270,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392271,
+          "size": 2,
+          "mnemonic": "push",
+          "op_str": "1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392273,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392274,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x486820",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4745248
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392279,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392282,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "ebx, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ebx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "ebx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ebx"
+          ]
+        },
+        {
+          "site": 4392285,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392286,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ecx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392287,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392288,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392290,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x4a77d0",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4880336
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392295,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392298,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392301,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392302,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392303,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392305,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x5009b0",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 5245360
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392310,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [esi + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392313,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ecx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392314,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x44b6b0",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4503216
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392319,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [esp + 0x14]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 20
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392323,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esp + 0x18]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 24
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392327,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392330,
+          "size": 3,
+          "mnemonic": "lea",
+          "op_str": "ecx, [edx + eax*4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edx",
+              "index": "eax",
+              "scale": 4,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "edx",
+            "eax"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392333,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392336,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "ebp",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebp"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "ebp"
+          ]
+        },
+        {
+          "site": 4392337,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 0xc], ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 12
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "ecx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392340,
+          "size": 2,
+          "mnemonic": "test",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392342,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "ebx"
+          ]
+        },
+        {
+          "site": 4392343,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x4305af",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392367
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392345,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "ecx, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392347,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 4], edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "edx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392350,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "edi"
+          ]
+        },
+        {
+          "site": 4392351,
+          "size": 4,
+          "mnemonic": "lea",
+          "op_str": "eax, [edx + ecx*4 + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edx",
+              "index": "ecx",
+              "scale": 4,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "edx",
+            "ecx"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392355,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 8], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392358,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392360,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4392361,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392364,
+          "size": 3,
+          "mnemonic": "ret",
+          "op_str": "4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392367,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392370,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 4], edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "edx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392373,
+          "size": 2,
+          "mnemonic": "sub",
+          "op_str": "ecx, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392375,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "edi"
+          ]
+        },
+        {
+          "site": 4392376,
+          "size": 3,
+          "mnemonic": "sar",
+          "op_str": "ecx, 2",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 2
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392379,
+          "size": 4,
+          "mnemonic": "lea",
+          "op_str": "eax, [edx + ecx*4 + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edx",
+              "index": "ecx",
+              "scale": 4,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "edx",
+            "ecx"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392383,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 8], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392386,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392388,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4392389,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392392,
+          "size": 3,
+          "mnemonic": "ret",
+          "op_str": "4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392395,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392397,
+          "size": 2,
+          "mnemonic": "sub",
+          "op_str": "ecx, edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "edi"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392399,
+          "size": 3,
+          "mnemonic": "sar",
+          "op_str": "ecx, 2",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 2
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392402,
+          "size": 3,
+          "mnemonic": "cmp",
+          "op_str": "ecx, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392405,
+          "size": 2,
+          "mnemonic": "jae",
+          "op_str": "0x43062a",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392490
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392407,
+          "size": 3,
+          "mnemonic": "lea",
+          "op_str": "edx, [edi + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "edi"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392410,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392412,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392413,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392414,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392415,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x4a77d0",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4880336
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392420,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392423,
+          "size": 4,
+          "mnemonic": "lea",
+          "op_str": "ecx, [esp + 0x14]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 20
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392427,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "edx, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392429,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ecx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392430,
+          "size": 2,
+          "mnemonic": "sub",
+          "op_str": "edx, edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "edx",
+            "edi"
+          ],
+          "regs_write": [
+            "eflags",
+            "edx"
+          ]
+        },
+        {
+          "site": 4392432,
+          "size": 5,
+          "mnemonic": "mov",
+          "op_str": "ecx, 1",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 1
+            }
+          ],
+          "regs_read": [],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392437,
+          "size": 3,
+          "mnemonic": "sar",
+          "op_str": "edx, 2",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 1,
+              "access": 0,
+              "type": "imm",
+              "imm": 2
+            }
+          ],
+          "regs_read": [
+            "edx"
+          ],
+          "regs_write": [
+            "eflags",
+            "edx"
+          ]
+        },
+        {
+          "site": 4392440,
+          "size": 2,
+          "mnemonic": "sub",
+          "op_str": "ecx, edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "edx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392442,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ecx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392443,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392444,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392446,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x486820",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4745248
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392451,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392454,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "edi, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "edi",
+            "eax"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392456,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x430666",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392550
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392458,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [esp + 0x14]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 20
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392462,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [edi], edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "edi",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "edi",
+            "edx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392464,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "edi, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "edi"
+          ],
+          "regs_write": [
+            "eflags",
+            "edi"
+          ]
+        },
+        {
+          "site": 4392467,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "edi, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "edi",
+            "eax"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392469,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x43060a",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392458
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392471,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392474,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "edi"
+          ]
+        },
+        {
+          "site": 4392475,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "eax, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392478,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 8], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392481,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392483,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4392484,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392487,
+          "size": 3,
+          "mnemonic": "ret",
+          "op_str": "4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392490,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392491,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392492,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "eax, -4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": -4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392495,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ecx, esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392497,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392498,
+          "size": 5,
+          "mnemonic": "call",
+          "op_str": "0x4a77d0",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4880336
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eip"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4392503,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "ecx, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392506,
+          "size": 3,
+          "mnemonic": "lea",
+          "op_str": "eax, [ecx - 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": -4
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392509,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "edi, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "edi",
+            "eax"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392511,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x430650",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392528
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392513,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [eax - 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "eax",
+              "index": "",
+              "scale": 1,
+              "disp": -4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392516,
+          "size": 3,
+          "mnemonic": "sub",
+          "op_str": "eax, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392519,
+          "size": 3,
+          "mnemonic": "sub",
+          "op_str": "ecx, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags",
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392522,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "eax, edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "eax",
+            "edi"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392524,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [ecx], edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "ecx",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "ecx",
+            "edx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392526,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x430641",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392513
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392528,
+          "size": 3,
+          "mnemonic": "lea",
+          "op_str": "ecx, [edi + 4]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ecx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "edi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "edi"
+          ],
+          "regs_write": [
+            "ecx"
+          ]
+        },
+        {
+          "site": 4392531,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "eax, edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "edi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392533,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "edi, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "edi",
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392535,
+          "size": 2,
+          "mnemonic": "je",
+          "op_str": "0x430666",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392550
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392537,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [esp + 0x14]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 20
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4392541,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [eax], edx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "eax",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edx"
+            }
+          ],
+          "regs_read": [
+            "eax",
+            "edx"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392543,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "eax, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392546,
+          "size": 2,
+          "mnemonic": "cmp",
+          "op_str": "eax, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "eax",
+            "ecx"
+          ],
+          "regs_write": [
+            "eflags"
+          ]
+        },
+        {
+          "site": 4392548,
+          "size": 2,
+          "mnemonic": "jne",
+          "op_str": "0x430659",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4392537
+            }
+          ],
+          "regs_read": [
+            "eflags"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392550,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi + 8]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4392553,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "edi"
+          ]
+        },
+        {
+          "site": 4392554,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "eax, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392557,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esi + 8], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 8
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esi",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4392560,
+          "size": 2,
+          "mnemonic": "xor",
+          "op_str": "eax, eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "eax"
+          ],
+          "regs_write": [
+            "eflags",
+            "eax"
+          ]
+        },
+        {
+          "site": 4392562,
+          "size": 1,
+          "mnemonic": "pop",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp",
+            "esi"
+          ]
+        },
+        {
+          "site": 4392563,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esp, 8",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 8
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4392566,
+          "size": 3,
+          "mnemonic": "ret",
+          "op_str": "4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        }
+      ]
+    },
+    {
+      "edges": [],
+      "entry": 4389712,
+      "unresolved": [
+        {
+          "site": 4389759,
+          "kind": "indirect_jump"
+        }
+      ],
+      "diagnostics": [],
+      "instruction_count": 17,
+      "instructions": [
+        {
+          "site": 4389712,
+          "size": 6,
+          "mnemonic": "sub",
+          "op_str": "esp, 0x158",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esp"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 344
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "eflags",
+            "esp"
+          ]
+        },
+        {
+          "site": 4389718,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebx"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebx"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4389719,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "ebp",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ebp"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "ebp"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4389720,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "esi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4389721,
+          "size": 7,
+          "mnemonic": "mov",
+          "op_str": "esi, dword ptr [esp + 0x168]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 360
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "esi"
+          ]
+        },
+        {
+          "site": 4389728,
+          "size": 1,
+          "mnemonic": "inc",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eflags",
+            "esi"
+          ]
+        },
+        {
+          "site": 4389729,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "ebp, ecx",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "ebp"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "ecx"
+            }
+          ],
+          "regs_read": [
+            "ecx"
+          ],
+          "regs_write": [
+            "ebp"
+          ]
+        },
+        {
+          "site": 4389731,
+          "size": 1,
+          "mnemonic": "push",
+          "op_str": "edi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "edi"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "edi"
+          ],
+          "regs_write": [
+            "esp"
+          ]
+        },
+        {
+          "site": 4389732,
+          "size": 2,
+          "mnemonic": "mov",
+          "op_str": "eax, dword ptr [esi]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "eax"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 0
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eax"
+          ]
+        },
+        {
+          "site": 4389734,
+          "size": 3,
+          "mnemonic": "mov",
+          "op_str": "cl, byte ptr [esi + 4]",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "reg",
+              "reg": "cl"
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esi",
+              "index": "",
+              "scale": 1,
+              "disp": 4
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "cl"
+          ]
+        },
+        {
+          "site": 4389737,
+          "size": 3,
+          "mnemonic": "add",
+          "op_str": "esi, 4",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esi"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 4
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eflags",
+            "esi"
+          ]
+        },
+        {
+          "site": 4389740,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "byte ptr [esp + 0x10], cl",
+          "operands": [
+            {
+              "size": 1,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 16
+            },
+            {
+              "size": 1,
+              "access": 1,
+              "type": "reg",
+              "reg": "cl"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "cl"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4389744,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "edx, dword ptr [esp + 0x10]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 16
+            }
+          ],
+          "regs_read": [
+            "esp"
+          ],
+          "regs_write": [
+            "edx"
+          ]
+        },
+        {
+          "site": 4389748,
+          "size": 1,
+          "mnemonic": "inc",
+          "op_str": "esi",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "esi"
+            }
+          ],
+          "regs_read": [
+            "esi"
+          ],
+          "regs_write": [
+            "eflags",
+            "esi"
+          ]
+        },
+        {
+          "site": 4389749,
+          "size": 4,
+          "mnemonic": "mov",
+          "op_str": "dword ptr [esp + 0x18], eax",
+          "operands": [
+            {
+              "size": 4,
+              "access": 2,
+              "type": "mem",
+              "segment": "",
+              "base": "esp",
+              "index": "",
+              "scale": 1,
+              "disp": 24
+            },
+            {
+              "size": 4,
+              "access": 1,
+              "type": "reg",
+              "reg": "eax"
+            }
+          ],
+          "regs_read": [
+            "esp",
+            "eax"
+          ],
+          "regs_write": []
+        },
+        {
+          "site": 4389753,
+          "size": 6,
+          "mnemonic": "and",
+          "op_str": "edx, 0xff",
+          "operands": [
+            {
+              "size": 4,
+              "access": 3,
+              "type": "reg",
+              "reg": "edx"
+            },
+            {
+              "size": 4,
+              "access": 0,
+              "type": "imm",
+              "imm": 255
+            }
+          ],
+          "regs_read": [
+            "edx"
+          ],
+          "regs_write": [
+            "eflags",
+            "edx"
+          ]
+        },
+        {
+          "site": 4389759,
+          "size": 7,
+          "mnemonic": "jmp",
+          "op_str": "dword ptr [edx*4 + 0x430034]",
+          "operands": [
+            {
+              "size": 4,
+              "access": 1,
+              "type": "mem",
+              "segment": "",
+              "base": "",
+              "index": "edx",
+              "scale": 4,
+              "disp": 4390964
+            }
+          ],
+          "regs_read": [
+            "edx"
+          ],
+          "regs_write": []
+        }
+      ]
+    }
+  ]
+}

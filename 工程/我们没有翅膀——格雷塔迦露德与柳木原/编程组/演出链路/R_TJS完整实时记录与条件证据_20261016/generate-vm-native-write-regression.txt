@@ -1,0 +1,80 @@
+from pathlib import Path
+import sys,struct,json,hashlib,ast,collections
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015'
+sys.path[:0]=[str(w),str(g/'工具'),str(g/'逆向引擎'),str(r/'工具/unicorn-2.1.4-py314')]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+sys.path.insert(0,str(r/'子代理工作区/ISSUE-20261011-02/r-target-live-record-20261016'))
+from lucifen_inline_vm_reference import run_vm,inline_native,expression_native
+from r_vm_shadow_read import read32,read8
+from r_vm_shadow_write import write32,write8
+from r_vm_shadow_range import word
+from r_vm_access_log import AccessLog
+from r_vm_tjs_literal import tjs_literal
+from r_tjs_numeric_vectors import numeric_cases
+pe=PE(r/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+ctx,sb,buffer,dst=0x1002000,0x1028000,0x3000000,0x102f000
+
+# Root verification recipe: actual engine algorithms are editor-owned modules.
+# This captures a reference I/O witness and compares fresh original VM execution.
+def capture(initial,write_ranges,entry,model=inline_native,identity='fixture'):
+    mem=[(base,bytearray(data))for base,data in initial]
+    log=AccessLog(lambda q:read32(mem,q),lambda q,v:write32(mem,q,v,write_ranges),lambda q:read8(mem,q),lambda q,v:write8(mem,q,v,write_ranges),lambda q:word(initial,q),lambda q:word(mem,q))
+    spec={'id':identity,'ctx':ctx,'entry':entry,'ranges':[[base,base+len(data)]for base,data in initial],'write_ranges':write_ranges,'segments':[]}
+    full=[];calls=[]
+    def native(h,f):
+        calls.append([h,f]+[log.rd(f+i*4)for i in range(4)])
+        return model(log.rd,log.wr,log.rb,log.wb,h,f)
+    for segment in range(9):
+        calls=[];log.writes.clear()
+        result=run_vm(log.rd,log.wr,log.rb,ctx,entry,native,10000,resume=segment>0)
+        row={'resume':int(segment>0),'return_code':result['return_code'],'steps':result['steps'],'trace':[[x['pc'],x['opcode']]for x in result['trace']],'writes':[list(x)for x in log.writes],'calls':calls,'final':log.final_pairs(),'pc':read32(mem,ctx+8),'sp':read32(mem,ctx+12)}
+        spec['segments'].append(row);full.append([bytes(data)for base,data in mem])
+        if result['return_code']==0:break
+    else:raise AssertionError('reference resume segment budget')
+    spec['initial']=log.initial_pairs()
+    return spec,full,mem
+
+def generate_synthetic(out,limit=0):
+    from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_WRITE
+    u=map_pe(pe);u.mem_map(buffer,4096);u.mem_write(ctx,bytes(64));u.mem_write(ctx+4,struct.pack('<I',sb));u.mem_write(ctx+12,struct.pack('<I',sb));u.mem_write(sb,b'\x92'*4096)
+    baseline_live=bytes(u.mem_read(0x1000000,0x100000));baseline_pe=bytes(u.mem_read(pe.image_base,pe.size_image));trace=[]
+    def fetch(uc,a,n,data):
+        pc=struct.unpack('<I',uc.mem_read(ctx+8,4))[0];trace.append([pc,struct.unpack('<I',uc.mem_read(pc,4))[0]])
+    hook=u.hook_add(UC_HOOK_CODE,fetch,begin=0x4a7a75,end=0x4a7a75)
+    native_writes=[]
+    def wrote(uc,access,a,size,value,user):
+        if not 0x2000000<=a<0x2010000:native_writes.append([size,a,value&((1<<(8*size))-1)])
+    write_hook=u.hook_add(UC_HOOK_MEM_WRITE,wrote)
+    inputs=[]
+    for i,row in enumerate(numeric_cases()):
+        code=[23,row['a']&0xffffffff,dst,1]if row['op']==23 else[row['op'],row['a']&0xffffffff,row['b']&0xffffffff,dst,1]
+        inputs.append((f'value-{i}',code,[(dst,0xaaaaaaaa)]))
+    inputs += [('increment-wrap',[26,dst,1],[(dst,0xffffffff)]),('store',[31,0x12345678,dst,1],[]),('indirect',[32,dst+16,dst,1],[(dst+16,0x89abcdef)]),('stack-relative',[40,16,dst,1],[]),('push-pop',[8,0x123,12,4,1],[]),('yield-resume',[0,31,0x987,dst,1],[]),('source-self-write',[31,0x123,buffer+8,1],[]),('indirect-alias',[32,dst,dst,1],[(dst,0x76543210)])]
+    for a in [0,1,0x80000000,0xffffffff]:inputs.append((f'branch-{a}',[30,a,buffer+28,31,0x123,dst,1,31,0x456,dst,1],[]))
+    if limit:inputs=inputs[:limit]
+    batches=[];lines=[];specs=[];segments=0;expected_sources=[]
+    def flush():
+        if not lines:return
+        p=out/f'batch-{len(batches):04d}.tjs';p.write_text('\n'.join(lines)+'\n',encoding='utf8');batches.append({'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'cases':len(lines),'segments':sum(len(x['segments'])for x in specs)});lines.clear();specs.clear()
+    try:
+        for identity,code,extra in inputs:
+            u.mem_write(0x1000000,baseline_live);u.mem_write(pe.image_base,baseline_pe);raw=struct.pack('<%dI'%len(code),*[v&0xffffffff for v in code]);u.mem_write(buffer,raw+bytes(4096-len(raw)))
+            for address,value in extra:u.mem_write(address,struct.pack('<I',value))
+            initial=[(0x1000000,bytes(u.mem_read(0x1000000,0x100000))),(buffer,bytes(u.mem_read(buffer,4096))),(pe.image_base,bytes(u.mem_read(pe.image_base,pe.size_image)))]
+            spec,full,mem=capture(initial,[[0x1000000,0x1100000],[buffer,buffer+4096]],buffer,identity=identity)
+            for i,expected in enumerate(spec['segments']):
+                trace.clear();native_writes.clear();got=invoke_thiscall_args(u,0x4a7a50 if i else 0x4a7a30,ctx,[]if i else[buffer],count=50000,timeout=0)
+                assert got==expected['return_code']and trace==expected['trace'],(identity,i,'native trace/return',got,expected)
+                assert native_writes==expected['writes'],(identity,i,'native ordered writes',native_writes,expected['writes'])
+                for (base,data),shadow in zip(initial,full[i]):assert bytes(u.mem_read(base,len(data)))==shadow,(identity,i,'whole memory',base)
+            segments+=len(spec['segments']);lines.append('RVMFRunCase('+tjs_literal(spec)+');');specs.append(spec);expected_sources.append({'id':identity,'segments':len(spec['segments']),'passed':True})
+            if len(lines)==32:flush()
+        flush()
+    finally:u.hook_del(hook);u.hook_del(write_hook)
+    manifest={'kind':'fresh-original-synthetic','cases':len(inputs),'segments':segments,'files':batches,'original_full_memory_and_trace_matches':True,'fresh_original_ordered_writes_match':True,'opcode30_zero_includes_intermediate_PC_write':True,'source_SHA256':hashlib.sha256(pe.data).hexdigest(),'cases_metadata':expected_sources}
+    (out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf8');print(json.dumps({k:v for k,v in manifest.items()if k not in('files','cases_metadata')}));return manifest
+
+if __name__=='__main__':
+    out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir();generate_synthetic(out,int(sys.argv[2])if len(sys.argv)>2 else 0)

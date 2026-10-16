@@ -1,0 +1,3314 @@
+{
+  "entry": 4533488,
+  "result": null,
+  "failure": "UcError()",
+  "unresolved_import": "GetDriveTypeA",
+  "EIP": 1209876,
+  "args": [
+    4194304,
+    0,
+    16830464,
+    10
+  ],
+  "parent": 33566720,
+  "parent_HWND": 0,
+  "API_counts": {
+    "HeapCreate": 1,
+    "GetVersionExA": 2,
+    "Critical_init": 13,
+    "HeapAlloc": 75,
+    "InterlockedExchange_guest_CPU": 1,
+    "Critical_enter": 6,
+    "HeapSize": 1,
+    "Critical_leave": 6,
+    "GetCurrentThreadId": 5,
+    "CoInitialize": 1,
+    "CreateEventA": 2,
+    "lstrcpyA": 46,
+    "lstrcatA": 34,
+    "lstrlenA": 25,
+    "wsprintfA_version": 1,
+    "RegOpenKeyExA": 1,
+    "RegQueryValueExA": 1,
+    "RegCloseKey": 1,
+    "GetSystemInfo": 1,
+    "GetLocaleInfoA": 2,
+    "GlobalMemoryStatus": 1,
+    "GetSystemMetrics": 2,
+    "GetDC": 2,
+    "GetDeviceCaps": 4,
+    "ReleaseDC": 2,
+    "EnumDisplayMonitors": 1,
+    "GetMonitorInfoA": 1,
+    "CreateDCA": 1,
+    "DeleteDC": 1,
+    "EnumDisplayDevicesA": 47,
+    "lstrcmpA": 1,
+    "HeapFree": 12,
+    "GetModuleFileNameA_guest_registered_metadata": 1,
+    "GetTickCount": 1,
+    "FindFirstFileA": 8,
+    "LoadLibraryA_guest_actual_DLL_attach": 1,
+    "GetProcAddress_guest_original_export": 15,
+    "FindClose": 1,
+    "CreateFileA": 8,
+    "CharUpperA": 2,
+    "ReadFile": 5,
+    "CharLowerA": 7,
+    "SetFilePointer": 2,
+    "GlobalAlloc": 3,
+    "GlobalFree": 3,
+    "SHGetSpecialFolderPathA_readonly_existing_host_query": 3,
+    "CreateDirectoryA_mapped_storage_actual_CreateDirectoryW": 2,
+    "CopyFileA_mapped_storage_actual_CopyFileW": 1,
+    "SetFileAttributesA_mapped_storage_actual_SetFileAttributesW": 1,
+    "GetFileSize_actual_owned_host_file": 1,
+    "CloseHandle": 3,
+    "wsprintfA_one_string_actual_host": 1,
+    "GetDesktopWindow_actual_borrowed_HWND": 1,
+    "SHGetMalloc_actual_host_COM": 1,
+    "SHBrowseForFolderA_explicit_controlled_selection_input": 1,
+    "SHGetPathFromIDListA_actual_owned_PIDLIST": 1,
+    "IMalloc_Free_actual_host": 1,
+    "IMalloc_Release_actual_host": 1,
+    "wsprintfA_two_strings_actual_host": 2,
+    "RaiseException_controlled_capture": 2,
+    "IsBadReadPtr": 2,
+    "IsBadWritePtr": 2,
+    "RtlUnwind_guest_emulation": 2,
+    "GetLastError": 12,
+    "TlsGetValue": 12,
+    "TlsSetValue": 1,
+    "SetLastError": 12,
+    "WriteFile_actual_exact_mapped_USER_CFG": 10
+  },
+  "WinMain_API_events": [
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        48
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 48,
+      "guest_result": 117522560
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117526656
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117530752
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        48
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 48,
+      "guest_result": 117534848
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117538944
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117543040
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117530752
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580460,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580460
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580460
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580744,
+        33580460
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5410688
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580744
+      ],
+      "native_return_address": 4615771,
+      "guest_result": 68
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5408804
+      ],
+      "native_return_address": 4615798,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5414708
+      ],
+      "native_return_address": 4615811,
+      "guest_result": 33580744
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4615838,
+      "args": [
+        33580744,
+        33581004
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "pattern": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质\\SET_UP\\plugin\\*.GLL",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 3,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117547136
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117551232
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117555328
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580460,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580460
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580460
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580744,
+        33580460
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5410688
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580744
+      ],
+      "native_return_address": 4799835,
+      "guest_result": 68
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5408804
+      ],
+      "native_return_address": 4799862,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5422412
+      ],
+      "native_return_address": 4799875,
+      "guest_result": 33580744
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4799902,
+      "args": [
+        33580744,
+        33581004
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "pattern": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质\\SET_UP\\plugin\\*.ADL",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 3,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117559424
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580688,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580688
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580688
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580976,
+        33580688
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580976
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580976,
+        5410672
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580976
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117563520
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117567616
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580460,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580460
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580460
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580744,
+        33580460
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5410688
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580744
+      ],
+      "native_return_address": 4752907,
+      "guest_result": 68
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5408804
+      ],
+      "native_return_address": 4752934,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580744,
+        5422112
+      ],
+      "native_return_address": 4752947,
+      "guest_result": 33580744
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4752974,
+      "args": [
+        33580744,
+        33581004
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "pattern": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质\\SET_UP\\plugin\\*.SLL",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 3,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580452,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580452
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580452
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580736,
+        33580452
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580736
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580736,
+        5410688
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580736
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580736
+      ],
+      "native_return_address": 4835285,
+      "guest_result": 68
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580736,
+        5408804
+      ],
+      "native_return_address": 4835312,
+      "guest_result": 33580736
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580736,
+        5422556
+      ],
+      "native_return_address": 4835325,
+      "guest_result": 33580736
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4835352,
+      "args": [
+        33580736,
+        33580996
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "pattern": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质\\SET_UP\\plugin\\*.SPI",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 3,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117571712
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117575808
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117579904
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117584000
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117575808
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117588096
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117592192
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117584000
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117596288
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117600384
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117604480
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117592192
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117608576
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117612672
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117616768
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117620864
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117624960
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117629056
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117633152
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117624960
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117637248
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117641344
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117633152
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117645440
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117649536
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117653632
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117641344
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117657728
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117661824
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117665920
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117670016
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        64
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 64,
+      "guest_result": 117674112
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117653632
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117678208
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580100,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580100
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580100
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33581000,
+        33580100
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33581000
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33581000,
+        5410660
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33581000
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4795166,
+      "args": [
+        33581000,
+        33580396
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "pattern": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质\\SET_UP\\PATCH.LPK",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 2,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580100,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580100
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580100
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33581000,
+        33580100
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33581000
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33581000,
+        5410636
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33581000
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4795166,
+      "args": [
+        33581000,
+        33580396
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "pattern": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质\\SET_UP\\SCRIPT.LPK",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 0,
+      "guest_result": 1766850560
+    },
+    {
+      "api": "FindClose",
+      "return_address": 4795178,
+      "args": [
+        1766850560
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "actual_error": 0,
+      "guest_result": 1
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33581000,
+        2147483648,
+        1,
+        0,
+        3,
+        128,
+        0
+      ],
+      "native_return_address": 4795864,
+      "source_relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\SCRIPT.LPK",
+      "genuine_CreateFileW_readonly_equivalent_ACP_path": true,
+      "actual_error": 0,
+      "guest_result": 1610612737
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580468,
+        5410643
+      ],
+      "native_return_address": 4801416,
+      "guest_result": 33580468
+    },
+    {
+      "api": "CharUpperA",
+      "args": [
+        33580468
+      ],
+      "native_return_address": 4800043,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 3,
+      "guest_result": 33580468
+    },
+    {
+      "api": "ReadFile",
+      "args": [
+        1610612737,
+        33580656,
+        8,
+        33580692,
+        0
+      ],
+      "native_return_address": 4786412,
+      "actual_bytes_read": 8,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580360,
+        33581062
+      ],
+      "native_return_address": 4801121,
+      "guest_result": 33580360
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580104,
+        33580367
+      ],
+      "native_return_address": 4801498,
+      "guest_result": 33580104
+    },
+    {
+      "api": "CharUpperA",
+      "args": [
+        33580360
+      ],
+      "native_return_address": 4786520,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 6,
+      "guest_result": 33580360
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580360
+      ],
+      "native_return_address": 4786533,
+      "guest_result": 6
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        64
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 64,
+      "guest_result": 117682304
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        17152
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 17152,
+      "guest_result": 117686400
+    },
+    {
+      "api": "ReadFile",
+      "args": [
+        1610612737,
+        117686400,
+        17151,
+        33580692,
+        0
+      ],
+      "native_return_address": 4786795,
+      "actual_bytes_read": 17151,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33581000
+      ],
+      "native_return_address": 4787925,
+      "guest_result": 72
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        80
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 80,
+      "guest_result": 117706880
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117710976
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580744,
+        33581069
+      ],
+      "native_return_address": 4801498,
+      "guest_result": 33580744
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33581000,
+        5408804
+      ],
+      "native_return_address": 4796128,
+      "guest_result": 33581000
+    },
+    {
+      "api": "CharLowerA",
+      "args": [
+        33581000
+      ],
+      "native_return_address": 4796151,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 69,
+      "guest_result": 33581000
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33581000
+      ],
+      "native_return_address": 4796164,
+      "guest_result": 69
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        80
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 80,
+      "guest_result": 117715072
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117719168
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580388,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580388
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580388
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580936,
+        33580388
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580936
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580936,
+        5410616
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580936
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33580936,
+        2147483648,
+        1,
+        0,
+        3,
+        128,
+        0
+      ],
+      "native_return_address": 4793561,
+      "source_relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\SCRIPT\\LL_APP.SYS",
+      "actual_error": 3,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "CharLowerA",
+      "args": [
+        33580936
+      ],
+      "native_return_address": 4793976,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 79,
+      "guest_result": 33580936
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580344,
+        33581005
+      ],
+      "native_return_address": 4789123,
+      "guest_result": 33580344
+    },
+    {
+      "api": "CharLowerA",
+      "args": [
+        33580344
+      ],
+      "native_return_address": 4789134,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 10,
+      "guest_result": 33580344
+    },
+    {
+      "api": "SetFilePointer",
+      "args": [
+        1610612737,
+        93617,
+        0,
+        0
+      ],
+      "native_return_address": 4789055,
+      "guest_result": 93617
+    },
+    {
+      "api": "GlobalAlloc",
+      "args": [
+        0,
+        25
+      ],
+      "native_return_address": 4791876,
+      "allocation_size": 25,
+      "guest_result": 117723264
+    },
+    {
+      "api": "ReadFile",
+      "args": [
+        1610612737,
+        117723264,
+        25,
+        33580320,
+        0
+      ],
+      "native_return_address": 4789632,
+      "actual_bytes_read": 25,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33583672,
+        33580936
+      ],
+      "native_return_address": 4794028,
+      "guest_result": 33583672
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117727360
+    },
+    {
+      "api": "GlobalFree",
+      "args": [
+        117723264
+      ],
+      "native_return_address": 5211783,
+      "guest_result": 0
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117727360
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580388,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580388
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580388
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580936,
+        33580388
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580936
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580936,
+        5410548
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580936
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33580936,
+        2147483648,
+        1,
+        0,
+        3,
+        128,
+        0
+      ],
+      "native_return_address": 4793561,
+      "source_relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\SCRIPT\\LL_APP.INF",
+      "actual_error": 3,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "CharLowerA",
+      "args": [
+        33580936
+      ],
+      "native_return_address": 4793976,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 79,
+      "guest_result": 33580936
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580344,
+        33581005
+      ],
+      "native_return_address": 4789123,
+      "guest_result": 33580344
+    },
+    {
+      "api": "CharLowerA",
+      "args": [
+        33580344
+      ],
+      "native_return_address": 4789134,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 10,
+      "guest_result": 33580344
+    },
+    {
+      "api": "SetFilePointer",
+      "args": [
+        1610612737,
+        93516,
+        0,
+        0
+      ],
+      "native_return_address": 4789055,
+      "guest_result": 93516
+    },
+    {
+      "api": "GlobalAlloc",
+      "args": [
+        0,
+        101
+      ],
+      "native_return_address": 4791876,
+      "allocation_size": 101,
+      "guest_result": 117731456
+    },
+    {
+      "api": "ReadFile",
+      "args": [
+        1610612737,
+        117731456,
+        101,
+        33580320,
+        0
+      ],
+      "native_return_address": 4789632,
+      "actual_bytes_read": 101,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33583672,
+        33580936
+      ],
+      "native_return_address": 4794028,
+      "guest_result": 33583672
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117735552
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117739648
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117743744
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117747840
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117751936
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33583948,
+        5408804
+      ],
+      "native_return_address": 4239964,
+      "guest_result": 33583948
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33583948,
+        117739648
+      ],
+      "native_return_address": 4239993,
+      "guest_result": 33583948
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33583948,
+        5410476
+      ],
+      "native_return_address": 4240007,
+      "guest_result": 33583948
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33582120,
+        33583948
+      ],
+      "native_return_address": 4240027,
+      "guest_result": 33582120
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33582120,
+        5410464
+      ],
+      "native_return_address": 4240041,
+      "guest_result": 33582120
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33581064,
+        33583948
+      ],
+      "native_return_address": 4800456,
+      "guest_result": 33581064
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4795166,
+      "args": [
+        33581064,
+        33580728
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "explicit_guest_storage_mapping": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData",
+      "pattern": "E:\\ZCode Workspace\\Galgame\\临时\\ISSUE-20261011-02\\r-folder-config-formal-01\\guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 2,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33582636,
+        5462012
+      ],
+      "native_return_address": 4240313,
+      "guest_result": 33582636
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33582636,
+        5410488
+      ],
+      "native_return_address": 4240327,
+      "guest_result": 33582636
+    },
+    {
+      "api": "GlobalFree",
+      "args": [
+        117731456
+      ],
+      "native_return_address": 5211783,
+      "guest_result": 0
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117735552
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580936,
+        33582120
+      ],
+      "native_return_address": 4800456,
+      "guest_result": 33580936
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33580936,
+        2147483648,
+        1,
+        0,
+        3,
+        128,
+        0
+      ],
+      "native_return_address": 4793561,
+      "source_relative_path": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG",
+      "explicit_mapped_storage_readonly_CreateFileW": true,
+      "actual_error": 0,
+      "guest_result": 1767899136
+    },
+    {
+      "api": "GlobalAlloc",
+      "args": [
+        0,
+        111
+      ],
+      "native_return_address": 4791876,
+      "allocation_size": 111,
+      "guest_result": 117756032
+    },
+    {
+      "api": "ReadFile",
+      "args": [
+        1767899136,
+        117756032,
+        111,
+        33581276,
+        0
+      ],
+      "native_return_address": 4793661,
+      "actual_bytes_read": 111,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33583672,
+        33580936
+      ],
+      "native_return_address": 4794151,
+      "guest_result": 33583672
+    },
+    {
+      "api": "CloseHandle",
+      "args": [
+        1767899136
+      ],
+      "native_return_address": 4794248,
+      "guest_result": 1
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117760128
+    },
+    {
+      "api": "wsprintfA_one_string_actual_host",
+      "return_address": 4241016,
+      "format_bytes": 37,
+      "input_bytes": 18,
+      "actual_result_bytes": 53,
+      "exact_expected_bytes": true,
+      "all_host_buffers_guarded": true
+    },
+    {
+      "api": "GetDesktopWindow_actual_borrowed_HWND",
+      "return_address": 4241056,
+      "guest_token": 1769996288,
+      "actual_IsWindow": true,
+      "full_host_handle_preserved": true,
+      "borrowed_not_closed": true
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33581052,
+        33582120
+      ],
+      "native_return_address": 4800456,
+      "guest_result": 33581052
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33581052
+      ],
+      "native_return_address": 4711107,
+      "guest_result": 44
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33583948
+      ],
+      "native_return_address": 4241078,
+      "guest_result": 116
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33583948,
+        5408804
+      ],
+      "native_return_address": 4241114,
+      "guest_result": 33583948
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33583948,
+        117739648
+      ],
+      "native_return_address": 4241147,
+      "guest_result": 33583948
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33583948,
+        5410476
+      ],
+      "native_return_address": 4241165,
+      "guest_result": 33583948
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33581064,
+        33583948
+      ],
+      "native_return_address": 4800456,
+      "guest_result": 33581064
+    },
+    {
+      "api": "FindFirstFileA",
+      "return_address": 4795166,
+      "args": [
+        33581064,
+        33580728
+      ],
+      "actual_Windows_API": true,
+      "only_readonly_enumeration": true,
+      "explicit_guest_storage_mapping": true,
+      "mapped_relative_target": "guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData",
+      "pattern": "E:\\ZCode Workspace\\Galgame\\临时\\ISSUE-20261011-02\\r-folder-config-formal-01\\guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData",
+      "WIN32_FIND_DATAA_bytes": 320,
+      "actual_error": 2,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33583948
+      ],
+      "native_return_address": 4241446,
+      "guest_result": 144
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        160
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 160,
+      "guest_result": 117764224
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        117764224,
+        33583948
+      ],
+      "native_return_address": 4241476,
+      "guest_result": 117764224
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        117764224
+      ],
+      "native_return_address": 4241539,
+      "guest_result": 144
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        160
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 160,
+      "guest_result": 117768320
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        117768320,
+        117764224
+      ],
+      "native_return_address": 4241565,
+      "guest_result": 117768320
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        117768320,
+        5408804
+      ],
+      "native_return_address": 4241583,
+      "guest_result": 117768320
+    },
+    {
+      "api": "wsprintfA_two_strings_actual_host",
+      "return_address": 4241609,
+      "actual_result_bytes": 156,
+      "capacity": 260,
+      "original_APP_CFG_path_composition": true,
+      "all_host_buffers_guarded": true
+    },
+    {
+      "api": "GlobalFree",
+      "args": [
+        117756032
+      ],
+      "native_return_address": 5211783,
+      "guest_result": 0
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117760128
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580936,
+        33582120
+      ],
+      "native_return_address": 4800456,
+      "guest_result": 33580936
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33580936,
+        2147483648,
+        1,
+        0,
+        3,
+        128,
+        0
+      ],
+      "native_return_address": 4793561,
+      "source_relative_path": "guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData\\APP_CFG.DAT",
+      "explicit_mapped_storage_readonly_CreateFileW": true,
+      "actual_error": 2,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "CharLowerA",
+      "args": [
+        33580936
+      ],
+      "native_return_address": 4793976,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 156,
+      "guest_result": 33580936
+    },
+    {
+      "api": "IsBadReadPtr",
+      "guest_pointer": 33581220,
+      "count": 1,
+      "actual_host_surrogate_result": 0,
+      "native_return_address": 5292072,
+      "not_original_guest_host_address": true
+    },
+    {
+      "api": "IsBadWritePtr",
+      "guest_pointer": 33581196,
+      "count": 1,
+      "actual_host_surrogate_result": 0,
+      "native_return_address": 5292100,
+      "guest_write_permissions_checked": true,
+      "not_original_guest_host_address": true
+    },
+    {
+      "api": "RtlUnwind",
+      "explicit_guest_OS_emulation": true,
+      "head": 33581256,
+      "target_frame": 33581256,
+      "exception_record": 50348032,
+      "plan": {
+        "flags": 3,
+        "esp": 33550092,
+        "eip": 5264393,
+        "eax": 0,
+        "frames_unwound": 0,
+        "emulated_os_boundary": true
+      }
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 0,
+      "actual_host_pointer": 0
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        8,
+        128
+      ],
+      "native_return_address": 5291962,
+      "rounded_allocation_size": 128,
+      "guest_result": 117772416
+    },
+    {
+      "api": "TlsSetValue",
+      "args": [
+        18,
+        117772416
+      ],
+      "native_return_address": 5275437,
+      "actual_Windows_API": true,
+      "guest_result": 1,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "GetCurrentThreadId",
+      "args": [],
+      "native_return_address": 5275454,
+      "actual_Windows_API": true,
+      "guest_result": 24296
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580424,
+        5462012
+      ],
+      "native_return_address": 4800486,
+      "guest_result": 33580424
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        33580424
+      ],
+      "native_return_address": 4800559,
+      "guest_result": 62
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580972,
+        33580424
+      ],
+      "native_return_address": 4800584,
+      "guest_result": 33580972
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580972,
+        5409680
+      ],
+      "native_return_address": 4800592,
+      "guest_result": 33580972
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33580972,
+        2147483648,
+        1,
+        0,
+        3,
+        128,
+        0
+      ],
+      "native_return_address": 4792551,
+      "source_relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\SET_UP.IFG",
+      "actual_error": 2,
+      "guest_result": 4294967295
+    },
+    {
+      "api": "CharLowerA",
+      "args": [
+        33580972
+      ],
+      "native_return_address": 4792892,
+      "genuine_ANSI_case_current_host_ACP_not_original_locale": true,
+      "input_bytes": 72,
+      "guest_result": 33580972
+    },
+    {
+      "api": "IsBadReadPtr",
+      "guest_pointer": 33581252,
+      "count": 1,
+      "actual_host_surrogate_result": 0,
+      "native_return_address": 5292072,
+      "not_original_guest_host_address": true
+    },
+    {
+      "api": "IsBadWritePtr",
+      "guest_pointer": 33581232,
+      "count": 1,
+      "actual_host_surrogate_result": 0,
+      "native_return_address": 5292100,
+      "guest_write_permissions_checked": true,
+      "not_original_guest_host_address": true
+    },
+    {
+      "api": "RtlUnwind",
+      "explicit_guest_OS_emulation": true,
+      "head": 33581280,
+      "target_frame": 33581280,
+      "exception_record": 50348032,
+      "plan": {
+        "flags": 3,
+        "esp": 33550092,
+        "eip": 5264393,
+        "eax": 0,
+        "frames_unwound": 0,
+        "emulated_os_boundary": true
+      }
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "GetLastError",
+      "args": [],
+      "native_return_address": 5275387,
+      "actual_Windows_API": true,
+      "guest_result": 2
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275401,
+      "actual_Windows_API": true,
+      "guest_result": 117772416,
+      "actual_host_pointer": 1822177592656
+    },
+    {
+      "api": "SetLastError",
+      "args": [
+        2
+      ],
+      "native_return_address": 5275477,
+      "actual_Windows_API": true,
+      "guest_result": null
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580796,
+        5408804
+      ],
+      "native_return_address": 4245498,
+      "guest_result": 33580796
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580796,
+        117739648
+      ],
+      "native_return_address": 4245528,
+      "guest_result": 33580796
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580796,
+        5410476
+      ],
+      "native_return_address": 4245543,
+      "guest_result": 33580796
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580796,
+        5408804
+      ],
+      "native_return_address": 4245558,
+      "guest_result": 33580796
+    },
+    {
+      "api": "lstrcatA",
+      "args": [
+        33580796,
+        5410488
+      ],
+      "native_return_address": 4245596,
+      "guest_result": 33580796
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580520,
+        33580796
+      ],
+      "native_return_address": 4800456,
+      "guest_result": 33580520
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33580520,
+        1073741824,
+        0,
+        0,
+        2,
+        128,
+        0
+      ],
+      "native_return_address": 4713055,
+      "exact_mapped_write_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG",
+      "original_WRITE_CREATE_ALWAYS_parameters_preserved": true,
+      "full_host_handle_not_truncated": true,
+      "actual_error": 183,
+      "guest_result": 1773142016
+    },
+    {
+      "api": "lstrlenA",
+      "args": [
+        117764224
+      ],
+      "native_return_address": 4245839,
+      "guest_result": 144
+    },
+    {
+      "api": "wsprintfA_two_strings_actual_host",
+      "return_address": 4245931,
+      "actual_result_bytes": 156,
+      "capacity": 260,
+      "original_APP_CFG_path_composition": true,
+      "all_host_buffers_guarded": true
+    },
+    {
+      "api": "CloseHandle",
+      "args": [
+        1773142016
+      ],
+      "native_return_address": 4711535,
+      "actual_owned_config_writer_closed": true,
+      "guest_result": 1
+    },
+    {
+      "api": "lstrcpyA",
+      "args": [
+        33580520,
+        33580796
+      ],
+      "native_return_address": 4800456,
+      "guest_result": 33580520
+    },
+    {
+      "api": "CreateFileA",
+      "args": [
+        33580520,
+        1073741824,
+        0,
+        0,
+        2,
+        128,
+        0
+      ],
+      "native_return_address": 4713055,
+      "exact_mapped_write_target": "guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData\\APP_CFG.DAT",
+      "original_WRITE_CREATE_ALWAYS_parameters_preserved": true,
+      "full_host_handle_not_truncated": true,
+      "actual_error": 0,
+      "guest_result": 1773142016
+    },
+    {
+      "api": "CloseHandle",
+      "args": [
+        1773142016
+      ],
+      "native_return_address": 4711535,
+      "actual_owned_config_writer_closed": true,
+      "guest_result": 1
+    }
+  ],
+  "recent": [
+    {
+      "pc": 4711450,
+      "esp": 33581308,
+      "eax": 4294967295,
+      "ecx": 33581280
+    },
+    {
+      "pc": 4711451,
+      "esp": 33581312,
+      "eax": 4294967295,
+      "ecx": 33581280
+    },
+    {
+      "pc": 4711458,
+      "esp": 33581312,
+      "eax": 4294967295,
+      "ecx": 33581280
+    },
+    {
+      "pc": 4711461,
+      "esp": 33581328,
+      "eax": 4294967295,
+      "ecx": 33581280
+    },
+    {
+      "pc": 4242940,
+      "esp": 33581332,
+      "eax": 4294967295,
+      "ecx": 33581280
+    },
+    {
+      "pc": 4242943,
+      "esp": 33581332,
+      "eax": 4294967295,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4242944,
+      "esp": 33581336,
+      "eax": 4294967295,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4242945,
+      "esp": 33581340,
+      "eax": 4294967295,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4242947,
+      "esp": 33581340,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4242954,
+      "esp": 33581340,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4242955,
+      "esp": 33581344,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4242957,
+      "esp": 33584572,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4242958,
+      "esp": 33584576,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729159,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729161,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729173,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729179,
+      "esp": 33584580,
+      "eax": 2,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729181,
+      "esp": 33584580,
+      "eax": 2,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729183,
+      "esp": 33584580,
+      "eax": 2,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729201,
+      "esp": 33584580,
+      "eax": 2,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729207,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729209,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729211,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587140
+    },
+    {
+      "pc": 4729214,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587013
+    },
+    {
+      "pc": 4729218,
+      "esp": 33584580,
+      "eax": 0,
+      "ecx": 33587013
+    },
+    {
+      "pc": 4729219,
+      "esp": 33584576,
+      "eax": 0,
+      "ecx": 33587013
+    },
+    {
+      "pc": 4729223,
+      "esp": 33584576,
+      "eax": 0,
+      "ecx": 33587013
+    },
+    {
+      "pc": 4729228,
+      "esp": 33584576,
+      "eax": 0,
+      "ecx": 33587013
+    },
+    {
+      "pc": 4729233,
+      "esp": 33584576,
+      "eax": 0,
+      "ecx": 33587013
+    },
+    {
+      "pc": 4729238,
+      "esp": 33584576,
+      "eax": 0,
+      "ecx": 33587013
+    }
+  ],
+  "stack8": [
+    4729244,
+    33584600,
+    0,
+    0,
+    0,
+    33566720,
+    0,
+    6044229
+  ],
+  "not_original_OS_start": true,
+  "module_events": [
+    {
+      "original_DLL_CRT_attach_entry": 285289965,
+      "actual_return": 1,
+      "live_DLL_blocks": 86,
+      "owned_DLL_TLS": 1,
+      "DLL_CS": 5,
+      "controlled_guest_filter": 285299748,
+      "FPCW": 575
+    },
+    {
+      "api": "LoadLibraryA_guest_actual_DLL_attach",
+      "return_address": 4843696,
+      "guest_module": 285212672,
+      "OS_LoadLibrary_original_DLL_not_called": true
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4843725,
+      "name": "Query_sizeof_OggVorbis_File",
+      "guest_va": 285282048
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4843791,
+      "name": "wu_ov_clear",
+      "guest_va": 285282240
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4843832,
+      "name": "wu_ov_open_callbacks",
+      "guest_va": 285282256
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4843873,
+      "name": "wu_ov_seekable",
+      "guest_va": 285282448
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4843914,
+      "name": "wu_ov_pcm_total",
+      "guest_va": 285282496
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4843955,
+      "name": "wu_ov_time_total",
+      "guest_va": 285282512
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4843996,
+      "name": "wu_ov_raw_seek",
+      "guest_va": 285282528
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844037,
+      "name": "wu_ov_time_seek",
+      "guest_va": 285282624
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844078,
+      "name": "wu_ov_raw_tell",
+      "guest_va": 285282848
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844119,
+      "name": "wu_ov_pcm_tell",
+      "guest_va": 285282864
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844160,
+      "name": "wu_ov_time_tell",
+      "guest_va": 285282880
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844201,
+      "name": "wu_ov_info",
+      "guest_va": 285282896
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844242,
+      "name": "wu_ov_read",
+      "guest_va": 285282960
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844283,
+      "name": "wu_SetCPUType",
+      "guest_va": 285283056
+    },
+    {
+      "api": "GetProcAddress_guest_original_export",
+      "return_address": 4844324,
+      "name": "wu_DetectCPU",
+      "guest_va": 285283072
+    }
+  ],
+  "original_export_execution": [
+    {
+      "name": "Query_sizeof_OggVorbis_File",
+      "guest_va": 285282048,
+      "native_return_address": 4843752
+    },
+    {
+      "name": "Query_sizeof_OggVorbis_File_return_instruction",
+      "actual_EAX": 704
+    },
+    {
+      "name": "wu_DetectCPU",
+      "guest_va": 285283072,
+      "native_return_address": 4844356
+    },
+    {
+      "name": "wu_SetCPUType",
+      "guest_va": 285283056,
+      "native_return_address": 4844363,
+      "actual_guest_CPU_type_arg": 31129622
+    }
+  ],
+  "DLL_attached_before_original_GetProcAddress": true,
+  "not_native_CRT_or_WinMain_shutdown": true,
+  "config_write_events": [
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 2,
+      "actual_bytes_written": 2,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "70e57a516ef91f0b075ef52c2a5742912513ee31c1caf3643a32972df403a402",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 72,
+      "actual_bytes_written": 72,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "fd51f4e23ae2ca45dc41d9b432ea6a745f90dbf8cee2f04b0e3b3eafee88e3b6",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 2,
+      "actual_bytes_written": 2,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "7a2a7c0a81d1bd595dff09b918f8ecb5b5e8493654a4f83496956ed8eb017674",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 14,
+      "actual_bytes_written": 14,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "02035857e6b602a5220a0daa1b2a7524e20037038fedd7e8cf4a442491dd63a9",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 2,
+      "actual_bytes_written": 2,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "d94e7f1e9bb1f8a9b90996ba12c461b84956f0e7f230145cc594c2f80b067aa0",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 17,
+      "actual_bytes_written": 17,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "1d51faf6a38df9c1f93e7c0cf8cce03f295e312f4251107031b52251588bd0c8",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 2,
+      "actual_bytes_written": 2,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "1d25d76040a1e986b1d60f2cf3209a81bfbf32007d63ff461535a9d73d90ebf4",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 145,
+      "actual_bytes_written": 145,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "39b9bf58869968162ddd5172b4d0de8fa6276ff3a7e3629a48baf53cd61fdbae",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 4,
+      "actual_bytes_written": 4,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "60f2e332c71bcda81951ea38d3c52d4a9b1a2056b334f99001f41c588afd0892",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData\\APP_CFG.DAT"
+    },
+    {
+      "original_return_address": 4713351,
+      "bytes_requested": 192,
+      "actual_bytes_written": 192,
+      "actual_result": 1,
+      "actual_error": 0,
+      "payload_sha256": "021e674ed805914c8fd7655af548295540227462cca8d4357020a931dcf9c05e",
+      "guarded_host_data_and_count_buffers": true,
+      "mapped_relative_target": "guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData\\APP_CFG.DAT"
+    }
+  ],
+  "config_close_events": [
+    {
+      "native_return_address": 4711535,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG",
+      "bytes": 256,
+      "sha256": "3264518af0b93e107a34f1f387a9e9cbe1a89cd902932fae9c5ca13d593efa96",
+      "fields": [
+        {
+          "length": 72,
+          "sha256": "fd51f4e23ae2ca45dc41d9b432ea6a745f90dbf8cee2f04b0e3b3eafee88e3b6"
+        },
+        {
+          "length": 14,
+          "sha256": "02035857e6b602a5220a0daa1b2a7524e20037038fedd7e8cf4a442491dd63a9"
+        },
+        {
+          "length": 17,
+          "sha256": "1d51faf6a38df9c1f93e7c0cf8cce03f295e312f4251107031b52251588bd0c8"
+        },
+        {
+          "length": 145,
+          "sha256": "39b9bf58869968162ddd5172b4d0de8fa6276ff3a7e3629a48baf53cd61fdbae"
+        }
+      ],
+      "actual_native_writer_then_CloseHandle": true,
+      "source_backup_not_written": true
+    },
+    {
+      "native_return_address": 4711535,
+      "mapped_relative_target": "guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData\\APP_CFG.DAT",
+      "bytes": 196,
+      "sha256": "c07627f5e361b81ddd31ee7c0f5cb26601c7cceb794b788092e6b7933c2ca2b8",
+      "fields": [],
+      "actual_native_writer_then_CloseHandle": true,
+      "source_backup_not_written": true
+    }
+  ],
+  "owned_config_write_handles_at_boundary": 0,
+  "native_config_publication": {
+    "passed": true,
+    "USER_CFG_first_three_fields_unchanged": true,
+    "USER_CFG_fourth_field_exact_selected_SaveData_path_with_NUL": true,
+    "APP_CFG_bytes": 196,
+    "APP_CFG_length_prefix_u32": 192,
+    "all_ten_native_writes_and_two_original_Closes_executed": true,
+    "exact_host_bytes_equal_native_write_stream": true,
+    "original_WinMain_not_returned": true
+  },
+  "shell_folder_query_events": [
+    {
+      "guest_return_address": 4711332,
+      "guest_csidl": 26,
+      "guest_fCreate": 1,
+      "host_fCreate": 0,
+      "actual_result": 1,
+      "existing_host_folder_confirmed": true,
+      "path_bytes": 38,
+      "no_host_directory_creation": true,
+      "creation_branch_not_verified": true
+    },
+    {
+      "guest_return_address": 4711332,
+      "guest_csidl": 5,
+      "guest_fCreate": 1,
+      "host_fCreate": 0,
+      "actual_result": 1,
+      "existing_host_folder_confirmed": true,
+      "path_bytes": 44,
+      "no_host_directory_creation": true,
+      "creation_branch_not_verified": true
+    },
+    {
+      "guest_return_address": 4711332,
+      "guest_csidl": 26,
+      "guest_fCreate": 1,
+      "host_fCreate": 0,
+      "actual_result": 1,
+      "existing_host_folder_confirmed": true,
+      "path_bytes": 38,
+      "no_host_directory_creation": true,
+      "creation_branch_not_verified": true
+    }
+  ],
+  "storage_operations": [
+    {
+      "guest_api": "CreateDirectoryA",
+      "original_return_address": 4240238,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData",
+      "host_API": "CreateDirectoryW",
+      "actual_result": 1,
+      "actual_error": 0,
+      "requested_ACP_path_preserved_by_unicode_mapping": true,
+      "within_workspace": true
+    },
+    {
+      "guest_api": "CopyFileA",
+      "original_return_address": 4240349,
+      "host_API": "CopyFileW",
+      "actual_result": 1,
+      "actual_error": 0,
+      "source_relative_path": "备份\\我们没有翅膀R-安装介质\\SET_UP\\USER.CFG",
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG",
+      "bytes": 111,
+      "source_target_sha256": "ef33b1866f5e83a99b70dee58d386898d11eabed0391d254d99879073b40090d",
+      "source_unchanged": true,
+      "within_workspace": true
+    },
+    {
+      "guest_api": "SetFileAttributesA",
+      "original_return_address": 4240367,
+      "host_API": "SetFileAttributesW",
+      "actual_result": 1,
+      "actual_error": 0,
+      "mapped_relative_target": "guest-storage\\AppData\\壌偨偪偵梼偼側偄俼 SaveData\\USER.CFG",
+      "within_workspace": true
+    },
+    {
+      "guest_api": "GetFileSize",
+      "original_return_address": 4793580,
+      "actual_result": 111,
+      "actual_error": 0,
+      "owned_host_file_handle_mapping": true,
+      "is_mapped_USER_CFG": true,
+      "high_pointer_supplied": false
+    },
+    {
+      "guest_api": "CreateDirectoryA",
+      "original_return_address": 4241306,
+      "mapped_relative_target": "guest-storage\\AppData\\selected-game-data\\壌偨偪偵梼偼側偄俼 SaveData",
+      "host_API": "CreateDirectoryW",
+      "actual_result": 1,
+      "actual_error": 0,
+      "requested_ACP_path_preserved_by_unicode_mapping": true,
+      "within_workspace": true
+    }
+  ],
+  "storage_USER_CFG_reads": [
+    {
+      "original_ReadFile_return_address": 4793661,
+      "bytes": 111,
+      "sha256": "ef33b1866f5e83a99b70dee58d386898d11eabed0391d254d99879073b40090d",
+      "exact_copied_USER_CFG": true,
+      "actual_readonly_host_file_IO": true
+    }
+  ],
+  "one_string_formatter_events": [
+    {
+      "api": "wsprintfA_one_string_actual_host",
+      "return_address": 4241016,
+      "format_bytes": 37,
+      "input_bytes": 18,
+      "actual_result_bytes": 53,
+      "exact_expected_bytes": true,
+      "all_host_buffers_guarded": true
+    }
+  ],
+  "finite_phase_assertions_passed": true,
+  "no_external_directory_creation": true,
+  "SHGetSpecialFolderPathA_host_call_fCreate0_only": true,
+  "shell_allocator_events": [
+    {
+      "api": "SHGetMalloc",
+      "original_return_address": 4711057,
+      "actual_HRESULT": 0,
+      "host_pointer_above_u32": true,
+      "guest_interface": 50344448,
+      "guest_selected_proxy_vtable_slots": [
+        2,
+        5
+      ],
+      "not_complete_IMalloc_or_IUnknown_adapter": true
+    },
+    {
+      "api": "IMalloc_Free",
+      "original_return_address": 4711282,
+      "guest_PIDLIST": 1771044864,
+      "void_result_not_fabricated": true
+    },
+    {
+      "api": "IMalloc_Release",
+      "original_return_address": 4711292,
+      "actual_result": 1
+    }
+  ],
+  "controlled_browse_selection_input": [
+    {
+      "original_return_address": 4711245,
+      "native_BROWSEINFOA_words": [
+        1769996288,
+        0,
+        0,
+        33583152,
+        1,
+        4710992,
+        33581052,
+        0
+      ],
+      "actual_Shell_dialog_not_called": true,
+      "input_kind": "explicit_selected_workspace_folder_replay",
+      "selected_source_relative_path": "guest-storage\\AppData\\selected-game-data",
+      "actual_SHParseDisplayName_HRESULT": 0,
+      "clone_uses_same_original_caller_shell_allocator": true,
+      "source_PIDLIST_capacity": 839,
+      "PIDLIST_item_sizes": [
+        20,
+        25,
+        104,
+        86,
+        74,
+        108,
+        124,
+        100,
+        86,
+        110
+      ],
+      "PIDLIST_bytes": 839,
+      "PIDLIST_sha256": "87109fb9621571c7482824df7daf00010738d65f12d1ba2a8d1a273a28446fab",
+      "guest_PIDLIST_token": 1771044864,
+      "host_PIDLIST_not_truncated": true,
+      "original_guest_callback_not_OS_registered": true
+    }
+  ],
+  "actual_PIDLIST_path_conversion": [
+    {
+      "original_return_address": 4711266,
+      "actual_host_result": 1,
+      "output_bytes": 116,
+      "output_sha256": "08fa13ab0f936a60a133c8ae03a0501180a537d1d7de34ba1c7188d1b0cdd6a2",
+      "exact_controlled_selected_workspace_path": true,
+      "guarded_260_byte_buffer": true
+    }
+  ],
+  "controlled_native_browse_boundary": {
+    "original_browse_dialog_not_entered": true,
+    "folder_selection_is_explicit_controlled_replay": true,
+    "actual_IMalloc_and_consumer_Free_Release_executed": true
+  },
+  "native_BROWSEINFOA_32": {
+    "lpfn": 4710992,
+    "lParam": 16832512,
+    "independent_callback_fixture_userdata_copied_at_original_BROWSE_entry": true
+  },
+  "controlled_original_folder_callback": {
+    "passed": true,
+    "cases": [
+      {
+        "original_callback": 4710992,
+        "input_message": 0,
+        "stdcall_stack_bytes": 20,
+        "actual_original_return": 0,
+        "native_SendMessage_called": false,
+        "global_5357C8_updated": false
+      },
+      {
+        "original_callback": 4710992,
+        "input_message": 2,
+        "stdcall_stack_bytes": 20,
+        "actual_original_return": 0,
+        "native_SendMessage_called": false,
+        "global_5357C8_updated": false
+      },
+      {
+        "original_callback": 4710992,
+        "input_message": 3,
+        "stdcall_stack_bytes": 20,
+        "actual_original_return": 0,
+        "native_SendMessage_called": false,
+        "global_5357C8_updated": false
+      },
+      {
+        "original_callback": 4710992,
+        "input_message": 4294967295,
+        "stdcall_stack_bytes": 20,
+        "actual_original_return": 0,
+        "native_SendMessage_called": false,
+        "global_5357C8_updated": false
+      },
+      {
+        "original_callback": 4710992,
+        "input_message": 1,
+        "stdcall_stack_bytes": 20,
+        "actual_original_return": 0,
+        "native_SendMessage_called": true,
+        "global_5357C8_updated": true
+      }
+    ],
+    "host_SendMessage_events": [
+      {
+        "original_return_address": 4711027,
+        "message": 1126,
+        "wParam": 1,
+        "guest_lParam": 16832512,
+        "actual_host_result": 79225,
+        "result_is_controlled_receiver_fixture": true,
+        "input_bytes": 44,
+        "payload_sha256": "d95fbfe5a90594a15774523b3aa15c3d66e2943ed8eb6ddb94cfa57f9ea8b5ba",
+        "exact_ANSI_payload": true,
+        "host_pointer_not_truncated": true,
+        "original_Shell_dialog_not_executed": true
+      }
+    ],
+    "actual_invisible_message_only_window_created_and_destroyed": true,
+    "borrowed_desktop_not_used_as_capture_window": true,
+    "original_OS_Shell_dialog_or_game_window_not_created": true,
+    "guest_callback_never_registered_with_OS": true,
+    "caller_CPU_and_fixture_global_restored": true
+  }
+}

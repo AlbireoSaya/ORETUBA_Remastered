@@ -1,0 +1,79 @@
+"""Root platform verification of current live parameter components against eleven original calls."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import sys
+import time
+import uuid
+
+root = Path.cwd()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-live-params-20261015"
+memory_work = root / "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015"
+record_work = root / "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015"
+sys.path.insert(0, str(group / "工具"))
+from performance_runtime import execute
+
+bits, tag, manifest_path = int(sys.argv[1]), sys.argv[2], Path(sys.argv[3]).resolve()
+assert bits in (32, 64) and "/" not in tag and "\\" not in tag
+assert manifest_path.is_relative_to(root)
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+assert manifest["cases"] == 11
+reference_path = manifest_path.parent / "original-results.json"
+assert hashlib.sha256(reference_path.read_bytes()).hexdigest() == manifest["original_result_sha256"]
+reference = json.loads(reference_path.read_text(encoding="utf-8"))
+assert reference["passed"] and all(row["passed"] for row in reference["results"])
+out = root / "临时/ISSUE-20261011-02" / tag
+assert not out.exists()
+game, save, evidence = out / "game", out / "savedata", out / "evidence"
+for path in (game, save, evidence):
+    path.mkdir(parents=True)
+memory = ["r_memory_region.tjs", "r_memory_create.tjs", "r_memory_access.tjs", "r_memory_find.tjs", "r_memory_read.tjs", "r_memory_write8.tjs", "r_memory_write32.tjs"]
+record = ["r_record_live_prefix.tjs", "r_record_live_gate.tjs"]
+owned = list(json.loads((work / "accepted-map.json").read_text(encoding="utf-8-sig")))
+names = memory + record + owned + ["r_vm_fixture_compare.tjs"]
+assert len(names) == len(set(names))
+sources = []
+for name in names:
+    src = (group / "原作忠实层/R" / name if name in memory + record or (name in owned and "fixture" not in name) else
+           group / "演出链路/R_TJS记录SDK与实时参数读写证据_20261016/fixtures" / name if name in owned else
+           group / "演出链路/R_TJS表达式VM与暂停恢复证据_20261015" / name)
+    override=root/'子代理工作区/ISSUE-20261011-02/r-target-live-record-20261016'/name
+    if name in ('r_record_live_payload.tjs','r_record_live_item.tjs','r_record_live_parameters.tjs'):src=override
+    shutil.copyfile(src, game / name)
+    sources.append({"name": name, "path": src.relative_to(root).as_posix(), "sha256": hashlib.sha256(src.read_bytes()).hexdigest()})
+nonce = uuid.uuid4().hex
+commands = ["Debug.startLogToFile();", "try {", f'Debug.message("RLP_BEGIN {nonce}");']
+for name in names:
+    commands += [f'Debug.message("RLP_LOAD {nonce} {name}");', f'Scripts.execStorage("{name}");']
+for i, row in enumerate(manifest["files"]):
+    src = root / row["source"]
+    assert src.resolve().is_relative_to(root) and hashlib.sha256(src.read_bytes()).hexdigest() == row["sha256"]
+    dest = f"cases-{i:04d}.tjs"
+    shutil.copyfile(src, game / dest)
+    sources.append({"name": dest, "path": row["source"], "sha256": row["sha256"]})
+    commands.append(f'Scripts.execStorage("{dest}");')
+commands += ['if(RLiveParamCaseCount!==11)throw new Exception("WRONG_LIVE_PARAMETER_COUNT");',
+             f'Debug.message("RLP_PASS {nonce} 11");', "} catch(e) {",
+             f'Debug.message("RLP_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));', "}", "System.exit();"]
+(game / "startup.tjs").write_text("\n".join(commands) + "\n", encoding="utf-8")
+engine = root / f"工具/krkrz/krkrz_20171225/tvpwin{bits}.exe"
+start = time.time_ns()
+process = execute([str(engine), str(game), "-datapath=" + str(save) + "/", "-readencoding=UTF-8", "-startup=startup.tjs", "-userconf=no"], out, 45, evidence)
+log = save / "krkr.console.log"
+raw = log.read_bytes() if log.exists() else b""
+text = raw.decode("utf-16") if raw.startswith(b"\xff\xfe") else raw.decode("utf-16-le", errors="replace")
+fresh = log.exists() and log.stat().st_mtime_ns >= start
+passed = process["returncode"] == 0 and not process["timed_out"] and process["cleanup_ok"] and fresh and f"RLP_PASS {nonce} 11" in text and f"RLP_EXCEPTION {nonce}" not in text
+receipt = {"passed": passed, "bits": bits, "cases": 11, "scoped_original_events": sum(len(row["events"]) for row in reference["results"]),
+           "nonce": nonce, "fresh_log": fresh, "process": process, "sources": sources,
+           "reference": reference_path.relative_to(root).as_posix(), "reference_sha256": hashlib.sha256(reference_path.read_bytes()).hexdigest(),
+           "engine_sha256": hashlib.sha256(engine.read_bytes()).hexdigest(), "console_sha256": hashlib.sha256(raw).hexdigest(),
+           "scope": "source page/parameter buffer/existing bank value reads and writes, cursors, 64 source/16 parameter final bytes; context/descriptor/stack reads outside scope",
+           "bank_growth_and_expression_callbacks_unimplemented": True, "full_game_fidelity_proven": False}
+(evidence / "verdict.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+(evidence / "console.utf8.txt").write_text(text, encoding="utf-8")
+print(json.dumps({key: receipt[key] for key in ("passed", "bits", "cases", "scoped_original_events", "process")}))
+print("\n".join(line for line in text.splitlines() if "RLP_" in line)[-1200:])
+sys.exit(0 if passed else 1)

@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "IMalloc-Alloc-Free-NULL",
+      "passed": true,
+      "actual_requested_bytes": 17,
+      "host_interface_above_u32": true
+    },
+    {
+      "case": "actual-Shell-PIDLIST-clone-path",
+      "passed": true,
+      "PIDLIST_bytes": 629,
+      "item_sizes": [
+        20,
+        25,
+        104,
+        86,
+        74,
+        108,
+        128,
+        82
+      ],
+      "exact_ANSI_workspace_path": true,
+      "guarded_MAX_PATH_buffer": true,
+      "no_Shell_dialog_called": true
+    },
+    {
+      "case": "write-nonempty",
+      "passed": true,
+      "actual_written": 17,
+      "guards_preserved": true
+    },
+    {
+      "case": "write-zero-length",
+      "passed": true,
+      "actual_written": 0,
+      "guards_preserved": true
+    },
+    {
+      "case": "write-invalid-handle",
+      "passed": true,
+      "actual_result": 0,
+      "actual_error": 6,
+      "actual_written": 0
+    },
+    {
+      "case": "four-comparison-statuses",
+      "passed": true,
+      "own_fixtures_only": true
+    },
+    {
+      "case": "existing-and-outside-output-refusal",
+      "passed": true,
+      "no_outside_write": true
+    }
+  ],
+  "cases_count": 7,
+  "IMalloc_Release_actual_result": 1,
+  "not_global_COM_refcount_zero_claim": true,
+  "owned_memory_files_COM_released": true,
+  "actual_original_files_not_used": true,
+  "not_reparse_or_access_denied_runtime_fixture_claim": true,
+  "not_original_Shell_UI_or_game_window_proof": true
+}

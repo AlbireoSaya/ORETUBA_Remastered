@@ -1,0 +1,396 @@
+// ============================================================
+// ui_diag.tjs —— 【诊断专用】输入链路探针（编程组 · 2026-10-01 ISSUE-20261001-06）
+//
+// 用途：把一条「点击 → 进入某屏」的链路补齐到日志里。UI 组现有日志缺三处：
+//   ① `uiScreenNote()` 只写内存环缓冲、**不落日志** ⇒ push/pop 完全不可见；
+//   ② `uiActionDispatch` 的返回值（handled/effect/msg）没进日志；
+//   ③ `[UI] click x,y` 打的是**换算后**坐标，引擎原始坐标看不到。
+// 本文件把这三处补上，并**实测**坐标换算因子（用 UI 组自己的函数反解，不猜）。
+//
+// ★ 开关：仅当 `game\uidiag.txt` 存在时由 `ui_boot.tjs` 装载并安装。
+//   无该文件时本文件**根本不被装载** ⇒ 正常成品零开销、零行为改变。
+// ★ 只包**全局函数**（`uiScreenClick` / `uiScreenPush` / `uiScreenPop` / `uiActionDispatch`），
+//   逐个**原样回落**（bare call，与原有调用点同语义），不复制任何 UI 组逻辑。
+//   不碰坐标换算函数（它是 UiWindow 的类方法，且已由主代理源码取证确认正确）。
+// ★ 与 `ui_story.tjs` 的包装叠加：本探针在窗口交接**末尾**安装 ⇒ 位于最外层。
+// ============================================================
+
+var UIDiagOn        = false;
+var UIDiagN         = 0;
+var UIDiagMax       = 6000;      // 日志行数上限（防跑飞）
+var UIDiagKX        = 0;         // 实测换算因子（x）
+var UIDiagKY        = 0;         // 实测换算因子（y）
+var UIDiagOrigClick = null;
+var UIDiagOrigPush  = null;
+var UIDiagOrigPop   = null;
+var UIDiagOrigDisp  = null;
+
+// ★ 窗口合成帧捕获（ISSUE-20261001-08）—— 全局状态（TJS2 顶层 var **无提升**，必须声明在使用之前）
+var UIDiagCapOn     = false;
+var UIDiagCapTimer  = null;      // ★ 必须被全局引用持有，否则回调被回收、静默停止（skill §9.1-10）
+var UIDiagCapPhase  = 0;
+var UIDiagCapShotN  = 0;
+var UIDiagCapClicks = 0;         // 复放的真实事件对次数
+
+function uiDiagLog(m)
+{
+	UIDiagN++;
+	if(UIDiagN > UIDiagMax) return;
+	Debug.message("[DIAG] " + m);
+}
+
+// 反算原始客户区坐标（换算因子 k>0 时）
+function uiDiagRaw(v, k)
+{
+	if(k <= 0) return v;
+	return Math.floor(v / k + 0.5);
+}
+
+// ★ 实测换算因子：直接问 UI 组自己的换算函数「100 会变成几」，不猜公式
+function uiDiagMeasure(win)
+{
+	var cx = -1, cy = -1;
+	try { cx = win.uiMouseCanvasX(100); } catch(e1) { cx = -1; }
+	try { cy = win.uiMouseCanvasY(100); } catch(e2) { cy = -1; }
+	if(cx > 0) UIDiagKX = cx / 100;
+	if(cy > 0) UIDiagKY = cy / 100;
+	var iw = -1, ih = -1, pw = -1, ph = -1;
+	try { iw = win.innerWidth; ih = win.innerHeight; } catch(e3) { }
+	try { pw = win.primLayer.width; ph = win.primLayer.height; } catch(e4) { }
+	uiDiagLog("换算探针：uiMouseCanvasX(100)=" + cx + "  uiMouseCanvasY(100)=" + cy
+		+ "  ⇒ kx=" + UIDiagKX + " ky=" + UIDiagKY
+		+ "  ｜ inner=" + iw + "x" + ih + "  prim=" + pw + "x" + ph);
+}
+
+// 把某屏所有「可命中」元素（kind=hit 或带 action）的几何与动作打进日志，
+// 这样坐标能直接对上按钮，不需要事后猜。
+function uiDiagDumpScreen(id)
+{
+	var sc = null;
+	try { sc = UILayoutData.screens["" + id]; } catch(e) { sc = null; }
+	if(sc === void || sc === null) { uiDiagLog("屏 " + id + "：不存在"); return; }
+	if(sc.elements === void) { uiDiagLog("屏 " + id + "：无 elements"); return; }
+	var els = sc.elements;
+	var n = 0;
+	for(var i = 0; i < els.count; i++)
+	{
+		var e = els[i];
+		if(e === void || e === null) continue;
+		if(e.id === void) continue;
+		var act = (e.action === void) ? "" : ("" + e.action);
+		var kd = (e.kind === void) ? "" : ("" + e.kind);
+		if(kd != "hit" && act == "") continue;
+		uiDiagLog("  可命中 " + e.id + " kind=" + kd
+			+ " act=" + ((act == "") ? "(无)" : act)
+			+ " rect=(" + e.x + "," + e.y + "," + e.w + "," + e.h + ")"
+			+ " vd=" + e.visible_default
+			+ ((e.vis_flag === void) ? "" : (" vis_flag=" + e.vis_flag)));
+		n++;
+	}
+	uiDiagLog("屏 " + id + "：可命中元素 " + n + " 个");
+}
+
+function uiDiagClick(stage, x, y)
+{
+	var r = null;
+	try { r = UIDiagOrigClick(stage, x, y); }
+	catch(e)
+	{
+		uiDiagLog("[CLICK][ERR] uiScreenClick 抛异常（屏=" + uiScreenCurrent()
+			+ " conv=(" + x + "," + y + ")）：" + e.message);
+		throw e;                      // 保持原行为：不吞异常
+	}
+	var ra = "?";
+	if(r === void || r === null) ra = "(null)";
+	else if(("" + r.action) == "") ra = "(空区域)";
+	else ra = ("" + r.action) + (("" + r.index) == "" ? "" : (" idx=" + r.index));
+	uiDiagLog("[CLICK] 屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]"
+		+ " conv=(" + x + "," + y + ")"
+		+ " raw≈(" + uiDiagRaw(x, UIDiagKX) + "," + uiDiagRaw(y, UIDiagKY) + ")"
+		+ " 命中=" + ra);
+	return r;
+}
+
+function uiDiagPush(id)
+{
+	UIDiagOrigPush(id);
+	uiDiagLog("[STACK] push -> " + id + "  深度=" + UIScrStack.count
+		+ " 栈=[" + uiScreenStackText() + "]");
+}
+
+function uiDiagPop()
+{
+	var before = uiScreenCurrent();
+	var ok = UIDiagOrigPop();
+	uiDiagLog("[STACK] pop " + (ok ? "OK" : "被拒") + "：" + before + " -> " + uiScreenCurrent()
+		+ "  深度=" + UIScrStack.count);
+	return ok;
+}
+
+function uiDiagDispatch(action, index)
+{
+	var before = uiScreenCurrent();
+	var d0 = UIScrStack.count;
+	var r = null;
+	try { r = UIDiagOrigDisp(action, index); }
+	catch(e)
+	{
+		uiDiagLog("[ACT][ERR] act=" + action + " 抛异常（屏=" + before + "）：" + e.message);
+		throw e;                      // 保持原行为
+	}
+	var h = "?", ef = "?", m = "?";
+	if(r !== void && r !== null)
+	{
+		h = "" + r.handled;
+		ef = "" + r.effect;
+		m = "" + r.msg;
+	}
+	uiDiagLog("[ACT] act=" + action + " idx=" + ((index === void) ? "-" : index)
+		+ " ｜ 屏 " + before + "(" + d0 + ") -> " + uiScreenCurrent() + "(" + UIScrStack.count + ")"
+		+ " ｜ handled=" + h + " effect=" + ef + " ｜ " + m);
+	return r;
+}
+
+// ------------------------------------------------------------
+// ★ 窗口合成帧捕获（ISSUE-20261001-08）
+//   目的：判定「点了开始游戏后，**窗口实际呈现的那一帧**到底是新屏还是旧标题帧」。
+//
+//   为什么 UI 组的 `exportPng()` 看不出这个问题：
+//     `exportPng()`（UI 组 `startup.tjs`）读的是 **`stageLayer`**
+//     （`stageLayer.copyToBitmapFromMainImage(bmp); bmp.save(...)`）；
+//     而 `redraw()`（同文件）已改**乒乓双缓冲**：屏变了就把**新**画面画进后层 `snapLayer`，
+//     前层 `stageLayer` 保留**旧**画面（转场起点），故 `exportPng` 读到的 `stageLayer`
+//     只是「当前已结算的屏」，**仍拍不到窗口合成出来的那一帧**。
+//   窗口呈现的是 **`primLayer`**（`ltOpaque`，`stageLayer` 的父层），
+//     而转场（`ui_transition.tjs::uiTransStart` → `beginTransition("universal", true, snapLayer, …)`）
+//     是在**前层 `stageLayer`**（＝**旧**画面，转场**起点**）上跑 420ms；
+//     `transsrc`＝**终点**（`snapLayer` 里刚画好的**新**画面）——**不是**起点/旧画面快照。
+//     结束后引擎 `ttExchange` 已 **整体互换两层**（原 stageLayer.visible=false、原 snapLayer.visible=true），
+//     再由 `startup.tjs::uiTransSettle()` 互换成员引用 ⇒ **可见层恒为 `stageLayer`**（装当前画面）。
+//   ⇒ 本探针因此**新增「可见层」观测**（`uiDiagLayerVis`），供主代理在装配态独立复验「可见层＝stageLayer」。
+//   ⇒ **只有导出 `primLayer` 才能看到「窗口应该显示的那一帧」**：
+//       若它仍是标题 ⇒ 合成/转场卡住；若已是 dialog ⇒ 引擎合成正确。
+//
+//   做法：一个 450ms/拍的相位机（共 9 拍，约 4.05s；★ ISSUE-20261001-11 在 1–6 拍后**追加 7/8/9 拍滚轮验证**），
+//     在「点开始游戏」前后各导 stage/prim 两张图，
+//     时点：t0 点前 / t1 转场中（≈450ms，转场 420ms）/ t2 转场后（≈900ms）/ t3 再等一拍（≈1350ms）；
+//     并在相位 2 **复放真实事件对**（`onMouseDown` + `onClick`，对齐用户的 raw≈276,260）。
+//   ★ **不自动退出**：`uiQuit` 要等 2.5 分钟才真的退，会干扰外部取证 ⇒ 由外部 `taskkill` 收尾。
+// ------------------------------------------------------------
+
+// 导一张图并记日志：层对象由**调用方**给（本函数不按字符串硬编码层，层从 UIStoryWin 取）。
+function uiDiagShotLayer(layer, tag)
+{
+	if(layer === void || layer === null)
+	{
+		Debug.message("[DIAG][CAP][MISS] " + tag + " : 层引用为空");
+		return false;
+	}
+	var dir = "";
+	try { dir = "" + Debug.logLocation; } catch(eD) { dir = ""; }
+	var name = "cap_" + UIDiagCapShotN + "_" + tag + ".png";
+	// 整段兜错：截图是诊断动作，**任何异常都不得外溢**（本工程纪律）
+	try
+	{
+		var bmp = new Bitmap();
+		layer.copyToBitmapFromMainImage(bmp);
+		bmp.save(dir + name, "png");
+		UIDiagCapShotN++;
+		Debug.message("[DIAG][CAP] OK " + tag + " -> " + dir + name);
+		return true;
+	}
+	catch(e)
+	{
+		Debug.message("[DIAG][CAP][MISS] " + tag + " : " + e.message);
+		return false;
+	}
+}
+
+// 连续导两张：stage（当前屏内容，UI 组 exportPng 同源）＋ prim（窗口实际合成层）
+function uiDiagCapPair(tag)
+{
+	if(UIStoryWin === void || UIStoryWin === null)
+	{
+		Debug.message("[DIAG][CAP][MISS] " + tag + " : UIStoryWin 为空，无法取层");
+		return false;
+	}
+	uiDiagShotLayer(UIStoryWin.stageLayer, tag + "_stage");
+	uiDiagShotLayer(UIStoryWin.primLayer,  tag + "_prim");
+	return true;
+}
+
+// ★ 转场可见层观测（ISSUE-20261001-13）：记 stage/snap 两层的 visible 与画布尺寸。
+//   UI 组判词 `★TRANSOSC★` 断言「转场结束后可见层＝stageLayer」——本行让主代理在装配态独立复验同一事实。
+//   每个属性单独 try/catch，取不到写 `?`（绝不外溢异常，避免污染 `An exception occured` 判定线）。
+function uiDiagLayerVis()
+{
+	var sv = "?", nv = "?", sw = "?", sh = "?", nw = "?", nh = "?";
+	if(UIStoryWin !== void && UIStoryWin !== null)
+	{
+		try { sv = (UIStoryWin.stageLayer.visible == true) ? "1" : "0"; } catch(e1) { sv = "?"; }
+		try { nv = (UIStoryWin.snapLayer.visible  == true) ? "1" : "0"; } catch(e2) { nv = "?"; }
+		try { sw = "" + UIStoryWin.stageLayer.imageWidth; }  catch(e3) { sw = "?"; }
+		try { sh = "" + UIStoryWin.stageLayer.imageHeight; } catch(e4) { sh = "?"; }
+		try { nw = "" + UIStoryWin.snapLayer.imageWidth; }   catch(e5) { nw = "?"; }
+		try { nh = "" + UIStoryWin.snapLayer.imageHeight; }  catch(e6) { nh = "?"; }
+	}
+	return "[DIAG][CAP] 可见层：stage.visible=" + sv + " snap.visible=" + nv
+		+ " stage.img=" + sw + "x" + sh + " snap.img=" + nw + "x" + nh;
+}
+// 相位机（Timer 回调）：450ms 走一步
+function uiDiagCapTick()
+{
+	if(UIDiagCapTimer === null) return;
+	UIDiagCapPhase++;
+	if(UIDiagCapPhase > 9)
+	{
+		// 超出范围：只关 Timer（不退出）
+		try { UIDiagCapTimer.enabled = false; } catch(eX) { }
+		return;
+	}
+	Debug.message("[DIAG][CAP] phase=" + UIDiagCapPhase);
+	try
+	{
+		// 相位 1 —— 基线：点之前，应为标题
+		if(UIDiagCapPhase == 1)
+		{
+			Debug.message("[DIAG][CAP] ===== 基线（点之前，应为标题）=====");
+			uiDiagCapPair("t0");
+			Debug.message("[DIAG][CAP] 屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+			return;
+		}
+		// 相位 2 —— 复放真实事件对（对齐用户的 raw≈276,260）
+		if(UIDiagCapPhase == 2)
+		{
+			Debug.message("[DIAG][CAP] ===== 复放真实事件对（对齐用户的 raw≈276,260）=====");
+			try { UIStoryWin.onMouseDown(276, 260, 0, 8); }
+			catch(eM) { Debug.message("[DIAG][CAP][ERR] onMouseDown：" + eM.message); }
+			try { UIStoryWin.onClick(276, 260); }
+			catch(eC) { Debug.message("[DIAG][CAP][ERR] onClick：" + eC.message); }
+			UIDiagCapClicks++;
+			Debug.message("[DIAG][CAP] 屏=" + uiScreenCurrent());
+			return;
+		}
+		// 相位 3 —— 转场进行中（点击后约 450ms，转场 420ms）
+		if(UIDiagCapPhase == 3)
+		{
+			uiDiagCapPair("t1");
+			Debug.message(uiDiagLayerVis());
+			Debug.message("[DIAG][CAP] 屏=" + uiScreenCurrent()
+				+ "  转场：" + uiTransSummary());
+			return;
+		}
+		// 相位 4 —— 转场应已结束
+		if(UIDiagCapPhase == 4)
+		{
+			uiDiagCapPair("t2");
+			Debug.message(uiDiagLayerVis());
+			Debug.message("[DIAG][CAP] 屏=" + uiScreenCurrent()
+				+ "  " + uiTransSummary());
+			return;
+		}
+		// 相位 5 —— 再等一拍（继续无条件重画若干帧后）
+		if(UIDiagCapPhase == 5)
+		{
+			uiDiagCapPair("t3");
+			Debug.message(uiDiagLayerVis());
+			Debug.message("[DIAG][CAP] 屏=" + uiScreenCurrent()
+				+ " 栈=[" + uiScreenStackText() + "]"
+				+ "  " + uiTransSummary()
+				+ " 复放次数=" + UIDiagCapClicks);
+			return;
+		}
+		// 相位 6 —— 不再关 Timer（ISSUE-20261001-11：继续到 7/8/9 做滚轮验证）
+		if(UIDiagCapPhase == 6)
+		{
+			Debug.message("[DIAG][CAP] 相位 6（不关 Timer，继续到滚轮验证 7/8/9）"
+				+ " 屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+			return;
+		}
+		// 相位 7/8 —— ★ 滚轮验证（ISSUE-20261001-11）：用引擎同一入口 UIStoryWin.onMouseWheel 合成滚轮。
+		//   期望：dialog 屏上「向下」→ advance_dialog、「向上」→ open_backlog（走 ui_story 的重定向）。
+		if(UIDiagCapPhase == 7)
+		{
+			Debug.message("[DIAG][CAP] ===== 滚轮验证：向下（delta=-120）====="
+				+ " 屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+			try { UIStoryWin.onMouseWheel(0, -120, 400, 300); }
+			catch(eW1) { Debug.message("[DIAG][CAP][ERR] onMouseWheel(-120)：" + eW1.message); }
+			return;
+		}
+		if(UIDiagCapPhase == 8)
+		{
+			Debug.message("[DIAG][CAP] ===== 滚轮验证：向上（delta=+120）====="
+				+ " 屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+			try { UIStoryWin.onMouseWheel(0, +120, 400, 300); }
+			catch(eW2) { Debug.message("[DIAG][CAP][ERR] onMouseWheel(+120)：" + eW2.message); }
+			return;
+		}
+		// 相位 9 —— 记录终态并关 Timer（期望：栈里出现 backlog）
+		if(UIDiagCapPhase == 9)
+		{
+			Debug.message("[DIAG][CAP] phase=9 屏=" + uiScreenCurrent()
+				+ " 栈=[" + uiScreenStackText() + "]");
+			UIDiagCapTimer.enabled = false;
+			Debug.message("[DIAG][CAP] ===== 结束（滚轮验证完成，不自动退出，由外部 kill）=====");
+			return;
+		}
+	}
+	catch(e)
+	{
+		Debug.message("[DIAG][CAP][ERR] phase=" + UIDiagCapPhase + " : " + e.message);
+	}
+}
+
+// 武装捕获探针（幂等）：Timer 必须**赋给全局 UIDiagCapTimer**，否则会被回收、回调静默停止
+function uiDiagCapInstall()
+{
+	if(UIDiagCapOn) return true;
+	UIDiagCapOn = true;
+	UIDiagCapPhase = 0;
+	UIDiagCapShotN = 0;
+	UIDiagCapClicks = 0;
+	try
+	{
+		UIDiagCapTimer = new Timer(uiDiagCapTick, '');
+		UIDiagCapTimer.interval = 450;
+		UIDiagCapTimer.enabled = true;
+	}
+	catch(e)
+	{
+		UIDiagCapTimer = null;
+		UIDiagCapOn = false;
+		Debug.message("[DIAG][CAP][ERR] Timer 建立失败：" + e.message);
+		return false;
+	}
+	Debug.message("[DIAG][CAP] 窗口合成帧捕获已武装（450ms/拍，9 拍；7/8/9＝滚轮验证）");
+	return true;
+}
+
+function uiDiagInstall(win)
+{
+	if(UIDiagOn) return true;              // 幂等
+	UIDiagOn = true;
+	uiDiagLog("=== 输入链路诊断探针已安装（ui_diag.tjs）===");
+	try { uiDiagMeasure(win); } catch(e0) { uiDiagLog("换算探针异常：" + e0.message); }
+	uiDiagLog("当前屏=" + uiScreenCurrent() + " 栈=[" + uiScreenStackText() + "]");
+	try { uiDiagDumpScreen("title"); } catch(e1) { uiDiagLog("title 元素转储异常：" + e1.message); }
+	UIDiagOrigClick = uiScreenClick;
+	UIDiagOrigPush  = uiScreenPush;
+	UIDiagOrigPop   = uiScreenPop;
+	UIDiagOrigDisp  = uiActionDispatch;
+	uiScreenClick    = uiDiagClick;
+	uiScreenPush     = uiDiagPush;
+	uiScreenPop      = uiDiagPop;
+	uiActionDispatch = uiDiagDispatch;
+	uiDiagLog("已包装：uiScreenClick / uiScreenPush / uiScreenPop / uiActionDispatch");
+	// ★ 窗口合成帧捕获（ISSUE-20261001-08）：仅当 game\uidiag_cap.txt 存在时装上。
+	//   用途：区分「窗口显示的是 stageLayer 的新屏」还是「合成/转场卡在旧帧」——UI 组 exportPng 读 stageLayer，看不到这一层。
+	try
+	{
+		var capOn = false;
+		try { capOn = Storages.isExistentStorage("uidiag_cap.txt"); } catch(eC0) { capOn = false; }
+		if(capOn) uiDiagCapInstall();
+	}
+	catch(eC) { Debug.message("[DIAG][CAP][ERR] 捕获探针装载失败：" + eC.message); }
+	return true;
+}

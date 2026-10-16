@@ -1,0 +1,86 @@
+====================================================================================================
+全 20 屏 · 点击命中可达性扫描（复算 uiScreenClick 口径：可见的 hit/list 取最高 z）
+====================================================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+【A 默认态（今天的真实行为）】
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  ── 10_dialog.json（dialog）
+     部分被抢  dlg.icon_hit_02_qload   (z=29  action='do_quickload'   面积  5975 自己胜出  5974)
+        ↑ 被 dlg.icon_hit_03_config  (z=29  action='open_config'   ) 抢走      0 点
+     部分被抢  dlg.icon_hit_05_prev    (z=29  action='prev_choice'    面积  5975 自己胜出  5974)
+        ↑ 被 dlg.icon_hit_06_close   (z=29  action='hide_window'   ) 抢走      0 点
+     部分被抢  dlg.icon_hit_08_load    (z=29  action='open_load'      面积  5975 自己胜出  5974)
+        ↑ 被 dlg.icon_hit_09_repeat  (z=29  action='replay_voice'  ) 抢走      0 点
+  ── 23_save.json（save）
+     部分被抢  sv.hit_back             (z=96  action='close'          面积 21760 自己胜出  9865)
+        ↑ 被 sv.cpy                  (z=97  action=''              ) 抢走   9516 点
+     部分被抢  sv.hit_back             (z=96  action='close'          面积 21760 自己胜出  9865)
+        ↑ 被 sv.mov                  (z=97  action=''              ) 抢走   2379 点
+  ── 24_load.json（load）
+     部分被抢  sv.hit_back             (z=96  action='close'          面积 21760 自己胜出  9865)
+        ↑ 被 sv.cpy                  (z=97  action=''              ) 抢走   9516 点
+     部分被抢  sv.hit_back             (z=96  action='close'          面积 21760 自己胜出  9865)
+        ↑ 被 sv.mov                  (z=97  action=''              ) 抢走   2379 点
+  ── 25_config.json（config）
+     部分被抢  cfg.it_facewindow_hit   (z=95  action=''               面积 15104 自己胜出  8319)
+        ↑ 被 cfg.off_hit             (z=96  action=''              ) 抢走   3717 点
+     部分被抢  cfg.it_facewindow_hit   (z=95  action=''               面积 15104 自己胜出  8319)
+        ↑ 被 cfg.on_hit              (z=96  action=''              ) 抢走   3068 点
+     部分被抢  cfg.it_allskip_hit      (z=95  action=''               面积 15104 自己胜出 14966)
+        ↑ 被 cfg.autospeed_hit       (z=95  action=''              ) 抢走    138 点
+     部分被抢  cfg.it_textcolchg_hit   (z=95  action=''               面积 15104 自己胜出 13936)
+        ↑ 被 cfg.char2               (z=95  action=''              ) 抢走   1168 点
+     部分被抢  cfg.hit_reset           (z=95  action=''               面积 13832 自己胜出 13711)
+        ↑ 被 cfg.sys_end_hit         (z=95  action=''              ) 抢走    121 点
+  ── 26_backlog.json（backlog）
+     部分被抢  bl.jump_hit             (z=95  action=''               面积 28448 自己胜出 28224)
+        ↑ 被 bl.spk_hit              (z=95  action=''              ) 抢走    224 点
+     部分被抢  bl.close_hit            (z=95  action='close'          面积  3838 自己胜出  3642)
+        ↑ 被 bl.up_hit               (z=95  action=''              ) 抢走    196 点
+  ── 33_sysicons.json（sysicons）
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_01_qsave   (z=30  action='do_quicksave'  ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_04_prev    (z=33  action='prev_choice'   ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_07_config  (z=36  action='open_config'   ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_02_qload   (z=31  action='do_quickload'  ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_05_save    (z=34  action='open_save'     ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_08_close   (z=37  action='hide_window'   ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_03_skip    (z=32  action='skip_on'       ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_06_load    (z=35  action='open_load'     ) 抢走  82134 点
+     部分被抢  sysicons.dismiss        (z=1   action='close'          面积2073600 自己胜出1334394)
+        ↑ 被 sysicons.hit_09_repeat  (z=38  action='replay_voice'  ) 抢走  82134 点
+  小计：23 处
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+【B 潜伏态（默认不可见的可点击元素，启用后）】
+────────────────────────────────────────────────────────────────────────────────────────────────────
+  ── 25_config.json（config）
+     部分被抢  cfg.sl1_hit             (z=95  action=''               面积 22538 自己胜出 18886)
+        ↑ 被 cfg.on_hit              (z=96  action=''              ) 抢走   1736 点
+     部分被抢  cfg.sl1_hit             (z=95  action=''               面积 22538 自己胜出 18886)
+        ↑ 被 cfg.it_facewindow_hit   (z=95  action=''              ) 抢走   1680 点
+     部分被抢  cfg.sl1_hit             (z=95  action=''               面积 22538 自己胜出 18886)
+        ↑ 被 cfg.window_hit          (z=95  action=''              ) 抢走    236 点
+     部分被抢  cfg.sl2_hit             (z=95  action=''               面积 22538 自己胜出 19000)
+        ↑ 被 cfg.it_effect_hit       (z=95  action=''              ) 抢走   3416 点
+     部分被抢  cfg.sl2_hit             (z=95  action=''               面积 22538 自己胜出 19000)
+        ↑ 被 cfg.it_drama_hit        (z=95  action=''              ) 抢走    122 点
+     部分被抢  cfg.sl3_hit             (z=95  action=''               面积 22538 自己胜出 19000)
+        ↑ 被 cfg.it_curhide_hit      (z=95  action=''              ) 抢走   3416 点
+     部分被抢  cfg.sl3_hit             (z=95  action=''               面积 22538 自己胜出 19000)
+        ↑ 被 cfg.it_voicecut_hit     (z=95  action=''              ) 抢走    122 点
+     部分被抢  cfg.sl4_hit             (z=95  action=''               面积 22538 自己胜出 22416)
+        ↑ 被 cfg.it_cfmovie_hit      (z=95  action=''              ) 抢走    122 点
+     部分被抢  cfg.sl5_hit             (z=95  action=''               面积 22538 自己胜出 19000)
+        ↑ 被 cfg.it_loaddialog_hit   (z=95  action=''              ) 抢走   3416 点
+     部分被抢  cfg.sl5_hit             (z=95  action=''               面积 22538 自己胜出 19000)
+        ↑ 被 cfg.it_savedialog_hit   (z=95  action=''              ) 抢走    122 点
+  小计：10 处

@@ -1,0 +1,34 @@
+SELFTEST total=32 fail=0
+PASS	canvas-1920	1920pxx1080px
+PASS	dialog.screen	dialog
+PASS	dialog.under=null	null
+PASS	dialog.overlay-empty	0
+PASS	sysicons.open	sysicons
+PASS	sysicons.under=dialog	dialog
+PASS	sysicons.base-painted	55
+PASS	sysicons.base-DOM-preserved	
+PASS	sysicons.overlay-children	20
+PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+PASS	sysicons.icons-9	9
+PASS	sysicons.dismiss-click	dialog
+PASS	sysicons.overlay-cleared	0
+PASS	sysicons.back-to-dialog-DOM-preserved	
+PASS	sysicons.reopen	sysicons
+PASS	sysicons.icon-dispatch	save
+PASS	zeronine.img-not-borderimage	13/13 
+PASS	zeronine.no-placeholder	
+PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+PASS	overlay.close-overlay	dialog
+PASS	flags.attach-rendered-on-dialog	attachId=quickbar，quick.btn/quick.tgl/quick.hit_lock 齐备=true/true/true
+PASS	flags.collapsed-by-default	quickbar=collapsed，btn.display=none，tgl.display=，hit_lock.display=none
+PASS	flags.expanded-shows-bar-items-not-pin	btn=，hit_lock=，pin_mark=none
+PASS	flags.tip-follows-item	hit_lock 中心→"lock"，hit_option 中心→"option"，把手内空白→""
+PASS	flags.open_sysmenu-expands-not-navigates	screen dialog → dialog（未换屏），quickbar=expanded，20_sysmenu 数据保留=true
+PASS	flags.pin-toggle	钉住→，解除后 pin_mark.display=none
+PASS	flags.attach-absent-on-title	title 上 attachId=null，quick.btn 存在=false
+PASS	zeronine.stretched-to-element-box	13/13 
+PASS	zeronine.size-differs-from-png-still-rendered	12/13 张 PNG 实宽(243) ≠ 元素宽(217)，仍正常绘制
+RESULT=OK

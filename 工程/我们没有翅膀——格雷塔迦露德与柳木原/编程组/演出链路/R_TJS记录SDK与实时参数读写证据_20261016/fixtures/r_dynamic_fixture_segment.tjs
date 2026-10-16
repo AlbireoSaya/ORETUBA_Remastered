@@ -1,0 +1,19 @@
+function RDynamicCompare(s, seg, got)
+{
+    if(got.accepted !== seg.result.accepted) throw new Exception("DYNAMIC_RESULT");
+    if(got.condition_value !== seg.result.condition_value) throw new Exception("DYNAMIC_RESULT");
+    if(got.parameter_count !== seg.result.parameter_count) throw new Exception("DYNAMIC_RESULT");
+    if(got.parameter_end !== seg.result.parameter_end) throw new Exception("DYNAMIC_RESULT");
+
+    RVMFCompareRows(s.writes, seg.writes, "writes");
+    RVMFCompareRows(s.calls, seg.calls, "calls");
+    RVMFCompareRows(s.vm_runs, seg.vm_runs, "vm_runs");
+    RVMFCompareRows(s.vm_traces, seg.vm_traces, "vm_traces");
+    RVMFCompareRows(s.bindings, seg.bindings, "bindings");
+
+    for(var i = 0; i < seg.final.count; i++){
+        var q = seg.final[i][0];
+        var v = seg.final[i][1];
+        if(s.rd(q) !== v) throw new Exception("DYNAMIC_FINAL");
+    }
+}

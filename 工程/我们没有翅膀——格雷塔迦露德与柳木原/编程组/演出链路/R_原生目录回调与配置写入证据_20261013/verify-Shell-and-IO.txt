@@ -1,0 +1,57 @@
+from pathlib import Path
+import ctypes,hashlib,json,struct,sys,subprocess
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path.insert(0,str(g/'工具'))
+from lucifen_host_shell_allocator_binding import SHGetMalloc,imalloc_alloc,imalloc_free,imalloc_get_size,imalloc_did_alloc,imalloc_release
+from lucifen_host_shell_pidl_bindings import SHParseDisplayName,SHGetPathFromIDListA,CoTaskMemFree
+from lucifen_host_com import HostCOM
+from lucifen_host_file_write_binding import WriteFile
+from lucifen_readonly_io_bridge import _kernel32 as k
+d=(r/(sys.argv[1]if len(sys.argv)>1 else'临时/ISSUE-20261011-02/r-folder-Shell-IO-formal-01')).resolve();assert d.is_relative_to((r/'临时/ISSUE-20261011-02').resolve());d.mkdir(exist_ok=False)
+com=HostCOM();hr=com.init();assert hr in(0,1)
+out=ctypes.c_void_p();assert SHGetMalloc(ctypes.byref(out))==0 and out.value
+owner=int(out.value);owned=set();source_pidl=None;rows=[]
+try:
+ p=imalloc_alloc(owner,17);assert p and imalloc_get_size(owner,p)>=17 and imalloc_did_alloc(owner,p)==1;owned.add(p)
+ ctypes.memmove(p,bytes(range(17)),17);assert ctypes.string_at(p,17)==bytes(range(17));imalloc_free(owner,p);owned.remove(p);imalloc_free(owner,None)
+ rows.append({'case':'IMalloc-Alloc-Free-NULL','passed':True,'actual_requested_bytes':17,'host_interface_above_u32':owner>0xffffffff})
+ selected=d/'选定目录';selected.mkdir();out=ctypes.c_void_p();buf=ctypes.create_unicode_buffer(str(selected));assert SHParseDisplayName(buf,None,ctypes.byref(out),0,None)==0 and out.value
+ source_pidl=int(out.value);cap=imalloc_get_size(owner,source_pidl);assert 2<=cap<=65536 and imalloc_did_alloc(owner,source_pidl)==1
+ offset=0;items=[]
+ while True:
+  assert offset+2<=cap;cb=ctypes.c_uint16.from_address(source_pidl+offset).value
+  if cb==0:break
+  assert cb>=2 and offset+cb+2<=cap;items.append(cb);offset+=cb
+ data=ctypes.string_at(source_pidl,offset+2);p=imalloc_alloc(owner,len(data));assert p and imalloc_get_size(owner,p)>=len(data) and imalloc_did_alloc(owner,p)==1;owned.add(p);ctypes.memmove(p,data,len(data));assert ctypes.string_at(p,len(data))==data
+ CoTaskMemFree(source_pidl);source_pidl=None
+ guard=b'\xa5'*32;buf=ctypes.create_string_buffer(guard+b'\0'*260+guard,324);value=int(SHGetPathFromIDListA(p,ctypes.byref(buf,32)));expected=str(selected).encode('mbcs')
+ assert value==1 and buf.raw[:32]==guard and buf.raw[-32:]==guard and buf.raw[32:-32].split(b'\0')[0]==expected
+ rows.append({'case':'actual-Shell-PIDLIST-clone-path','passed':True,'PIDLIST_bytes':len(data),'item_sizes':items,'exact_ANSI_workspace_path':True,'guarded_MAX_PATH_buffer':True,'no_Shell_dialog_called':True})
+ imalloc_free(owner,p);owned.remove(p)
+finally:
+ if source_pidl is not None:CoTaskMemFree(source_pidl)
+ for p in owned:imalloc_free(owner,p)
+ owned.clear();release=int(imalloc_release(owner));com.close_all()
+assert not owned and com.live_count==0
+p=d/'owned-write.bin';h=k.CreateFileW(str(p),0x40000000,0,None,1,0x80,None);assert h not in(None,0,ctypes.c_void_p(-1).value)
+try:
+ for data in[bytes(range(17)),b'']:
+  guard=b'\xa5'*32;buf=ctypes.create_string_buffer(guard+data+guard,len(data)+64);out=(ctypes.c_uint32*17)();ctypes.memset(out,0xa5,68);out[8]=0
+  v=int(WriteFile(h,ctypes.byref(buf,32),len(data),ctypes.cast(ctypes.byref(out,32),ctypes.POINTER(ctypes.c_uint32)),None))
+  assert v==1 and out[8]==len(data) and buf.raw==guard+data+guard and all(out[i]==0xa5a5a5a5 for i in range(17)if i!=8)
+  rows.append({'case':'write-nonempty'if data else'write-zero-length','passed':True,'actual_written':out[8],'guards_preserved':True})
+finally:assert k.CloseHandle(h)==1
+assert p.read_bytes()==bytes(range(17))
+out=ctypes.c_uint32(0xffffffff);ctypes.set_last_error(0);v=int(WriteFile(ctypes.c_void_p(-1),ctypes.c_char_p(b'x'),1,ctypes.byref(out),None));err=ctypes.get_last_error();assert v==0 and err==6 and out.value==0
+rows.append({'case':'write-invalid-handle','passed':True,'actual_result':v,'actual_error':err,'actual_written':out.value})
+src=d/'src';ref=d/'ref';src.mkdir();ref.mkdir()
+for base in(src,ref):(base/'same.bin').write_bytes(b'abc')
+(src/'changed.bin').write_bytes(b'abc');(ref/'changed.bin').write_bytes(b'abd');(src/'source.bin').write_bytes(b's');(ref/'reference.bin').write_bytes(b'r')
+report=d/'compare-results.json';args=[sys.executable,'-X','utf8','-B',str(g/'工具/lucifen_readonly_source_compare.py'),'--source',str(src),'--reference',str(ref),'--output',str(report)]
+v=subprocess.run(args,capture_output=True,text=True,encoding='utf-8');assert v.returncode==0,v.stderr
+j=json.loads(report.read_text(encoding='utf-8'));assert j['summary']['identical']==j['summary']['changed']==j['summary']['source_only']==j['summary']['reference_only']==1
+v=subprocess.run(args,capture_output=True,text=True,encoding='utf-8');assert v.returncode!=0 and 'already exists'in v.stderr
+args[-1]=str(r.parent/'source-compare-do-not-create.json');assert not Path(args[-1]).exists();v=subprocess.run(args,capture_output=True,text=True,encoding='utf-8');assert v.returncode!=0 and not Path(args[-1]).exists()
+rows.append({'case':'four-comparison-statuses','passed':True,'own_fixtures_only':True})
+rows.append({'case':'existing-and-outside-output-refusal','passed':True,'no_outside_write':True})
+result={'passed':True,'cases':rows,'cases_count':len(rows),'IMalloc_Release_actual_result':release,'not_global_COM_refcount_zero_claim':True,'owned_memory_files_COM_released':True,'actual_original_files_not_used':True,'not_reparse_or_access_denied_runtime_fixture_claim':True,'not_original_Shell_UI_or_game_window_proof':True}
+(d/'Shell-and-IO-fixtures.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8');print('SHELL_AND_IO_FIXTURES_PASS',len(rows))

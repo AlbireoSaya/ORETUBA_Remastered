@@ -1,0 +1,17 @@
+（--mut：isEmptyVal 已换回改前口径 `!v`）
+
+原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-01_W4_证据\W4_编辑器探针.dom.html
+① slider 分组出现：min=0 | max=100 | step=5 | value=90 | setting=dlg_winopac | rail.asset=<select> ui/x_ui_cfg_rail.png | handle.asset=<select> ui/x_ui_cfg_knob.png | handle.state_assets.normal=<select> ui/x_ui_cfg_knob.png | handle.state_assets.hover=<select> ui/x_ui_cfg_knob_over.png
+① 校验（合法数据）：硬错误块 0 / 警告块 0 —— ✓ 435 个元素，未发现硬错误
+① 单件校验（合法滑块）：硬错误=0、提示=0；文本「✓ 1 个元素，未发现硬错误」
+③ min>=max ⇒ 硬错误=1（期望 2：值域非法 + value 越界警告）；文本「硬错误 1 条（会被编辑器自身拦住；其中 image 尺寸 / 素材缺件类 verify_ui.py 也会拦）• cfg.sl_winopac：slider 的 min>=max（100>=0）⇒ 值域非法（机制侧会退化成「只有一个值」，手柄恒在左端）提示 1 条• cfg.sl_winopac：value=90 越出 100..0 ⇒ **已自动 clamp 为 0**（机制侧写仓同样会 clamp，此处提前对齐）」
+③ value=999 越界 ⇒ 被 clamp 为 100（期望 100）；提示=1；文本含「已自动 clamp」=true
+③ handle 摘空 ⇒ 硬错误=1（期望 1）；文本含「缺 handle.asset」=true
+③ setting=__not_a_setting__ ⇒ 硬错误=0（期望 0）、提示=1；文本含该键=true，含「纯视觉滑块」=true
+③ rail 摘空 ⇒ 硬错误=1（期望 1）；文本含「缺 rail.asset」=true
+⑥ rail.nine 依次填 l=0,t=0,r=4,b=6（字段命中 true,true,true,true）⇒ 数据 = {"r":4,"b":6}
+     l/t 两个 0 **必须保留**（改前 `!o[k]` 判空会删掉它们）⇒ l0保留=false、t0保留=false、r=4、b=6
+     反向对照：把 l 清成空串 ⇒ 该键被删（仍要能清空）=true（现数据 {"r":4,"b":6}）
+⑤ 选「（无）」后 handle={"asset":"ui/x_ui_cfg_knob.png","state_assets":{"normal":"ui/x_ui_cfg_knob.png"}}（state_assets 键 前=[normal,hover] 后=[normal]）
+
+（已还原 editor_ui.js：逐字节一致=True，备份已删除）

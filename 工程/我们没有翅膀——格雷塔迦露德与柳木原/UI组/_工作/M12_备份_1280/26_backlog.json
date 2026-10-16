@@ -1,0 +1,73 @@
+{
+  "id": "backlog",
+  "title_cn": "回想",
+  "owner": "M5",
+  "note": "回想（历史文本）屏。原版无空白回想底板（otv 的整页回想图属 R1 类不可用；ot_sm_log/sm_log 为含日文烘焙的菜单条），故底板用「九宫格件 panel_frame.png + rect 填充」自建，底图沿用 tl1_bg1。文本列表每行由引擎绘制；滚动条滑块取原版空白件 cf_bar(26×36)，1:1 摆放。",
+  "elements": [
+    { "id": "backlog.backdrop", "kind": "rect", "z": 0, "visible_default": true,
+      "x": 0, "y": 0, "w": 1280, "h": 720, "color": "@palette.letterbox", "opacity": 255,
+      "note": "画布底色（留边黑底）" },
+
+    { "id": "backlog.bg_art", "kind": "image", "z": 1, "visible_default": true,
+      "asset": "ui/tl1_bg1.png", "x": 40, "y": 150, "w": 1200, "h": 450, "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\tl1_bg1.png",
+      "note": "底图（幻想侧城镇风景，原版无字贴图，1:1 不缩放；全屏系统屏共用）" },
+
+    { "id": "backlog.veil", "kind": "rect", "z": 2, "visible_default": true,
+      "x": 40, "y": 150, "w": 1200, "h": 450, "color": "@palette.backdrop", "opacity": 150,
+      "note": "底图压暗层" },
+
+    { "id": "backlog.panel_fill", "kind": "rect", "z": 5, "visible_default": true,
+      "x": 160, "y": 96, "w": 960, "h": 530, "color": "@palette.panel_fill", "opacity": "@palette.panel_fill_opa",
+      "note": "回想底板填充" },
+
+    { "id": "backlog.panel_frame", "kind": "image", "z": 6, "visible_default": true,
+      "asset": "ui/panel_frame.png", "x": 160, "y": 96, "w": 960, "h": 530,
+      "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png（由 if_lt/rt/lb/rb + if_tbar/bbar + if_lbar/rbar 拼合）",
+      "note": "回想底板九宫格边框（原版无空白回想底板可用，故自建）" },
+
+    { "id": "backlog.title", "kind": "text", "z": 10, "visible_default": true,
+      "x": 180, "y": 102, "w": 920, "h": 36,
+      "font": { "size": 30, "bold": true, "color": "@palette.text_title", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 2 },
+      "align": "center", "valign": "middle", "wrap": false, "max_lines": 1, "sample": "回想",
+      "note": "屏标题（中文，引擎绘制）" },
+
+    { "id": "backlog.list", "kind": "list", "z": 20, "visible_default": true,
+      "orientation": "v", "x": 180, "y": 150, "w": 860, "item_h": 42, "gap": 4, "max_rows": 9,
+      "labels": ["回想文本 01", "回想文本 02", "回想文本 03", "回想文本 04", "回想文本 05", "回想文本 06", "回想文本 07", "回想文本 08", "回想文本 09"],
+      "actions": ["", "", "", "", "", "", "", "", ""],
+      "font": { "size": 16, "bold": false, "color": "@palette.text_primary", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 200 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：行框用九宫格件 ui/panel_frame.png；行文本由引擎绘制（演示标签为通用占位，真值由编程组从剧本历史填充）",
+      "note": "回想文本列表（9 行/页）。labels 为通用占位词「回想文本 NN」，**不编造剧情台词**；actions 暂为空串——回想行的点击语义（回放语音/跳转）未列入动作表，待编程组定义（见 M5 报告「需裁决点」）" },
+
+    { "id": "backlog.sb_track", "kind": "rect", "z": 25, "visible_default": true,
+      "x": 1052, "y": 150, "w": 26, "h": 410, "color": "@palette.panel_fill", "opacity": 220,
+      "note": "滚动条轨道（对应原版 cf_bar 的滚动语境；轨道为引擎绘制纯色）" },
+
+    { "id": "backlog.sb_knob", "kind": "image", "z": 26, "visible_default": true,
+      "asset": "ui/cf_bar.png", "x": 1052, "y": 150, "w": 26, "h": 36, "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\cf_bar.png",
+      "note": "滚动条滑块（原版空白件 26×36，纵向滑块，1:1 不缩放；位置由编程组按滚动进度设置）" },
+
+    { "id": "backlog.btn_ret_fill", "kind": "rect", "z": 40, "visible_default": true,
+      "x": 1100, "y": 650, "w": 140, "h": 44, "color": "@palette.panel_fill", "opacity": "@palette.panel_fill_opa",
+      "note": "返回键底" },
+
+    { "id": "backlog.btn_ret_frame", "kind": "image", "z": 41, "visible_default": true,
+      "asset": "ui/panel_frame.png", "x": 1100, "y": 650, "w": 140, "h": 44,
+      "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png",
+      "note": "返回键边框" },
+
+    { "id": "backlog.btn_ret", "kind": "hit", "z": 42, "visible_default": true,
+      "x": 1100, "y": 650, "w": 140, "h": 44, "action": "close", "label": "返回",
+      "font": { "size": 20, "bold": false, "color": "@palette.text_menu", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "note": "返回（热区 + 引擎绘制标签）" }
+  ]
+}

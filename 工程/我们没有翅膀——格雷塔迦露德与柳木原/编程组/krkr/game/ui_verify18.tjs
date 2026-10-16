@@ -1,0 +1,687 @@
+// ============================================================
+// ui_verify18.tjs —— 流程图自绘「分页 + 标题 + 视图」机检（ISSUE-20261004-03，诊断用）
+//
+// 判定对象（全部是**可失败**的断言，不是空跑）：
+//   ① **分页几何**：9 页；每页节点/连线/标题/场景 id 四表同长；包围盒 == 由 Nodes 现算的极值；
+//   ② ★ **同坐标成组 = 0**（本轮的分页改造就是为了消掉 UI 组 `full` 预设的 48 处同坐标叠字）
+//      + ★ **同层两节点矩形不相交**（水平间距 ≥ 节点宽）；
+//   ③ 页表合计 = **构建集** 676 场（语料 712 − D15/D30 去重件 36）；**跨页锚点出边合计 = 12**
+//      （与 `流程图分页方案.md` §五 定稿一致）；ISSUE-20261004-12 起节点集跟随 spine 构建集。
+//   ④ 连线表里**存在多点折线**（异列贝塞尔展平 / 枢纽总线）—— 证明曲线路径真的进了几何；
+//   ⑤ **标题真的画出来了**（`UIFullLastResult.labels > 0`）＋ 折行缓存冷/热对照；
+//   ⑥ 自绘启用时 UI 静态节点族被隐藏（判据取 UI 组自己的可见性谓词在最终状态上的返回值）；
+//   ⑦ 滚轮缩放（含上下界夹取负向）、拖动平移（>阈值不当点选）、**点选节点进入场景**；
+//   ⑧ **页签切页**：点第 N 个页签 → `flow_page_enter` → `uiFlowFullSelectPage(N)` → 表真的换了；
+//   ⑨ 负向：视口外/节点间空隙处不得命中节点。
+//
+// 开关：`game\flowshot.txt`（由 `ui_boot.tjs` 装载并武装）+ `game\flowfull.txt`（开自绘）。
+// 判词：`★FLOWVIEW★ PASS n/n` / FAIL；结束 `★FLOWVIEW-DONE★`。
+// 截图：`UIStoryWin.exportPng()` → `shot_2xx_flow18_<tag>.png`（`Debug.logLocation`）。
+//
+// ⚠️ TJS2：计分状态一律放**模块级变量**（嵌套函数读写外层局部变量会抛「未找到 Member」）。
+// ⚠️ 全程不抛异常 —— krkrz 对**被 catch 的异常**仍打整段 dump，会污染 `An exception occured` 判定线。
+// ============================================================
+
+var UV18Timer = null;
+var UV18Phase = 0;
+var UV18Ok = 0;
+var UV18All = 0;
+var UV18Fails = [];
+var UV18ShotN = 200;
+
+// 每页节点数指纹（由 `emit_flow_pages.py` 的体检输出直接抄来；版式一变立刻 FAIL ⇒ 要人重核）
+var UV18PageCounts = [164, 105, 114, 94, 55, 36, 28, 53, 27];   // ISSUE-20261004-12 去重后（F −4、J −32）
+
+function uv18log(m) { Debug.message("[VERIFY18] " + m); }
+
+function uv18chk(name, cond, got)
+{
+	UV18All++;
+	if(cond === true) { UV18Ok++; uv18log("  OK   " + name); }
+	else { UV18Fails.push(name + "（实际=" + got + "）"); uv18log("  FAIL " + name + " ｜ 实际=" + got); }
+}
+
+function uv18scr() { var s = "?"; try { s = "" + uiScreenCurrent(); } catch(e) { } return s; }
+
+function uv18draw()
+{
+	if(UIStoryWin === null || UIStoryWin === void) return;
+	try { UIStoryWin.redraw(); } catch(e) { uv18log("redraw 异常：" + e.message); }
+}
+
+// ★ 截图走 UI 组的 `exportPng`（读 `stageLayer`），**不用 `primLayer`**：
+//   实测 `primLayer.copyToBitmapFromMainImage()` **不合成子层**（四张图字节数完全一样 = 只有底板填充）。
+//   ⚠️ 乒乓双缓冲 ⇒ 拍摄一律排在「上一相位已画好」的相位开头，否则会拍到上一屏。
+function uv18shot(tag)
+{
+	UV18ShotN++;
+	if(UIStoryWin === null || UIStoryWin === void) { uv18log("截图跳过（无窗口）：" + tag); return; }
+	try { UIStoryWin.exportPng("flow18_" + tag, UV18ShotN); } catch(e) { uv18log("截图异常：" + tag + " : " + e.message); }
+}
+
+function uv18stats(tag)
+{
+	var n = -1, l = -1, t = -1, s = -1, pg = -1, nm = "?";
+	try { n = UIFlowGeomNodes.count; } catch(e1) { }
+	try { l = UIFlowGeomLinks.count; } catch(e2) { }
+	try { t = UIFlowGeomTitles.count; } catch(e3) { }
+	try { s = UIFlowGeomIds.count; } catch(e4) { }
+	try { pg = UIFullPageCur; } catch(e5) { }
+	try { nm = "" + UIFlowPageNames[pg]; } catch(e6) { }
+	uv18log("· " + tag + "：第 " + pg + " 页「" + nm + "」几何 节点 " + n + " / 连线 " + l
+		+ " / 标题 " + t + " / 场景id " + s
+		+ " ｜ 视图 view=(" + Math.floor(UIFullViewX) + "," + Math.floor(UIFullViewY) + ") zoom=" + UIFullZoom
+		+ " ｜ 本帧 " + UIFullHookNote);
+}
+
+function uv18Last(tag)
+{
+	if(UIFullLastResult === null || UIFullLastResult === void)
+	{ uv18log("· " + tag + "：本帧无绘制结果（钩子未跑？）"); return null; }
+	uv18log("· " + tag + "：本帧 节点 " + UIFullLastResult.nodes + " / 连线 " + UIFullLastResult.links
+		+ " / 箭头 " + UIFullLastResult.arrows + " / **标题 " + UIFullLastResult.labels + "**"
+		+ " ｜ 页签+锚点 " + UIFullChromeDrawn
+		+ " ｜ 分段 " + UIFullPerfNote);
+	return UIFullLastResult;
+}
+
+// ★ 函数名必须与 `ui_boot.tjs` 里调用的名字**逐字一致**（本项目已踩：叫 uv18Start 而 boot 调
+//   uiVerify18Start ⇒ 抛「未找到 Member」，脚手架整段没跑、还多一条 exception dump）。
+function uiVerify18Start()
+{
+	if(UV18Timer !== null) return false;
+	UV18Phase = 0; UV18Ok = 0; UV18All = 0; UV18Fails = [];
+	// ★ ISSUE-20261004-12：**本机检与影片解耦**（与 verify15 同款，A/B 取证见该记录）。
+	//   槽② 片头 OP 会在 `game_start` 接管流程，使「开局进 dialog」及其后的已读断言整组失败；
+	//   影片路径另有自己的验证（movietest + run_storytest --entry/--skip-movie）。
+	UIMovieEnabled = false;
+	uv18log("已关闭影片模块（UIMovieEnabled=false）——本机检不验影片");
+	try { if(UIMovieActive === true) uiMovieClose(); } catch(eMC) { }
+	try
+	{
+		UV18Timer = new Timer(uv18Tick, '');
+		// ★ ISSUE-20261005-02：600 → 800ms。原注「> 420ms 转场」只留 180ms 余量，而转场管理器
+		//   自身还有 120ms 放行余量（`420+120`）⇒ 实际余量仅 60ms；巡演第 10→11 步存在
+		//   「dialog→flowchart→切页签」三连转场，机器稍有负载即撞车（实测：加入章节过场卡后
+		//   偶发 `ui_transition.tjs` 转场撞车 dump ⇒ 判定线 FAIL，A/B 对照坐实）。
+		//   800ms 与既有成文口径一致（自测收尾相位「相位之间等约 1 秒，转场 420ms」）。
+		UV18Timer.interval = 800;
+		UV18Timer.enabled = true;
+	}
+	catch(e) { Debug.message("[VERIFY18][ERR] Timer 建立失败：" + e.message); return false; }
+	uv18log("开始（800ms/拍）；开关 game\\flowshot.txt");
+	return true;
+}
+
+function uv18Tick()
+{
+	if(UV18Timer === null) return;
+	UV18Phase++;
+	var p = UV18Phase;
+
+	// ① 分页几何体检
+	if(p == 1)
+	{
+		try { uiFlowFullLoadGeometry(); } catch(eL1) { }     // ★ 几何是**懒装载**，本相位先显式装一次
+		uv18stats("装载后");
+		uv18chk("已装载**分页**几何（非旧扁平件）", UIFullPageLoaded == true, UIFullPageLoaded);
+		uv18chk("页数 = 9", UIFlowPageTable.count == 9, UIFlowPageTable.count);
+		uv18chk("页名[0] = 渡来明日香", ("" + UIFlowPageNames[0]) == "渡来明日香", "" + UIFlowPageNames[0]);
+		uv18chk("当前页 = 0（A 渡来明日香）", UIFullPageCur == 0, UIFullPageCur);
+		uv18chk("当前页 节点 164", UIFlowGeomNodes.count == 164, UIFlowGeomNodes.count);
+		uv18chk("当前页 连线 218", UIFlowGeomLinks.count == 218, UIFlowGeomLinks.count);
+		uv18chk("当前页 标题 164", UIFlowGeomTitles.count == 164, UIFlowGeomTitles.count);
+		uv18chk("当前页 场景 id 164", UIFlowGeomIds.count == 164, UIFlowGeomIds.count);
+		uv18chk("当前页 锚出 3 / 锚入 1",
+			UIFullPagOutAnchors.count == 3 && UIFullPagInAnchors.count == 1,
+			"" + UIFullPagOutAnchors.count + " / " + UIFullPagInAnchors.count);
+
+		// ── 全 9 页体检（同坐标 / 同层相交 / 合计 / 锚点 / 多点连线）──────────
+		var totalNodes = 0, totalAnchors = 0, coincident = 0, maxStack = 0;
+		var overlapPairs = 0, minDx = 999999, multiPt = 0, badPageCount = "";
+		var pi = 0;
+		for(pi = 0; pi < UIFlowPageTable.count; pi++)
+		{
+			var T = UIFlowPageTable[pi];
+			totalNodes += T.nodes.count;
+			totalAnchors += T.anchors_out.count;
+			if(T.nodes.count != UV18PageCounts[pi])
+				badPageCount += ("" + pi + ":" + T.nodes.count + "≠" + UV18PageCounts[pi] + " ");
+			// 同坐标成组
+			var seenM = %[];
+			var ci = 0;
+			for(ci = 0; ci < T.nodes.count; ci++)
+			{
+				var cn = T.nodes[ci];
+				var key = "" + (0 + cn[0]) + "," + (0 + cn[1]) + "," + (0 + cn[2]) + "," + (0 + cn[3]);
+				var cnt = (seenM[key] === void) ? 0 : (0 + seenM[key]);
+				seenM[key] = cnt + 1;
+				if(cnt + 1 == 2) coincident++;
+				if(cnt + 1 > maxStack) maxStack = cnt + 1;
+			}
+			// 同 y 分组的水平间距（同层不得相交；节点宽 296）
+			var byY = %[];
+			for(ci = 0; ci < T.nodes.count; ci++)
+			{
+				var n2 = T.nodes[ci];
+				var ky = "" + (0 + n2[1]);
+				if(byY[ky] === void) byY[ky] = [];
+				byY[ky].add(0 + n2[0]);
+			}
+			var ks = [];
+			ks.assign(byY);
+			var qi = 0;
+			for(qi = 1; qi < ks.count; qi += 2)
+			{
+				var xs = ks[qi];
+				var ia = 0, ib = 0;
+				for(ia = 0; ia < xs.count; ia++)
+					for(ib = ia + 1; ib < xs.count; ib++)
+					{
+						var d = xs[ia] - xs[ib];
+						if(d < 0) d = 0 - d;
+						if(d < minDx) minDx = d;
+						if(d < 296) overlapPairs++;
+					}
+			}
+			// 多点连线（贝塞尔展平 / 总线）
+			for(ci = 0; ci < T.links.count; ci++)
+				if(T.links[ci].count > 4) multiPt++;
+		}
+		uv18log("· 全 9 页合计：节点 " + totalNodes + " ｜ 锚出 " + totalAnchors + " ｜ 同坐标成组 " + coincident
+			+ "（单格最多 " + maxStack + "）｜ 同层相交对 " + overlapPairs
+			+ " ｜ 同层最小水平间距 " + minDx + " ｜ 多点连线 " + multiPt);
+		uv18chk("★同坐标成组 = 0（分页的核心目标）", coincident == 0, coincident + " 组 / 最多 " + maxStack);
+		// ★ 前置条件（一审 Minor-2）：上面两条在「0 节点」时会**退化通过**（coincident 恒 0、
+		//   minDx 恒 999999）。加一条非空前置断言，让它们**独立可失败**，不再依赖同相位的别的断言兜底。
+		uv18chk("★前置：全页节点合计 > 0（防止上面两条在空几何上退化通过）", totalNodes > 0, totalNodes);
+		uv18chk("★同层两节点矩形不相交（最小水平间距 ≥ 296）", overlapPairs == 0 && minDx >= 296,
+			"相交 " + overlapPairs + " 对 / 最小间距 " + minDx);
+		uv18chk("★全页节点合计 = 676（＝spine 构建集；语料 712 − 去重件 36）", totalNodes == 676, totalNodes);
+		uv18chk("★跨页锚点出边合计 = 12（方案 §五 定稿）", totalAnchors == 12, totalAnchors);
+		uv18chk("★每页节点数 = 定稿指纹 164/105/114/94/55/36/28/53/27（ISSUE-20261004-12 去重后）",
+			badPageCount == "", badPageCount);
+		uv18chk("★连线表含多点折线（异列贝塞尔展平 / 枢纽总线）", multiPt > 0, multiPt);
+		// ★ 版式**规则**计数（算法真的按「并排分叉 + 汇合对齐」在跑，而不是只把坐标摊平）：
+		//   并排分叉 = 触发横向铺开的父节点数；汇合对齐 = 多父节点回到最近公共祖先列的个数。
+		var fN = -1, mA = -1, mNL = -1, hb = -1, sf = -1;
+		try
+		{
+			fN  = 0 + UIFlowPageRule.fan_nodes;
+			mA  = 0 + UIFlowPageRule.merge_aligned;
+			mNL = 0 + UIFlowPageRule.merge_no_lca;
+			hb  = 0 + UIFlowPageRule.hubs;
+			sf  = 0 + UIFlowPageRule.shifted;
+		}
+		catch(eR1) { }
+		uv18log("· 版式规则：并排分叉 " + fN + " ｜ 汇合对齐 " + mA + " ｜ 无 LCA " + mNL
+			+ " ｜ 枢纽 " + hb + " ｜ 去冲突推挤 " + sf);
+		uv18chk("★并排分叉节点数 = 51（定稿；版式一变即 FAIL 须重核）", fN == 51, fN);
+		uv18chk("★汇合对齐 73 个且**全部**命中最近公共祖先（无 LCA = 0）",
+			mA == 73 && mNL == 0, "对齐 " + mA + " / 无 LCA " + mNL);
+		uv18chk("★菜单枢纽 = 1（np_start_oretuba，走左侧总线）", hb == 1, hb);
+
+		// ★ 包围盒必须**真的来自生成物**：模块里预置了默认值，只断言"非空"会被默认值满足。
+		var bx0 = 0, by0 = 0, bx1 = 0, by1 = 0, first = true;
+		for(var bi = 0; bi < UIFlowGeomNodes.count; bi++)
+		{
+			var bn = UIFlowGeomNodes[bi];
+			var x0 = 0 + bn[0], y0 = 0 + bn[1], x1 = x0 + (0 + bn[2]), y1 = y0 + (0 + bn[3]);
+			if(first) { bx0 = x0; by0 = y0; bx1 = x1; by1 = y1; first = false; }
+			else { if(x0 < bx0) bx0 = x0; if(y0 < by0) by0 = y0; if(x1 > bx1) bx1 = x1; if(y1 > by1) by1 = y1; }
+		}
+		uv18chk("包围盒 == 由 Nodes 现算的极值",
+			UIFlowGeomBBox.count == 4 && UIFlowGeomBBox[0] == bx0 && UIFlowGeomBBox[1] == by0
+			&& UIFlowGeomBBox[2] == bx1 && UIFlowGeomBBox[3] == by1,
+			"表 " + UIFlowGeomBBox + " vs 现算 [" + bx0 + "," + by0 + "," + bx1 + "," + by1 + "]");
+		return;
+	}
+	// ② 开局 → dialog
+	if(p == 2) { try { uiActionDispatch("game_start", -1); } catch(e) { } uv18draw();
+		uv18chk("开局进 dialog", uv18scr() == "dialog", uv18scr()); return; }
+	// ③ 进流程图
+	if(p == 3)
+	{
+		try { uiActionDispatch("open_flowchart", -1); } catch(e) { }
+		uv18draw();
+		uv18chk("进入 flowchart 屏", uv18scr() == "flowchart", uv18scr());
+		uv18chk("默认缩放 = 1.0", UIFullZoom == 1.0, UIFullZoom);
+		uv18stats("flowchart 默认视图");
+		return;
+	}
+	// ④ 拍默认视图（上一相位已画好）；标题/缓存/隐藏/页签 全部断言
+	if(p == 4)
+	{
+		uv18shot("1_pageA_top");
+		uv18draw();
+		var r = uv18Last("默认视图");
+		uv18chk("节点已画出 (>3)", r !== null && r.nodes > 3, (r === null) ? "null" : r.nodes);
+		uv18chk("连线已画出 (>0)", r !== null && r.links > 0, (r === null) ? "null" : r.links);
+		uv18chk("★标题已画出 (>=3)", r !== null && r.labels >= 3, (r === null) ? "null" : r.labels);
+		// 默认视图（zoom 1.0）一屏只看得见 5–6 个节点（一页就是一条 1.97 万 px 的长竖列，
+		// 与原作同款）⇒ 页签条一定在（9 条），锚点标记要等下面的「全览」相位才进视口。
+		uv18chk("★页签条已画出 (>=9)", UIFullChromeDrawn >= 9, UIFullChromeDrawn);
+
+		// ★ 折行缓存自证（不能靠连调两次 `uv18draw()`：`redraw()` 有脏检查，第二次是空转）
+		var okCache = false, cCold = -1, cWarm = -1, cNote = "";
+		try
+		{
+			if(UIFlowFullLayer === null || UIFlowFullLayer === void) uiFlowFullInit(UIStoryWin);
+			var vp = UIFlowGeomViewport;
+			UIFullLabelCache = []; UIFullLabelCacheZoom = -1.0;      // 强制冷启动
+			var rc = uiFlowFullDraw(vp[0], vp[1], vp[2], vp[3], true, true, true, true);
+			var rw = uiFlowFullDraw(vp[0], vp[1], vp[2], vp[3], true, true, true, true);
+			if(rc !== null && rw !== null)
+			{
+				cCold = rc.msLabels; cWarm = rw.msLabels;
+				okCache = (rw.msLabels < rc.msLabels);
+				cNote = "（标题 冷 " + cCold + " ms → 热 " + cWarm + " ms；标题条数 " + rc.labels + "）";
+			}
+			else cNote = "（离屏层不可用 ⇒ 本项无法自证）";
+		}
+		catch(eCC) { cNote = "（异常：" + eCC.message + "）"; }
+		uv18log("· 折行缓存冷/热对照" + cNote);        // ★ 无论成败都落数字（一审：只在失败时打印＝无法独立复算）
+		uv18chk("★折行缓存生效（同 zoom 第2帧标题耗时 < 第1帧）", okCache == true, cNote);
+
+		// ★ 用户 2026-10-03 裁决（Q1①）：自绘启用时**隐藏 UI 静态节点族**。
+		//   判据取 **UI 组自己的可见性谓词在最终状态上的返回值**，不取"flag 被设成了什么"。
+		var scF = null, nodeEl = null, labelEl = null, jumpEl = null;
+		try
+		{
+			scF = UILayoutData.screens["flowchart"];
+			for(var ei = 0; ei < scF.elements.count; ei++)
+			{
+				var e2 = scF.elements[ei];
+				if(e2 === void || e2.id === void) continue;
+				var id2 = "" + e2.id;
+				if(nodeEl === null  && id2 == "fc.node.0001")      nodeEl = e2;
+				if(labelEl === null && id2 == "fc.label.0001_tx")  labelEl = e2;
+				if(jumpEl === null  && id2 == "fc.jump_hit")       jumpEl = e2;
+			}
+		}
+		catch(eFE) { uv18log("找元素异常：" + eFE.message); }
+		var flagNow = "";
+		try { flagNow = "" + uiScreenFlagGet("fc_layer"); } catch(eFG) { }
+		var visNode = true, visLabel = true, visJump = false;
+		try { if(nodeEl  !== null) visNode  = (uiScreenElementVisible(nodeEl)  == true); } catch(eVN) { }
+		try { if(labelEl !== null) visLabel = (uiScreenElementVisible(labelEl) == true); } catch(eVL) { }
+		try { if(jumpEl  !== null) visJump  = (uiScreenElementVisible(jumpEl)  == true); } catch(eVJ) { }
+		uv18chk("★自绘启用时 fc_layer 被置为哨兵值", flagNow == "selfdraw", flagNow);
+		uv18chk("★UI 幕级节点**真的不显示**（fc.node.0001）", visNode == false, visNode);
+		// ⚠️ 名称订正（一审重要-2）：`fc.label.*_tx` 的 sample 是**番外入口块的文字**，不是泳道标签。
+		uv18chk("★UI 番外入口块文字**真的不显示**（fc.label.0001_tx）", visLabel == false, visLabel);
+		uv18chk("反向：右栏「进入本章」**仍显示**（没有误藏整屏）", visJump == true, visJump);
+		uv18chk("隐藏入口路径在跑（UIFullHideAtEntry > 0）", UIFullHideAtEntry > 0, UIFullHideAtEntry);
+		uv18log("· 隐藏统计：进入即处理 " + UIFullHideAtEntry + " 次 ｜ 其中当场纠正 " + UIFullHideFixups + " 次");
+
+		// ★ 全览到「序文 + 头两个分叉」（节点 0..9）⇒ 缩写 ~0.52，标题仍在渲染阈值之上
+		try { uiFlowFullFitNodes(0, 9); } catch(eF0) { }
+		uv18draw();
+		return;
+	}
+	// ④b 拍「序文+首两个分叉」全览；再全览到 0..20（看并排分叉与汇合）
+	if(p == 5)
+	{
+		uv18shot("2_pageA_fan0");
+		var r5 = uv18Last("全览 0..9");
+		uv18chk("全览后 zoom 落进 [0.25,2.0]", UIFullZoom >= UIFullZoomMin && UIFullZoom <= UIFullZoomMax, UIFullZoom);
+		uv18chk("全览后节点画得更多 (>8)", r5 !== null && r5.nodes > 8, (r5 === null) ? "null" : r5.nodes);
+		try { uiFlowFullFitNodes(0, 20); } catch(eF1) { }
+		uv18draw();
+		return;
+	}
+	// ④c 拍「0..20」全览；再全览到第一个组件整块（0..33）
+	if(p == 6)
+	{
+		uv18shot("3_pageA_fan1");
+		var r6 = uv18Last("全览 0..20");
+		uv18chk("全览 0..20：节点画得更多 (>18)", r6 !== null && r6.nodes > 18, (r6 === null) ? "null" : r6.nodes);
+		try { uiFlowFullFitNodes(0, 33); } catch(eF2) { }
+		uv18draw();
+		return;
+	}
+	// ④d 拍「第一个组件整块」；再全览到**涅布追加篇**（按 id 前缀找下标）
+	if(p == 7)
+	{
+		uv18shot("4_pageA_comp1");
+		uv18log("· 组件整块：" + UIFullPerfNote + " ｜ " + UIFullHookNote);
+		// ★ 出锚标记要**在锚点节点进视口时**才画得出来：A 页的 3 条出锚都在主干上
+		//   （节点 33 = ot_s01_05 → B 页）。
+		//   ⚠️ 不能用「全览 0..33」来验：该区间自然适配缩放 0.197 会被夹到下限 0.25，
+		//      可见窗口只有 3308 px 高、**盖不住区间底部的节点 33**（本轮实测：chrome 恒为 9 = 只有页签）。
+		//      正解＝复位到 zoom 1.0 后 `uiFlowFullFocusNode(33)` 把它摆到视口正中。
+		try { uiFlowFullResetView(); } catch(eF3a) { }
+		try { uiFlowFullFocusNode(33); } catch(eF3b) { }
+		uv18draw();
+		return;
+	}
+	// ④e 拍「节点 33（出锚 → B 页）」并断言锚点标记；再全览涅布追加篇
+	if(p == 8)
+	{
+		uv18shot("5_pageA_anchor");
+		var ra8 = uv18Last("聚焦节点33");
+		uv18chk("★出锚标记画出来了（>=10：9 页签 + ≥1 锚点）", UIFullChromeDrawn >= 10,
+			UIFullChromeDrawn + "（节点33 在视口内：" + uiFlowFullMouseInVp(
+				Math.floor(uiFlowFullSX((0 + UIFlowGeomNodes[33][0]) + (0 + UIFlowGeomNodes[33][2]) / 2)),
+				Math.floor(uiFlowFullSY((0 + UIFlowGeomNodes[33][1]) + (0 + UIFlowGeomNodes[33][3]) / 2))) + "）");
+		// 找 np 块的起止下标（页 A 的节点序 = 0:0 → 0:1 → 0:5 → 4:0）
+		var na = -1, nb = -1, k = 0;
+		for(k = 0; k < UIFlowGeomIds.count; k++)
+		{
+			var sid = "" + UIFlowGeomIds[k];
+			if(sid.indexOf("np_") == 0) { if(na < 0) na = k; nb = k; }
+		}
+		uv18chk("★涅布追加篇在 A 页**末尾**（np 块下标连续且居后）",
+			na > 0 && nb == UIFlowGeomIds.count - 1 && (nb - na + 1) == 28,
+			"[" + na + "," + nb + "] 共 " + ((na < 0) ? 0 : (nb - na + 1)));
+		if(na >= 0) { try { uiFlowFullFitNodes(na, nb); } catch(eF4) { } }
+		uv18draw();
+		return;
+	}
+	// ④f 拍「涅布追加篇（枢纽总线）」；再全览整页
+	if(p == 9)
+	{
+		uv18shot("6_pageA_np");
+		var r9 = uv18Last("全览 np 块");
+		uv18chk("np 块画出来了 (>20)", r9 !== null && r9.nodes > 20, (r9 === null) ? "null" : r9.nodes);
+		try { uiFlowFullFitNodes(0, UIFlowGeomNodes.count - 1); } catch(eF5) { }
+		uv18draw();
+		return;
+	}
+	// ④g 拍整页全览；然后回默认视图并准备滚轮测试
+	if(p == 10)
+	{
+		uv18shot("7_pageA_overview");
+		uv18chk("整页全览 zoom = 下界 0.25（页高 1.97 万 px）", UIFullZoom == UIFullZoomMin, UIFullZoom);
+		try { uiFlowFullResetView(); } catch(eF6) { }
+		uv18draw();
+		return;
+	}
+	// ⑪ 滚轮缩放（缩两档）
+	if(p == 11)
+	{
+		var z0 = UIFullZoom;
+		try { uiFlowFullWheel(-1); uiFlowFullWheel(-1); } catch(e) { }
+		uv18draw();
+		uv18chk("滚轮缩小生效", UIFullZoom < z0, "z0=" + z0 + " → " + UIFullZoom);
+		uv18stats("缩两档");
+		return;
+	}
+	// ⑫ 拍缩放后视图；再做 zoom 上/下界夹取的负向自证
+	if(p == 12)
+	{
+		uv18shot("8_pageA_zoomout");
+		// ⚠️ TJS2 的 `var` 是**块级、无提升**：`for(var i = …)` 里的 `i` 出了这个 for 就不存在。
+		var i = 0;
+		for(i = 0; i < 40; i++) { try { uiFlowFullWheel(1); } catch(e2) { } }
+		uv18chk("zoom 上界夹取 (=2.0)", UIFullZoom == UIFullZoomMax, UIFullZoom);
+		for(i = 0; i < 60; i++) { try { uiFlowFullWheel(-1); } catch(e3) { } }
+		uv18chk("zoom 下界夹取 (=0.25)", UIFullZoom == UIFullZoomMin, UIFullZoom);
+		try { uiFlowFullResetView(); } catch(e4) { }
+		uv18draw();
+		uv18chk("复位后 zoom=1.0", UIFullZoom == 1.0, UIFullZoom);
+		return;
+	}
+	// ⑬ 拖动平移（走真实输入入口）
+	if(p == 13)
+	{
+		var vx0 = UIFullViewX, vy0 = UIFullViewY;
+		try { uiScreenPressUpdate(600, 500); } catch(e5) { }
+		try { uiScreenHoverUpdate(700, 620); } catch(e6) { }
+		try { uiScreenHoverUpdate(760, 680); } catch(e7) { }
+		uv18draw();
+		uv18chk("拖动后视图已位移", UIFullViewX != vx0 || UIFullViewY != vy0,
+			"(" + vx0 + "," + vy0 + ") → (" + UIFullViewX + "," + UIFullViewY + ")");
+		var rr = null;
+		try { rr = uiScreenClick(UIStoryWin.stageLayer, 760, 680); } catch(e8) { }
+		var ra = (rr === null || rr === void || rr.action === void) ? "" : ("" + rr.action);
+		uv18chk("★拖动结束时不得被当作点选", ra == "", "action=[" + ra + "]");
+		uv18chk("拖动后仍停在流程图屏", uv18scr() == "flowchart", uv18scr());
+		uv18stats("拖动后");
+		return;
+	}
+	// ⑭ 拍拖动后视图；复位视图（**本相位只画一次** —— `redraw()` 有脏检查，同相位连画两次
+	//    第二次是空转；实测「同相位内再画一帧」会让下一相位的截图**停在上一状态**）
+	if(p == 14)
+	{
+		uv18shot("9_pageA_pan");
+		try { uiFlowFullResetView(); } catch(e9) { }
+		uv18draw();
+		return;
+	}
+	// ⑮ 点选节点 → 进入该场景（坐标**由节点自身几何现算**：分页后原点重排，硬编码必错）
+	if(p == 15)
+	{
+		// 必须点一个**场景 id ≠ 开局入口**的节点，断言才有判别力：入口是 ot_s00_00，故取 #1。
+		var n1 = UIFlowGeomNodes[1];
+		var hitx = Math.floor(uiFlowFullSX((0 + n1[0]) + (0 + n1[2]) / 2));
+		var hity = Math.floor(uiFlowFullSY((0 + n1[1]) + (0 + n1[3]) / 2));
+		var id1 = "" + UIFlowGeomIds[1];
+		uv18log("· 点选 #1：" + id1 + " 画布(" + n1[0] + "," + n1[1] + ") → 屏幕(" + hitx + "," + hity + ")");
+		var rr2 = null;
+		try { rr2 = uiScreenClick(UIStoryWin.stageLayer, hitx, hity); } catch(eA) { }
+		var a2 = (rr2 === null || rr2 === void || rr2.action === void) ? "" : ("" + rr2.action);
+		var i2 = (rr2 === null || rr2 === void || rr2.index === void) ? -1 : (0 + rr2.index);
+		uv18chk("★命中场景级节点 #1", a2 == "flow_scene_enter" && i2 == 1,
+			"action=[" + a2 + "] index=" + i2);
+		if(a2 == "flow_scene_enter")
+		{
+			try { uiActionDispatch(a2, i2); } catch(eB) { uv18log("派发异常：" + eB.message); }
+			uv18draw();
+			uv18chk("★点选后进入 dialog 屏", uv18scr() == "dialog", uv18scr());
+			uv18chk("★载入的场景 = 节点 #1 的 id（**≠ 开局入口** ⇒ 有判别力）",
+				("" + UIStoryCur) == id1, "" + UIStoryCur + " vs " + id1);
+		}
+		return;
+	}
+	// ⑯ 拍「已进入该场景」；回流程图 → **点页签切页**（本相位仍只画一次）
+	if(p == 16)
+	{
+		uv18shot("10_entered");
+		try { uiActionDispatch("open_flowchart", -1); } catch(eC0) { }
+		uv18chk("回到 flowchart 屏", uv18scr() == "flowchart", uv18scr());
+		// 点第 5 个页签（下标 4 = E 香田亚衣（R 版），55 节点）——与当前页不同才有判别力
+		var vp2 = UIFlowGeomViewport;
+		uiFlowFullChipLayout(vp2[0], vp2[1], vp2[2], vp2[3]);
+		var cr = null;
+		try { cr = UIFullChipRects[4]; } catch(eC1) { cr = null; }
+		var ccx = -1, ccy = -1;
+		if(cr !== null && cr !== void) { ccx = Math.floor(cr[0] + cr[2] / 2); ccy = Math.floor(cr[1] + cr[3] / 2); }
+		uv18chk("页签矩形已算好（9 个）", UIFullChipRects.count == 9, UIFullChipRects.count);
+		var rc2 = null;
+		try { rc2 = uiScreenClick(UIStoryWin.stageLayer, ccx, ccy); } catch(eC2) { }
+		var ac2 = (rc2 === null || rc2 === void || rc2.action === void) ? "" : ("" + rc2.action);
+		var ic2 = (rc2 === null || rc2 === void || rc2.index === void) ? -1 : (0 + rc2.index);
+		uv18chk("★点页签 → flow_page_enter + index=4", ac2 == "flow_page_enter" && ic2 == 4,
+			"action=[" + ac2 + "] index=" + ic2);
+		if(ac2 == "flow_page_enter")
+		{
+			try { uiActionDispatch(ac2, ic2); } catch(eC3) { uv18log("派发异常：" + eC3.message); }
+			uv18chk("★切页生效：当前页 = 4", UIFullPageCur == 4, UIFullPageCur);
+			uv18chk("★切页后节点数 = 55（E 香田亚衣）", UIFlowGeomNodes.count == 55, UIFlowGeomNodes.count);
+			uv18chk("★切页后场景 id 与页名对得上（首节点 otr_s03c_01a）",
+				("" + UIFlowGeomIds[0]) == "otr_s03c_01a", "" + UIFlowGeomIds[0]);
+		}
+		uv18stats("切到 E 页后");
+		uv18draw();
+		return;
+	}
+	// ⑰ 拍 E 页（默认视图）；再全览 E 页整块
+	if(p == 17)
+	{
+		uv18shot("11_pageE");
+		try { uiFlowFullFitNodes(0, UIFlowGeomNodes.count - 1); } catch(eC4) { }
+		uv18draw();
+		return;
+	}
+	// ⑱ 拍 E 页全览；负向断言 + 切回 A 页
+	if(p == 18)
+	{
+		uv18shot("12_pageE_fit");
+		// 负向 ①：视口外（右栏 1900,1050）
+		var inVpOut = true, nOut = -1;
+		try { inVpOut = uiFlowFullMouseInVp(1900, 1050); } catch(eD0) { }
+		try { nOut = uiFlowFullNodeAt(1900, 1050); } catch(eD1) { }
+		uv18chk("负向：右栏(1900,1050) 判定为视口外", inVpOut == false, inVpOut);
+		uv18chk("负向：右栏坐标不命中节点", nOut == -1, nOut);
+		// ★ 切回 A 页并复位视图 —— **必须在本相位先复位**：下面的「空隙」判据是按
+		//   「当前视图」把画布坐标换算成屏幕坐标的，若停在 E 页的全览（zoom 0.25、view 远离原点），
+		//   算出来的点会落到视口外（inVp=0）⇒ 负向断言会因**前置条件不成立**而误报（本轮实测踩到）。
+		try { uiFlowFullSelectPage(0); } catch(eD3) { }
+		uv18draw();
+		uv18chk("切回 A 页（节点 164）", UIFullPageCur == 0 && UIFlowGeomNodes.count == 164,
+			"" + UIFullPageCur + " / " + UIFlowGeomNodes.count);
+		// 负向 ②：**同列两节点之间的空隙**（独立于 NodeAt 的判据：由节点几何现算）
+		var gOK = false, gNote = "";
+		try
+		{
+			var a = UIFlowGeomNodes[0], b = UIFlowGeomNodes[1];
+			var gx = Math.floor(uiFlowFullSX((0 + a[0]) + (0 + a[2]) / 2));
+			var gy = Math.floor(uiFlowFullSY((0 + a[1]) + (0 + a[3]) / 2));
+			// 节点 #1 在 #0 正下方 150px（行距），#0 下沿与 #1 上沿之间必有 85px 空档
+			var gapy = gy + 65 + 40;
+			var hitGap = uiFlowFullNodeAt(gx, gapy);
+			var inVpGap = uiFlowFullMouseInVp(gx, gapy);
+			gOK = (hitGap == -1) && (inVpGap == true);
+			gNote = "(" + gx + "," + gapy + ") → hit=" + hitGap + " inVp=" + inVpGap
+				+ " ｜ 参照节点 #0 画布(" + a[0] + "," + a[1] + ") zoom=" + UIFullZoom;
+		}
+		catch(eD2) { gNote = "异常：" + eD2.message; }
+		uv18chk("负向：视口内**节点间空隙**不命中节点", gOK == true, gNote);
+		uv18log("· 负向空隙点 " + gNote);
+		return;
+	}
+	// ⑲ 拍 A 页（复位后）；★ **场景级已读**的三态断言（数据 + 真的画到了）
+	if(p == 19)
+	{
+		uv18shot("13_pageA_seen");
+		var id0 = "", id1 = "";
+		try { id0 = "" + UIFlowGeomIds[0]; id1 = "" + UIFlowGeomIds[1]; } catch(eS0) { }
+		uv18log("· 场景级已读：共 " + uiFlowSceneSeenCount() + " 个 ｜ 当前 = " + UIFullSceneCur
+			+ " ｜ 状态文件 = " + UIFullScenePath);
+		uv18chk("★开局场景已记为已读（scene id =" + id0 + "）", uiFlowSceneIsSeen(id0) == true, id0);
+		uv18chk("★点选进入的场景已记为已读（scene id =" + id1 + "）", uiFlowSceneIsSeen(id1) == true, id1);
+		uv18chk("★已读集合 ≥ 2（开局 + 点选进的那个）", uiFlowSceneSeenCount() >= 2, uiFlowSceneSeenCount());
+		uv18chk("★当前场景 = 点选进的那个", ("" + UIFullSceneCur) == id1, "" + UIFullSceneCur);
+		uv18chk("★已读状态**落了盘**（UIFullScenePath 非空）", ("" + UIFullScenePath) != "", "" + UIFullScenePath);
+		// ★ 落盘/回读**往返自证**：人为清空内存集合，再从盘上 load —— 数量必须复原。
+		//   这条能失败在真正的缺陷上（文件名不对 / 写盘失败 / 解析键名写错都会让它 FAIL）。
+		var nBefore = uiFlowSceneSeenCount();
+		var okRd = false;
+		try
+		{
+			UIFullSceneSeen = %[];
+			okRd = uiFlowSceneLoad();
+		}
+		catch(eRT) { okRd = false; }
+		uv18chk("★已读状态落盘后可**回读**（清空内存 → load → 数量复原）",
+			okRd == true && uiFlowSceneSeenCount() == nBefore,
+			"落盘 " + nBefore + " → 回读 " + uiFlowSceneSeenCount() + "（load=" + okRd + "）");
+		uv18chk("★回读后两个场景 id 仍在集合里",
+			uiFlowSceneIsSeen(id0) == true && uiFlowSceneIsSeen(id1) == true,
+			id0 + "=" + uiFlowSceneIsSeen(id0) + " / " + id1 + "=" + uiFlowSceneIsSeen(id1));
+		var r19 = uv18Last("复位后的 A 页");
+		uv18chk("★已读色节点画出来了（≥1：开局那个）", UIFullSeenDrawn >= 1, UIFullSeenDrawn);
+		uv18chk("★当前场景色节点画出来了（=1）", UIFullCurDrawn == 1, UIFullCurDrawn);
+		return;
+	}
+	// ⑳ askJump：打开确认卡（原作 `askJump` 是可配置项，默认关；此处显式打开做机检）
+	if(p == 20)
+	{
+		UIFullAskJump = true;
+		var nq = UIFlowGeomNodes[1];
+		var qx = Math.floor(uiFlowFullSX((0 + nq[0]) + (0 + nq[2]) / 2));
+		var qy = Math.floor(uiFlowFullSY((0 + nq[1]) + (0 + nq[3]) / 2));
+		var rq = null;
+		try { rq = uiScreenClick(UIStoryWin.stageLayer, qx, qy); } catch(eQ0) { }
+		var aq = (rq === null || rq === void || rq.action === void) ? "" : ("" + rq.action);
+		var iq = (rq === null || rq === void || rq.index === void) ? -1 : (0 + rq.index);
+		uv18chk("★askJump 开时点节点 → flow_ask_open + index=1", aq == "flow_ask_open" && iq == 1,
+			"action=[" + aq + "] index=" + iq);
+		if(aq == "flow_ask_open")
+		{
+			try { uiActionDispatch(aq, iq); } catch(eQ1) { }
+			uv18chk("★确认卡已打开（UIFullAskIdx = 1）", UIFullAskIdx == 1, UIFullAskIdx);
+			uv18chk("★仍停在流程图屏（未直接跳转）", uv18scr() == "flowchart", uv18scr());
+		}
+		uv18draw();
+		return;
+	}
+	// ㉑ 拍确认卡；点「取消」→ 关卡片且**不跳转**
+	if(p == 21)
+	{
+		uv18shot("14_askcard");
+		var cy = -1, cx = -1;
+		try { cx = Math.floor(UIFullAskNo[0] + UIFullAskNo[2] / 2); cy = Math.floor(UIFullAskNo[1] + UIFullAskNo[3] / 2); } catch(eQ2) { }
+		uv18chk("确认卡按钮矩形已算好", UIFullAskYes.count == 4 && UIFullAskNo.count == 4,
+			"" + UIFullAskYes + " / " + UIFullAskNo);
+		var rn = null;
+		try { rn = uiScreenClick(UIStoryWin.stageLayer, cx, cy); } catch(eQ3) { }
+		var an = (rn === null || rn === void || rn.action === void) ? "" : ("" + rn.action);
+		uv18chk("★点「取消」→ flow_ask_close", an == "flow_ask_close", "action=[" + an + "]");
+		if(an == "flow_ask_close")
+		{
+			try { uiActionDispatch(an, -1); } catch(eQ4) { }
+			uv18chk("★取消后卡片已关（UIFullAskIdx = -1）", UIFullAskIdx == -1, UIFullAskIdx);
+			uv18chk("★取消后仍在流程图屏（没被跳走）", uv18scr() == "flowchart", uv18scr());
+		}
+		uv18draw();
+		return;
+	}
+	// ㉒ 再开卡片；点「进入」→ 真正跳转
+	if(p == 22)
+	{
+		var nq2 = UIFlowGeomNodes[1];
+		var qx2 = Math.floor(uiFlowFullSX((0 + nq2[0]) + (0 + nq2[2]) / 2));
+		var qy2 = Math.floor(uiFlowFullSY((0 + nq2[1]) + (0 + nq2[3]) / 2));
+		var rq2 = null;
+		try { rq2 = uiScreenClick(UIStoryWin.stageLayer, qx2, qy2); } catch(eQ5) { }
+		var aq2 = (rq2 === null || rq2 === void || rq2.action === void) ? "" : ("" + rq2.action);
+		uv18chk("再点节点仍走确认卡", aq2 == "flow_ask_open", "action=[" + aq2 + "]");
+		if(aq2 == "flow_ask_open")
+		{
+			try { uiActionDispatch(aq2, 1); } catch(eQ6) { }
+		}
+		// 「进入」按钮矩形要等确认卡画过一帧后才有效 ⇒ 若还没算好，本相位只开卡
+		if(UIFullAskYes.count == 4)
+		{
+			var yx = Math.floor(UIFullAskYes[0] + UIFullAskYes[2] / 2);
+			var yy = Math.floor(UIFullAskYes[1] + UIFullAskYes[3] / 2);
+			var ry = null;
+			try { ry = uiScreenClick(UIStoryWin.stageLayer, yx, yy); } catch(eQ7) { }
+			var ay = (ry === null || ry === void || ry.action === void) ? "" : ("" + ry.action);
+			uv18chk("★点「进入」→ flow_scene_enter + index=1", ay == "flow_scene_enter"
+				&& ((ry === null || ry === void || ry.index === void) ? -1 : (0 + ry.index)) == 1,
+				"action=[" + ay + "]");
+			if(ay == "flow_scene_enter")
+			{
+				try { uiActionDispatch(ay, 1); } catch(eQ8) { }
+				uv18chk("★确认后进入 dialog 屏", uv18scr() == "dialog", uv18scr());
+				uv18chk("★确认后载入的场景正确", ("" + UIStoryCur) == ("" + UIFlowGeomIds[1]), "" + UIStoryCur);
+				uv18chk("★跳转后确认卡自动关闭", UIFullAskIdx == -1, UIFullAskIdx);
+			}
+		}
+		else uv18log("· 「进入」按钮矩形尚未算出（该相位只开卡，未点按钮）");
+		uv18draw();
+		return;
+	}
+	// ㉓ 拍「确认后已进入该场景」；恢复 askJump 默认关
+	if(p == 23)
+	{
+		uv18shot("15_afterjump");
+		UIFullAskJump = false;
+		uv18chk("askJump 已恢复默认关", UIFullAskJump == false, UIFullAskJump);
+		return;
+	}
+	// ㉔ 收尾
+	if(p == 24)
+	{
+		var tot = UV18Ok + UV18Fails.count;
+		Debug.message("[VERIFY18] ★FLOWVIEW★ " + ((UV18Fails.count == 0) ? "PASS " : "FAIL ")
+			+ UV18Ok + "/" + tot
+			+ ((UV18Fails.count == 0) ? "" : ("  ｜ " + UV18Fails.join(" ｜ "))));
+		Debug.message("★FLOWVIEW-DONE★");
+		if(UV18Timer !== null) { try { UV18Timer.enabled = false; } catch(eE) { } }
+		return;
+	}
+}

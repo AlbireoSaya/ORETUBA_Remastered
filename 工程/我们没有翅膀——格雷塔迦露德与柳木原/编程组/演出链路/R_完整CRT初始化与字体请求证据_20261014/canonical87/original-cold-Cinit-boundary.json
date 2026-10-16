@@ -1,0 +1,652 @@
+{
+  "source_Cinit": 5271496,
+  "cold_loader_events": [
+    {
+      "api": "GetModuleHandleA",
+      "source_return_address": 5275916,
+      "source_name": "KERNEL32",
+      "actual_host_borrowed_module": 1961426944,
+      "actual_error": 0,
+      "guest_module": 1775304704,
+      "borrowed_not_FreeLibrary": true
+    },
+    {
+      "api": "GetProcAddress",
+      "source_return_address": 5275932,
+      "source_name": "IsProcessorFeaturePresent",
+      "actual_host_procedure": 1961541920,
+      "full_pointer_not_truncated": true,
+      "exact_declared_system_function_verified": true,
+      "actual_error": 0
+    },
+    {
+      "api": "IsProcessorFeaturePresent",
+      "source_return_address": 5275940,
+      "feature": 0,
+      "actual_OS_BOOL": 0
+    }
+  ],
+  "cold_filter_events": [
+    {
+      "api": "SetUnhandledExceptionFilter",
+      "source_return_address": 5277509,
+      "source_guest_target": 5277428,
+      "logical_previous_guest_pointer": 0,
+      "target_validated_inside_mapped_source_code": true,
+      "serialized_guest_registry_only": true,
+      "not_OS_SetUnhandledExceptionFilter": true,
+      "guest_pointer_not_registered_with_OS": true
+    }
+  ],
+  "logical_filter_current": 5277428,
+  "cold_codepage_events": [
+    {
+      "api": "GetACP",
+      "source_return_address": 5300541,
+      "actual_OS_codepage": 936,
+      "not_forced_to_932": true
+    },
+    {
+      "api": "GetCPInfo",
+      "source_return_address": 5301138,
+      "codepage": 936,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "actual_MaxCharSize": 2,
+      "CPINFO_bytes": 20,
+      "exact_OS_bytes_copied": true,
+      "both_guards_preserved": true
+    }
+  ],
+  "cold_encoding_events": [
+    {
+      "api": "GetStringTypeW",
+      "source_return_address": 5294406,
+      "locale": null,
+      "info": 1,
+      "count": 1,
+      "output_words_capacity": 1,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "guards_and_original_input_preserved": true,
+      "exact_OS_output_bytes_copied": true,
+      "input_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+      "output_sha256": "3da5c199770b6698291ece54d9da2d5168b04db7638739527d8bb69881e15985"
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5294540,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5294626,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "GetStringTypeW",
+      "source_return_address": 5294644,
+      "locale": null,
+      "info": 1,
+      "count": 256,
+      "output_words_capacity": 256,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "guards_and_original_input_preserved": true,
+      "exact_OS_output_bytes_copied": true,
+      "input_sha256": "834328d6df70a05fdf1322b4a9169dcacd9b085074aeb33ef33ff6322bd9a5ed",
+      "output_sha256": "32e7bba2b34d6152ca1142dc1949b2c7623cdd37cd668b615fec4bed12ddc0e5"
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304287,
+      "locale": 0,
+      "flags": 256,
+      "input_count": 1,
+      "output_capacity": 0,
+      "actual_return": 1,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304444,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304532,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304554,
+      "locale": 2052,
+      "flags": 256,
+      "input_count": 256,
+      "output_capacity": 0,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304709,
+      "locale": 2052,
+      "flags": 256,
+      "input_count": 256,
+      "output_capacity": 256,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "WideCharToMultiByte",
+      "source_return_address": 5304746,
+      "codepage": 936,
+      "flags": 544,
+      "input_units": 256,
+      "output_bytes_capacity": 256,
+      "actual_return_bytes": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_and_optional_BOOL_copied": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304444,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 0,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "MultiByteToWideChar",
+      "source_return_address": 5304532,
+      "codepage": 936,
+      "flags": 1,
+      "source_bytes": 256,
+      "output_units_capacity": 256,
+      "actual_return_units": 256,
+      "actual_error": 0,
+      "guards_and_input_preserved": true,
+      "query_only": false,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304554,
+      "locale": 2052,
+      "flags": 512,
+      "input_count": 256,
+      "output_capacity": 0,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": true,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "LCMapStringW",
+      "source_return_address": 5304709,
+      "locale": 2052,
+      "flags": 512,
+      "input_count": 256,
+      "output_capacity": 256,
+      "actual_return": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_copied_if_nonnull": true
+    },
+    {
+      "api": "WideCharToMultiByte",
+      "source_return_address": 5304746,
+      "codepage": 936,
+      "flags": 544,
+      "input_units": 256,
+      "output_bytes_capacity": 256,
+      "actual_return_bytes": 256,
+      "actual_error": 0,
+      "query_only": false,
+      "input_and_guards_preserved": true,
+      "exact_OS_output_and_optional_BOOL_copied": true
+    }
+  ],
+  "source_Cxx_table": [
+    5406720,
+    5407164
+  ],
+  "source_C_table": [
+    5407168,
+    5407188
+  ],
+  "source_initializer_entries_observed": [
+    5264240,
+    5301501,
+    5303222,
+    5277498,
+    4198400,
+    4201824,
+    4203216,
+    4205568,
+    4206016,
+    4210928,
+    4214576,
+    4216880,
+    4227536,
+    4227664,
+    4227712,
+    4232480,
+    4232528,
+    4232992,
+    4235280,
+    4248480,
+    4251648,
+    4251696,
+    4252032,
+    4252112,
+    4252192,
+    4252272,
+    4252432,
+    4252608,
+    4252768,
+    4252928,
+    4253008,
+    4253168,
+    4253328,
+    4253408,
+    4253568,
+    4280992
+  ],
+  "source_initializer_unique_count": 36,
+  "source_expected_nonzero_count": 114,
+  "result": null,
+  "next_EIP": 1210298,
+  "next_import": "HeapReAlloc",
+  "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+  "stack12": [
+    5272559,
+    1744830464,
+    0,
+    117444736,
+    144,
+    0,
+    132,
+    0,
+    0,
+    117444736,
+    0,
+    132
+  ],
+  "recent": [
+    {
+      "pc": 5271805,
+      "esp": 33587120,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271806,
+      "esp": 33587116,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271813,
+      "esp": 33587116,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271816,
+      "esp": 33587076,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271817,
+      "esp": 33587072,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271818,
+      "esp": 33587068,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271819,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271822,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271824,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271826,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271842,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271845,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271847,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271861,
+      "esp": 33587064,
+      "eax": 4294967295,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271866,
+      "esp": 33587064,
+      "eax": 1,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5271869,
+      "esp": 33587064,
+      "eax": 1,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272188,
+      "esp": 33587064,
+      "eax": 1,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272191,
+      "esp": 33587064,
+      "eax": 1,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272524,
+      "esp": 33587064,
+      "eax": 1,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272526,
+      "esp": 33587064,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272529,
+      "esp": 33587064,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272531,
+      "esp": 33587064,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272533,
+      "esp": 33587064,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272538,
+      "esp": 33587064,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272541,
+      "esp": 33587064,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272544,
+      "esp": 33587064,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272545,
+      "esp": 33587060,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272546,
+      "esp": 33587056,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272547,
+      "esp": 33587052,
+      "eax": 0,
+      "ecx": 4294967295
+    },
+    {
+      "pc": 5272553,
+      "esp": 33587048,
+      "eax": 0,
+      "ecx": 4294967295
+    }
+  ],
+  "new_API_tail": [
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117444736
+      ],
+      "actual_size": 128,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117444736
+      ],
+      "actual_size": 128,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        16
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 16,
+      "guest_result": 117481600
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117444736
+      ],
+      "actual_size": 128,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117444736
+      ],
+      "actual_size": 128,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664440,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664440,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117444736
+      ],
+      "actual_size": 128,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    },
+    {
+      "api": "HeapSize",
+      "args": [
+        1744830464,
+        0,
+        117444736
+      ],
+      "actual_size": 128,
+      "return_address": 5272806,
+      "actual_Windows_API": true
+    }
+  ],
+  "all_initializers_not_assumed_complete": true,
+  "original_WinMain_not_entered": true
+}

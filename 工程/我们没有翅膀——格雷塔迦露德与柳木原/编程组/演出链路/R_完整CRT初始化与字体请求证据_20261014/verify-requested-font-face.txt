@@ -1,0 +1,44 @@
+from pathlib import Path
+import sys,ctypes as C,json,hashlib,struct
+r=Path.cwd();w=r/'临时/ISSUE-20261011-02'/('full-Cinit-SDK-'+__import__('uuid').uuid4().hex);w.mkdir(exist_ok=False);g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具')]
+from lucifen_host_logfont_a import LOGFONTA
+from lucifen_host_logfont_w import LOGFONTW
+from lucifen_host_font_create import CreateFontIndirectA
+from lucifen_host_font_create_w import CreateFontIndirectW
+from lucifen_host_textmetric_a import TEXTMETRICA
+from lucifen_host_textmetric_get import GetTextMetricsA
+from lucifen_host_text_face import GetTextFaceW
+from lucifen_host_text_extent_w import SIZE,GetTextExtentPoint32W
+from lucifen_host_gdi_object_bindings import CreateCompatibleDC,SelectObject,DeleteObject
+from lucifen_host_monitor_bindings import DeleteDC
+from lucifen_host_crt_bootstrap_bindings import GetACP
+face='ＭＳ ゴシック';raw=struct.pack('<5i8B',-14,0,0,0,400,0,0,0,128,0,0,3,0)+face.encode('cp932').ljust(32,bytes(1))
+assert len(raw)==60 and hashlib.sha256(raw).hexdigest()=='6d2c34e67c1217593b92747b4186d8120ca243ce79b769bdb60f984656825037'
+report={'bits':C.sizeof(C.c_void_p)*8,'scope':'owned font request comparison; ANSI is actual local source request, Unicode is controlled intended-name experiment; neither is original Japanese-OS pixel reference','ACP':GetACP(),'source_cp932_face':face,'source_request_SHA256':hashlib.sha256(raw).hexdigest(),'cases':[]}
+assert C.sizeof(LOGFONTW)==92 and LOGFONTW.lfFaceName.offset==28 and C.sizeof(SIZE)==8
+for mode in ['source_ANSI','controlled_Unicode']:
+ dc=CreateCompatibleDC(None);assert dc;old=font=None
+ try:
+  if mode=='source_ANSI':lf=LOGFONTA.from_buffer_copy(raw);font=CreateFontIndirectA(C.byref(lf))
+  else:
+   lf=LOGFONTW()
+   for name,typ in LOGFONTW._fields_[:-1]:setattr(lf,name,getattr(LOGFONTA.from_buffer_copy(raw),name))
+   lf.lfFaceName=face;font=CreateFontIndirectW(C.byref(lf))
+  assert font;old=SelectObject(dc,font);assert old
+  guard=b'\xa5'*32;buf=C.create_string_buffer(guard+bytes(256)+guard,320)
+  n=GetTextFaceW(dc,128,C.byref(buf,32));assert n>0 and buf.raw[:32]==buf.raw[-32:]==guard
+  resolved=C.wstring_at(C.addressof(buf)+32);tm=TEXTMETRICA();assert GetTextMetricsA(dc,C.byref(tm))
+  row={'mode':mode,'actual_face':resolved,'metrics':{name:int(getattr(tm,name))for name,typ in TEXTMETRICA._fields_},'sample_extents':[]}
+  for sample in ['iiii','WWWW','ABC123','あいうえお']:
+   chars=sample.encode('utf-16le');inp=C.create_string_buffer(guard+chars+guard,len(chars)+64);out=C.create_string_buffer(guard+bytes(8)+guard,72)
+   ok=GetTextExtentPoint32W(dc,C.byref(inp,32),len(chars)//2,C.cast(C.byref(out,32),C.POINTER(SIZE)))
+   assert ok and inp.raw==guard+chars+guard and out.raw[:32]==out.raw[-32:]==guard
+   row['sample_extents'].append({'sample':sample,'width_height':list(struct.unpack('<2i',out.raw[32:-32])),'guards_preserved':True})
+  report['cases'].append(row)
+ finally:
+  assert old and SelectObject(dc,old)==font;assert DeleteObject(font);assert DeleteDC(dc)
+report['guards_and_owned_cleanup_pass']=True
+report['actual_font_families_differ']=report['cases'][0]['actual_face']!=report['cases'][1]['actual_face']
+report['faithful_font_pixel_and_original_locale_baseline_not_proven']=True
+(w/('font-face-ANSI-Unicode-%s.json'%report['bits'])).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+print(json.dumps(report,ensure_ascii=False))

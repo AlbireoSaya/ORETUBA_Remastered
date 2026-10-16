@@ -1,0 +1,50 @@
+E2 圆角核实 · 结论汇总（2026-09-27 17:10）
+==============================================================================
+问题：契约 §三.1「描线＝圆角连接 + 圆端帽」是否真的生效？（vision 目视判为 miter+butt）
+
+方法：用**引擎自己**渲一张 join×cap 参照矩阵（E2_圆角核实_参照POC.py，黑底、与生产
+      完全相同的 addPen/drawLines 调用与折线几何），再把生产图按**墨迹覆盖率**逐像素
+      比对（alpha 反解，与线色无关）⇒ 取残差最小者。
+
+[方法依据] 插件手册 manual.tjs 的 addPen 选项名与取值（逐字引用）：
+    width / startCap / endCap / lineJoin / miterLimit / dashCap / dashStyle / compoundArray
+    省略时 startCap/endCap = LineCapFlat，lineJoin = LineJoinMiter
+    GdiPlus 常量实测: LineJoinMiter=0 LineJoinBevel=1 LineJoinRound=2 
+                     LineCapFlat=0 LineCapSquare=1 LineCapRound=2
+    ⇒ 本模块用的键名/常量与手册一致（不是我猜的写法）
+
+[A] 折角判据（RMS/max 越小越像；同一 13x13 窗口逐像素比）
+    真实数据 fc.link.0001 折角 @(1040,223)  色 #266080： round RMS=0.0011 max=0.004
+                                                        bevel RMS=0.0458 max=0.562
+                                                        miter RMS=0.0530 max=0.472
+    夹具 fix.link.03 折角 @(248,833)        色 #65B1D4： round RMS=0.0011 max=0.004
+                                                        bevel RMS=0.0373 max=0.469
+                                                        miter RMS=0.0589 max=0.503
+    ⇒ 两处都**逐像素等于 round 参照**（RMS 1e-3），miter/bevel 差 30~50 倍 ⇒ 圆角连接生效
+
+[B] 端帽判据（生产 fix.link.04，arrow=false，端点 (1148,550)，w=4，解析模型比对）
+    实测覆盖率（列 1146..1150，行 547..552）：
+        550 | 0.46 1.00 1.00 1.00 0.50
+        551 | 0.11 1.00 1.00 1.00 0.21     ← 中间满、两侧小 = 锥形
+        552 | 0.00 0.14 0.50 0.29 0.00     ← 非零尾巴（半圆尖）
+    模型：flat  ⇒ 550 行 0.25/0.5/0.5/0.5/0.25、551/552 全 0        ✗
+          square⇒ 550/551 均 0.50/1/1/1/0.50、552 行 0.25/0.5/0.5/0.5/0.25  ✗
+          round ⇒ 550 0.49/1/1/1/0.49、551 0.21/0.99/1/0.99/0.21、552 0/0.21/0.48/0.21/0 ✓✓
+    ⇒ 实测与 round 半圆模型一致（≤0.1 差）、与 flat/square 定性不符 ⇒ 圆端帽生效
+    起点帽 (1148,365) 被夹具节点框（fc.node.9004 y∈[300,365]）压在**连线之上**：
+      仍可解出 364 行锥形 0.04/0.86/1.00/0.96/0.11 与 363 行半圆尖 0.00/0.00/0.25/0.04
+      ⇒ 起点帽同为 round（但肉眼在该处看不到凸出，因节点美术盖住了它）
+
+[C] vision 为何会判成 miter+butt（可复核的解释）
+   1) w=4 时圆角连接相对直角只差 ≈0.86 px²（凹口 4.00→3.14），12× 放大下很细；
+      而参照矩阵并排看才清楚（见 E2_圆角核实_参照矩阵_折角.png）。
+   2) **端帽所在处看不到凸出**：本工程连线端点在节点边缘上，round 帽的半圆正好伸进
+      节点框内，而节点美术在 pass B 画在连线之上 ⇒ 肉眼看到的是节点边缘的直切（像 butt）。
+      只有把节点美术这一层反解掉（alpha 反解）才量得到半圆。
+
+[D] 参照矩阵 PNG（引擎自导，含两种折向 × 三种 join + 三种 cap）
+    E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\e2_round_poc\runtime\savedata\round_ref.png  sha256=19e69ae0a492651e2245b8ffb6e8d2ae
+
+[E] 复跑命令
+    python E2_圆角核实_参照POC.py                  # 重渲参照矩阵 + 夹具折角/端帽比对
+    python E2_圆角核实_比对角.py --prod <png> --pts "x,y;x,y;x,y" --vertex 1 --ink 0xFF266080 --bg <x,y>

@@ -1,0 +1,12 @@
+{
+  "27": "ptr=rd(p)；v=rd(ptr)；wr(ptr,v-1)；然后新读pc=rd(ctx+8)，wr(ctx+8,pc+4)。",
+  "28": "sp=rd(ctx+12)；off=rd(p)；addr=sp-off；v=rd(addr)；wr(addr,v+1)；新读pc=rd(ctx+8)，wr(ctx+8,pc+4)。",
+  "29": "sp=rd(ctx+12)；off=rd(p)；addr=sp-off；v=rd(addr)；wr(addr,v-1)；新读pc=rd(ctx+8)，wr(ctx+8,pc+4)。",
+  "33": "ptrSlot=rd(p+4)；value=rd(p)；dest=rd(ptrSlot)；wr(dest,value)；新读pc=rd(ctx+8)，wr(ctx+8,pc+8)。",
+  "34": "sp=rd(ctx+12)；off=rd(p+4)；dest=sp-off；value=rd(p)；wr(dest,value)；新读pc=rd(ctx+8)，wr(ctx+8,pc+8)。",
+  "35": "sp=rd(ctx+12)；off=rd(p)；src=sp-off；dest=rd(p+4)；value=rd(src)；wr(dest,value)；新读pc=rd(ctx+8)，wr(ctx+8,pc+8)。",
+  "36": "src=rd(p)；sp=rd(ctx+12)；off=rd(p+4)；dest=sp-off；value=rd(src)；wr(dest,value)；新读pc=rd(ctx+8)，wr(ctx+8,pc+8)。",
+  "37": "sp=rd(ctx+12)只读这一次；srcOff=rd(p)；src=sp-srcOff；destOff=rd(p+4)；dest=同一个sp快照-destOff；value=rd(src)；wr(dest,value)；新读pc=rd(ctx+8)，wr(ctx+8,pc+8)。",
+  "38": "sp=rd(ctx+12)；off=rd(p)；dest=rd(p+4)；slot=sp-off；ptr=rd(slot)；value=rd(ptr)；wr(dest,value)；新读pc=rd(ctx+8)，wr(ctx+8,pc+8)。",
+  "39": "slot=rd(p)；dest=rd(p+4)；ptr=rd(slot)；value=rd(ptr)；wr(dest,value)；新读pc=rd(ctx+8)，wr(ctx+8,pc+8)。"
+}

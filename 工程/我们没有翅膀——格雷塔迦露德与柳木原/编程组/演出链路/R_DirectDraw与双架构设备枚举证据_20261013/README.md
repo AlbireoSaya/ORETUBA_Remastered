@@ -1,0 +1,25 @@
+# R_DirectDraw与双架构设备枚举证据_20261013
+阶段 R_DirectDraw与双架构设备枚举证据_20261013；关联 ISSUE-20261011-02。产物仅暂存供 root 复核应用，不宣称已完成还原。
+
+## 已验证事实
+- 原作 R WinMain452CF0 与原音频 DLL 仅由 Unicorn 执行；日文 DVD34 与备份全匹配；用户目录例外未使用，无写入。
+- genuine GetDriveTypeA E:\=3；原 OpenMutex 缺失 error2→CreateMutex initialOwner1 error0；受控已存在 mutex→原 Open 成功→FindWindowA 未解决，不得称整条重复路径完成。
+- 原 SetRect RA49FA31 客户区 800x600；AdjustWindowRectEx 当前宿主 [-10,-33,810,610]，非原 OS/DPI/窗口证明。
+- 原 LoadLibraryA RA4AB8F3 请求 ddraw.dll；仅可信系统 DLL 被 OS 加载，宿主引用映射为受限 guest token；GetProcAddress 实际名 DirectDrawCreateEx 与 DirectDrawEnumerateExA。无游戏 DLL 被 OS 加载。
+- 宿主64 真 DDEEnum7 两设备，回调 4ABB30 返回1；各自 CoCreate CLSID_DirectDraw/IID_IDirectDraw7 与 Initialize 成功；QI IID_IDirect3D7 E_NOINTERFACE(-2147467262)。原 Release=0，FreeLibrary RA4AB971=1；缺失配置的前两次异常已恢复；第三次图形初始化 C++ 异常已捕获，尚未派发或恢复。不等于游戏永不可运行。
+- 工具内便携官方 Python3.13.12 Win32+Unicorn2.1.4 Win32，无系统安装，仅 Python EXE 与 python313.dll 的 Authenticode 签名经验证属于 Python Software Foundation；Unicorn wheel 的 SHA256 与官方 PyPI 一致，未声明 Unicorn 具备 Authenticode 签名。同宿主32 CoCreate 与 DirectDrawCreateEx QI_IDirect3D7 成功；SysWOW64 DLL 哈希区分虚拟 System32 路径。64 参考失败为架构特异观测差异，非编造不支持返回。
+- HostMemory 允许4/8 指针宽度，用现有 c_size_t/c_void_p；HostCritical 24字节32/40字节64，沿用现有守卫。Startupinfo 68/104 偏移精确到 guest68，不声称真实原 CRT 进程启动。
+- 主32 原回调 4ABB30 真 CoCreate/Initialize/QI 全 HR0，GetCaps slot11 native RA4ABD30 接收两个 380字节 DDCAPS 精确复制入原缓冲，无 DWORD→指针转换。停在 IID_IDirect3D7 slot3 native RA4ABD75、callback4ABE50、原设备分配上下文。EnumDevices ABI 尚未调用；宿主 DDL 枚举仅受控0 作 fixture 中止；无假原 BOOL/HRESULT 或成功原枚举声称。COM Release 1→0，FreeLibrary 真清理；窗口仍0。下一步需真 D3D7 EnumDevices 回调→窗口/协作层级/表面/渲染/资产/VM/音频。
+- 源完整性：1 EXE、8 LPK、3 DLL、2 参考 DLL、446 SCRIPT、418 IR+USERCFG 将由 root 阶段检查，通过前不声称。
+- 四版本全路线/分支/状态/帧/音频仍 active 未完成；引导/设备能力证据≠100% 还原。root 记录：SDK IID GammaControl 更正为 IDirect3D7；API 长度候选丢弃、DSM 忽略；旧格式化守卫计数错误、rootprobe 全局代理变量冲突拒收12/13，最终32配方拒收意外回调错误。未声称完整 SEH/OS启动/GUI/渲染/PCM/关闭。
+
+## 规范产物
+WinMain-host32-boundary.json；DirectDraw-host32-enumeration.json；WinMain-host64-boundary.json；DirectDraw-host64-enumeration.json；host-DDraw-bitness-32.json/64.json；verify-host32-WinMain.txt/host64-WinMain.txt；verify-wuvorbis-shared.txt；root-batch-review.json/root-source-integrity.json；runtime32-provenance.json；source-provenance.json。位于 E:/ZCode Workspace/Galgame 工作区，由 root 应用。
+
+## 主要来源
+- https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nf-ddraw-directdrawenumerateexa
+- https://learn.microsoft.com/en-us/windows/win32/api/ddraw/nc-ddraw-lpddenumcallbackexa
+- https://raw.githubusercontent.com/microsoft/win32metadata/main/generation/WinSDK/RecompiledIdlHeaders/um/ddraw.h
+- https://raw.githubusercontent.com/microsoft/win32metadata/main/generation/WinSDK/RecompiledIdlHeaders/um/d3d.h
+- https://www.python.org/ftp/python/3.13.12/
+- https://pypi.org/project/unicorn/2.1.4/

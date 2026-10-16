@@ -1,0 +1,28 @@
+var RMemoryMicroCount = 0;
+
+function RMemoryMicroCheck(spec)
+{
+	var s = global.RVMFState(spec);
+	s.events = [];
+
+	var rd = global.RExtraRD incontextof s;
+	var wr = global.RExtraWR incontextof s;
+
+	global.RVMExtraMemoryStep(rd, wr, spec.ctx, spec.op, spec.p);
+	global.RVMFCompareRows(s.events, spec.events, spec.id + " microIO");
+
+	var plainrd = global.RVMFRD incontextof s;
+	var fin = spec.final;
+	var n = fin.count;
+	for (var i = 0; i < n; ++i)
+	{
+		var addr = fin[i][0];
+		var want = fin[i][1];
+		if ((plainrd(addr) & 0xFFFFFFFF) != want)
+		{
+			throw new global.Exception("EXTRA_MICRO_FINAL");
+		}
+	}
+
+	RMemoryMicroCount++;
+}

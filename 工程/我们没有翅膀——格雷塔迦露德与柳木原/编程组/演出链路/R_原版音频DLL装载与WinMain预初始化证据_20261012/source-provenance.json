@@ -1,0 +1,39 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "models": {
+    "engineering": "DeepSeek-v4.1-flash high via existing independent API",
+    "root": "analysis/verification/admin"
+  },
+  "actual_native_model_attempt": {
+    "accepted": false,
+    "error": "The deepseek/deepseek-v4.1-flash model is not supported when using Codex with a ChatGPT account.",
+    "no_engineering_product": true
+  },
+  "ignored_candidates_rejected": [
+    {
+      "candidate": "mapdoc04",
+      "reason": "AST comparison found unauthorized removal of complement bitmask; original valid map-compact03 retained"
+    },
+    {
+      "candidate": "guestfilter01",
+      "reason": "single-thread state mislabeled atomic; guestfilter02 selected"
+    }
+  ],
+  "output_limit_failures": 3,
+  "original_DLL_OS_loading": false,
+  "external_payload": "only explicitly approved own source/specifications and derived facts; no original scripts, assets, EXE/DLL bytes, credentials or environment data",
+  "public_primary_references": [
+    "https://github.com/krkrz/wuvorbis",
+    "https://raw.githubusercontent.com/krkrz/wuvorbis/master/wuvorbis.def",
+    "https://raw.githubusercontent.com/krkrz/wuvorbis/master/wuvorbisfile_stub.c",
+    "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-sethandlecount"
+  ],
+  "independent_official_replay_equal_fields": [
+    "native entries/arguments",
+    "DLL attach/export resolution/execution",
+    "native initialization resources",
+    "exact stop before folder creation"
+  ],
+  "helpers_caller_guards_required": true,
+  "complete_original_loader_environment_PCM_or_fidelity_not_claimed": true
+}

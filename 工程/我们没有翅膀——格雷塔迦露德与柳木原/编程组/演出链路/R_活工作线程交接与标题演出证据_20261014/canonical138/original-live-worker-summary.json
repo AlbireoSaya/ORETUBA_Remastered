@@ -1,0 +1,1051 @@
+{
+  "original_request": {
+    "security_attributes": 0,
+    "stack_size": 0,
+    "start_address": 5271290,
+    "parameter": 119533696,
+    "creation_flags": 0,
+    "thread_id_out": 33569996
+  },
+  "original_return_address": 5271254,
+  "original_CRT_parameter": 119533696,
+  "original_business_start": 5213520,
+  "original_business_parameter": 33569988,
+  "parent_fs0": "8c750002",
+  "source_thread_exit_not_executed": true,
+  "source_CreateThread_consumer_not_resumed": false,
+  "scope": "bounded original worker prefix on actual owned host thread; not a complete Windows loader/TEB model",
+  "worker_guest_reservation": {
+    "source_PE_reserve": 1048576,
+    "source_PE_commit": 4096,
+    "mapped_low_high": [
+      56754176,
+      57802752
+    ],
+    "OS_guard_pages_commit_growth_TEB_not_modeled": true
+  },
+  "actual_owned_thread_handle": 1452,
+  "actual_returned_tid": 30248,
+  "guest_TID_out_not_written_until_full_request_receipt": true,
+  "original_guest_start_pointer_not_passed_to_OS": true,
+  "actual_host_worker_tid": 30248,
+  "WUV_DLL_THREAD_ATTACH": {
+    "entry": 285289965,
+    "reason": 2,
+    "next_EIP": 57802736,
+    "return_value": 1,
+    "failure": null,
+    "new_API_events": []
+  },
+  "CRT_prefix": {
+    "next_EIP": 5271379,
+    "failure": null,
+    "original_parameter_tid": 30248,
+    "new_API_events": [
+      {
+        "api": "TlsSetValue",
+        "args": [
+          13,
+          119533696
+        ],
+        "native_return_address": 5271344,
+        "actual_Windows_API": true,
+        "guest_result": 1,
+        "actual_host_pointer": 134789600
+      },
+      {
+        "api": "GetCurrentThreadId",
+        "args": [],
+        "native_return_address": 5271362,
+        "actual_Windows_API": true,
+        "guest_result": 30248
+      }
+    ],
+    "FS0": "ecff7003",
+    "source_business_call_not_executed": true
+  },
+  "original_CRT_TLS_pointer_verified": true,
+  "original_CRT_tid_matches_OS": true,
+  "park_before_resource_cleanup": {
+    "source_EIP": 302236535,
+    "actual_worker_tid": 30248,
+    "live_font_count": 5,
+    "live_selected_font_DCs": 5
+  },
+  "actual_STILL_ACTIVE_during_parent_consumers": 259,
+  "host_guard_exit_is_not_original_exit_code": true,
+  "worker_errors": [],
+  "owned_thread_handle_retained_for_parent_consumers": true,
+  "parent_context_and_FS0_restored": true,
+  "worker_permissions_retained_while_parked": true,
+  "original_font_handles_live_during_parent_consumers": [
+    {
+      "guest_font": 1777729536,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "6d2c34e67c1217593b92747b4186d8120ca243ce79b769bdb60f984656825037",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729537,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "67d4f73b68eef4bd7c21bcced13c03a639fd824a0564042399e1d0b401a61cfd",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729538,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "2fd09ae96e9e994f2718a43e9f903a03c82a8abf9f020aafe4f2accf054d603c",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729539,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "fa31ea0a8f5e3203b15c5f7877f3fc56c3fa0ef32d70221f7915b39f82e686e1",
+      "guards_pass": true
+    },
+    {
+      "guest_font": 1777729540,
+      "actual_GetObjectA_bytes": 60,
+      "LOGFONTA_SHA256": "0f2adefaed6eb381f7d42bbf594af5c29cdfb56951311c8a22c74303a2278abe",
+      "guards_pass": true
+    }
+  ],
+  "worker_context_and_FS0_restored_on_original_OS_tid_after_release": true,
+  "business_boundary_registers": {
+    "EAX": 0,
+    "ECX": 128,
+    "EDX": 5,
+    "ESI": 130140032,
+    "EDI": 805861120,
+    "EBX": 130129280
+  },
+  "business_recent_instructions": [
+    {
+      "pc": 4794193,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 4794200,
+      "esp": 57736036,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265780,
+      "esp": 57736032,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265781,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265783,
+      "esp": 57736028,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265786,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265789,
+      "esp": 57735996,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265790,
+      "esp": 57735992,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265791,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265793,
+      "esp": 57735984,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265794,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265799,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 8
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 7
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 6
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 5
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 4
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 3
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 2
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 1
+    },
+    {
+      "pc": 5265802,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265804,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265807,
+      "esp": 57735988,
+      "eax": 57736600,
+      "ecx": 0
+    },
+    {
+      "pc": 5265810,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265813,
+      "esp": 57735988,
+      "eax": 5386040,
+      "ecx": 0
+    },
+    {
+      "pc": 5265816,
+      "esp": 57735988,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265817,
+      "esp": 57735984,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265820,
+      "esp": 57735980,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265823,
+      "esp": 57735976,
+      "eax": 57736016,
+      "ecx": 0
+    },
+    {
+      "pc": 5265826,
+      "esp": 57735972,
+      "eax": 57736016,
+      "ecx": 0
+    }
+  ],
+  "actual_host_guard_exit_code_after_release": 2702180352,
+  "owned_thread_handle_closed": true,
+  "worker_errors_after_release": [],
+  "source_worker_resume": {
+    "from_EIP": 302236535,
+    "next_EIP": 5089724,
+    "failure": null,
+    "actual_worker_tid": 30248,
+    "same_original_OS_tid": true,
+    "instruction_budget": 1000000,
+    "not_full_original_exit": true
+  },
+  "post_parent_BitBlt_calls": [
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        538,
+        800,
+        2,
+        1776287744,
+        0,
+        538,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "8c95731dff7c75001ab2bac274abe3316fe8cba378c5bddba476e13eaf182681",
+      "sample_positions": [
+        [
+          0,
+          538
+        ],
+        [
+          400,
+          539
+        ],
+        [
+          799,
+          539
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9410168,
+        15391962,
+        14804456
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9410168,
+        15391962,
+        14804456
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        90,
+        800,
+        8,
+        1776287744,
+        0,
+        90,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "590a9258c3187a707ce61bea5f094e83b9b2d5fb22f1d378c83d7a14c8c0556e",
+      "sample_positions": [
+        [
+          0,
+          90
+        ],
+        [
+          400,
+          94
+        ],
+        [
+          799,
+          97
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        15324356,
+        14203277,
+        11103068
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        15324356,
+        14203277,
+        11103068
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        98,
+        800,
+        8,
+        1776287744,
+        0,
+        98,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "c22c89884c7fca315ce20f668648f1b38edaa1858be4e97be50151f33da02dbb",
+      "sample_positions": [
+        [
+          0,
+          98
+        ],
+        [
+          400,
+          102
+        ],
+        [
+          799,
+          105
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12226157,
+        14005128,
+        9994337
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12226157,
+        14005128,
+        9994337
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        106,
+        800,
+        8,
+        1776287744,
+        0,
+        106,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "a047052301f74fbf4aada772a3f3d0950e1662415dbfd4c13685f4a86692461c",
+      "sample_positions": [
+        [
+          0,
+          106
+        ],
+        [
+          400,
+          110
+        ],
+        [
+          799,
+          113
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12357997,
+        14070920,
+        10056800
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12357997,
+        14070920,
+        10056800
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        114,
+        800,
+        8,
+        1776287744,
+        0,
+        114,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "4ce0ae912d2bb99574431e5020d970c74cf6cd023583aa3285d63e2ab479b25e",
+      "sample_positions": [
+        [
+          0,
+          114
+        ],
+        [
+          400,
+          118
+        ],
+        [
+          799,
+          121
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12291452,
+        13541500,
+        9661530
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12291452,
+        13541500,
+        9661530
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        122,
+        800,
+        8,
+        1776287744,
+        0,
+        122,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "998049b7c21c809e16866c91f7d30c28d59f0fdfa79875015cebfd0e13b3e199",
+      "sample_positions": [
+        [
+          0,
+          122
+        ],
+        [
+          400,
+          126
+        ],
+        [
+          799,
+          129
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        12623231,
+        13867373,
+        9399391
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        12623231,
+        13867373,
+        9399391
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        130,
+        800,
+        8,
+        1776287744,
+        0,
+        130,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "92e0ba23a54e0a5e7fa1814c6e1ab19953cf5bdcb090fc01466016d1ceceba46",
+      "sample_positions": [
+        [
+          0,
+          130
+        ],
+        [
+          400,
+          134
+        ],
+        [
+          799,
+          137
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10447707,
+        13614978,
+        11440753
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10447707,
+        13614978,
+        11440753
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        138,
+        800,
+        8,
+        1776287744,
+        0,
+        138,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "e1c0799b34ee2660baa978b5b11756dce328279e1c2f6ab8570ad22892f3be64",
+      "sample_positions": [
+        [
+          0,
+          138
+        ],
+        [
+          400,
+          142
+        ],
+        [
+          799,
+          145
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10118489,
+        14005384,
+        12947840
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10118489,
+        14005384,
+        12947840
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        146,
+        800,
+        8,
+        1776287744,
+        0,
+        146,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "787ef0a22a765205bebbe095639e7b9d14b876796eda3f0486e2f7a9432a0d9b",
+      "sample_positions": [
+        [
+          0,
+          146
+        ],
+        [
+          400,
+          150
+        ],
+        [
+          799,
+          153
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10055516,
+        12098706,
+        14270379
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10055516,
+        12098706,
+        14270379
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        154,
+        800,
+        8,
+        1776287744,
+        0,
+        154,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "acb9526b5fe56e4f366e4a9ec7ad008acf1ff6ad2f644e3210e78fd95dfe8608",
+      "sample_positions": [
+        [
+          0,
+          154
+        ],
+        [
+          400,
+          158
+        ],
+        [
+          799,
+          161
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        10400130,
+        8677468,
+        11252881
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        10400130,
+        8677468,
+        11252881
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    },
+    {
+      "api": "BitBlt",
+      "source_return_address": 4568930,
+      "source_args": [
+        1763704832,
+        0,
+        162,
+        800,
+        8,
+        1776287744,
+        0,
+        162,
+        13369376
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "same_owned_window_and_acquiring_thread": true,
+      "actual_DC_GetClipBox_type": 2,
+      "actual_DC_clip_RECT": [
+        0,
+        0,
+        800,
+        600
+      ],
+      "actual_owned_window_IsIconic": 0,
+      "actual_owned_window_IsWindowVisible": 1,
+      "exact_guest_bitmap_to_host_sync_SHA256": "49172e7587062e1a6ef6e157383607150476b5bf7f9043c024ce594664d77908",
+      "sample_positions": [
+        [
+          0,
+          162
+        ],
+        [
+          400,
+          166
+        ],
+        [
+          799,
+          169
+        ]
+      ],
+      "before_COLORREF": [
+        16777215,
+        16777215,
+        16777215
+      ],
+      "after_COLORREF": [
+        9400413,
+        9068626,
+        14599549
+      ],
+      "expected_source_BGRX_to_COLORREF": [
+        9400413,
+        9068626,
+        14599549
+      ],
+      "sample_readback_matches_source": true,
+      "only_this_blit_region_not_full_logo_frame": true,
+      "not_Japanese_OS_or_four_version_fidelity_reference": true
+    }
+  ],
+  "post_parent_API_counts": {
+    "BitBlt": 11,
+    "ReleaseDC": 1,
+    "Critical_leave": 5,
+    "Critical_enter": 5,
+    "GetCurrentThreadId": 5,
+    "IsIconic": 1,
+    "GetCursorPos": 1,
+    "ClientToScreen": 1,
+    "GetClientRect": 1,
+    "OffsetRect": 1,
+    "ScreenToClient": 1,
+    "GetDC_owner_receipt": 1,
+    "GetDC": 1
+  },
+  "font_actual_face_W": "MS PGothic",
+  "full_before_parent_readback": {
+    "actual_Copy_BitBlt_BOOL": 1,
+    "size": [
+      800,
+      600
+    ],
+    "full_RGB_matches_original_guest_bitmap": false,
+    "differing_color_bytes": 1416217,
+    "source_RGB_SHA256": "e36e1950a1bbaae16711fccb6fad9a009d0d02c4d6245d5778b997607521902f",
+    "actual_RGB_SHA256": "680a1c22a8e114ea0c637847e8cc506794073a55f4350364c8a0421e7dbcc8f0",
+    "source_blits": 822,
+    "all_source_blit_sample_readbacks_match": false,
+    "verification_reacquires_own_window_DC_after_source_ReleaseDC": true,
+    "same_worker_thread_acquires_and_releases_snapshot_DC": true,
+    "alpha_unused_not_compared": true,
+    "no_original_Japanese_OS_or_four_version_complete_reference_claim": true
+  },
+  "full_after_parent_readback": null,
+  "actual_source_cursor_calls": [
+    {
+      "api": "SetCursorPos_actual_source_worker",
+      "original_return_address": 4514825,
+      "original_xy": [
+        960,
+        540
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_GetCursorPos_result": 1,
+      "observed_xy": [
+        960,
+        540
+      ],
+      "exact_source_arguments": true,
+      "no_forced_position_or_success": true
+    },
+    {
+      "api": "SetCursorPos_actual_source_worker",
+      "original_return_address": 4514825,
+      "original_xy": [
+        1289,
+        611
+      ],
+      "actual_OS_BOOL": 1,
+      "actual_error": 0,
+      "actual_GetCursorPos_result": 1,
+      "observed_xy": [
+        1289,
+        611
+      ],
+      "exact_source_arguments": true,
+      "no_forced_position_or_success": true
+    }
+  ],
+  "full_trace_local_path": "临时\\ISSUE-20261011-02\\r-live-worker-resume-canonical-138",
+  "full_local_trace_SHA256": "cba20a81edeea08ef93db234a85edce7c91f4f1ade8e3cf4f864ee3c2937372c",
+  "scope_not_complete_original_game": true
+}

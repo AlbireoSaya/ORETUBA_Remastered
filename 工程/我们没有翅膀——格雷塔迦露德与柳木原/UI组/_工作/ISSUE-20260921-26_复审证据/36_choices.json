@@ -1,0 +1,227 @@
+{
+  "id": "choices",
+  "title_cn": "选择支",
+  "owner": "M34",
+  "note": "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 83 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ 本屏为**新增**。",
+  "elements": [
+    {
+      "id": "ch.bg_1",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_choice_off.png",
+      "x": 404,
+      "y": 470,
+      "w": 1113,
+      "h": 83,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "选择支条（PSB idx83 `選択肢/オフ`，条图 1113×83）。原作三条整图（オフ/オンマウス/無効）同矩形，本作同法。**位置为暂定**：idx83 容器本身只有 1113×83，**运行时摆放坐标不在 PSB 里**（见 `M34_交汇协奏曲UI布局规格.md` 待确认项）→ 此处按本作画布居中摆放（x404 = (1920-1113)/2，y470 居中），待编程组按选择支数量定位。（素材 1135×105 ≠ 设计 1113×83 → nine {'l': 0, 't': 0, 'r': 0, 'b': 0}） ★ M35b：接收原热区 `ch.hit_1` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.1」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_1` 用 state_group「choices.1」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_choice_off.png",
+        "hover": "ui/x_ui_choice_over.png",
+        "pressed": "ui/x_ui_choice_press.png"
+      },
+      "state_group": "choices.1"
+    },
+    {
+      "id": "ch.tx_1",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 404,
+      "y": 470,
+      "w": 1113,
+      "h": 83,
+      "font": {
+        "size": 34,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "选项一",
+      "note": "选项文字（引擎绘制；真值取自资源组 `scene_*.jsonl` 的 `choices[].text_cn`）"
+    },
+    {
+      "id": "ch.hit_1",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 404,
+      "y": 470,
+      "w": 1113,
+      "h": 83,
+      "action": "select_choice",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "选项热区（index=0）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_1` 绘制，两者 state_group「choices.1」联动。",
+      "state_group": "choices.1"
+    },
+    {
+      "id": "ch.tx_2",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 404,
+      "y": 570,
+      "w": 1113,
+      "h": 83,
+      "font": {
+        "size": 34,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "选项二",
+      "note": "选项文字（引擎绘制；真值取自资源组 `scene_*.jsonl` 的 `choices[].text_cn`）"
+    },
+    {
+      "id": "ch.bg_2",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_choice_off.png",
+      "x": 404,
+      "y": 570,
+      "w": 1113,
+      "h": 83,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "选择支行底（第 2 行，M35b 新增：原结构只有第 1 行有 image，行 2/3 全靠热区拉伸绘制） ★ M35b：接收原热区 `ch.hit_2` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.2」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_2` 用 state_group「choices.2」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_choice_off.png",
+        "hover": "ui/x_ui_choice_over.png",
+        "pressed": "ui/x_ui_choice_press.png"
+      },
+      "state_group": "choices.2"
+    },
+    {
+      "id": "ch.hit_2",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 404,
+      "y": 570,
+      "w": 1113,
+      "h": 83,
+      "action": "select_choice",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "选项热区（index=1）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_2` 绘制，两者 state_group「choices.2」联动。",
+      "state_group": "choices.2"
+    },
+    {
+      "id": "ch.tx_3",
+      "kind": "text",
+      "z": 25,
+      "visible_default": true,
+      "x": 404,
+      "y": 670,
+      "w": 1113,
+      "h": 83,
+      "font": {
+        "size": 34,
+        "bold": true,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "选项三",
+      "note": "选项文字（引擎绘制；真值取自资源组 `scene_*.jsonl` 的 `choices[].text_cn`）"
+    },
+    {
+      "id": "ch.bg_3",
+      "kind": "image",
+      "z": 20,
+      "visible_default": true,
+      "asset": "ui/x_ui_choice_off.png",
+      "x": 404,
+      "y": 670,
+      "w": 1113,
+      "h": 83,
+      "opacity": 255,
+      "source": "AI 生图（gpt-image-2.5-1k）→ 工具\\lyai-image-api\\ui_gen.py + ui_slice.py；坐标取自《交汇协奏曲》PSB 容器",
+      "note": "选择支行底（第 3 行，M35b 新增：原结构只有第 1 行有 image，行 2/3 全靠热区拉伸绘制） ★ M35b：接收原热区 `ch.hit_3` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「choices.3」联动。 ★ M35b：持有选择支三态图（normal/hover/pressed），与热区 `ch.hit_3` 用 state_group「choices.3」联动。 ★ M35b：pressed 由「禁用」美术 `x_ui_choice_dis.png` 换为**专用按下图** `x_ui_choice_press.png`（由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 btn_states.py 的 PRESS_FROM_HOVER 注释）：压暗+缩 0.96，用户 2026-09-22 裁定）。`x_ui_choice_dis.png` 保留（真\"禁用\"态日后用）。",
+      "nine": {
+        "l": 0,
+        "t": 0,
+        "r": 0,
+        "b": 0
+      },
+      "state_assets": {
+        "normal": "ui/x_ui_choice_off.png",
+        "hover": "ui/x_ui_choice_over.png",
+        "pressed": "ui/x_ui_choice_press.png"
+      },
+      "state_group": "choices.3"
+    },
+    {
+      "id": "ch.hit_3",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 404,
+      "y": 670,
+      "w": 1113,
+      "h": 83,
+      "action": "select_choice",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "选项热区（index=2）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_3` 绘制，两者 state_group「choices.3」联动。",
+      "state_group": "choices.3"
+    }
+  ]
+}

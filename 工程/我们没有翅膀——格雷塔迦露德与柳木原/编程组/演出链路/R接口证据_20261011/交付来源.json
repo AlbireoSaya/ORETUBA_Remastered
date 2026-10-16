@@ -1,0 +1,888 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "phase": "R native interface and original CPU microcases",
+  "implementation_role": "editor-easy",
+  "model": "deepseek/deepseek-v4.1-flash",
+  "reasoning_effort": "high",
+  "root_role": "analysis, dispatch, exact candidate assembly, validation, batch review, Git/admin",
+  "export_boundary": "approved AGENTS/selfbuilt skill and generic code/metadata/candidates only; no original scripts, EXE bytes, assets or credentials",
+  "norm_cache_sha256": {
+    "AGENTS.md": "4366bde9962ba59bf7ce070127def5af5e55e680e0c520635ba28ad488a76050",
+    "selfbuilt_skill": "464a0601219efb0309d7c7b66e0b7f0daf1f2b8f35c8d6419a0cde7924709c2a"
+  },
+  "tools": [
+    {
+      "output": "工程\\我们没有翅膀——格雷塔迦露德与柳木原\\编程组\\工具\\lucifen_registration_candidates.py",
+      "sha256": "2eb047f8bc3f97d9cd3386ae9db25b36e0b8c152de449d499eacf0d0100a2564"
+    },
+    {
+      "output": "工程\\我们没有翅膀——格雷塔迦露德与柳木原\\编程组\\工具\\lucifen_vm_micro.py",
+      "sha256": "73deb4be5aceb9b945a97dd6adb7b96a5774bd92544b1aa9ca6d52f7f7acfa00"
+    }
+  ],
+  "source_mapping": {
+    "r-ot-vm-equivalence.json": "R_OT_SOB执行器等价.json",
+    "r-registration-order-verification.json": "R_注册顺序.json",
+    "r-native-linked-references.json": "R_原生引用链接.json",
+    "r-native-link-verification.json": "R_原生链接核验.json",
+    "r-native-argument-word-writers.json": "R_参数写入关系.json",
+    "r-sob-decode-verification.json": "R_SOB指令核验.json",
+    "r-source-interface-reconciliation.json": "R_来源与引用对账.json",
+    "r-loader-abi-disassembly-evidence.json": "R_装载器与ABI依据.json",
+    "ot-r-vm-micro-verification.json": "OT_R_VM微仿真.json",
+    "r-native2-abi-micro-verification.json": "R_原生槽2_ABI微仿真.json",
+    "vm-instruction-budget-verification.json": "VM_次数限制负控.json",
+    "unicorn-install-verification.json": "Unicorn_工具校验.json",
+    "registry-architecture-verification.json": "注册探针_架构守卫.json"
+  },
+  "candidate_receipts": [
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-final-selfcheck",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 48316,
+          "completion_tokens": 4096,
+          "total_tokens": 52412,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 4096,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-jumps",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 458,
+          "completion_tokens": 8192,
+          "total_tokens": 8650,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 8192,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-link-decls-fixed",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 277,
+          "completion_tokens": 596,
+          "total_tokens": 873,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 471,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "3c1b1b1238db5a37588e7863655913824c945bfc44aa3197d778c728968a5389",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-link-native",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 471,
+          "completion_tokens": 8192,
+          "total_tokens": 8663,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 8192,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-link-short",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 374,
+          "completion_tokens": 2560,
+          "total_tokens": 2934,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 2204,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "88d10979ca274dde1a6e9cac34b3050b8dcfccfec1e0284e80c2262daef721c2",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-lucifen-doc-fix",
+      "status": {
+        "result": "no completion receipt; chat-lucifen-doc-fix encountered TLS EOF"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-lucifen-doc-fix2",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 317,
+          "completion_tokens": 777,
+          "total_tokens": 1094,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 526,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "4b50e52968f64276f5be50c91de1f1c108b3b087bf6fe29a675c84edc5b2e9da",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-lucifen-increment",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 358,
+          "completion_tokens": 1068,
+          "total_tokens": 1426,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 761,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "93e9ac3c97623a064f85f5e1b8dd112a80cdcb43ed179f6f7dbfacf08bdc5036",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-map-hist",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 455,
+          "completion_tokens": 4024,
+          "total_tokens": 4479,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 3912,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "a38c96a1c48372038ee8ccb02b63027ecbc37f48ac097afe4f6e8e8d89fc1261",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-module-links",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 513,
+          "completion_tokens": 1123,
+          "total_tokens": 1636,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 944,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "cbea4b932d709e2f78c7f6c31cf83b60e5a12c19c7f73bc7398d4b8ae12a96a7",
+      "candidate_applied": false
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-module-links-fixed",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 504,
+          "completion_tokens": 194,
+          "total_tokens": 698,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 27,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "1983347a5803937903e1e46210dbf67b3e54f299c7865895a67feddaacf9c0b2",
+      "candidate_applied": false
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-native-sites",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 292,
+          "completion_tokens": 651,
+          "total_tokens": 943,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 565,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "ed26b2621031e653332ea77cf82f58e9a4fc503e69874dcf007aa8639fa95960",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-reg-arch",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 232,
+          "completion_tokens": 2048,
+          "total_tokens": 2280,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 2048,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-reg-arch2",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 299,
+          "completion_tokens": 737,
+          "total_tokens": 1036,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 630,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "b2dfa3de4d3126dcb78bc41c55c886977214d6fbe6121e30b83bfd4a2af81ce8",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-reg-candidates",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 617,
+          "completion_tokens": 7269,
+          "total_tokens": 7886,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 6349,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "a1965e5912a202fb9107a8400bd36ff01e88a0aba7c3b3b6fc4d4e3d1cafb94e",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-reg-fixed",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 286,
+          "completion_tokens": 266,
+          "total_tokens": 552,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 160,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "4ef5e413502a6fb2544799ff371a136082e41f1d88ba1fbe199af85a7930dc37",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-reuse-tables",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 375,
+          "completion_tokens": 769,
+          "total_tokens": 1144,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 521,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "c082aba67e44242a684a0616b4a1fe9c18c70b2c39b0ef58b39481542361bac3",
+      "candidate_applied": false
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-skill-increment",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 763,
+          "completion_tokens": 4096,
+          "total_tokens": 4859,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 4096,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-skill-short",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 366,
+          "completion_tokens": 2510,
+          "total_tokens": 2876,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 2302,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "8be05be2c1856ac9d65e215cb4c1fde7ef973fe959506515e1fe9abfba890ec9",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-vm-checks",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 447,
+          "completion_tokens": 351,
+          "total_tokens": 798,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 241,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "0be2e72055f54fe514f1d9c019a78857e22633f883c4931b137ecc241a90d3f9",
+      "candidate_applied": false
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-vm-checks2",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 1212,
+          "completion_tokens": 4096,
+          "total_tokens": 5308,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 4096,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-vm-core",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 610,
+          "completion_tokens": 8192,
+          "total_tokens": 8802,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 8192,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-vm-execute",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 418,
+          "completion_tokens": 3780,
+          "total_tokens": 4198,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 3186,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "df37dd1d20e21ef55455c454fde216d321a9cb93536aabcf97e1ccd4e5f5e024",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-vm-execute-fix",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 319,
+          "completion_tokens": 1226,
+          "total_tokens": 1545,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 1068,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "c3ba606dd9e476c9840ff9a4f1f8b8106aad9ba0771a3a62384c7af0296f5a30",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-vm-map",
+      "status": {
+        "finish_reason": "stop",
+        "usage": {
+          "prompt_tokens": 324,
+          "completion_tokens": 1180,
+          "total_tokens": 1504,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 940,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      },
+      "candidate_sha256": "5cf82e59645c9552a1c0afb9aca3a5aed85a11f0b827a8b91f2598459a3ddd2d",
+      "candidate_applied": true
+    },
+    {
+      "run": "子代理工作区\\ISSUE-20261011-02\\r-native\\chat-vm-micro",
+      "status": {
+        "finish_reason": "length",
+        "usage": {
+          "prompt_tokens": 958,
+          "completion_tokens": 8192,
+          "total_tokens": 9150,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "reasoning_tokens": 8192,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0,
+            "text_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          }
+        },
+        "model": "deepseek/deepseek-v4.1-flash",
+        "reasoning_effort": "high"
+      }
+    }
+  ],
+  "non_applied_failure_types": [
+    "length with reasoning only",
+    "DSML text rather than code",
+    "TLS EOF retry"
+  ],
+  "temporary_source_IR_dependency": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作语义/source_ir.py not merged/reviewed in this phase; containers/statistics are current-tree observations",
+  "original_scene_replay": false,
+  "full_fidelity_goal_completed": false
+}

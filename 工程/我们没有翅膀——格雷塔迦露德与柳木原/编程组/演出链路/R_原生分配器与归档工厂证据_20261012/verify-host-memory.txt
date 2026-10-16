@@ -1,0 +1,40 @@
+from pathlib import Path
+import sys,struct,json
+r=Path.cwd();p=r/'子代理工作区/ISSUE-20261011-02/r-native-allocator-01';sys.path.insert(0,str(r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from lucifen_host_memory import HostMemory
+from lucifen_host_version import host_version_ex_a
+stage=r/'临时/ISSUE-20261011-02/r-host-memory-fixtures-formal-01';stage.mkdir(exist_ok=False)
+cases=[];rejects=0;above32=False
+with HostMemory()as m:
+ for options in(0,1):
+  h=m.heap_create(options,4096,0);assert h!=0
+  for size in(1,16,17,4096,1048576):
+   ptr=m.heap_alloc(h,8,size);assert ptr!=0 and m.size(ptr)==size and m.read(ptr,size)==b'\0'*size
+   above32|=ptr>0xffffffff;data=b'\x5c'*size;m.write(ptr,data);assert m.read(ptr,size)==data
+   try:m.heap_destroy(h)
+   except RuntimeError:rejects+=1
+   else:raise AssertionError('live heap destroyed')
+   assert m.heap_free(h,0,ptr)
+   try:m.read(ptr,1)
+   except ValueError:rejects+=1
+   else:raise AssertionError('freed accepted')
+   cases.append({'api':'HeapAlloc/HeapFree','options':options,'flags':8,'size':size,'zeroed_actual':True,'real_memory_write_read':True})
+  ptr=m.heap_alloc(h,0,65);assert ptr;m.write(ptr,b'\x6d'*65);assert m.read(ptr,65)==b'\x6d'*65;assert m.heap_free(h,0,ptr);assert m.heap_destroy(h);cases.append({'api':'HeapAlloc/HeapFree/HeapDestroy','options':options,'flags':0,'size':65})
+ h=m.heap_create(0,0,0);h2=m.heap_create(0,0,0);ptr=m.heap_alloc(h,0,32);g=m.global_alloc(0,32)
+ for call in(lambda:m.heap_alloc(h,True,16),lambda:m.heap_alloc(h,4,16),lambda:m.heap_alloc(h,0,0),lambda:m.heap_alloc(h,0,1048577),lambda:m.heap_alloc(True,0,16),lambda:m.heap_free(h2,0,ptr),lambda:m.heap_free(h,0,g),lambda:m.global_free(ptr),lambda:m.global_alloc(2,16),lambda:m.global_alloc(0,True),lambda:m.read(ptr,33),lambda:m.write(ptr,b'x'*33),lambda:m.size(True),lambda:m.heap_create(0,0,1)):
+  count=(len(m._blocks),len(m._heaps))
+  try:call()
+  except(ValueError,TypeError):rejects+=1
+  else:raise AssertionError('unsupported accepted')
+  assert(len(m._blocks),len(m._heaps))==count
+ assert m.global_free(g)==0 and m.heap_free(h,0,ptr);assert m.heap_destroy(h)and m.heap_destroy(h2)
+ for size in(1,4096,1048576):
+  ptr=m.global_alloc(0,size);assert ptr and m.size(ptr)==size;data=b'\x73'*size;m.write(ptr,data);assert m.read(ptr,size)==data;assert m.global_free(ptr)==0;cases.append({'api':'GlobalAlloc/GlobalFree','flags':0,'size':size})
+ h=m.heap_create(0,4096,0);m.heap_alloc(h,0,128);m.global_alloc(0,128);m.close_all();assert not m._blocks and not m._heaps;cases.append({'api':'actual close_all','all_ownership_released':True})
+before=struct.pack('<I',148)+b'\0'*144;ok,data,err=host_version_ex_a(before);assert ok and err==0 and len(data)==148;size,major,minor,build,platform=struct.unpack('<5I',data[:20]);assert size==148;version={'major':major,'minor':minor,'build':build,'platform':platform,'observed_from_host_process_manifest':True}
+for bad in(b'',struct.pack('<I',147)+b'\0'*144,bytearray(before)):
+ try:host_version_ex_a(bad)
+ except(ValueError,TypeError):rejects+=1
+ else:raise AssertionError('bad version contract accepted')
+summary={'passed':True,'actual_memory_cases':cases,'unsupported_rejections':rejects,'observed_real_pointer_above_u32':above32,'actual_host_version':version,'scope':'genuine current host64 Windows APIs with registered private heap/fixed global memory, strict unsupported rejection; not original x86 kernel, legacy SBH or forced Windows API failures'}
+(stage/'host-memory-fixtures.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(summary,ensure_ascii=False))

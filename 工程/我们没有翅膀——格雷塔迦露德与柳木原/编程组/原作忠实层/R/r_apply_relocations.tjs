@@ -1,0 +1,6 @@
+function RApplyRelocations(wr, writes) {
+    for (var i = 0; i < writes.count; i++) {
+        var row = writes[i];
+        wr(row[0], row[1]);
+    }
+}

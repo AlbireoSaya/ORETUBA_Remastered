@@ -1,0 +1,17 @@
+@'
+from pathlib import Path
+import sys,importlib.util,json,hashlib,struct
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具'),str(g/'逆向引擎')];from pe_min import PE
+spec=importlib.util.spec_from_file_location('rows',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_instruction_evidence.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE')
+ranges=[(pe.image_base+s['vaddr'],pe.image_base+s['vaddr']+s['rawsize']) for s in pe.sections if s['chars']&0x20000000]
+entries=[0x41e850,0x41e880,0x4249e0,0x4ba6a0,0x4ba7c0,0x4e3620,0x4e3680,0x4e36d0,0x4e3ac0,0x4e3480,0x459dc0,0x459ee0,0x45a710,0x45aff0,0x4541b0,0x4d4880,0x41d920,0x41d860]
+def read(va,n):
+ data=pe.read_rva(va-pe.image_base,n)
+ if data is None or len(data)!=n:raise ValueError('unmapped or truncated PE read')
+ return data
+records=[m.collect_function_rows(read,ranges,entry,entries,10000) for entry in entries]
+assert all(r['instruction_count']==len(r['instructions']) for r in records)
+summary={'entries':len(records),'instruction_rows':sum(len(r['instructions']) for r in records),'direct_edges':sum(len(r['edges']) for r in records),'indirect_gaps':sum(len(r['unresolved']) for r in records),'diagnostics':sum(len(r['diagnostics']) for r in records)}
+root_data={'source':'R original readonly ORETUBAR.EXE','source_sha256':hashlib.sha256(pe.data).hexdigest(),'scope':'local direct CFG plus typed instruction operands; indirect jump tables/calls and exception entry paths remain unresolved, no path feasibility/function ownership claim','summary':summary,'functions':records,'cast7_10_jump_table':dict(zip([7,8,9,10],struct.unpack('<4I',pe.read_rva(0x41d96c-pe.image_base,16))))}
+p=b/'object-function-instruction-evidence.json';assert not p.exists();p.write_text(json.dumps(root_data,indent=2),encoding='utf-8');print(json.dumps(summary))
+'@ | python -X utf8 -B -

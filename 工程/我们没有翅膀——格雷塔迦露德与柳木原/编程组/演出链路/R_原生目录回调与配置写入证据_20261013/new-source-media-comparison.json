@@ -1,0 +1,847 @@
+{
+  "tool": "readonly-tree-compare",
+  "issue": "ISSUE-20261011-02",
+  "note": "仅串行元数据校验：不执行源文件、不联网、不读取配置、不写源树；非 OS sandbox，不保证阻止并发写入；发现 symlink/junction/reparse 即报错，不跳过。",
+  "source_root": "D:\\360安全浏览器下载\\[110624][Navel] 俺たちに翼はない R -Limited Edition- (nrg)\\ORETUBAR",
+  "reference_root": "E:\\ZCode Workspace\\Galgame\\备份\\我们没有翅膀R-安装介质",
+  "source": {
+    "files": {
+      "AUTORUN.INF": {
+        "sha256": "eaa0aea15cb86059249db1ecb44d66f7e81b358ba05b2c0916fcb0c2977e94ef",
+        "size": 122,
+        "mtime_ns": 1302852267000000000
+      },
+      "DSETUP.dll": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      },
+      "DataLink.exe": {
+        "sha256": "aca08cb56c6f53c460f774a6a2f92e73246bd0aad7f13ce21a69fe4f9c4ac33f",
+        "size": 155648,
+        "mtime_ns": 1149346800000000000
+      },
+      "DirectX90c/BDA.cab": {
+        "sha256": "0f3e9859711233a80f4065ee14402d09b893e730c1a4834460af975e7b97e77b",
+        "size": 703080,
+        "mtime_ns": 1089332026000000000
+      },
+      "DirectX90c/BDANT.cab": {
+        "sha256": "7262a0b2963f1240b17d8c7644c09e473f9706022ff3cd2cdab156f29f15b5a4",
+        "size": 1156363,
+        "mtime_ns": 1090245516000000000
+      },
+      "DirectX90c/BDAXP.cab": {
+        "sha256": "fd472360f4d706a838dd934337473ef6aa2f3dd6aaa669456b3aef6d91756a74",
+        "size": 976020,
+        "mtime_ns": 1090245206000000000
+      },
+      "DirectX90c/DSETUP.dll": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      },
+      "DirectX90c/DirectX.cab": {
+        "sha256": "0e8c0ea0a9bc50012fd9286d8941736f8a99d43af10413f9062db7773199efc2",
+        "size": 15493481,
+        "mtime_ns": 1089332028000000000
+      },
+      "DirectX90c/ManagedDX.CAB": {
+        "sha256": "41174c8582039a6c9484634292df28c55ce48c784bb3d9cef16d65ec81fc8a1e",
+        "size": 3432656,
+        "mtime_ns": 1090461094000000000
+      },
+      "DirectX90c/dsetup32.dll": {
+        "sha256": "79ba6d7ef7f8ffeb7cfec21b14003a121314b831e3522c24bb0a581406cc6c9a",
+        "size": 2242560,
+        "mtime_ns": 1089313714000000000
+      },
+      "DirectX90c/dxnt.cab": {
+        "sha256": "1cd52d218757a6108108ed7daa1f96aff4ebcc738888979f74126b983834d579",
+        "size": 13265040,
+        "mtime_ns": 1089350236000000000
+      },
+      "DirectX90c/dxsetup.exe": {
+        "sha256": "37a000d745c65286f029acdc126d355fe8368dee22a38d05be9ece0ffe02f286",
+        "size": 472576,
+        "mtime_ns": 1089313716000000000
+      },
+      "InitInst.exe": {
+        "sha256": "1cc6cac8916381f6cba44165f4f257c65c6df09c7e43b8504fd68f68ccb4e0e6",
+        "size": 53248,
+        "mtime_ns": 1149346800000000000
+      },
+      "ORETUBAR.ID": {
+        "sha256": "4ad37fb7941386ab3c186e9d32aac320fa92170fbcbd6d0229d9008bb35fdc17",
+        "size": 48,
+        "mtime_ns": 1301286391000000000
+      },
+      "READ_ME.TXT": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      },
+      "SET_UP.EXE": {
+        "sha256": "87ed2860de5131fec236150dfa00532cb0ae38f5e557cd141977457d8c72b475",
+        "size": 335872,
+        "mtime_ns": 1302852776000000000
+      },
+      "SET_UP.IFG": {
+        "sha256": "eddb50e18b88beab8fcbdf94d7b64f20a5e64e048d9b0349c080cb98acba8faf",
+        "size": 673,
+        "mtime_ns": 1305103340000000000
+      },
+      "SET_UP/BGM.LPK": {
+        "sha256": "cb40c3d3ade26c6118e8a8bd28140bf037f7ed528c2243da6eaa92fc7564f0ee",
+        "size": 171020515,
+        "mtime_ns": 1303357823000000000
+      },
+      "SET_UP/CHR.LPK": {
+        "sha256": "88cbeffd9ffade801ecea072e9a9ccf38fb47056dbf3cd377d472c486e6f13fb",
+        "size": 306458435,
+        "mtime_ns": 1303702661000000000
+      },
+      "SET_UP/DATA.LPK": {
+        "sha256": "4b05d3732f061f45218183f1bb33982027d0fc90d4739f220f738c8aa86357d0",
+        "size": 352394697,
+        "mtime_ns": 1303358287000000000
+      },
+      "SET_UP/DS_MOVIE.DLL": {
+        "sha256": "7eaad1746376f3a583b5b04c8c75a8dc57c1f0f334c22d21d269077857cc7ebb",
+        "size": 94208,
+        "mtime_ns": 1149174000000000000
+      },
+      "SET_UP/DS_SPRITE.DLL": {
+        "sha256": "8d02ffd1ab33b7f68c8dbe30607ead11d45c1b35774bd3a4d4293840ae0fc433",
+        "size": 118784,
+        "mtime_ns": 1149174000000000000
+      },
+      "SET_UP/ORETUBAR.EXE": {
+        "sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+        "size": 1363968,
+        "mtime_ns": 1305021308000000000
+      },
+      "SET_UP/PIC.LPK": {
+        "sha256": "6e54230a90f1dc8982e217a79a782bd2b64c908e465168712cc61dcd71a49a88",
+        "size": 654098664,
+        "mtime_ns": 1303869483000000000
+      },
+      "SET_UP/READ_ME.TXT": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      },
+      "SET_UP/SCRIPT.LPK": {
+        "sha256": "10a726a3e459894006c1593df053753ee7f3d99736bb8c23dda6e5c724a18701",
+        "size": 4604893,
+        "mtime_ns": 1305103213000000000
+      },
+      "SET_UP/SE.LPK": {
+        "sha256": "51aa693db5fd1e70d8c55d4f5e0065b3002163363c6e584a3ce3e93e32b5b00c",
+        "size": 33729063,
+        "mtime_ns": 1303358409000000000
+      },
+      "SET_UP/SYS.LPK": {
+        "sha256": "bfc3598975e13724144233d477ff67686940beea993245a1570b9e5857d55d16",
+        "size": 116192533,
+        "mtime_ns": 1303698194000000000
+      },
+      "SET_UP/USER.CFG": {
+        "sha256": "ef33b1866f5e83a99b70dee58d386898d11eabed0391d254d99879073b40090d",
+        "size": 111,
+        "mtime_ns": 1304647144000000000
+      },
+      "SET_UP/UserConfig.exe": {
+        "sha256": "033539f783fe2618e6352cd9a1959587af4794af7dc92c131eb7478f2f1377dd",
+        "size": 118784,
+        "mtime_ns": 1149087600000000000
+      },
+      "SET_UP/VOICE.LPK": {
+        "sha256": "fb9065da961b53b8a0c9d45918349b5787dd0d2d9766d1d9260097490c6b132d",
+        "size": 1089063417,
+        "mtime_ns": 1303954557000000000
+      },
+      "SET_UP/tvpgl.dll": {
+        "sha256": "63e9308c2e89445daa1d427c5b5e1ed1ce863111ca722a5f3b6dd966d065a985",
+        "size": 335872,
+        "mtime_ns": 1149174000000000000
+      },
+      "SET_UP/wuvorbis.dll": {
+        "sha256": "302b1eb97ed0f6110904e84c11bf7436e4cdddd414f4d24d105aba687f32b47f",
+        "size": 200704,
+        "mtime_ns": 1124981970000000000
+      },
+      "UNINST.EXE": {
+        "sha256": "209e5fc4450e7738266154731629f340081b37696c10459828b9257f3e2c3a47",
+        "size": 73728,
+        "mtime_ns": 1149346800000000000
+      }
+    },
+    "bytes": 2768305083
+  },
+  "reference": {
+    "files": {
+      "AUTORUN.INF": {
+        "sha256": "eaa0aea15cb86059249db1ecb44d66f7e81b358ba05b2c0916fcb0c2977e94ef",
+        "size": 122,
+        "mtime_ns": 1302852267000000000
+      },
+      "DSETUP.dll": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      },
+      "DataLink.exe": {
+        "sha256": "aca08cb56c6f53c460f774a6a2f92e73246bd0aad7f13ce21a69fe4f9c4ac33f",
+        "size": 155648,
+        "mtime_ns": 1149346800000000000
+      },
+      "DirectX90c/BDA.cab": {
+        "sha256": "0f3e9859711233a80f4065ee14402d09b893e730c1a4834460af975e7b97e77b",
+        "size": 703080,
+        "mtime_ns": 1089332026000000000
+      },
+      "DirectX90c/BDANT.cab": {
+        "sha256": "7262a0b2963f1240b17d8c7644c09e473f9706022ff3cd2cdab156f29f15b5a4",
+        "size": 1156363,
+        "mtime_ns": 1090245516000000000
+      },
+      "DirectX90c/BDAXP.cab": {
+        "sha256": "fd472360f4d706a838dd934337473ef6aa2f3dd6aaa669456b3aef6d91756a74",
+        "size": 976020,
+        "mtime_ns": 1090245206000000000
+      },
+      "DirectX90c/DSETUP.dll": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      },
+      "DirectX90c/DirectX.cab": {
+        "sha256": "0e8c0ea0a9bc50012fd9286d8941736f8a99d43af10413f9062db7773199efc2",
+        "size": 15493481,
+        "mtime_ns": 1089332028000000000
+      },
+      "DirectX90c/ManagedDX.CAB": {
+        "sha256": "41174c8582039a6c9484634292df28c55ce48c784bb3d9cef16d65ec81fc8a1e",
+        "size": 3432656,
+        "mtime_ns": 1090461094000000000
+      },
+      "DirectX90c/dsetup32.dll": {
+        "sha256": "79ba6d7ef7f8ffeb7cfec21b14003a121314b831e3522c24bb0a581406cc6c9a",
+        "size": 2242560,
+        "mtime_ns": 1089313714000000000
+      },
+      "DirectX90c/dxnt.cab": {
+        "sha256": "1cd52d218757a6108108ed7daa1f96aff4ebcc738888979f74126b983834d579",
+        "size": 13265040,
+        "mtime_ns": 1089350236000000000
+      },
+      "DirectX90c/dxsetup.exe": {
+        "sha256": "37a000d745c65286f029acdc126d355fe8368dee22a38d05be9ece0ffe02f286",
+        "size": 472576,
+        "mtime_ns": 1089313716000000000
+      },
+      "InitInst.exe": {
+        "sha256": "1cc6cac8916381f6cba44165f4f257c65c6df09c7e43b8504fd68f68ccb4e0e6",
+        "size": 53248,
+        "mtime_ns": 1149346800000000000
+      },
+      "ORETUBAR.ID": {
+        "sha256": "4ad37fb7941386ab3c186e9d32aac320fa92170fbcbd6d0229d9008bb35fdc17",
+        "size": 48,
+        "mtime_ns": 1301286391000000000
+      },
+      "READ_ME.TXT": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      },
+      "SET_UP.EXE": {
+        "sha256": "87ed2860de5131fec236150dfa00532cb0ae38f5e557cd141977457d8c72b475",
+        "size": 335872,
+        "mtime_ns": 1302852776000000000
+      },
+      "SET_UP.IFG": {
+        "sha256": "eddb50e18b88beab8fcbdf94d7b64f20a5e64e048d9b0349c080cb98acba8faf",
+        "size": 673,
+        "mtime_ns": 1305103340000000000
+      },
+      "SET_UP/BGM.LPK": {
+        "sha256": "cb40c3d3ade26c6118e8a8bd28140bf037f7ed528c2243da6eaa92fc7564f0ee",
+        "size": 171020515,
+        "mtime_ns": 1303357823000000000
+      },
+      "SET_UP/CHR.LPK": {
+        "sha256": "88cbeffd9ffade801ecea072e9a9ccf38fb47056dbf3cd377d472c486e6f13fb",
+        "size": 306458435,
+        "mtime_ns": 1303702661000000000
+      },
+      "SET_UP/DATA.LPK": {
+        "sha256": "4b05d3732f061f45218183f1bb33982027d0fc90d4739f220f738c8aa86357d0",
+        "size": 352394697,
+        "mtime_ns": 1303358287000000000
+      },
+      "SET_UP/DS_MOVIE.DLL": {
+        "sha256": "7eaad1746376f3a583b5b04c8c75a8dc57c1f0f334c22d21d269077857cc7ebb",
+        "size": 94208,
+        "mtime_ns": 1149174000000000000
+      },
+      "SET_UP/DS_SPRITE.DLL": {
+        "sha256": "8d02ffd1ab33b7f68c8dbe30607ead11d45c1b35774bd3a4d4293840ae0fc433",
+        "size": 118784,
+        "mtime_ns": 1149174000000000000
+      },
+      "SET_UP/ORETUBAR.EXE": {
+        "sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+        "size": 1363968,
+        "mtime_ns": 1305021308000000000
+      },
+      "SET_UP/PIC.LPK": {
+        "sha256": "6e54230a90f1dc8982e217a79a782bd2b64c908e465168712cc61dcd71a49a88",
+        "size": 654098664,
+        "mtime_ns": 1303869483000000000
+      },
+      "SET_UP/READ_ME.TXT": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      },
+      "SET_UP/SCRIPT.LPK": {
+        "sha256": "10a726a3e459894006c1593df053753ee7f3d99736bb8c23dda6e5c724a18701",
+        "size": 4604893,
+        "mtime_ns": 1305103213000000000
+      },
+      "SET_UP/SE.LPK": {
+        "sha256": "51aa693db5fd1e70d8c55d4f5e0065b3002163363c6e584a3ce3e93e32b5b00c",
+        "size": 33729063,
+        "mtime_ns": 1303358409000000000
+      },
+      "SET_UP/SYS.LPK": {
+        "sha256": "bfc3598975e13724144233d477ff67686940beea993245a1570b9e5857d55d16",
+        "size": 116192533,
+        "mtime_ns": 1303698194000000000
+      },
+      "SET_UP/USER.CFG": {
+        "sha256": "ef33b1866f5e83a99b70dee58d386898d11eabed0391d254d99879073b40090d",
+        "size": 111,
+        "mtime_ns": 1304647144000000000
+      },
+      "SET_UP/UserConfig.exe": {
+        "sha256": "033539f783fe2618e6352cd9a1959587af4794af7dc92c131eb7478f2f1377dd",
+        "size": 118784,
+        "mtime_ns": 1149087600000000000
+      },
+      "SET_UP/VOICE.LPK": {
+        "sha256": "fb9065da961b53b8a0c9d45918349b5787dd0d2d9766d1d9260097490c6b132d",
+        "size": 1089063417,
+        "mtime_ns": 1303954557000000000
+      },
+      "SET_UP/tvpgl.dll": {
+        "sha256": "63e9308c2e89445daa1d427c5b5e1ed1ce863111ca722a5f3b6dd966d065a985",
+        "size": 335872,
+        "mtime_ns": 1149174000000000000
+      },
+      "SET_UP/wuvorbis.dll": {
+        "sha256": "302b1eb97ed0f6110904e84c11bf7436e4cdddd414f4d24d105aba687f32b47f",
+        "size": 200704,
+        "mtime_ns": 1124981970000000000
+      },
+      "UNINST.EXE": {
+        "sha256": "209e5fc4450e7738266154731629f340081b37696c10459828b9257f3e2c3a47",
+        "size": 73728,
+        "mtime_ns": 1149346800000000000
+      }
+    },
+    "bytes": 2768305083
+  },
+  "comparison": [
+    {
+      "path": "AUTORUN.INF",
+      "status": "identical",
+      "source": {
+        "sha256": "eaa0aea15cb86059249db1ecb44d66f7e81b358ba05b2c0916fcb0c2977e94ef",
+        "size": 122,
+        "mtime_ns": 1302852267000000000
+      },
+      "reference": {
+        "sha256": "eaa0aea15cb86059249db1ecb44d66f7e81b358ba05b2c0916fcb0c2977e94ef",
+        "size": 122,
+        "mtime_ns": 1302852267000000000
+      }
+    },
+    {
+      "path": "DSETUP.dll",
+      "status": "identical",
+      "source": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      },
+      "reference": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      }
+    },
+    {
+      "path": "DataLink.exe",
+      "status": "identical",
+      "source": {
+        "sha256": "aca08cb56c6f53c460f774a6a2f92e73246bd0aad7f13ce21a69fe4f9c4ac33f",
+        "size": 155648,
+        "mtime_ns": 1149346800000000000
+      },
+      "reference": {
+        "sha256": "aca08cb56c6f53c460f774a6a2f92e73246bd0aad7f13ce21a69fe4f9c4ac33f",
+        "size": 155648,
+        "mtime_ns": 1149346800000000000
+      }
+    },
+    {
+      "path": "DirectX90c/BDA.cab",
+      "status": "identical",
+      "source": {
+        "sha256": "0f3e9859711233a80f4065ee14402d09b893e730c1a4834460af975e7b97e77b",
+        "size": 703080,
+        "mtime_ns": 1089332026000000000
+      },
+      "reference": {
+        "sha256": "0f3e9859711233a80f4065ee14402d09b893e730c1a4834460af975e7b97e77b",
+        "size": 703080,
+        "mtime_ns": 1089332026000000000
+      }
+    },
+    {
+      "path": "DirectX90c/BDANT.cab",
+      "status": "identical",
+      "source": {
+        "sha256": "7262a0b2963f1240b17d8c7644c09e473f9706022ff3cd2cdab156f29f15b5a4",
+        "size": 1156363,
+        "mtime_ns": 1090245516000000000
+      },
+      "reference": {
+        "sha256": "7262a0b2963f1240b17d8c7644c09e473f9706022ff3cd2cdab156f29f15b5a4",
+        "size": 1156363,
+        "mtime_ns": 1090245516000000000
+      }
+    },
+    {
+      "path": "DirectX90c/BDAXP.cab",
+      "status": "identical",
+      "source": {
+        "sha256": "fd472360f4d706a838dd934337473ef6aa2f3dd6aaa669456b3aef6d91756a74",
+        "size": 976020,
+        "mtime_ns": 1090245206000000000
+      },
+      "reference": {
+        "sha256": "fd472360f4d706a838dd934337473ef6aa2f3dd6aaa669456b3aef6d91756a74",
+        "size": 976020,
+        "mtime_ns": 1090245206000000000
+      }
+    },
+    {
+      "path": "DirectX90c/DSETUP.dll",
+      "status": "identical",
+      "source": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      },
+      "reference": {
+        "sha256": "ad672597c675a160dbc9b5321c4b1720f05e11af22fb8723ab93d0510bab4e01",
+        "size": 62976,
+        "mtime_ns": 1089309790000000000
+      }
+    },
+    {
+      "path": "DirectX90c/DirectX.cab",
+      "status": "identical",
+      "source": {
+        "sha256": "0e8c0ea0a9bc50012fd9286d8941736f8a99d43af10413f9062db7773199efc2",
+        "size": 15493481,
+        "mtime_ns": 1089332028000000000
+      },
+      "reference": {
+        "sha256": "0e8c0ea0a9bc50012fd9286d8941736f8a99d43af10413f9062db7773199efc2",
+        "size": 15493481,
+        "mtime_ns": 1089332028000000000
+      }
+    },
+    {
+      "path": "DirectX90c/ManagedDX.CAB",
+      "status": "identical",
+      "source": {
+        "sha256": "41174c8582039a6c9484634292df28c55ce48c784bb3d9cef16d65ec81fc8a1e",
+        "size": 3432656,
+        "mtime_ns": 1090461094000000000
+      },
+      "reference": {
+        "sha256": "41174c8582039a6c9484634292df28c55ce48c784bb3d9cef16d65ec81fc8a1e",
+        "size": 3432656,
+        "mtime_ns": 1090461094000000000
+      }
+    },
+    {
+      "path": "DirectX90c/dsetup32.dll",
+      "status": "identical",
+      "source": {
+        "sha256": "79ba6d7ef7f8ffeb7cfec21b14003a121314b831e3522c24bb0a581406cc6c9a",
+        "size": 2242560,
+        "mtime_ns": 1089313714000000000
+      },
+      "reference": {
+        "sha256": "79ba6d7ef7f8ffeb7cfec21b14003a121314b831e3522c24bb0a581406cc6c9a",
+        "size": 2242560,
+        "mtime_ns": 1089313714000000000
+      }
+    },
+    {
+      "path": "DirectX90c/dxnt.cab",
+      "status": "identical",
+      "source": {
+        "sha256": "1cd52d218757a6108108ed7daa1f96aff4ebcc738888979f74126b983834d579",
+        "size": 13265040,
+        "mtime_ns": 1089350236000000000
+      },
+      "reference": {
+        "sha256": "1cd52d218757a6108108ed7daa1f96aff4ebcc738888979f74126b983834d579",
+        "size": 13265040,
+        "mtime_ns": 1089350236000000000
+      }
+    },
+    {
+      "path": "DirectX90c/dxsetup.exe",
+      "status": "identical",
+      "source": {
+        "sha256": "37a000d745c65286f029acdc126d355fe8368dee22a38d05be9ece0ffe02f286",
+        "size": 472576,
+        "mtime_ns": 1089313716000000000
+      },
+      "reference": {
+        "sha256": "37a000d745c65286f029acdc126d355fe8368dee22a38d05be9ece0ffe02f286",
+        "size": 472576,
+        "mtime_ns": 1089313716000000000
+      }
+    },
+    {
+      "path": "InitInst.exe",
+      "status": "identical",
+      "source": {
+        "sha256": "1cc6cac8916381f6cba44165f4f257c65c6df09c7e43b8504fd68f68ccb4e0e6",
+        "size": 53248,
+        "mtime_ns": 1149346800000000000
+      },
+      "reference": {
+        "sha256": "1cc6cac8916381f6cba44165f4f257c65c6df09c7e43b8504fd68f68ccb4e0e6",
+        "size": 53248,
+        "mtime_ns": 1149346800000000000
+      }
+    },
+    {
+      "path": "ORETUBAR.ID",
+      "status": "identical",
+      "source": {
+        "sha256": "4ad37fb7941386ab3c186e9d32aac320fa92170fbcbd6d0229d9008bb35fdc17",
+        "size": 48,
+        "mtime_ns": 1301286391000000000
+      },
+      "reference": {
+        "sha256": "4ad37fb7941386ab3c186e9d32aac320fa92170fbcbd6d0229d9008bb35fdc17",
+        "size": 48,
+        "mtime_ns": 1301286391000000000
+      }
+    },
+    {
+      "path": "READ_ME.TXT",
+      "status": "identical",
+      "source": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      },
+      "reference": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      }
+    },
+    {
+      "path": "SET_UP.EXE",
+      "status": "identical",
+      "source": {
+        "sha256": "87ed2860de5131fec236150dfa00532cb0ae38f5e557cd141977457d8c72b475",
+        "size": 335872,
+        "mtime_ns": 1302852776000000000
+      },
+      "reference": {
+        "sha256": "87ed2860de5131fec236150dfa00532cb0ae38f5e557cd141977457d8c72b475",
+        "size": 335872,
+        "mtime_ns": 1302852776000000000
+      }
+    },
+    {
+      "path": "SET_UP.IFG",
+      "status": "identical",
+      "source": {
+        "sha256": "eddb50e18b88beab8fcbdf94d7b64f20a5e64e048d9b0349c080cb98acba8faf",
+        "size": 673,
+        "mtime_ns": 1305103340000000000
+      },
+      "reference": {
+        "sha256": "eddb50e18b88beab8fcbdf94d7b64f20a5e64e048d9b0349c080cb98acba8faf",
+        "size": 673,
+        "mtime_ns": 1305103340000000000
+      }
+    },
+    {
+      "path": "SET_UP/BGM.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "cb40c3d3ade26c6118e8a8bd28140bf037f7ed528c2243da6eaa92fc7564f0ee",
+        "size": 171020515,
+        "mtime_ns": 1303357823000000000
+      },
+      "reference": {
+        "sha256": "cb40c3d3ade26c6118e8a8bd28140bf037f7ed528c2243da6eaa92fc7564f0ee",
+        "size": 171020515,
+        "mtime_ns": 1303357823000000000
+      }
+    },
+    {
+      "path": "SET_UP/CHR.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "88cbeffd9ffade801ecea072e9a9ccf38fb47056dbf3cd377d472c486e6f13fb",
+        "size": 306458435,
+        "mtime_ns": 1303702661000000000
+      },
+      "reference": {
+        "sha256": "88cbeffd9ffade801ecea072e9a9ccf38fb47056dbf3cd377d472c486e6f13fb",
+        "size": 306458435,
+        "mtime_ns": 1303702661000000000
+      }
+    },
+    {
+      "path": "SET_UP/DATA.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "4b05d3732f061f45218183f1bb33982027d0fc90d4739f220f738c8aa86357d0",
+        "size": 352394697,
+        "mtime_ns": 1303358287000000000
+      },
+      "reference": {
+        "sha256": "4b05d3732f061f45218183f1bb33982027d0fc90d4739f220f738c8aa86357d0",
+        "size": 352394697,
+        "mtime_ns": 1303358287000000000
+      }
+    },
+    {
+      "path": "SET_UP/DS_MOVIE.DLL",
+      "status": "identical",
+      "source": {
+        "sha256": "7eaad1746376f3a583b5b04c8c75a8dc57c1f0f334c22d21d269077857cc7ebb",
+        "size": 94208,
+        "mtime_ns": 1149174000000000000
+      },
+      "reference": {
+        "sha256": "7eaad1746376f3a583b5b04c8c75a8dc57c1f0f334c22d21d269077857cc7ebb",
+        "size": 94208,
+        "mtime_ns": 1149174000000000000
+      }
+    },
+    {
+      "path": "SET_UP/DS_SPRITE.DLL",
+      "status": "identical",
+      "source": {
+        "sha256": "8d02ffd1ab33b7f68c8dbe30607ead11d45c1b35774bd3a4d4293840ae0fc433",
+        "size": 118784,
+        "mtime_ns": 1149174000000000000
+      },
+      "reference": {
+        "sha256": "8d02ffd1ab33b7f68c8dbe30607ead11d45c1b35774bd3a4d4293840ae0fc433",
+        "size": 118784,
+        "mtime_ns": 1149174000000000000
+      }
+    },
+    {
+      "path": "SET_UP/ORETUBAR.EXE",
+      "status": "identical",
+      "source": {
+        "sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+        "size": 1363968,
+        "mtime_ns": 1305021308000000000
+      },
+      "reference": {
+        "sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+        "size": 1363968,
+        "mtime_ns": 1305021308000000000
+      }
+    },
+    {
+      "path": "SET_UP/PIC.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "6e54230a90f1dc8982e217a79a782bd2b64c908e465168712cc61dcd71a49a88",
+        "size": 654098664,
+        "mtime_ns": 1303869483000000000
+      },
+      "reference": {
+        "sha256": "6e54230a90f1dc8982e217a79a782bd2b64c908e465168712cc61dcd71a49a88",
+        "size": 654098664,
+        "mtime_ns": 1303869483000000000
+      }
+    },
+    {
+      "path": "SET_UP/READ_ME.TXT",
+      "status": "identical",
+      "source": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      },
+      "reference": {
+        "sha256": "01699e92bacd9ddc8b216d918f220dc8a84e57341ae895a5700d87a46a42e77c",
+        "size": 11684,
+        "mtime_ns": 1302851093000000000
+      }
+    },
+    {
+      "path": "SET_UP/SCRIPT.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "10a726a3e459894006c1593df053753ee7f3d99736bb8c23dda6e5c724a18701",
+        "size": 4604893,
+        "mtime_ns": 1305103213000000000
+      },
+      "reference": {
+        "sha256": "10a726a3e459894006c1593df053753ee7f3d99736bb8c23dda6e5c724a18701",
+        "size": 4604893,
+        "mtime_ns": 1305103213000000000
+      }
+    },
+    {
+      "path": "SET_UP/SE.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "51aa693db5fd1e70d8c55d4f5e0065b3002163363c6e584a3ce3e93e32b5b00c",
+        "size": 33729063,
+        "mtime_ns": 1303358409000000000
+      },
+      "reference": {
+        "sha256": "51aa693db5fd1e70d8c55d4f5e0065b3002163363c6e584a3ce3e93e32b5b00c",
+        "size": 33729063,
+        "mtime_ns": 1303358409000000000
+      }
+    },
+    {
+      "path": "SET_UP/SYS.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "bfc3598975e13724144233d477ff67686940beea993245a1570b9e5857d55d16",
+        "size": 116192533,
+        "mtime_ns": 1303698194000000000
+      },
+      "reference": {
+        "sha256": "bfc3598975e13724144233d477ff67686940beea993245a1570b9e5857d55d16",
+        "size": 116192533,
+        "mtime_ns": 1303698194000000000
+      }
+    },
+    {
+      "path": "SET_UP/USER.CFG",
+      "status": "identical",
+      "source": {
+        "sha256": "ef33b1866f5e83a99b70dee58d386898d11eabed0391d254d99879073b40090d",
+        "size": 111,
+        "mtime_ns": 1304647144000000000
+      },
+      "reference": {
+        "sha256": "ef33b1866f5e83a99b70dee58d386898d11eabed0391d254d99879073b40090d",
+        "size": 111,
+        "mtime_ns": 1304647144000000000
+      }
+    },
+    {
+      "path": "SET_UP/UserConfig.exe",
+      "status": "identical",
+      "source": {
+        "sha256": "033539f783fe2618e6352cd9a1959587af4794af7dc92c131eb7478f2f1377dd",
+        "size": 118784,
+        "mtime_ns": 1149087600000000000
+      },
+      "reference": {
+        "sha256": "033539f783fe2618e6352cd9a1959587af4794af7dc92c131eb7478f2f1377dd",
+        "size": 118784,
+        "mtime_ns": 1149087600000000000
+      }
+    },
+    {
+      "path": "SET_UP/VOICE.LPK",
+      "status": "identical",
+      "source": {
+        "sha256": "fb9065da961b53b8a0c9d45918349b5787dd0d2d9766d1d9260097490c6b132d",
+        "size": 1089063417,
+        "mtime_ns": 1303954557000000000
+      },
+      "reference": {
+        "sha256": "fb9065da961b53b8a0c9d45918349b5787dd0d2d9766d1d9260097490c6b132d",
+        "size": 1089063417,
+        "mtime_ns": 1303954557000000000
+      }
+    },
+    {
+      "path": "SET_UP/tvpgl.dll",
+      "status": "identical",
+      "source": {
+        "sha256": "63e9308c2e89445daa1d427c5b5e1ed1ce863111ca722a5f3b6dd966d065a985",
+        "size": 335872,
+        "mtime_ns": 1149174000000000000
+      },
+      "reference": {
+        "sha256": "63e9308c2e89445daa1d427c5b5e1ed1ce863111ca722a5f3b6dd966d065a985",
+        "size": 335872,
+        "mtime_ns": 1149174000000000000
+      }
+    },
+    {
+      "path": "SET_UP/wuvorbis.dll",
+      "status": "identical",
+      "source": {
+        "sha256": "302b1eb97ed0f6110904e84c11bf7436e4cdddd414f4d24d105aba687f32b47f",
+        "size": 200704,
+        "mtime_ns": 1124981970000000000
+      },
+      "reference": {
+        "sha256": "302b1eb97ed0f6110904e84c11bf7436e4cdddd414f4d24d105aba687f32b47f",
+        "size": 200704,
+        "mtime_ns": 1124981970000000000
+      }
+    },
+    {
+      "path": "UNINST.EXE",
+      "status": "identical",
+      "source": {
+        "sha256": "209e5fc4450e7738266154731629f340081b37696c10459828b9257f3e2c3a47",
+        "size": 73728,
+        "mtime_ns": 1149346800000000000
+      },
+      "reference": {
+        "sha256": "209e5fc4450e7738266154731629f340081b37696c10459828b9257f3e2c3a47",
+        "size": 73728,
+        "mtime_ns": 1149346800000000000
+      }
+    }
+  ],
+  "summary": {
+    "source_files": 34,
+    "source_bytes": 2768305083,
+    "reference_files": 34,
+    "reference_bytes": 2768305083,
+    "identical": 34,
+    "changed": 0,
+    "size_different": 0,
+    "hash_different": 0,
+    "source_only": 0,
+    "reference_only": 0
+  }
+}

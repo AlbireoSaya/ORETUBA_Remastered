@@ -1,0 +1,57 @@
+{
+  "actual_original_request_events": [
+    {
+      "original_api": "GetCursorPos",
+      "original_return_address": 4556426,
+      "original_arguments": [
+        33583436
+      ],
+      "actual_result": 1,
+      "actual_error": 0,
+      "actual_buffer_values": [
+        960,
+        516
+      ],
+      "both_guards_unchanged": true,
+      "no_guest_pointer_passed_to_OS": true
+    },
+    {
+      "original_api": "SetCursorPos",
+      "original_return_address": 4556442,
+      "original_arguments": [
+        960,
+        516
+      ],
+      "actual_result": 0,
+      "actual_error": 0,
+      "actual_target_signed": [
+        960,
+        516
+      ],
+      "no_guest_pointer_passed_to_OS": true,
+      "no_keyboard_or_mouse_button_injection": true
+    }
+  ],
+  "next_EIP": 1210098,
+  "next_import": "ResetEvent",
+  "failure": "UcError",
+  "stack12": [
+    5264013,
+    1761607680,
+    33569988,
+    5212620,
+    33569988,
+    5213103,
+    33584608,
+    33570060,
+    33570024,
+    1,
+    33584560,
+    5338776
+  ],
+  "pending_IME": [],
+  "pending_window": [],
+  "window_callback_errors": [],
+  "original_5357E4_preserved": 119349376,
+  "not_original_GameInit_or_render_proof": true
+}

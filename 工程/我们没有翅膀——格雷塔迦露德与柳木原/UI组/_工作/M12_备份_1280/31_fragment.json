@@ -1,0 +1,226 @@
+{
+  "id": "fragment",
+  "title_cn": "番外（Fragment）选择",
+  "owner": "M4",
+  "note": "**空壳框架**（用户 2026-09-19 定位：类似《交汇协奏曲》《月影魅像 解放之羽》的 Fragment 系统，暂不加实质剧情内容，未来再更改）。本屏只做：碎片格阵 + 未解锁态 + 收集计数 + 详情栏 + 进入键 + 返回。组名与条数取自 资源组\\剧本\\spine.json 的 side_stories[]（53 条 / 6 组）；**碎片标题与剧情字段一律留空**，格内文字为「待填充」占位，解锁条件与内容待后续填充。碎片格用 UI 组自制九宫格边框件 ui/panel_frame.png + 引擎绘字；未解锁态用 @palette.text_disabled / @palette.node_locked。",
+  "elements": [
+    {
+      "id": "fragment.bg_base", "kind": "rect", "z": 0, "visible_default": true,
+      "x": 0, "y": 0, "w": 1280, "h": 720,
+      "color": "@palette.letterbox", "opacity": 255,
+      "note": "画布底色（黑）"
+    },
+    {
+      "id": "fragment.title", "kind": "text", "z": 20, "visible_default": true,
+      "x": 0, "y": 26, "w": 1280, "h": 46,
+      "font": { "size": 40, "bold": true, "color": "@palette.text_title", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 3 },
+      "align": "center", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "番外（Fragment）",
+      "note": "屏标题（引擎绘制）"
+    },
+    {
+      "id": "fragment.sub", "kind": "text", "z": 20, "visible_default": true,
+      "x": 0, "y": 74, "w": 1280, "h": 24,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_small", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "6 组 ｜ 碎片标题与剧情内容待后续填充（本屏为空壳框架）",
+      "note": "副标题：组数与「待后续填充」声明（组数取自 spine.json side_stories[] 的 group 去重）"
+    },
+    {
+      "id": "fragment.count", "kind": "text", "z": 30, "visible_default": true,
+      "x": 0, "y": 98, "w": 1280, "h": 26,
+      "font": { "size": 18, "bold": false, "color": "@palette.accent", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "已收集 0 / 53",
+      "note": "收集计数（运行期由 ui_fragment.tjs 按已收集集合改写；总数 53 = spine.json side_stories[] 条数）"
+    },
+    {
+      "id": "fragment.g1_label", "kind": "text", "z": 30, "visible_default": true,
+      "x": 56, "y": 124, "w": 300, "h": 56,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_hint", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": true, "max_lines": 2,
+      "sample": "番外·阿雷克桑德平安夜（おっぱい系列）　7 片",
+      "note": "第 1 组组名 + 条数（取自 spine.json side_stories[].group）"
+    },
+    {
+      "id": "fragment.g1_grid", "kind": "list", "z": 30, "visible_default": true,
+      "orientation": "h", "x": 372, "y": 124, "w": 900,
+      "item_w": 42, "item_h": 56, "gap": 3, "max_cols": 7,
+      "labels": ["待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充"],
+      "actions": ["fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter"],
+      "font": { "size": 16, "bold": false, "color": "@palette.text_disabled", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 190 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；格内标签为「待填充」占位（内容待后续填充）",
+      "note": "第 1 组碎片格阵（7 片；横向 1 页）。格内文字为占位，未解锁态由 ui_fragment.tjs 用 @palette.node_locked / @palette.text_disabled 着色"
+    },
+    {
+      "id": "fragment.g2_label", "kind": "text", "z": 30, "visible_default": true,
+      "x": 56, "y": 196, "w": 300, "h": 56,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_hint", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": true, "max_lines": 2,
+      "sample": "番外·苍女X日　7 片",
+      "note": "第 2 组组名 + 条数"
+    },
+    {
+      "id": "fragment.g2_grid", "kind": "list", "z": 30, "visible_default": true,
+      "orientation": "h", "x": 372, "y": 196, "w": 900,
+      "item_w": 42, "item_h": 56, "gap": 3, "max_cols": 7,
+      "labels": ["待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充"],
+      "actions": ["fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter"],
+      "font": { "size": 16, "bold": false, "color": "@palette.text_disabled", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 190 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；格内标签为「待填充」占位",
+      "note": "第 2 组碎片格阵（7 片）"
+    },
+    {
+      "id": "fragment.g3_label", "kind": "text", "z": 30, "visible_default": true,
+      "x": 56, "y": 268, "w": 300, "h": 56,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_hint", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": true, "max_lines": 2,
+      "sample": "番外·各线 after　4 片",
+      "note": "第 3 组组名 + 条数"
+    },
+    {
+      "id": "fragment.g3_grid", "kind": "list", "z": 30, "visible_default": true,
+      "orientation": "h", "x": 372, "y": 268, "w": 900,
+      "item_w": 42, "item_h": 56, "gap": 3, "max_cols": 4,
+      "labels": ["待填充", "待填充", "待填充", "待填充"],
+      "actions": ["fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter"],
+      "font": { "size": 16, "bold": false, "color": "@palette.text_disabled", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 190 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；格内标签为「待填充」占位",
+      "note": "第 3 组碎片格阵（4 片）"
+    },
+    {
+      "id": "fragment.g4_label", "kind": "text", "z": 30, "visible_default": true,
+      "x": 56, "y": 340, "w": 300, "h": 56,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_hint", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": true, "max_lines": 2,
+      "sample": "番外·群像（新年行军 / 格兰玛尼耶）　10 片",
+      "note": "第 4 组组名 + 条数"
+    },
+    {
+      "id": "fragment.g4_grid", "kind": "list", "z": 30, "visible_default": true,
+      "orientation": "h", "x": 372, "y": 340, "w": 900,
+      "item_w": 42, "item_h": 56, "gap": 3, "max_cols": 10,
+      "labels": ["待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充"],
+      "actions": ["fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter"],
+      "font": { "size": 16, "bold": false, "color": "@palette.text_disabled", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 190 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；格内标签为「待填充」占位",
+      "note": "第 4 组碎片格阵（10 片）"
+    },
+    {
+      "id": "fragment.g5_label", "kind": "text", "z": 30, "visible_default": true,
+      "x": 56, "y": 412, "w": 300, "h": 56,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_hint", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": true, "max_lines": 2,
+      "sample": "番外·おれつば剧场　5 片",
+      "note": "第 5 组组名 + 条数"
+    },
+    {
+      "id": "fragment.g5_grid", "kind": "list", "z": 30, "visible_default": true,
+      "orientation": "h", "x": 372, "y": 412, "w": 900,
+      "item_w": 42, "item_h": 56, "gap": 3, "max_cols": 5,
+      "labels": ["待填充", "待填充", "待填充", "待填充", "待填充"],
+      "actions": ["fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter"],
+      "font": { "size": 16, "bold": false, "color": "@palette.text_disabled", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 190 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；格内标签为「待填充」占位",
+      "note": "第 5 组碎片格阵（5 片）"
+    },
+    {
+      "id": "fragment.g6_label", "kind": "text", "z": 30, "visible_default": true,
+      "x": 56, "y": 484, "w": 300, "h": 56,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_hint", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": true, "max_lines": 2,
+      "sample": "番外·おまけ（成人向）　20 片",
+      "note": "第 6 组组名 + 条数（组名与条数取自 spine.json，非 M4 自造）"
+    },
+    {
+      "id": "fragment.g6_grid", "kind": "list", "z": 30, "visible_default": true,
+      "orientation": "h", "x": 372, "y": 484, "w": 900,
+      "item_w": 42, "item_h": 56, "gap": 3, "max_cols": 20,
+      "labels": ["待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充", "待填充"],
+      "actions": ["fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter", "fragment_enter"],
+      "font": { "size": 16, "bold": false, "color": "@palette.text_disabled", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 190 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；格内标签为「待填充」占位",
+      "note": "第 6 组碎片格阵（20 片，一屏 20 列 = 20 列 × 42px + 19 × 3px = 897px，容于 900px）"
+    },
+    {
+      "id": "fragment.detail_fill", "kind": "rect", "z": 24, "visible_default": true,
+      "x": 56, "y": 552, "w": 1168, "h": 72,
+      "color": "@palette.panel_fill", "opacity": "@palette.panel_fill_opa",
+      "note": "详情栏填充"
+    },
+    {
+      "id": "fragment.detail_frame", "kind": "image", "z": 25, "visible_default": true,
+      "asset": "ui/panel_frame.png", "x": 56, "y": 552, "w": 1168, "h": 72,
+      "nine": { "l": 13, "t": 5, "r": 13, "b": 5 },
+      "opacity": 235,
+      "source": "UI 组自制（由 资源组\\美术统一\\系统UI\\if_* 八件拼合的九宫格边框）",
+      "note": "详情栏边框（九宫格）"
+    },
+    {
+      "id": "fragment.detail_title", "kind": "text", "z": 30, "visible_default": true,
+      "x": 76, "y": 560, "w": 1128, "h": 26,
+      "font": { "size": 18, "bold": true, "color": "@palette.text_title", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "碎片详情：未选择",
+      "note": "详情栏标题（运行期改写为「组名 / 第 N 片」，**内容字段留空**）"
+    },
+    {
+      "id": "fragment.detail_body", "kind": "text", "z": 30, "visible_default": true,
+      "x": 76, "y": 588, "w": 1128, "h": 28,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_disabled", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": false, "max_lines": 1,
+      "sample": "内容待后续填充（本屏为空壳框架：碎片标题 / 剧情 / 解锁条件均留空）",
+      "note": "详情栏正文（**固定为「待后续填充」说明**，不写任何剧情）"
+    },
+    {
+      "id": "fragment.hit_enter", "kind": "hit", "z": 40, "visible_default": true,
+      "x": 760, "y": 638, "w": 228, "h": 48,
+      "action": "fragment_enter", "label": "进入碎片",
+      "font": { "size": 22, "bold": true, "color": "@palette.text_menu", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；标签由引擎绘制",
+      "note": "进入键（未解锁碎片由 ui_fragment.tjs 拒绝进入并给出原因）"
+    },
+    {
+      "id": "fragment.hit_back", "kind": "hit", "z": 40, "visible_default": true,
+      "x": 1004, "y": 638, "w": 228, "h": 48,
+      "action": "close", "label": "返回",
+      "font": { "size": 22, "bold": false, "color": "@palette.text_menu", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png；标签由引擎绘制",
+      "note": "返回键（action=close）"
+    },
+    {
+      "id": "fragment.hint", "kind": "text", "z": 40, "visible_default": true,
+      "x": 56, "y": 638, "w": 680, "h": 48,
+      "font": { "size": 16, "bold": false, "color": "@palette.text_hint", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "left", "valign": "middle", "wrap": true, "max_lines": 2,
+      "sample": "←→↑↓ / 点击 选择碎片　Enter 进入　Esc 返回　（未解锁碎片不可进入）",
+      "note": "操作提示"
+    }
+  ]
+}

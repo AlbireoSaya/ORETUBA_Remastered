@@ -1,0 +1,337 @@
+// ============================================================
+// reach_assert_quickbar.tjs —— 竖排快捷条「端到端可达性」断言（★ B4 · M2 · ISSUE-20260922-28）
+//
+// 为什么要它：本轮唯一的**阻断项**是「把手热区（z=96、w78 覆盖 12 项）把 12 个项压死，
+//   展开态点任何位置都派发 open_sysmenu」。数据层已给把手加 `vis_when=collapsed` 修掉，
+//   但**只有断言能锁住**「点第 N 项真的派发第 N 项」——本脚本就是这条锁。
+//
+// 断言（展开态 12 项）：
+//   (a) 取该项几何中心 → 走**真实点击链** uiScreenClick() → 胜出元素 id == 该项自身
+//       （胜者由 ui_screens.tjs 的 uiScreenAttachClick 写入 UIScrAttachHitId，不复制命中逻辑）；
+//   (b) 返回的 action == 该项数据里的 action（且 != open_sysmenu / 不等于把手动作）；
+//   (c) 折叠态反向断言：12 项全部不可见，整条只手热区胜出且 action = open_sysmenu。
+//   最后对 12 个 action 各走一次 uiActionDispatch，确认动作表都 handled；
+//   F1 追加：气泡 key 集判据（`vis_flag == reveal.tip_flag && vis_when != "*"`，与 HTML
+//   `复刻/replica.js:1333-1338` 同句）与实现谓词 uiScreenRevealKeyKnown() 双向对拍。
+//
+// 复跑命令（脚本与启动器都留在 _工作\ISSUE-20260922-28_M2_证据\，可重复执行）：
+//   cd "工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M2_证据"
+//   run_reach_assert.bat
+//   然后 grep [REACH] 于 <wt-ui26>\临时\ui_run_quickbar\runtime\savedata\krkr.console.log
+// ============================================================
+
+// 让本脚本被 startup.tjs 当作 quick_flags.tjs 执行时**不**强制任何 flag ——
+//   本断言要自己驱动展开/收起两条路径（强制展开只用于出图验收）。
+//   （UIScrFlagForce 保持空 ⇒ 走真实交互逻辑）
+
+var UISeReachPass = 0;
+var UISeReachFail = 0;
+var UISeReachStep = 0;
+var UISeReachTimer = null;
+var UISeReachItems = [];      // 12 项：%[ id:, cx:, cy:, act: ]
+var UISeReachToggle = null;   // 把手热区元素
+
+function uiReachLog(tag, ok, detail)
+{
+	if(ok === true) UISeReachPass++;
+	if(ok === false) UISeReachFail++;
+	Debug.message("[REACH] " + ((ok === true) ? "PASS" : ((ok === false) ? "**FAIL**" : "INFO"))
+		+ " " + tag + " | " + detail);
+}
+
+function uiReachAttachScreen()
+{
+	var aid = uiScreenAttachIdCurrent();
+	if(aid == "") return null;
+	return UILayoutData.screens[aid];
+}
+
+// 收集展开态可见的 hit 项（= 12 个 quick.hit_*）与把手热区（vis_when=collapsed 那件）
+function uiReachCollect()
+{
+	UISeReachItems = [];
+	UISeReachToggle = null;
+	var sc = uiReachAttachScreen();
+	if(sc === null) { uiReachLog("collect", false, "当前屏无附加层"); return; }
+	var els = sc.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null || el.kind != "hit") continue;
+		var id = "" + el.id;
+		var key = uiScreenRevealKeyOfId(id);
+		var r = uiWidgetRect(el);
+		var cx = r.x + Math.floor(r.w / 2);
+		var cy = r.y + Math.floor(r.h / 2);
+		var act = (el.action === void || el.action === null) ? "" : ("" + el.action);
+		if(uiScreenElementVisible(el) && key != "" && uiScreenRevealKeyKnown(sc, key))
+			UISeReachItems.push(%[ id: id, cx: cx, cy: cy, act: act, key: key ]);
+		else if(!uiScreenElementVisible(el))
+			UISeReachToggle = %[ id: id, cx: cx, cy: cy, act: act, key: key ];
+	}
+	uiReachLog("collect", null, "附加层 = " + sc.id
+		+ " ｜ 展开态可见项 = " + UISeReachItems.count
+		+ " ｜ 不可见（收起态专属）热区 = " + ((UISeReachToggle === null) ? "(无)" : UISeReachToggle.id));
+	uiReachLog("collect-count", (UISeReachItems.count == 12),
+		"期望 12 项，实为 " + UISeReachItems.count);
+}
+
+// 逐项断言（一项一拍，便于日志对齐）
+function uiReachAssertOne(i)
+{
+	var it = UISeReachItems[i];
+	// (a) 真实点击链：uiScreenClick = startup.tjs handleClick 调用的同一个函数
+	var r = uiScreenClick(null, it.cx, it.cy);
+	var win = "" + UIScrAttachHitId;
+	var act = (r === void || r === null) ? "(null)" : ("" + r.action);
+	var okA = (win == it.id);
+	uiReachLog("item" + i + " 胜者", okA, it.id + " @" + it.cx + "," + it.cy
+		+ " → 胜者=" + ((win == "") ? "(无)" : win));
+	// (b) action == 该项数据的 action，且不是把手动作
+	var okB = (act == it.act) && (act != UIScrQuickToggleAct) && (act != "");
+	uiReachLog("item" + i + " 动作", okB, it.id + " → action=" + act
+		+ "（数据 " + it.act + "；把手动作 " + UIScrQuickToggleAct + "）");
+}
+
+function uiReachCollapsedCheck()
+{
+	var flagName = "" + uiScreenRevealData().flag;
+	UIScrRevealOutTick = -1;
+	uiScreenFlagSet(flagName, "collapsed");
+	var sc = uiReachAttachScreen();
+	var visibleItems = 0;
+	var els = sc.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null || el.kind != "hit") continue;
+		var k = uiScreenRevealKeyOfId("" + el.id);
+		if(k == "") continue;
+		if(!uiScreenRevealKeyKnown(sc, k)) continue;      // 只数「12 项」；把手 key=toggle 不算项
+		if(uiScreenElementVisible(el)) visibleItems++;
+	}
+	uiReachLog("收起态 12 项全部不可见", (visibleItems == 0), "可见项数 = " + visibleItems);
+	if(UISeReachToggle === null) { uiReachLog("收起态 把手胜出", false, "未找到把手热区（无不可见 hit）"); return; }
+	var r = uiScreenClick(null, UISeReachToggle.cx, UISeReachToggle.cy);
+	var win = "" + UIScrAttachHitId;
+	var act = (r === void || r === null) ? "(null)" : ("" + r.action);
+	uiReachLog("收起态 把手胜出", (win == UISeReachToggle.id) && (act == UIScrQuickToggleAct),
+		UISeReachToggle.id + " @" + UISeReachToggle.cx + "," + UISeReachToggle.cy
+		+ " → 胜者=" + win + " action=" + act);
+}
+
+function uiReachDispatchAll()
+{
+	uiScreenFlagSet("" + uiScreenRevealData().flag, "expanded");
+	for(var i = 0; i < UISeReachItems.count; i++)
+	{
+		var act = UISeReachItems[i].act;
+		var before = uiScreenCurrent();
+		var r = uiActionDispatch(act, -1);
+		var after = uiScreenCurrent();
+		// 动作若把屏推上去，弹回来（保持断言环境；浮层/占位屏一并不留）
+		var popped = "";
+		while(uiScreenCurrent() != before && UIScrStack.count > 1)
+		{
+			popped = popped + ">" + uiScreenCurrent();
+			uiScreenPop();
+		}
+		uiReachLog("dispatch " + act, (r.handled === true),
+			UISeReachItems[i].id + " → handled=" + r.handled + " msg=" + r.msg
+			+ " ｜ 屏 " + before + "→" + after + ((popped == "") ? "" : ("（已回收 " + popped.substring(1) + "）")));
+	}
+}
+
+// 气泡口径断言（★ B1）：逐项取中心 → uiScreenRevealUpdate()（= onMouseMove 调用的同一函数）
+//   → tip_flag 必须等于该项 key；指针落在竖条内但不在任何项上 → tip 必须清空；
+//   并断言「key 是否在同屏 .tx_* 的 vis_when 集合里」这一谓词（toggle 的 key 不在集合中）。
+function uiReachTipPhase()
+{
+	var rv = uiScreenRevealData();
+	var flagName = "" + rv.flag;
+	var tipName = "" + rv.tip_flag;
+	var sc = uiReachAttachScreen();
+	// 先确保展开且 tip 为空
+	uiScreenFlagSet(tipName, "");
+	for(var i = 0; i < UISeReachItems.count; i++)
+	{
+		var it = UISeReachItems[i];
+		uiScreenRevealUpdate(it.cx, it.cy);
+		var got = uiScreenFlagGet(tipName);
+		uiReachLog("tip " + it.id, (got == it.key), "中心 " + it.cx + "," + it.cy
+			+ " → " + tipName + "='" + got + "'（期望 '" + it.key + "'）");
+	}
+	// 竖条区域内、但不在任何项上的点（最后一项下沿之外）→ 气泡必须清空
+	uiScreenRevealUpdate(1900, 930);
+	var blank = uiScreenFlagGet(tipName);
+	uiReachLog("tip 空白区清空", (blank == ""), "1900,930 → " + tipName + "='" + blank + "'（期望 ''）");
+	// B1 ③ 的谓词本身：只有存在于 .tx_* 的 vis_when 集合里的 key 才允许点亮
+	uiReachLog("keyKnown(lock)=true", (uiScreenRevealKeyKnown(sc, "lock") === true), "同屏 .tx_* 有 lock");
+	uiReachLog("keyKnown(toggle)=false", (uiScreenRevealKeyKnown(sc, "toggle") === false),
+		"把手 key 无对应说明文字 ⇒ 不得点亮空白气泡");
+	uiScreenFlagSet(flagName, "expanded");     // 复位（tip 相位不影响后续）
+}
+
+// 半开区间边界断言（★ B1 ①：含点用 [x, x+w) × [y, y+h)，差 1px 即错）
+function uiReachBoundaryPhase()
+{
+	var sc = uiReachAttachScreen();
+	var el = null;
+	var els = sc.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var e = els[i];
+		if(e === void || e === null || e.kind != "hit") continue;
+		if(("" + e.id) == UISeReachItems[0].id) { el = e; break; }
+	}
+	if(el === null) { uiReachLog("边界 半开区间", false, "未找到目标元素"); return; }
+	var r = uiWidgetRect(el);
+	// 右下角内最后一像素：必须命中
+	var inX = r.x + r.w - 1, inY = r.y + r.h - 1;
+	uiScreenClick(null, inX, inY);
+	uiReachLog("边界 含点 (x+w-1,y+h-1)", (("" + UIScrAttachHitId) == ("" + el.id)),
+		el.id + " @" + inX + "," + inY + " → 胜者=" + UIScrAttachHitId);
+	// 右沿外一像素：不得命中该项（下一列不应再是它）
+	uiScreenClick(null, r.x + r.w, inY);
+	uiReachLog("边界 排点 (x+w,y) 不命中该项", (("" + UIScrAttachHitId) != ("" + el.id)),
+		el.id + " @" + (r.x + r.w) + "," + inY + " → 胜者=" + UIScrAttachHitId);
+	// 下沿外一像素：不得命中该项
+	uiScreenClick(null, inX, r.y + r.h);
+	uiReachLog("边界 排点 (x,y+h) 不命中该项", (("" + UIScrAttachHitId) != ("" + el.id)),
+		el.id + " @" + inX + "," + (r.y + r.h) + " → 胜者=" + UIScrAttachHitId);
+}
+
+function uiReachInArray(arr, v)
+{
+	for(var i = 0; i < arr.count; i++)
+		if(("" + arr[i]) == ("" + v)) return true;
+	return false;
+}
+
+// 气泡 key 集判据断言（★ F1）：判据 = 「`vis_flag == reveal.tip_flag` 且 `vis_when != "*"` 的
+//   元素的 `vis_when` 取值」（与 HTML 端 `复刻/replica.js:1333-1338` 同一句）。
+//   本相位用**独立重实现的规则**从数据算出期望集合，再与实现谓词 uiScreenRevealKeyKnown()
+//   逐 key 对拍 —— 任何一侧改判据（如回到「id 含 .tx_」）都会在这里 FAIL，从而锁住跨端同判据。
+//   注意：期望集用**数组**存（不用 Dictionary）—— TJS2 里 `dic[""] = x` 会抛
+//   「不是一个 function 或者 方法/属性 有误」，空串探针必须留在数组里比字符串。
+function uiReachKeySetPhase()
+{
+	var sc = uiReachAttachScreen();
+	var rv = uiScreenRevealData();
+	var tipFlag = "" + rv.tip_flag;
+	// (1) 独立重实现：期望 key 集（数组 + 去重）
+	var expKeys = [];
+	var seen = %[];
+	var els = sc.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el === void || el === null) continue;
+		var vf = el.vis_flag, vw = el.vis_when;
+		if(vf === void || vf === null || ("" + vf) != tipFlag) continue;
+		if(vw === void || vw === null) continue;
+		var w = "" + vw;
+		if(w == "" || w == "*") continue;
+		if(seen[w] === true) continue;
+		seen[w] = true; expKeys.push(w);
+	}
+	uiReachLog("key集 由数据推出", (expKeys.count == 12),
+		"vis_flag=='" + tipFlag + "' 且 vis_when!='*' 的取值 = " + expKeys.count + " 个");
+	// (2) 期望集 ⊇ 12 项 key，且实现谓词对每个都为 true
+	var miss = "";
+	for(var i2 = 0; i2 < UISeReachItems.count; i2++)
+	{
+		var k = UISeReachItems[i2].key;
+		if(!uiReachInArray(expKeys, k)) { miss = miss + "(项key不在期望集:" + k + ")"; continue; }
+		if(uiScreenRevealKeyKnown(sc, k) !== true) miss = miss + "(实现判 false:" + k + ")";
+	}
+	uiReachLog("key集 实现⊇期望", (miss == ""), "12 项 key 逐个对拍" + ((miss == "") ? " 全通过" : " 异常 " + miss));
+	// (3) 双向往返：期望集 ∪ 探针上，规则判定 ⇔ 实现谓词
+	var probes = [ "toggle", "expanded", "collapsed", "*", "", "nonexistent" ];
+	var mismatch = "", nkey = 0;
+	for(var i3 = 0; i3 < expKeys.count + probes.count; i3++)
+	{
+		var kk = (i3 < expKeys.count) ? ("" + expKeys[i3]) : ("" + probes[i3 - expKeys.count]);
+		nkey++;
+		var byRule = uiReachInArray(expKeys, kk);
+		var byImpl = (uiScreenRevealKeyKnown(sc, kk) === true);
+		if(byRule != byImpl) mismatch = mismatch + "[" + kk + " 规则=" + byRule + " 实现=" + byImpl + "]";
+	}
+	uiReachLog("key集 规则⇔实现 逐 key 一致", (mismatch == ""),
+		"对拍 " + nkey + " 个 key（12 项 + 探针 toggle/expanded/collapsed/'*'(底图)/空串/不存在词）"
+		+ ((mismatch == "") ? " 全部一致" : " 不一致 " + mismatch));
+	// (4) 底图排除：vis_when="*" 不得成为项 key
+	uiReachLog("key集 排除 vis_when='*'（气泡底图）", (uiScreenRevealKeyKnown(sc, "*") === false),
+		"* → 实现判 false（`quick.tips` 的 vis_when='*' 不产生项 key）");
+}
+
+// 全部相位（**每个相位都不得让引擎常驻**）：本函数包一层 try/catch，且用步号看门狗兜底 ——
+//   任一断言相位抛异常时，仍会走到「汇总 + 退出」，不会把引擎留在后台（实测踩过：
+//   相位抛异常后 Timer 回调中断，引擎一直活着并占住日志文件，导致下一次运行的日志被追加）。
+function uiReachTick()
+{
+	UISeReachStep++;
+	var t = UISeReachStep;
+	try
+	{
+		uiReachTickBody(t);
+	}
+	catch(e)
+	{
+		uiReachLog("相位 t=" + t + " 异常（已捕获，继续）", false, e.message);
+	}
+	if(t >= 20 || t == 0)
+	{
+		Debug.message("[REACH] ===== 断言结束：PASS " + UISeReachPass + " / FAIL " + UISeReachFail
+			+ " / 共 " + (UISeReachPass + UISeReachFail) + " 条 =====");
+		if(UISeReachTimer !== null && UISeReachTimer !== void) { try { UISeReachTimer.enabled = false; } catch(e2) { } }
+		try { UIScrMouseSink.uiQuit("reach assert done"); }
+		catch(e3) { Debug.message("[REACH] quit EXCEPTION: " + e3.message); }
+	}
+}
+
+function uiReachTickBody(t)
+{
+
+	if(t == 1)
+	{
+		uiScreenReset("dialog");
+		uiReachLog("reset->dialog", (uiScreenCurrent() == "dialog"), "屏栈 = " + uiScreenStackText());
+		return;
+	}
+	if(t == 2)
+	{
+		// 走**真实动作**展开（不是直接写 flag）：open_sysmenu = 展开竖条
+		uiActionDispatch("open_sysmenu", -1);
+		var flagName = "" + uiScreenRevealData().flag;
+		uiReachLog("open_sysmenu → expanded", (uiScreenFlagGet(flagName) == "expanded"),
+			flagName + "=" + uiScreenFlagGet(flagName)
+			+ " ｜ 屏栈 = " + uiScreenStackText() + "（必须仍是 dialog）");
+		uiReachLog("屏栈不变", (uiScreenCurrent() == "dialog"), "当前屏 = " + uiScreenCurrent());
+		// 钉住：断言期间**免疫真实鼠标**导致的自动收起（真人鼠标可能正停在窗口上；
+		//   不钉住时一根真实的 onMouseMove(x<out_x) 就会在 400ms 后把竖条收掉，
+		//   使后续 12 项断言全部落在收起态而误报）。
+		uiActionDispatch("quick_pin", -1);
+		uiReachLog("quick_pin 钉住（断言期稳定）", (uiScreenFlagGet(uiScreenRevealPinFlagName()) == UIScrQuickPinOn),
+			uiScreenRevealPinFlagName() + "=" + uiScreenFlagGet(uiScreenRevealPinFlagName())
+			+ " ｜ " + flagName + "=" + uiScreenFlagGet(flagName));
+		uiReachCollect();
+		return;
+	}
+	if(t >= 3 && t <= 14)
+	{
+		uiReachAssertOne(t - 3);
+		return;
+	}
+	if(t == 15) { uiReachTipPhase(); return; }
+	if(t == 16) { uiReachBoundaryPhase(); return; }
+	if(t == 17) { uiReachCollapsedCheck(); return; }
+	if(t == 18) { uiReachDispatchAll(); return; }
+	if(t == 19) { uiReachKeySetPhase(); return; }
+	// t >= 20 的「汇总 + 退出」由外层 uiReachTick() 统一处理（保证异常时也能收尾）
+}
+
+UISeReachTimer = new Timer(uiReachTick, '');
+UISeReachTimer.interval = 300;
+UISeReachTimer.enabled  = true;
+Debug.message("[REACH] timer armed (300ms/tick) —— 端到端可达性断言开始");

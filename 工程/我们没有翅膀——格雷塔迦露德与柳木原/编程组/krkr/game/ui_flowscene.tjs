@@ -1,0 +1,194 @@
+// ============================================================
+// ui_flowscene.tjs —— 流程图「场景级已读」状态（ISSUE-20261004-03）
+//
+// 为什么要**场景级**而不是节点级：UI 组的 `UIFlowVisited`（`ui_flow.tjs`）键是**节点 id**
+// 且只覆盖幕级节点；而分页后的自绘是一场景一节点，且
+//   ① 同一场景可能被**多条锚点**指向（如 `ot_s03_24` 同时被 B/C 页指向）；
+//   ② 用户裁决的分页口径允许同一场景在共通段与个人线各出现一次；
+// ⇒ 已读必须**按 `scene id` 记**，不能按节点下标（分页后下标也随页重排）。
+//
+// 存储：与本项目既有机制同款 —— 复用 `ui_state.tjs` 的 `UIStatePaths` 候选名，
+//   只把文件名换成 `ui_flowscene_state.txt`；读写走 `Array.save/load`（与 UI 组同一套）。
+//   文件不存在 / 读失败一律**当作空集**并吞掉异常（绝不因为流程图打断剧情）。
+//
+// 边界：本模块**只增不改**，不碰 UI 组的 `UIFlowVisited` / `UIFragCollected*` / 任何屏数据。
+// ============================================================
+
+var UIFullSceneSeen   = %[];      // sceneId -> true
+var UIFullSceneCur    = "";       // 当前正在播的场景 id
+var UIFullScenePaths  = [];       // 候选状态文件路径
+var UIFullScenePath   = "";       // 实际写入的那一个
+var UIFullSceneReport = "";
+var UIFullSceneVer    = 1;
+var UIFullSceneName   = "ui_flowscene_state.txt";
+var UIFullSceneDirty  = false;
+var UIFullSceneLogN   = 0;
+
+function uiFlowSceneLog(m)
+{
+	Debug.message("[FLOWSCENE] " + m);
+}
+
+// 与 `ui_flow.tjs::uiFlowBuildPaths` 同法：从 `UIStatePaths` 派生本模块的文件名
+function uiFlowSceneBuildPaths()
+{
+	UIFullScenePaths = [];
+	try
+	{
+		if(UIStatePaths !== void && UIStatePaths.count > 0)
+		{
+			var i = 0;
+			for(i = 0; i < UIStatePaths.count; i++)
+			{
+				var p = "" + UIStatePaths[i];
+				var cut = p.indexOf("ui_state.txt");
+				if(cut >= 0) UIFullScenePaths.push(p.substring(0, cut) + UIFullSceneName);
+			}
+		}
+	}
+	catch(e0) { uiFlowSceneLog("路径派生失败（用兜底名）：" + e0.message); }
+	// 兜底：候选名去重后追加
+	var uniq = [];
+	var u = 0;
+	for(u = 0; u < UIFullScenePaths.count; u++)
+	{
+		var dup = false, v = 0;
+		for(v = 0; v < uniq.count; v++) if(uniq[v] == UIFullScenePaths[u]) { dup = true; break; }
+		if(!dup) uniq.push(UIFullScenePaths[u]);
+	}
+	uniq.push(UIFullSceneName);
+	UIFullScenePaths = uniq;
+	uiFlowSceneLog("状态候选名 = " + UIFullScenePaths.join(" | "));
+}
+
+function uiFlowSceneLines()
+{
+	var vis = [];
+	try
+	{
+		var ks = [];
+		ks.assign(UIFullSceneSeen);
+		var i = 0;
+		for(i = 0; i < ks.count; i += 2)
+		{
+			var k = "" + ks[i];
+			if(k != "" && UIFullSceneSeen[k] === true) vis.push(k);
+		}
+	}
+	catch(e0) { }
+	return [
+		"# ui_flowscene_state v" + UIFullSceneVer + " : 流程图**场景级**已读（scene id 集合）",
+		"# written by Array.save(); read back by Array.load()（与 ui_state.tjs / ui_flow.tjs 同款）",
+		"version=" + UIFullSceneVer,
+		"current=" + UIFullSceneCur,
+		"seenscene=" + vis.join(","),
+		"count=" + vis.count
+	];
+}
+
+function uiFlowSceneSave()
+{
+	if(UIFullScenePaths.count < 1) uiFlowSceneBuildPaths();
+	var lines = uiFlowSceneLines();
+	var i = 0, winner = "", report = "";
+	for(i = 0; i < UIFullScenePaths.count; i++)
+	{
+		var p = UIFullScenePaths[i];
+		try
+		{
+			var a = new Array();
+			var k = 0;
+			for(k = 0; k < lines.count; k++) a.push(lines[k]);
+			a.save(p, "w");
+			winner = p; report += "[OK] " + p + "  ";
+			break;
+		}
+		catch(e) { report += "[FAIL] " + p + " (" + e.message + ")  "; }
+	}
+	UIFullScenePath = winner;
+	UIFullSceneReport = report;
+	UIFullSceneDirty = false;
+	if(UIFullSceneLogN < 6 || (UIFullSceneLogN % 40) == 0)
+		uiFlowSceneLog("save -> " + ((winner == "") ? "FAILED" : "OK") + " : " + report);
+	UIFullSceneLogN++;
+	return (winner != "");
+}
+
+function uiFlowSceneLoad()
+{
+	if(UIFullScenePaths.count < 1) uiFlowSceneBuildPaths();
+	UIFullSceneSeen = %[];
+	var i = 0;
+	for(i = 0; i < UIFullScenePaths.count; i++)
+	{
+		var p = UIFullScenePaths[i];
+		var a = null;
+		try { a = new Array(); a.load(p); }
+		catch(e) { a = null; }
+		if(a === null || a.count < 1) continue;
+		var j = 0;
+		for(j = 0; j < a.count; j++)
+		{
+			var line = "" + a[j];
+			if(line == "" || line.charAt(0) == "#") continue;
+			var eq = line.indexOf("=");
+			if(eq < 0) continue;
+			var key = line.substring(0, eq);
+			var val = line.substring(eq + 1);
+			if(key == "seenscene")
+			{
+				if(val == "") continue;
+				var pv = val.split(",");
+				var m = 0;
+				for(m = 0; m < pv.count; m++)
+					if(pv[m] != "") UIFullSceneSeen["" + pv[m]] = true;
+			}
+			else if(key == "current") UIFullSceneCur = val;
+		}
+		uiFlowSceneLog("已载入场景级已读 " + uiFlowSceneSeenCount() + " 个 → " + p);
+		return true;
+	}
+	uiFlowSceneLog("无既有状态文件（按空集起步）");
+	return false;
+}
+
+function uiFlowSceneCount()
+{
+	var n = 0;
+	try
+	{
+		var ks = [];
+		ks.assign(UIFullSceneSeen);
+		n = Math.floor(ks.count / 2);
+	}
+	catch(e0) { n = -1; }
+	return n;
+}
+// 兼容别名（渲染器与机检都用这个）
+function uiFlowSceneSeenCount() { return uiFlowSceneCount(); }
+
+function uiFlowSceneIsSeen(sid)
+{
+	var s = "" + sid;
+	if(s == "") return false;
+	try { return (UIFullSceneSeen[s] === true); }
+	catch(e) { return false; }
+}
+
+// 剧情推进时调用（`ui_story.tjs::uiStoryStart`）。**只增不改**，场景级幂等。
+function uiFlowSceneMark(sid)
+{
+	var s = "" + sid;
+	if(s == "") return false;
+	UIFullSceneCur = s;
+	var had = false;
+	try { had = (UIFullSceneSeen[s] === true); } catch(e0) { had = false; }
+	try { UIFullSceneSeen[s] = true; } catch(e1) { return false; }
+	if(!had)
+	{
+		UIFullSceneDirty = true;
+		uiFlowSceneSave();                    // 与 UI 组同法：改了就存（幂等，重复场景不会重复写）
+		return true;
+	}
+	return false;                             // 已读过 ⇒ 不写盘（省 IO）
+}

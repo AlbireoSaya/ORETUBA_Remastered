@@ -1,0 +1,81 @@
+### J2 · ACK 表全文（test_gen_sync.py 重跑实时产出；每条含责任方 / 生成器入口 / 理由 / 「重跑会丢什么」逐条清单）
+
+01_title.json        **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 10 件 ｜ 差异 丢14/改1
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_title()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：M35b 的「图标↔文字」组绑定与 7 张文字图由 `_工作\M35b_标题菜单组绑定.py` **直接改 JSON** 落在盘上，未回写 build_title()。重跑会删 `title.menu_txt_{start,continue,load,flowchart,config,gallery,exit}` 7 件、并丢掉 7 个 `title.menu_hit_N` 的 `state_group` ⇒ 组绑定全失（悬停图标不再点亮文字）。修法与 `_工作\M1_emit_m35b_override.py` 给 config 做的相同：把这些字段提成生成器里的 override 常量。
+          **重跑会丢的清单**：
+            - 元素 `title.menu_txt_config` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_continue` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_exit` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_flowchart` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_gallery` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_load` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_start` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_hit_1` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_start'
+            - 元素 `title.menu_hit_2` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_continue'
+            - 元素 `title.menu_hit_3` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_load'
+            - 元素 `title.menu_hit_4` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_flowchart'
+            - 元素 `title.menu_hit_5` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_config'
+            - 元素 `title.menu_hit_6` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_gallery'
+            - 元素 `title.menu_hit_7` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_exit'
+  34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+          **重跑会丢的清单**：
+            - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+            - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+            - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+            - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+            - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+            - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+            - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+            - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+            - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+  21_confirm.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 9 件 ｜ 差异 丢6/改6
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_confirm()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：`_工作\M35b_热区态图迁移.py` 把 `cf.hit_yes/no` 的 `state_assets` 挪到 `cf.yes/no` image + `state_group` 联动；重跑会把三态塞回 hit（拉伸涂抹回归）并抹掉 4 个 `state_group`。
+          **重跑会丢的清单**：
+            - 元素 `cf.hit_no` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.no'
+            - 元素 `cf.hit_yes` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.yes'
+            - 元素 `cf.no` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'}
+            - 元素 `cf.no` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.no'
+            - 元素 `cf.yes` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'}
+            - 元素 `cf.yes` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.yes'
+  36_choices.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 7 件 ｜ 差异 丢6/改7
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_choices()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：`_工作\M35b_热区态图迁移.py` 把 `ch.sel` 拆成 `ch.bg_1/2/3`（per-row 态图）并把三态从 hit 挪到 image，仅改 JSON。重跑会删 `ch.bg_1/2/3` 并让 3 个 hit 重新持有 `state_assets`（热区拉伸涂抹问题回归）。
+          **重跑会丢的清单**：
+            - 元素 `ch.bg_1` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.bg_2` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.bg_3` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.hit_1` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.1'
+            - 元素 `ch.hit_2` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.2'
+            - 元素 `ch.hit_3` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.3'
+  37_dress.json        **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 107 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_dress()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`dr.hit_reset` ⇄ `dr.reset`）：重跑后「初始化」三态按 78×25 热区绘制并抹掉 `dress.reset` 组。
+          **重跑会丢的清单**：
+            - 元素 `dr.hit_reset` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'dress.reset'
+            - 元素 `dr.reset` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_reset_off.png', 'hover': 'ui/x_ui_reset_over.png', 'pressed': 'ui/x_ui_reset_on.png'}
+            - 元素 `dr.reset` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'dress.reset'
+  26_backlog.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 15 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_backlog()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`bl.spk_hit` ⇄ `bl.spk`）：重跑会把 `ui/x_ui_spk_*.png` 三态按 1222×224 热区矩形拉伸绘制（48.9×8.3 涂抹，M35b 修掉的正是这条），并抹掉 `backlog.spk` 组。
+          **重跑会丢的清单**：
+            - 元素 `bl.spk` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+            - 元素 `bl.spk` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'backlog.spk'
+            - 元素 `bl.spk_hit` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'backlog.spk'
+  32_flowchart.json    **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 74 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_flowchart()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`fc.close_hit` ⇄ `fc.close`）：重跑后关闭键的三态会按 56×56 热区拉伸，并抹掉 `flowchart.close` 组。
+          **重跑会丢的清单**：
+            - 元素 `fc.close` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_close_off.png', 'hover': 'ui/x_ui_close_over.png', 'pressed': 'ui/x_ui_close_on.png'}
+            - 元素 `fc.close` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'flowchart.close'
+            - 元素 `fc.close_hit` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'flowchart.close'

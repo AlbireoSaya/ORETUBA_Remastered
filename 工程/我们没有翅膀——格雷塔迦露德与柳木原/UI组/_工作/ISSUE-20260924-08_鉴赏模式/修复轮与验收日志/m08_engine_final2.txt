@@ -1,0 +1,114 @@
+### INJECT ###
+运行目录： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1inject
+已注入测试数据：gallery 测试页 + 四承载屏 attach=gal_shell + replay 占位屏
+私有运行目录已建： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1inject （inject=True）
+引擎退出码=0，用时 159 秒
+
+===== M1 鉴赏机制判词（★M08*★）=====
+  ★M08TAB★ PASS  gallery_tab_2：gallery → music（期望 music）  栈 title > gallery ⇒ title > music  上一屏仍在栈里=否  目标屏元素数=26（期望 >0）  gal_tab=music（期望 music）  派发计数 0 -> 1  msg=鉴赏页签 -> music（gallery → music；同级换屏，栈深 2，栈内 title > music；清理该页 list 1 个；gal_tab=music）
+  ★M08TAB★ PASS  gallery_tab_3：music → dress（期望 dress）  栈 title > music ⇒ title > dress  上一屏仍在栈里=否  目标屏元素数=107（期望 >0）  gal_tab=dress（期望 dress）  派发计数 1 -> 2  msg=鉴赏页签 -> dress（music → dress；同级换屏，栈深 2，栈内 title > dress；清理该页 list 1 个；gal_tab=dress）
+  ★M08TAB★ PASS  gallery_tab_4：dress → replay（期望 replay）  栈 title > dress ⇒ title > replay  上一屏仍在栈里=否  目标屏元素数=1（期望 >0）  gal_tab=replay（期望 replay）  派发计数 2 -> 3  msg=鉴赏页签 -> replay（dress → replay；同级换屏，栈深 2，栈内 title > replay；清理该页 list 0 个；gal_tab=replay）
+  ★M08TAB★ PASS  gallery_tab_1：replay → gallery（期望 gallery）  栈 title > replay ⇒ title > gallery  上一屏仍在栈里=否  目标屏元素数=5（期望 >0）  gal_tab=gallery（期望 gallery）  派发计数 3 -> 4  msg=鉴赏页签 -> gallery（replay → gallery；同级换屏，栈深 2，栈内 title > gallery；清理该页 list 0 个；gal_tab=gallery）
+  ★M08PAGE★ PASS  gallery_page_next：gal.list 第 1/2 页 → 第 2/2 页（期望第 2 页）  每页 24 栏 / 共 30 栏  本页首栏全局序号=24（期望 24）  msg=鉴赏·页内翻页 gal.list -> 第 2/2 页（每页 24 栏，共 30 栏；本页 0..23）
+  ★M08PAGE★ PASS  gallery_page_prev：gal.list 第 2/2 页 → 第 1/2 页（期望第 1 页）  每页 24 栏 / 共 30 栏  本页首栏全局序号=0（期望 0）  msg=鉴赏·页内翻页 gal.list -> 第 1/2 页（每页 24 栏，共 30 栏；本页 24..29）
+  ★M08VAR★ PASS  gal.list 行=0 按钮=next(vnext) 中心=316,332  悬停态=hover（期望 hover）  按下态=pressed（期望 pressed）  命中令牌=gal.list:0:vnext（期望 gal.list:0:vnext）  派发=gallery_next:0（期望 gallery_next:0）  派发行号=0（期望 0）  缩略图 ui/x_ui_cfg_tab_on.png → ui/x_ui_cfg_name_sel.png（已换图）  n/N 1/3 → 2/3  序号 0 → 1（期望 1）  msg=鉴赏·栏位内差分 gal.list 行=0 -> 2/3（素材 ui/x_ui_cfg_name_sel.png）
+  ★M08VAR★ PASS  gal.list 行=0 按钮=prev(vprev) 中心=89,332  悬停态=hover（期望 hover）  按下态=pressed（期望 pressed）  命中令牌=gal.list:0:vprev（期望 gal.list:0:vprev）  派发=gallery_prev:0（期望 gallery_prev:0）  派发行号=0（期望 0）  缩略图 ui/x_ui_menuicon_gallery.png → ui/x_ui_cfg_name_sel.png（已换图）  n/N 3/3 → 2/3  序号 2 → 1（期望 1）  msg=鉴赏·栏位内差分 gal.list 行=0 -> 2/3（素材 ui/x_ui_cfg_name_sel.png）
+  ★M08GUARD★ PASS  gal.list 注入 12 例（内存副本，未写磁盘）→ item_variants 非对象→item_variants 不是对象 ✓ ｜ frames 非数组→frames 不是数组 ✓ ｜ frames[行] 非数组→第 0 栏差分列表不是数组 ✓ ｜ frames[行] 空素材→差分素材为空（第 1 张） ✓ ｜ prev 出块→矩形出块（局部 9999,9999 48×26 不在 291×166 内） ✓ ｜ prev 零面积→矩形零/负面积（0×0） ✓ ｜ prev 缺 key→缺 key ✓ ｜ prev action 为空→action 为空 ✓ ｜ prev 无 asset/态图→既无 asset 也无 state_assets ✓ ｜ text 出块→文本区出块（局部 9999,9999 291×166 不在 291×166 内） ✓ ｜ text 零面积→文本区零/负面积（0×0） ✓ ｜ edge 取值非法→edge 取值非法（只认 "clamp"）：wrap ✓  ｜ REJECT 判词新增 12 条（合计 12）
+  ★M08ATTACH★ PASS  承载屏 gallery：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=gallery（期望 gallery）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 music：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=music（期望 music）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 dress：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=dress（期望 dress）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 replay：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=replay（期望 replay）  命中件 id=gs.back_hit
+  ★M08TAB★ PASS  负向对照：派发 gallery_tab_9 ⇒ ★M08TAB-REJECT★ gallery_tab_9：未知页签（只认 gallery_tab_1..4）；当前屏仍=replay（期望 replay）；派发计数 8 -> 8（期望不变）
+
+----- 负向判词（★M08…-REJECT★）-----
+  ★M08VARIANT-REJECT★ gal.list[guard] item_variants 不是对象
+  ★M08VARIANT-REJECT★ gal.list[guard] frames 不是数组
+  ★M08VARIANT-REJECT★ gal.list[guard] 第 0 栏差分列表不是数组
+  ★M08VARIANT-REJECT★ gal.list[guard] 差分素材为空（第 1 张）
+  ★M08VARIANT-REJECT★ gal.list[guard] 矩形出块（局部 9999,9999 48×26 不在 291×166 内）
+  ★M08VARIANT-REJECT★ gal.list[guard] 矩形零/负面积（0×0）
+  ★M08VARIANT-REJECT★ gal.list[guard] 缺 key
+  ★M08VARIANT-REJECT★ gal.list[guard] action 为空
+  ★M08VARIANT-REJECT★ gal.list[guard] 既无 asset 也无 state_assets
+  ★M08VARIANT-REJECT★ gal.list[guard] 文本区出块（局部 9999,9999 291×166 不在 291×166 内）
+  ★M08VARIANT-REJECT★ gal.list[guard] 文本区零/负面积（0×0）
+  ★M08VARIANT-REJECT★ gal.list[guard] edge 取值非法（只认 "clamp"）：wrap
+  ★M08TAB-REJECT★）  屏=replay  说明=★M08TAB★ PASS  负向对照：派发 gallery_tab_9 ⇒ ★M08TAB-REJECT★ gallery_tab_9：未知页签（只认 gallery_tab_1..4）；当前屏仍=replay（期望 replay）；派发计数 8 -> 8（期望不变）
+  ★M08TAB-REJECT★）
+
+----- attach 四承载屏绘制见证（页签条区域 (23, 26, 951, 86)）-----
+  shot_57_gallery.png    页签条区非背景 0.438  ← 鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png      页签条区非背景 0.509  ← 鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png      页签条区非背景 0.633  ← 鉴赏·外壳复用③：承载屏 dress
+  shot_60_replay.png     页签条区非背景 0.510  ← 鉴赏·外壳复用④：承载屏 replay
+
+===== 判定 =====
+MODE=INJECT
+★M08TAB★ 判词：['PASS', 'PASS', 'PASS', 'PASS', 'PASS']
+★M08PAGE★ 判词：['PASS', 'PASS']
+★M08VAR★ 判词：['PASS', 'PASS']
+★M08GUARD★ 判词：['PASS']
+★M08ATTACH★ 判词：['PASS', 'PASS', 'PASS', 'PASS']
+负向判词条数：14（去重后 14）
+attach 四承载屏导图（页签条区非背景占比）：
+  shot_57_gallery.png	0.438	鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png	0.509	鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png	0.633	鉴赏·外壳复用③：承载屏 dress
+  shot_60_replay.png	0.510	鉴赏·外壳复用④：承载屏 replay
+
+全部断言通过
+RESULT=OK
+★ 退出码： 0
+INJECT_EXIT=0
+
+### REAL ###
+运行目录： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1real
+私有运行目录已建： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1real （inject=False）
+引擎退出码=0，用时 156 秒
+
+===== M1 鉴赏机制判词（★M08*★）=====
+  ★M08TAB★ PASS  gallery_tab_2：gallery → music（期望 music）  栈 title > gallery ⇒ title > music  上一屏仍在栈里=否  目标屏元素数=26（期望 >0）  gal_tab=music（期望 music）  派发计数 0 -> 1  msg=鉴赏页签 -> music（gallery → music；同级换屏，栈深 2，栈内 title > music；清理该页 list 1 个；gal_tab=music）
+  ★M08TAB★ FAIL  gallery_tab_3：music → dress（期望 dress）  栈 title > music ⇒ title > dress  上一屏仍在栈里=否  目标屏元素数=107（期望 >0）  gal_tab=(空)（期望 dress）  派发计数 1 -> 2  msg=鉴赏页签 -> dress（music → dress；同级换屏，栈深 2，栈内 title > dress；清理该页 list 1 个；gal_tab=(空)）
+  ★M08ATTACH★ PASS  承载屏 gallery：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=gallery（期望 gallery）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 music：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=music（期望 music）  命中件 id=gs.back_hit
+  ★M08ATTACH★ FAIL  承载屏 dress 的 attach=(无)（期望 gal_shell）
+
+----- 负向判词（★M08…-REJECT★）-----
+  ★M08TAB-REJECT★ 当前屏 dress 未挂鉴赏外壳（attach != gal_shell）⇒ 切屏步骤无意义（请先进入鉴赏模式）
+  ★M08PAGE-REJECT★ 当前屏 dress 没有可见的 list（auto 取不到）
+  ★M08VAR-REJECT★ 当前屏 dress 没有带 item_variants 的可见 list（auto 取不到）
+  ★M08GUARD-REJECT★ 当前屏 dress 没有带 item_variants 的可见 list（auto 取不到）
+  ★M08ATTACH-REJECT★ 屏 replay 未登记，无法定位
+  ★M08TAB-REJECT★）  屏=dress  说明=★M08TAB-REJECT★ 当前屏 dress 未挂鉴赏外壳（attach != gal_shell）⇒ 切屏步骤无意义（请先进入鉴赏模式）
+  ★M08TAB-REJECT★）
+
+----- attach 四承载屏绘制见证（页签条区域 (23, 26, 951, 86)）-----
+  shot_57_gallery.png    页签条区非背景 0.469  ← 鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png      页签条区非背景 0.509  ← 鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png      页签条区非背景 0.267  ← 鉴赏·外壳复用③：承载屏 dress
+  shot_60_dress.png      页签条区非背景 0.267  ← 鉴赏·外壳复用④：承载屏 replay
+
+===== 判定 =====
+MODE=REAL
+★M08TAB★ 判词：['PASS', 'FAIL']
+★M08PAGE★ 判词：[]
+★M08VAR★ 判词：[]
+★M08GUARD★ 判词：[]
+★M08ATTACH★ 判词：['PASS', 'PASS', 'FAIL']
+负向判词条数：10（去重后 7）
+attach 四承载屏导图（页签条区非背景占比）：
+  shot_57_gallery.png	0.469	鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png	0.509	鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png	0.267	鉴赏·外壳复用③：承载屏 dress
+  shot_60_dress.png	0.267	鉴赏·外壳复用④：承载屏 replay
+
+FAIL ★M08TAB★ 有 FAIL：['PASS', 'FAIL']
+FAIL 缺少判词 ★M08PAGE★（数据未落盘时会如实缺失，见脚本头部说明）
+FAIL 缺少判词 ★M08VAR★（数据未落盘时会如实缺失，见脚本头部说明）
+FAIL 缺少判词 ★M08GUARD★（数据未落盘时会如实缺失，见脚本头部说明）
+FAIL ★M08ATTACH★ 有 FAIL：['PASS', 'PASS', 'FAIL']
+FAIL 缺少负向判词 ★M08VARIANT-REJECT★（galguard 的 12 例必须逐条出现）
+FAIL attach 四承载屏导图的屏名不齐：实得 ['dress', 'gallery', 'music']（期望 dress/gallery/music/replay）
+RESULT=FAIL
+★ 退出码： 1
+REAL_EXIT=1

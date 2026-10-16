@@ -1,0 +1,900 @@
+{
+  "passed": true,
+  "bits": 64,
+  "nonce": "89dbdcb7ee354d3aa5ea1efbe48eb6f8",
+  "cases": 4962,
+  "segments": 4962,
+  "fresh_log": true,
+  "process": {
+    "returncode": 0,
+    "timed_out": false,
+    "cleanup_ok": true,
+    "pid": 18192
+  },
+  "engine_SHA256": "7def704da321326a2a072a3180f88d3eb7313ac1668279c5e847c730496afcd3",
+  "sources": [
+    {
+      "name": "r_u32.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_u32.tjs",
+      "SHA256": "c908113bd4da2f9eed4dd4cfb45aebaf2f4ee5f86935e867919a84435a394eac"
+    },
+    {
+      "name": "r_vm_entry.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_entry.tjs",
+      "SHA256": "d291118ddf7a52c063caf8f889a42492be56b16eef268b88f11a936e249f7412"
+    },
+    {
+      "name": "r_vm_memory.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_memory.tjs",
+      "SHA256": "c6bcc5f48177e1f415d35d3f2d1aee4a59798b30b3eb4c69670f2c43348c907b"
+    },
+    {
+      "name": "r_vm_control.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_control.tjs",
+      "SHA256": "fa764659e6808086b792d64fb53da415e038acbcfaf49110cc6ac1a3ccfd718c"
+    },
+    {
+      "name": "r_vm_value.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_value.tjs",
+      "SHA256": "63aa7132eff253474996a3b3c1e2c1a068626a63df49e89eff919849d37b7dcc"
+    },
+    {
+      "name": "r_vm_step.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_step.tjs",
+      "SHA256": "bab2f7163b9d785b9d136995caea7a678222c830eb883894d825ccddb779290d"
+    },
+    {
+      "name": "r_vm_run.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_run.tjs",
+      "SHA256": "1bf06bf3ce68210f30a4c145419be7a4e0d171615d6cc918efae7d43271a6cb2"
+    },
+    {
+      "name": "r_vm_native_flags_fixture.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_native_flags_fixture.tjs",
+      "SHA256": "71d8b91daefa293f4cfd606c1be91056bee43fc23ee8d673351256d24919bbcd"
+    },
+    {
+      "name": "r_vm_native_keyboard_fixture.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_native_keyboard_fixture.tjs",
+      "SHA256": "2540bf00d302c3921b7465c2c693a194a4838e7d4bb73e7cef5c3de9583da8e7"
+    },
+    {
+      "name": "r_vm_native_query_fixture.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_native_query_fixture.tjs",
+      "SHA256": "ce15fafff08cd719fe1a1a75ca9398f02c2ca835670bdffacc7e4d4621380a76"
+    },
+    {
+      "name": "r_vm_native_control_fixture.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_native_control_fixture.tjs",
+      "SHA256": "78d39eb6a83e4348ccc1e6d0fe9f6883dd25508f70a44e8854f52afcd0243219"
+    },
+    {
+      "name": "r_vm_native_dispatch_fixture.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_native_dispatch_fixture.tjs",
+      "SHA256": "2b41eaac91b956bc4d9b956f706b757cbf5d461da17456cedc9e6420a7d6e1d8"
+    },
+    {
+      "name": "r_vm_fixture_range.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_range.tjs",
+      "SHA256": "039f553a89450eb8b56cba7495b9e959183ef581c9a6a4d6c8e8dfd84db9cd24"
+    },
+    {
+      "name": "r_vm_fixture_read.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_read.tjs",
+      "SHA256": "3a40dd4dc01be899423250903649812b03f8785269933f190e834787b5086596"
+    },
+    {
+      "name": "r_vm_fixture_write.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_write.tjs",
+      "SHA256": "52e567ea6355fdea07cbc68738d306e7438cc5c44f7cbba3efa930b2360c823e"
+    },
+    {
+      "name": "r_vm_fixture_compare.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_compare.tjs",
+      "SHA256": "50b1ed1833fc721b683e8d17e37c6ebdd9c355bff87898335faadac528227e45"
+    },
+    {
+      "name": "r_vm_fixture_nativecall.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_nativecall.tjs",
+      "SHA256": "33d770627dda617b69cc97fddad7f367fb0176af6a778330a4bf43ef0e939bf7"
+    },
+    {
+      "name": "r_vm_fixture_state.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_state.tjs",
+      "SHA256": "1094af0fd8a7e11a4f183a38ed776aecaeff1bf986c43224e38655d9a31bed10"
+    },
+    {
+      "name": "r_vm_fixture_segment.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_segment.tjs",
+      "SHA256": "76fdba78037297c0ae6f80caa938bb5285eed51bd329c6d3919f95d2e3701363"
+    },
+    {
+      "name": "r_vm_fixture_case.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-vm-20261015/r_vm_fixture_case.tjs",
+      "SHA256": "62eebc7ed4c3850688a7c32a3aa65d79a5c77e14410df976a2c2f4a9b85ce728"
+    },
+    {
+      "name": "cases-0000.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0000.tjs",
+      "SHA256": "4be408c534da01ee1857758f65ed8f7073f9314e69d49ca0c19a40e0902b6897"
+    },
+    {
+      "name": "cases-0001.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0001.tjs",
+      "SHA256": "3d81ddf862e249b072db79bef34683aff8fdae5d18390dfbcfe34ebfed23ff55"
+    },
+    {
+      "name": "cases-0002.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0002.tjs",
+      "SHA256": "c501897f696d16dcfed529d0b079a2174eabc40801970e34682f6e2d2b2622bf"
+    },
+    {
+      "name": "cases-0003.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0003.tjs",
+      "SHA256": "dd7a258f71c77eea9a94e4d080e6ca44c0c39fa36819908a828fb988c8fa727a"
+    },
+    {
+      "name": "cases-0004.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0004.tjs",
+      "SHA256": "8b94a5595c12bc5fa340a49cd04fd5cc46a771a0bc84ee4fdd62aea8ff9ae214"
+    },
+    {
+      "name": "cases-0005.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0005.tjs",
+      "SHA256": "f2449a6d852dff1f88b961146055decebb36ce49128d063ebb3a47a95cd2ceea"
+    },
+    {
+      "name": "cases-0006.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0006.tjs",
+      "SHA256": "cde174d151b86d2b38ab2bb5aeb2f4a3cafe295b682d56aeed6ef3396e9d0617"
+    },
+    {
+      "name": "cases-0007.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0007.tjs",
+      "SHA256": "e1c73ff3fef3094db2fc13c965d9c6497e6b3a7631365ce1a6c277f5cee23e26"
+    },
+    {
+      "name": "cases-0008.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0008.tjs",
+      "SHA256": "d04e3530634e9529ae03369221a05157c580882e7fc8777a4f2219f51c5edb28"
+    },
+    {
+      "name": "cases-0009.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0009.tjs",
+      "SHA256": "7cb6522b69680ca07b2ec1b0a9a923ded2dca0cb14133543a116e3a3c3541780"
+    },
+    {
+      "name": "cases-0010.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0010.tjs",
+      "SHA256": "4203eceb9cc695dd6c606ed2d44bfde70414c99ce084f63aa6f0da9e10093877"
+    },
+    {
+      "name": "cases-0011.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0011.tjs",
+      "SHA256": "a67a4fee0d6e50099087a4dbe061b2632b3433803773df99b7127681eb5d35d7"
+    },
+    {
+      "name": "cases-0012.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0012.tjs",
+      "SHA256": "6284eb3434b29fae1e4a5fbe3847f96a54cc142b9fc80fec3f60662d0482bd54"
+    },
+    {
+      "name": "cases-0013.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0013.tjs",
+      "SHA256": "709241f9299e363f249f57782dd1e093254e60ee3d62f447ec30786eef804828"
+    },
+    {
+      "name": "cases-0014.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0014.tjs",
+      "SHA256": "d18059191ab56a0e3877e36fc97ad165b46c26405d47a1da7375e4d3e4e3f88c"
+    },
+    {
+      "name": "cases-0015.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0015.tjs",
+      "SHA256": "e386c4bcbd7cf7edeac39567bfd15454a152cc8b3fa0eb3e360c143fd540fdbc"
+    },
+    {
+      "name": "cases-0016.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0016.tjs",
+      "SHA256": "57b2af32f8cbee936d4f21705d94b6e5a975635726c1f9641fe0d8c9d6f60093"
+    },
+    {
+      "name": "cases-0017.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0017.tjs",
+      "SHA256": "152fe277c59ecce58438d421928e78c7bb108835d14ee5c023c396891fbfb9df"
+    },
+    {
+      "name": "cases-0018.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0018.tjs",
+      "SHA256": "751d31a39de7d3888bee1440b5d35852df5615c69e035d03e1cbd1981495f536"
+    },
+    {
+      "name": "cases-0019.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0019.tjs",
+      "SHA256": "85067d43c80b805af96c576b04c8ab27955eab1125306aa049f70990da7f7928"
+    },
+    {
+      "name": "cases-0020.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0020.tjs",
+      "SHA256": "21a4f032ba32df5142bd35b5e41fd2eadd5954aac522e2176754eedeaa15cd8d"
+    },
+    {
+      "name": "cases-0021.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0021.tjs",
+      "SHA256": "2abe936aa9dcd704d09dfc0eae69c647cc4dce85d676aacef1c40dc11f6400ab"
+    },
+    {
+      "name": "cases-0022.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0022.tjs",
+      "SHA256": "ec7e9fe0f877ab68ec1f2aa152bbe4dabb6efcac3dca20015c500e363c0573a8"
+    },
+    {
+      "name": "cases-0023.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0023.tjs",
+      "SHA256": "703728178c79d67fc09dd5a40f6584bb3c5794f002196f7bceb5ea91f4ffdc58"
+    },
+    {
+      "name": "cases-0024.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0024.tjs",
+      "SHA256": "d066a393dce69f77f4131ca3148dc2af81411ead9cd3d27afaf987bb8f711cfc"
+    },
+    {
+      "name": "cases-0025.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0025.tjs",
+      "SHA256": "cb960382f3d25136466c7c6e2a68e0b7df213d933749bd30c36da7cdaddcc5e4"
+    },
+    {
+      "name": "cases-0026.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0026.tjs",
+      "SHA256": "7d674a0fcca5146c28715594e378122c89842af0461a1c8bf10297f356dbab36"
+    },
+    {
+      "name": "cases-0027.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0027.tjs",
+      "SHA256": "56243c25dae9f6d42003cf3b26da98c507ae5e8c9ed92a3ff14ddbcd85462f66"
+    },
+    {
+      "name": "cases-0028.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0028.tjs",
+      "SHA256": "4a944ac9529ac9c972f5ae61ddb56fd5eb7982a8ad08b246448b3eb75d6bfd64"
+    },
+    {
+      "name": "cases-0029.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0029.tjs",
+      "SHA256": "519b1bb2655b863d284c209d801aee072a32a04b991f059970cff57c499400e4"
+    },
+    {
+      "name": "cases-0030.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0030.tjs",
+      "SHA256": "8387c8fefc368ff49bc24e40de1491a7bd8d8920ba366f156e35baeb554619e6"
+    },
+    {
+      "name": "cases-0031.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0031.tjs",
+      "SHA256": "62ff406eabf8404379274bf966094e39453e252798b802549a36d0eb93b88504"
+    },
+    {
+      "name": "cases-0032.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0032.tjs",
+      "SHA256": "6d4f966b954eda35c8cf7965ef467cfad9dfedb9912bb25394b53f72a4e2127b"
+    },
+    {
+      "name": "cases-0033.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0033.tjs",
+      "SHA256": "04f0e5ce78edecf1569c2f7b58e7268d09a3eec8352b11ed0ce45d3c821ab1d6"
+    },
+    {
+      "name": "cases-0034.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0034.tjs",
+      "SHA256": "88e3af57ee37a60a86a59cf33275622918e58d1d820e8c7febd46ea8f7ef7d06"
+    },
+    {
+      "name": "cases-0035.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0035.tjs",
+      "SHA256": "070781d75998287a043f00b6d6a5ae2617c7c89a31f033a2f4d10b6137ee2580"
+    },
+    {
+      "name": "cases-0036.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0036.tjs",
+      "SHA256": "ecc9e426f27ae60d72ba755134a3b419cfbc24efa382ce1466184a99fbf7f984"
+    },
+    {
+      "name": "cases-0037.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0037.tjs",
+      "SHA256": "dbe7b4a435ddbe38208f72e57a72e28e2bcdd76ac6dff4539eac334af0581cb9"
+    },
+    {
+      "name": "cases-0038.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0038.tjs",
+      "SHA256": "88599d24bff2ab409b4c27bc0f1547b6cf5efc52f56585d8b34ee04521ec4249"
+    },
+    {
+      "name": "cases-0039.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0039.tjs",
+      "SHA256": "d1059cdc7b2576dc2059f9e1ca3a5e9c40e1024d9425d5b985987299ab33a826"
+    },
+    {
+      "name": "cases-0040.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0040.tjs",
+      "SHA256": "c1231afd78486eca849e22ede0f80f0a7d42ca22b2fe628a3515806c408ca26c"
+    },
+    {
+      "name": "cases-0041.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0041.tjs",
+      "SHA256": "ef53f7dde46404188acb6ed6b388a353c0ef7ca047a47a659191eb9f8afdca3e"
+    },
+    {
+      "name": "cases-0042.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0042.tjs",
+      "SHA256": "83fe963ea73242f4ac7128c1b70c33bd8e848e283b1e724617e519a231ec942e"
+    },
+    {
+      "name": "cases-0043.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0043.tjs",
+      "SHA256": "97e411503bd5804daaee47d6197f6f21a9b15540845e6dca1b2cd33e1dee8bf9"
+    },
+    {
+      "name": "cases-0044.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0044.tjs",
+      "SHA256": "602959dc51a6a2059cc59c6aa0fe25e8aa7c2bc51cb8b4f3659b49e0ae0671c7"
+    },
+    {
+      "name": "cases-0045.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0045.tjs",
+      "SHA256": "629a46bcf1eb8b47a00228d2766edc889e74696dfd968bada0b71c91fe8e8cbc"
+    },
+    {
+      "name": "cases-0046.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0046.tjs",
+      "SHA256": "68dcba7e1616d4fa881e07ce77c27c63c8bb49d0a1907c16a4edf6d6bda93dae"
+    },
+    {
+      "name": "cases-0047.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0047.tjs",
+      "SHA256": "ce280e0711caacee028b9f21d31f495f217af6ed3efbd0357cb54ca218dbcecc"
+    },
+    {
+      "name": "cases-0048.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0048.tjs",
+      "SHA256": "f7da9a0ebd4cfdd3464c751d8b990a71c1f0b90e2148a65d7325e29dbf70e982"
+    },
+    {
+      "name": "cases-0049.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0049.tjs",
+      "SHA256": "ecdf279807fafd37d058a8d7d876c8be054da8c9c9368e9ad300522b1224eefe"
+    },
+    {
+      "name": "cases-0050.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0050.tjs",
+      "SHA256": "25fe49417d27cc0f4f53c0aca312f858ab5e8219436c2789fc40fe07d4a7366c"
+    },
+    {
+      "name": "cases-0051.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0051.tjs",
+      "SHA256": "074369807b518c98184fe0c3749427dbc86c868b072e6666220c9537c97d9225"
+    },
+    {
+      "name": "cases-0052.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0052.tjs",
+      "SHA256": "1ed386a28e1acfef90cfca3cdd2b5303ba5b1e17c7dac12ea93a179ad0afc5c6"
+    },
+    {
+      "name": "cases-0053.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0053.tjs",
+      "SHA256": "70bf6e439895f0ed0179208b9b59e94691d94af7009d6fd93374f025aab31aa8"
+    },
+    {
+      "name": "cases-0054.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0054.tjs",
+      "SHA256": "bb27b562e176e54ccdd4eaf440fd5af1362bc550bdc5b52bdd58425d02dcb1c5"
+    },
+    {
+      "name": "cases-0055.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0055.tjs",
+      "SHA256": "ebc1b73930d3df89321419304122a8d31ea049ea59cc6405e9ea7cb67a026503"
+    },
+    {
+      "name": "cases-0056.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0056.tjs",
+      "SHA256": "18c6715bea82feb41a36c7ba2f8919f0113527fd0c9cea3bb6cdef57095de5f5"
+    },
+    {
+      "name": "cases-0057.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0057.tjs",
+      "SHA256": "9770fb0b17e6a22e87cf49812d96acb0057426617397e6db9110b0cf7cecf6ab"
+    },
+    {
+      "name": "cases-0058.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0058.tjs",
+      "SHA256": "e64d1922045cc32f263a21646c49a3367449f623b549c1dd4c40e4bcae04a61f"
+    },
+    {
+      "name": "cases-0059.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0059.tjs",
+      "SHA256": "dc004fa564ddc5c4195669a01e1d72dcd131f50cf18797d24742e1476f6ba950"
+    },
+    {
+      "name": "cases-0060.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0060.tjs",
+      "SHA256": "45c48f7d612a5915487cc01a7cdd8d9a9f18c4deea9bb68b50effbc6d63286d5"
+    },
+    {
+      "name": "cases-0061.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0061.tjs",
+      "SHA256": "ee2b024d2e222437b97ac5510f58fb47a2205da916eaf35ec33329d30c4f53fe"
+    },
+    {
+      "name": "cases-0062.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0062.tjs",
+      "SHA256": "89ad682d7411cf21fe0b0b5182f6ea34cef4b2b04b69060710ca6f170ee8a9bb"
+    },
+    {
+      "name": "cases-0063.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0063.tjs",
+      "SHA256": "4713e9d3afa82077f6e10eac461f11ad6934224c65076ceb12aa04d881225420"
+    },
+    {
+      "name": "cases-0064.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0064.tjs",
+      "SHA256": "9fadd54b77cdcd6e07f5a54c39ebda70e578c97233a201bfe3c357077a3ff164"
+    },
+    {
+      "name": "cases-0065.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0065.tjs",
+      "SHA256": "4945c535e08f6bf09137c9f778f4493f77b3d4960e03343336a7e03f6609190b"
+    },
+    {
+      "name": "cases-0066.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0066.tjs",
+      "SHA256": "9546aa55f6d89d99ca53120d31a9693e48dda7d4c85fdbcb3f9feb53626e8343"
+    },
+    {
+      "name": "cases-0067.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0067.tjs",
+      "SHA256": "63cd8761bd1b2ccbe1080f475ddc7fb1893e8ae6700c7d9c4ef5bff97150e3fb"
+    },
+    {
+      "name": "cases-0068.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0068.tjs",
+      "SHA256": "c7ab54361e670b4cfddb9ce69b3741559cc5c36dd5cffb4de049674995f7bd70"
+    },
+    {
+      "name": "cases-0069.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0069.tjs",
+      "SHA256": "5f00741426288ed0d4e7961d25f7cc17d5581582dc3b6c32d3287dffc8fa9ca4"
+    },
+    {
+      "name": "cases-0070.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0070.tjs",
+      "SHA256": "06c6d3c5fcd832ed60a000d67ea22089279245fb02f8c2de00dc26bfaaf1bff8"
+    },
+    {
+      "name": "cases-0071.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0071.tjs",
+      "SHA256": "883a2a8215d56c03512f5a4619e6a9eb27f4720d54ec87c39102f6c209cfb562"
+    },
+    {
+      "name": "cases-0072.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0072.tjs",
+      "SHA256": "890b55c551bf13072b79748ff990466252100627b5521eebac7e122b80886656"
+    },
+    {
+      "name": "cases-0073.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0073.tjs",
+      "SHA256": "18342bc9ed46f89a96a50cb18c2026171add60a2671666cb9abd50dc554a2146"
+    },
+    {
+      "name": "cases-0074.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0074.tjs",
+      "SHA256": "2d09ef83985a3fca6a1e2ec210829cbdba7899aeb789f44c92bb8c0cb78b76f1"
+    },
+    {
+      "name": "cases-0075.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0075.tjs",
+      "SHA256": "6b444562ab9b8fc291bdf58bd61cefa5816a1b7943056a329c90e7dd0e99df94"
+    },
+    {
+      "name": "cases-0076.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0076.tjs",
+      "SHA256": "14bd85578256ce25ed0f4c42a0f3216282b4bce44912b2c83f2c4c4a9dbdc135"
+    },
+    {
+      "name": "cases-0077.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0077.tjs",
+      "SHA256": "fe83d603deaeb33452a6bdcbe5eddff089f8f9b858e76bbafb661223369a8083"
+    },
+    {
+      "name": "cases-0078.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0078.tjs",
+      "SHA256": "829eb1fbaec694d16fdbbe7ebb037a72640a5134db0e7f37e0037fe9c4d449f4"
+    },
+    {
+      "name": "cases-0079.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0079.tjs",
+      "SHA256": "153c5b8cf5ecdbe26a79fabb740bb3437be6533643dce713cdae1baccfe27b98"
+    },
+    {
+      "name": "cases-0080.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0080.tjs",
+      "SHA256": "f2cba01998327582674ebf40ad1df124f70590d668ee7863857f09910dfcfc76"
+    },
+    {
+      "name": "cases-0081.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0081.tjs",
+      "SHA256": "6a27beff1b1a31d5bf7a14a14bd8403c6e699cb996cda4a6a5071e4e4098594d"
+    },
+    {
+      "name": "cases-0082.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0082.tjs",
+      "SHA256": "3d882768b4c650b46e6869082795d47e5c0cd8a1173fb5e230a0d58e9f039a4a"
+    },
+    {
+      "name": "cases-0083.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0083.tjs",
+      "SHA256": "0aafe813123d216127a58f73e47f866cdbb295363ae27a382e92cb15a6e6a8ce"
+    },
+    {
+      "name": "cases-0084.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0084.tjs",
+      "SHA256": "de28bb274b5412aa1f507ad97182ad4c053a4d50025b612f03a021e1dee3c245"
+    },
+    {
+      "name": "cases-0085.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0085.tjs",
+      "SHA256": "dbb58c15c29b8fbdcc7fe4e549abd43fd1e3a40a4f6e20966146cd52d7ca3105"
+    },
+    {
+      "name": "cases-0086.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0086.tjs",
+      "SHA256": "22488775fa6e456d16433a4c90d4a2a204886ccf01f511de9532d0d1d900adff"
+    },
+    {
+      "name": "cases-0087.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0087.tjs",
+      "SHA256": "96e960d9479dbb27a2790a4ac286fc541df0d29ece2aad9e8a4af31f74ea47ad"
+    },
+    {
+      "name": "cases-0088.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0088.tjs",
+      "SHA256": "3b7ef7c0868e68258dbf2495e0722b98340a10625feb6b13781a93906ddc1957"
+    },
+    {
+      "name": "cases-0089.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0089.tjs",
+      "SHA256": "15f958f2d8d8dba4101616f1dfb83877c1e0f9a97a38a462f7998321fa10a43d"
+    },
+    {
+      "name": "cases-0090.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0090.tjs",
+      "SHA256": "ee6407865a29fd8bee274753677e6db2821ba3089b77ca75f0ce6d178067d9bb"
+    },
+    {
+      "name": "cases-0091.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0091.tjs",
+      "SHA256": "6ceacd669998bef8a173d7582484b38c47a40dbc6e31c0404bc682da4baf1042"
+    },
+    {
+      "name": "cases-0092.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0092.tjs",
+      "SHA256": "b1c31228b090b94ad93039b8972f646005db587caa28e4d4e9bc2609db10b719"
+    },
+    {
+      "name": "cases-0093.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0093.tjs",
+      "SHA256": "2078b265ad68518ecc836e83b8775e9e85cae651fe51aef49a509057f173ff78"
+    },
+    {
+      "name": "cases-0094.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0094.tjs",
+      "SHA256": "c11c1d59d4a8ab75a9eb3bb1ee6f84617dcec061e5feffbafd4da741895124c2"
+    },
+    {
+      "name": "cases-0095.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0095.tjs",
+      "SHA256": "759769d95bc30af6eac42dd91cf612844cdff71f2139a1ad6074b4d21dd89599"
+    },
+    {
+      "name": "cases-0096.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0096.tjs",
+      "SHA256": "2a5bc199617d42fa36c96dcffe94fd09949ce36fd395e4daf0f0dd9b980193f5"
+    },
+    {
+      "name": "cases-0097.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0097.tjs",
+      "SHA256": "cb7dc7f4a13ead6ac7c462b810e0f0b0247e94dbb8ce48cf57993e0f9e07cede"
+    },
+    {
+      "name": "cases-0098.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0098.tjs",
+      "SHA256": "5906e0c2b0e1c4308261bcf6e8615f299c103239fd31f78dd2276a4395d8e92d"
+    },
+    {
+      "name": "cases-0099.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0099.tjs",
+      "SHA256": "877e2d2d066d85da950eb8e59f338e8028d17c93e5208caaf33cfeb2eddb94fc"
+    },
+    {
+      "name": "cases-0100.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0100.tjs",
+      "SHA256": "1e97d60b22e3490c3d14eefaf74ef6656488ca7bb3c6c3bd05b13981c0b5a424"
+    },
+    {
+      "name": "cases-0101.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0101.tjs",
+      "SHA256": "9ab7be3b1866a150ca45aac8f3e80cc5f3e355444ec7a7c4e8ccb9cf70d663be"
+    },
+    {
+      "name": "cases-0102.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0102.tjs",
+      "SHA256": "a6353ba193b188a36e7051a9f1007b9a90a31432b607f51d09dbb4f405c884e7"
+    },
+    {
+      "name": "cases-0103.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0103.tjs",
+      "SHA256": "9ab6f41e799fc9d06ab4bd56b6549fa95cb2ab1bf9bad0457356e05cdc150406"
+    },
+    {
+      "name": "cases-0104.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0104.tjs",
+      "SHA256": "260ec0b3796d046c5fde70eceed68d65aac22a3a4787ace2089cd5866104feb3"
+    },
+    {
+      "name": "cases-0105.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0105.tjs",
+      "SHA256": "1650ae67d48d032a3a7df89a869ed4abf1f180dbe040644b8b0cb1e4cd2a88dd"
+    },
+    {
+      "name": "cases-0106.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0106.tjs",
+      "SHA256": "04b6b1f1db280a505c5833c6e98ad5646b3c57c7684a40d633d16d429e708085"
+    },
+    {
+      "name": "cases-0107.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0107.tjs",
+      "SHA256": "00225c0922aa003108887b367403c68783968af6d44ef5576ce1972cd99e24cd"
+    },
+    {
+      "name": "cases-0108.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0108.tjs",
+      "SHA256": "00047513bb94da26a583b17912f69b4204f19d1985f0084b47ae03873d106a95"
+    },
+    {
+      "name": "cases-0109.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0109.tjs",
+      "SHA256": "9ff9f77fcd470ea3d45850846cfbb51bda4fdb6db68585455f66c37466013661"
+    },
+    {
+      "name": "cases-0110.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0110.tjs",
+      "SHA256": "a460dc7072fe6965c7aa9aefcf1d754bb94e09adb6cd40a6c6585f57e1fde40e"
+    },
+    {
+      "name": "cases-0111.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0111.tjs",
+      "SHA256": "65db8bb5288c752652fa6a2981f1029485c9cb9d170890676f05d56fec3294d5"
+    },
+    {
+      "name": "cases-0112.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0112.tjs",
+      "SHA256": "9e9a173b5c007b4e9b603720aa67a30a08a934b1e1348426cdaf4df2c0393743"
+    },
+    {
+      "name": "cases-0113.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0113.tjs",
+      "SHA256": "f692e05d71b51bc9e21271b4749d84aa292dfe701cf3250a9fd1054d15e8651e"
+    },
+    {
+      "name": "cases-0114.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0114.tjs",
+      "SHA256": "dcaae28b486aaf5c65043238093a9ffe1e7e62ffc29bed331b3e911034f1bf0d"
+    },
+    {
+      "name": "cases-0115.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0115.tjs",
+      "SHA256": "33dcfbaf95bbb22d504b46a418878256aff717fee76bb7caa96600bc86ae7846"
+    },
+    {
+      "name": "cases-0116.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0116.tjs",
+      "SHA256": "a0813338de3aff76fe38d5a281349ae37078b0d6fe5263b867adf2033c48e80c"
+    },
+    {
+      "name": "cases-0117.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0117.tjs",
+      "SHA256": "17d6b9e006d8c53c930e28370568dd25abd42b8d9ecb8e42e92ea008dc9b9824"
+    },
+    {
+      "name": "cases-0118.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0118.tjs",
+      "SHA256": "f2acbd89e6af9ea3a98ddc7fb586ea38d0b65ad8437975b67c9c3d14ac875f1b"
+    },
+    {
+      "name": "cases-0119.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0119.tjs",
+      "SHA256": "fa26d8b67981ffae292ef61ab07b2e1fa4042dae69f2861346886d66026a7d5d"
+    },
+    {
+      "name": "cases-0120.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0120.tjs",
+      "SHA256": "18c704b40703ff7dfc592139e7c5d9807538b9dbd935127423b0e28482e8a858"
+    },
+    {
+      "name": "cases-0121.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0121.tjs",
+      "SHA256": "2857be0f706e454418bf69f7197fe7fa1347d32fe35a30dc1bb559093727a119"
+    },
+    {
+      "name": "cases-0122.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0122.tjs",
+      "SHA256": "1762f98687f8428107f2273a0a9de57d9b035fb64b3b1b3d8ad66856aa2d3672"
+    },
+    {
+      "name": "cases-0123.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0123.tjs",
+      "SHA256": "2dd03649c336fd9cd98bcca00e748ed2b53ea467d0bff0864a78c90370e536ac"
+    },
+    {
+      "name": "cases-0124.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0124.tjs",
+      "SHA256": "969e01f15cca621ff7ca6ebf2c03ecdf55461c01c0898389044d98c3011c411d"
+    },
+    {
+      "name": "cases-0125.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0125.tjs",
+      "SHA256": "55af021234ebc51cafc5388cb6a9f56b5235badbb222b2c2573bf109f3b6b301"
+    },
+    {
+      "name": "cases-0126.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0126.tjs",
+      "SHA256": "2ca6590c4fef5a8faec13b7f0aebaedc1ec6691e32aee88fd00f54d2f19a0034"
+    },
+    {
+      "name": "cases-0127.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0127.tjs",
+      "SHA256": "99226078a29b272869df555afa666eaf455ab8f7b3ad6db6c705924607c3aca5"
+    },
+    {
+      "name": "cases-0128.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0128.tjs",
+      "SHA256": "788cf9975a23c798c691ed76a3150ace85278f98af7711cfdff47ae16d499ac4"
+    },
+    {
+      "name": "cases-0129.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0129.tjs",
+      "SHA256": "a98192c1f340ad237fe571465a41e254280195f23b252b3a90128a7f1eadff38"
+    },
+    {
+      "name": "cases-0130.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0130.tjs",
+      "SHA256": "8f7422a75a4b748cf0e4f5626a5d45cb6692194147f07536a508ea581a05fd74"
+    },
+    {
+      "name": "cases-0131.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0131.tjs",
+      "SHA256": "e80161f50d13fa9b509990eac14029a7e73527a63c7714e1dcfa858a9b1ab887"
+    },
+    {
+      "name": "cases-0132.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0132.tjs",
+      "SHA256": "7269bcc1f936a8f058ce8b56db322744ddb66f3198dce907bcdaffa64313ca5e"
+    },
+    {
+      "name": "cases-0133.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0133.tjs",
+      "SHA256": "bd0c41df38bab27bc3f57195de9e5e143b190d1640d8c0481d6e8d11959e67e2"
+    },
+    {
+      "name": "cases-0134.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0134.tjs",
+      "SHA256": "274232e80039cedac0a7a29f8c82e8364c6a40a9679ab43b70c0e331785d7948"
+    },
+    {
+      "name": "cases-0135.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0135.tjs",
+      "SHA256": "d5902918a4accf22d2f361e9706a8e249dbef3a2b2f499d6cbe856c4a5df355a"
+    },
+    {
+      "name": "cases-0136.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0136.tjs",
+      "SHA256": "b5fd0d9334b3ddc6a78dfccbd40def22dba834884779ec16dff8130923b2c60b"
+    },
+    {
+      "name": "cases-0137.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0137.tjs",
+      "SHA256": "248e15cd2931e3ddcc06e6f0a5c45cff4ca0bf5ef654144ccaa4eddac84aa2c2"
+    },
+    {
+      "name": "cases-0138.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0138.tjs",
+      "SHA256": "3424b05b37629aca009fd9b76da8e15615ec6b31cada5381c3685cede5c60727"
+    },
+    {
+      "name": "cases-0139.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0139.tjs",
+      "SHA256": "6db8b6601f045082c54c082c72145c3c926a3f97f8a085ceaa2660aceab5071c"
+    },
+    {
+      "name": "cases-0140.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0140.tjs",
+      "SHA256": "9c3acbccd53250d72abbcde2faca94a2f981aed870f9ba268907775c3608e922"
+    },
+    {
+      "name": "cases-0141.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0141.tjs",
+      "SHA256": "e5ee16692959eb480bf01170d1e3c0f1bed469adf204caabee5e4f2b4cfc8af8"
+    },
+    {
+      "name": "cases-0142.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0142.tjs",
+      "SHA256": "81c4ad668f36e1c3c80815cf868c8a630a04a15112859effe0f85e700534076b"
+    },
+    {
+      "name": "cases-0143.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0143.tjs",
+      "SHA256": "1303871dfc0a741fda9b576c98db001fd782f97ac8edf693dd15b97212cbba9b"
+    },
+    {
+      "name": "cases-0144.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0144.tjs",
+      "SHA256": "9d9006299e49bd1171404f9b2ccf510fc3a81ecb31839ff7d540a4ce76b30220"
+    },
+    {
+      "name": "cases-0145.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0145.tjs",
+      "SHA256": "fcb30096f2af89a17743d172c9f1c2f4e3377bca16938915f072287cee57b5ec"
+    },
+    {
+      "name": "cases-0146.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0146.tjs",
+      "SHA256": "4e915ea14c05cf2b47f4168999f3fa70005e956e9bf06eca544c22789b869614"
+    },
+    {
+      "name": "cases-0147.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0147.tjs",
+      "SHA256": "0536ad0799451fbc59c2bf6b8e11d51ddb5fe39a3a2ecd22802558f7cc18b985"
+    },
+    {
+      "name": "cases-0148.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0148.tjs",
+      "SHA256": "4739c7280f35bd2dd86cdf9c04da3a7765e152bd1aa18a3816949712986d815d"
+    },
+    {
+      "name": "cases-0149.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0149.tjs",
+      "SHA256": "8aee956fe564e4df04ac74b714ad11547b505e2e0821d42f92b6d8e9da5c1d56"
+    },
+    {
+      "name": "cases-0150.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0150.tjs",
+      "SHA256": "85cdc09039caa8cf14a07e1795b5f7a63864c41fa55ebfd0a1ce625018f1dc14"
+    },
+    {
+      "name": "cases-0151.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0151.tjs",
+      "SHA256": "214889ff9071e72cc2b63858e8a8d07fd7d17aafd89cc30caf1049a0b5bfe04b"
+    },
+    {
+      "name": "cases-0152.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0152.tjs",
+      "SHA256": "5dbed713150f9023de5d838de8c20f070065d83a5bc9aad74b54e4c7fb3ccaf0"
+    },
+    {
+      "name": "cases-0153.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0153.tjs",
+      "SHA256": "a129829dd1385b5756f03171a972113e604186bf17ba8d253bc641fae9151dae"
+    },
+    {
+      "name": "cases-0154.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0154.tjs",
+      "SHA256": "c3867146f2f32cf34560f6fab06b3361daacef7cb86eae0e56b8d0eee637a067"
+    },
+    {
+      "name": "cases-0155.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/batch-0155.tjs",
+      "SHA256": "7c85b7cf928bf29f880233496ba74dcd6307ea8419b2a3f0721fb816a7d4abb3"
+    }
+  ],
+  "console_SHA256": "d435e73f4da8f3ab457046152ced7612bdc4a89f754653c46ee0c20d522a9c14",
+  "input_manifest": "临时/ISSUE-20261011-02/r-target-vm-parameter-group3-01/manifest.json",
+  "full_native_lifecycle_or_game_fidelity_proven": false
+}

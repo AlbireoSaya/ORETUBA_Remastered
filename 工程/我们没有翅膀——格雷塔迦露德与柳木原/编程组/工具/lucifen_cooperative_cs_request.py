@@ -1,0 +1,52 @@
+"""Cooperative critical-section yield requests; no OS/disk side effects."""
+
+import threading
+
+_MAX = 0xFFFFFFFF
+
+
+def _u32(value, name):
+    if type(value) is not int or not 1 <= value <= _MAX:
+        raise ValueError("%s must be an exact int in 1..0xFFFFFFFF" % name)
+    return value
+
+
+class CriticalYieldRequest:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._request = None
+
+    def request(self, key, holder_tid, requester_tid):
+        key = _u32(key, "key")
+        holder_tid = _u32(holder_tid, "holder_tid")
+        requester_tid = _u32(requester_tid, "requester_tid")
+        if holder_tid == requester_tid:
+            raise ValueError("holder_tid and requester_tid must differ")
+        with self._lock:
+            if self._request is not None:
+                raise RuntimeError("critical yield request already pending")
+            self._request = (key, holder_tid, requester_tid)
+
+    def released(self, key, holder_tid, remaining_depth):
+        key = _u32(key, "key")
+        holder_tid = _u32(holder_tid, "holder_tid")
+        if type(remaining_depth) is not int or remaining_depth < 0:
+            raise ValueError("remaining_depth must be an exact int >= 0")
+        with self._lock:
+            cur = self._request
+            if (cur and cur[0] == key and cur[1] == holder_tid
+                    and remaining_depth == 0):
+                self._request = None
+                return cur
+            return None
+
+    @property
+    def pending(self):
+        with self._lock:
+            return self._request
+
+    def cancel(self):
+        with self._lock:
+            prior = self._request
+            self._request = None
+            return prior

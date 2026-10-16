@@ -1,0 +1,1 @@
+[{"file":"r_vm_control.tjs","old":"        if (rd(p) == 0) {\n            wr(ctx + 8, rd(p + 4));\n        } else {","new":"        if (rd(p) == 0) {\n            wr(ctx + 8, p + 4);\n            wr(ctx + 8, rd(p + 4));\n        } else {","count":1}]

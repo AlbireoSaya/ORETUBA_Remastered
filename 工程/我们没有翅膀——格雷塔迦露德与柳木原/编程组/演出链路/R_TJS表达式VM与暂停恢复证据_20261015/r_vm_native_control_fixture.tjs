@@ -1,0 +1,15 @@
+function RVMNControl(rd, wr, rb, wb, f) {
+    wr(0x5355c0, 2);
+    var src = rd(f);
+    var i = 0;
+    var b;
+    while (i < 260) {
+        b = rb(src + i);
+        wb(0x5354bc + i, b);
+        if (b == 0) {
+            return 0;
+        }
+        i = i + 1;
+    }
+    throw new Exception("UNTERMINATED_CONTROL_STRING");
+}

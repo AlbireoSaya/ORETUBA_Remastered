@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>[自检夹具] M3 HTML 复刻无头截图用</title>
+<!-- ==========================================================================
+     harness.html — M3 自检夹具（**非交付物，仅存于 _工作/M3_证据/**）
+
+     作用：M1 的 krkr\assets\ui\ 尚未就位时，用 _工作/M3_证据/ui_scratch/ 下的
+           一次性贴图夹具（由 mk_scratch_assets.py 从只读的 资源组\美术统一\系统UI\
+           复制 + 拼合 panel_frame.png）跑**真正的** 复刻\replica.js，以便截图自证
+           渲染器工作正常。
+
+     它加载的是与交付物**完全相同**的 replica.css / replica.js / ui_layout.js，
+     唯一差别是 UI_ASSET_BASE 指向夹具目录。正式交付的 index.html 恒指向
+     ../krkr/assets/ui/（M1 唯一资产集，不复制第二份）。
+
+     驱动参数（URL query）：
+       ?screen=title|dialog|save|...   初始屏
+       ?line=40                        对话框跳到第 N 条台词并显示完
+       ?choices=1                      对话框直接进入选择肢
+       ?choice=1                       选择第 N 项（0 基）并显示结果
+       ?mode=skip|auto|hide            切换快进/自动/隐藏窗口
+       ?src=otv                        切换 content_box 演示源
+       ?panel=0                        隐藏复核面板（只留画布）
+       ?scale=1                        1:1 原始尺寸（默认适应窗口）
+     ========================================================================== -->
+<link rel="stylesheet" href="../../复刻/replica.css">
+<style>
+  body { background: #0b0d12; }
+  #err { position: fixed; left: 8px; top: 8px; right: 8px; z-index: 99999;
+         background: #3a1010; color: #ffb4ad; border: 1px solid #c0554d;
+         padding: 8px 10px; font: 12px/1.5 monospace; white-space: pre-wrap; display: none; }
+  #harness-note { position: fixed; right: 8px; bottom: 8px; z-index: 99999;
+         background: rgba(20,24,36,.92); border: 1px solid #5a6a8a; color: #c8c8d2;
+         padding: 4px 10px; font: 11px/1.5 "Microsoft YaHei",sans-serif; }
+</style>
+</head>
+<body>
+
+<div id="err"></div>
+<div id="harness-note">自检夹具：贴图取自 ui_scratch/（一次性）；渲染器与交付物为同一份 replica.js</div>
+
+<!-- 外壳（与 index.html 同构，便于 replica.js 的 boot() 正常工作） -->
+<div class="shell">
+  <div class="shell-head">
+    <h1>我们没有翅膀——格雷塔迦露德与柳木原<small>UI 1:1 HTML 复刻 · M3 自检夹具</small></h1>
+    <div class="sub">画布 <span id="canvas-note">1280×720</span> ｜ 贴图 <code id="src-note"></code></div>
+    <div class="bar">
+      <span class="lab">缩放</span>
+      <button class="btn" id="btn-1to1">1:1 原始尺寸</button>
+      <button class="btn" id="btn-fit">适应窗口</button>
+      <span class="sep"></span>
+      <span class="lab">content_box 演示源</span>
+      <select class="btn" id="demo-source"></select>
+      <span class="sep"></span>
+      <button class="btn" id="btn-back">返回上一屏</button>
+      <button class="btn" id="btn-replay">重播对话演示</button>
+      <button class="btn" id="btn-panel">隐藏面板</button>
+    </div>
+    <div class="bar"><span class="lab">界面</span><div id="screen-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div></div>
+  </div>
+  <div id="stage-wrap"><div id="stage"><div id="canvas"></div></div></div>
+  <div class="shell-foot"><div class="kv"><b>署名</b>：<span id="sig-note"></span></div></div>
+</div>
+
+<script>
+  /* 自检：把任何 JS 报错显式暴露到页面上，便于无头截图取证 */
+  window.__HARNESS_ERRORS = [];
+  window.onerror = function (msg, src, line, col) {
+    var s = 'JS ERROR: ' + msg + '  @' + src + ':' + line + ':' + col;
+    window.__HARNESS_ERRORS.push(s);
+    var e = document.getElementById('err');
+    e.style.display = 'block';
+    e.textContent += s + '\n';
+    return false;
+  };
+  window.addEventListener('unhandledrejection', function (ev) {
+    window.__HARNESS_ERRORS.push('PROMISE REJECT: ' + ev.reason);
+  });
+  /* 资产根指向一次性夹具（交付物为 ../krkr/assets/ui/） */
+  window.UI_ASSET_BASE = './ui_scratch/';
+</script>
+
+<script src="../../复刻/ui_layout.js"></script>
+<script src="../../复刻/replica.js"></script>
+
+<script>
+(function () {
+  function q(k) {
+    var m = new RegExp('[?&]' + k + '=([^&]*)').exec(location.search);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function apply() {
+    var R = window.UI_REPLICA;
+    if (!R) { document.getElementById('err').style.display = 'block';
+              document.getElementById('err').textContent = 'UI_REPLICA 未初始化（replica.js 未成功执行）'; return; }
+
+    if (q('panel') === '0') document.body.classList.add('panel-off');
+    if (q('scale') === '1') R.setScale(1); else R.setScale(R.fitScale());
+
+    var scr = q('screen');
+    if (scr) R.renderScreen(scr);
+
+    var src = q('src');
+    if (src) R.setDemoSource(src);
+
+    if (q('mode')) { var ms = q('mode').split(','); ms.forEach(function (m) { R.setMode(m); }); }
+
+    /* 让对话框停在最后一句并显示完（选择肢弹出时保留最后一句台词） */
+    function lastLine() {
+      R.renderScreen('dialog');
+      R.jumpToLine((R.script().lines || []).length - 1);
+      R.state.dlg.skip = true;
+      R.advance();
+      R.state.dlg.skip = false;
+    }
+    if (q('choices')) { lastLine(); R.endDialog(); }
+    if (q('choice') !== null) { lastLine(); R.endDialog(); R.choose(Number(q('choice'))); }
+    if (q('line') !== null) {
+      R.renderScreen('dialog');
+      R.jumpToLine(Number(q('line')));
+      /* 打字机立即收尾，保证截图确定（不改渲染逻辑，只驱动运行期状态） */
+      R.state.dlg.skip = true;
+      R.advance();                 // typing 中 → finishLine()
+      R.state.dlg.skip = false;
+    }
+  }
+  window.addEventListener('load', function () { setTimeout(apply, 120); });
+  /* 截图确定化：load 后再等一拍 */
+  window.__harnessReady = false;
+  window.addEventListener('load', function () { setTimeout(function () { window.__harnessReady = true; }, 400); });
+})();
+</script>
+
+</body>
+</html>

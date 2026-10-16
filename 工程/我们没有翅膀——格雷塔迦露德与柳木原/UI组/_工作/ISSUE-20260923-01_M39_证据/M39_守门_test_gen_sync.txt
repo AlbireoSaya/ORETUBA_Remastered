@@ -1,0 +1,181 @@
+==============================================================================
+生成器 ↔ 磁盘 一致性守门（write() 内存捕获法；**不写盘**）
+  目录 E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens ｜ 屏 21 个 ｜ 模式 normal
+==============================================================================
+
+### 生成器 m34_build_screens.py（M34 · 按《交汇协奏曲》PSB 坐标重建）
+  01_title.json        **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 10 件 ｜ 差异 丢14/改1
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_title()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：M35b 的「图标↔文字」组绑定与 7 张文字图由 `_工作\M35b_标题菜单组绑定.py` **直接改 JSON** 落在盘上，未回写 build_title()。重跑会删 `title.menu_txt_{start,continue,load,flowchart,config,gallery,exit}` 7 件、并丢掉 7 个 `title.menu_hit_N` 的 `state_group` ⇒ 组绑定全失（悬停图标不再点亮文字）。修法与 `_工作\M1_emit_m35b_override.py` 给 config 做的相同：把这些字段提成生成器里的 override 常量。
+          **重跑会丢的清单**：
+            - 元素 `title.menu_txt_config` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_continue` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_exit` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_flowchart` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_gallery` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_load` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_txt_start` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `title.menu_hit_1` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_start'
+            - 元素 `title.menu_hit_2` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_continue'
+            - 元素 `title.menu_hit_3` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_load'
+            - 元素 `title.menu_hit_4` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_flowchart'
+            - 元素 `title.menu_hit_5` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_config'
+            - 元素 `title.menu_hit_6` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_gallery'
+            - 元素 `title.menu_hit_7` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'title.menu_exit'
+        ~ 屏级字段 `note` 不同：生成器 '**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 84 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V1 裁决（用户 2026-09-21）**：标题菜单改**竖排条**，推翻 M28 的底部横排。' ／ 磁盘 '**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 84 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V1 裁决（用户 2026-09-21）**：标题菜单改**竖排条**，推翻 M28 的底部横排。\n★ **M35b（2026-09-22）· 标题菜单「图标 + 文字」组绑定**（用户要求）：7 个图标热区与 7 张文字图同属 `state_group: "title.menu_<key>"` ⇒ 鼠标落在任意一者上（或两者同时）两者**同步**换态；文字图的 `state_assets` = 合成层常态 / 合成层 `_on`（悬停）。文字位置由**用户在编辑器里摆放**（导出件见 `编辑器修改区\\01_title.json`），文字图 id 由编辑器自动名 `new.*` 改成语义名 `title.menu_txt_<key>`。\n★ **给后续编辑者的提醒**：在编辑器里继续改本屏前，请先**刷新页面/点「重载」**，让它从更新后的 `ui_layout.js` 读入（否则旧会话里没有 `state_group` 与文字态图，导出会把这两项覆盖掉）。'
+  34_sysbar.json       **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 8 件 ｜ 差异 丢9/改9
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_sysbar()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`sysbar.hit_{snap,hide,vreplay}` ⇄ 对应 image）：重跑后 3 组态图会按热区矩形拉伸并抹掉 3 个 `state_group`。
+          **重跑会丢的清单**：
+            - 元素 `sysbar.hide` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'}
+            - 元素 `sysbar.hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+            - 元素 `sysbar.hit_hide` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.hide'
+            - 元素 `sysbar.hit_snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+            - 元素 `sysbar.hit_vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+            - 元素 `sysbar.snap` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'}
+            - 元素 `sysbar.snap` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.snap'
+            - 元素 `sysbar.vreplay` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+            - 元素 `sysbar.vreplay` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'sysbar.vreplay'
+        ~ 元素 `sysbar.hide.note` 不同：生成器 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}）" ／ 磁盘 "隐藏窗口 图标（PSB idx78 `ボタン/hide/off`，x1513 y874 w37 h38）（素材 37×35 ≠ 设计 37×38 → nine {'l': 9, 't': 8, 'r': 9, 'b': 8}） ★ M35b：接收原热区 `sysbar.hit_hide` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「sysbar.hide」联动。"
+        ~ 元素 `sysbar.hit_hide.note` 不同：生成器 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '隐藏窗口 热区（按 PSB `ボタン/hide/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.hide` 绘制，两者 state_group「sysbar.hide」联动。'
+        ~ 元素 `sysbar.hit_hide.state_assets` 不同：生成器 {'normal': 'ui/x_ui_hide_off.png', 'hover': 'ui/x_ui_hide_over.png', 'pressed': 'ui/x_ui_hide_on.png'} ／ 磁盘 None
+        ~ 元素 `sysbar.hit_snap.note` 不同：生成器 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '截图 热区（按 PSB `ボタン/snap/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.snap` 绘制，两者 state_group「sysbar.snap」联动。'
+        ~ 元素 `sysbar.hit_snap.state_assets` 不同：生成器 {'normal': 'ui/x_ui_snap_off.png', 'hover': 'ui/x_ui_snap_over.png', 'pressed': 'ui/x_ui_snap_on.png'} ／ 磁盘 None
+        ~ 元素 `sysbar.hit_vreplay.note` 不同：生成器 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。' ／ 磁盘 '语音重播 热区（按 PSB `ボタン/vreplay/#rect` 外扩 8px）。**action 留空**：schema §六「动作表未覆盖的控件允许空串，不得臆造」——待编程组定义。 ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `sysbar.vreplay` 绘制，两者 state_group「sysbar.vreplay」联动。'
+        ~ …另有 3 处值差异（--verbose 全列）
+  35_quickbar.json     SYNCED ✓（生成器可完整复现磁盘）
+  21_confirm.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 9 件 ｜ 差异 丢6/改6
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_confirm()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：`_工作\M35b_热区态图迁移.py` 把 `cf.hit_yes/no` 的 `state_assets` 挪到 `cf.yes/no` image + `state_group` 联动；重跑会把三态塞回 hit（拉伸涂抹回归）并抹掉 4 个 `state_group`。
+          **重跑会丢的清单**：
+            - 元素 `cf.hit_no` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.no'
+            - 元素 `cf.hit_yes` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.yes'
+            - 元素 `cf.no` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'}
+            - 元素 `cf.no` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.no'
+            - 元素 `cf.yes` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'}
+            - 元素 `cf.yes` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'confirm.yes'
+        ~ 元素 `cf.hit_no.note` 不同：生成器 '「否」热区（action=confirm_no；PSB `#rect` 同矩形）' ／ 磁盘 '「否」热区（action=confirm_no；PSB `#rect` 同矩形） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `cf.no` 绘制，两者 state_group「confirm.no」联动。'
+        ~ 元素 `cf.hit_no.state_assets` 不同：生成器 {'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'} ／ 磁盘 None
+        ~ 元素 `cf.hit_yes.note` 不同：生成器 '「是」热区（action=confirm_yes；PSB `#rect` 同矩形）' ／ 磁盘 '「是」热区（action=confirm_yes；PSB `#rect` 同矩形） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `cf.yes` 绘制，两者 state_group「confirm.yes」联动。'
+        ~ 元素 `cf.hit_yes.state_assets` 不同：生成器 {'normal': 'ui/x_ui_btn_l_off.png', 'hover': 'ui/x_ui_btn_l_over.png', 'pressed': 'ui/x_ui_btn_l_on.png'} ／ 磁盘 None
+        ~ 元素 `cf.no.note` 不同：生成器 "「否」按钮底（PSB idx74 `#rect` x993 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}）" ／ 磁盘 "「否」按钮底（PSB idx74 `#rect` x993 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}） ★ M35b：接收原热区 `cf.hit_no` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「confirm.no」联动。"
+        ~ 元素 `cf.yes.note` 不同：生成器 "「是」按钮底（PSB idx74 `#rect` x720 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}）" ／ 磁盘 "「是」按钮底（PSB idx74 `#rect` x720 y552 w203 h51；原作此二键的文字是**烘焙进 32×30 小图**的，本作改为引擎绘字 + 通用按钮底）（素材 78×41 ≠ 设计 203×51 → nine {'l': 19, 't': 10, 'r': 19, 'b': 10}） ★ M35b：接收原热区 `cf.hit_yes` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「confirm.yes」联动。"
+  36_choices.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 7 件 ｜ 差异 丢6/改7
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_choices()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：`_工作\M35b_热区态图迁移.py` 把 `ch.sel` 拆成 `ch.bg_1/2/3`（per-row 态图）并把三态从 hit 挪到 image，仅改 JSON。重跑会删 `ch.bg_1/2/3` 并让 3 个 hit 重新持有 `state_assets`（热区拉伸涂抹问题回归）。
+          **重跑会丢的清单**：
+            - 元素 `ch.bg_1` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.bg_2` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.bg_3` 只在磁盘上、生成器不再产出 ⇒ **重跑会删掉它**
+            - 元素 `ch.hit_1` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.1'
+            - 元素 `ch.hit_2` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.2'
+            - 元素 `ch.hit_3` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'choices.3'
+        ~ 元素 `ch.sel` 只在生成器里（磁盘没有）⇒ 重跑会新增它
+        ~ 元素 `ch.hit_1.note` 不同：生成器 '选项热区（index=0）。**state_assets 三态整图**（原作即三态整条）' ／ 磁盘 '选项热区（index=0）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_1` 绘制，两者 state_group「choices.1」联动。'
+        ~ 元素 `ch.hit_1.state_assets` 不同：生成器 {'normal': 'ui/x_ui_choice_off.png', 'hover': 'ui/x_ui_choice_over.png', 'pressed': 'ui/x_ui_choice_dis.png'} ／ 磁盘 None
+        ~ 元素 `ch.hit_2.note` 不同：生成器 '选项热区（index=1）。**state_assets 三态整图**（原作即三态整条）' ／ 磁盘 '选项热区（index=1）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_2` 绘制，两者 state_group「choices.2」联动。'
+        ~ 元素 `ch.hit_2.state_assets` 不同：生成器 {'normal': 'ui/x_ui_choice_off.png', 'hover': 'ui/x_ui_choice_over.png', 'pressed': 'ui/x_ui_choice_dis.png'} ／ 磁盘 None
+        ~ 元素 `ch.hit_3.note` 不同：生成器 '选项热区（index=2）。**state_assets 三态整图**（原作即三态整条）' ／ 磁盘 '选项热区（index=2）。**state_assets 三态整图**（原作即三态整条） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `ch.bg_3` 绘制，两者 state_group「choices.3」联动。'
+        ~ …另有 1 处值差异（--verbose 全列）
+  37_dress.json        **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 107 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_dress()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`dr.hit_reset` ⇄ `dr.reset`）：重跑后「初始化」三态按 78×25 热区绘制并抹掉 `dress.reset` 组。
+          **重跑会丢的清单**：
+            - 元素 `dr.hit_reset` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'dress.reset'
+            - 元素 `dr.reset` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_reset_off.png', 'hover': 'ui/x_ui_reset_over.png', 'pressed': 'ui/x_ui_reset_on.png'}
+            - 元素 `dr.reset` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'dress.reset'
+        ~ 元素 `dr.hit_reset.note` 不同：生成器 '「初始化」热区（action 留空）' ／ 磁盘 '「初始化」热区（action 留空） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `dr.reset` 绘制，两者 state_group「dress.reset」联动。'
+        ~ 元素 `dr.hit_reset.state_assets` 不同：生成器 {'normal': 'ui/x_ui_reset_off.png', 'hover': 'ui/x_ui_reset_over.png', 'pressed': 'ui/x_ui_reset_on.png'} ／ 磁盘 None
+        ~ 元素 `dr.reset.note` 不同：生成器 "「初始化」键（PSB idx76 `reset/オフ`，x1264 y44 w78 h25）（素材 48×25 ≠ 设计 78×25 → nine {'l': 12, 't': 6, 'r': 12, 'b': 6}）" ／ 磁盘 "「初始化」键（PSB idx76 `reset/オフ`，x1264 y44 w78 h25）（素材 48×25 ≠ 设计 78×25 → nine {'l': 12, 't': 6, 'r': 12, 'b': 6}） ★ M35b：接收原热区 `dr.hit_reset` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「dress.reset」联动。"
+  26_backlog.json      **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 15 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_backlog()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`bl.spk_hit` ⇄ `bl.spk`）：重跑会把 `ui/x_ui_spk_*.png` 三态按 1222×224 热区矩形拉伸绘制（48.9×8.3 涂抹，M35b 修掉的正是这条），并抹掉 `backlog.spk` 组。
+          **重跑会丢的清单**：
+            - 元素 `bl.spk` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'}
+            - 元素 `bl.spk` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'backlog.spk'
+            - 元素 `bl.spk_hit` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'backlog.spk'
+        ~ 元素 `bl.spk.note` 不同：生成器 "语音重播键（PSB idx73 `バックログ/オフ/スピーカー`，x349 y138 w25 h35）（素材 25×27 ≠ 设计 25×35 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}）" ／ 磁盘 "语音重播键（PSB idx73 `バックログ/オフ/スピーカー`，x349 y138 w25 h35）（素材 25×27 ≠ 设计 25×35 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `bl.spk_hit` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「backlog.spk」联动。"
+        ~ 元素 `bl.spk_hit.note` 不同：生成器 '语音重播热区（PSB `#rects/speaker` 1222×224 —— **整条消息行可点**）' ／ 磁盘 '语音重播热区（PSB `#rects/speaker` 1222×224 —— **整条消息行可点**） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `bl.spk` 绘制，两者 state_group「backlog.spk」联动。'
+        ~ 元素 `bl.spk_hit.state_assets` 不同：生成器 {'normal': 'ui/x_ui_spk_off.png', 'hover': 'ui/x_ui_spk_over.png', 'pressed': 'ui/x_ui_spk_on.png'} ／ 磁盘 None
+  23_save.json         SYNCED ✓（生成器可完整复现磁盘）
+  24_load.json         SYNCED ✓（生成器可完整复现磁盘）
+  25_config.json       SYNCED ✓（生成器可完整复现磁盘）
+  28_music.json        SYNCED ✓（生成器可完整复现磁盘）
+  32_flowchart.json    **LOSS**（重跑会丢数据）             → 已登记（ACK） ｜ 元素 74 件 ｜ 差异 丢3/改3
+        ⚠ **已知不同步**（责任方：待回写（M35b 后续 / 主代理指派））
+          本屏的生成器入口：m34_build_screens.build_flowchart()（有入口 ⇒ 属「有生成器但落后」，重跑会真抹数据）
+          理由：同上（`fc.close_hit` ⇄ `fc.close`）：重跑后关闭键的三态会按 56×56 热区拉伸，并抹掉 `flowchart.close` 组。
+          **重跑会丢的清单**：
+            - 元素 `fc.close` 的受保护字段 `state_assets` 只存在于磁盘（重跑即抹）：{'normal': 'ui/x_ui_close_off.png', 'hover': 'ui/x_ui_close_over.png', 'pressed': 'ui/x_ui_close_on.png'}
+            - 元素 `fc.close` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'flowchart.close'
+            - 元素 `fc.close_hit` 的受保护字段 `state_group` 只存在于磁盘（重跑即抹）：'flowchart.close'
+        ~ 元素 `fc.close.note` 不同：生成器 "关闭键（PSB `close/off` x1843 y177 w26 h26）（素材 24×26 ≠ 设计 26×26 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}）" ／ 磁盘 "关闭键（PSB `close/off` x1843 y177 w26 h26）（素材 24×26 ≠ 设计 26×26 → nine {'l': 6, 't': 6, 'r': 6, 'b': 6}） ★ M35b：接收原热区 `fc.close_hit` 的三态图（热区矩形是 PSB 的交互区，比美术大得多，由热区画会拉伸涂抹）——美术在 1:1/九宫格口径下画，与热区用 state_group「flowchart.close」联动。"
+        ~ 元素 `fc.close_hit.note` 不同：生成器 '关闭热区（PSB `close/#rect`）' ／ 磁盘 '关闭热区（PSB `close/#rect`） ★ M35b：**退回纯热区**（不再持有美术，避免按热区矩形拉伸绘制）；三态图改由同矩形的 image `fc.close` 绘制，两者 state_group「flowchart.close」联动。'
+        ~ 元素 `fc.close_hit.state_assets` 不同：生成器 {'normal': 'ui/x_ui_close_off.png', 'hover': 'ui/x_ui_close_over.png', 'pressed': 'ui/x_ui_close_on.png'} ／ 磁盘 None
+
+### 生成器 m33_rebuild_screens.py（M33 · 系统屏重排）　★**已失效，不得再运行**
+  20_sysmenu.json      **LOSS**（重跑会丢数据）             → FAIL ｜ 元素 29 件 ｜ 差异 丢10/改20
+        ~ 元素 `sm.back.asset` 不同：生成器 'ui/x_gen_sd_1-1_back_off.png' ／ 磁盘 'ui/x_ui_btn_l_off.png'
+        ~ 元素 `sm.back.note` 不同：生成器 '返回游戏按钮（`SD-1-1` 共通按钮，同族 9 件归一化为 224×64）' ／ 磁盘 "返回游戏按钮（`SD-1-1` 共通按钮，同族 9 件归一化为 224×64）  ★ M34 素材重映射：x_gen_sd_1-1_back_off.png → x_ui_btn_l_off.png  ★ M34 九宫格自动补齐（素材 78x41 vs 版面 224x64 → {'l': 19, 't': 0, 'r': 19, 'b': 0}）"
+        ~ 元素 `sm.bg.asset` 不同：生成器 'ui/x_gen_sd_9-1_bg.png' ／ 磁盘 'ui/x_ui_backlog_bg.png'
+        ~ 元素 `sm.bg.note` 不同：生成器 '满幅底（本批片尾背景，浅冰蓝）' ／ 磁盘 "满幅底（本批片尾背景，浅冰蓝）  ★ M34 素材重映射：x_gen_sd_9-1_bg.png → x_ui_backlog_bg.png  ★ M34 九宫格自动补齐（素材 1916x1080 vs 版面 1920x1080 → {'l': 120, 't': 0, 'r': 120, 'b': 0}）"
+        ~ 元素 `sm.item1.asset` 不同：生成器 'ui/x_gen_sd_2-1_m1_off.png' ／ 磁盘 'ui/x_ui_btn_l_off.png'
+        ~ 元素 `sm.item1.note` 不同：生成器 '菜单项底（`SD-2-1` 拆件 m1 常态）。**同族 14 件已归一化为统一画布 408×58**（原 off 398–407、on 350–364 宽不一致 → 参差）；元素矩形 = 素材实尺寸，1:1。' ／ 磁盘 "菜单项底（`SD-2-1` 拆件 m1 常态）。**同族 14 件已归一化为统一画布 408×58**（原 off 398–407、on 350–364 宽不一致 → 参差）；元素矩形 = 素材实尺寸，1:1。  ★ M34 素材重映射：x_gen_sd_2-1_m1_off.png → x_ui_btn_l_off.png  ★ M34 九宫格自动补齐（素材 78x41 vs 版面 408x58 → {'l': 19, 't': 0, 'r': 19, 'b': 0}）"
+        ~ …另有 14 处值差异（--verbose 全列）
+  22_loading.json      **LOSS**（重跑会丢数据）             → FAIL ｜ 元素 7 件 ｜ 差异 丢5/改10
+        ~ 元素 `ld.bg.asset` 不同：生成器 'ui/x_gen_sd_9-1_bg.png' ／ 磁盘 'ui/x_ui_backlog_bg.png'
+        ~ 元素 `ld.bg.note` 不同：生成器 '满幅底（本批片尾背景，浅冰蓝）' ／ 磁盘 "满幅底（本批片尾背景，浅冰蓝）  ★ M34 素材重映射：x_gen_sd_9-1_bg.png → x_ui_backlog_bg.png  ★ M34 九宫格自动补齐（素材 1916x1080 vs 版面 1920x1080 → {'l': 120, 't': 0, 'r': 120, 'b': 0}）"
+        ~ 元素 `ld.plate.asset` 不同：生成器 'ui/x_gen_sd_4-1_plate.png' ／ 磁盘 'ui/x_ui_loading_plate.png'
+        ~ 元素 `ld.plate.note` 不同：生成器 '提示牌（`SD-4-1` 拆件，1:1）。**整组以画布中心 960 居中**：牌 705–1125 + 间隔 40 + 转圈 1165–1215 → 组宽 510，中心 960。' ／ 磁盘 "提示牌（`SD-4-1` 拆件，1:1）。**整组以画布中心 960 居中**：牌 705–1125 + 间隔 40 + 转圈 1165–1215 → 组宽 510，中心 960。  ★ M34 素材重映射：x_gen_sd_4-1_plate.png → x_ui_loading_plate.png  ★ M34 九宫格自动补齐（素材 420x137 vs 版面 420x148 → {'l': 0, 't': 34, 'r': 0, 'b': 34}）"
+        ~ 元素 `ld.spin_a.asset` 不同：生成器 'ui/x_gen_sd_4-1_spin_a.png' ／ 磁盘 'ui/x_ui_spin_a.png'
+        ~ 元素 `ld.spin_a.note` 不同：生成器 '转圈指示第 A 帧（`SD-4-1` 拆件）。**三帧同矩形**（1165,512）——引擎轮播换图，位置不动；HTML 静态渲染时最上层一帧可见。竖直中心 512+32 = 544 = 提示牌中心 470+74 ✓' ／ 磁盘 "转圈指示第 A 帧（`SD-4-1` 拆件）。**三帧同矩形**（1165,512）——引擎轮播换图，位置不动；HTML 静态渲染时最上层一帧可见。竖直中心 512+32 = 544 = 提示牌中心 470+74 ✓  ★ M34 素材重映射：x_gen_sd_4-1_spin_a.png → x_ui_spin_a.png  ★ M34 九宫格自动补齐（素材 50x53 vs 版面 50x64 → {'l': 0, 't': 13, 'r': 0, 'b': 13}）"
+        ~ …另有 4 处值差异（--verbose 全列）
+
+### ★ 已失效生成器的处置（**不得再运行**，否则覆盖盘上数据 + 引用缺图）
+  m33_rebuild_screens.py 的 build 函数产出的是**旧素材体系**（`ui/x_gen_sd_*.png` 等，盘上已不存在）
+  盘上现值由后续工作改写（M12/M13 的 1920 迁移 + M34 的 `x_ui_*` 素材统一）⇒
+  重跑它 = 覆盖 + 引用缺图（`verify_ui` 的 [1][2] 会失败）。
+  该模块其余 build 函数（同一屏已由 m34 重建）已整体作废，留档如下：
+    · m33_rebuild_screens.build_backlog —— 同一屏由 m34_build_screens.build_backlog 重建
+    · m33_rebuild_screens.build_config —— 同一屏由 m34_build_screens.build_config 重建
+    · m33_rebuild_screens.build_confirm —— 同一屏由 m34_build_screens.build_confirm 重建（owner 已是 M34）
+    · m33_rebuild_screens.build_music —— 同一屏由 m34_build_screens.build_music 重建
+    · m33_rebuild_screens.build_save/load —— 同一屏由 m34_build_screens.build_saveload_* 重建
+    · m33_rebuild_screens.patch_flowchart —— 作用于 `flow.tab*`——该结构已由 m34 的 `fc.*` 重建取代（死代码）
+  盘上仍会被它改坏的屏（清单）：
+    · [20_sysmenu.json] 元素 `sm.back` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.bg` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 120, 't': 0, 'r': 120, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item1` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item2` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item3` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item4` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item5` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item6` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item7` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 元素 `sm.item8` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 19, 't': 0, 'r': 19, 'b': 0}
+    · [20_sysmenu.json] 与失效生成器有 20 处值差异
+    · [22_loading.json] 元素 `ld.bg` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 120, 't': 0, 'r': 120, 'b': 0}
+    · [22_loading.json] 元素 `ld.plate` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 34, 'r': 0, 'b': 34}
+    · [22_loading.json] 元素 `ld.spin_a` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 元素 `ld.spin_b` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 元素 `ld.spin_c` 的受保护字段 `nine` 只存在于磁盘（重跑即抹）：{'l': 0, 't': 13, 'r': 0, 'b': 13}
+    · [22_loading.json] 与失效生成器有 10 处值差异
+
+### 无 build 函数的屏（不会被任何生成器重跑抹掉）
+  10_dialog.json       来源：M23_gen.py（系统条改通用 hit 扫描 + 对话框换图）＋ migrate_1920.py
+  27_gallery.json      来源：_工作/M14_gen_screens.py
+  29_ending.json       来源：早期直接写盘（无生成器；改动无回写对象）
+  30_chapter.json      来源：早期直接写盘（无生成器；改动无回写对象）
+  31_fragment.json     来源：_工作/M14_gen_screens.py
+  33_sysicons.json     来源：_工作/M23_gen.py
+
+------------------------------------------------------------------------------
+覆盖：生成器产出屏 14 个 ｜ 登记表 ACK 命中 7 条 ｜ 失效生成器待处置 17 条
+落盘自证：运行前后 layout/screens/*.json 的 md5 **完全一致** ✓（21 个文件）
+结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）

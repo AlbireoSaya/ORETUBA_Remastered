@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "original_WNDPROC": 4847712,
+      "actual_host_message": 36,
+      "original_stdcall_stack_bytes": 20,
+      "original_return_value": 0,
+      "guest_HWND_token": 1777664000,
+      "original_zero_userdata_fallback_executed": true,
+      "actual_MINMAXINFO_before": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "actual_MINMAXINFO_after": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "actual_40_bytes_in_and_out_exact": true,
+      "guest_buffer_guards_preserved": true,
+      "original_parent_HWND_unchanged": true,
+      "API_events": [
+        {
+          "original_API": "GetWindowLongA",
+          "original_return_address": 4847769,
+          "actual_host_API": true,
+          "actual_result": 0,
+          "actual_error": 0,
+          "host_API_called_only_after_outer_emu_stop": true
+        },
+        {
+          "original_API": "DefWindowProcA",
+          "original_return_address": 4847843,
+          "actual_host_API": true,
+          "actual_result": 0,
+          "actual_error": 0,
+          "host_API_called_only_after_outer_emu_stop": true
+        }
+      ],
+      "no_guest_function_registered_with_OS": true,
+      "not_original_game_CreateWindow_or_full_WNDPROC_proof": true
+    }
+  ],
+  "errors": [],
+  "actual_SendMessageA_return": 0,
+  "original_game_CreateWindowExA_still_not_called": true,
+  "original_NCCREATE_userdata_branch_not_tested": true,
+  "owned_fixture_not_original_game_window": true
+}

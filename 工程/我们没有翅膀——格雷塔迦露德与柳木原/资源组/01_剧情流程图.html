@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我们没有翅膀——格雷塔迦露德与柳木原 · 全系列剧情流程图</title>
+<style>
+:root{
+  --bg:#0e1116; --bg2:#151a22; --bg3:#1c232e; --line:#2b3543;
+  --fg:#dde4ee; --fg2:#8fa0b6; --fg3:#5d6b7d;
+  --real:#4ea3ff; --fant:#b07cff; --warn:#ffb347; --bad:#ff6b6b; --ok:#4ade80;
+  --accent:#ffd166;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:"Microsoft YaHei","微软雅黑","PingFang SC","Hiragino Sans GB",sans-serif;
+  font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent)}
+header{
+  padding:26px 32px 18px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#171d27 0%,#0e1116 100%);
+}
+h1{font-size:23px;font-weight:600;letter-spacing:.5px}
+h1 .sub{color:var(--fg2);font-size:14px;font-weight:400;margin-left:10px}
+.meta{margin-top:8px;color:var(--fg3);font-size:12.5px}
+.meta b{color:var(--fg2);font-weight:500}
+nav{
+  display:flex;gap:2px;padding:0 32px;border-bottom:1px solid var(--line);
+  background:var(--bg2);position:sticky;top:0;z-index:50;overflow-x:auto;
+}
+nav button{
+  background:none;border:none;border-bottom:2px solid transparent;color:var(--fg2);
+  padding:13px 18px;font-size:13.5px;cursor:pointer;font-family:inherit;
+  white-space:nowrap;transition:.15s;
+}
+nav button:hover{color:var(--fg);background:#1a212b}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent);background:#1a212b}
+main{padding:28px 32px 80px;max-width:1500px}
+section{display:none;animation:fade .25s ease}
+section.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+h2{font-size:17px;margin:26px 0 12px;padding-left:11px;border-left:3px solid var(--accent)}
+h2:first-child{margin-top:0}
+h3{font-size:14.5px;margin:18px 0 8px;color:var(--accent)}
+p{margin:8px 0;color:var(--fg2)}
+.note{
+  background:#1a212b;border:1px solid var(--line);border-left:3px solid var(--warn);
+  padding:11px 15px;border-radius:4px;margin:12px 0;font-size:13px;color:var(--fg2);
+}
+.note.ev{border-left-color:var(--real);font-size:12.5px}
+.note.ev b{color:var(--real)}
+.ev code{color:#9fd3ff;background:#0b0f14;padding:1px 5px;border-radius:3px;font-size:12px}
+
+/* ── 卡片 ── */
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.g2{grid-template-columns:repeat(auto-fill,minmax(460px,1fr))}
+.card{
+  background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:15px 17px;
+  transition:.18s;position:relative;overflow:hidden;
+}
+.card:hover{border-color:#3d4c60;transform:translateY(-2px);box-shadow:0 6px 22px #0006}
+.card .src{font-family:Consolas,monospace;font-size:11px;color:var(--fg3);
+  background:#0b0f14;padding:2px 7px;border-radius:3px;display:inline-block}
+.card h4{font-size:15px;margin:8px 0 3px}
+.card .eng{font-size:12px;color:var(--fg3);margin-bottom:9px}
+.kv{display:flex;gap:8px;font-size:12.5px;margin:3px 0;color:var(--fg2)}
+.kv span:first-child{color:var(--fg3);min-width:64px;flex-shrink:0}
+.bar{height:5px;background:#0b0f14;border-radius:3px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;border-radius:3px;transition:width .8s ease}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:3px;margin:2px 3px 2px 0}
+.t-ok{background:#133b25;color:var(--ok)}
+.t-warn{background:#3d2f10;color:var(--warn)}
+.t-bad{background:#3d1717;color:var(--bad)}
+.t-info{background:#12293f;color:var(--real)}
+
+/* ── 双轴 / 人格图 ── */
+.axiswrap{display:grid;grid-template-columns:1fr 78px 1fr;gap:0;align-items:stretch;margin:16px 0}
+.axis{border:1px solid var(--line);border-radius:7px;padding:14px 16px;background:var(--bg2)}
+.axis.real{border-color:#24506f;background:linear-gradient(160deg,#12212e,#151a22)}
+.axis.fant{border-color:#4a3470;background:linear-gradient(160deg,#1e1730,#151a22)}
+.axis h4{font-size:15px;margin-bottom:4px}
+.axis.real h4{color:var(--real)} .axis.fant h4{color:var(--fant)}
+.axis ul{list-style:none;font-size:12.5px;color:var(--fg2)}
+.axis li{padding:2px 0}
+.axis li b{color:var(--fg)}
+.bridge{display:flex;align-items:center;justify-content:center;flex-direction:column;color:var(--fg3);font-size:11px}
+.bridge .ar{font-size:20px;color:var(--accent);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+.personsvg{width:100%;max-width:1000px;margin:10px 0;display:block}
+.personsvg .nd{fill:var(--bg3);stroke:var(--line);stroke-width:1.5;cursor:pointer;transition:.15s}
+.personsvg .nd:hover{stroke:var(--accent);filter:brightness(1.35)}
+.personsvg .nd.core{fill:#2a2140;stroke:var(--fant)}
+.personsvg .nd.sealed{fill:#33201f;stroke:#8a4a44}
+.personsvg text{fill:var(--fg);font-size:13px;pointer-events:none}
+.personsvg text.sm{fill:var(--fg2);font-size:11px}
+.personsvg text.xs{fill:var(--fg3);font-size:10.5px}
+
+/* ── 路线图 ── */
+.routebar{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.routebar button{
+  background:var(--bg2);border:1px solid var(--line);color:var(--fg2);
+  padding:7px 13px;border-radius:5px;cursor:pointer;font-family:inherit;font-size:12.5px;transition:.15s;
+}
+.routebar button:hover{border-color:#4a5a70;color:var(--fg)}
+.routebar button.on{background:#22303f;border-color:var(--accent);color:var(--accent)}
+.chain{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:12px 0}
+.node{
+  background:var(--bg3);border:1px solid var(--line);border-radius:5px;
+  padding:6px 11px;font-size:12.5px;cursor:pointer;transition:.15s;position:relative;
+}
+.node:hover{border-color:var(--accent);background:#243040;transform:translateY(-2px)}
+.node.on{border-color:var(--accent);background:#2c3a4c;color:var(--accent)}
+.node.key{border-color:var(--warn);color:var(--warn)}
+.node.end{border-color:var(--ok);color:var(--ok)}
+.node small{display:block;color:var(--fg3);font-size:10.5px}
+.arw{color:var(--fg3);font-size:13px}
+
+.detail{
+  background:#0b0f14;border:1px solid var(--line);border-radius:7px;padding:14px 17px;margin:14px 0;
+  min-height:80px;font-size:13px;
+}
+.detail h4{color:var(--accent);font-size:14.5px;margin-bottom:6px}
+.detail .row{display:flex;gap:10px;margin:4px 0;color:var(--fg2);font-size:12.5px}
+.detail .row b{color:var(--fg3);min-width:70px;flex-shrink:0;font-weight:400}
+
+/* ── 时间线 ── */
+.tl{position:relative;margin:22px 0 10px;padding-left:26px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(180deg,var(--fant),var(--real),var(--ok))}
+.tlitem{position:relative;margin-bottom:16px}
+.tlitem::before{
+  content:"";position:absolute;left:-24px;top:7px;width:11px;height:11px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--accent);
+}
+.tlitem .tlh{font-size:13.5px;color:var(--fg)}
+.tlitem .tld{font-size:12px;color:var(--fg3);font-family:Consolas,monospace}
+
+/* ── 表格 ── */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--bg3);color:var(--fg2);font-weight:500;white-space:nowrap}
+td{color:var(--fg2)}
+tr:hover td{background:#181f29}
+td b{color:var(--fg)}
+
+input[type=search]{
+  background:var(--bg2);border:1px solid var(--line);color:var(--fg);
+  padding:9px 13px;border-radius:5px;width:100%;max-width:380px;font-family:inherit;font-size:13px;margin:6px 0 14px;
+}
+input[type=search]:focus{outline:none;border-color:var(--accent)}
+
+.dec{background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:14px 17px;margin:11px 0}
+.dec.blk{border-left:3px solid var(--bad)}
+.dec h4{font-size:14px;color:var(--warn);margin-bottom:6px}
+.dec .opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.dec .opt{background:#0b0f14;border:1px solid var(--line);border-radius:4px;padding:5px 11px;font-size:12.5px;color:var(--fg2)}
+.dec .opt b{color:var(--fg)}
+
+footer{padding:22px 32px;border-top:1px solid var(--line);color:var(--fg3);font-size:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>我们没有翅膀——格雷塔迦露德与柳木原<span class="sub">全系列剧情流程图</span></h1>
+  <div class="meta">
+    资源组 ｜ 建立 <b>2026-09-18</b> ｜ Issue <b>ISSUE-20260918-03</b> ｜
+    源 <b>6</b> 部 ｜ 剧情脚本 <b>1,090</b> 个 ｜ 文本槽 <b>146,669</b> ｜ 结局 <b>12</b>
+  </div>
+</header>
+
+<nav>
+  <button class="on" data-t="ov">总览</button>
+  <button data-t="world">世界观</button>
+  <button data-t="cast">人物</button>
+  <button data-t="route">剧情流程</button>
+  <button data-t="time">时间线</button>
+  <button data-t="end">结局</button>
+  <button data-t="dec">待裁决</button>
+</nav>
+
+<main>
+
+<!-- ════════ 总览 ════════ -->
+<section class="on" id="ov">
+  <h2>一句话</h2>
+  <div class="note" style="border-left-color:var(--accent);font-size:14.5px;color:var(--fg)">
+    <b>一个身体，五个人格。</b>羽田鹰志 / 千岁鹫介 / 成田隼人 / 伊丹伽楼罗 / 羽田洋治——
+    基本人格是洋治，其余四个是从他分裂出的前台人格。全系列讲的是五个人格如何在
+    <b style="color:var(--real)">现实（柳木原）</b>与<b style="color:var(--fant)">幻想（格雷塔迦露德）</b>之间寻求统合的故事。
+  </div>
+
+  <h2>六个资源源</h2>
+  <div class="grid g3" id="srccards"></div>
+
+  <h2>素材跨源复用性（实测）</h2>
+  <table>
+    <tr><th>组合</th><th>结论</th></tr>
+    <tr><td>After Story ↔ R 版</td><td>音效 <b>96.7%</b> / BGM <b>87.5%</b> / 立绘 <b>88.2%</b> 可互换；<b>背景 53.6%、语音 53.4%</b> 各有大量独有素材，<b>不可整体互换</b></td></tr>
+    <tr><td>R 版 ↔ 涅布＊普拉斯</td><td class="bad" style="color:var(--bad)"><b>同名不同内容</b>（bgm01a.ogg / se023.ogg 逐字节 DIFF）→ 必须加来源前缀隔离</td></tr>
+    <tr><td>PSV ↔ Lucifen 系</td><td>格式层兼容（都是 PNG/OGG），但<b>分辨率、命名体系、脚本格式全不同</b>，不可按名互换</td></tr>
+    <tr><td>前奏诗 ↔ R 版</td><td>立绘同名 159 个（同系列不同作品），合并会冲突</td></tr>
+  </table>
+
+  <h2>分辨率难题（最硬的素材问题）</h2>
+  <table>
+    <tr><th>来源</th><th>分辨率</th><th>比例</th></tr>
+    <tr><td>本篇 / R 版 / After Story（Lucifen）</td><td><b>800×600</b></td><td>4:3</td></tr>
+    <tr><td>前奏诗（Lucifen）</td><td><b>800×600</b></td><td>4:3</td></tr>
+    <tr><td>涅布＊普拉斯（BGI）</td><td><b>1280×720</b></td><td>16:9</td></tr>
+    <tr><td>PSV 美咲线</td><td><b>960×544</b>（CG 967×725 / 立绘高 630）</td><td>16:9</td></tr>
+  </table>
+  <div class="note">四套比例互不兼容。混用会违反「美术风格统一」要求 → <b>需用户裁决统一分辨率</b>（见「待裁决」页 D1）。</div>
+</section>
+
+<!-- ════════ 世界观 ════════ -->
+<section id="world">
+  <h2>双轴舞台</h2>
+  <div class="axiswrap">
+    <div class="axis real">
+      <h4>现实轴 · 柳木原（大都会）</h4>
+      <ul>
+        <li><b>美空学园</b> — 鹰志（三年生）</li>
+        <li><b>苍穹女学院</b> — 鸣 / 亚衣 / 小鸠（附属）</li>
+        <li><b>阿雷克桑德</b>（洋食餐厅）— 鹫介打工处</li>
+        <li><b>成田工务店</b> — 隼人的便利屋</li>
+        <li><b>柳波广场</b> / 摇滚鸟 / Ｒ－翼</li>
+        <li><b>火烈鸟（YFB）</b> — 不良自警团</li>
+      </ul>
+    </div>
+    <div class="bridge"><div class="ar">⇅</div><div>互为表里</div><div class="ar">⇅</div></div>
+    <div class="axis fant">
+      <h4>幻想轴 · 格雷塔迦露德（王国）</h4>
+      <ul>
+        <li><b>万色之四枚羽根</b>（次期王候补）</li>
+        <li>霍克 = 鹰志 ／ 伊格尔 = 鹫介</li>
+        <li>法卢空 = 隼人 ／ 伽鲁炟 = 伽楼罗</li>
+        <li>先代王<b>空多奴</b> = 洋治</li>
+        <li>阿斯嘉公主 = 明日香</li>
+        <li>妲朴公主 = 小鸠</li>
+        <li>佩格萨斯 / 丝帕萝 / 菲尼克斯</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note ev"><b>证据</b>　<code>R版台词.json[59]</code> s01_02a：「異種族の襲撃を退けて<b>グレタガルド</b>から帰ってくると、<b>美空学園</b>ではすでに昼休みが始まっていた。」——一句并置两轴</div>
+
+  <h2>五人格结构（全系列的核心谜题）</h2>
+  <svg class="personsvg" viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg">
+    <rect class="nd core" x="400" y="14" width="200" height="62" rx="9" data-p="yoji"/>
+    <text x="500" y="39" text-anchor="middle">羽田 洋治</text>
+    <text x="500" y="57" text-anchor="middle" class="sm">基本（原初）人格 · 先代王空多奴</text>
+    <text x="500" y="70" text-anchor="middle" class="xs">长期不出场</text>
+
+    <path d="M500 76 V118 M120 118 H880 M120 118 V156 M370 118 V156 M630 118 V156 M880 118 V156"
+          stroke="#3a4658" stroke-width="1.5" fill="none"/>
+    <text x="500" y="112" text-anchor="middle" class="xs">分裂</text>
+
+    <rect class="nd" x="30" y="156" width="180" height="76" rx="9" data-p="takashi"/>
+    <text x="120" y="181" text-anchor="middle">羽田 鹰志</text>
+    <text x="120" y="199" text-anchor="middle" class="sm">第一人称「僕」</text>
+    <text x="120" y="215" text-anchor="middle" class="xs">幻想侧 圣骑士霍克</text>
+
+    <rect class="nd" x="280" y="156" width="180" height="76" rx="9" data-p="shusuke"/>
+    <text x="370" y="181" text-anchor="middle">千岁 鹫介</text>
+    <text x="370" y="199" text-anchor="middle" class="sm">第一人称「俺」</text>
+    <text x="370" y="215" text-anchor="middle" class="xs">幻想侧 伊格尔</text>
+
+    <rect class="nd" x="540" y="156" width="180" height="76" rx="9" data-p="hayato"/>
+    <text x="630" y="181" text-anchor="middle">成田 隼人</text>
+    <text x="630" y="199" text-anchor="middle" class="sm">第一人称「俺」</text>
+    <text x="630" y="215" text-anchor="middle" class="xs">幻想侧 法卢空（推定）</text>
+
+    <rect class="nd sealed" x="790" y="156" width="180" height="76" rx="9" data-p="garuda"/>
+    <text x="880" y="181" text-anchor="middle">伊丹 伽楼罗</text>
+    <text x="880" y="199" text-anchor="middle" class="sm">被封印的长兄人格</text>
+    <text x="880" y="215" text-anchor="middle" class="xs">幻想侧 伽鲁炟（贤者王）</text>
+
+    <path d="M120 232 H880" stroke="#3a4658" stroke-width="1.5" fill="none" stroke-dasharray="4 4"/>
+    <text x="500" y="252" text-anchor="middle" class="xs">三人格互称「兄弟」（羽田三兄弟）</text>
+
+    <rect class="nd" x="330" y="272" width="340" height="56" rx="9" data-p="ish"/>
+    <text x="500" y="295" text-anchor="middle">终之子 / 末弟 / ＩＳＨ</text>
+    <text x="500" y="313" text-anchor="middle" class="sm">无声的观察者 ＝ 玩家视角</text>
+  </svg>
+
+  <div class="note ev"><b>决定性证据</b>
+    <code>[23695]</code> 鹫介「実は俺、分かりやすい言葉で言うところの<b>多重人格障害</b>なんすよ。」<br>
+    <code>[11136-11140]</code>「この世界の元々の持ち主は――羽田ヨージ」「俺たちはそこから<b>分裂した存在</b>」「<b>本当の人格じゃない</b>」<br>
+    <code>[11150]</code>「確かに<b>基本人格はヨージ君のもの</b>だけど」<br>
+    <code>[11781]</code>「自分と<b>同じ体の中にいる</b>とは思えないくらいかっこ良かった。」<br>
+    <code>[57512]</code>「なんでおれら、<b>五人</b>バラバラなんだ？」　<code>[11080]</code>「どうよ、どうなのよ<b>羽田三兄弟</b>」
+  </div>
+  <div class="note" style="border-left-color:var(--bad)">
+    ⚠️ <b>姓名更正</b>：正确为 <b>羽田鹰志 / 千岁鹫介 / 成田隼人</b>。
+    <code>我们没有翅膀R\作品skill\术语表.md:128-130</code> 作「渡来 鹰志／羽田 隼人」是<b>姓名倒置错误</b>（该表原标"待确认"），PSV 术语表行 311 已更正。
+  </div>
+
+  <h2>核心谜题与真相</h2>
+  <table>
+    <tr><th>关键词</th><th>含义</th><th>原文证据</th></tr>
+    <tr><td><b>格雷塔迦露德</b></td><td>三重层次：表＝异世界冒险；里＝<b>鹰志自己创造的内心世界</b>；终＝多元世界中的一个位面</td><td><code>[11133-11134]</code>「君がその世界は<b>自分の作り上げたもの</b>だと気づいたから」「そしてここは<b>君の中</b>、自分自身の心の中」<br><code>[11364]</code>「グレタガルドなんてものは、<b>僕が都合よく作った世界</b>でしかなかった」</td></tr>
+    <tr><td><b>多元世界の真実</b></td><td>宇宙由无数并行位面构成；伽楼罗自称在多个「频道」以泡/细胞/垢/音/怀念等形态存在</td><td><code>[49134]</code>「我々を取りまくこの<b>多元世界の真実</b>！」<br>标题 s04_03f1/f2「多元世界の真実・泡と細胞と垢 / 音と懐かしさ」</td></tr>
+    <tr><td><b>仮統合</b></td><td>s04 达成的「临时统合」——五人格勉强合一</td><td>After Story <code>24_1a.tob</code> 标题「イントロダクション：<b>仮統合の崩壊</b>」</td></tr>
+    <tr><td><b>不完全だった統合</b></td><td>假统合并未真正合一</td><td><code>[57517]</code>「それはしょせん<b>間に合わせの応急処置</b>でしかなかった」「実際には<b>不完全だった</b>……≪統合≫の<b>フリ</b>をしてた」</td></tr>
+    <tr><td><b>真・兄妹の再会</b></td><td>融合后的「俺」与妹妹小鸠真正以兄妹身份重逢（两人本无血缘）</td><td><code>s04_08c.tob</code> 标题；<code>[1167]</code>「<b>血の繋がった兄妹じゃない</b>から…物心ついてからずっと本当の妹だと思って接してきた」</td></tr>
+    <tr><td><b>奈落（深渊）</b></td><td>人格被封印、放逐之处；也是 DJ空多奴的电台名</td><td><code>[3467]</code>「ＤＪコンドルの！『ラブレター・フロム・アビス』！」</td></tr>
+    <tr><td><b>ＩＳＨ / 终之子</b></td><td>主角们倾诉的对象＝玩家/读者视角，能统合救济分裂者</td><td><code>[58849]</code>「おまえみたいなやつのこと、専門的には死神じゃなくて<b>ＩＳＨ</b>って呼ぶらしい…バラバラなやつらをまとめて、<b>救済</b>してくれる存在」</td></tr>
+    <tr><td><b>人格切换隐喻</b></td><td>身体＝驾驶舱、强制换人＝紧急出动、人格交涉＝面谈、关机＝开关关闭</td><td><code>[3680]</code> ≪コックピット≫／<code>[19173]</code> ≪スクランブル≫／<code>[11152]</code> ≪面談≫／标题 s03_11e「皇帝スイッチオフ（Ｎ）」</td></tr>
+  </table>
+</section>
+
+<!-- ════════ 人物 ════════ -->
+<section id="cast">
+  <h2>人物总表</h2>
+  <input type="search" id="q" placeholder="搜索：日文名 / 中文名 / 身份 / 幻想侧对应…">
+  <div id="castbody"></div>
+  <div class="note">译名以各作已交付术语表为准；标 <span class="tag t-warn">⚠ 跨作不一致</span> 者为需裁决项（见「待裁决」页）。</div>
+</section>
+
+<!-- ════════ 剧情流程 ════════ -->
+<section id="route">
+  <h2>六源剧情流程</h2>
+  <div class="note">点击任意节点查看详情。<b style="color:var(--warn)">橙框</b>＝关键转折，<b style="color:var(--ok)">绿框</b>＝结局。</div>
+  <div class="routebar" id="rbar"></div>
+  <div id="rchain"></div>
+  <div class="detail" id="rdetail"><h4>请选择上方任一节点</h4><p>节点详情将显示在此处。</p></div>
+</section>
+
+<!-- ════════ 时间线 ════════ -->
+<section id="time">
+  <h2>时间线</h2>
+  <div class="tl" id="tlbody"></div>
+  <h2>各作先后顺序</h2>
+  <div class="detail" style="font-family:Consolas,monospace;font-size:12.5px;line-height:2">
+    前奏诗（框架剧 + 短篇 + 邂逅原型）<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+    本篇主线&nbsp;&nbsp;11月下旬 ──── 12月 ──── 12/24 ─── 新年<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;s01 / s02 / s03 / s03c（四条平行线）<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;PSV 美咲线（同期鹰志线分支，12/13–12/24）<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+    s04 大路线（12/5 起，经新年）→ 仮統合<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+    After Story（后日谈；24章「仮統合の崩壊」）<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+    涅布＊普拉斯 明日香篇（2 月 · 毕业前）
+  </div>
+</section>
+
+<!-- ════════ 结局 ════════ -->
+<section id="end">
+  <h2>结局矩阵</h2>
+  <div id="endbody"></div>
+  <h2>包含关系</h2>
+  <ul style="color:var(--fg2);font-size:13px;margin-left:20px">
+    <li>每条角色线 = 「邂逅 → … → 尾声（女主结局）→ 解缆（路线收束 / 统合）」</li>
+    <li>三条线（＋亚衣线）<b>并行于同一时间带</b>，汇入 s04 大路线</li>
+    <li>s04 是唯一的「全员 / 真相」结局</li>
+    <li>After Story 在 s04 之后（<code>24_1a</code> 明示接「仮統合」）</li>
+    <li>PSV 美咲线是 R 版基础上新增的鹰志线分支，结局独立</li>
+  </ul>
+</section>
+
+<!-- ════════ 待裁决 ════════ -->
+<section id="dec">
+  <h2>阻塞性裁决（未裁决前相关工序不得开工）</h2>
+  <div id="decbody"></div>
+  <h2>需裁决的译名（跨作不一致）</h2>
+  <div id="termbody"></div>
+  <h2>待考证的设定</h2>
+  <div id="unkbody"></div>
+</section>
+
+</main>
+
+<footer>
+  资源组 ｜ 本文件为《我们没有翅膀——格雷塔迦露德与柳木原》工程阶段 1 交付物，等待人类审批后方可进入阶段 2（资源整理）。<br>
+  完整版（含全部证据与逐场景结构）：<code>资源组\01_剧情流程图.md</code>　｜　项目规则：<code>00_项目总纲.md</code>　｜　资源审计：<code>资源组\02_资源审计报告.md</code>
+</footer>
+
+<script>
+"use strict";
+
+/* ─────────── 数据 ─────────── */
+const SRC = [
+  {k:"otp",n:"前奏诗 Prelude",jp:"俺たちに翼はない～Prelude～",y:"2008",eng:"Lucifen SOB0",
+   sc:"69 sob（59 有文本）",slots:"9,059",loc:100,asset:"已提取 5,950 文件 / 848.6 MiB",
+   st:"ok",note:"框架剧＋4 短篇＋邂逅原型；⚠️ 实测 6 槽外层引号遗漏"},
+  {k:"ot",n:"本篇",jp:"俺たちに翼はない",y:"2009",eng:"Lucifen SOB0",
+   sc:"388 剧情脚本",slots:"58,638",loc:100,asset:"未提取（仍在 D 盘 8 个 LPK 内）",
+   st:"mid",note:"四条平行线 + 大路线；素材未解包"},
+  {k:"otr",n:"R 版 + 亚衣线",jp:"俺たちに翼はないＲ",y:"2011",eng:"Lucifen TOB0",
+   sc:"418 tob",slots:"58,855",loc:100,asset:"亚衣线已提取 3,055 文件 / 478.4 MB；其余未提取",
+   st:"mid",note:"含亚衣线完整 55 场景；⚠️ 全库 5,368 条译文被等长截断（亚衣线 491）"},
+  {k:"ota",n:"After Story",jp:"俺たちに翼はない～After Story～",y:"2010",eng:"Lucifen TOB0",
+   sc:"172 tob",slots:"18,213",loc:100,asset:"未提取",
+   st:"mid",note:"后日谈合集；截断已归零"},
+  {k:"otv",n:"PSV 美咲线",jp:"PCSG00299（PS Vita）",y:"2014",eng:"5pb./MAGES. 自研（CRIWARE）",
+   sc:"31 脚本",slots:"4,904 台词",loc:100,asset:"已提取 2,249 文件 / 273 MB（已全转 PNG/OGG/MP4）",
+   st:"mid",note:"⚠️ UI 306 张未提取；脚本为另一套 DSL；分辨率 960×544 孤立"},
+  {k:"np",n:"涅布＊普拉斯 明日香篇",jp:"ネブ＊プラス",y:"2012",eng:"BGI / Ethornell",
+   sc:"28 脚本",slots:"1,961",loc:100,asset:"已提取约 394 MB（PNG/OGG/MPEG）",
+   st:"mid",note:"⚠️ ASU 音库本机缺失 → 559 条台词无语音"}
+];
+
+const CAST = [
+  {jp:"羽田 鷹志",cn:"羽田 鹰志",id:"前台人格①，美空学园三年生，第一人称「僕」",f:"圣骑士霍克（黄金之鹰）",g:"主角",e:"[13][15]"},
+  {jp:"千歳 鷲介",cn:"千岁 鹫介",id:"前台人格②，飞特族/情报屋，阿雷克桑德打工",f:"伊格尔（久远之翼）",g:"主角",e:"[3590][11125]"},
+  {jp:"成田 隼人",cn:"成田 隼人",id:"前台人格③，便利屋/柳木原魅力领袖",f:"法卢空（推定）",g:"主角",e:"[24548][735]"},
+  {jp:"伊丹 伽楼羅 / ガルーダ",cn:"伊丹 伽楼罗 / 伽鲁炟",id:"被封印的长兄人格",f:"伽鲁炟（贤者王）",g:"主角",e:"[36870][19975]"},
+  {jp:"羽田 ヨージ",cn:"羽田 洋治 ⚠️ / 小鹰志",id:"基本（原初）人格，长期不出场",f:"先代王空多奴",g:"主角",e:"[11137][11150]",w:1},
+  {jp:"羽田 小鳩",cn:"羽田 小鸠",id:"鹰志的妹妹（无血缘），苍穹女学院附属",f:"妲朴公主",g:"主角",e:"[1167][3421][46213]"},
+  {jp:"終の子 / ＩＳＨ",cn:"终之子 / ＩＳＨ",id:"无声观察者 ＝ 玩家视角",f:"—",g:"主角",e:"[58849][48545]"},
+
+  {jp:"渡来 明日香",cn:"渡来 明日香",id:"美空学园「学园公主」",f:"阿斯嘉公主（推定）",g:"女主",e:"[321][350][662]"},
+  {jp:"山科 京",cn:"山科 京",id:"鹰志同班，Ｒ－翼关系者",f:"—",g:"女主",e:"[2521][6122]"},
+  {jp:"玉泉 日和子",cn:"玉泉 日和子",id:"阿雷克桑德店员，新人作家（笔名细川玉木）",f:"—",g:"女主",e:"[15609][13140]"},
+  {jp:"鳳 鳴",cn:"凤 鸣",id:"苍穹女学院生，凤翔之妹",f:"—",g:"女主",e:"[26146][52608]"},
+  {jp:"香田 亜衣",cn:"香田 亚衣",id:"隼人线另一女主（R 版扩为完整路线）",f:"—",g:"女主",e:"[26239]"},
+  {jp:"林田 美咲",cn:"林田 美咲",id:"鹰志的学妹（1年B→2年B），PSV 独占攻略线",f:"—",g:"女主",e:"E5 M01_01"},
+  {jp:"日野 英里子",cn:"日野 英里子",id:"女子大生，阿雷克桑德前辈",f:"—",g:"女主",e:"[13254]"},
+  {jp:"望月 紀奈子",cn:"望月 纪奈子",id:"预备校二年生，编辑志向",f:"—",g:"女主",e:"[13140]"},
+  {jp:"高内 昌子",cn:"高内 昌子",id:"鹰志班女学级委员",f:"—",g:"女主",e:"[2485]"},
+  {jp:"春日 春恵",cn:"春日 春惠",id:"昵称帕露",f:"普纳奇纳（推定）",g:"女主",e:"[34493][55566]"},
+
+  {jp:"森里 和馬",cn:"森里 和马",id:"鹰志的同学/唯一朋友，后属火烈鸟",f:"—",g:"配角",e:"[87]"},
+  {jp:"針生 蔵人",cn:"针生 藏人",id:"鹰志前辈，乐队「摇滚鸟」关系者",f:"—",g:"配角",e:"[2113]"},
+  {jp:"鳳凰寺 カケル / 鳳 翔",cn:"凤凰寺 翔 / 凤 翔",id:"火烈鸟顶点，鸣之兄",f:"菲尼克斯",g:"配角",e:"[18177][52608]"},
+  {jp:"軽部 狩男",cn:"轻部 狩男",id:"阿雷克桑德店长",f:"—",g:"配角",e:"[13079]"},
+  {jp:"バニィＤ",cn:"巴尼Ｄ",id:"本名土门大辅，鹤冈工业番长",f:"—",g:"配角",e:"[25049]"},
+  {jp:"ＬＲ２００１",cn:"ＬＲ２００１",id:"本名左右田仙一",f:"—",g:"配角",e:"[25041][34018]"},
+  {jp:"アリス",cn:"爱丽丝",id:"外国人少女",f:"—",g:"配角",e:"[25494]"},
+  {jp:"マルチネス",cn:"马汀内斯",id:"昵称，本名不明",f:"—",g:"配角",e:"[25477]"},
+  {jp:"チケドン",cn:"奇肯多 ⚠️ / 千夏丼",id:"火烈鸟成员",f:"—",g:"配角",e:"术语表",w:1},
+  {jp:"メンマ",cn:"面魔",id:"拉面摊",f:"—",g:"配角",e:"术语表"},
+
+  {jp:"聖騎士ホーク",cn:"圣骑士霍克",id:"＝鹰志",f:"黄金之鹰",g:"幻想",e:"[15][683]"},
+  {jp:"イーグル",cn:"伊格尔 ⚠️ / 伊库鲁尔",id:"＝鹫介",f:"久远之翼",g:"幻想",e:"[11125][734]",w:1},
+  {jp:"ファルコン",cn:"法卢空",id:"＝隼人（推定）",f:"暗黑街之王",g:"幻想",e:"[735]"},
+  {jp:"ガルーダ",cn:"伽鲁炟",id:"＝伊丹伽楼罗",f:"贤者王",g:"幻想",e:"[733][36870]"},
+  {jp:"コンドル",cn:"空多奴",id:"＝羽田洋治",f:"先代王",g:"幻想",e:"[11137][695]"},
+  {jp:"プリンセス・ダヴ",cn:"妲朴公主",id:"＝羽田小鸠",f:"—",g:"幻想",e:"[3421][10966]"},
+  {jp:"ペガサス",cn:"佩格萨斯",id:"白银之天马，霍克战友",f:"—",g:"幻想",e:"[634][771]"},
+  {jp:"スパロウ",cn:"丝帕萝",id:"幻想侧女术士",f:"—",g:"幻想",e:"[3040]"},
+
+  {jp:"フレイムバーズ",cn:"火烈鸟（YFB）",id:"柳木原不良自警团，顶点凤翔",f:"—",g:"组织",e:"[18177]"},
+  {jp:"Ｒ－ウィング",cn:"Ｒ－翼",id:"「摇滚鸟」后援会，实为宗教性集团",f:"—",g:"组织",e:"[5870][26441]"},
+  {jp:"王宮騎士団",cn:"王宫骑士团",id:"格雷塔迦露德的骑士团",f:"—",g:"组织",e:"[674][681]"},
+  {jp:"パトリアルク",cn:"长老（派）",id:"掲示板上的反大司教势力",f:"—",g:"组织",e:"[33857]"}
+];
+
+const ROUTES = {
+  otp:{name:"S4 前奏诗 Prelude（2008）",sub:"框架剧 + 短篇集 + 邂逅原型",chain:[
+    {t:"buru01 前说",d:"火烈鸟三人＋ＡＤさん以舞台开场形式报幕，确立本作「剧场」框架",k:""},
+    {t:"p01 明日香 4话",d:"想像力の豊かな人間になりたい → 心の広い… → 窮地にあっても… → しかし、いまは何よりごはんを食べたい",k:""},
+    {t:"p02 山科京 5话",d:"ラメンタービレ → クレッシェンド → カンタービレ → テンポ・ジュスト → ダ・カーポ。京因病反复迟到就医，音乐术语标题对应病情与心境",k:""},
+    {t:"p03 美咲 4话",d:"しあわせ美咲ちゃん → まけるな → なやめる → よみがえる美咲ちゃん",k:""},
+    {t:"p04 轻部狩男 5话",d:"いま俺たちのおっぱいが始まる！…（搞笑线）",k:""},
+    {t:"02 邂逅 鹫介",d:"以「超·第一人称吐槽」文体写鹫介在阿雷克桑德打工、与日和子/英里子/凯尔相遇与误会。4 个选择点",k:""},
+    {t:"03 邂逅 隼人",d:"隼人视角，柳木原夜间「魅力领袖」与火烈鸟、成田工务店的便利屋生活",k:""},
+    {t:"buru04 闭幕",d:"火烈鸟三人谢幕播报",k:"end"}
+  ]},
+
+  ot:{name:"S1 本篇（2009）",sub:"四条平行线 + 大路线",chain:[
+    {t:"s00 序文",d:"序文 ～俺たちに翼はない～（2 槽）",k:""},
+    {t:"s01 鹰志线",d:"邂逅～バーサス羽田鷹志～ → プロローグ美空学園 → プリンセス・アスカと王宮騎士団 → 黄金の鷹伝説 → 胡蝶の夢 → 鷹志と小鳩 → シンデレラ階段 → 春の雪 → 逃避 → 僕じゃない僕 → 帰還 → 針生蔵人はロックな趣味 → 黄金の鷹伝説最終章 → 【明日香の秘密とグレタガルドの真実】 → 五つの扉 → 鷹は羽ばたいた → ここまでプレリュード → 現実の繋がり → 尾声",k:"key",slots:"13,969 / 114 脚本"},
+    {t:"s01 明日香 END",d:"エピローグ～羽田君と渡来さん～（s01_16a）",k:"end"},
+    {t:"s01 京 END",d:"エピローグ～鷹志君と京ちゃん～（s01_18a）→ 解纜～バーサス羽田鷹志～",k:"end"},
+    {t:"s02 鹫介线",d:"邂逅～バーサス千歳鷲介～ → アレキサンダーのひとびと → メンズフリーズ → 日和子リターンズ → はじめての細川玉木 → アレキサンダー初出勤 → 多元世界の無邪気な旅人 → 尾声",k:"key",slots:"12,327 / 83 脚本"},
+    {t:"s02 日和子 END",d:"エピローグ～シュウちゃんと日和子さん～（s02_16a）→ 解纜",k:"end"},
+    {t:"s03 隼人线",d:"邂逅～バーサス成田隼人～ → 柳木原カリスマプレジデント → フレイムバーズのひとびと → 成田工務店 → 皇帝スイッチオフ → 翔の悪夢 → 俺の護りたいもの → 成田工務店は本日をもって → 【久遠の翼】 → 尾声。大量 (N)/(C) 成对文件表示同一场景的不同版本",k:"key",slots:"17,389 / 95 脚本"},
+    {t:"s03 鸣 END",d:"エピローグ～隼人さんと鳴～（s03_22a）→ 解纜 → 幕間～ワンス アポナ タイム イン奈落～",k:"end"},
+    {t:"s03c 亚衣线",d:"青春おことわり → お気に入りの階段 → ふたりでネカフェ → 选择点（黙る/拒否る）→ あいつの居場所 → 皇帝相关 → レーゾン・デートル",k:"",slots:"2,897 / 21 脚本（R 版扩至 55）"},
+    {t:"s04 大路线",d:"承前 → 風来たりなば → 邂逅～バーサス伊丹伽楼羅～ → 王の帰還 → 地下室の饗宴 → 日曜日の軍議 → 路地裏の鼎談 → 【多元世界の真実】 → 麗しのプリンセス・ダヴ → 決断の賢者王 → 奈落よいとこ → 重なる追憶 → 真実の鏡 → 救いの風 → ハードボイルドは死なず → コンドル王と万色の四枚羽根 → 【はねだ５／１】 → 【真・兄妹の再会】 → クロスオーバー → 【ヨウジ退行】 → 【不完全だった統合】 → 【五者面談】 → そうだ、埼玉行こう → 自分探し → 二番目のひと → 俺たちに翼はないこともない → 閉幕 → 尾声 → 解纜～バーサス羽田鷹志たち～",k:"key",slots:"11,993 / 74 脚本"}
+  ]},
+
+  otr:{name:"S2 R 版（2011）",sub:"全年龄重制 + 亚衣线扩充",chain:[
+    {t:"与本篇共有 384 场景",d:"R 版 418 tob vs 本篇 388 sob；共有 384 个场景",k:""},
+    {t:"新增 34 场景（全 s03c_*）",d:"亚衣线由 21 场景扩至 55 场景，亚衣升格为完整攻略路线",k:"key"},
+    {t:"仅本篇有 4 个",d:"s01_14k / s03_15g / s03_21b / s04_05e",k:""},
+    {t:"18 禁场景改写",d:"改写为全年龄 + 追加 CG",k:""},
+    {t:"译文复用价值",d:"R 版日文与参照汉化逐字命中 92.20%（30,636 / 33,327）",k:""},
+    {t:"亚衣 END（R 版）",d:"s03c_20a エピローグ～隼人君と亜衣～",k:"end"}
+  ]},
+
+  otv:{name:"S5 PSV 美咲线（2014）",sub:"31 脚本 · 线性无选择支",chain:[
+    {t:"M01 12/13(水)",d:"承前～ここまでプレリュード～ / 鹫介と美咲。承 羽田鹰志编 Bad End『S01_14J2』的续篇",k:""},
+    {t:"M02 12/14",d:"タカシと小鳩 / … / タカシと美咲（多视角交错）",k:""},
+    {t:"M03 12/15",d:"明日香の欠席 → Extra 遗留事务处理",k:""},
+    {t:"M04 12/16",d:"林さんの恋を成就させる",k:""},
+    {t:"M05 12/17",d:"初めてのデート（感情推进核心）",k:"key"},
+    {t:"M06 12/18",d:"さよなら高内さん → 【冬之风暴】",k:"key"},
+    {t:"M07 12/21",d:"死にかけイーグル → よみがえる賢者王",k:"key"},
+    {t:"M08 12/22",d:"失恋イーグル",k:"key"},
+    {t:"M09 12/24(日)",d:"尾声～林田さんと僕～ → 解纜～バーサス羽田鷹志～",k:"end"},
+    {t:"P03 后日谈",d:"《ある日の美咲》4 话（Prelude 复刻）",k:""}
+  ]},
+
+  ota:{name:"S3 After Story（2010 FD）",sub:"172 剧本 / 18,213 槽 · 后日谈合集",chain:[
+    {t:"11 バーサス羽田タカシ",d:"21 文件 / 2,412 消息。再会 → 近況 → … → 閉幕。含 11_5d「いちゃいちゃ明日香さん」",k:""},
+    {t:"12 バーサス千歳鷲介",d:"22 文件 / 2,774 消息。含 12_1e「いちゃいちゃ日和子さん」、12_4c1/2 聖夜・新年",k:""},
+    {t:"13 バーサス成田隼人",d:"19 文件 / 2,586 消息。含 13_2b「いちゃいちゃ鳴さん」、13_4f 急転 / 4g 収束",k:""},
+    {t:"14 バーサス羽田ヨージ",d:"28 文件 / 2,766 消息。含 14_6c0「高内昌子があらわれた！」、14_7a「道化の遺伝子」、14_8a 閉幕",k:"key"},
+    {t:"21 美咲线",d:"9 文件 / 926 消息。美咲ちゃんコンティニュー … フォーエバー",k:""},
+    {t:"22 おっぱい系列",d:"7 文件 / 700 消息。今ふたたび俺たちのおっぱいが始まる …",k:""},
+    {t:"23 アオ女",d:"7 文件 / 891 消息。苍穹女学院 X-day 倒计时（４日前 → Ｘデー）",k:""},
+    {t:"24 最终统合线",d:"20 文件 / 1,675 消息。【仮統合の崩壊】→ 各角色 Encounter（小鸠/明日香/京/高内/美咲/日和子/纪奈子/英里子/吉川/鸣/亚衣/春惠/爱丽丝）→ 最終エンカウント：和馬",k:"key"},
+    {t:"24 G-END",d:"24_5b Ｇ－ＥＮＤ：やったねお兄ちゃん（小鸠救助成功）",k:"end"},
+    {t:"24 B-END",d:"24_5c Ｂ－ＥＮＤ：俺の涙よ誰かに届け（失败，GAME OVER）",k:"end"},
+    {t:"31–34 各线 after",d:"あの日の想いは上書き禁止 / 毎日がロマンス書店編 / 帰ってきた成田工務店 / プリンセス・ザ・ローリングサンダー",k:""},
+    {t:"41–42 番外",d:"羽田部隊１２３１ニューイヤー行軍 / グラン・マルニエ（HAWK/EAGLE/FALCON）",k:""},
+    {t:"50–54 おれつば劇場",d:"五幕：開幕 / 女たちの決戦 / 道化師たちの喜劇 / 馬鹿野郎たちの友情 / 終幕",k:""},
+    {t:"61–64 / sc_ おまけ",d:"京 H / ひょこ / 温泉 / 夢ＡＶ / おまけ H",k:""}
+  ]},
+
+  np:{name:"S6 涅布＊普拉斯 明日香篇（2012）",sub:"28 脚本 / 1,961 槽 · 子篇目菜单式短篇集",chain:[
+    {t:"start_oretuba",d:"子篇目菜单脚本（内含 28 条子篇目标题）——本作是菜单选择式短篇集，非单线连续长篇",k:"key"},
+    {t:"a01 再会",d:"第一人称旁白开场：鹰志已能承认自己「普通」，约定成年后面对三人（人格）问题；即将毕业，毕业后离城入住山丘疗养所，明日香承诺等待。含首个 H 场景",k:""},
+    {t:"a02 情人节前夕",d:"2/11–2/14；回忆去年冬天洋菓子店打工",k:""},
+    {t:"a03 留守写稿",d:"明日香家留守写稿；插入格雷塔迦露德幻想线梦境（阿斯嘉公主 + 黄金之鹰霍克）",k:""},
+    {t:"a04 变装套装",d:"4 条并行分支（蝴蝶结/女仆头饰/猫耳/假鼻子眼镜）→ 汇合 a04_b0",k:""},
+    {t:"a05 S/M 比",d:"斗嘴（10:0 vs 6:4）；a05_b1 / 05_c1 为 H 场景主体",k:""},
+    {t:"a06 情人节",d:"收巧克力；a06_b1–b4 为 4 条并行搞笑分支（模仿小鸠 / 猫化 / 女仆 / 小鸠+高内）",k:""},
+    {t:"a06_c0 收尾",d:"「おつかれさま、誰かさん……便りがないのは良い便り。世界が平和でありますように。ばいばい。」",k:"end"}
+  ]}
+};
+
+const TIMELINE = [
+  {d:"2 年前 4 月",h:"本篇 s01 回忆",t:"鹰志×明日香初遇：「それはまだ入学式からひと月も経っていない、ある四月の晴れた午後」[58]"},
+  {d:"11/22 22:00",h:"s03 隼人",t:"「１１月２２日の２２時」[28025]"},
+  {d:"11/22–11/26",h:"s03c 亚衣线",t:"论坛「圣战」事件（哈里被袭、大司教召集）"},
+  {d:"11/23（木）",h:"s03 隼人",t:"「１１月２３日、木曜日。ヤナポリ広場１８時」[28307]"},
+  {d:"11/24–11/28",h:"s03 大司教骚动",t:"[33841][33847][33851][33857][33862]"},
+  {d:"11/29",h:"s02 鹫介",t:"「１１月２９日、晩秋の午後」[16879]"},
+  {d:"12/1",h:"s03 翔",t:"「１２月１日……今日はあいつが母親の子宮から引きずりだされた日」[35840]"},
+  {d:"12/3（日）",h:"s01",t:"「１２月３日、日曜日の夕方から夜」[1793]"},
+  {d:"12/4（月）",h:"s02",t:"「１２月４日、月曜日」[19335]"},
+  {d:"12/5",h:"s04 大路线",t:"「俺は１２月５日デビューなんだ」[51627]"},
+  {d:"12/13–12/24",h:"PSV 美咲线",t:"脚本头 //ゲーム内日時 注释（M01–M09）"},
+  {d:"12/24",h:"s01",t:"「１２月２４日……神様の誕生前夜祭よりも大事な」[9655]"},
+  {d:"年末–新年",h:"After Story",t:"[57205]；E3 41_1「羽田部隊１２３１ニューイヤー行軍」"},
+  {d:"2 月（毕业前）",h:"涅布 明日香篇",t:"「春みたいに暖かな二月のある日」「間もなく卒業」"}
+];
+
+const ENDINGS = [
+  ["明日香 END","s01_16a","エピローグ～羽田君と渡来さん～","鹰志 × 明日香"],
+  ["京 END","s01_18a","エピローグ～鷹志君と京ちゃん～","鹰志 × 山科京"],
+  ["日和子 END","s02_16a","エピローグ～シュウちゃんと日和子さん～","鹫介 × 日和子"],
+  ["鸣 END","s03_22a","エピローグ～隼人さんと鳴～","隼人 × 鸣"],
+  ["亚衣 END（原版）","s03c_05a","レーゾン・デートル","亚衣线收束（21 场景版）"],
+  ["亚衣 END（R 版）","s03c_20a","エピローグ～隼人君と亜衣～","R 版亚衣线正式结局"],
+  ["美咲 END（PSV）","M09_01 / M09_02","エピローグ～林田さんと僕～ / 解纜～バーサス羽田鷹志～","美咲线"],
+  ["解缆（各线收束）","s01_19a / s02_17a / s03_23a","解纜～バーサス各主角～","人格统合 / 向观察者告别"],
+  ["真 END（大路线）","s04_28b → s04_29a","エピローグ～お兄ちゃんと小鳩～ → 解纜～バーサス羽田鷹志たち～","五人走向不完全统合，与妹妹重逢"],
+  ["AS 洋治线收束","14_8a","閉幕～バーサス羽田ヨージ～","洋治 × 小鸠"],
+  ["AS G-END","24_5b","Ｇ－ＥＮＤ：やったねお兄ちゃん","小鸠救助成功"],
+  ["AS B-END","24_5c","Ｂ－ＥＮＤ：俺の涙よ誰かに届け","失败，GAME OVER"]
+];
+
+const DECISIONS = [
+  {id:"D1",q:"统一分辨率与缩放策略",o:["800×600（4:3，本篇/R/前奏诗）","960×544（16:9，PSV）","1280×720（16:9，涅布）","双分辨率方案"],i:"决定全部素材是否需重制/裁切；影响 UI 组全部工作。四套比例互不兼容，混用会违反美术风格统一要求。"},
+  {id:"D6",q:"本新游戏的剧本编排方式",o:["① 全系列线性重排（前奏诗→本篇四线→s04→AS→涅布）","② 保留原作的路线选择 / 子篇目菜单结构","③ 新写框架把各源串成新故事"],i:"决定流程图 → 编程组的排布方式。这是本工程最根本的未决项。"},
+  {id:"D7",q:"PSV 美咲线素材是否采用",o:["纳入","排除"],i:"分辨率不同需重制；且该源 UI 306 张未提取；脚本为另一套 DSL，需单独写转换器。"},
+  {id:"D8",q:"成人向内容取哪一版",o:["R18 原版文本","R 版全年龄改写文本","双版本并存"],i:"同一场景在 2009 原版与 2011 R 版有不同文本（R 版改写了 18 禁场景并追加 CG）。"}
+];
+
+const TERMS = [
+  ["ヨージ","洋治（本篇汉化）","小鹰志（AS/PSV/涅布术语表）"],
+  ["イーグル","伊格尔（R 版）","伊库鲁尔（PSV/新米）"],
+  ["ダヴ","达芙（R 版）","妲朴（AS/新米）"],
+  ["チケドン","千夏丼（R 版）","奇肯多（AS/新米）"],
+  ["羽田君 / 渡来さん","羽田同学 / 渡来同学（涅布）","羽田君 / 渡来（R 版）"],
+  ["ガルーダ / 伽楼羅","同一角色的两个字符串","R 版分译 伽鲁炟 / 伽楼罗"]
+];
+
+const UNKNOWNS = [
+  "法卢空＝隼人、妲朴＝小鸠、普纳奇纳＝春日春惠、阿斯嘉公主＝渡来明日香——均为「鸟名/角色名对应体系」<b>推定</b>；语料中明确自认的只有 霍克＝鹰志、伊格尔＝鹫介、空多奴＝洋治、伽鲁炟＝伽楼罗。",
+  "前奏诗在剧情内的时序：2008 先行作；02_/03_ 与正传 s02/s03 标题相同但为浓缩版。是「正传前史」「原型」还是「平行版本」，语料内无明确时点声明。",
+  "ＩＳＨ／终之子 是否为独立人格：倾向「观察者 ≠ 人格」（s04_25c「五者面談」只列五人），但无排除性台词。",
+  "亚衣线（Ａ）/（Ｃ）标题变体是否构成额外选择支：仅确证 1 个选择支（s03c_01d 沉默/拒绝）。",
+  "美咲的初次登场作：PSV 术语表称「独占女主角」，但 2008 前奏诗 p03_01a 已有美咲短篇 → 「独占」应指攻略路线而非角色首现。",
+  "小鸠与鹰志的亲属关系细节：语料明言「血の繋がった兄妹じゃない」、同住叔父叔母家；「表妹/养妹」的具体家系无完整说明。",
+  "After Story 发售年份：AS skill 未载；仅按「s04 之后」确定剧情位序。",
+  "本篇「4 条结局」的官方归类：本流程图按「明日香/京/日和子/鸣 四条女主结局 + 各线解缆 + s04 真结局」归纳。",
+  "涅布 明日香篇是否含 H 场景：术语表标「待确认」；据分级（18+）与正文推断为含。",
+  "PSV 版是否含亚衣线：PSV 定位「以 R 版为基础」应含；但本工作区只做了美咲线（M##），未验证 S## 中的亚衣段。"
+];
+
+/* ─────────── 渲染 ─────────── */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+// 标签切换
+document.querySelectorAll("nav button").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll("main section").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    $("#"+b.dataset.t).classList.add("on");
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
+});
+
+// 源卡片
+$("#srccards").innerHTML = SRC.map(s=>{
+  const col = s.loc>=100 ? "var(--ok)" : s.loc>=60 ? "var(--warn)" : "var(--bad)";
+  return `<div class="card">
+    <span class="src">${s.k}</span>
+    <h4>${esc(s.n)}</h4>
+    <div class="eng">${esc(s.jp)} · ${s.y} · ${esc(s.eng)}</div>
+    <div class="kv"><span>剧情</span><span>${esc(s.sc)}</span></div>
+    <div class="kv"><span>文本槽</span><span>${esc(s.slots)}</span></div>
+    <div class="kv"><span>素材</span><span>${esc(s.asset)}</span></div>
+    <div class="kv"><span>汉化</span><span style="color:${col}">${s.loc}%</span></div>
+    <div class="bar"><i style="width:${s.loc}%;background:${col}"></i></div>
+    <div style="margin-top:9px;font-size:12.5px;color:var(--fg3)">${esc(s.note)}</div>
+  </div>`;
+}).join("");
+
+// 人物
+function renderCast(kw){
+  kw = (kw||"").trim().toLowerCase();
+  const groups = {};
+  CAST.forEach(c=>{
+    const hay = (c.jp+c.cn+c.id+c.f+c.g+c.e).toLowerCase();
+    if(kw && hay.indexOf(kw)<0) return;
+    (groups[c.g] = groups[c.g]||[]).push(c);
+  });
+  let html = "";
+  ["主角","女主","配角","幻想","组织"].forEach(g=>{
+    if(!groups[g]) return;
+    html += `<h3>${g}（${groups[g].length}）</h3><table><tr><th>日文</th><th>中文</th><th>身份 / 作用</th><th>幻想侧</th><th>证据</th></tr>`;
+    groups[g].forEach(c=>{
+      html += `<tr><td><b>${esc(c.jp)}</b></td><td><b>${esc(c.cn)}</b>${c.w?' <span class="tag t-warn">⚠ 跨作不一致</span>':''}</td>
+        <td>${esc(c.id)}</td><td>${esc(c.f)}</td><td style="font-family:Consolas,monospace;font-size:11.5px">${esc(c.e)}</td></tr>`;
+    });
+    html += `</table>`;
+  });
+  $("#castbody").innerHTML = html || `<p>无匹配结果。</p>`;
+}
+renderCast("");
+$("#q").oninput = e => renderCast(e.target.value);
+
+// 路线
+let curRoute = "otp";
+$("#rbar").innerHTML = Object.keys(ROUTES).map(k=>
+  `<button data-k="${k}"${k===curRoute?' class="on"':''}>${esc(ROUTES[k].name)}</button>`).join("");
+
+function renderRoute(k){
+  curRoute = k;
+  document.querySelectorAll("#rbar button").forEach(b=>b.classList.toggle("on", b.dataset.k===k));
+  const r = ROUTES[k];
+  let html = `<div style="color:var(--fg2);font-size:13px;margin-bottom:10px">${esc(r.sub)}</div><div class="chain">`;
+  r.chain.forEach((n,i)=>{
+    const cls = n.k==="key" ? "node key" : n.k==="end" ? "node end" : "node";
+    html += `<div class="${cls}" data-rt="${k}" data-i="${i}">${esc(n.t)}${n.slots?`<small>${esc(n.slots)}</small>`:""}</div>`;
+    if(i<r.chain.length-1) html += `<span class="arw">→</span>`;
+  });
+  html += `</div>`;
+  $("#rchain").innerHTML = html;
+  document.querySelectorAll("#rchain .node").forEach(el=>{
+    el.onclick = ()=>{
+      document.querySelectorAll("#rchain .node").forEach(x=>x.classList.remove("on"));
+      el.classList.add("on");
+      const n = ROUTES[el.dataset.rt].chain[+el.dataset.i];
+      $("#rdetail").innerHTML = `<h4>${esc(n.t)}</h4>
+        <div class="row"><b>说明</b><span>${esc(n.d)}</span></div>
+        ${n.slots?`<div class="row"><b>规模</b><span>${esc(n.slots)}</span></div>`:""}
+        <div class="row"><b>所属</b><span>${esc(ROUTES[el.dataset.rt].name)}</span></div>`;
+    };
+  });
+  $("#rdetail").innerHTML = `<h4>请选择上方任一节点</h4><p>节点详情将显示在此处。</p>`;
+}
+$("#rbar").onclick = e => { const b = e.target.closest("button"); if(b) renderRoute(b.dataset.k); };
+renderRoute(curRoute);
+
+// 时间线
+$("#tlbody").innerHTML = TIMELINE.map(t=>
+  `<div class="tlitem"><div class="tlh">${esc(t.h)}</div><div class="tld">${esc(t.d)}</div>
+   <div style="font-size:12.5px;color:var(--fg2)">${esc(t.t)}</div></div>`).join("");
+
+// 结局
+$("#endbody").innerHTML = `<table><tr><th>结局</th><th>脚本</th><th>名称</th><th>含义</th></tr>` +
+  ENDINGS.map(e=>`<tr><td><b>${esc(e[0])}</b></td><td style="font-family:Consolas,monospace;font-size:11.5px">${esc(e[1])}</td>
+    <td>${esc(e[2])}</td><td>${esc(e[3])}</td></tr>`).join("") + `</table>`;
+
+// 待裁决
+$("#decbody").innerHTML = DECISIONS.map(d=>
+  `<div class="dec blk"><h4>${d.id} · ${esc(d.q)}</h4>
+    <div style="font-size:12.5px;color:var(--fg2)">${esc(d.i)}</div>
+    <div class="opts">${d.o.map(o=>`<span class="opt">${esc(o)}</span>`).join("")}</div></div>`).join("");
+
+$("#termbody").innerHTML = `<table><tr><th>原词</th><th>译法 A</th><th>译法 B</th></tr>` +
+  TERMS.map(t=>`<tr><td><b>${esc(t[0])}</b></td><td>${esc(t[1])}</td><td>${esc(t[2])}</td></tr>`).join("") + `</table>`;
+
+$("#unkbody").innerHTML = UNKNOWNS.map((u,i)=>
+  `<div class="dec"><h4>待确认 ${i+1}</h4><div style="font-size:12.5px;color:var(--fg2)">${u}</div></div>`).join("");
+</script>
+</body>
+</html>

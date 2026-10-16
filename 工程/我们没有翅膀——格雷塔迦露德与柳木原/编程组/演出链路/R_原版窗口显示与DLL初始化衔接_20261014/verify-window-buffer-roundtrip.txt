@@ -1,0 +1,43 @@
+from pathlib import Path
+import sys, ctypes, struct, json, hashlib
+root=Path.cwd();work=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具';sys.path.insert(0,str(work))
+outdir=(root/sys.argv[1]).resolve();assert outdir.is_relative_to((root/'临时/ISSUE-20261011-02').resolve());outdir.mkdir(exist_ok=True)
+from lucifen_host_windowpos import WINDOWPOS
+from lucifen_host_nccalcsize import RECT,NCCALCSIZE_PARAMS
+from lucifen_guest_windowpos import pack_guest_windowpos
+from lucifen_guest_nccalcsize import pack_guest_nccalcsize
+from lucifen_guest_windowpos_apply import decode_guest_windowpos,write_windowpos_numeric
+from lucifen_guest_nccalcsize_apply import decode_guest_nccalcsize,write_nccalcsize_rects
+bits=ctypes.sizeof(ctypes.c_void_p)*8
+hwnd=0x11223344 if bits==32 else 0x1122334455667788
+insert=0x22334455 if bits==32 else 0x2233445566778899
+p=WINDOWPOS(hwnd,insert,-7,-11,640,480,0x80000020)
+assert ctypes.sizeof(WINDOWPOS)==(28 if bits==32 else 40)
+assert ctypes.sizeof(NCCALCSIZE_PARAMS)==(52 if bits==32 else 56)
+raw=pack_guest_windowpos(p,0x69f50000,0xfffffffe)
+assert decode_guest_windowpos(raw,0x69f50000,0xfffffffe)==(0x69f50000,0xfffffffe,-7,-11,640,480,0x80000020)
+modified=struct.pack('<2I4iI',0x69f50000,0xfffffffe,-100,20,800,600,0x34)
+write_windowpos_numeric(p,decode_guest_windowpos(modified,0x69f50000,0xfffffffe))
+assert (p.hwnd,p.hWndInsertAfter,p.x,p.y,p.cx,p.cy,p.flags)==(hwnd,insert,-100,20,800,600,0x34)
+params=NCCALCSIZE_PARAMS();params.lppos=ctypes.pointer(p);saved_ptr=ctypes.cast(params.lppos,ctypes.c_void_p).value
+vals=(-9,-8,790,590, -10,-20,810,620, 0,0,800,600)
+write_nccalcsize_rects(params,vals)
+raw_nc=pack_guest_nccalcsize(params,0x3401800)
+assert len(raw_nc)==52 and decode_guest_nccalcsize(raw_nc,0x3401800)==vals
+changed=tuple(v+13 for v in vals)
+write_nccalcsize_rects(params,decode_guest_nccalcsize(struct.pack('<12iI',*changed,0x3401800),0x3401800))
+assert tuple(v for r in params.rgrc for v in (r.left,r.top,r.right,r.bottom))==changed
+assert ctypes.cast(params.lppos,ctypes.c_void_p).value==saved_ptr and (p.hwnd,p.hWndInsertAfter)==(hwnd,insert)
+cases=[]
+for label,call in [
+ ('wrong-window-hwnd',lambda:decode_guest_windowpos(modified,1,0xfffffffe)),
+ ('wrong-insert-token',lambda:decode_guest_windowpos(modified,0x69f50000,1)),
+ ('wrong-nested-pos',lambda:decode_guest_nccalcsize(raw_nc,1)),
+ ('short-pos',lambda:decode_guest_windowpos(raw[:-1],0,0)),
+ ('long-nc',lambda:decode_guest_nccalcsize(raw_nc+b'X',0)),
+ ('host64-pointer-as-guest',lambda:pack_guest_windowpos(p,0x100000000,0)),
+ ('host64-nc-pointer-as-guest',lambda:pack_guest_nccalcsize(params,0x100000000))]:
+ try:call();raise AssertionError('must reject '+label)
+ except (ValueError,struct.error) as e:cases.append(dict(case=label,exception=type(e).__name__))
+result=dict(passed=True,host_bits=bits,WINDOWPOS_size=ctypes.sizeof(WINDOWPOS),NCCALCSIZE_size=ctypes.sizeof(NCCALCSIZE_PARAMS),guest_sizes=[28,52],negative_coordinates_roundtrip=True,host_pointer_fields_unchanged=True,nested_pointer_unchanged=True,rejected=cases,source_hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in work.glob('lucifen_*.py')},no_original_window_Shown=True)
+path=outdir/('windowpos-nccalcsize-roundtrip-'+str(bits)+'.json');assert not path.exists();path.write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result))

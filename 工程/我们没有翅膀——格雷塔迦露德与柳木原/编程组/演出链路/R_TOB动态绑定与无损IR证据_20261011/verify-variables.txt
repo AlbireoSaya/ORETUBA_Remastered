@@ -1,0 +1,73 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'临时/ISSUE-20261011-02/r-tob-dynamic-replay-01';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+from lucifen_tob_dynamic_structure import parse_record
+from lucifen_cdecl_observer import observe_cdecl_until
+from unicorn.x86_const import UC_X86_REG_ESI,UC_X86_REG_EDI
+params=0x1020000;rows=[];counts={'variable_conditions':0,'array_items':0}
+files=sorted(p for p in (root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*') if p.suffix.lower()=='.tob')
+for fi,p in enumerate(files):
+ data=p.read_bytes();le=4+struct.unpack_from('<I',data,4)[0];cs=le+struct.unpack_from('<I',data,le)[0];records=[];pos=cs
+ while True:
+  at=data.find(b'\x5b\x20',pos)
+  if at<0:break
+  r=parse_record(data,at);records.append(r);pos=r['end']
+ arrays=[]
+ for r in records:
+  q=r['length_offset']+5
+  for j,i in enumerate(r['items']):
+   assert data[q]==i['tag'];q+=1
+   if i['tag']==0:continue
+   if i['tag']==2:q+=4;continue
+   assert data[q]==i['selector'];q+=1
+   if i['kind']=='array':arrays.append((r['start'],j,q,i));q+=8
+   elif i['kind']=='literal':q+=4
+   elif i['kind']=='inline':q+=2+i['data_size']
+   else:q=i['expression']['reloc_start']+i['expression']['reloc_size']
+  assert q==r['end']
+ conditions=[r for r in records if r['condition']['kind']=='array']
+ counts['variable_conditions']+=len(conditions);counts['array_items']+=len(arrays)
+ dig=hashlib.sha256()
+ for seed,value in [(0,0),(1,0xffffffff)]:
+  u,maps=prepare(data,seed)
+  for a in maps[0].values():u.mem_write(a,struct.pack('<I',value))
+  for r in conditions:
+   obs=observe_cdecl_until(u,0x42fb50,buffer+r['start']+1,0x42fc44,0,{'ecx':ctx},timeout=0)
+   expected=int(value==0) if r['opcode']==0 else value
+   assert obs['stop_reached'] and not obs['error'] and obs['eax']==expected,(p.name,r['start'],obs)
+   assert u.reg_read(UC_X86_REG_ESI)==buffer+r['length_offset']
+   dig.update(struct.pack('<III',r['start'],seed,expected))
+  for record,j,q,item in arrays:
+   guard=b'\x96'*16;u.mem_write(params-16,guard+struct.pack('<II',item['flags'],0xbbbbbbbb)+guard);u.mem_write(0x200801c,struct.pack('<I',params))
+   context=bytes(u.mem_read(ctx,0x8000));obs=observe_cdecl_until(u,0x42fcec,0,0x42fd42,0,{'ecx':ctx,'ebp':ctx,'esi':buffer+q,'edi':params+4},timeout=0)
+   assert obs['stop_reached'] and not obs['error']
+   assert bytes(u.mem_read(params-16,40))==guard+struct.pack('<II',item['flags'],value)+guard
+   assert u.reg_read(UC_X86_REG_ESI)==buffer+q+8 and u.reg_read(UC_X86_REG_EDI)==params+8
+   assert obs['eax']==maps[0][item['bank_index']]+item['element_index']*4
+   assert bytes(u.mem_read(ctx,0x8000))==context
+   dig.update(struct.pack('<IIII',record,j,seed,value))
+  assert bytes(u.mem_read(buffer,len(data)))==data and p.read_bytes()==data
+ rows.append({'path':p.relative_to(root).as_posix(),'sha256':hashlib.sha256(data).hexdigest(),'variable_conditions':len(conditions),'array_items':len(arrays),'two_state_result_sha256':dig.hexdigest(),'passed':True})
+summary={'files':len(rows),'counts':counts,'condition_cases':counts['variable_conditions']*2,'array_block_cases':counts['array_items']*2,'passed':True,'scope':'original record entry to evaluated array condition before branch; original interior array parameter block to actual stop; zero/FFFFFFFF controlled banks, no expression evaluation/allocator or full handlers'}
+for n,v in [('native-variable-reference-results.json',rows),('native-variable-reference-summary.json',summary)]:
+ out=b/n;assert not out.exists();out.write_text(json.dumps(v,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary))

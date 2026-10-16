@@ -1,0 +1,22 @@
+{
+  "root_files": ["AGENTS.md", ".gitignore", ".gitattributes"],
+  "denied_roots": ["备份", "成品", "工具", "临时", "子代理工作区", "_game_ascii", "oretsuba_r", "_verify"],
+  "denied_components": [".git", "__pycache__"],
+  "secret_names": ["hosts.yml", "connection.toml", "auth.json", "credentials", "credentials.json", "id_rsa", "id_ed25519", ".env"],
+  "suffixes": [".py", ".tjs", ".ks", ".js", ".ts", ".cpp", ".c", ".h", ".hpp", ".cs", ".go", ".sh", ".bat", ".cmd", ".ps1", ".md", ".json", ".jsonl", ".tsv", ".csv", ".txt", ".toml", ".ini", ".inf", ".css", ".html", ".xml", ".yaml", ".yml", ".patch", ".asm", ".utf16le", ".cfg", ".schema", ".gitignore", ".gitattributes"],
+  "record_tokens": ["我们没有翅膀", "R版", "Lucifen", "lucifen", "GitHubCLI"],
+  "prefixes": {
+    ".codex/agents/": "own_tools",
+    ".codex/tools/": "own_tools",
+    ".zcode/skills/galgame-translation/": "relevant_skill",
+    ".zcode/skills/kirikiri-unpack/": "relevant_skill",
+    ".zcode/skills/lucifen-unpack/": "relevant_skill",
+    ".zcode/skills/psvita-unpack/": "relevant_skill",
+    "工程/我们没有翅膀/": "oretuba_source",
+    "工程/我们没有翅膀 After Story/": "oretuba_source",
+    "工程/我们没有翅膀 前奏诗/": "oretuba_source",
+    "工程/我们没有翅膀PSV/": "oretuba_source",
+    "工程/我们没有翅膀R/": "oretuba_source",
+    "工程/我们没有翅膀——格雷塔迦露德与柳木原/": "oretuba_source"
+  }
+}

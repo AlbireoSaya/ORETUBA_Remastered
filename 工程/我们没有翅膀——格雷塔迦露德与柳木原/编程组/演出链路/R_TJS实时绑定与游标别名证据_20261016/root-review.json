@@ -1,0 +1,89 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "date": "2026-10-16",
+  "root_approved": true,
+  "sdk": 6,
+  "fixtures": 7,
+  "original_distinct_final_cases": 23,
+  "original_initial_exploration_cases": 22,
+  "original_total_top_level_invocations_this_phase": 45,
+  "scoped_events": 739,
+  "target_per_architecture": 23,
+  "installed_regression_per_architecture": 23,
+  "positive_receipts": [
+    {
+      "path": "receipts/r-live-bind-32-20261016-02.json",
+      "sha256": "c8e7735f851797a37ab72b81b9523e87c9ae285c20d29833c1b2de14a9e65ec2",
+      "bits": 32,
+      "cases": 23
+    },
+    {
+      "path": "receipts/r-installed-live-bind-32-20261016-01.json",
+      "sha256": "35e979eddc14f015bf4634de5b7855a842d4620ccf86e4f7927b1d2d7bd424ce",
+      "bits": 32,
+      "cases": 23
+    },
+    {
+      "path": "receipts/r-live-bind-64-20261016-02.json",
+      "sha256": "742f298e2a24e1406fdfaf96deaed6828f6e46acc8a2803c30650c3b4b7c7305",
+      "bits": 64,
+      "cases": 23
+    },
+    {
+      "path": "receipts/r-installed-live-bind-64-20261016-01.json",
+      "sha256": "5eea43adcbfa9a3bdeca6551a4dbb379b043bb65907a4215480f85a708dacd3b",
+      "bits": 64,
+      "cases": 23
+    }
+  ],
+  "fault_detection_cases": [
+    {
+      "kind": "count-before-read",
+      "bits": 32,
+      "detected": true
+    },
+    {
+      "kind": "late-index-cursor",
+      "bits": 32,
+      "detected": true
+    },
+    {
+      "kind": "stale-string-base",
+      "bits": 32,
+      "detected": true
+    },
+    {
+      "kind": "count-before-read",
+      "bits": 64,
+      "detected": true
+    },
+    {
+      "kind": "late-index-cursor",
+      "bits": 64,
+      "detected": true
+    },
+    {
+      "kind": "stale-string-base",
+      "bits": 64,
+      "detected": true
+    }
+  ],
+  "api_calls": 21,
+  "api_stop_is_not_acceptance": true,
+  "rejected_drafts": "count read/write order, undefined u32, rh.RH, incorrect fixture constructor; Dictionary-bound global lookup corrected after failed target runs; root PowerShell array concatenation omitted facts from two document prompts, corrected and redispatched",
+  "original_exe_unchanged_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "coverage_limits": [
+    "16 direct binders and seven parameter callers before VM only",
+    "existing bank fixture; no real growth",
+    "native internal call stack and argument-frame alias unmodeled; compact/codeBase by value",
+    "heap/PE snapshots against logged writes are coverage sanity, not independent semantics oracle",
+    "target exact scoped events and final observations, not whole-image hash",
+    "live VM/post-VM size/inline live header/ctx434/129 dispatch/full four-version game fidelity incomplete"
+  ],
+  "all_production_and_fixture_sources_reviewed": true,
+  "documents_and_admin_reviewed": true,
+  "index_rows": [
+    23,
+    32
+  ]
+}

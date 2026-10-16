@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--font-chain: &quot;微软雅黑&quot;,&quot;Microsoft YaHei&quot;,&quot;黑体&quot;,&quot;SimHei&quot;,&quot;宋体&quot;,&quot;SimSun&quot;,&quot;MS Gothic&quot;,sans-serif;"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title> 来自个人汉化者AlbireoSaya 模型&amp;工具:Deepseek v4.1 flash+ZCode</title>
+
+<!-- ==========================================================================
+     《我们没有翅膀——格雷塔迦露德与柳木原》UI 1:1 HTML 复刻
+     M3 建立 ｜ M15 扩展（画布 1920×1080 · 16 屏 · 右键图标浮层）
+     Issue: ISSUE-20260919-11 ｜ 分支: issue/ISSUE-20260919-11-greta-ui
+
+     M43 变更（2026-09-23，用户裁定）：`chapter`（主线·章节选择）屏**已删除** ——
+       剧情入口改由 `flowchart` 屏的既有按钮 `fc.jump_hit`（新动作 `flow_enter`）承担；
+       本页因此加载 `flow_data.js`（节点数据），屏数标签改为按目录实测（不再硬编码）。
+
+     用法：双击本文件即可（file:// 协议可用，不依赖网络、不依赖 CDN、不使用 fetch）
+     数据：ui_layout.js（window.UI_LAYOUT）—— 与 krkr 侧 krkr/game/ui_layout.tjs
+           由 UI组/工具/gen_layout.py 从**同一份** layout/screens/*.json 生成
+     贴图：../krkr/assets/ui/*.png —— M1/M17 产出的 krkr 资产集，**同一份，不复制**
+
+     M15 变更：① 画布基线 1280×720 → 1920×1080（总纲 D1 修订注·第三条）；
+               ② 屏数 15 → 16，新增 `sysicons` 右键图标浮层（overlay 屏）；
+               ③ **画面右键 = 呼出/收起功能图标浮层**（原先绑的是「回想」）；
+               ④ 新增 AI 派生素材已全部接入（9 功能图标 / 新对话窗 / 流程图四种方框 /
+                  Fragment 整页底图 / 鉴赏整页底图 / 系统屏满幅背景）。
+
+     M3 变更（ISSUE-20260922-28）：系统菜单改为「鼠标贴屏幕右端呼出、平时收起」的竖排快捷条。
+       ① 屏级 `attach` 附加层（dialog 叠画 quickbar）——与 krkr 侧 M2 同契约；
+       ② 画布级 mousemove/mouseleave 驱动呼出 / 延时收起 / 钉住，数值全部读 `reveal`；
+       ③ `open_sysmenu`（收起态把手）改为「展开竖条」，不再换屏；
+          **Esc = 返回上一层／退出**（与 krkr 一致，H1 裁决后**不再**触发 `open_sysmenu`）；
+       ④ 新增 `quick_pin`（钉住）与 `next_choice` 动作；
+       ⑤ 深链 `?flags=<名>:<值>[,…]` 覆盖屏级 flag 后渲染（无头单帧截图用）。
+       契约与逐条落点见 `layout/_schema.md` §四「屏级状态 flag」与 `README_复刻说明.md` §九。
+
+     M45 变更（2026-09-23，用户裁定）：`sysmenu`（系统菜单）屏**已整体废除**（用户原话：
+       「现在废除『系统菜单 sysmenu』页，因为我们已有药丸按钮系统」）—— `20_sysmenu.json`
+       与 `_index.json` 条目已删除、本页导航与 `SCREEN_CATALOG` 条目已移除、屏数标签按目录实测。
+       `open_sysmenu` **动作保留**（语义＝展开竖排快捷条，非换屏）。
+
+     M46 变更（2026-09-23，用户裁定）：`sysbar`（系统条）屏**已删除**（18 → 17 屏；用户原话：
+       「把系统条 sysbar 页删了，但底条素材保留（防冲突）」）—— `34_sysbar.json` 与
+       `_index.json` 条目已删除；本页导航与 `SCREEN_CATALOG` **本就没有 `sysbar` 条目**
+       （该屏只以 `UI_LAYOUT.screens` 数据驱动）⇒ 数据删除后本页无需增删条目，屏数标签按目录实测。
+       **素材一律保留原位、不归档、不删除**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用）。
+     ========================================================================== -->
+
+<link rel="stylesheet" href="../../复刻/replica.css">
+<style>.shell{max-width:none!important;padding:0!important;margin:0!important}.shell-head,.shell-foot{display:none!important}#stage-wrap{justify-content:flex-start!important;display:block!important}#stage{box-shadow:none!important}</style></head>
+<body>
+
+<div class="shell">
+
+  <div class="shell-head">
+    <h1>我们没有翅膀——格雷塔迦露德与柳木原<small>UI 1:1 HTML 复刻 · M15</small></h1>
+    <div class="sub">
+      画布 <span id="canvas-note">1920×1080</span>（由 ui_layout.js 读入，页面内不写死）｜
+      布局数据 <code>复刻/ui_layout.js</code>（与 krkr 侧 <code>krkr/game/ui_layout.tjs</code> 同一上游） ｜
+      贴图 <code id="src-note">krkr/assets/ui/</code>
+    </div>
+
+    <div class="bar">
+      <span class="lab">缩放</span>
+      <button class="btn" id="btn-1to1">1:1 原始尺寸</button>
+      <button class="btn on" id="btn-fit">适应窗口</button>
+      <span class="sep"></span>
+      <span class="lab">content_box 演示源</span>
+      <select class="btn" id="demo-source" title="切换 content_boxes 的源代号；对话框的 story_background 层按此取框位（@auto）"><option value="ot">ot</option><option value="otr">otr</option><option value="ota">ota</option><option value="otp">otp</option><option value="otv">otv</option><option value="np">np</option></select>
+      <span class="sep"></span>
+      <button class="btn" id="btn-back">返回上一屏</button>
+      <button class="btn" id="btn-replay">重播对话演示</button>
+      <button class="btn" id="btn-panel">隐藏面板</button>
+    </div>
+
+    <div class="bar" id="screen-btns-row">
+      <span class="lab">界面（<span id="screen-count">14</span> 屏）</span>
+      <div id="screen-btns" style="display:flex;flex-wrap:wrap;gap:6px"><button class="btn" data-screen-btn="title" title="layout 数据已就绪">标题画面</button><button class="btn" data-screen-btn="dialog" title="layout 数据已就绪">对话框/名字框/系统条/选择肢</button><button class="btn" data-screen-btn="confirm" title="layout 数据已就绪">确认框</button><button class="btn" data-screen-btn="loading" title="layout 数据已就绪">加载提示</button><button class="btn" data-screen-btn="save" title="layout 数据已就绪">存档</button><button class="btn" data-screen-btn="load" title="layout 数据已就绪">读档</button><button class="btn" data-screen-btn="config" title="layout 数据已就绪">配置</button><button class="btn" data-screen-btn="backlog" title="layout 数据已就绪">回想</button><button class="btn" data-screen-btn="gallery" title="layout 数据已就绪">CG 画廊</button><button class="btn" data-screen-btn="music" title="layout 数据已就绪">音乐鉴赏</button><button class="btn" data-screen-btn="ending" title="layout 数据已就绪">片尾（STAFF/歌词）</button><button class="btn" data-screen-btn="fragment" title="layout 数据已就绪">番外（Fragment）选择</button><button class="btn" data-screen-btn="flowchart" title="layout 数据已就绪">剧情流程图</button><button class="btn" data-screen-btn="sysicons" title="layout 数据已就绪">右键图标浮层</button></div>
+    </div>
+    <div class="bar">
+      <span class="lab">提示</span>
+      <span style="font-size:12px;color:#8d9aad">
+        最末一屏 <b>「右键图标浮层」</b> 是 <code>overlay</code> 屏：点按钮进入时会自动垫一张对话框作下层；
+        <b>在对话框画面上按鼠标右键</b>即可呼出 / 再按一次收起（与实机一致）。其它屏不支持右键浮层。
+      </span>
+    </div>
+  </div>
+
+  <div id="stage-wrap">
+    <div id="stage" style="width: 1920px; height: 1080px;">
+      <div id="canvas" style="width: 1920px; height: 1080px; transform: scale(1);"><div class="ui-screen ui-screen-__gal_grid" style="position: absolute; left: 0px; top: 0px; width: 1920px; height: 1080px; z-index: 0;"><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="__gal_grid.bg" style="left: 0px; top: 0px; width: 1920px; height: 1080px; z-index: 0; opacity: 0.235294;"><div class="ui-nine" style="border-width: 20px; border-image-source: url(&quot;../../krkr/assets/ui/x_ui_cfg_frame.png&quot;); border-image-slice: 20 fill; border-image-repeat: stretch;"></div></div><div class="ui-el ui-list" data-ui-kind="list" data-ui-id="__gal_grid.list" style="left: 57px; top: 187px; width: 1806px; height: 697px; z-index: 3001;"><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="0" style="left: 0px; top: 0px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 1</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="1" style="left: 303px; top: 0px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 2</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="2" style="left: 606px; top: 0px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 3</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="3" style="left: 909px; top: 0px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 4</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="4" style="left: 1212px; top: 0px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 5</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="5" style="left: 1515px; top: 0px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 6</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="6" style="left: 0px; top: 178px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 7</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="7" style="left: 303px; top: 178px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 8</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="8" style="left: 606px; top: 178px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 9</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="9" style="left: 909px; top: 178px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 10</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="10" style="left: 1212px; top: 178px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 11</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="11" style="left: 1515px; top: 178px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 12</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="12" style="left: 0px; top: 356px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 13</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="13" style="left: 303px; top: 356px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 14</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="14" style="left: 606px; top: 356px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 15</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="15" style="left: 909px; top: 356px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 16</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="16" style="left: 1212px; top: 356px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 17</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="17" style="left: 1515px; top: 356px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 18</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="18" style="left: 0px; top: 534px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 19</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="19" style="left: 303px; top: 534px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 20</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="20" style="left: 606px; top: 534px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 21</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="21" style="left: 909px; top: 534px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 22</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="22" style="left: 1212px; top: 534px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 23</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="23" style="left: 1515px; top: 534px; width: 291px; height: 166px;"><div class="ui-list-item-label" style="font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: normal; color: rgb(232, 232, 240); text-align: center;">测试栏 24</div></div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="0" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 8px; top: 8px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="0" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:0" style="left: 8px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="0" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:0" style="left: 235px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="0" data-ui-var-text="1/3" style="left: 60px; top: 132px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="1" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 311px; top: 8px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="1" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:1" style="left: 311px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="1" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:1" style="left: 538px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="1" data-ui-var-text="1/3" style="left: 363px; top: 132px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="2" data-ui-var-asset="ui/x_ui_menuicon_gallery.png" style="left: 614px; top: 8px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_menuicon_gallery.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="2" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:2" style="left: 614px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="2" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:2" style="left: 841px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="2" data-ui-var-text="1/3" style="left: 666px; top: 132px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="3" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 917px; top: 8px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="3" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:3" style="left: 917px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="3" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:3" style="left: 1144px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="3" data-ui-var-text="1/3" style="left: 969px; top: 132px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="4" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 1220px; top: 8px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="4" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:4" style="left: 1220px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="4" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:4" style="left: 1447px; top: 132px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="4" data-ui-var-text="1/3" style="left: 1272px; top: 132px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="6" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 8px; top: 186px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="6" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:6" style="left: 8px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="6" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:6" style="left: 235px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="6" data-ui-var-text="1/3" style="left: 60px; top: 310px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="7" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 311px; top: 186px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="7" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:7" style="left: 311px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="7" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:7" style="left: 538px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="7" data-ui-var-text="1/3" style="left: 363px; top: 310px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="8" data-ui-var-asset="ui/x_ui_menuicon_gallery.png" style="left: 614px; top: 186px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_menuicon_gallery.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="8" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:8" style="left: 614px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="8" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:8" style="left: 841px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="8" data-ui-var-text="1/3" style="left: 666px; top: 310px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="9" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 917px; top: 186px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="9" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:9" style="left: 917px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="9" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:9" style="left: 1144px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="9" data-ui-var-text="1/3" style="left: 969px; top: 310px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="10" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 1220px; top: 186px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="10" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:10" style="left: 1220px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="10" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:10" style="left: 1447px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="10" data-ui-var-text="1/3" style="left: 1272px; top: 310px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="11" data-ui-var-asset="ui/x_ui_menuicon_gallery.png" style="left: 1523px; top: 186px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_menuicon_gallery.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="11" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:11" style="left: 1523px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="11" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:11" style="left: 1750px; top: 310px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="11" data-ui-var-text="1/3" style="left: 1575px; top: 310px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="12" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 8px; top: 364px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="12" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:12" style="left: 8px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="12" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:12" style="left: 235px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="12" data-ui-var-text="1/3" style="left: 60px; top: 488px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="13" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 311px; top: 364px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="13" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:13" style="left: 311px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="13" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:13" style="left: 538px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="13" data-ui-var-text="1/3" style="left: 363px; top: 488px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="14" data-ui-var-asset="ui/x_ui_menuicon_gallery.png" style="left: 614px; top: 364px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_menuicon_gallery.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="14" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:14" style="left: 614px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="14" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:14" style="left: 841px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="14" data-ui-var-text="1/3" style="left: 666px; top: 488px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="15" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 917px; top: 364px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="15" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:15" style="left: 917px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="15" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:15" style="left: 1144px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="15" data-ui-var-text="1/3" style="left: 969px; top: 488px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="16" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 1220px; top: 364px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="16" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:16" style="left: 1220px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="16" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:16" style="left: 1447px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="16" data-ui-var-text="1/3" style="left: 1272px; top: 488px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="17" data-ui-var-asset="ui/x_ui_menuicon_gallery.png" style="left: 1523px; top: 364px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_menuicon_gallery.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="17" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:17" style="left: 1523px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="17" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:17" style="left: 1750px; top: 488px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="17" data-ui-var-text="1/3" style="left: 1575px; top: 488px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="18" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 8px; top: 542px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="18" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:18" style="left: 8px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="18" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:18" style="left: 235px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="18" data-ui-var-text="1/3" style="left: 60px; top: 666px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="19" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 311px; top: 542px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="19" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:19" style="left: 311px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="19" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:19" style="left: 538px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="19" data-ui-var-text="1/3" style="left: 363px; top: 666px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="20" data-ui-var-asset="ui/x_ui_menuicon_gallery.png" style="left: 614px; top: 542px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_menuicon_gallery.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="20" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:20" style="left: 614px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="20" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:20" style="left: 841px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="20" data-ui-var-text="1/3" style="left: 666px; top: 666px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="21" data-ui-var-asset="ui/x_ui_cfg_tab_on.png" style="left: 917px; top: 542px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_on.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="21" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:21" style="left: 917px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="21" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:21" style="left: 1144px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="21" data-ui-var-text="1/3" style="left: 969px; top: 666px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="22" data-ui-var-asset="ui/x_ui_cfg_name_sel.png" style="left: 1220px; top: 542px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_name_sel.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="22" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:22" style="left: 1220px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="22" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:22" style="left: 1447px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="22" data-ui-var-text="1/3" style="left: 1272px; top: 666px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-item-var-thumb" data-ui-kind="list-item-var-thumb" data-ui-var-index="23" data-ui-var-asset="ui/x_ui_menuicon_gallery.png" style="left: 1523px; top: 542px; width: 275px; height: 120px; background-image: url(&quot;../../krkr/assets/ui/x_ui_menuicon_gallery.png&quot;); background-size: 100% 100%; background-repeat: no-repeat;"></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vprev" data-ui-var-which="prev" data-ui-var-index="23" data-ui-interactive="1" data-ui-item-action-raw="gallery_prev:%row%" data-ui-action="gallery_prev:23" style="left: 1523px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-btn" data-ui-kind="list-item-var-btn" data-ui-var-btn="vnext" data-ui-var-which="next" data-ui-var-index="23" data-ui-interactive="1" data-ui-item-action-raw="gallery_next:%row%" data-ui-action="gallery_next:23" style="left: 1750px; top: 666px; width: 48px; height: 26px;"><div class="ui-stateimage" style="background-size: 100% 100%; background-repeat: no-repeat; background-image: url(&quot;../../krkr/assets/ui/x_ui_cfg_tab_off.png&quot;);"></div></div><div class="ui-list-item-var-text" data-ui-kind="list-item-var-text" data-ui-var-index="23" data-ui-var-text="1/3" style="left: 1575px; top: 666px; width: 171px; height: 26px; font-size: 20px; line-height: 28px; transform: translateY(-4px); font-weight: bold; color: rgb(255, 255, 255); justify-content: center;">1/3</div><div class="ui-list-pager" style="font-size: 24px;"><span class="pg-btn">◀</span><span class="pg-num">1 / 2</span><span class="pg-btn">▶</span></div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="__gal_grid.page_tx" style="left: 57px; top: 920px; width: 600px; height: 60px; z-index: 4002; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 5.2px)); font-size: 26px; line-height: 36.4px; font-weight: normal; color: rgb(232, 232, 240); text-align: left; white-space: nowrap;">第 1 / 2 页（测试）</div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="gallery_page_prev" data-ui-id="__gal_grid.page_prev" style="left: 700px; top: 920px; width: 190px; height: 60px; z-index: 9603;"><div class="ui-hit-label" style="font-size: 26px; line-height: 36.4px; transform: translateY(-5.2px); font-weight: normal; color: rgb(232, 232, 240);">上一页</div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="gallery_page_next" data-ui-id="__gal_grid.page_next" style="left: 910px; top: 920px; width: 190px; height: 60px; z-index: 9604;"><div class="ui-hit-label" style="font-size: 26px; line-height: 36.4px; transform: translateY(-5.2px); font-weight: normal; color: rgb(232, 232, 240);">下一页</div></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="gs.strip" style="left: 27px; top: 30px; width: 920px; height: 52px; z-index: 10605;"><div class="ui-nine" style="border-width: 20px; border-image-source: url(&quot;../../krkr/assets/ui/x_ui_cfg_page_strip.png&quot;); border-image-slice: 20 fill; border-image-repeat: stretch;"></div></div><div class="ui-el ui-rect" data-ui-kind="rect" data-ui-id="gs.back_panel" style="left: 1660px; top: 30px; width: 230px; height: 52px; z-index: 10719; background: rgb(20, 24, 36); opacity: 0.745098;"></div><div class="ui-el ui-rect" data-ui-kind="rect" data-ui-id="gs.tab1_on" style="left: 33px; top: 30px; width: 159px; height: 52px; z-index: 10806; background: rgb(58, 90, 154); opacity: 0.823529;"></div><div class="ui-el ui-rect" data-ui-kind="rect" data-ui-id="gs.tab2_on" style="left: 214px; top: 30px; width: 208px; height: 52px; z-index: 10807; background: rgb(58, 90, 154); opacity: 0.823529; display: none;"></div><div class="ui-el ui-rect" data-ui-kind="rect" data-ui-id="gs.tab3_on" style="left: 444px; top: 30px; width: 246px; height: 52px; z-index: 10808; background: rgb(58, 90, 154); opacity: 0.823529; display: none;"></div><div class="ui-el ui-rect" data-ui-kind="rect" data-ui-id="gs.tab4_on" style="left: 715px; top: 30px; width: 217px; height: 55px; z-index: 10809; background: rgb(58, 90, 154); opacity: 0.823529; display: none;"></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="gs.tab1_tx" style="left: 27px; top: 0px; width: 171px; height: 84px; z-index: 11610; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 6px)); font-size: 30px; line-height: 42px; font-weight: bold; color: rgb(232, 232, 240); text-align: center; white-space: nowrap;">CG 鉴赏</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="gs.tab2_tx" style="left: 208px; top: 0px; width: 220px; height: 84px; z-index: 11611; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 6px)); font-size: 30px; line-height: 42px; font-weight: bold; color: rgb(232, 232, 240); text-align: center; white-space: nowrap;">BGM 鉴赏</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="gs.tab3_tx" style="left: 438px; top: 0px; width: 258px; height: 84px; z-index: 11612; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 6px)); font-size: 30px; line-height: 42px; font-weight: bold; color: rgb(232, 232, 240); text-align: center; white-space: nowrap;">立绘鉴赏</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="gs.tab4_tx" style="left: 709px; top: 0px; width: 229px; height: 87px; z-index: 11613; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 6px)); font-size: 30px; line-height: 42px; font-weight: bold; color: rgb(232, 232, 240); text-align: center; white-space: nowrap;">情景回想</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="gs.title" style="left: 980px; top: 30px; width: 420px; height: 52px; z-index: 11618; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 6.8px)); font-size: 34px; line-height: 47.6px; font-weight: bold; color: rgb(245, 233, 200); text-align: left; white-space: nowrap; text-shadow: rgb(0, 0, 0) 2px 2px 0px;">鉴赏模式</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="gs.back_tx" style="left: 1660px; top: 30px; width: 230px; height: 52px; z-index: 11620; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 6px)); font-size: 30px; line-height: 42px; font-weight: bold; color: rgb(232, 232, 240); text-align: center; white-space: nowrap;">返回</div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="gallery_tab_1" data-ui-id="gs.tab1_hit" style="left: 27px; top: 0px; width: 171px; height: 84px; z-index: 19214;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="gallery_tab_2" data-ui-id="gs.tab2_hit" style="left: 208px; top: 0px; width: 220px; height: 84px; z-index: 19215;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="gallery_tab_3" data-ui-id="gs.tab3_hit" style="left: 438px; top: 0px; width: 258px; height: 84px; z-index: 19216;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="gallery_tab_4" data-ui-id="gs.tab4_hit" style="left: 709px; top: 0px; width: 229px; height: 87px; z-index: 19217;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="close" data-ui-id="gs.back_hit" style="left: 1660px; top: 30px; width: 230px; height: 52px; z-index: 19221;"><div class="ui-hit-label" style="font-size: 30px; line-height: 42px; transform: translateY(-6px); font-weight: normal; color: rgb(232, 232, 240);"></div></div></div><div class="ui-layer ui-layer-overlay" style="position: absolute; left: 0px; top: 0px; width: 1920px; height: 1080px; z-index: 1;"></div><div class="ui-toast" style="z-index: 5; font-size: 24px; display: none;">鉴赏页签 -&gt; replay（replay → replay；同级换屏；清理该页 list 1 个；gal_tab=replay）</div></div>
+    </div>
+  </div>
+
+  <div class="shell-foot">
+    <div class="kv"><b>操作</b>：点击画面推进台词（打字机逐字显示）｜<code>空格</code>/<code>Enter</code> 推进｜
+      按住 <code>Ctrl</code> 快进｜<code>A</code> 自动播放｜<code>H</code> 隐藏/恢复窗口｜
+      <code>Esc</code> 返回上一层／退出（浮层打开时先收起浮层）｜<code>Backspace</code> 返回上一屏。</div>
+    <div class="kv"><b>画面右键</b>：呼出 <b>9 图标功能浮层</b>（快速存档 / 快速读档 / 快进 / 返回上一选项 /
+      存档 / 读档 / 设置 / 隐藏对话框 / 重复语音）；浮层内<b>左键点空白处</b>或<b>再按一次右键</b>收起。
+      与实机（krkr 侧 <code>startup.tjs</code> 的 <code>toggleSysIcons()</code>）语义一致：仅对话框屏支持。</div>
+    <div class="kv"><b>系统条 9 键</b>：快速存档 / 快速读档 / 快进 / 返回上一选项 / 存档 / 读档 / 设置 / 隐藏对话框 / 重复语音
+      —— 全部可点击（与右键浮层的 9 图标同源）。</div>
+    <div class="kv"><b>演示背景</b>：对话框 <code>dynamic:"story_background"</code> 层由真实素材占位填充，当前使用
+      <code id="demo-bg-note">（当前屏无 story_background 层）</code>；该层在 krkr 侧由编程组按当前场景源代号填入 1:1 剧情背景，
+      <b>本页仅为占位演示，非剧情素材</b>。</div>
+    <div class="kv"><b>署名</b>：<span id="sig-note">来自个人汉化者AlbireoSaya 模型&amp;工具:Deepseek v4.1 flash+ZCode</span></div>
+    <div class="kv"><b>本轮新素材</b>：9 功能图标 <code>x_gen_icon_01..09_*.png</code>（右键浮层，3×3 原生 1:1）｜
+      新对话窗 <code>x_gen_dialog.png</code>｜流程图四种方框 <code>x_gen_flownode_1..4_*.png</code>｜
+      Fragment 整页底图 <code>x_gen_fragpage.png</code>｜鉴赏整页底图 <code>x_gen_gallerypage.png</code>｜
+      系统屏满幅背景 <code>x_bg_system.png</code>（来自 <code>bg63.png</code>）。</div>
+    <div class="kv"><b>缺屏/缺件</b>：layout 数据尚未产出的屏显示「该界面尚未产出布局数据」占位；素材缺件显示红框占位并写明文件名，不会崩。
+      <b>运行期动态层</b>（<code>story_background</code> / <code>slot_thumb</code> / <code>gallery_preview</code>）
+      未填充时画中性虚线占位 + 说明，<b>不跳过</b>。</div>
+    <div class="kv"><b>说明</b>：本文件为人类复核用复刻件，不参与 krkr 运行；详细已知差异见同目录 <code>README_复刻说明.md</code>。</div>
+  </div>
+
+</div>
+
+<!-- 布局数据：与 krkr 侧同一上游生成物（gen_layout.py） -->
+<script>window.UI_ASSET_ROOT='../../krkr/assets/';</script>
+<script src="../../复刻/ui_layout.js"></script>
+<!-- ★ M43：流程图节点数据（window.UI_FLOW_DATA，与 krkr 侧 ui_flow_data.tjs 同一上游）。
+     动作 `flow_enter`（流程图屏「进入本章」按钮 fc.jump_hit）需要它来解析「当前光标节点」；
+     缺此文件时 replica.js 安全降级（给出「无可进入节点」提示），页面不会崩。 -->
+<script src="../../复刻/flow_data.js"></script>
+<!-- 渲染器：数据驱动，无硬编码坐标 -->
+<script src="../../复刻/replica.js"></script>
+
+
+<script>
+/* ★ M1 证据专用钩子（**不进任何交付文件**）：
+   ① 在内存里造测试屏 `__gal_grid`（6×4 网格 / 30 栏 / 每栏 3 张差分，资产复用既有件）；
+   ② 给四个承载屏补 `attach:'gal_shell'`（M4 的 dress/replay 可能还没落盘）；
+   ③ 页面外壳隐藏 + setScale(1) ⇒ 截图左上 1920×1080 就是画布本体；
+   ④ 跑断言，把结果写进一个 id=M08OUT 的 pre（供 --dump-dom 采集与 Python 侧判定）。
+   ⚠️ 本注释**刻意不写尖括号形式的标签**：--dump-dom 会把 <script> 的正文原样序列化，
+   注释里的标签字面量会被 Python 侧的正则误当成真元素（实测踩过）。 */
+(function () {
+  var st = document.createElement('style');
+  st.textContent = '.shell{max-width:none!important;padding:0!important;margin:0!important}'
+    + '.shell-head,.shell-foot{display:none!important}'
+    + '#stage-wrap{justify-content:flex-start!important;display:block!important}'
+    + '#stage{box-shadow:none!important}';
+  document.head.appendChild(st);
+
+  var ID = '__gal_grid';
+  var COEX = '__gal_coexist';   /* 三者共存的测试屏 */
+  var N_ROWS = 30, N_DIFF = 3, COLS = 6, ROWS = 4, IW = 291, IH = 166, GAP = 12;
+  var A = ['ui/x_ui_cfg_tab_on.png', 'ui/x_ui_cfg_name_sel.png', 'ui/x_ui_menuicon_gallery.png'];
+  var BTN_OFF = 'ui/x_ui_cfg_tab_off.png', BTN_ON = 'ui/x_ui_cfg_tab_on.png';   /* 与引擎侧同 */
+  function buildTestScreen() {
+    var frames = [];
+    for (var r = 0; r < N_ROWS; r++) {
+      var row = [];
+      for (var k = 0; k < N_DIFF; k++) row.push(A[(r + k) % A.length]);
+      frames.push(row);
+    }
+    frames[5] = [];
+    var labels = [], actions = [];
+    for (var i = 0; i < N_ROWS; i++) { labels.push('测试栏 ' + (i + 1)); actions.push(''); }
+    return { id: ID, title_cn: '㉑ 鉴赏机制测试屏', owner: 'M1', attach: 'gal_shell', elements: [{
+      id: ID + '.bg', kind: 'image', z: 0, visible_default: true,
+      asset: 'ui/x_ui_cfg_frame.png', x: 0, y: 0, w: 1920, h: 1080, opacity: 60,
+      nine: { l: 20, t: 20, r: 20, b: 20 }
+    }, {
+      id: ID + '.list', kind: 'list', z: 30, visible_default: true,
+      orientation: 'h', x: 57, y: 187,
+      w: COLS * IW + (COLS - 1) * GAP, h: ROWS * IH + (ROWS - 1) * 11,
+      item_w: IW, item_h: IH, gap: GAP, max_cols: COLS, max_rows: ROWS,
+      labels: labels, actions: actions,
+      font: { size: 20, color: '@palette.text_menu' }, align: 'center',
+      scroll: { mode: 'page', page_size: COLS * ROWS },
+      /* ★ 与引擎侧测试页（m08_gallery_tour.make_test_screen）**逐字对齐**：两端截图要能
+         逐像素比，数据就必须同一份。**刻意不放 `item_frame`**（九宫格件两端实现不同，
+         会把机制差异淹掉）；共存另立断言 coexistence.*。 */
+      item_variants: {
+        frames: frames,
+        thumb: { x: 8, y: 8, w: IW - 16, h: IH - 46 },
+        prev: { key: 'vprev', x: 8, y: IH - 34, w: 48, h: 26, asset: BTN_OFF,
+                state_assets: { normal: BTN_OFF, hover: BTN_ON, pressed: BTN_ON },
+                action: 'gallery_prev:%row%' },
+        next: { key: 'vnext', x: IW - 56, y: IH - 34, w: 48, h: 26, asset: BTN_OFF,
+                state_assets: { normal: BTN_OFF, hover: BTN_ON, pressed: BTN_ON },
+                action: 'gallery_next:%row%' },
+        text: { x: 60, y: IH - 34, w: IW - 120, h: 26, align: 'center',
+                font: { size: 20, bold: true, color: '@palette.text_primary' } },
+        edge: 'clamp'
+      }
+    }, {
+      id: ID + '.page_tx', kind: 'text', z: 40, visible_default: true,
+      x: 57, y: 920, w: 600, h: 60,
+      font: { size: 26, color: '@palette.text_menu' }, align: 'left', valign: 'middle',
+      wrap: false, max_lines: 1, sample: '第 1 / 2 页（测试）'
+    }, {
+      id: ID + '.page_prev', kind: 'hit', z: 96, visible_default: true,
+      x: 700, y: 920, w: 190, h: 60, action: 'gallery_page_prev', label: '上一页', align: 'center',
+      font: { size: 26, color: '@palette.text_menu' }
+    }, {
+      id: ID + '.page_next', kind: 'hit', z: 96, visible_default: true,
+      x: 910, y: 920, w: 190, h: 60, action: 'gallery_page_next', label: '下一页', align: 'center',
+      font: { size: 26, color: '@palette.text_menu' }
+    }] };
+  }
+
+  var out = [];
+  function log(s) { out.push(s); }
+  function chk(tag, ok, detail) {
+    log('★M08CHECK★ tag=' + tag + ' ok=' + (ok ? 1 : 0) + ' | ' + detail);
+  }
+  function base(p) { return String(p || '').replace(/^.*\//, '').replace(/["')]/g, ''); }
+
+  /* 注入（**总是先做**）：造测试屏 + 给四承载屏补 attach:'gal_shell' */
+  function inject() {
+    var L = window.UI_LAYOUT;
+    L.screens[ID] = buildTestScreen();
+    L.screens[COEX] = buildCoexistScreen();
+    HOSTS.forEach(function (h) {
+      if (!L.screens[h]) L.screens[h] = { id: h, title_cn: h + '（注入占位）', owner: 'M1',
+        elements: [{ id: h + '.bg', kind: 'rect', z: 0, visible_default: true,
+                     x: 0, y: 0, w: 1920, h: 1080, color: '@palette.backdrop', opacity: 200 }] };
+      L.screens[h].attach = 'gal_shell';
+    });
+  }
+
+  /* 三者共存的测试屏：同一行上同时挂 `item_frame.state_assets`（逐项三态）
+     + `item_buttons`（逐块按钮）+ `item_variants`（栏位内差分）—— 验证互不冲突。 */
+  function buildCoexistScreen() {
+    var rows = 3, IH = 80, IW = 600;
+    return { id: COEX, title_cn: '共存测试屏', owner: 'M1', elements: [{
+      id: COEX + '.list', kind: 'list', z: 30, visible_default: true,
+      orientation: 'v', x: 60, y: 200, w: IW, item_h: IH, max_rows: rows,
+      labels: ['共存行 1', '共存行 2', '共存行 3'],
+      actions: ['coexist_row_0', 'coexist_row_1', 'coexist_row_2'],
+      font: { size: 20, color: '@palette.text_menu' }, align: 'center',
+      item_frame: { asset: A[0], state_assets: { normal: A[0], hover: A[1], pressed: A[2] } },
+      item_buttons: [{ key: 'b1', x: 8, y: 8, w: 60, h: 24, asset: BTN_OFF,
+                       state_assets: { normal: BTN_OFF, hover: BTN_ON, pressed: BTN_ON },
+                       action: 'coexist_btn:%row%' }],
+      item_variants: {
+        frames: [[A[0], A[1]], [A[1], A[2]], [A[2], A[0]]],
+        thumb: { x: 80, y: 8, w: 200, h: 64 },
+        prev: { key: 'vprev', x: 300, y: 8, w: 48, h: 24, asset: BTN_OFF,
+                state_assets: { normal: BTN_OFF, hover: BTN_ON, pressed: BTN_ON },
+                action: 'gallery_prev:%row%' },
+        next: { key: 'vnext', x: 360, y: 8, w: 48, h: 24, asset: BTN_OFF,
+                state_assets: { normal: BTN_OFF, hover: BTN_ON, pressed: BTN_ON },
+                action: 'gallery_next:%row%' },
+        text: { x: 420, y: 8, w: 120, h: 24, align: 'center',
+                font: { size: 20, bold: true, color: '@palette.text_primary' } },
+        edge: 'clamp'
+      }
+    }] };
+  }
+
+  function run() {
+    var L = window.UI_LAYOUT, R = window.UI_REPLICA;
+    if (!L || !R) { log('★M08CHECK★ tag=PRE ok=0 | UI_LAYOUT / UI_REPLICA 未加载'); render(); return; }
+    inject();
+
+    /* ---------- ① 栏位内差分（测试网格页） ---------- */
+    R.renderScreen(ID, { noHistory: true });
+    R.setScale(1);
+    function q(sel) { return document.querySelector(sel); }
+    function qa(sel) { return document.querySelectorAll(sel); }
+    function vBtn(row, which) {
+      return q('[data-ui-kind="list-item-var-btn"][data-ui-var-index="' + row
+        + '"][data-ui-var-which="' + which + '"]');
+    }
+    function vThumb(row) { return q('[data-ui-kind="list-item-var-thumb"][data-ui-var-index="' + row + '"]'); }
+    function vText(row) { return q('[data-ui-kind="list-item-var-text"][data-ui-var-index="' + row + '"]'); }
+
+    chk('grid.count', qa('[data-ui-kind="list-item"]').length === COLS * ROWS,
+      '网格项 ' + qa('[data-ui-kind="list-item"]').length + '（期望 ' + (COLS * ROWS) + '）');
+    chk('grid.varThumb', qa('[data-ui-kind="list-item-var-thumb"]').length === COLS * ROWS - 1,
+      '缩略图 ' + qa('[data-ui-kind="list-item-var-thumb"]').length + '（留空 1 栏 ⇒ 期望 '
+      + (COLS * ROWS - 1) + '）');
+    var st0 = R.galleryState();
+    st0.lastAct = ''; st0.lastRow = -1; st0.count = 0;
+    var a0 = base(vThumb(0).style.backgroundImage);
+    var t0 = vText(0).textContent;
+    vBtn(0, 'next').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    var a1 = base(vThumb(0).style.backgroundImage);
+    var t1 = vText(0).textContent;
+    chk('var.next', a1 !== a0 && t0 === '1/3' && t1 === '2/3'
+        && R.galleryState().lastAct === 'gallery_next:0' && R.galleryState().lastRow === 0,
+      '点 next：缩略图 ' + a0 + ' → ' + a1 + '，n/N ' + t0 + ' → ' + t1
+      + '，派发 ' + R.galleryState().lastAct + ' 行号 ' + R.galleryState().lastRow);
+    vBtn(0, 'prev').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    chk('var.prev', base(vThumb(0).style.backgroundImage) === a0 && vText(0).textContent === '1/3'
+        && R.galleryState().lastAct === 'gallery_prev:0',
+      '点 prev：回到 ' + vText(0).textContent + '（' + base(vThumb(0).style.backgroundImage) + '）');
+    var cnt = R.galleryState().count;
+    vBtn(0, 'prev').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    chk('var.clamp', vText(0).textContent === '1/3' && R.galleryState().count === cnt + 1,
+      '边界 clamp：第 1 张再点 prev ⇒ 仍 ' + vText(0).textContent + '（派发仍发生 '
+      + cnt + ' → ' + R.galleryState().count + '）');
+    chk('var.empty-row', !vThumb(5) && !vBtn(5, 'prev') && !vText(5),
+      '留空栏（frames=[]）不画：缩略图=' + !!vThumb(5) + ' 按钮=' + !!vBtn(5, 'prev'));
+    var rej0 = (R.galleryState().rejects || []).length;
+    chk('var.no-reject', rej0 === 0, '合法数据下守卫判词 ' + rej0 + ' 条（期望 0）');
+
+    /* 守卫负向（内存副本） */
+    var grid = null;
+    L.screens[ID].elements.forEach(function (e) { if (e && e.item_variants) grid = e; });
+    if (!grid) { log('★M08CHECK★ tag=grid.lookup ok=0 | 测试屏里找不到带 item_variants 的元素'); render(); return; }
+    var keepV = grid.item_variants;
+    grid.item_variants = 'oops';
+    R.renderScreen(ID, { noHistory: true });
+    grid.item_variants = { frames: 'oops' };
+    R.renderScreen(ID, { noHistory: true });
+    var rej1 = (R.galleryState().rejects || []).slice();
+    var want1 = [ID + '.list[(item_variants)] item_variants 不是对象',
+                 ID + '.list[(frames)] frames 不是数组'];
+    /* ⚠️ `Array.indexOf` 是**元素全等**匹配，不是子串匹配 —— 判词带 `★M08VARIANT-REJECT★ ` 前缀，
+         用 indexOf 永远 -1（实测踩过：判词明明都在、断言却恒 FAIL）。改用子串扫描。 */
+    var miss1 = want1.filter(function (s) { return !rej1.some(function (l) { return l.indexOf(s) >= 0; }); });
+    chk('guard.container', miss1.length === 0 && qa('[data-ui-kind="list-item-var-thumb"]').length === 0,
+      '容器级非法逐条 REJECT：' + rej1.join('；') + '；缩略图节点 '
+      + qa('[data-ui-kind="list-item-var-thumb"]').length + '（期望 0）');
+    grid.item_variants = JSON.parse(JSON.stringify(keepV));
+    grid.item_variants.frames[7] = 'oops';
+    grid.item_variants.frames[8] = [''];
+    R.renderScreen(ID, { noHistory: true });
+    var rej2 = (R.galleryState().rejects || []).slice();
+    var want2 = [ID + '.list[frames[7]] 第 7 栏差分列表不是数组',
+                 ID + '.list[frames[8]] 差分素材为空（第 1 张）'];
+    var miss2 = want2.filter(function (s) { return !rej2.some(function (l) { return l.indexOf(s) >= 0; }); });
+    chk('guard.row', miss2.length === 0 && qa('[data-ui-var-index="7"]').length === 0,
+      '逐栏非法逐条 REJECT：' + rej2.slice(-2).join('；') + '；坏栏 DOM 节点 '
+      + qa('[data-ui-var-index="7"]').length + '（期望 0）');
+    grid.item_variants = keepV;
+
+    /* 页内翻页 */
+    R.renderScreen(ID, { noHistory: true });
+    var p0 = q('[data-ui-kind="list-item"]').getAttribute('data-ui-index');
+    R.doGalleryAction('gallery_page_next');
+    var p1 = q('[data-ui-kind="list-item"]').getAttribute('data-ui-index');
+    R.doGalleryAction('gallery_page_prev');
+    var p2 = q('[data-ui-kind="list-item"]').getAttribute('data-ui-index');
+    chk('page.flip', p0 === '0' && p1 === String(COLS * ROWS) && p2 === '0',
+      '页内翻页：首栏全局序号 ' + p0 + ' → ' + p1 + ' → ' + p2);
+
+    /* ---------- ①b 三者共存：同一行上 item_frame.state_assets + item_buttons + item_variants ---------- */
+    R.renderScreen(COEX, { noHistory: true });
+    R.setScale(1);
+    var cq = function (sel) { return document.querySelector(sel); };
+    var cqa = function (sel) { return document.querySelectorAll(sel); };
+    chk('coexist.render',
+      cqa('[data-ui-kind="list-item"][data-ui-item-states="1"]').length === 3
+      && cqa('[data-ui-kind="list-item-btn"][data-ui-item-btn="b1"]').length === 3
+      && cqa('[data-ui-kind="list-item-var-btn"]').length === 6
+      && cqa('[data-ui-kind="list-item-var-thumb"]').length === 3,
+      '同行三件共存：逐项态行 ' + cqa('[data-ui-kind="list-item"][data-ui-item-states="1"]').length
+      + '/3、逐块按钮 ' + cqa('[data-ui-kind="list-item-btn"]').length + '/3、差分按钮 '
+      + cqa('[data-ui-kind="list-item-var-btn"]').length + '/6、差分缩略图 '
+      + cqa('[data-ui-kind="list-item-var-thumb"]').length + '/3');
+    /* 逐项三态：悬停第 2 行 ⇒ 该行 frame 换 hover 图，而差分缩略图仍 = frames[1][0] */
+    var row1 = cq('[data-ui-kind="list-item"][data-ui-index="1"]');
+    var f1 = row1 ? row1.querySelector('.ui-list-item-frame') : null;
+    var fAsset0 = f1 ? String(f1.style.borderImageSource || f1.style.backgroundImage) : '';
+    row1.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false, cancelable: true, view: window }));
+    var fAsset1 = f1 ? String(f1.style.borderImageSource || f1.style.backgroundImage) : '';
+    var th1 = cq('[data-ui-kind="list-item-var-thumb"][data-ui-var-index="1"]');
+    var thAsset = th1 ? String(th1.style.backgroundImage) : '';
+    row1.dispatchEvent(new MouseEvent('mouseleave', { bubbles: false, cancelable: true, view: window }));
+    chk('coexist.frame-state', fAsset0 !== fAsset1 && fAsset1.indexOf(base(A[1])) >= 0
+        && thAsset.indexOf(base(A[1])) >= 0,
+        '悬停第 2 行 ⇒ 逐项 frame 换 hover 图（' + base(fAsset0) + ' → ' + base(fAsset1)
+        + '），差分缩略图不受影响（' + base(thAsset) + '）');
+    /* 优先级：逐块按钮（声明在前）赢；差分按钮次之；块内其余区走整行 */
+    if (window.__toastEl === undefined) { /* 无直接句柄：用 doAction 的可观测副作用 */ }
+    /* ⚠️ 逐块按钮的探针属性是 `data-ui-item-btn-index`（不是 `data-ui-item-index`） */
+    var b1 = cq('[data-ui-kind="list-item-btn"][data-ui-item-btn="b1"][data-ui-item-btn-index="1"]');
+    if (!b1) { log('★M08CHECK★ tag=coexist.priority-btn ok=0 | 取不到第 2 行的逐块按钮节点'); }
+    else {
+    b1.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    }
+    var toastTxt = (document.querySelector('.ui-toast') || {}).textContent || '';
+    chk('coexist.priority-btn', toastTxt.indexOf('coexist_btn:1') >= 0,
+      '点逐块按钮 ⇒ 派发它自己的 action 且 `%row%` 换成该行（toast="' + toastTxt.slice(0, 60) + '"）');
+    var vn = cq('[data-ui-kind="list-item-var-btn"][data-ui-var-index="1"][data-ui-var-which="next"]');
+    R.galleryState().lastAct = '';
+    vn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    chk('coexist.priority-var', R.galleryState().lastAct === 'gallery_next:1'
+        && R.galleryState().lastRow === 1,
+      '点差分按钮（同一行上还挂着逐块按钮）⇒ 仍派发 gallery_next:1（实得 '
+      + R.galleryState().lastAct + ' 行号 ' + R.galleryState().lastRow + '）');
+
+    /* ---------- ② 四个承载屏的 attach 复用（绘制 + 命中） ---------- */
+    HOSTS.forEach(function (h) {
+      R.renderScreen(h, { noHistory: true });
+      R.setScale(1);
+      var attachOk = R.attachScreen() === 'gal_shell';
+      var shellEls = qa('[data-ui-id^="gs."]').length;
+      var tabFlag = R.getFlag('gal_tab');
+      /* 外壳热区：真实点击（走 buildHit 的 click 监听 → doAction），断言**派发的是它自己的
+         action**（页签动作的可观测副作用 = `galleryState().lastAct`；返回键 `close` 的副作用
+         = 换屏）。每条点完把承载屏复位，保证互不干扰。 */
+      var hitOk = 0, hits = 0, hitBad = [];
+      var shell = L.screens.gal_shell;
+      (shell && shell.elements ? shell.elements : []).forEach(function (e) {
+        if (e.kind !== 'hit') return;
+        hits++;
+        var nd = q('[data-ui-id="' + e.id + '"]');
+        if (!nd) { hitBad.push(e.id + ' 缺节点'); return; }
+        R.galleryState().lastAct = '';
+        var beforeScreen = R.state.screen;
+        nd.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        var acted;
+        if (String(e.action).indexOf('gallery_tab_') === 0) {
+          acted = (R.galleryState().lastAct === e.action);
+        } else {
+          acted = (R.state.screen !== beforeScreen);
+        }
+        if (acted) hitOk++;
+        else hitBad.push(e.id + '(' + e.action + ') 点击后 lastAct='
+                         + R.galleryState().lastAct + ' 屏=' + R.state.screen);
+        R.renderScreen(h, { noHistory: true });   /* 复位，供下一件 */
+        R.setScale(1);
+      });
+      chk('attach.' + h, attachOk && shellEls > 0 && hits > 0 && hitOk === hits
+          && tabFlag === h,
+        '承载屏 ' + h + '：attach=' + R.attachScreen() + ' 外壳元素=' + shellEls
+        + ' 热区命中 ' + hitOk + '/' + hits + ' gal_tab=' + tabFlag + '（期望 ' + h + '）'
+        + (hitBad.length ? ' 失败：' + hitBad.join('；') : ''));
+    });
+
+    /* 复位到测试页，供截图 */
+    R.renderScreen(ID, { noHistory: true });
+    R.setScale(1);
+    log('★M08CHECK★ tag=DONE ok=1 | 断言结束');
+    render();
+  }
+
+  function render() {
+    var pre = document.createElement('pre');
+    pre.id = 'M08OUT';
+    pre.textContent = 'M08OUTBEGIN\n' + out.join('\n') + '\nM08OUTEND';
+    document.body.appendChild(pre);
+  }
+
+  var HOSTS = ['gallery', 'music', 'dress', 'replay'];
+  /* 模式（`?m08=<assert|grid|host>`）：
+       · assert —— 跑全部 DOM 断言并把结果写进 id=M08OUT 的 pre（供 --dump-dom 采集）；
+       · grid   —— 只把测试网格页画出来（并重放 `?hover=` / `?press=` 探针）供截图；
+       · host / 缺省 —— 只做注入，然后把深链的承载屏**重画一遍**（这样 dress/replay 的
+         attach 补丁才会生效、外壳才画得出来）供截图。
+       ⚠️ 本注释**刻意不写标签字面量**（尖括号形式）：--dump-dom 会把 script 正文原样序列化，
+       注释里的标签字面量会被 Python 侧正则误当成真元素（实测踩过）。 */
+  window.addEventListener('load', function () { setTimeout(function () {
+    var R = window.UI_REPLICA;
+    if (!R || !window.UI_LAYOUT) { log('★M08CHECK★ tag=PRE ok=0 | 未加载'); render(); return; }
+    try { inject(); } catch (e) { log('★M08CHECK★ tag=EXC ok=0 | inject: ' + e.message); }
+    var m = /[?&]m08=([a-z]+)/.exec(location.search || '');
+    var mode = m ? m[1] : 'host';
+    try {
+      if (mode === 'assert') { run(); return; }
+      if (mode === 'grid') {
+        R.renderScreen(ID, { noHistory: true });
+        R.setScale(1);
+        /* ★ 两端同态可比：引擎侧 `shot_57_gallery.png` 是**巡演跑完 `galvar auto:next` 之后**
+           的帧（首栏序号 = 1、`n/N` = 2/3）⇒ 这里把首栏序号预置成 1，否则比的是两个不同状态
+           （实测踩过：首栏整区 MAD 86/255 里大部分来自「缩略图不同一张」而非机制差异）。 */
+        R.varIdxSet(ID + '.list', 0, 1);
+        R.renderScreen(ID, { noHistory: true });
+        R.setScale(1);
+        var hm = /[?&]hover=([A-Za-z0-9_.\-~]+)/.exec(location.search || '');
+        if (hm) R.hoverProbe(hm[1]);
+        var pm = /[?&]press=([A-Za-z0-9_.\-~]+)/.exec(location.search || '');
+        if (pm) R.pressProbe(pm[1]);
+      } else {
+        var dm = /[?&]screen=([A-Za-z0-9_]+)/.exec(location.search || '');
+        if (dm && window.UI_LAYOUT.screens[dm[1]]) R.renderScreen(dm[1], { noHistory: true });
+        R.setScale(1);
+      }
+    } catch (e) { log('★M08CHECK★ tag=EXC ok=0 | ' + e.message); }
+    render();
+  }, 1500); });
+})();
+</script>
+
+
+<pre id="M08OUT">M08OUTBEGIN
+★M08CHECK★ tag=grid.count ok=1 | 网格项 24（期望 24）
+★M08CHECK★ tag=grid.varThumb ok=1 | 缩略图 23（留空 1 栏 ⇒ 期望 23）
+★M08CHECK★ tag=var.next ok=1 | 点 next：缩略图 x_ui_cfg_tab_on.png → x_ui_cfg_name_sel.png，n/N 1/3 → 2/3，派发 gallery_next:0 行号 0
+★M08CHECK★ tag=var.prev ok=1 | 点 prev：回到 1/3（x_ui_cfg_tab_on.png）
+★M08CHECK★ tag=var.clamp ok=1 | 边界 clamp：第 1 张再点 prev ⇒ 仍 1/3（派发仍发生 2 → 3）
+★M08CHECK★ tag=var.empty-row ok=1 | 留空栏（frames=[]）不画：缩略图=false 按钮=false
+★M08CHECK★ tag=var.no-reject ok=1 | 合法数据下守卫判词 0 条（期望 0）
+★M08CHECK★ tag=guard.container ok=1 | 容器级非法逐条 REJECT：★M08VARIANT-REJECT★ __gal_grid.list[(item_variants)] item_variants 不是对象；★M08VARIANT-REJECT★ __gal_grid.list[(frames)] frames 不是数组；缩略图节点 0（期望 0）
+★M08CHECK★ tag=guard.row ok=1 | 逐栏非法逐条 REJECT：★M08VARIANT-REJECT★ __gal_grid.list[frames[7]] 第 7 栏差分列表不是数组；★M08VARIANT-REJECT★ __gal_grid.list[frames[8]] 差分素材为空（第 1 张）；坏栏 DOM 节点 0（期望 0）
+★M08CHECK★ tag=page.flip ok=1 | 页内翻页：首栏全局序号 0 → 24 → 0
+★M08CHECK★ tag=coexist.render ok=1 | 同行三件共存：逐项态行 3/3、逐块按钮 3/3、差分按钮 6/6、差分缩略图 3/3
+★M08CHECK★ tag=coexist.frame-state ok=1 | 悬停第 2 行 ⇒ 逐项 frame 换 hover 图（x_ui_cfg_tab_on.png → x_ui_cfg_name_sel.png），差分缩略图不受影响（x_ui_cfg_name_sel.png）
+★M08CHECK★ tag=coexist.priority-btn ok=1 | 点逐块按钮 ⇒ 派发它自己的 action 且 `%row%` 换成该行（toast="未实现的动作：coexist_btn:1"）
+★M08CHECK★ tag=coexist.priority-var ok=1 | 点差分按钮（同一行上还挂着逐块按钮）⇒ 仍派发 gallery_next:1（实得 gallery_next:1 行号 1）
+★M08CHECK★ tag=attach.gallery ok=1 | 承载屏 gallery：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=gallery（期望 gallery）
+★M08CHECK★ tag=attach.music ok=1 | 承载屏 music：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=music（期望 music）
+★M08CHECK★ tag=attach.dress ok=1 | 承载屏 dress：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=dress（期望 dress）
+★M08CHECK★ tag=attach.replay ok=1 | 承载屏 replay：attach=gal_shell 外壳元素=17 热区命中 5/5 gal_tab=replay（期望 replay）
+★M08CHECK★ tag=DONE ok=1 | 断言结束
+M08OUTEND</pre></body></html>

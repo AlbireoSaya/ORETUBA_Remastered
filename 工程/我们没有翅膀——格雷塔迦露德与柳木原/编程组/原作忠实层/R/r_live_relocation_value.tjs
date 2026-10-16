@@ -1,0 +1,17 @@
+function RLiveRelocationValue(rd, group, index, codeBase, bankWord)
+{
+    if (group == 3) {
+        var base = rd(0x5355e4);
+        return (base + index) & 0xFFFFFFFF;
+    }
+    if (group == 4) {
+        return (codeBase + index) & 0xFFFFFFFF;
+    }
+    if (group == 0 || group == 1 || group == 2) {
+        var word = bankWord(group, index);
+        if (typeof(word) != "Integer")
+            throw new Exception("MISSING_LIVE_RELOCATION_VALUE");
+        return word & 0xFFFFFFFF;
+    }
+    throw new Exception("UNSUPPORTED_LIVE_RELOCATION_GROUP");
+}

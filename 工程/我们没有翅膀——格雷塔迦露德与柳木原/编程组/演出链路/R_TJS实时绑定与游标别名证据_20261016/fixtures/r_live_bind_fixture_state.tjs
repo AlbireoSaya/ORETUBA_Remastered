@@ -1,0 +1,12 @@
+function RLFCreate(spec)
+{
+    var m = RLFRegions(spec.source);
+    for (var i = 0; i < spec.data.count; i++) {
+        RMemoryWrite8(m, spec.source + i, spec.data[i]);
+    }
+    for (var j = 0; j < spec.initial_words.count; j++) {
+        var row = spec.initial_words[j];
+        RMemoryWrite32(m, row[0], row[1]);
+    }
+    return %["memory" => m, "events" => [], "source" => spec.source, "cursor" => spec.cursor];
+}

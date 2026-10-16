@@ -1,0 +1,46 @@
+function RValueOp(op, a, b = 0)
+{
+    if (typeof op !== "Integer" || typeof a !== "Integer" || typeof b !== "Integer")
+    {
+        throw new Exception("op/a/b requires Integer");
+    }
+    a = a & 0xffffffff;
+    b = b & 0xffffffff;
+    var res;
+    var sa, sb;
+    switch (op)
+    {
+        case 13:
+            res = (a + b) & 0xffffffff;
+            break;
+        case 19:
+            res = (a & b) & 0xffffffff;
+            break;
+        case 20:
+            res = (a | b) & 0xffffffff;
+            break;
+        case 23:
+            res = (a == 0) ? 1 : 0;
+            break;
+        case 41:
+            sa = a;
+            sb = b;
+            if (sa >= 0x80000000) sa -= 0x100000000;
+            if (sb >= 0x80000000) sb -= 0x100000000;
+            res = (sa < sb) ? 1 : 0;
+            break;
+        case 44:
+            sa = a;
+            sb = b;
+            if (sa >= 0x80000000) sa -= 0x100000000;
+            if (sb >= 0x80000000) sb -= 0x100000000;
+            res = (sa >= sb) ? 1 : 0;
+            break;
+        case 45:
+            res = (a == b) ? 1 : 0;
+            break;
+        default:
+            throw new Exception("unknown opcode: " + op);
+    }
+    return res & 0xffffffff;
+}

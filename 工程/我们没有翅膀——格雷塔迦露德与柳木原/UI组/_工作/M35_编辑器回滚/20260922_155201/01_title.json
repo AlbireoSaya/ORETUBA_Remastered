@@ -1,0 +1,522 @@
+{
+  "id": "title",
+  "title_cn": "标题画面",
+  "owner": "M34",
+  "note": "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 84 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V1 裁决（用户 2026-09-21）**：标题菜单改**竖排条**，推翻 M28 的底部横排。\n★ **M35b（2026-09-22）· 标题菜单「图标 + 文字」组绑定**（用户要求）：7 个图标热区与 7 张文字图同属 `state_group: \"title.menu_<key>\"` ⇒ 鼠标落在任意一者上（或两者同时）两者**同步**换态；文字图的 `state_assets` = 合成层常态 / 合成层 `_on`（悬停）。文字位置由**用户在编辑器里摆放**（导出件见 `编辑器修改区\\01_title.json`），文字图 id 由编辑器自动名 `new.*` 改成语义名 `title.menu_txt_<key>`。\n★ **给后续编辑者的提醒**：在编辑器里继续改本屏前，请先**刷新页面/点「重载」**，让它从更新后的 `ui_layout.js` 读入（否则旧会话里没有 `state_group` 与文字态图，导出会把这两项覆盖掉）。",
+  "elements": [
+    {
+      "id": "title.bg",
+      "kind": "image",
+      "z": 0,
+      "visible_default": true,
+      "asset": "ui/x_bg_system.png",
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "opacity": 255,
+      "source": "M11 派生（工具/prep_generated.py）：资源组\\美术统一_超分\\CG背景\\bg63.png（2904×1440）中心裁 2560×1440 → 0.75× 下采样到 1920×1080",
+      "note": "标题背景（1920×1080 满幅铺满，不留黑边）。用户 2026-09-20 明确要求「彻底坚决使用 AI 素材代替老素材」，故不再用 x_title_bg_1280.png（M9 的氛围延展层，已废弃）。"
+    },
+    {
+      "id": "title.logo",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_gen_logo.png",
+      "x": 60,
+      "y": 45,
+      "w": 900,
+      "h": 317,
+      "opacity": 255,
+      "source": "M20 派生（工具/prep_generated.py）：生图入料\\生成结果\\游戏logo重置.png（1697×927 RGBA，真 alpha）alpha 包围盒(th=8)=(0,143,1671,732) 裁紧 1671×589 → 等比缩到宽 900（0.5386× 下采样）",
+      "note": "左上角标题 logo（**用户 2026-09-21 裁定保留**）。位置保持本作既有值 （《交汇协奏曲》的 logo 在 PSB 里是 x37 y35 w533 h276 —— 见注）。"
+    },
+    {
+      "id": "title.menu_hit_1",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 360,
+      "w": 96,
+      "h": 96,
+      "action": "game_start",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=game_start）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_start.png",
+        "hover": "ui/x_ui_menuicon_start_on.png",
+        "pressed": "ui/x_ui_menuicon_start_on.png"
+      },
+      "state_group": "title.menu_start"
+    },
+    {
+      "id": "title.menu_hit_2",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 460,
+      "w": 96,
+      "h": 96,
+      "action": "game_continue",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=game_continue）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_continue.png",
+        "hover": "ui/x_ui_menuicon_continue_on.png",
+        "pressed": "ui/x_ui_menuicon_continue_on.png"
+      },
+      "state_group": "title.menu_continue"
+    },
+    {
+      "id": "title.menu_hit_3",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 560,
+      "w": 96,
+      "h": 96,
+      "action": "open_load",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_load）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_load.png",
+        "hover": "ui/x_ui_menuicon_load_on.png",
+        "pressed": "ui/x_ui_menuicon_load_on.png"
+      },
+      "state_group": "title.menu_load"
+    },
+    {
+      "id": "title.menu_hit_4",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 660,
+      "w": 96,
+      "h": 96,
+      "action": "open_flowchart",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_flowchart）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_flowchart.png",
+        "hover": "ui/x_ui_menuicon_flowchart_on.png",
+        "pressed": "ui/x_ui_menuicon_flowchart_on.png"
+      },
+      "state_group": "title.menu_flowchart"
+    },
+    {
+      "id": "title.menu_hit_5",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 760,
+      "w": 96,
+      "h": 96,
+      "action": "open_config",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_config）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_config.png",
+        "hover": "ui/x_ui_menuicon_config_on.png",
+        "pressed": "ui/x_ui_menuicon_config_on.png"
+      },
+      "state_group": "title.menu_config"
+    },
+    {
+      "id": "title.menu_hit_6",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 860,
+      "w": 96,
+      "h": 96,
+      "action": "open_gallery",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_gallery）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_gallery.png",
+        "hover": "ui/x_ui_menuicon_gallery_on.png",
+        "pressed": "ui/x_ui_menuicon_gallery_on.png"
+      },
+      "state_group": "title.menu_gallery"
+    },
+    {
+      "id": "title.menu_hit_7",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 56,
+      "y": 960,
+      "w": 96,
+      "h": 96,
+      "action": "quit_game",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=quit_game）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_exit.png",
+        "hover": "ui/x_ui_menuicon_exit_on.png",
+        "pressed": "ui/x_ui_menuicon_exit_on.png"
+      },
+      "state_group": "title.menu_exit"
+    },
+    {
+      "id": "title.menu_txt_start",
+      "kind": "image",
+      "z": 96,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_start.png",
+      "x": 140,
+      "y": 360,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「开始游戏」（第 1 项）。与图标热区 title.menu_hit_1 **同属 state_group「title.menu_start」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_start_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_start",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_start.png",
+        "hover": "ui/x_ui_btntxt2c_start_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_continue",
+      "kind": "image",
+      "z": 97,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_continue.png",
+      "x": 140,
+      "y": 460,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「继续游戏」（第 2 项）。与图标热区 title.menu_hit_2 **同属 state_group「title.menu_continue」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_continue_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_continue",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_continue.png",
+        "hover": "ui/x_ui_btntxt2c_continue_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_load",
+      "kind": "image",
+      "z": 98,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_load.png",
+      "x": 140,
+      "y": 560,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「读取存档」（第 3 项）。与图标热区 title.menu_hit_3 **同属 state_group「title.menu_load」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_load_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_load",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_load.png",
+        "hover": "ui/x_ui_btntxt2c_load_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_flowchart",
+      "kind": "image",
+      "z": 99,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_flowchart.png",
+      "x": 140,
+      "y": 660,
+      "w": 200,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「流程图」（第 4 项）。与图标热区 title.menu_hit_4 **同属 state_group「title.menu_flowchart」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_flowchart_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_flowchart",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_flowchart.png",
+        "hover": "ui/x_ui_btntxt2c_flowchart_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_config",
+      "kind": "image",
+      "z": 100,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_config.png",
+      "x": 140,
+      "y": 760,
+      "w": 148,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「设置」（第 5 项）。与图标热区 title.menu_hit_5 **同属 state_group「title.menu_config」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_config_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_config",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_config.png",
+        "hover": "ui/x_ui_btntxt2c_config_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_gallery",
+      "kind": "image",
+      "z": 101,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_gallery.png",
+      "x": 140,
+      "y": 860,
+      "w": 148,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「画廊」（第 6 项）。与图标热区 title.menu_hit_6 **同属 state_group「title.menu_gallery」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_gallery_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_gallery",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_gallery.png",
+        "hover": "ui/x_ui_btntxt2c_gallery_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_exit",
+      "kind": "image",
+      "z": 102,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_exit.png",
+      "x": 140,
+      "y": 960,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「离开游戏」（第 7 项）。与图标热区 title.menu_hit_7 **同属 state_group「title.menu_exit」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_exit_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_exit",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_exit.png",
+        "hover": "ui/x_ui_btntxt2c_exit_on.png"
+      }
+    },
+    {
+      "id": "title.text_copyright",
+      "kind": "text",
+      "z": 40,
+      "visible_default": true,
+      "x": 0,
+      "y": 1029,
+      "w": 1920,
+      "h": 36,
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.text_small",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "来自个人汉化者AlbireoSaya　模型&工具:Deepseek v4.1 flash+ZCode",
+      "note": "署名行（AGENTS.md §六 署名规则；窗口标题另由 startup.tjs 写入同一串，来源为 layout/_root.json 的 signature）。★ M25：菜单移到底部横排后实测本行 y=1029..1065，与菜单排（底沿 898）**无重叠**，故**未移动**（任务书所述「现 y=686」为旧值，实际文件早已是 y=1029）。"
+    },
+    {
+      "id": "title.menu_txt_config",
+      "kind": "image",
+      "z": 100,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_config.png",
+      "x": 140,
+      "y": 760,
+      "w": 148,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「设置」（第 5 项）。与图标热区 title.menu_hit_5 **同属 state_group「title.menu_config」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_config_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_config",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_config.png",
+        "hover": "ui/x_ui_btntxt2c_config_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_continue",
+      "kind": "image",
+      "z": 97,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_continue.png",
+      "x": 140,
+      "y": 460,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「继续游戏」（第 2 项）。与图标热区 title.menu_hit_2 **同属 state_group「title.menu_continue」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_continue_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_continue",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_continue.png",
+        "hover": "ui/x_ui_btntxt2c_continue_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_exit",
+      "kind": "image",
+      "z": 102,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_exit.png",
+      "x": 140,
+      "y": 960,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「离开游戏」（第 7 项）。与图标热区 title.menu_hit_7 **同属 state_group「title.menu_exit」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_exit_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_exit",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_exit.png",
+        "hover": "ui/x_ui_btntxt2c_exit_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_flowchart",
+      "kind": "image",
+      "z": 99,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_flowchart.png",
+      "x": 140,
+      "y": 660,
+      "w": 200,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「流程图」（第 4 项）。与图标热区 title.menu_hit_4 **同属 state_group「title.menu_flowchart」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_flowchart_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_flowchart",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_flowchart.png",
+        "hover": "ui/x_ui_btntxt2c_flowchart_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_load",
+      "kind": "image",
+      "z": 98,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_load.png",
+      "x": 140,
+      "y": 560,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「读取存档」（第 3 项）。与图标热区 title.menu_hit_3 **同属 state_group「title.menu_load」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_load_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_load",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_load.png",
+        "hover": "ui/x_ui_btntxt2c_load_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_start",
+      "kind": "image",
+      "z": 96,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_start.png",
+      "x": 140,
+      "y": 360,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「开始游戏」（第 1 项）。与图标热区 title.menu_hit_1 **同属 state_group「title.menu_start」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_start_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_start",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_start.png",
+        "hover": "ui/x_ui_btntxt2c_start_on.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_gallery",
+      "kind": "image",
+      "z": 101,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_gallery.png",
+      "x": 140,
+      "y": 860,
+      "w": 148,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「画廊」（第 6 项）。与图标热区 title.menu_hit_6 **同属 state_group「title.menu_gallery」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_gallery_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。",
+      "state_group": "title.menu_gallery",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_gallery.png",
+        "hover": "ui/x_ui_btntxt2c_gallery_on.png"
+      }
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+from pathlib import Path
+import sys,json,hashlib,struct,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';p=g/'工具';e=g/'演出链路/R_SOB控制与资源装载入口证据_20261012'
+sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(p)]
+from lucifen_host_format_bridge import host_format_two_strings,bridge_wsprintf_two
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA,bridge_lstrcatA,bridge_CharLowerA,host_open_missing_readonly
+from lucifen_cdecl_probe import invoke_cdecl
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_vm_micro import map_pe
+sys.path.insert(0,str(root/'工程/我们没有翅膀R/工具'))
+import lpk_media as M
+from pe_min import PE
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EIP,UC_X86_REG_ESP,UC_X86_REG_ECX,UC_X86_REG_EAX
+stage=root/'临时/ISSUE-20261011-02/r-resource-open-path-lpk-final-01';stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+fixtures=json.loads((e/'controlled-request-manifest.json').read_text(encoding='utf-8'))
+copy_inputs=[dict(r,calls=[dict(r,blocked_slot=0,inside_original_code=True)])for r in fixtures]
+vm_lookup={(r['path'],r['code_start'],r['state']):dict(r,return_code=1,control_code=2)for r in fixtures}
+source_before={x.relative_to(root).as_posix():hashlib.sha256(x.read_bytes()).hexdigest()for x in (root/'工程/我们没有翅膀R/语料/R版SCRIPT').glob('*.tob')}
+fixture=root/'_game_ascii/ISSUE-20261011-02-resource-empty-01';assert fixture.resolve().is_relative_to(root.resolve());fixture.mkdir(parents=True,exist_ok=True);assert fixture.is_dir() and not list(fixture.iterdir());baseprefix=(str(fixture)+'\\').encode('ascii');assert len(baseprefix)<128
+lp=M.load(str(root/'备份/我们没有翅膀R-安装介质/SET_UP/SCRIPT.LPK'));size=(struct.unpack_from('<I',lp['mm'],4)[0]^lp['k2'])&0xffffff
+if lp['flags']&M.X.ALIGNED_OFFSET:size=(size<<11)-8
+index=bytearray(lp['mm'][8:8+size]);M.X.decrypt_table(index,lp['k2'],M.X.ROTATE_PATTERN);plen=index[4];mode=index[5+plen];trie_start=10+plen;trie_bytes=struct.unpack_from('<I',index,6+plen)[0];entry_start=trie_start+trie_bytes;entry_bytes=13 if lp['flags']&M.X.IS_COMPRESSED else 9
+entry_ids={name.lower():(off-entry_start)//entry_bytes for off,name in M.X.traverse_index(index,trie_start,4 if mode else 2,entry_start,entry_bytes)};index_sha=hashlib.sha256(index).hexdigest();lp['mm'].close();lp['f'].close()
+rows=[];counts=collections.Counter();unique=set();api_totals=collections.Counter()
+for r in copy_inputs:
+ calls=[c for c in r['calls'] if c.get('blocked_slot')==0]
+ if not calls:continue
+ assert len(calls)==1
+ c=calls[0];data=(root/r['path']).read_bytes();src=0x3000000;inp=c['input_pointer'];raw=data[inp-src:inp-src+c['byte_count']]
+ assert hashlib.sha256(raw).hexdigest()==c['payload_sha256'] and data[inp-src+len(raw)]==0 and c['inside_original_code']
+ v=vm_lookup[(r['path'],r['code_start'],r['state'])];assert v['return_code']==1 and v['control_code']==2
+ u=map_pe(pe);u.mem_map(0,4096);u.mem_map(src,(len(data)+4095)&~4095);u.mem_write(src,data)
+ u.mem_write(0x2000000,b'\xd5'*0x10000)
+ ctx=0x100b000;outer=ctx-0x651c;controller=0x100e000;provider=0x10f0000;frame=0x10d0000
+ u.mem_write(outer+0x7560,struct.pack('<I',controller));u.mem_write(controller,struct.pack('<I',0x518aa0))
+ u.mem_write(frame,struct.pack('<I',inp));u.mem_write(ctx+8,struct.pack('<II',src+v['vm_pc'],v['vm_stack_pointer']))
+ u.mem_write(0x5357cc,struct.pack('<I',provider));u.mem_write(provider,struct.pack('<I',0x51a3a0));u.mem_write(0x5357fc,baseprefix+b'\0')
+ u.mem_write(0x5181dc,struct.pack('<I',0x200e000));u.mem_write(0x200e000,b'\xc2\x08\x00')
+ u.mem_write(0x518394,struct.pack('<I',0x200e010));u.mem_write(0x200e010,b'\xc3')
+ u.mem_map(0x5000000,(len(index)+4095)&~4095);u.mem_write(0x5000000,bytes(index));reader=0x10f2000;sentinel=0x10f3000;node=sentinel+0x40;desc=0x10f4000;prefixptr=0x10f5000
+ assert invoke_thiscall_args(u,0x490b70,reader,[],timeout=0)==reader and struct.unpack('<I',u.mem_read(reader,4))[0]==0x51a92c
+ u.mem_write(reader+0xd,b'\x01');u.mem_write(reader+0x20,struct.pack('<I',0x5000000+trie_start));u.mem_write(reader+0x24,bytes([bool(mode)]))
+ u.mem_write(provider+0x24,struct.pack('<I',sentinel));u.mem_write(sentinel,struct.pack('<I',node));u.mem_write(node,struct.pack('<III',sentinel,0,desc));u.mem_write(desc,struct.pack('<IIII',reader,prefixptr,0,0));prefix=(baseprefix+b'SCRIPT\\').lower();u.mem_write(prefixptr,prefix+b'\0')
+ path_apis=[]
+ for iat,proxy,stub in [(0x5181c4,0x200e020,b'\xc2\x04\x00'),(0x5181c8,0x200e030,b'\xc2\x08\x00'),(0x51824c,0x200e040,b'\xc2\x1c\x00'),(0x5182e8,0x200e050,b'\xc2\x04\x00')]:u.mem_write(iat,struct.pack('<I',proxy));u.mem_write(proxy,stub)
+ native_copies=[];formats=[];events=[];boundary=[]
+ def hook(uc,a,n,x):
+  if a==0x200e000:
+   esp=uc.reg_read(UC_X86_REG_ESP);dst,source=struct.unpack('<II',uc.mem_read(esp+4,8));assert (dst==0x5354bc and source==inp) or (0x2000000<=dst and dst+260<=0x2010000 and (source==0x5357fc or 0x2000000<=source<0x2010000))
+   ret=bridge_lstrcpyA(lambda q,k:bytes(uc.mem_read(q,k)),lambda q,b:uc.mem_write(q,b),dst,source,260);uc.reg_write(UC_X86_REG_EAX,ret);native_copies.append(ret)
+  if a==0x200e010:
+   esp=uc.reg_read(UC_X86_REG_ESP);dst,fmt,left,right=struct.unpack('<4I',uc.mem_read(esp+4,16));assert fmt==0x5293f4 and left==0x529400 and right==0x5354bc
+   count=bridge_wsprintf_two(lambda q,k:bytes(uc.mem_read(q,k)),lambda q,b:uc.mem_write(q,b),dst,fmt,left,right,64);uc.reg_write(UC_X86_REG_EAX,count)
+   output=bytes(uc.mem_read(dst,count+1));assert output==b'SCRIPT\\'+raw+b'.SOB\0';formats.append({'dst':dst,'count':count,'output_hex':output.hex(),'return_address':struct.unpack('<I',uc.mem_read(esp,4))[0],'ESP':esp})
+  if a in (0x4302df,0x41bd90,0x4a7000,0x47e3b0,0x47e4c0,0x47e430):events.append(a)
+  if a==0x47e52b:
+   esp=uc.reg_read(UC_X86_REG_ESP);args=struct.unpack('<5I',uc.mem_read(esp,20));path=bytes(uc.mem_read(args[0],len(raw)+12));assert path==b'SCRIPT\\'+raw+b'.SOB\0'
+   assert args[1:3]==(0x491e20,0x491e50) and uc.reg_read(UC_X86_REG_ECX)==provider
+   saved=struct.unpack('<I',uc.mem_read(v['vm_stack_pointer'],4))[0];newsp=struct.unpack('<I',uc.mem_read(ctx+12,4))[0]
+   assert saved==src+v['vm_pc'] and newsp==v['vm_stack_pointer']+4
+   boundary.append({'resource_path_hex':path.hex(),'provider_this':provider,'virtual_target':struct.unpack('<I',uc.mem_read(0x51a3a0+8,4))[0],'arguments':list(args),'saved_PC':saved,'VM_SP':newsp})
+  if a in (0x200e020,0x200e030,0x200e040,0x200e050):
+   esp=uc.reg_read(UC_X86_REG_ESP)
+   if a==0x200e020:
+    srcptr=struct.unpack('<I',uc.mem_read(esp+4,4))[0];value=bridge_lstrlenA(lambda q,k:bytes(uc.mem_read(q,k)),srcptr,260);assert value==len(baseprefix);kind='lstrlenA'
+   elif a==0x200e030:
+    dest,srcptr=struct.unpack('<2I',uc.mem_read(esp+4,8));value=bridge_lstrcatA(lambda q,k:bytes(uc.mem_read(q,k)),lambda q,v:uc.mem_write(q,v),dest,srcptr,260);expectedpath=baseprefix+b'SCRIPT\\'+raw+b'.SOB';assert read_z(lambda q,k:bytes(uc.mem_read(q,k)),dest,260)==expectedpath;kind='lstrcatA'
+   elif a==0x200e040:
+    args=struct.unpack('<7I',uc.mem_read(esp+4,28));hostpath=read_z(lambda q,k:bytes(uc.mem_read(q,k)),args[0],260);assert hostpath==baseprefix+b'SCRIPT\\'+raw+b'.SOB'
+    value,last_error=host_open_missing_readonly(hostpath,*args[1:]);assert last_error==3;kind='CreateFileA'
+   else:
+    srcptr=struct.unpack('<I',uc.mem_read(esp+4,4))[0];before=read_z(lambda q,k:bytes(uc.mem_read(q,k)),srcptr,260);value=bridge_CharLowerA(lambda q,k:bytes(uc.mem_read(q,k)),lambda q,v:uc.mem_write(q,v),srcptr,260);after=read_z(lambda q,k:bytes(uc.mem_read(q,k)),srcptr,260);assert after==before.lower();kind='CharLowerA'
+   uc.reg_write(UC_X86_REG_EAX,value);path_apis.append({'function':kind,'result':value,'ESP':esp});api_totals[kind]+=1
+  if a==0x49268d:
+   esp=uc.reg_read(UC_X86_REG_ESP);args=struct.unpack('<4I',uc.mem_read(esp,16));lower=read_z(lambda q,k:bytes(uc.mem_read(q,k)),args[0],260);assert lower==(baseprefix+b'SCRIPT\\'+raw+b'.SOB').lower();assert args[1:3]==(0x491e20,0x491e50) and uc.reg_read(UC_X86_REG_ECX)==provider
+   assert len(boundary)==1 and boundary[0]['virtual_target']==0x492450
+   boundary[0]['archive_fallback_arguments']=list(args);boundary[0]['canonical_lookup_path_hex']=lower.hex();boundary[0]['stop_before_archive_search']=a;boundary[0]['actual_missing_path_error']=3
+  if a==0x491430:
+   esp=uc.reg_read(UC_X86_REG_ESP);args=struct.unpack('<5I',uc.mem_read(esp+4,20));name=raw.decode('ascii').lower()+'.sob';expected_index=entry_ids[name]
+   assert args[0]==expected_index and args[1]==0x491e20 and args[2]==boundary[0]['archive_fallback_arguments'][3] and args[3:]==(0,0) and uc.reg_read(UC_X86_REG_ECX)==reader
+   boundary[0]['original_trie_entry_index']=args[0];boundary[0]['reader_vtable']=0x51a92c;boundary[0]['stop_before_payload_read']=a;boundary[0]['reader_payload_arguments']=list(args)
+   assert bytes(uc.mem_read(0x5000000,len(index)))==bytes(index);uc.emu_stop()
+ h=u.hook_add(UC_HOOK_CODE,hook)
+ assert invoke_cdecl(u,0x41b3a0,[frame],timeout=0)==0
+ assert bytes(u.mem_read(0x5354bc,len(raw)+1))==raw+b'\0' and struct.unpack('<I',u.mem_read(0x5355c0,4))[0]==2
+ u.mem_write(0x2008000,struct.pack('<3I',0x200f000,0,1));u.reg_write(UC_X86_REG_ESP,0x2008000);u.reg_write(UC_X86_REG_ECX,outer)
+ u.emu_start(0x430280,0x200f000,timeout=0,count=10000)
+ assert u.reg_read(UC_X86_REG_EIP)==0x491430 and len(boundary)==len(formats)==1 and len(native_copies)==4
+ assert [x['function']for x in path_apis]==['lstrlenA','lstrcatA','CreateFileA','CharLowerA','CharLowerA']
+ assert events==[0x4302df,0x41bd90,0x4a7000,0x47e3b0,0x47e4c0,0x47e430],events
+ assert bytes(u.mem_read(src,len(data)))==data
+ u.hook_del(h);counts[raw.decode('ascii')]+=1;unique.add(raw)
+ rows.append({'path':r['path'],'code_start':r['code_start'],'state':r['state'],'control_hex':raw.hex(),'native_entries':events,'format':formats[0],'boundary':boundary[0],'actual_path_APIs':path_apis,'passed':True})
+assert len(rows)==666 and len(unique)==9
+for path,sha in source_before.items():assert hashlib.sha256((root/path).read_bytes()).hexdigest()==sha
+failures=[]
+for raw in sorted(unique):
+ for explicit in (False,True):
+  u=map_pe(pe);u.mem_map(0,4096);u.mem_write(0x2000000,b'\xd5'*0x10000);u.mem_write(0x5357cc,b'\0'*4);u.mem_write(0x5354bc,raw+b'\0');u.mem_write(0x100d000,raw+b'\0')
+  u.mem_write(0x518394,struct.pack('<I',0x200e010));u.mem_write(0x200e010,b'\xc3');seen=[]
+  def fh(uc,a,n,x):
+   if a==0x200e010:
+    esp=uc.reg_read(UC_X86_REG_ESP);d,f,l,rr=struct.unpack('<4I',uc.mem_read(esp+4,16));assert rr==(0x100d000 if explicit else 0x5354bc)
+    ret=bridge_wsprintf_two(lambda q,k:bytes(uc.mem_read(q,k)),lambda q,b:uc.mem_write(q,b),d,f,l,rr,64);uc.reg_write(UC_X86_REG_EAX,ret);seen.append(a)
+   if a in (0x47e3b0,0x47e4c0,0x47e3e0,0x47e430):seen.append(a)
+  u.hook_add(UC_HOOK_CODE,fh);fsbefore=bytes(u.mem_read(0,4));ret=invoke_thiscall_args(u,0x41bd90,0x100e000,[0x100d000 if explicit else 0,0],timeout=0)
+  assert ret==1 and bytes(u.mem_read(0,4))==fsbefore and seen==[0x200e010,0x47e3b0,0x47e4c0,0x47e3e0,0x47e430]
+  failures.append({'control_hex':raw.hex(),'explicit_name':explicit,'return_code':ret,'events':seen,'restored_SEH_head':True})
+summary={'passed':True,'original_native0_then_outer_controller_to_resource_virtual_boundary':len(rows),'unique_control_strings':len(unique),'counts':dict(counts),'actual_host_lstrcpyA_calls':4*len(rows),'script_index_sha256':index_sha,'actual_path_API_counts':dict(api_totals),'actual_host_wsprintfA_calls':len(rows)+len(failures),'natural_no_provider_failures':len(failures),'all_source_hashes_unchanged':len(source_before),'scope':'controlled preserved PC/SP fields from previously verified first-yield states; original native0/430280/41BD90/4A7000/47E3B0/47E4C0/47E430; actual host64 string APIs; real original provider vtable51A3A0 method492450 and path normalizer493F40; actual host64 lstrlenA/lstrcatA, strictly readonly real CreateFileA missing path, ASCII CharLowerA, through original archive search492370 relative-path dispatch and actual constructed LPK reader491360 and native trie4F9A20, to491430 payload-read boundary, with mature-decrypted exact original SCRIPT index and controlled preallocated archive list/metadata, no unknown return stub; no original loader success, provider object construction, heap, SOB execution, rendering or audio proof'}
+(stage/'controller-results.json').write_text(json.dumps(rows,ensure_ascii=False,separators=(',',':')),encoding='utf-8');(stage/'natural-load-failures.json').write_text(json.dumps(failures,indent=2),encoding='utf-8');(stage/'controller-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary,ensure_ascii=False),flush=True)

@@ -1,0 +1,139 @@
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/C1_TJS兼容/game/ui_movie.tjs
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/C1_TJS兼容/game/ui_movie.tjs
+@@ -520,8 +520,8 @@
+ //   ⑥ 未调用本 API 时，模块行为与既有完全一致（**只新增函数与状态**，不改既有函数）。
+ //
+ // TJS2 约束（依 `.zcode\skills\kirikiri-unpack\引擎工作原理.md` §5.2/§5.7/§5.9）：
+-//   · 嵌套函数取不到外层局部变量 ⇒ 回调统一用具名全局 `uiMovieSeqClipDone`（**无参**），
+-//     状态一律挂**顶层 var**（落 global），不靠闭包捕获。
++//   · 回调改用 `UIMovieSeqCallback` 实例字段 gen/clip/fired，经 `ticket.done incontextof ticket` 绑定；全局 `uiMovieSeqClipDone(gen, clip)` 按活动队列/代次/片段三重校验，不用闭包捕获。
++//     状态挂实例字段与顶层 var，回调入口只认全局函数，避免嵌套函数取不到外层局部变量。
+ //   · 不用 `for...in`、不读字典缺键、核心逻辑不用 `typeof == "number"`（TJS2 数值型别是 Integer/Real）。
+ //   · 同步回调（缺片/失败路径）会**重入**泵 ⇒ 用 `UIMovieSeqPumping` 闸把续播交给外层循环，不靠递归。
+ // ------------------------------------------------------------
+@@ -556,7 +556,7 @@
+ 	return uiMovieSeqBegin(list, cb);
+ }
+ 
+-// ==== M3-SEQ-CORE-BEGIN（纯逻辑核心；不含 TJS2 专有写法，可用离线镜像测试逐行验证） ====
++// ==== M3-SEQ-CORE-BEGIN（含 TJS2 绑定语法 `incontextof`，必须真实 TJS 运行验证，不可仅用离线 JS 镜像） ====
+ function uiMovieSeqBegin(list, cb)
+ {
+ 	// ④ 重入：已有队列在跑 ⇒ 取消旧队列（丢弃其回调，不触发 onDone）
+@@ -619,7 +619,9 @@
+ 			uiMovieLog("队列跳过空名（下标 " + i + "）");
+ 			continue;
+ 		}
+-		var started = uiMoviePlay(nm, uiMovieSeqClipDone);
++		UIMovieSeqClipToken++;
++		var ticket = new UIMovieSeqCallback(UIMovieSeqToken, UIMovieSeqClipToken);
++		var started = uiMoviePlay(nm, (ticket.done incontextof ticket));
+ 		if(started === true)
+ 		{
+ 			UIMovieSeqPlayingName = "" + nm;
+@@ -633,12 +635,29 @@
+ 	}
+ }
+ 
+-// 单片结束/跳过/失败的回调（具名全局、无参——TJS2 不能闭包捕获外层变量）
+-function uiMovieSeqClipDone()
+-{
+-	UIMovieSeqPlayingName = "";
+-	if(UIMovieSeqActive !== true) return;   // ⑤ 已取消/复位：丢弃迟到回调
+-	uiMovieSeqPump();
++var UIMovieSeqClipToken = 0;
++class UIMovieSeqCallback {
++    var gen;
++    var clip;
++    var fired;
++    function UIMovieSeqCallback(gen, clip) {
++        this.gen = gen;
++        this.clip = clip;
++        this.fired = false;
++    }
++    function done() {
++        if (this.fired) return;
++        this.fired = true;
++        uiMovieSeqClipDone(this.gen, this.clip);
++    }
++}
++function uiMovieSeqClipDone(gen, clip) {
++    if (UIMovieSeqActive !== true) return;
++    if (UIMovieSeqToken !== gen) return;
++    if (UIMovieSeqClipToken !== clip) return;
++    UIMovieSeqClipToken++;
++    UIMovieSeqPlayingName = "";
++    uiMovieSeqPump();
+ }
+ 
+ // 收尾：`onDone` 恰好一次
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/C1_TJS兼容/game/ui_stage_effects_fixture.tjs
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/C1_TJS兼容/game/ui_stage_effects_fixture.tjs
+@@ -19,6 +19,10 @@
+ var FXFIXOK   = 0;
+ var FXFIXBad  = 0;
+ 
++// mock 环境顶层：模块 CanvasW/H 读取的屏幕尺寸（仅夹具 mock 层显式定义，不改真实模块）
++var UI_W = 1920;
++var UI_H = 1080;
++
+ // mock clock
+ var FXMockNow = 0;
+ function fxMockClock() { return FXMockNow; }
+@@ -59,7 +63,6 @@
+ {
+ 	try {
+ 		return typeof uiStageEffectsInstall == "Object"
+-			&& typeof uiStageEffectsSetClock == "Object"
+ 			&& typeof uiStageEffectsSetTargetFn == "Object"
+ 			&& typeof uiStageEffectsConsume == "Object";
+ 	} catch(e) { return false; }
+@@ -70,7 +73,7 @@
+ 	fxFixLog("===== M4 ui_stage_effects fixture 开始 =====");
+ 	if(!fxFixEnsureModule()) { fxFixLog("★M4FX★ FAIL 0/1（模块未装载）"); return "FAIL"; }
+ 
+-	uiStageEffectsSetClock(fxMockClock);
++	UIStageFxClockFn = fxMockClock;
+ 	uiStageEffectsSetTargetFn(fxMockTargets);
+ 	if(uiStageEffectsInstall(null) !== true || UIStageFxInstalled !== true) {
+ 		fxFixLog("★M4FX★ FAIL 0/1（模块安装失败）"); return "FAIL";
+--- a/工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/C1_TJS兼容/controls/movie_late.tjs
++++ b/工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/C1_TJS兼容/controls/movie_late.tjs
+@@ -230,6 +230,28 @@
+ 	umstCheck(UMSTDone1 == 1, "S7 单名队列回调恰一次");
+ }
+ 
++function umstC1Duplicate() {
++    umstSetup();
++    uiMoviePlaySequence(["A", "B", "C"], umstCb1);
++    var oldCb = UMSTCurCb;
++    umstCheck(UMSTCalls.length == 1 && UMSTCurName == "A", "Calls1/CurName A");
++
++    umstDrive();
++    umstCheck(UMSTCalls.length == 2 && UMSTCurName == "B", "Calls2/CurName B");
++
++    oldCb();
++    umstCheck(UMSTCalls.length == 2 && UMSTCurName == "B" && UMSTDone1 == 0 && uiMovieSeqActive(), "Calls2/CurName B/Done0/Active");
++
++    umstDrive();
++    umstCheck(UMSTCalls.length == 3 && UMSTCurName == "C", "Calls3/CurName C");
++
++    umstDrive();
++    umstCheck(UMSTDone1 == 1 && !uiMovieSeqActive(), "Done1/非Active");
++
++    oldCb();
++    umstCheck(UMSTCalls.length == 3 && UMSTDone1 == 1, "Calls3/Done1");
++}
++
+ // ── 入口 ─────────────────────────────────────────────────────
+ function uiMovieSeqTestRun()
+ {
+@@ -238,7 +260,7 @@
+ 	umstInstall();
+ 	try
+ 	{
+-		umstS1(); umstS2(); umstS3(); umstS4(); umstS5(); umstS6(); umstS7(); umstC1Late();
++		umstS1(); umstS2(); umstS3(); umstS4(); umstS5(); umstS6(); umstS7(); umstC1Late(); umstC1Duplicate();
+ 	}
+ 	catch(eR) { UMSTFails++; umstLog("★FAIL 自测异常中断：" + eR.message); }
+ 	uiMovieSeqReset();

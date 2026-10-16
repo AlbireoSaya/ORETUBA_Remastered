@@ -1,0 +1,1 @@
+{"replacements":[{"old":"旧R非空合成aux+14渲染链node next+1C属不同结构，不等于真实owner列表；本批未跑二者转换/派生。","new":"旧判断已由原ctor与64条连续原码纠正：aux ctor在0x459DC0调用0x459620(aux+0xC)构造嵌入owner；aux+0x10是owner.head，aux+0x14是owner.tail，node+0x1C是prev、node+0x20是next；renderer自同一列表tail沿prev逆向遍历，并非另一种node结构；原aux+0x18=self是嵌入owner+0xC所关联的aux通知对象，不是位图bound；原分配/插入/真实剧情仍未验证。"}]}

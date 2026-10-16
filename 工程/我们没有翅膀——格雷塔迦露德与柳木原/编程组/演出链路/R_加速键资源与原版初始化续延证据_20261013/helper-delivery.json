@@ -1,0 +1,49 @@
+{
+  "role": "editor-easy",
+  "model": "deepseek/deepseek-v4.1-flash",
+  "reasoning_effort": "high",
+  "source_implementations": [
+    {
+      "target": "lucifen_host_accelerator.py",
+      "sha256": "ae28b5ee1f0922bc22b21607e579350286a0217e1b1f7844105f4699375cb80a"
+    },
+    {
+      "target": "lucifen_accelerator_resource.py",
+      "sha256": "f69658a54a7529f5171cc64ddad79978ef84a43b5a002ce4bcb0c4a38507e582"
+    },
+    {
+      "target": "lucifen_import_call_index.py",
+      "sha256": "75efeb1fd3e34d3a012f7f3664eb2e46f804dc51203b3e4397e20ff7860ae701"
+    }
+  ],
+  "accepted_jobs": [
+    "bindings-api-02",
+    "parser-api-01",
+    "docfix-api-01",
+    "workflow-api-01",
+    "import-index-api-01",
+    "skill-api-02",
+    "phrase-api-05"
+  ],
+  "unmerged_next_stage_candidate": [
+    "imm-api-02"
+  ],
+  "rejected_jobs": {
+    "helper-api-01": "length; no accepted code",
+    "docs-api-01": "length; no accepted output",
+    "skill-api-03": "DSML pseudo-tool output; rejected despite finish stop",
+    "summary-api-04": "length; no accepted text",
+    "imm-api-01": "TLS handshake timed out; not model token failure",
+    "readme-api-02": "stream read timed out; no accepted text"
+  },
+  "normalization": [
+    "import index Markdown fence extracted, source otherwise exact",
+    "bindings documentation corrected by two exact editor patches",
+    "workflow original anchor resolved uniquely; candidate old extra punctuation not applied",
+    "skill exact phrase patch: query before-stop, not executed query"
+  ],
+  "root_platform_recipes_not_engine_helpers": true,
+  "no_original_scripts_assets_credentials_sent": true,
+  "all_writes_workspace_only": true,
+  "no_paused_roles_called": true
+}

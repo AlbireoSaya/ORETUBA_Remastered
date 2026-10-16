@@ -1,0 +1,195 @@
+### M3（ISSUE-20260922-28）· HTML 复刻端原始输出留档（含主代理 2026-09-22 裁决/追加修复 A/B/C1/C2/C3/D1/D2/H1/H3 复验）
+生成时间：2026-09-22 23:56:23　｜　工作树：临时/wt-ui26（只改 复刻/**）
+
+================================================================
+[1] _selftest_states.html（msedge --headless=new --dump-dom，含 ⑧–⑰；断言 36 条全 OK）
+命令：msedge --headless=new --dump-dom "file:///<UI组>/复刻/_selftest_states.html"
+----------------------------------------------------------------
+SELFTEST OK   初态 = normal  —— x_ui_choice_off.png
+SELFTEST OK   ① 左键按下 -> pressed  —— x_ui_choice_press.png
+SELFTEST OK   ② 元素内抬起 -> 离开 pressed（本 bug 的正身）  —— x_ui_choice_off.png
+SELFTEST OK   ② document 抬起兜底复位  —— x_ui_choice_press.png -> x_ui_choice_off.png
+SELFTEST OK   ② 按住期间保持 pressed  —— x_ui_choice_press.png
+SELFTEST OK   ③ 按住移出 -> 取消按下态  —— x_ui_choice_off.png
+SELFTEST OK   ⑤ pressed 优先于 hover  —— x_ui_choice_over.png -> x_ui_choice_press.png
+SELFTEST OK   ⑤ 抬起后回落 hover（仍在悬停）  —— x_ui_choice_over.png
+SELFTEST OK   ⑤ 移出后回落 normal  —— x_ui_choice_off.png
+SELFTEST OK   ④ 换屏后旧节点已销毁（pressHolder 随之复位）  —— 旧元素在 DOM 中=已移除
+SELFTEST OK   ⑥a 悬停**图标** -> 图标与文字同步换态  —— 图标 x_ui_menuicon_start.png→x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start.png→x_ui_btntxt2c_start_on.png
+SELFTEST OK   ⑥b 悬停**文字** -> 与悬停图标结果逐项相同  —— 图标 x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start_on.png
+SELFTEST OK   ⑥c 其它组不受影响  —— 另一组 = x_ui_menuicon_continue.png
+SELFTEST OK   ⑥d 移出后全组回落常态  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png
+SELFTEST OK   ⑥e 悬停中换屏再回来 -> 悬停移出后仍能回落常态（原 Critical 的回归）  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png
+SELFTEST OK   ⑦ 重叠带确实存在（前置）  —— 4×36
+SELFTEST OK   ⑦ 重叠带点击 -> 触发动作（原为死区；实机本来就会触发）  —— title → dialog
+SELFTEST OK   ⑧ 附加层只在 dialog 上出现（title 上不出现）  —— dialog: bar/tgl/tips=true/true/true，attachScreen=quickbar；title: bar=false
+SELFTEST OK   ⑨ 初始态 collapsed：把手可见，展开条与 12 项隐藏（只剩整条把手热区）  —— quickbar=collapsed，quick.btn=none，quick.tgl=，可见 hit 数=1（应为 1 = 把手）
+SELFTEST OK   ⑩ x ≥ in_x → 展开  —— x=1846（in_x=1842）⇒ quickbar=expanded
+SELFTEST OK   ⑪a 指针移到 x < out_x → 仅起计时（delay_ms 内**未**收起）  —— out_x=1780，x=1740，排入 400ms 计时=1 个，quickbar=expanded
+SELFTEST OK   ⑪b 期间指针回到 x ≥ in_x → 撤销收起计时（clearTimeout 命中）  —— clearTimeout(900001) 已调用=true，quickbar=expanded
+SELFTEST OK   ⑪c 延时未到前保持展开（重复移动不叠加计时器）  —— 在途 400ms 计时=1 个，quickbar=expanded
+SELFTEST OK   ⑪d 延时到期 → 才收起，并清空气泡  —— quickbar=collapsed，qbar_tip=""
+SELFTEST OK   ⑫a 点「锁定」→ 钉住且保持展开（action=quick_pin）  —— qbar_pin=1，quickbar=expanded
+SELFTEST OK   ⑫b 钉住后指针移到 out_x 之外 → **不起计时、不收起**  —— quickbar=expanded，在途计时=0 个
+SELFTEST OK   ⑫c 钉住时指针离开画布 → 仍不收起  —— quickbar=expanded，在途计时=0 个
+SELFTEST OK   ⑬ 气泡跟随悬停项：hit_save→save、hit_chart→chart、整条把手区→空  —— save→"save"，chart→"chart"，把手区→""
+SELFTEST OK   ⑬b 气泡文字随 flag 同步显隐（tx_save 亮 → tx_chart 亮时 tx_save 灭）  —— tx_save 显示=true，切到 chart 后 tx_save 隐藏=true
+SELFTEST OK   ⑭ 收起态下 12 项不可点（命中栈顶 = 整条把手，不是 quick.hit_option）  —— 命中栈顶=quick.hit_toggle（quickbar=collapsed）
+SELFTEST OK   ⑭b 收起态点该项位置 → 只派发把手动作（展开），不派发 do_save/open_config 等  —— screen dialog → dialog（未进入 config），点后 quickbar=expanded
+SELFTEST OK   ⑭c 修复 A 复核：展开态 12 项 × 5 点全部命中**该项自己**（不再被整条把手截获）  —— 60/60 点命中该项
+SELFTEST OK   ⑭d 修复 A 复核：收起态同一批点全部命中整条把手（12 项被 flag 挡掉）  —— 0/60 点命中项（应全为把手）；首例：quick.hit_lock@1883,44→quick.hit_toggle
+SELFTEST OK   ⑮ 展开态逐项派发（spy 计数）：quick_pin 两次切换=1/空，next_choice 有反馈，open_config 换屏  —— quick_pin 派发 2 次 → 1→；next_choice 提示="前进到下一选择点（演示：不实际前进）"（screen 仍 dialog）；open_config → config
+SELFTEST OK   ⑯ open_sysmenu 不再换屏，改为展开竖条（20_sysmenu 数据保留但不可达）  —— screen dialog → dialog，quickbar=expanded，sysmenu 数据存在=true
+SELFTEST OK   ⑰ ?chrome=0 压掉纯热区的点击瞬闪叠色（computedStyle 实测）  —— 默认=rgba(122, 176, 232, 0.34)　→　chrome=0=rgba(0, 0, 0, 0)
+SELFTEST ALL PASS
+
+================================================================
+[2] index.html?selftest=1（--dump-dom；断言 39 条 fail=0；含 C4 的 item-N 与 H1 的 esc.* 三条）
+命令：msedge --headless=new --dump-dom "file:///<UI组>/复刻/index.html?selftest=1"
+----------------------------------------------------------------
+SELFTEST total=39 fail=0
+PASS	canvas-1920	1920pxx1080px
+PASS	dialog.screen	dialog
+PASS	dialog.under=null	null
+PASS	dialog.overlay-empty	0
+PASS	sysicons.open	sysicons
+PASS	sysicons.under=dialog	dialog
+PASS	sysicons.base-painted	55
+PASS	sysicons.base-DOM-preserved	
+PASS	sysicons.overlay-children	20
+PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+PASS	sysicons.icons-9	9
+PASS	sysicons.dismiss-click	dialog
+PASS	sysicons.overlay-cleared	0
+PASS	sysicons.back-to-dialog-DOM-preserved	
+PASS	sysicons.reopen	sysicons
+PASS	sysicons.icon-dispatch	save
+PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 15 件（数据推导）
+PASS	zeronine.img-not-borderimage	15/15（主语 = 数据推导的全集） 
+PASS	zeronine.no-placeholder	
+PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+PASS	overlay.close-overlay	dialog
+PASS	flags.attach-rendered-on-dialog	attachId=quickbar，quick.btn/quick.tgl/quick.hit_lock 齐备=true/true/true
+PASS	flags.collapsed-by-default	quickbar=collapsed，btn.display=none，tgl.display=，hit_lock.display=none
+PASS	flags.expanded-shows-bar-items-not-pin	btn=，hit_lock=，pin_mark=none
+PASS	flags.tip-follows-item	hit_lock 中心→"lock"，hit_option 中心→"option"，把手内空白→""
+PASS	flags.open_sysmenu-expands-not-navigates	screen dialog → dialog（未换屏），quickbar=expanded，20_sysmenu 数据保留=true
+PASS	flags.pin-toggle	钉住 flag 名（reveal.pin_flag）=qbar_pin，解除后 pin_mark.display=none
+PASS	flags.attach-absent-on-title	title 上 attachId=null，quick.btn 存在=false
+PASS	flags.item-subject-count	快捷条「项」热区（有 action 且非整条把手）12 件（应为 12）
+PASS	flags.item-N-click-dispatch-N	12/12 项：命中该项 且 该 action 的可辨副作用出现
+PASS	flags.tip-halfopen-boundary	x=w-1→"lock" / x=w→"" / y=h-1→"lock" / y=h→""（半开区间，项=lock）
+PASS	esc.back-to-previous-screen	save（history=1）→ Esc → screen=dialog（应 dialog），提示=""（应无）
+PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+PASS	zeronine.all-subjects-stretched-to-element-box	15/15（主语 = ⑤ 的全集） 
+PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+RESULT=OK
+================================================================
+[3] C1 反向验证（故意改坏：rev.html + replica_rev.js，见 make_rev_fixture.py）
+命令：msedge --headless=new --dump-dom "file:///<UI组>/_工作/ISSUE-20260922-28_M3_证据/rev.html?selftest=1[&revhack=drop]"
+  夹具补丁 R1 = 让 sv.tab_a 改走 border-image（渲染器退化）；R2 = 在同一份输出里补上**旧写法**断言
+----------------------------------------------------------------
+--- final_rev_renderer_dump.html ---
+SELFTEST total=38 fail=4
+PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 15 件（数据推导）
+FAIL	zeronine.img-not-borderimage	14/15（主语 = 数据推导的全集） sv.tab_a(走了 border-image)
+FAIL	zeronine.no-placeholder	sv.tab_a(走了 border-image)
+FAIL	zeronine.all-subjects-stretched-to-element-box	14/15（主语 = ⑤ 的全集） sv.tab_a(未走 <img> / 已切屏)
+PASS	REV-old-stretch-self-referential	旧写法 stretched(14) === znImgs.length(14) ⇒ PASS（**假通过**：被破坏的那件不在 znImgs 里）
+FAIL	REV-old-hardcoded-13	旧写法 znOk(14) === 硬编码 13（实际主语 15 件）
+PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+RESULT=NG
+--- final_rev_data_dump.html ---
+SELFTEST total=38 fail=1
+PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 14 件（数据推导）
+PASS	zeronine.img-not-borderimage	14/14（主语 = 数据推导的全集） 
+PASS	zeronine.no-placeholder	
+PASS	zeronine.all-subjects-stretched-to-element-box	14/14（主语 = ⑤ 的全集） 
+PASS	REV-old-stretch-self-referential	旧写法 stretched(14) === znImgs.length(14) ⇒ PASS（**假通过**：被破坏的那件不在 znImgs 里）
+FAIL	REV-old-hardcoded-13	旧写法 znOk(14) === 硬编码 13（实际主语 14 件）
+PASS	zeronine.size-differs-from-png-still-rendered	13/14 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+RESULT=NG
+
+================================================================
+[4] C2：?chrome=0 纯净截图开关
+  (a) computedStyle 实测（_selftest_states.html ⑰，见 [1] 的 ⑰ 行）
+  (b) 像素证据（夹具给两件纯热区加点击瞬闪类，默认 vs ?chrome=0；m3_c2_chrome_on.png / m3_c2_chrome_off.png）
+----------------------------------------------------------------
+差异 bbox = (65, 800, 1714, 1118)   图像尺寸 = (2000, 1400)
+按 100px 网格的差异像素数（只列 > 0 的块；列为 x 块号）:
+y= 800- 900 :     .     .     .     .     .     .     .     .     .     .     .     .     .     .     .   842  1801   256     .     .
+y=1100-1200 :    13    77    62     .     .     .     .     .     .     .     .     .     .     .     .     .     .     .     .     .
+矩形 (1480, 780, 1800, 910) 内：非零差异 12397 / 41600（29.80%），最大灰度差 56
+  (c) 静态画面上该开关逐像素无影响（同屏 默认 vs ?chrome=0）：
+     title   矩形 (0, 0, 2000, 1400) 内：非零差异 0 / 2800000（0.00%），最大灰度差 0
+     save    矩形 (0, 0, 2000, 1400) 内：非零差异 0 / 2800000（0.00%），最大灰度差 0
+     dialog  矩形 (0, 0, 2000, 1400) 内：非零差异 0 / 2800000（0.00%），最大灰度差 0
+
+================================================================
+[5] 两态像素差异（收起 vs 展开+钉住+气泡）与 flag 覆盖下的 DOM 显隐
+----------------------------------------------------------------
+截图中的画布矩形 x=256..1719（宽 1464 px）⇒ 缩放 scale=0.761979（=1920/1920）
+差异 bbox = (1524, 224, 1710, 902)
+非零差异像素：快捷条横向区间（画布 x 1665..1920，左右各留 2px 抗锯齿容差）内 = 122014，区间外 = 0（最大灰度差 0）
+⇒ 结论：两态差异**完全落在快捷条区间内**（其余画面逐像素相同）
+   收起态：quick 元素 29 件；hit 13 件、可见 1 件（quick.hit_toggle）｜btn=hidden tips=hidden pin_mark=hidden tx_lock=hidden
+   展开态：quick 元素 29 件；hit 13 件、可见 12 件（quick.hit_auto, quick.hit_chart, quick.hit_load, quick.hit_lock, quick.hit_log, quick.hit_next, quick.hit_option, quick.hit_prev, quick.hit_qload, quick.hit_qsave, quick.hit_save, quick.hit_skip）｜btn=visible tips=visible pin_mark=visible tx_lock=visible
+
+================================================================
+[6] 无回归（baseline/ = 改动前，final2/ = 现状；差异位置 bbox 见下）
+----------------------------------------------------------------
+dialog.png     2000x1400｜全图非零差异=16923/2800000（0.6044%，max=243）｜画布区=16923/2049600（0.8257%，max=243）
+save.png       2000x1400｜全图非零差异=3217/2800000（0.1149%，max=187）｜画布区=3217/2049600（0.1570%，max=187）
+title.png      2000x1400｜全图非零差异=3217/2800000（0.1149%，max=187）｜画布区=-1/-1（100.0000%，max=-1）
+  差异位置（baseline vs final2）：
+     title   差异 bbox = (900, 1072, 1273, 1086)   图像尺寸 = (2000, 1400)
+     save    差异 bbox = (900, 1072, 1273, 1086)   图像尺寸 = (2000, 1400)
+     dialog  差异 bbox = (900, 233, 1706, 1086)   图像尺寸 = (2000, 1400)
+
+================================================================
+[7] 编辑器 flag 预览（--dump-dom 实测各态元素显隐；含 dialog 屏 + attach 附加层）
+----------------------------------------------------------------
+  edom_screen_quickbar.html                                  元素 29：显示 29 / 隐藏 0
+  edom_screen_quickbar_fp_1.html                             元素 29：显示 2 / 隐藏 27
+      隐藏：quick.btn, quick.tips, quick.tx_lock, quick.tx_save, quick.tx_load, quick.tx_qsave, quick.tx_qload, quick.tx_auto, quick.tx_skip, quick.tx_next, quick.tx_prev, quick.tx_log, quick.tx_chart, quick.tx_option, quick.pin_mark, quick.hit_lock, quick.hit_save, quick.hit_load, quick.hit_qsave, quick.hit_qload, quick.hit_auto, quick.hit_skip, quick.hit_next, quick.hit_prev, quick.hit_log, quick.hit_chart, quick.hit_option
+  edom_screen_quickbar_fp_1_flags_quickbar_expanded_qbar_tip_lock_qbar_pin_1.html 元素 29：显示 17 / 隐藏 12
+      隐藏：quick.tx_save, quick.tx_load, quick.tx_qsave, quick.tx_qload, quick.tx_auto, quick.tx_skip, quick.tx_next, quick.tx_prev, quick.tx_log, quick.tx_chart, quick.tx_option, quick.hit_toggle
+  edom_dialog_fp1_expanded.html                              元素 29：显示 14 / 隐藏 15
+      隐藏：quick.tips, quick.tx_lock, quick.tx_save, quick.tx_load, quick.tx_qsave, quick.tx_qload, quick.tx_auto, quick.tx_skip, quick.tx_next, quick.tx_prev, quick.tx_log, quick.tx_chart, quick.tx_option, quick.pin_mark, quick.hit_toggle
+  编辑器无 JS 异常（#ed-errbox 计数，0 = 无）： 0
+
+截图/夹具清单：m3_state_collapsed.png ｜ m3_state_expanded_pinned_tip.png ｜ m3_state_expanded_chrome_off.png
+              ｜ m3_chrome_off_dialog.png ｜ m3_c2_chrome_on.png / m3_c2_chrome_off.png
+              ｜ final2/{title,save,dialog}[_chrome0].png ｜ baseline/*.png
+              ｜ rev.html + replica_rev.js（C1 反向验证夹具，由 make_rev_fixture.py 生成）
+
+  [6 补充] 五屏逐个 bbox（含 config / quickbar，均为「同屏 默认 vs chrome=0」的对照见 [4c]）：
+     title     差异 bbox = (900, 1072, 1273, 1086)   图像尺寸 = (2000, 1400)
+     save      差异 bbox = (900, 1072, 1273, 1086)   图像尺寸 = (2000, 1400)
+     config    差异 bbox = (900, 1072, 1273, 1086)   图像尺寸 = (2000, 1400)
+     quickbar  差异 bbox = (900, 1072, 1273, 1086)   图像尺寸 = (2000, 1400)
+     dialog    差异 bbox = (900, 233, 1706, 1086)   图像尺寸 = (2000, 1400)
+  结论：title / save / config / quickbar 对 baseline 的差异**只有页脚那一行文字**（bbox 900,1072→1273,1086）；
+        dialog 另有「附加层把手」区（bbox 上探到 y=233，画布坐标 x≈1852..1903 y≈16..517）。画布其余部分逐像素相同。
+
+================================================================
+[8] H1 · Esc = 返回上一层／退出（对齐 krkr uiScreenKey）；H3 反向验证
+  (a) 三条断言走**真实 keydown 路径**（见 [2] 的 esc.* 行）：
+      ② esc.back-to-previous-screen / ① esc.closes-overlay / ③ esc.bottom-goes-title-with-toast
+  (b) 前后屏截图（夹具 esc_fixture.html，固定 0.6 缩放）：
+----------------------------------------------------------------
+     before = dialog→save（history=[dialog]）· Esc 前
+     after  = 同一状态派发一次真实 Escape → 回到 dialog、无提示
+     bottom = 栈底（history 空，当前屏 save）派发 Escape → 标题屏 + 提示
+     before vs after：矩形 (0, 0, 1400, 760) 内：非零差异 574279 / 1064000（53.97%），最大灰度差 255
+     after  vs bottom：矩形 (0, 0, 1400, 760) 内：非零差异 746404 / 1064000（70.15%），最大灰度差 255
+  (c) H3 反向验证（rev_esc.html = Esc 映射换回旧行为 doAction('open_sysmenu')）：
+     SELFTEST total=41 fail=4
+     FAIL	esc.back-to-previous-screen	save（history=1）→ Esc → screen=save（应 dialog），提示="当前屏没有快捷条（系统菜单已改为右端快捷条）"（应无）
+     FAIL	esc.closes-overlay	浮层打开=false → Esc → screen=save/under=null，提示="当前屏没有快捷条（系统菜单已改为右端快捷条）"（应关浮层且无提示）
+     FAIL	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=save，提示="当前屏没有快捷条（系统菜单已改为右端快捷条）"
+     RESULT=NG

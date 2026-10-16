@@ -1,0 +1,38 @@
+{
+  "process_exit0_verified": true,
+  "worker_errors": [],
+  "native_slices": 22,
+  "next_EIP": 302224518,
+  "next_EIP_hex": "0x12039486",
+  "last_native_resumes": [
+    {
+      "from_EIP": 5171833,
+      "next_EIP": 5171751,
+      "failure": null,
+      "instruction_budget_per_slice": 1000000
+    },
+    {
+      "from_EIP": 5171751,
+      "next_EIP": 302224518,
+      "failure": null,
+      "instruction_budget_per_slice": 1000000
+    }
+  ],
+  "large_read": [
+    {
+      "api": "ReadFile",
+      "args": [
+        1610612738,
+        132452480,
+        1571162,
+        57735228,
+        0
+      ],
+      "native_return_address": 4789632,
+      "actual_bytes_read": 1571162,
+      "guest_result": 1
+    }
+  ],
+  "cleanup": true,
+  "full_receipt": "\u4e34\u65f6\\ISSUE-20261011-02\\r-parent-large-decode-canonical-133\\original-thread-prefix.json"
+}

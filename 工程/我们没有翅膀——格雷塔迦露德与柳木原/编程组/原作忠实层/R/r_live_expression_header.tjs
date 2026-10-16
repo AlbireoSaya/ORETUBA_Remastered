@@ -1,0 +1,9 @@
+function RLiveExpressionHeader(rh, p)
+{
+    var base = p & 0xFFFFFFFF;
+    var n = rh(base) & 65535;
+    var code = (base + 2) & 0xFFFFFFFF;
+    var flag = (code + n) & 0xFFFFFFFF;
+    var table = (flag + 1) & 0xFFFFFFFF;
+    return %["code_start" => code, "flag_address" => flag, "table_start" => table];
+}

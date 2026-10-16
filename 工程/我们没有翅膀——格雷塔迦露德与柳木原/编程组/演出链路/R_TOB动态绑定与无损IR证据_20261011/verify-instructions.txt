@@ -1,0 +1,15 @@
+from pathlib import Path
+import sys,json,hashlib
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'临时/ISSUE-20261011-02/r-tob-dynamic-replay-01'
+sys.path[:0]=[str(root/'工具/capstone-5.0.7-py3'),str(g/'工具'),str(g/'逆向引擎')]
+from pe_min import PE
+from lucifen_instruction_evidence import collect_function_rows
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE')
+ranges=[(pe.image_base+s['vaddr'],pe.image_base+s['vaddr']+s['rawsize']) for s in pe.sections if s['chars']&0x20000000]
+entries=[0x430090,0x4a79d0,0x4a7a30,0x42fb50,0x42f880]
+def read(a,n):
+ d=pe.read_rva(a-pe.image_base,n)
+ return d if d is not None and len(d)==n else None
+rows=[collect_function_rows(read,ranges,a,entries,limit=10000) for a in entries]
+p=b/'tob-dynamic-instruction-evidence.json';assert not p.exists();p.write_text(json.dumps({'scope':'static direct-function walk; indirect gaps and shared tail ownership remain unresolved; raw original instruction operands kept local only','source_sha256':hashlib.sha256(pe.data).hexdigest(),'functions':rows},indent=2),encoding='utf-8')
+print(json.dumps({'entries':len(rows),'rows':sum(x['instruction_count'] for x in rows),'edges':sum(len(x['edges']) for x in rows),'unresolved':sum(len(x['unresolved']) for x in rows),'diagnostics':sum(len(x['diagnostics']) for x in rows)}))

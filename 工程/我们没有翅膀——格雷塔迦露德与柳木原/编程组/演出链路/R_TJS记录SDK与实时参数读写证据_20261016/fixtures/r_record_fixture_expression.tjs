@@ -1,0 +1,13 @@
+// r_record_fixture_expression.tjs
+// 合成测试夹具：按原顺序把一条 expression 与其 relocation 追加为行记录。
+// 不读字节、不排序、不比较、不补齐缺省字段；函数外无其他定义。
+
+function RRecordFixtureExpression(rows, e)
+{
+	rows.add(["expression", e.code_start, e.code_size, e.flag_offset, e.compiled_flag, e.reloc_start, e.reloc_size, e.relocations.count]);
+	for (var i = 0; i < e.relocations.count; i++) {
+		var rel = e.relocations[i];
+		rows.add(["relocation", rel.group, rel.slot_offset, rel.index]);
+	}
+	return;
+}

@@ -1,0 +1,41 @@
+判据 v2 · 装配口径 v3 汇总（n=640）
+  门与分桶完全沿用 v2（灰度25 ＋ ramp_ch25 ＋ 单侧分带中位25 ＋ 结构门 ＋ 硬线），只新增 outpaint_tonematch_v2 产物层
+  装配优先级：帧线件 geo ＞ tonematch_v2 ＞ tonematch ＞ outpaint
+
+== ① 四桶新分布（v3）==
+   放行        275 件   43.0%
+   需色相匹配       0 件    0.0%
+   精修        291 件   45.5%
+   重绘         74 件   11.6%
+   求和核对：640（应 = 640）
+   采用产物：geo=3 / outpaint=211 / tonematch=346 / tonematch_v2=80
+
+== ② v2 → v3 搬移表（只可比件；用 须处置清单_v2.tsv 的『分类_v2』对 v3 同口径）==
+   放行 -> 放行                    196 件   
+   需色相匹配 -> 放行                  79 件   ai_61.png, ai_61a.png, ai_61b.png, ai_61c.png, asu72.png, asu72a.png, asu72b.png, asu72c.png, cg_ai_01.png, cg_ai_02.png, cg_ai_03.png, cg_hiy02.png, cg_hiy05.png, cg_hiy05a.png, cg_kob04c.png
+   精修 -> 精修                    290 件   
+   需色相匹配 -> 精修                   1 件   miy62a.png
+   重绘 -> 重绘                     74 件   
+
+== ③ 本步补跑的 80 件（v2 桶=需色相匹配、无 v1 产物）在新装配下的落点 ==
+   80 件落点：{'放行': 79, '精修': 1}
+   ⇒ 落入放行 79 / 80（98.8%）
+   未落放行的件（逐件值）：
+     miy62a.png     桶=精修       门(sh0)   0.53/  0.63/  0.56 ｜ 结构 mL4 4.37 mRGB4 4.83 er_fill 2.01 bD16 5.82
+
+== ④ 8 件残留件在 v3 的归置（采用 v1 产物；原因见 tonematch_pass_v2 残留结论）==
+   cg_eri02.png   桶=精修     采用=tonematch  ｜ 门(sh0) ramp  0.61 ramp_ch  9.02 bandmed  8.84 ｜ 审计(sh10) ramp_in 32.95 ｜ 结构 mL4 20.72 mRGB4 28.73 er_fill  0.99 bD16 17.25
+   cg_eri02a.png  桶=精修     采用=tonematch  ｜ 门(sh0) ramp  0.65 ramp_ch  9.05 bandmed  9.02 ｜ 审计(sh10) ramp_in 32.95 ｜ 结构 mL4 20.81 mRGB4 28.91 er_fill  0.97 bD16 17.53
+   cg_eri02b.png  桶=精修     采用=tonematch  ｜ 门(sh0) ramp  0.50 ramp_ch  9.24 bandmed  8.78 ｜ 审计(sh10) ramp_in 32.94 ｜ 结构 mL4 20.72 mRGB4 28.79 er_fill  0.97 bD16 16.20
+   kob65.png      桶=重绘     采用=tonematch  ｜ 门(sh0) ramp  0.20 ramp_ch  7.11 bandmed  4.66 ｜ 审计(sh10) ramp_in 16.38 ｜ 结构 mL4 30.25 mRGB4 45.50 er_fill  1.00 bD16 18.68
+   kob65a.png     桶=重绘     采用=tonematch  ｜ 门(sh0) ramp  0.15 ramp_ch  7.09 bandmed  5.16 ｜ 审计(sh10) ramp_in 16.43 ｜ 结构 mL4 30.40 mRGB4 45.48 er_fill  0.99 bD16 17.56
+   kob65b.png     桶=重绘     采用=tonematch  ｜ 门(sh0) ramp  0.12 ramp_ch  7.19 bandmed  5.12 ｜ 审计(sh10) ramp_in 16.46 ｜ 结构 mL4 30.18 mRGB4 45.58 er_fill  0.96 bD16 18.39
+   kob65c.png     桶=重绘     采用=tonematch  ｜ 门(sh0) ramp  0.11 ramp_ch  7.21 bandmed  4.88 ｜ 审计(sh10) ramp_in 16.47 ｜ 结构 mL4 30.42 mRGB4 45.47 er_fill  0.95 bD16 17.81
+   kob69.png      桶=重绘     采用=tonematch  ｜ 门(sh0) ramp  0.08 ramp_ch  5.95 bandmed  6.36 ｜ 审计(sh10) ramp_in 17.94 ｜ 结构 mL4 22.35 mRGB4 27.96 er_fill  5.21 bD16 54.35
+
+== ⑤ 放行清单 v3 ==
+   275 件（v2 为 196 件，净 +79）
+   来源：geo=3 / outpaint=28 / tonematch=165 / tonematch_v2=79
+   vision 报 133 件（41+89+3）⇒ 差 +142（口径差异已在 v2 汇总逐条归因）
+   须处置清单_v3: E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_1028\须处置清单_v3.tsv（640 行）
+   放行清单_v3:   E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260928-02_1028\放行清单_v3.tsv（275 行）

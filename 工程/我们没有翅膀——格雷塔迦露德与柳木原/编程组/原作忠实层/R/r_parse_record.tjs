@@ -1,0 +1,18 @@
+// r_parse_record.tjs
+// 唯一 RParseRecord：纯组合 prefix → condition → frame → items；不执行条件、不读字节。
+
+function RParseRecord(rb, limit, start) {
+    var prefix = RRecordPrefix(rb, limit, start);
+    var conditionPair = RRecordCondition(rb, limit, prefix.condition_tag, prefix.condition_offset);
+    var frame = RRecordFrame(rb, limit, conditionPair[1]);
+    var itemsPair = RRecordItems(rb, limit, frame.items_start, frame.end);
+    return %[
+        "start" => prefix.start,
+        "end" => frame.end,
+        "opcode" => prefix.opcode,
+        "condition" => conditionPair[0],
+        "length_offset" => frame.length_offset,
+        "declared_length" => frame.declared_length,
+        "items" => itemsPair[0]
+    ];
+}

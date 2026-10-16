@@ -1,0 +1,43 @@
+from pathlib import Path
+import sys,ctypes,json,hashlib,uuid
+r=Path.cwd();w=g/'工具';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(w),str(g/'工具'),str(r/('工具/unicorn-2.1.4-win32-py313'if ctypes.sizeof(ctypes.c_void_p)==4 else'工具/unicorn-2.1.4-py314'))]
+from lucifen_host_large_memory import HostLargeMemory
+from lucifen_guest_large_memory import GuestLargeBlocks
+import lucifen_host_memory as legacy_host,lucifen_guest_memory_bridge as legacy_guest
+from unicorn import Uc,UC_ARCH_X86,UC_MODE_32
+assert legacy_host._MAX_BYTES==legacy_guest.MAX_HOST_SIZE==1<<20
+size=800*600*4+16
+memory=HostLargeMemory(max_bytes=4<<20);u=Uc(UC_ARCH_X86,UC_MODE_32);mirror=GuestLargeBlocks(u,memory,max_bytes=4<<20)
+rows=[]
+try:
+ heap=memory.heap_create(0,0,0);assert heap
+ ptr=memory.heap_alloc(heap,8,size);assert ptr and memory.size(ptr)==size
+ assert memory.read(ptr,size)==bytes(size)
+ gp=mirror.bind(ptr);assert mirror.size(gp)==size and mirror._check(gp)==bytes(size)
+ seed=b'owned-sdk-surface-prefix';u.mem_write(gp,seed);mirror.sync(gp)
+ newptr=memory.heap_realloc(heap,8,ptr,size+65536);assert newptr
+ newgp=mirror.remap_after_realloc(gp,newptr);assert mirror.size(newgp)==size+65536 and mirror._check(newgp)[:len(seed)]==seed
+ assert mirror._check(newgp)[size:]==bytes(65536)
+ rows.append({'source_equivalent_requested_size':size,'actual_host_nonzero':True,'realloc_prefix_and_zero_growth':True,'guest_guards_pass':True,'actual_host_moved':ptr!=newptr,'guest_moved':gp!=newgp})
+ mirror.unmap(newgp);assert memory.heap_free(heap,0,newptr)
+ globalptr=memory.global_alloc(0,size);assert globalptr and memory.size(globalptr)==size
+ globalguest=mirror.bind(globalptr);mirror._check(globalguest);mirror.unmap(globalguest);assert memory.global_free(globalptr)==0
+ rows.append({'actual_GMEM_FIXED_over_1MiB_pass':True})
+ for constructor in (HostLargeMemory,lambda max_bytes:GuestLargeBlocks(u,memory,max_bytes=max_bytes)):
+  for bad in (True,0,65<<20):
+   try:constructor(max_bytes=bad)
+   except (TypeError,ValueError):pass
+   else:raise AssertionError('invalid constructor')
+ for bad in (0,True,(4<<20)+1):
+  try:memory.heap_alloc(heap,8,bad)
+  except (TypeError,ValueError):pass
+  else:raise AssertionError('invalid allocation')
+ assert not memory._blocks and mirror.live_count==0 and memory.heap_destroy(heap)
+finally:
+ for gp in list(mirror._by_guest):mirror.unmap(gp)
+ memory.close_all()
+assert not memory._blocks and not memory._heaps and mirror.live_count==0
+assert legacy_host._MAX_BYTES==legacy_guest.MAX_HOST_SIZE==1<<20
+out={'bits':ctypes.sizeof(ctypes.c_void_p)*8,'passed':True,'source_size':size,'checks':rows,'legacy_limits_unchanged':True,'all_owned_cleanup_pass':True,'source_original_frame_not_yet_proven':True}
+p=w/('sdk-large-buffer-'+str(out['bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8');print(json.dumps({'file':str(p),'passed':True}))

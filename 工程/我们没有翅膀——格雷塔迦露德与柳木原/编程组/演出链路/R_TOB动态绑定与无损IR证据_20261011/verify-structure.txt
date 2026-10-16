@@ -1,0 +1,30 @@
+from pathlib import Path
+import sys,struct,json,collections,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-tob-dynamic-replay-01';b.mkdir(parents=True,exist_ok=False);sys.path[:0]=[str(root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'),str(b)];from lucifen_tob_dynamic_structure import parse_record
+files=sorted(p for p in (root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*') if p.suffix.lower()=='.tob')
+rows=[];total=collections.Counter();conditions=collections.Counter();kinds=collections.Counter();exprs=[];bankrefs=[];errors=[]
+for p in files:
+ d=p.read_bytes();labelend=4+struct.unpack_from('<I',d,4)[0];cs=labelend+struct.unpack_from('<I',d,labelend)[0];pos=cs;records=[];islands=[]
+ while True:
+  at=d.find(b'\x5b\x20',pos)
+  if at<0:
+   if pos<len(d):islands.append((pos,len(d)))
+   break
+  if at>pos:islands.append((pos,at))
+  try:r=parse_record(d,at)
+  except Exception as ex:
+   errors.append({'file':p.name,'offset':at,'error':type(ex).__name__+': '+str(ex)});pos=at+2;continue
+  records.append(r);pos=r['end'];conditions[str(r['condition']['tag'])]+=1
+  c=r['condition']
+  if c['kind']=='expression':exprs.append({'path':p.relative_to(root).as_posix(),'position':'condition','record_offset':at,**c['expression']})
+  if c['kind']=='array':bankrefs.append((c['bank_index'],c['element_index']))
+  for i in r['items']:
+   kinds[i['kind']]+=1
+   if i['kind']=='expression':exprs.append({'path':p.relative_to(root).as_posix(),'position':'item','record_offset':at,**i['expression']})
+   if i['kind']=='array':bankrefs.append((i['bank_index'],i['element_index']))
+ total['records']+=len(records);total['islands']+=len(islands);total['island_bytes']+=sum(z-a for a,z in islands)
+ rows.append({'path':p.relative_to(root).as_posix(),'sha256':hashlib.sha256(d).hexdigest(),'size':len(d),'code_start':cs,'records':len(records),'islands':len(islands),'parsed_start_end_sha256':hashlib.sha256(b''.join(struct.pack('<II',r['start'],r['end']) for r in records)).hexdigest()})
+summary={'files':len(rows),'counts':dict(total),'condition_tags':dict(conditions),'item_kinds':dict(kinds),'expressions':len(exprs),'expression_compiled_flags':dict(collections.Counter(e['compiled_flag'] for e in exprs)),'expression_reloc_group_counts':dict(collections.Counter(str(r['group']) for e in exprs for r in e['relocations'])),'max_reloc_index_per_group':{str(k):max(r['index'] for e in exprs for r in e['relocations'] if r['group']==k) for k in range(5) if any(r['group']==k for e in exprs for r in e['relocations'])},'array_refs':len(bankrefs),'max_array_bank':max(a for a,z in bankrefs),'max_array_element':max(z for a,z in bankrefs),'errors':errors,'scope':'structural partition and reference metadata only; expressions preserved, not yet semantically executed'}
+for n,v in [('structure-summary.json',summary),('structure-results.json',rows),('expression-reference-metadata.json',exprs)]:
+ out=b/n;assert not out.exists();out.write_text(json.dumps(v,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary));assert not errors

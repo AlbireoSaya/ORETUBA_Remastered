@@ -1,0 +1,63 @@
+"""Root platform recipe: execute the editor's isolated live-parameter guards."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import sys
+import time
+import uuid
+
+root = Path.cwd().resolve()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-live-params-20261015"
+prior = root / "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015"
+record = root / "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015"
+sys.path.insert(0, str(group / "工具"))
+from performance_runtime import execute
+
+bits, tag, kind = int(sys.argv[1]), sys.argv[2], sys.argv[3]
+assert bits in (32, 64) and "/" not in tag and "\\" not in tag
+guard, function, checks = {
+    "callback": ("r_live_param_callback_guard.tjs", "RLiveCallbackGuard", 3),
+    "bank": ("r_live_param_bank_guard.tjs", "RLiveBankGuard", 2),
+    "expression": ("r_live_param_expression_guard.tjs", "RLiveExpressionGuard", 2),
+    "count": ("r_live_param_count_guard.tjs", "RLiveCountGuard", 2),
+}[kind]
+out = root / "临时/ISSUE-20261011-02" / tag
+assert not out.exists()
+game, save, evidence = out / "game", out / "savedata", out / "evidence"
+for p in (game, save, evidence):
+    p.mkdir(parents=True)
+memory = ["r_memory_region.tjs", "r_memory_create.tjs", "r_memory_access.tjs", "r_memory_find.tjs", "r_memory_read.tjs", "r_memory_write8.tjs", "r_memory_write32.tjs"]
+prefix = ["r_record_live_prefix.tjs", "r_record_live_gate.tjs"]
+owned = list(json.loads((work / "accepted-map.json").read_text(encoding="utf-8-sig")))
+names = memory + prefix + owned + (["r_live_param_callback_helper.tjs", "r_live_param_callback_state.tjs", "r_live_param_callback_invoke.tjs"] if kind == "callback" else []) + [guard]
+assert len(names) == len(set(names))
+sources = []
+for name in names:
+    src = prior / name if name in memory else record / name if name in prefix else work / name
+    shutil.copyfile(src, game / name)
+    sources.append({"name": name, "source": src.relative_to(root).as_posix(), "sha256": hashlib.sha256(src.read_bytes()).hexdigest()})
+nonce = uuid.uuid4().hex
+commands = ["Debug.startLogToFile();", "try {", f'Debug.message("RLPG_BEGIN {nonce}");']
+commands += [f'Scripts.execStorage("{name}");' for name in names]
+commands += [f'var n={function}();', f'if(n!=={checks})throw new Exception("WRONG_PARAM_GUARD_COUNT "+n);',
+             f'Debug.message("RLPG_PASS {nonce} "+n);', "} catch(e) {",
+             f'Debug.message("RLPG_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));', "}", "System.exit();"]
+(game / "startup.tjs").write_text("\n".join(commands) + "\n", encoding="utf-8")
+engine = root / f"工具/krkrz/krkrz_20171225/tvpwin{bits}.exe"
+start = time.time_ns()
+process = execute([str(engine), str(game), "-datapath=" + str(save) + "/", "-readencoding=UTF-8", "-startup=startup.tjs", "-userconf=no"], out, 45, evidence)
+log = save / "krkr.console.log"
+raw = log.read_bytes() if log.exists() else b""
+console = raw.decode("utf-16") if raw.startswith(b"\xff\xfe") else raw.decode("utf-16-le", errors="replace")
+fresh = log.exists() and log.stat().st_mtime_ns >= start
+passed = process["returncode"] == 0 and not process["timed_out"] and process["cleanup_ok"] and fresh and f"RLPG_PASS {nonce} {checks}" in console and f"RLPG_EXCEPTION {nonce}" not in console
+receipt = {"passed": passed, "bits": bits, "checks": checks, "kind": kind, "nonce": nonce, "fresh_log": fresh,
+           "process": process, "sources": sources, "engine_sha256": hashlib.sha256(engine.read_bytes()).hexdigest(),
+           "console_sha256": hashlib.sha256(raw).hexdigest(), "scope": "synthetic callback/explicit rejection only; no original expression VM, bank growth or full game proof"}
+(evidence / "verdict.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+(evidence / "console.utf8.txt").write_text(console, encoding="utf-8")
+print(json.dumps({key: receipt[key] for key in ("passed", "bits", "checks", "kind", "process")}))
+print("\n".join(line for line in console.splitlines() if "RLPG_" in line)[-1500:])
+sys.exit(0 if passed else 1)

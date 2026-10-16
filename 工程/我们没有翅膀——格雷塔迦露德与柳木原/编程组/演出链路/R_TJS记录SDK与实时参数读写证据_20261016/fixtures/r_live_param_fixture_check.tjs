@@ -1,0 +1,48 @@
+var RLiveParamCaseCount = 0;
+
+function RLiveParamCheck(spec)
+{
+    var s = RLPCreate(spec);
+
+    var rd      = RLPRD          incontextof s;
+    var rh      = RLPRH          incontextof s;
+    var rb      = RLPRB          incontextof s;
+    var wr      = RLPWR          incontextof s;
+    var resolve = RLPResolveBank incontextof s;
+    var expr    = RLPExpr        incontextof s;
+
+    var prefix = RRecordLivePrefix(rd, rb, spec.source);
+    if(prefix.condition_tag !== 1)
+        throw new Exception("RLiveParamCheck: condition_tag=" + prefix.condition_tag + " : " + spec.label);
+
+    var gate = RRecordLiveGate(rd, rb, prefix.opcode, 1, prefix.condition_cursor);
+    if(gate.accepted !== true)
+        throw new Exception("RLiveParamCheck: gate rejected : " + spec.label);
+    if(gate.item_count !== spec.count)
+        throw new Exception("RLiveParamCheck: item_count " + gate.item_count + " != " + spec.count + " : " + spec.label);
+
+    var result = RRecordLiveParameters(rd, rh, rb, wr, gate.items_cursor, spec.params, gate.item_count, resolve, expr);
+
+    RVMFCompareRows(s.events, spec.events, spec.label);
+
+    if(result.next_cursor !== spec.source_cursor)
+        throw new Exception("RLiveParamCheck: next_cursor " + result.next_cursor + " != " + spec.source_cursor + " : " + spec.label);
+    if(result.param_end !== spec.param_end)
+        throw new Exception("RLiveParamCheck: param_end " + result.param_end + " != " + spec.param_end + " : " + spec.label);
+    if(result.param_count !== spec.count)
+        throw new Exception("RLiveParamCheck: param_count " + result.param_count + " != " + spec.count + " : " + spec.label);
+
+    var i;
+    for(i = 0; i < spec.source_final.count; i++)
+    {
+        if(RMemoryRead8(s.memory, spec.source + i) !== spec.source_final[i])
+            throw new Exception("RLiveParamCheck: source_final[" + i + "] : " + spec.label);
+    }
+    for(i = 0; i < spec.params_final.count; i++)
+    {
+        if(RMemoryRead8(s.memory, spec.params + i) !== spec.params_final[i])
+            throw new Exception("RLiveParamCheck: params_final[" + i + "] : " + spec.label);
+    }
+
+    RLiveParamCaseCount++;
+}

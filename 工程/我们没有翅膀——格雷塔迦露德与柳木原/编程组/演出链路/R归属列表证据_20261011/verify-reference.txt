@@ -1,0 +1,18 @@
+from pathlib import Path
+import json,importlib.util
+b=Path('临时/ISSUE-20261011-02/r-owner-list-replay-01');b.mkdir(parents=True,exist_ok=True)
+sp=importlib.util.spec_from_file_location('ref',Path('工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_owner_list_reference.py'));m=importlib.util.module_from_spec(sp);sp.loader.exec_module(m);f=m.owner_reorder_reference
+order=[1,2,3,4];keys={1:10,2:20,3:20,4:30};rows=[]
+for after,expected in [(False,[1,4,2,3]),(True,[1,2,3,4])]:
+ result=f(order,keys,4,20,0,after);assert result['order']==expected and result['changed'];rows.append('equal-'+str(after))
+assert f(order,keys,3,20,0x100)['order']==[1,3,2,4];rows.append('skip-low-byte-zero-relinks')
+assert f(order,keys,3,20,0x10001)=={'order':order,'keys':keys,'al':1,'changed':False};rows.append('skip-low-byte-nonzero-keeps')
+assert f([1,2],{1:0x7fffffff,2:0x80000000},1,0xffffffff)['order']==[2,1];rows.append('unsigned-high-key')
+assert f(order,keys,0,10)=={'order':order,'keys':keys,'al':0,'changed':False};rows.append('null-nochange')
+assert f(order,keys,999,10)=={'order':order,'keys':keys,'al':0,'changed':False};rows.append('nonmember-no-key-nochange')
+try:f([1],{},1,10)
+except ValueError:rows.append('member-missing-key-reject')
+else:raise AssertionError('invalid fixture accepted')
+assert order==[1,2,3,4] and keys=={1:10,2:20,3:20,4:30};rows.append('inputs-readonly')
+assert f(order,keys,4,-1)['keys'][4]==0xffffffff;rows.append('u32-key-bitpattern')
+p=b/'owner-reference-verification.json';assert not p.exists();p.write_text(json.dumps({'groups':rows,'count':len(rows),'passed':True,'scope':'independent hand-specified duplicate/unsigned/skip/member/read-only checks, no original heap'},indent=2),encoding='utf-8');print('PASS',len(rows),'owner reference groups')

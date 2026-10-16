@@ -1,0 +1,547 @@
+{
+  "id": "title",
+  "title_cn": "标题画面",
+  "owner": "M34",
+  "note": "**M34（2026-09-21）· 按《交汇协奏曲》PSB 坐标 100% 复刻**（用户裁定：「完全复刻《交汇协奏曲》的 UI 系统…只是配色不同」）。\n★ **几何与结构逐字照搬**：本屏每个元素的 x/y/w/h 均取自《交汇协奏曲》`locale_cn.xp3` 内 PSB 容器 idx 84 的图层 `left/top/width/height`（基准 1920×1080，与本作画布一致）。\n★ **配色与材质另起一套**：冰蓝霜白磨砂玻璃（实测配色见 `_工作\\M34_风格锚点.md`），**无雪花要素**（用户 2026-09-21 裁定）。\n★ **文字一律引擎绘制**：原作的按钮文字/角色名/标题是**烘焙进图**的，本工程铁律禁止，故 AI 素材留空面、文字由引擎画 —— 这是唯一有意偏离（见 `M34_UI复刻总纲.md` §七）。\n★ 素材：`ui/x_ui_*.png`（153 件新 UI 资产）；坐标台账：`_工作\\M34_交汇协奏曲UI布局规格.md`。\n★ **V1 裁决（用户 2026-09-21）**：标题菜单改**竖排条**，推翻 M28 的底部横排。\n★ **M35b（2026-09-22）· 标题菜单「图标 + 文字」组绑定**（用户要求）：7 个图标热区与 7 张文字图同属 `state_group: \"title.menu_<key>\"` ⇒ 鼠标落在任意一者上（或两者同时）两者**同步**换态；文字图的 `state_assets` = 合成层常态 / 合成层 `_on`（悬停）。文字位置由**用户在编辑器里摆放**（导出件见 `编辑器修改区\\01_title.json`），文字图 id 由编辑器自动名 `new.*` 改成语义名 `title.menu_txt_<key>`。\n★ **给后续编辑者的提醒**：在编辑器里继续改本屏前，请先**刷新页面/点「重载」**，让它从更新后的 `ui_layout.js` 读入（否则旧会话里没有 `state_group` 与文字态图，导出会把这两项覆盖掉）。\n★ M40（2026-09-23，用户指示）：**除 title.bg / title.logo 外全部控件 x +200**（菜单图标 56→256、文字层 140→340）；`title.text_copyright` 是通栏居中版权行、非控件，未动。⚠️ 本屏生成器 `m34_build_screens.build_title()` 仍落后于磁盘（见 `test_gen_sync.py` 的 ACK 表），**勿直接重跑生成器**。\n★ M41（2026-09-23，用户指示）：**删除屏幕上的署名行** `title.text_copyright`（用户原话「版权行直接删掉」）。★ 窗口标题的署名**不受影响**：由 `startup.tjs` 从 `layout/_root.json` 的 `signature` 写入（AGENTS.md §六 署名规则仍满足）——**后续不要在屏幕上把它加回来**。\n⚠️⚠️ 本屏生成器 `m34_build_screens.build_title()` 已落后 **M40（x+200）与 M41（删署名行）两轮**：**直接重跑它会回退这两个用户改动、并复活署名行**（`write()` 守门只拦「丢元素 / 丢受保护字段」，数值回退与新增元素拦不住）。**已登记为已知不同步，勿重跑**——见 `工具\\test_gen_sync.py` 的 ACK 表与交接 §五 待办。★ M08 收尾（2026-09-24，ISSUE-20260924-08，用户三项裁决之一）：**第 6 项菜单文字「画廊」→「鉴赏模式」**——① 位图三态程序化重出（生成器 + 六项自证见 `_工作\\ISSUE-20260924-08_鉴赏模式\\复现脚本\\m08_make_btntxt_appmode.py`；4 字画布 252×96，风格按相邻项像素实测复刻：笔画比 / 渐变 / 蓝边 / 羽毛层见该脚本头注；旧件存档 `同目录\\收尾证据\\旧件存档\\`）；② `title.menu_txt_gallery` w 148→252（x/y/h 不动，与 4 字项同宽；右沿 592，无碰撞）；③ 新增伴随热区 `title.menu_hit_6_txt`（盖文字区、同 action/state_group、零绘制；**不**直接加宽 menu_hit_6 的理由见其 note——hit 会把图标拉伸进热区矩形）。纯数据 + 素材替换，引擎与复刻两端机制零改动。\n★ D-01（2026-10-01，ISSUE-20261001-11）：**补齐 6 项文字区热区**（id `title.menu_hit_{1,2,3,4,5,7}_txt`，**18→24 件**）。原先只有第 6 项「鉴赏」有这件 ⇒ 点菜单文字判「空区域」、进不去对应界面（编程组移交 D-01；用户 2026-10-01 报「任何按键都进不去」）。形状/语义照 `title.menu_hit_6_txt` 逐条对齐、**不带 state_assets**（纯热区、零绘制）、z=95、`state_group` 与对应项相同。",
+  "elements": [
+    {
+      "id": "title.bg",
+      "kind": "image",
+      "z": 0,
+      "visible_default": true,
+      "asset": "ui/x_bg_system.png",
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "opacity": 255,
+      "source": "M11 派生（工具/prep_generated.py）：资源组\\美术统一_超分\\CG背景\\bg63.png（2904×1440）中心裁 2560×1440 → 0.75× 下采样到 1920×1080",
+      "note": "标题背景（1920×1080 满幅铺满，不留黑边）。用户 2026-09-20 明确要求「彻底坚决使用 AI 素材代替老素材」，故不再用 x_title_bg_1280.png（M9 的氛围延展层，已废弃）。"
+    },
+    {
+      "id": "title.logo",
+      "kind": "image",
+      "z": 10,
+      "visible_default": true,
+      "asset": "ui/x_gen_logo.png",
+      "x": 60,
+      "y": 45,
+      "w": 900,
+      "h": 317,
+      "opacity": 255,
+      "source": "M20 派生（工具/prep_generated.py）：生图入料\\生成结果\\游戏logo重置.png（1697×927 RGBA，真 alpha）alpha 包围盒(th=8)=(0,143,1671,732) 裁紧 1671×589 → 等比缩到宽 900（0.5386× 下采样）",
+      "note": "左上角标题 logo（**用户 2026-09-21 裁定保留**）。位置保持本作既有值 （《交汇协奏曲》的 logo 在 PSB 里是 x37 y35 w533 h276 —— 见注）。"
+    },
+    {
+      "id": "title.mask_menu",
+      "kind": "image",
+      "z": 5,
+      "visible_default": true,
+      "asset": "ui/x_ui_titlemask_menu.png",
+      "x": 0,
+      "y": 140,
+      "w": 880,
+      "h": 940,
+      "opacity": 26,
+      "source": "UI 组自制（程序化生成，非 AI 生图）：_工作\\ISSUE-20260923-04_M42_证据\\复现脚本\\m42_make_titlemask.py（泼墨剖面生成器，四档；--install 装回 assets）",
+      "note": "★ M42（2026-09-23，用户指示）：菜单区**径向渐变黑遮罩**（「给标题界面的功能性按钮加上类似于对话框的黑底透明遮罩」）。用户三项要求：① **范围=从「离开游戏」到「开始游戏」**（即菜单 7 项，实测包围盒 x256..592 / y360..1056）；② **浓度改为中间最浓、向四周扩散逐渐变淡（泼墨感）**——与对话框底部那条**线性**遮罩不同，这里是**径向**；③ **峰值不透明度先按 99%**。【几何 / 形状模型】素材 880×940（`ui/x_ui_titlemask_menu.png`，RGB 纯黑、透明度即浓度）摆放在 (0,140)、1:1 无 nine；形状为**泼墨**（五轮起）：椭圆基底（半轴 280×580、中心即菜单包围盒中心 (424,708)）+ 5 项多频正弦扰动 + 径向浓度衰减，**定稿 amp=0.18 / C0=0.75 / FADE=0.40**（公式与四档见 `_工作\\ISSUE-20260923-04_M42_证据\\复现脚本\\m42_make_titlemask.py`）。⚠️ 首版～四轮的「矩形浓核 + 逐轴椭圆扩散」几何（浓核 ±188/±368、浓核上沿 y380、D 档 240/90/200、FW 等）**已随形状模型更换而全部作废**，此处不再保留；历史过程见 `工程记录\\2026-09-23_…标题菜单径向遮罩的修改.md` 与 `…迭代与定稿的修改.md`。【强度旋钮 = 元素 `opacity`（0–255）】素材峰值保留 255，**六轮定稿 = 26（不透明度 10.2%）**；首版曾用 217 = 85.1%（**已作废**，见文末六轮）。——**改浓度只改这一个数，不必重出素材**。【z=5】刻意放在 `title.bg`(z=0) **之上**、`title.logo`(z=10) 与菜单(95..102) **之下** ⇒ 只压背景、**不压 logo、不压按钮与文字**。⚠️ **四边边缘实测（一审复核，2026-09-23）**：左缘 α=0 ✓、右缘 α=0 ✓（淡出都在画布内归零）；**上缘**（素材 y0 → 屏幕 y140）仍有残留，**max α=69、非零列为 x291..686**——这是椭圆竖直半轴 580 > 素材上边距（708−140=568）造成的**结构性残留**，该区间**完全落在 logo（屏幕 x60..960 / y45..362）足迹内**：算术上即使 logo 在该处全透明，压暗也只有 69×26/255 ≈ 7.0 阶（背景 237 → 约 6.5 阶、≈2.7%），且只有一行高；按真实 logo alpha 合成后，**可见步进 max 0.63/255**（一审实测）。⇒ 判定为**不可见**，未处理；仍要归零的话，做法是把素材上边界再上移（让淡出在画布内完成）或把椭圆中心下移。**下缘**与画布底重合（α=255、无内部边界 ⇒ 无可见硬边）。\n★ M42 首版（用户 2026-09-23 二轮裁定）：**D 上收档 + 不透明度 85%（opacity 217）**——**已作废**（五轮换形状模型、六轮定稿 26/10%，见文末）。\n★ M42 二轮（用户 2026-09-23，看过实机后）：**浓度 85% → 25%（opacity 64）**、**侧向扩散 240 → 140（收紧 100px）**、**上下扩散 90/200 → 30/140（各收紧 60px）**；浓核不变（仍完整覆盖 7 项）。窄扩散下淡出全部收在画布内（左缘 α=0，无暗边）。\n★ M42 三轮（用户 2026-09-23，再次看过实机后）：**浓度 25% → 15%（opacity 38）**、**侧向扩散 140 → 65（再收紧 75px）**、**下方 140 → 90（再收紧 50px）**；**上方 30 → 6px（钳位）**——用户要求上方再收 50px 会算成负值（即 0），那样遮罩上沿会变成**一条硬边**，故工程上钳到最小 6px 保留极窄柔边（如需硬边请明示）。浓核不变。\n★ M42 四轮（用户 2026-09-23，第三次看过实机后）：**浓度 15% → 18%（opacity 46）**、**上方扩散 6 → 36px**、**侧向保持 65px（用户明示不动）**；并按要求把**顶部边界由平直矩形改为不规则起伏**——做法：顶部核高按 x 加一个双正弦起伏（`12 + 20·sin(x/73+0.9) + 10·sin(x/31+2.2)`，范围 −18..+42px）、侧向核宽按 y 轻微起伏（`8·sin(y/61+1.7)`，±8px），再与逐轴平滑淡出取小 ⇒ 边界像泼墨边缘。实测顶部满浓度上沿在 y320..415 之间起伏（极差 95px），而菜单包围盒四角与中心仍为 α=255（覆盖不受影响）。\n★ M42 五轮（用户 2026-09-23，第四次看过实机后）：「其他设置基本满意，但**整个遮罩的形状**不满意——要像泼墨：形状极其不规则、中间浓厚、四周暗淡，不再像矩形那样规整。」⇒ **形状模型换为「椭圆基底 + 多频正弦扰动 + 径向浓度衰减」**：`r' = r·(1 + 0.18·N(θ, r, x, y))`，r 为椭圆归一化半径（半轴 280×580），N 为 5 项多频噪声（3θ / 5θ / 8θ / 2.3πr 以及 x·y 叉项）；浓度 `α = 255·(1 − smoothstep((r' − 0.75)/0.40))` ⇒ 中心满浓度、向外平滑衰减。**实测（一审更正后的两个数）**：生成器原先那个「12 向等值半径极差 120px」**不能**证明不规则——一审复算发现**理想椭圆（amp=0）在该度量下也有 110px**（脚本采样把 y 乘了 1.6，而椭圆半轴比是 2.07，二者不匹配），故 120 vs 110 只说明多了一点点。**改用归一化度量**（真几何采样 72 向、α 首次跌破 128、换算成椭圆归一化半径 r_norm）后：**定稿 P3 极差 = 0.2210（相对均值 23.8%）**，而**理想椭圆只有 0.0047** ⇒ 形状确实不规则（复算脚本 `复现脚本\\m42_metric_audit.py`，只读、可重跑）。同期实测菜单包围盒四点浓度仍保有 **105–252/255**（对比「极不规则档 P1」只有 17 ⇒ 覆盖没被牺牲）。四档备选与对照图见 `_工作\\ISSUE-20260923-04_M42_证据\\`（`M42_泼墨四版对照.png`：P1 极不规则四角偏淡 / P2 同 P1+墨点飞溅 / **P3 本档（已落盘）** / P4 本档+飞溅）。范围、浓度、z 等用户已满意的设定未动（`opacity` 仍 46 = 18%）。\n★ M42 六轮（用户 2026-09-23，第五次看过实机后）：**浓度 18% → 10%（opacity 46 → 26）**；形状保持 P3 泼墨档（椭圆基底 + 多频扰动 + 径向衰减），未再改动。\n★ **终值**：`opacity` = **26**（不透明度 10.2%）｜形状 = P3 泼墨档（amp 0.18 / C0 0.75 / FADE 0.40）｜素材 md5 `d8c3f81b6fd4beb46e2328b117ca2a8f`（68,013 B，重生成逐字节一致）。\n★ **一审（2026-09-23，reviewer 独立复核）**：素材 / 数据 / 可复现性全部通过（三处产物逐字节一致、素材可逐字节复现、引擎导出证实 `opacity` 生效且「越大约浓」方向正确）；**打回项全在文档层**并已修复：① 本条 note 里两处把作废的 85% 写成「定稿」（已标注作废）；② `source` 指向不存在的文件（已改指真实生成器路径）；③ 原「12 向极差 120px ⇒ 不规则」的论证不成立（理想椭圆基线 110，已改用归一化度量 0.2210 vs 0.0047）；④ 交接 / 索引里「已合并 main」当时尚未合并（合并后回填哈希）。"
+    },
+    {
+      "id": "title.menu_hit_1",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 256,
+      "y": 360,
+      "w": 96,
+      "h": 96,
+      "action": "game_start",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=game_start）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_start.png",
+        "hover": "ui/x_ui_menuicon_start_on.png",
+        "pressed": "ui/x_ui_menuicon_start_on.png"
+      },
+      "state_group": "title.menu_start"
+    },
+    {
+      "id": "title.menu_hit_1_txt",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 340,
+      "y": 360,
+      "w": 252,
+      "h": 96,
+      "action": "game_start",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "★ D-01 修复（2026-10-01，ISSUE-20261001-11）：**文字区热区**。原先只有第 6 项「鉴赏」有这件（`title.menu_hit_6_txt`），其余 6 项缺 ⇒ 点菜单**文字**判「空区域」、进不去对应界面（用户 2026-10-01 报「任何按键都进不去」，编程组移交 D-01）。形状与语义**照 `title.menu_hit_6_txt` 逐条对齐**：几何＝对应 `title.menu_txt_*` 的 x/y/w/h；action 与 `title.menu_hit_N` 相同；`state_group`＝同一组 ⇒ 悬停文字时图标与文字**同步**换态；**不带 `state_assets`**（引擎 hit 只在带 state_assets 时才画图，见 `krkr/game/ui_widget.tjs` 的 uiWidgetDrawHit）⇒ 纯热区、零绘制；z 与 menu_hit_6_txt 同值 95；与 `menu_hit_N` 在 x340..352 有 12px 重叠（z 同为 95、action 相同 ⇒ 命中结果一致，无歧义）。⚠ 不直接把 `menu_hit_N` 加宽：引擎 hit 会把 state_assets **拉伸进热区矩形**（`_工作\\M35_生图脚本\\btn_states.py` 明文警告），96×96 的菜单图标会被拉成整条宽度。",
+      "state_group": "title.menu_start"
+    },
+    {
+      "id": "title.menu_hit_2",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 256,
+      "y": 460,
+      "w": 96,
+      "h": 96,
+      "action": "game_continue",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=game_continue）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_continue.png",
+        "hover": "ui/x_ui_menuicon_continue_on.png",
+        "pressed": "ui/x_ui_menuicon_continue_on.png"
+      },
+      "state_group": "title.menu_continue"
+    },
+    {
+      "id": "title.menu_hit_2_txt",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 340,
+      "y": 460,
+      "w": 252,
+      "h": 96,
+      "action": "game_continue",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "★ D-01 修复（2026-10-01，ISSUE-20261001-11）：**文字区热区**。原先只有第 6 项「鉴赏」有这件（`title.menu_hit_6_txt`），其余 6 项缺 ⇒ 点菜单**文字**判「空区域」、进不去对应界面（用户 2026-10-01 报「任何按键都进不去」，编程组移交 D-01）。形状与语义**照 `title.menu_hit_6_txt` 逐条对齐**：几何＝对应 `title.menu_txt_*` 的 x/y/w/h；action 与 `title.menu_hit_N` 相同；`state_group`＝同一组 ⇒ 悬停文字时图标与文字**同步**换态；**不带 `state_assets`**（引擎 hit 只在带 state_assets 时才画图，见 `krkr/game/ui_widget.tjs` 的 uiWidgetDrawHit）⇒ 纯热区、零绘制；z 与 menu_hit_6_txt 同值 95；与 `menu_hit_N` 在 x340..352 有 12px 重叠（z 同为 95、action 相同 ⇒ 命中结果一致，无歧义）。⚠ 不直接把 `menu_hit_N` 加宽：引擎 hit 会把 state_assets **拉伸进热区矩形**（`_工作\\M35_生图脚本\\btn_states.py` 明文警告），96×96 的菜单图标会被拉成整条宽度。",
+      "state_group": "title.menu_continue"
+    },
+    {
+      "id": "title.menu_hit_3",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 256,
+      "y": 560,
+      "w": 96,
+      "h": 96,
+      "action": "open_load",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_load）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_load.png",
+        "hover": "ui/x_ui_menuicon_load_on.png",
+        "pressed": "ui/x_ui_menuicon_load_on.png"
+      },
+      "state_group": "title.menu_load"
+    },
+    {
+      "id": "title.menu_hit_3_txt",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 340,
+      "y": 560,
+      "w": 252,
+      "h": 96,
+      "action": "open_load",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "★ D-01 修复（2026-10-01，ISSUE-20261001-11）：**文字区热区**。原先只有第 6 项「鉴赏」有这件（`title.menu_hit_6_txt`），其余 6 项缺 ⇒ 点菜单**文字**判「空区域」、进不去对应界面（用户 2026-10-01 报「任何按键都进不去」，编程组移交 D-01）。形状与语义**照 `title.menu_hit_6_txt` 逐条对齐**：几何＝对应 `title.menu_txt_*` 的 x/y/w/h；action 与 `title.menu_hit_N` 相同；`state_group`＝同一组 ⇒ 悬停文字时图标与文字**同步**换态；**不带 `state_assets`**（引擎 hit 只在带 state_assets 时才画图，见 `krkr/game/ui_widget.tjs` 的 uiWidgetDrawHit）⇒ 纯热区、零绘制；z 与 menu_hit_6_txt 同值 95；与 `menu_hit_N` 在 x340..352 有 12px 重叠（z 同为 95、action 相同 ⇒ 命中结果一致，无歧义）。⚠ 不直接把 `menu_hit_N` 加宽：引擎 hit 会把 state_assets **拉伸进热区矩形**（`_工作\\M35_生图脚本\\btn_states.py` 明文警告），96×96 的菜单图标会被拉成整条宽度。",
+      "state_group": "title.menu_load"
+    },
+    {
+      "id": "title.menu_hit_4",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 256,
+      "y": 660,
+      "w": 96,
+      "h": 96,
+      "action": "open_flowchart",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_flowchart）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_flowchart.png",
+        "hover": "ui/x_ui_menuicon_flowchart_on.png",
+        "pressed": "ui/x_ui_menuicon_flowchart_on.png"
+      },
+      "state_group": "title.menu_flowchart"
+    },
+    {
+      "id": "title.menu_hit_4_txt",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 340,
+      "y": 660,
+      "w": 200,
+      "h": 96,
+      "action": "open_flowchart",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "★ D-01 修复（2026-10-01，ISSUE-20261001-11）：**文字区热区**。原先只有第 6 项「鉴赏」有这件（`title.menu_hit_6_txt`），其余 6 项缺 ⇒ 点菜单**文字**判「空区域」、进不去对应界面（用户 2026-10-01 报「任何按键都进不去」，编程组移交 D-01）。形状与语义**照 `title.menu_hit_6_txt` 逐条对齐**：几何＝对应 `title.menu_txt_*` 的 x/y/w/h；action 与 `title.menu_hit_N` 相同；`state_group`＝同一组 ⇒ 悬停文字时图标与文字**同步**换态；**不带 `state_assets`**（引擎 hit 只在带 state_assets 时才画图，见 `krkr/game/ui_widget.tjs` 的 uiWidgetDrawHit）⇒ 纯热区、零绘制；z 与 menu_hit_6_txt 同值 95；与 `menu_hit_N` 在 x340..352 有 12px 重叠（z 同为 95、action 相同 ⇒ 命中结果一致，无歧义）。⚠ 不直接把 `menu_hit_N` 加宽：引擎 hit 会把 state_assets **拉伸进热区矩形**（`_工作\\M35_生图脚本\\btn_states.py` 明文警告），96×96 的菜单图标会被拉成整条宽度。",
+      "state_group": "title.menu_flowchart"
+    },
+    {
+      "id": "title.menu_hit_5",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 256,
+      "y": 760,
+      "w": 96,
+      "h": 96,
+      "action": "open_config",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_config）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_config.png",
+        "hover": "ui/x_ui_menuicon_config_on.png",
+        "pressed": "ui/x_ui_menuicon_config_on.png"
+      },
+      "state_group": "title.menu_config"
+    },
+    {
+      "id": "title.menu_hit_5_txt",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 340,
+      "y": 760,
+      "w": 148,
+      "h": 96,
+      "action": "open_config",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "★ D-01 修复（2026-10-01，ISSUE-20261001-11）：**文字区热区**。原先只有第 6 项「鉴赏」有这件（`title.menu_hit_6_txt`），其余 6 项缺 ⇒ 点菜单**文字**判「空区域」、进不去对应界面（用户 2026-10-01 报「任何按键都进不去」，编程组移交 D-01）。形状与语义**照 `title.menu_hit_6_txt` 逐条对齐**：几何＝对应 `title.menu_txt_*` 的 x/y/w/h；action 与 `title.menu_hit_N` 相同；`state_group`＝同一组 ⇒ 悬停文字时图标与文字**同步**换态；**不带 `state_assets`**（引擎 hit 只在带 state_assets 时才画图，见 `krkr/game/ui_widget.tjs` 的 uiWidgetDrawHit）⇒ 纯热区、零绘制；z 与 menu_hit_6_txt 同值 95；与 `menu_hit_N` 在 x340..352 有 12px 重叠（z 同为 95、action 相同 ⇒ 命中结果一致，无歧义）。⚠ 不直接把 `menu_hit_N` 加宽：引擎 hit 会把 state_assets **拉伸进热区矩形**（`_工作\\M35_生图脚本\\btn_states.py` 明文警告），96×96 的菜单图标会被拉成整条宽度。",
+      "state_group": "title.menu_config"
+    },
+    {
+      "id": "title.menu_hit_6",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 256,
+      "y": 860,
+      "w": 96,
+      "h": 96,
+      "action": "open_gallery",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=open_gallery）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_gallery.png",
+        "hover": "ui/x_ui_menuicon_gallery_on.png",
+        "pressed": "ui/x_ui_menuicon_gallery_on.png"
+      },
+      "state_group": "title.menu_gallery"
+    },
+    {
+      "id": "title.menu_hit_6_txt",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 340,
+      "y": 860,
+      "w": 252,
+      "h": 96,
+      "action": "open_gallery",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "★ M08 收尾（2026-09-24，ISSUE-20260924-08）：第 6 项文字加宽（148→252）后的**伴随热区**（与 `33_sysicons` 的「图 + 隐形热区」同款模式）：盖住整条文字区，action 与 title.menu_hit_6 相同（open_gallery）、同属 state_group「title.menu_gallery」⇒ 悬停文字时图标与文字**同步**进悬停态、点文字即进鉴赏模式。**不带 state_assets**（引擎 hit 只在带 state_assets 时才画图，见 `krkr/game/ui_widget.tjs` 的 uiWidgetDrawHit）⇒ 纯热区、零绘制。**为什么不直接加宽 menu_hit_6**：引擎 hit 会把 state_assets **拉伸进热区矩形**（btn_states.py 开头明文警告），96×96 的菜单图标会被拉成 252×96 ⇒ 图标热区 menu_hit_6 原样保留，文字区命中由本件补足。与 menu_hit_6 在 x340..352 有 12px 重叠（z 同为 95、action 相同 ⇒ 命中结果一致，无歧义）；右沿 592 距相邻项/屏幕边缘远，无碰撞。",
+      "state_group": "title.menu_gallery"
+    },
+    {
+      "id": "title.menu_hit_7",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 256,
+      "y": 960,
+      "w": 96,
+      "h": 96,
+      "action": "quit_game",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "菜单项热区（action=quit_game）。**state_assets 为字图两态**（常态深蓝 #2E6BB4 / 悬停亮冰蓝 #71AAF3）—— 无矩形底，仅文字换色。",
+      "state_assets": {
+        "normal": "ui/x_ui_menuicon_exit.png",
+        "hover": "ui/x_ui_menuicon_exit_on.png",
+        "pressed": "ui/x_ui_menuicon_exit_on.png"
+      },
+      "state_group": "title.menu_exit"
+    },
+    {
+      "id": "title.menu_hit_7_txt",
+      "kind": "hit",
+      "z": 95,
+      "visible_default": true,
+      "x": 340,
+      "y": 960,
+      "w": 252,
+      "h": 96,
+      "action": "quit_game",
+      "label": "",
+      "font": {
+        "size": 24,
+        "bold": false,
+        "color": "@palette.node_locked",
+        "shadow": false,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 0
+      },
+      "align": "center",
+      "note": "★ D-01 修复（2026-10-01，ISSUE-20261001-11）：**文字区热区**。原先只有第 6 项「鉴赏」有这件（`title.menu_hit_6_txt`），其余 6 项缺 ⇒ 点菜单**文字**判「空区域」、进不去对应界面（用户 2026-10-01 报「任何按键都进不去」，编程组移交 D-01）。形状与语义**照 `title.menu_hit_6_txt` 逐条对齐**：几何＝对应 `title.menu_txt_*` 的 x/y/w/h；action 与 `title.menu_hit_N` 相同；`state_group`＝同一组 ⇒ 悬停文字时图标与文字**同步**换态；**不带 `state_assets`**（引擎 hit 只在带 state_assets 时才画图，见 `krkr/game/ui_widget.tjs` 的 uiWidgetDrawHit）⇒ 纯热区、零绘制；z 与 menu_hit_6_txt 同值 95；与 `menu_hit_N` 在 x340..352 有 12px 重叠（z 同为 95、action 相同 ⇒ 命中结果一致，无歧义）。⚠ 不直接把 `menu_hit_N` 加宽：引擎 hit 会把 state_assets **拉伸进热区矩形**（`_工作\\M35_生图脚本\\btn_states.py` 明文警告），96×96 的菜单图标会被拉成整条宽度。",
+      "state_group": "title.menu_exit"
+    },
+    {
+      "id": "title.menu_txt_start",
+      "kind": "image",
+      "z": 96,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_start.png",
+      "x": 340,
+      "y": 360,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「开始游戏」（第 1 项）。与图标热区 title.menu_hit_1 **同属 state_group「title.menu_start」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_start_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_start_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+      "state_group": "title.menu_start",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_start.png",
+        "hover": "ui/x_ui_btntxt2c_start_on.png",
+        "pressed": "ui/x_ui_btntxt2c_start_press.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_continue",
+      "kind": "image",
+      "z": 97,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_continue.png",
+      "x": 340,
+      "y": 460,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「继续游戏」（第 2 项）。与图标热区 title.menu_hit_2 **同属 state_group「title.menu_continue」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_continue_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_continue_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+      "state_group": "title.menu_continue",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_continue.png",
+        "hover": "ui/x_ui_btntxt2c_continue_on.png",
+        "pressed": "ui/x_ui_btntxt2c_continue_press.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_load",
+      "kind": "image",
+      "z": 98,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_load.png",
+      "x": 340,
+      "y": 560,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「读取存档」（第 3 项）。与图标热区 title.menu_hit_3 **同属 state_group「title.menu_load」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_load_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_load_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+      "state_group": "title.menu_load",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_load.png",
+        "hover": "ui/x_ui_btntxt2c_load_on.png",
+        "pressed": "ui/x_ui_btntxt2c_load_press.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_flowchart",
+      "kind": "image",
+      "z": 99,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_flowchart.png",
+      "x": 340,
+      "y": 660,
+      "w": 200,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「流程图」（第 4 项）。与图标热区 title.menu_hit_4 **同属 state_group「title.menu_flowchart」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_flowchart_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_flowchart_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+      "state_group": "title.menu_flowchart",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_flowchart.png",
+        "hover": "ui/x_ui_btntxt2c_flowchart_on.png",
+        "pressed": "ui/x_ui_btntxt2c_flowchart_press.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_config",
+      "kind": "image",
+      "z": 100,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_config.png",
+      "x": 340,
+      "y": 760,
+      "w": 148,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「设置」（第 5 项）。与图标热区 title.menu_hit_5 **同属 state_group「title.menu_config」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_config_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_config_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+      "state_group": "title.menu_config",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_config.png",
+        "hover": "ui/x_ui_btntxt2c_config_on.png",
+        "pressed": "ui/x_ui_btntxt2c_config_press.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_gallery",
+      "kind": "image",
+      "z": 101,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_gallery.png",
+      "x": 340,
+      "y": 860,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态；★ M08（2026-09-24，ISSUE-20260924-08）位图程序化重出为「鉴赏模式」并加宽本元素 148→252",
+      "note": "标题菜单文字「鉴赏模式」（第 6 项；用户 2026-09-24 裁决由「画廊」改题，进入四页鉴赏模式重构后的统一入口）。与图标热区 title.menu_hit_6 **同属 state_group「title.menu_gallery」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。★ M08 收尾（2026-09-24，ISSUE-20260924-08）：文字由「画廊」（2 字）重出为「鉴赏模式」（4 字）——位图**程序化重出**（生成器 `_工作\\ISSUE-20260924-08_鉴赏模式\\复现脚本\\m08_make_btntxt_appmode.py`：字体直出（Noto Sans SC Bold + stroke 加粗，GenJyuuGothicXPB 缺「鉴/赏」出豆腐块已弃）＋ 复用 M35 的确定性羽毛层（`btn_compose.feather_layer`，FEATHER 表指纹受控）与三态派生配方（`btn_states.hover/pressed`），幂等、自带六项自证；风格按相邻项像素实测对拍复刻：笔画比 0.21 / 渐变 #FFFFFF→#DEF0FD / 蓝边 #63BDFB ≈1.5px / 字身带 y24..71）。画布 252×96（4 字规格，与 start/continue/load/exit 同宽）⇒ **本元素 w 148→252**（x/y/h 不动；右沿 592，与相邻项、屏幕边缘无碰撞）。三态：`_on` = 同族半径 hover(comp,3,8) 白晕提亮；`_press` = pressed（由常态派生：×0.80 压暗 + 缩 96% + 2px 亮环，配方同 `_工作\\M35_生图脚本\\btn_states.py`）。旧三态件已存档 `_工作\\ISSUE-20260924-08_鉴赏模式\\收尾证据\\旧件存档\\`。",
+      "state_group": "title.menu_gallery",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_gallery.png",
+        "hover": "ui/x_ui_btntxt2c_gallery_on.png",
+        "pressed": "ui/x_ui_btntxt2c_gallery_press.png"
+      }
+    },
+    {
+      "id": "title.menu_txt_exit",
+      "kind": "image",
+      "z": 102,
+      "visible_default": true,
+      "asset": "ui/x_ui_btntxt2c_exit.png",
+      "x": 340,
+      "y": 960,
+      "w": 252,
+      "h": 96,
+      "opacity": 255,
+      "source": "用户 2026-09-22 在 UI 布局编辑器（M35）摆放；M35b 接入 state_group 与悬停态",
+      "note": "标题菜单文字「离开游戏」（第 7 项）。与图标热区 title.menu_hit_7 **同属 state_group「title.menu_exit」**⇒ 鼠标落在图标或文字任意一者上、或两者同时，两者**同步**进入悬停形态。hover 用 `x_ui_btntxt2c_exit_on.png`（+白晕的悬停版）；**无 pressed 图**（用户 2026-09-22 定不做点击态图）⇒ 按下按缺键回落显示 hover。 ★ M35b：已补 **pressed**（`x_ui_btntxt2c_exit_press.png`，由常态版派生（配方订正：从常态而非悬停派生，否则按下读不出来 —— 见 `_工作\\M35_生图脚本\\btn_states.py` 的 `PRESS_FROM_HOVER` 注释）的压暗+缩，用户 2026-09-22 裁定补上）⇒ 至此为**真三形态**。",
+      "state_group": "title.menu_exit",
+      "state_assets": {
+        "normal": "ui/x_ui_btntxt2c_exit.png",
+        "hover": "ui/x_ui_btntxt2c_exit_on.png",
+        "pressed": "ui/x_ui_btntxt2c_exit_press.png"
+      }
+    }
+  ]
+}

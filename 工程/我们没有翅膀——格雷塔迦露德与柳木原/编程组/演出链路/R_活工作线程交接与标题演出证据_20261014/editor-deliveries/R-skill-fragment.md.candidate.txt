@@ -1,0 +1,17 @@
+## 2026-10-14 活工作线程交接与标题演出取证
+
+承接 ISSUE-20261011-02-original-fidelity。当前仅 root/easy 活跃：root 负责规划/OS 原作核验/审计/Git/管理，easy 负责全部生产代码与知识。原作代码/资产不外发；仅自有 SDK/派生元数据。
+
+阶段建议：R_活工作线程交接与标题演出证据_20261014。
+
+证据：
+- canonical137：实际 worker 在原父线程处理中 STILL_ACTIVE=259；收到真实系统消息 0x31F；5 个实际 HFONT GetObjectA 均 60 有效；上下文与 FS0 在同一实际 OS TID 恢复；无并发 Unicorn，无源关闭。
+- canonical138：原父线程后 1M 指令、11 blits，33 样本全匹配，源 DC clip=2；不构成普适裁剪修复。
+- canonical139：原父线程后 12M 在预算内执行无异常；部分原始 R 标题菜单 START/LOAD/CONFIG/EXIT 可见；白带/全帧 792977 RGB 字节不匹配，169 blits 中 146 匹配、23 NULLREGION。
+- canonical140：原父线程后 24M 有限预算，338 blits：131 clip=2、207 NULLREGION、样本失败。原作 ReleaseDC 前六次实际捕获，全帧均失败；捕获 1、2 在 RECT[0,90,800,540] RGB 精确，但全帧仍差 351009，差异行 0..89 与 540..599；其余并集也失败。该并集由源 strip 调用派生，非为隐藏不匹配而选；仍仅同一 canonical140 有限运行中的两次实际捕获，非普适 100%。
+
+标题演出：原作画 8 像素水平条 y90..538，末 2 像素；源 ret 45B762 / ReleaseDC 45B908。逐调用结果保留 CLR_INVALID/NULLREGION/SetCursorPos BOOL0，无假成功。
+
+SDK：WorkerParkGate 一次性；WorkerStepState/WorkerStepGate 多代；实际 Win32 TID 导入 lucifen_host_tls；两门模块合成实际 OS 32/64 的 synthetic multi32 32 代，alive259、GDI 字体+DC 可用；owner/stale/skip/timeout/duplicate 负例与同 worker 清理。该多代为 synthetic multi32 代，尚未接原完整调度器。整初始 stepgate provider 任务长 10000 无产物；两个较小模块 + 微小实际 TID 导入修正被接受。光标实际签名请求与 BOOL0/1 保留；仅当仍为最后请求位置时恢复光标，保留期间用户移动。root 失败属验证适配器限制，非游戏失败。
+
+边界：无完整原作 Exit/detach/TEB/loader；无全部消息/WM_PAINT/按键/鼠标；无忠实目标 TJS/普通 VM 全音频/全路线证明。源完整性合并前最终待定。Norm cache AGENTS 未变，LF sha ecd14ee3924532a75eb02cf7ad1b02a49cf76329ca4be6ff74c612c4d56af4bf。仅非翻译技术知识。

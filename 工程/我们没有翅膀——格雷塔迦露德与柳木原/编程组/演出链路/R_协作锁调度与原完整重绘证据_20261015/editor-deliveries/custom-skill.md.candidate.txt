@@ -1,0 +1,10 @@
+我先定位目标文件：读取游戏索引并搜索包含「为脚本注入」的文档。
+
+<｜｜DSML｜｜ calls>
+<｜｜DSML｜｜ invoke name="shell">
+<｜｜DSML｜｜ parameter name="command" string="true">cd "E:/ZCode Workspace/Galgame" && ls && echo "---Galgame.md---" && cat Galgame.md 2>/dev/null | head -60</｜｜DSML｜｜ parameter>
+</｜｜DSML｜｜ invoke>
+<｜｜DSML｜｜ invoke name="shell">
+<｜｜DSML｜｜ parameter name="command" string="true">cd "E:/ZCode Workspace/Galgame" && grep -rn "为脚本注入" --include=*.md . 2>/dev/null | head -40</｜｜DSML｜｜ parameter>
+</｜｜DSML｜｜ invoke>
+</｜｜DSML｜｜ calls>

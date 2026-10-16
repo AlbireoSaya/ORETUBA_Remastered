@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>M3 / H1 · Esc 行为截图夹具（不参与交付）</title>
+<!-- ==========================================================================
+     目的：给「Esc = 返回上一层／退出」的前后屏与栈底分支各出一张截图。
+     为什么用夹具：无头 --screenshot 无法注入键盘，而 H1 的断言必须在**真实 keydown 路径**上验
+     （`index.html?selftest=1` 的 esc.* 三条断言已覆盖逻辑）；这里只补"看得见"的证据。
+     三态（?step=）：
+       before → dialog → save（history=[dialog]）：Esc 前（保存屏）
+       after  → 同上，派发一次真实 keydown Escape：应回到 dialog、**无提示**
+       bottom → 栈底（history 清空，当前屏 save），派发 Escape：应退到标题屏 + 一行提示
+     仅作证据；正式交付不含本目录。
+     ========================================================================== -->
+<link rel="stylesheet" href="../../复刻/replica.css">
+</head>
+<body>
+
+<div id="stage-wrap">
+  <div id="stage">
+    <div id="canvas"></div>
+  </div>
+</div>
+<pre id="probe-out" style="color:#8fa;font:12px monospace;padding:4px"></pre>
+
+<script>window.UI_ASSET_BASE = '../../krkr/assets/ui/';</script>
+<script src="../../复刻/ui_layout.js"></script>
+<script src="../../复刻/replica.js"></script>
+<script>
+window.addEventListener('load', function () {
+  var R = window.UI_REPLICA;
+  var m = /[?&]step=([a-z]+)/.exec(location.search || '');
+  var step = m ? m[1] : 'before';
+  R.state.history = [];
+  if (step === 'bottom') {
+    R.renderScreen('save', { noHistory: true });      // 栈底：history 为空
+  } else {
+    R.renderScreen('dialog', { noHistory: true });
+    R.renderScreen('save');                           // 压栈 ⇒ history=[dialog]
+  }
+  if (step === 'after' || step === 'bottom') {
+    document.dispatchEvent(new KeyboardEvent('keydown',
+      { key: 'Escape', bubbles: true, cancelable: true, view: window }));
+  }
+  R.setScale(0.6);                                    // 固定缩放，便于三张图逐像素比对
+  var t = document.querySelector('.ui-toast');
+  document.getElementById('probe-out').textContent =
+    'step=' + step + '｜screen=' + R.state.screen + '｜history=' + R.state.history.length
+    + '｜toast=' + ((t && t.style.display !== 'none') ? t.textContent : '(无)');
+});
+</script>
+
+</body>
+</html>

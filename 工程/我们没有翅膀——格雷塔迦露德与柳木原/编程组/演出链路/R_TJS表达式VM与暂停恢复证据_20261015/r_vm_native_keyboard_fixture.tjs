@@ -1,0 +1,26 @@
+// r_vm_native_keyboard_fixture.tjs
+// 仅验证用：只经注入的 rd/rb 读原版键盘状态，不自行访问 OS、不猜其他 vtable。
+function RVMNKeyboard(rd, rb, f)
+{
+    var app = rd(0x530c94);
+    var down = (rb(app + 0xf92) != 0);
+
+    var keys = new Array();
+    keys.add(down ? 0x1d : 0x2a);
+    keys.add(down ? 0x9d : 0x36);
+
+    var kbd = rd(0x530ca4);
+    var vt = rd(kbd);
+    if(vt !== 0x518704 && vt !== 0x519610 && vt !== 0x51a054)
+        throw new Exception("RVMNKeyboard: unknown keyboard vtable " + vt);
+
+    var flag = rb(kbd + 4);
+    if(flag !== 0 && flag !== 1)
+        throw new Exception("RVMNKeyboard: bad keyboard base flag " + flag);
+
+    var base = kbd + 5 + ((flag ^ 1) << 8);
+
+    if((rb(base + keys[0]) & 0x80) != 0)
+        return 1;
+    return ((rb(base + keys[1]) & 0x80) != 0) ? 1 : 0;
+}

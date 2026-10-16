@@ -1,0 +1,336 @@
+// ============================================================
+// ui_verify19.tjs —— 【诊断专用 · ISSUE-20261007-05 退场滑出机检】
+//
+// 用途：把「带 `dur` 的 `chr_remove` ＝ 沿 `dir` 滑出画外、`dur` 后隐藏」做成**可失败**的机检，
+//       并证明**无 `dur` 的 `chr_remove` 行为与改前一致**（瞬时隐藏）。
+//
+// ★ 开关：`game\slidetest.txt`（由 `ui_boot.tjs` 窗口交接末尾读取并装载）。
+//   成品不含该开关 ⇒ 本文件根本不被装载、零开销、零行为改变（与 verify15/18 同套路）。
+// ★ 只「驱动 + 观察」，不改任何行为。
+// ★ 判定线：日志出现 `★SLIDE★ PASS n/n`；任一不符 ⇒ `★SLIDE★ FAIL`（可失败，不是空跑）。
+// ★ Timer 必须由**全局**引用持有（交接 §六.14）。
+//
+// 三条判据：
+//   ① 带 dur 左滑：中间帧可见（采样到严格位于始末之间的 x），终值 x == -(件宽)，
+//      到位后 el 真正隐藏（visible_default=false / asset=void），耗时 ≈ dur（容差 [250,600]ms）。
+//   ② 带 dur 右滑：终值 x == 画布宽 + 件宽。
+//   ③ 无 dur 回归：调用后**立刻**隐藏，且 x 保持原值、无挂起动画（与改前逐条一致）。
+// ============================================================
+
+var V19Timer    = null;
+var V19Phase    = 0;
+var V19OK       = 0;
+var V19Fail     = 0;
+var V19Shot     = 0;
+
+var V19Mode     = "";        // "" / "sample"
+var V19Dir      = "";
+var V19T0       = 0;
+var V19X0       = 0;
+var V19Target   = 0;
+var V19Mid      = 0;         // 中间帧计数（严格位于始末之间且可见）
+var V19Samples  = 0;
+var V19LastX    = 0;
+var V19HideAt   = -1;        // 首次观测到「已隐藏」的相对毫秒
+var V19ShotStep = 0;
+var V19Label    = "";
+var V19Xs       = [];        // 采样到的 x 序列（判方向单调）
+var V19ExportOn = false;     // 采样期间是否导 PNG（导出会阻塞主循环 ⇒ **计时滑出关、专项截图开**）
+var V19ShotAt   = 0;
+
+var V19SlideW   = 560;       // 测试件宽
+var V19SlideH   = 758;
+var V19DUR      = 300;       // 源侧 !l/!r 的典型时长
+var V19DurNow   = 300;       // 本次滑出的实际时长
+
+function uiV19Log(m) { Debug.message("[V19] " + m); }
+
+function uiV19Judge(tag, cond)
+{
+	if(cond) { V19OK++;  uiV19Log("  OK   " + tag); }
+	else     { V19Fail++; uiV19Log("  FAIL " + tag); }
+}
+
+function uiV19Now()
+{
+	var t = 0;
+	try { t = 0 + System.getTickCount(); } catch(e) { t = 0; }
+	return t;
+}
+
+function uiV19Slot()
+{
+	if(UIStageSlots.count <= 0) return null;
+	return UIStageSlots[0];
+}
+
+function uiV19X()
+{
+	var el = uiV19Slot();
+	if(el === null || el === void) return -99999;
+	return 0 + el.x;
+}
+
+function uiV19Visible()
+{
+	var el = uiV19Slot();
+	if(el === null || el === void) return false;
+	var v = false;
+	try { v = (el.visible_default === true) && (el.asset !== void) && (el.asset !== null); } catch(e) { v = false; }
+	return v;
+}
+
+// 放一具可解析的实件到槽 0（`ui/x_bg_system.png` 是 assets/ui 下的 1920×1080 不透明图，缩放落位）
+function uiV19Show()
+{
+	uiStagingApplyOne(%[ seq:0, op:"chr_add", slot:0, fam:"T", t:"ui/x_bg_system.png",
+		x:680, y:160, w:V19SlideW, h:V19SlideH, z:10 ]);
+}
+
+function uiV19Export(step)
+{
+	if(UIStoryWin === null || UIStoryWin === void) return;
+	try { UIStoryWin.redraw(); } catch(eR) { }
+	try { UIStoryWin.exportPng("dialog", 500 + step); } catch(eP) { uiV19Log("  导图失败：" + eP.message); }
+}
+
+// 载入真场景（生成物）并复位演出状态。真场景文件只做一次 `UIStoryScene = %[...]` 赋值。
+function uiV19LoadRealScene()
+{
+	try { Scripts.execStorage("story/scene_otv_M02_04.tjs"); }
+	catch(eLR) { uiV19Log("  载入真场景失败：" + eLR.message); return false; }
+	if(UIStoryScene === void) { uiV19Log("  真场景未赋值"); return false; }
+	uiStagingSceneLoad();
+	return true;
+}
+
+// 在真场景 stage[] 里找 slot0 的 chr_remove 下标
+function uiV19FindRemoveIdx()
+{
+	if(UIStoryScene === void || UIStoryScene.stage === void) return -1;
+	for(var i = 0; i < UIStoryScene.stage.count; i++)
+	{
+		var e = UIStoryScene.stage[i];
+		if(e === void || e === null) continue;
+		if(("" + e.op) == "chr_remove" && (0 + e.slot) == 0) return i;
+	}
+	return -1;
+}
+
+// 起一次滑出采样（durMs 缺省 V19DUR；截图相位用更长的 dur，让「导出阻塞」小于滑出时长、
+//   从而拍到**真正的中间帧**——300ms 的忠实计时已由无导出的计时相位独立证明）
+function uiV19BeginSlide(dir, label, durMs)
+{
+	var ms = (durMs === void || durMs <= 0) ? V19DUR : (0 + durMs);
+	uiV19Show();
+	V19Dir = dir; V19Label = label;
+	V19X0 = uiV19X();
+	V19Target = (dir == "l") ? (0 - V19SlideW) : (1920 + V19SlideW);
+	V19Mid = 0; V19Samples = 0; V19LastX = V19X0; V19HideAt = -1; V19ShotStep = 0; V19Xs = []; V19ShotAt = 0;
+	uiStagingApplyOne(%[ seq:1, op:"chr_remove", slot:0, dur:ms, dir:dir ]);
+	// ★ 计时基准取**动画自己的 t0**（动画在 `uiStagingSlideOut` 内起算；外面再包一次导出会阻塞消息循环，
+	//   把「耗时」量成导出耗时，是假读数）。
+	var a = UIStageAnim[0];
+	V19T0 = (a !== void && a !== null && a.t0 !== void && a.t0 > 0) ? a.t0 : uiV19Now();
+	V19DurNow = ms;
+	V19Mode = "sample";
+	uiV19Log("起滑 dir=" + dir + " x0=" + V19X0 + " 目标=" + V19Target + " dur=" + ms
+		+ "（计时基准 t0=" + V19T0 + "）");
+}
+
+// 采样一拍；返回 true ⇒ 本滑出已收尾（可判定）
+// ★ 导出**很贵**（整屏 Bitmap 存 PNG，首次可达 ~1s，会阻塞消息循环）⇒ 只有专项截图相位开导出。
+function uiV19Sample()
+{
+	V19Samples++;
+	var x = uiV19X();
+	var vis = uiV19Visible();
+	var el = uiV19Now() - V19T0;
+	if(vis && x != V19X0)
+	{
+		var lo = (V19Dir == "l") ? V19Target : V19X0;
+		var hi = (V19Dir == "l") ? V19X0 : V19Target;
+		if(x > lo && x < hi) { V19Mid++; V19Xs.push(x); }
+	}
+	V19LastX = x;
+	if(!vis && V19HideAt < 0) V19HideAt = el;
+	if(V19ExportOn && V19ShotAt < 3)
+	{
+		// 起 / 中 / 止 三张：第 1 拍、进度≥45%（按真实时间）、到位后
+		var want = 0;
+		if(V19ShotAt == 0) want = 1;
+		else if(V19ShotAt == 1 && el >= Math.floor(V19DurNow * 0.45)) want = 1;
+		else if(V19ShotAt == 2 && !vis) want = 1;
+		if(want) { V19ShotAt++; uiV19Export(V19ShotAt); }
+	}
+	if(vis) uiV19Log("  · 采样#" + V19Samples + " t=" + el + "ms x=" + x + " vis=1 anim="
+		+ ((UIStageAnim[0] === void) ? "-" : "在跑"));
+	if(!vis && V19HideAt >= 0) return (el >= V19HideAt + 30);
+	if(el > 4000) return true;                                       // 保险丝
+	return false;
+}
+
+function uiV19JudgeSlide()
+{
+	var tag = V19Label;
+	uiV19Judge(tag + " 中间帧可见（" + V19Mid + " 帧严格居中，x＝" + V19Xs.join("/") + "）", V19Mid >= 1);
+	uiV19Judge(tag + " 终值 x==" + V19Target + "（实测 " + V19LastX + "）", V19LastX == V19Target);
+	uiV19Judge(tag + " 到位后已隐藏", !uiV19Visible());
+	uiV19Judge(tag + " 无挂起动画", UIStageAnim[0] === void || UIStageAnim[0] === null);
+	uiV19Judge(tag + " 耗时≈" + V19DUR + "ms（实测隐藏于 " + V19HideAt + "ms）",
+		(V19HideAt >= 250 && V19HideAt <= 800));
+}
+
+function uiVerify19Start()
+{
+	if(V19Timer !== null) return false;
+	V19Phase = 0; V19OK = 0; V19Fail = 0; V19Shot = 0;
+	// 关影片（与 verify15 同口径），避免片头接管流程
+	try { UIMovieEnabled = false; } catch(eM0) { }
+	try { if(UIMovieActive === true) uiMovieClose(); } catch(eM1) { }
+	try
+	{
+		V19Timer = new Timer(uiVerify19Tick, '');
+		V19Timer.interval = 20;
+		V19Timer.enabled = true;
+	}
+	catch(e2) { Debug.message("[V19][ERR] Timer 建立失败：" + e2.message); return false; }
+	uiV19Log("开始（20ms/拍）；开关 game\\slidetest.txt");
+	return true;
+}
+
+function uiVerify19Tick()
+{
+	if(V19Timer === null) return;
+
+	// 采样模式：每拍推进
+	if(V19Mode == "sample")
+	{
+		if(uiV19Sample()) V19Mode = "";
+		return;
+	}
+
+	V19Phase++;
+	var p = V19Phase;
+	if(p == 1)
+	{
+		uiV19Log("开局 → 期望进 dialog（当前屏=" + uiScreenCurrent() + "）");
+		uiActionDispatch("game_start", -1);
+		return;
+	}
+	if(p == 2)
+	{
+		var sc = uiScreenCurrent();
+		uiV19Log("当前屏=" + sc + "（期望 dialog）");
+		if(sc != "dialog") { uiV19Log("未进 dialog，继续等一拍"); V19Phase = 1; return; }
+		uiStagingEnsureSlots();
+		try { uiStoryEcEnd("V19 清场"); } catch(eEc) { }
+		uiV19Judge("槽位已建（" + UIStageSlots.count + "）", UIStageSlots.count >= 1);
+		V19ExportOn = false;                       // 计时相位：不导出（导出会阻塞主循环、污染计时）
+		uiV19Show(); uiV19Export(0);               // ★ 预热 PNG 管线（首张导出最慢，~数百 ms）
+		uiV19BeginSlide("l", "【左滑 dur=300】");
+		return;
+	}
+	if(p == 3) { uiV19JudgeSlide(); uiV19Log("—— 左滑判定完 ——"); uiV19BeginSlide("r", "【右滑 dur=300】"); return; }
+	if(p == 4)
+	{
+		uiV19JudgeSlide(); uiV19Log("—— 右滑判定完 ——");
+
+		// ③ 无 dur 回归：放件 → 记 x → 无 dur chr_remove → **同一拍内**应为「已隐藏且 x 不变」
+		uiV19Show();
+		var xa = uiV19X();
+		var visBefore = uiV19Visible();
+		uiStagingApplyOne(%[ seq:2, op:"chr_remove", slot:0 ]);   // 无 dur / 无 dir
+		var visAfter = uiV19Visible();
+		var xAfter = uiV19X();
+		uiV19Judge("回归·放件后可见（x=" + xa + "）", visBefore === true);
+		uiV19Judge("回归·无 dur 立即隐藏（同一拍）", visAfter === false);
+		uiV19Judge("回归·无 dur 不改 x（" + xa + " → " + xAfter + "）", xAfter == xa);
+		uiV19Judge("回归·无 dur 无挂起动画", UIStageAnim[0] === void || UIStageAnim[0] === null);
+
+		// ④ 边界：slot=-1 的 chr_remove 带 dur ⇒ 仍按瞬时清空（不误起滑出）
+		uiV19Show();
+		uiStagingApplyOne(%[ seq:3, op:"chr_remove", slot:-1, dur:300, dir:"l" ]);
+		uiV19Judge("边界·slot=-1 带 dur ⇒ 仍瞬时清空", uiV19Visible() === false);
+		uiV19Judge("边界·slot=-1 带 dur ⇒ 无挂起动画", UIStageAnim[0] === void || UIStageAnim[0] === null);
+		return;
+	}
+	if(p == 5)
+	{
+		// ⑤ **真数据回归**：载入真场景 `otv_M02_04`（seq59 chr_remove slot0 asu / x734 w451），
+		//   走真代码路径 `uiStagingSceneLoad` + `uiStagingApplyTo`，验证「无 dur ⇒ 与改前一致（瞬时隐藏）」。
+		uiV19Log("—— 真数据回归：scene_otv_M02_04 seq59 chr_remove slot0（强制无 dur）——");
+		if(!uiV19LoadRealScene()) { uiV19Judge("真数据·载入场景", false); return; }
+		// ★ 显式抹掉 dur/dir：无论数据侧是否已产出这两个字段，本相位都**只考无 dur 路径**（与改前一致）。
+		var rIdx = uiV19FindRemoveIdx();
+		if(rIdx >= 0) { try { UIStoryScene.stage[rIdx].dur = void; UIStoryScene.stage[rIdx].dir = void; } catch(eClr) { } }
+		uiStagingApplyTo(58);
+		var rFam = (UIStageFam.count > 0) ? ("" + UIStageFam[0]) : "";
+		var rVis = uiV19Visible();
+		var rX = uiV19X();
+		var rW = (uiV19Slot() !== null) ? (0 + uiV19Slot().w) : 0;
+		uiV19Log("  seq58 后 slot0：fam=" + rFam + " vis=" + (rVis ? "1" : "0") + " x=" + rX + " w=" + rW);
+		uiV19Judge("真数据·seq58 后 slot0 可见且为 asu（x=" + rX + " w=" + rW + "）", (rVis === true) && (rFam == "asu"));
+		uiStagingApplyTo(59);
+		uiV19Judge("真数据·seq59 无 dur ⇒ 立即隐藏", uiV19Visible() === false);
+		uiV19Judge("真数据·seq59 无 dur ⇒ x 不变（" + rX + " → " + uiV19X() + "）", uiV19X() == rX);
+		uiV19Judge("真数据·seq59 无 dur ⇒ 无挂起动画", UIStageAnim[0] === void || UIStageAnim[0] === null);
+		return;
+	}
+	if(p == 6)
+	{
+		// ⑥ **真数据新行为**：同一真 op 注入 `dur=300 dir="l"` ⇒ 应滑出（x0=734 → −451）。
+		uiV19Log("—— 真数据新行为：同一 op 注入 dur=300 dir=l ——");
+		if(!uiV19LoadRealScene()) { uiV19Judge("真数据·重载场景", false); return; }
+		var idx = uiV19FindRemoveIdx();
+		uiV19Judge("真数据·定位 slot0 chr_remove（idx=" + idx + "）", idx >= 0);
+		if(idx >= 0)
+		{
+			try { UIStoryScene.stage[idx].dur = 300; UIStoryScene.stage[idx].dir = "l"; }
+			catch(eInj) { uiV19Log("  注入 dur 失败：" + eInj.message); }
+		}
+		uiStagingApplyTo(58);
+		V19Dir = "l"; V19Label = "【真数据·左滑 dur=300】";
+		V19X0 = uiV19X();
+		V19Target = 0 - ((uiV19Slot() !== null) ? (0 + uiV19Slot().w) : V19SlideW);
+		V19Mid = 0; V19Samples = 0; V19LastX = V19X0; V19HideAt = -1; V19Xs = []; V19ShotAt = 0;
+		V19ExportOn = false;
+		uiStagingApplyTo(59);
+		var ra = UIStageAnim[0];
+		V19T0 = (ra !== void && ra !== null && ra.t0 !== void && ra.t0 > 0) ? ra.t0 : uiV19Now();
+		V19DurNow = 300;
+		V19Mode = "sample";
+		uiV19Log("真数据起滑 x0=" + V19X0 + " 目标=" + V19Target);
+		return;
+	}
+	if(p == 7)
+	{
+		uiV19JudgeSlide(); uiV19Log("—— 真数据滑出判定完 ——");
+		// ⑦ 专项截图（放在最后，避免导出阻塞污染前面的计时相位）
+		V19ExportOn = true; V19Shot = 0;
+		uiV19Log("—— 专项截图：左滑（导出开，dur=1500 以便拍到真中间帧）——");
+		uiV19BeginSlide("l", "【截图·左滑】", 1500);
+		return;
+	}
+	if(p == 8)
+	{
+		uiV19Judge("【截图·左滑】中间帧可见（" + V19Mid + " 帧）", V19Mid >= 1);
+		uiV19Judge("【截图·左滑】终值 x==" + V19Target + "（实测 " + V19LastX + "）", V19LastX == V19Target);
+		uiV19Judge("【截图·左滑】到位后已隐藏", !uiV19Visible());
+		uiV19Log("—— 截图相位完 ——");
+		return;
+	}
+	if(p >= 9)
+	{
+		var tot = V19OK + V19Fail;
+		Debug.message("[V19] ★SLIDE★ " + ((V19Fail == 0) ? "PASS " : "FAIL ")
+			+ V19OK + "/" + tot + "（失败 " + V19Fail + "）");
+		if(V19Timer !== null) { try { V19Timer.enabled = false; } catch(e6) { } }
+		if(UIStoryWin !== null && UIStoryWin !== void)
+		{
+			try { UIStoryWin.redraw(); } catch(e7) { }
+			try { UIStoryWin.uiQuit("verify19 done"); } catch(e8) { }
+		}
+		return;
+	}
+}

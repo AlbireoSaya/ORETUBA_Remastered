@@ -1,0 +1,43 @@
+{
+  "passed": true,
+  "tests": [
+    {
+      "test": "map_actual_Uc_exact_header_raw_and_zero_BSS",
+      "passed": true
+    },
+    {
+      "test": "overlap_mem_map_rejected_existing_image_preserved",
+      "passed": true
+    },
+    {
+      "test": "post_map_write_failure_rolls_back_real_Uc",
+      "passed": true
+    },
+    {
+      "test": "controlled_filter_exchange_and_6_invalid_nonmutation_cases",
+      "passed": true,
+      "not_host_exception_filter": true
+    },
+    {
+      "test": "real_CP936_UTF16_roundtrip_with_host_buffer_guards",
+      "passed": true
+    },
+    {
+      "test": "real_ANSI_case_ascii_and_DBCS_guarded_preserves_full_host_pointer",
+      "passed": true,
+      "host_ACP": 936,
+      "not_original_locale_claim": true
+    },
+    {
+      "test": "system_HMODULE_and_proc_full64_pointers_preserved",
+      "passed": true,
+      "original_modules_not_OS_loaded": true
+    },
+    {
+      "test": "actual_FindFirst_Next_EOF_Close_and_missing_directory_guards",
+      "passed": true
+    }
+  ],
+  "caller_prevalidated_PE32_only_no_imports_reloc_or_entry_invocation": true,
+  "no_original_bytes_or_environment_content_written": true
+}

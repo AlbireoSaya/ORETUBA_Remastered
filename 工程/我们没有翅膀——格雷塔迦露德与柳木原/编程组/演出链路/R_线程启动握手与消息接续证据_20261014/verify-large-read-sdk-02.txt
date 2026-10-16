@@ -1,0 +1,44 @@
+# Root actual owned read-only transfer and guest preflight verification.
+from pathlib import Path
+import sys,ctypes,json,uuid,hashlib
+r=Path.cwd();w=g/'工具';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(w),str(g/'工具')]
+from lucifen_readonly_io_large import ReadOnlyFilesLarge
+from lucifen_readonly_io_guest_large import bridge_ReadFile_large
+import lucifen_readonly_io_bridge as legacy_host,lucifen_readonly_io_guest as legacy_guest
+size=1571162;payload=(bytes(range(256))*((size+255)//256))[:size];fixture=w/('owned-read-fixture-'+uuid.uuid4().hex+'.bin');fixture.write_bytes(payload);before=hashlib.sha256(payload).hexdigest();maxsize=2<<20
+guard=bytes([165])*32;dst=0x100000;countptr=0x900000;arena=bytearray(guard+bytes(size)+guard);outcount=bytearray(4)
+def read(q,n):
+ if q==countptr and n==4:return bytes(outcount)
+ off=q-dst+32
+ if q>=dst and q+n<=dst+size:return bytes(arena[off:off+n])
+ raise ValueError('out of owned guest range')
+def write(q,data):
+ if q==countptr and len(data)==4:outcount[:]=data;return
+ off=q-dst+32
+ if q>=dst and q+len(data)<=dst+size:arena[off:off+len(data)]=data;return
+ raise ValueError('out of owned guest range')
+with ReadOnlyFilesLarge([fixture],max_transfer=maxsize)as files:
+ token,err=files.open(fixture);assert err==0
+ assert bridge_ReadFile_large(files,read,write,token,dst,size,countptr,0,max_read=maxsize)==(1,0)
+ assert int.from_bytes(outcount,'little')==size and arena==guard+payload+guard
+ assert files.seek(token,0,0)==(0,0)
+ old=legacy_guest.bridge_ReadFile
+ try:old(files,read,write,token,dst,size,countptr)
+ except ValueError:pass
+ else:raise AssertionError('legacy bridge limit changed')
+ assert files.seek(token,0,1)==(0,0)
+ for args in [(token,dst,size,dst+1,0),(token,0xfffffff0,size,countptr,0),(token,dst,True,countptr,0),(token,dst,size,countptr,1)]:
+  try:bridge_ReadFile_large(files,read,write,*args,max_read=maxsize)
+  except ValueError:pass
+  else:raise AssertionError('invalid guest transfer accepted')
+  assert files.seek(token,0,1)==(0,0)
+ assert files.seek(token,size-8,0)==(size-8,0);ok,data,err=files.read(token,32);assert ok and data==payload[-8:] and err==0
+ assert files.read(token,32)==(True,b'',0)
+ for bad in [True,-1,maxsize+1]:
+  try:files.read(token,bad)
+  except (TypeError,ValueError):pass
+  else:raise AssertionError('invalid host count accepted')
+ assert files.close(token)==(True,0)
+assert legacy_host.MAX_TRANSFER==legacy_guest._MAX_READ==1<<20 and hashlib.sha256(fixture.read_bytes()).hexdigest()==before
+fixture.unlink()
+receipt={'bits':ctypes.sizeof(ctypes.c_void_p)*8,'passed':True,'actual_read_bytes':size,'exact_source_equivalent_requested_size':True,'synthetic_fixture_only':True,'host_and_guest_guards_pass':True,'overlap_wrap_bool_overlapped_rejected_before_IO':True,'short_and_EOF_read_preserved':True,'old_global_limits_unchanged':True,'owned_handle_and_fixture_cleanup_pass':True};p=w/('sdk-large-read-'+str(receipt['bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(receipt,indent=2),encoding='utf-8');print(json.dumps(receipt))

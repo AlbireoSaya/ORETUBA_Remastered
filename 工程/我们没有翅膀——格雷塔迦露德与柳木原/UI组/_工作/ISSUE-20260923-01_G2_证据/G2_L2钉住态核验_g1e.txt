@@ -1,0 +1,17 @@
+E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\M37_L2钉住态量化核验.py:50: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  px = list(d.getdata())
+==============================================================================
+L2 核验：钉住叠层 vs 悬停材质（几何取自 layout 数据，逐像素）
+==============================================================================
+
+[钉住态] shot_24_quickbar.png
+   lock   icon(1850,11,64,64)：MSE vs _on=     0.8(max   8, 差像素 0.0%) ｜ MSE vs 常态=  1594.9(max 124, 差像素 60.5%)  ⇒ = 悬停材质（_on）
+   save   icon(1850,86,64,64)：MSE vs _on=  1465.4(max 126, 差像素 60.5%) ｜ MSE vs 常态=     0.2(max   1, 差像素 0.0%)  ⇒ = 常态图
+   放大裁切 -> G2_钉住态_锁定项放大_halo64.png
+
+[悬停态] shot_24_quickbar.png
+   lock   icon(1850,11,64,64)：MSE vs _on=  1584.9(max 124, 差像素 60.5%) ｜ MSE vs 常态=     0.2(max   1, 差像素 0.0%)  ⇒ = 常态图
+   save   icon(1850,86,64,64)：MSE vs _on=     0.2(max   1, 差像素 0.0%) ｜ MSE vs 常态=  1487.0(max 126, 差像素 60.5%)  ⇒ = 悬停材质（_on）
+   放大裁切 -> G2_悬停态对照_锁定项放大_halo64.png
+
+结论：钉住态 = 悬停材质、无重影 ✓

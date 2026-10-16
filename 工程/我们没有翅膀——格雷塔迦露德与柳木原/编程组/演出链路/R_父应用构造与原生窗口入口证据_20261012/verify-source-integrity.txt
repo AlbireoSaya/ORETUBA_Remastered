@@ -1,0 +1,14 @@
+from pathlib import Path
+import hashlib,json
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';d=r/'临时/ISSUE-20261011-02/r-parent-source-replay-01';d.mkdir(exist_ok=False)
+previous=json.loads((g/'演出链路/R_原生分配器与归档工厂证据_20261012/root-source-integrity.json').read_text(encoding='utf-8'))
+def h(p):
+ with p.open('rb')as f:return hashlib.file_digest(f,'sha256').hexdigest()
+for row in [previous['EXE']]+previous['LPK']:assert h(r/row['path'])==row['sha256']
+rows=json.loads((g/'演出链路/R_原生分配器与归档工厂证据_20261012/factory-SCRIPT-results.json').read_text(encoding='utf-8'));assert len(rows)==446
+for row in rows:assert h(r/'工程/我们没有翅膀R/语料/R版SCRIPT'/row['name'])==row['plain_sha256']
+mdir=r/'子代理工作区/ISSUE-20261011-02/r-tob-lossless-ir-02';manifest=json.loads((mdir/'manifest.json').read_text(encoding='utf-8'))
+assert len(manifest['files'])==418
+for row in manifest['files']:assert h(r/row['path'])==row['source_sha256'] and h(mdir/row['irfile'])==row['ir_sha256']
+result={'passed':True,'EXE':previous['EXE'],'LPK':previous['LPK'],'source_SCRIPT_exact':446,'existing_TOB_IR_source_and_compressed_hash_exact':418,'AGENTS_sha256':h(r/'AGENTS.md'),'scope':'after actual parent constructor/destructor and scheduler verification; authoritative backups/extracted sources/IR unchanged; no original OS launch or original file modification'}
+assert not (d/'root-source-integrity.json').exists();(d/'root-source-integrity.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')

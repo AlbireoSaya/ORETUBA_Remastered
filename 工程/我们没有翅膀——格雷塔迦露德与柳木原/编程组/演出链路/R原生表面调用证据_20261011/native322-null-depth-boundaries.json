@@ -1,0 +1,86 @@
+{
+  "status": "PASS_10_ORIGINAL_NATIVE322_NULL_DEPTH_BOUNDARIES",
+  "cases": [
+    {
+      "DLL_backend": false,
+      "case": "null object",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": false,
+      "case": "null pixels",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": false,
+      "case": "unsupported16",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": false,
+      "case": "unsupported24",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": false,
+      "case": "supported32",
+      "native_EAX": 1,
+      "derived_flag_0x51": 1,
+      "buffer_unchanged": false,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": true,
+      "case": "null object",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": true,
+      "case": "null pixels",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": true,
+      "case": "unsupported16",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": true,
+      "case": "unsupported24",
+      "native_EAX": 0,
+      "derived_flag_0x51": 0,
+      "buffer_unchanged": true,
+      "canaries_unchanged": true
+    },
+    {
+      "DLL_backend": true,
+      "case": "supported32",
+      "native_EAX": 1,
+      "derived_flag_0x51": 1,
+      "buffer_unchanged": false,
+      "canaries_unchanged": true
+    }
+  ],
+  "scope": "Original cdecl handler/cast/type4 getter/derived/base/SetRect path, null object/null pixels/unsupported16or24/supported32; no invalid-pointer exception, all object type variants or nonnull dirty notification sink proof."
+}

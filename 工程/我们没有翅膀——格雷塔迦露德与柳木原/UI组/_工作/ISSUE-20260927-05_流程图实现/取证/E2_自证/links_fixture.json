@@ -1,0 +1,182 @@
+{
+  "_what": "ISSUE-20260927-05 / E2 自证夹具：流程图连线渲染（krkr 端）的三种路由形态 + 箭头开/关",
+  "_why": "layout\\screens\\32_flowchart.json 在本轮由 E1 并发产出，验收时可能还没有 links；本夹具只注入到**运行目录的 ui_layout.tjs 副本**（临时\\ui_run_e2_fixture\\game\\），**不改仓库 layout\\**，用来证明 ui_flow_links.tjs 真把线画出来了",
+  "_source_of_formula": "_工作\\ISSUE-20260927-05_流程图实现\\边与节点数据契约.md §三 路由口径表（sx=ax+148, sy=ay+65, tx=bx+148, ty=by, my=(sy+ty)/2, ex=sx±148, 侧出 y=sy-32）",
+  "_colors_from": "layout\\palette.json → colors.*.value（禁止直写色值，夹具同样遵守）",
+  "_geometry_note": "夹具节点是**矩形色块**（kind:rect，z=20），只为读出连线端点；真实节点框由 E1 的生成器产出，不由本模块负责",
+  "_layout_discipline": "★ 夹具版式纪律（自证踩过的坑，全部记下）：① 三条边各自的**折线空间不得重叠**（否则后画的边覆盖前一条，像素核对无法区分）；② 折线不得被既有元素（3 个样板节点 550..846/330..575、关联标签 531..864/549..587、分支底座 666..731/501..566）压住；③ 箭头三角必须落在**节点框之外**（箭头从端点向后延伸，若目标是向上路由，三角会落进目标框里被节点盖住 = 假失败）。故节点按 L(x=100)/M(x=700)/R(x=1000) 三列 + 4 个空带排布，横向走廊取 y=682.5 与 y=833（都在既有元素之下方）。",
+  "nodes": [
+    {
+      "id": "fc.node.9001",
+      "rect": [
+        100,
+        300,
+        296,
+        65
+      ],
+      "label": "A · 直线源",
+      "role": "link 01 源"
+    },
+    {
+      "id": "fc.node.9002",
+      "rect": [
+        100,
+        550,
+        296,
+        65
+      ],
+      "label": "B · 直线目标/VZ 源",
+      "role": "link 01 目标, link 02 源"
+    },
+    {
+      "id": "fc.node.9003",
+      "rect": [
+        700,
+        750,
+        296,
+        65
+      ],
+      "label": "C · VZ 目标",
+      "role": "link 02 目标"
+    },
+    {
+      "id": "fc.node.9004",
+      "rect": [
+        1000,
+        300,
+        296,
+        65
+      ],
+      "label": "D · 无箭头源",
+      "role": "link 04 源"
+    },
+    {
+      "id": "fc.node.9005",
+      "rect": [
+        1000,
+        550,
+        296,
+        65
+      ],
+      "label": "E · 无箭头目标",
+      "role": "link 04 目标"
+    },
+    {
+      "id": "fc.node.9007",
+      "rect": [
+        1000,
+        800,
+        296,
+        65
+      ],
+      "label": "G · 侧出源(select)",
+      "role": "link 03 源"
+    },
+    {
+      "id": "fc.node.9008",
+      "rect": [
+        100,
+        900,
+        296,
+        65
+      ],
+      "label": "H · 侧出目标",
+      "role": "link 03 目标"
+    }
+  ],
+  "links": [
+    {
+      "id": "fix.link.01",
+      "form": "straight",
+      "arrow": true,
+      "w": 4,
+      "color_ref": "edge_line",
+      "src": "fc.node.9001",
+      "dst": "fc.node.9002",
+      "pts": [
+        [
+          248,
+          365
+        ],
+        [
+          248,
+          550
+        ]
+      ],
+      "derivation": "tx(=248)==sx(=248) ⇒ 直线 [[sx,sy],[tx,ty]]；箭头 tip(248,550) 向下，三角在 (248,542) 附近、位于节点框外"
+    },
+    {
+      "id": "fix.link.02",
+      "form": "VZ",
+      "arrow": true,
+      "w": 4,
+      "color_ref": "node_available",
+      "src": "fc.node.9002",
+      "dst": "fc.node.9003",
+      "pts": [
+        [
+          248,
+          615
+        ],
+        [
+          248,
+          682.5
+        ],
+        [
+          848,
+          682.5
+        ],
+        [
+          848,
+          750
+        ]
+      ],
+      "derivation": "tx(=848)!=sx(=248)、源非 select/branch ⇒ VZ，my=(615+750)/2=682.5；横向走廊 y=682.5 在既有元素（标签底 587）之下"
+    },
+    {
+      "id": "fix.link.03",
+      "form": "VL",
+      "arrow": true,
+      "w": 4,
+      "color_ref": "node_visited",
+      "src": "fc.node.9007",
+      "dst": "fc.node.9008",
+      "pts": [
+        [
+          1000,
+          833
+        ],
+        [
+          248,
+          833
+        ],
+        [
+          248,
+          900
+        ]
+      ],
+      "derivation": "源 kind=select ⇒ VL：ex=sx-148=1148-148=1000（tx<sx 取左侧）；侧出 y=sy-32=865-32=833；横向走廊 y=833 全空"
+    },
+    {
+      "id": "fix.link.04",
+      "form": "straight-novector",
+      "arrow": false,
+      "w": 4,
+      "color_ref": "node_current",
+      "src": "fc.node.9004",
+      "dst": "fc.node.9005",
+      "pts": [
+        [
+          1148,
+          365
+        ],
+        [
+          1148,
+          550
+        ]
+      ],
+      "derivation": "同列直线；arrow:false ⇒ **不得**出现三角（与 01/02/03 成对照），底边行应只有线宽 w"
+    }
+  ],
+  "_layer_note": "夹具节点 id 采用 `fc.node.*` 命名族（9001+ 避开 E1 的 0001..）：这样夹具与真实数据走**同一条**层序推导规则 linksZ = min(fc.node.* 的 z) − 1 = 19，而不是「无节点族」的兜底分支（兜底分支本轮无实跑覆盖，见报告）。"
+}

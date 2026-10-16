@@ -1,0 +1,49 @@
+@'
+
+from pathlib import Path
+import sys,json,struct,hashlib,importlib.util
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-source-frame-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_sob_loader import parse_container
+from lucifen_cdecl_observer import observe_cdecl_until
+from unicorn import UC_HOOK_CODE
+spec=importlib.util.spec_from_file_location('snapshot',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_native_frame_probe.py');sn=importlib.util.module_from_spec(spec);spec.loader.exec_module(sn)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');meta=json.loads((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R剧本实参证据_20261011/source-slices-local.json').read_text());CTX,SB,MB,VB=0x1000000,0x1020100,0x1040000,0x10c0000;ENTRY,FETCH=0x4a7a50,0x4a7a75
+def word(u,a):return struct.unpack('<I',u.mem_read(a,4))[0]
+rows=[]
+for row in [r for r in meta['rows'] if r['native_index'] in [238,239]]:
+ p=root/'工程/我们没有翅膀R/语料/R版SCRIPT'/row['module'];raw=p.read_bytes();m=parse_container(raw,p.name);assert m['hash']==row['module_sha256'];argc=5 if row['native_index']==429 else 4
+ for seed in [0,1]:
+  u=map_pe(pe);u.mem_map(0,0x1000);u.mem_write(MB,raw[m['header']:]);u.mem_write(CTX+8,struct.pack('<II',MB+row['start'],SB));inputs=[]
+  for k in range(768*8):u.mem_write(VB+k*4,struct.pack('<I',((0x11223300 if seed==0 else 0x88776600)+k)&0xffffffff))
+  for k in range(-64,32):u.mem_write(SB+k*4,struct.pack('<I',(0x55000000+seed*0x10000000+k)&0xffffffff))
+  for ti,table in enumerate(m['maps']):
+   for site,value in table.items():
+    if row['start']<=site<row['end']:
+     assert ti in [0,1,4]
+     val=(VB+value*32) if ti==0 else row['handler_va'] if ti==1 else MB+value
+     if ti==1:assert value==row['native_index']
+     u.mem_write(MB+site,struct.pack('<I',val))
+  for i in row['items']:
+   if i['op']==32:
+    hits=i['operands'][0]['relocations']
+    if hits and hits[0]['table']==4 and hits[0]['value']>=m['ss']:
+     a=MB+hits[0]['value'];v=(0x22440000+seed*0x11000000+i['codeoffset'])&0xffffffff;u.mem_write(a,struct.pack('<I',v));inputs.append({'space':'module_data','offset':hits[0]['value'],'controlled_value':v})
+  trace=[];native_snapshots=[]
+  def hook(uc,a,n,x):
+   if a==row['handler_va']:native_snapshots.append(sn.snapshot_native_frame(uc,CTX,argc))
+   if a==FETCH:
+    pc=word(uc,CTX+8);trace.append({'codeoffset':pc-MB,'opcode':word(uc,pc),'vm_sp':word(uc,CTX+12)})
+  h=u.hook_add(UC_HOOK_CODE,hook)
+  try:r=observe_cdecl_until(u,ENTRY,0,0x50577f,register_seeds={'ecx':CTX},count=20000)
+  finally:u.hook_del(h)
+  assert r['stop_reached'] and not r['returned'] and not r['error'],(row['module'],row['call'],r)
+  assert len(native_snapshots)==1; snap=native_snapshots[0];assert word(u,snap['esp']+4)==0;assert r['stack_words'][:2]==[0x4ba6ce if row['native_index']==238 else 0x4ba7ee,0xd8];assert snap['frame_ptr']==SB and snap['vm_sp']==SB+argc*4 and snap['vm_pc']==MB+row['call']+12
+  assert [t['opcode'] for t in trace]==row['ops'] and [t['codeoffset'] for t in trace]==[i['codeoffset'] for i in row['items']]
+  if row['native_index'] in [238,239]:
+   constants=[i['raw_operands'][0] for i in row['items'] if i['op']==8];assert snap['frame_words']==constants
+  rows.append({'module':row['module'],'module_sha256':row['module_sha256'],'start':row['start'],'call':row['call'],'source_call_fileoffset':m['header']+row['call'],'native_candidate':row['native_index'],'handler_va':row['handler_va'],'seed':seed,'scope':'original writer-to-call source fragment under controlled module/variable/stack inputs, no reachability or native body proof','snapshot':snap,'trace':trace,'module_data_controls':inputs,'VM_SP_input':SB,'variable_adapter':'record index -> guest VB+index*32, controlled distinct u32 fields; not original allocator or SOB1 storage address','callee_body_executed':'wrapper and factory prologue only, stopped before original operator-new','allocator_snapshot':r,'caller_outslot_now_zero':True})
+out=b/'source-VM-native-factory-allocation-boundaries.json';assert not out.exists();out.write_text(json.dumps({'source_exe_sha256':hashlib.sha256(pe.data).hexdigest(),'scope':'9 constructor source slices x2 controlled states; original VM/native wrapper/factory prologue until original allocator; complete allocation/CFG/global states not claimed','cases':rows},ensure_ascii=False,indent=2),encoding='utf-8');print('PASS',len(rows),'original VM source frame boundaries, constructor literal frames verified')
+
+'@ | python -X utf8 -B -

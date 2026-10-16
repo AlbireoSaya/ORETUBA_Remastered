@@ -1,0 +1,49 @@
+==============================================================================
+自检 ① 像素尺寸（应与原件一致）
+   x_ui_node_section_off.png        (236, 65) -> (236, 65)  OK
+   x_ui_node_section_on.png         (236, 65) -> (236, 65)  OK
+   x_ui_node_select_off.png         (263, 65) -> (263, 65)  OK
+   x_ui_node_select_on.png          (263, 65) -> (263, 65)  OK
+   x_ui_node_frag_off.png           (228, 65) -> (228, 65)  OK
+   x_ui_node_frag_on.png            (228, 65) -> (228, 65)  OK
+自检 ② alpha 通道（逐件与原件比对）
+   x_ui_node_section_off.png        md5 d13d09c1e759dba1 -> d13d09c1e759dba1  OK(逐字节一致)
+   x_ui_node_section_on.png         md5 d1709988de1395e1 -> d1709988de1395e1  OK(逐字节一致)
+   x_ui_node_select_off.png         md5 a0f81a69488849a1 -> a0f81a69488849a1  OK(逐字节一致)
+   x_ui_node_select_on.png          md5 c4c350dfecf545a9 -> c4c350dfecf545a9  OK(逐字节一致)
+   x_ui_node_frag_off.png           md5 ddae1d74f616d0a7 -> ddae1d74f616d0a7  OK(逐字节一致)
+   x_ui_node_frag_on.png            md5 2705b62a32fa20f8 -> 2705b62a32fa20f8  OK(逐字节一致)
+自检 ③ _off 与 _on 仍不同（状态区分力）
+   section    off f3e1d3b9c765 / on f6aa12a31c53  OK(不同)
+   select     off 0b5526d1cd50 / on c0ae4c58af3d  OK(不同)
+   frag       off f724354b35c5 / on d4b03394e248  OK(不同)
+自检 ④ 实测 fill 色 @ (148, 10)（容差 ±3，仅 _off 有期望值）
+   section    off #DEE9F5 -> #C4D6F5  期望 #C4D6F5 偏差 0/255  OK
+   section    on  #D7E9FA -> #DCE7FA
+   select     off #E9F1F9 -> #61AED6  期望 #60ADD5 偏差 1/255  OK
+   select     on  #E7F1F9 -> #6BB7DF
+   frag       off #D6E6F6 -> #D2B2F6  期望 #D1B1F5 偏差 1/255  OK
+   frag       on  #C9E2FA -> #E2CDFA
+自检 ⑤ md5：**非描边件必须未变**、描边件必须已变，并与 GOLD_MD5 锁定值一致
+   x_ui_node_section_off.png        修复前 f3e1d3b9c765  修复后 f3e1d3b9c765  OK  | GOLD OK
+   x_ui_node_section_on.png         修复前 f6aa12a31c53  修复后 f6aa12a31c53  OK  | GOLD OK
+   x_ui_node_select_off.png         修复前 aff7206dfeed  修复后 0b5526d1cd50  OK  | GOLD OK
+   x_ui_node_select_on.png          修复前 a1a40a239088  修复后 c0ae4c58af3d  OK  | GOLD OK
+   x_ui_node_frag_off.png           修复前 f724354b35c5  修复后 f724354b35c5  OK  | GOLD OK
+   x_ui_node_frag_on.png            修复前 d4b03394e248  修复后 d4b03394e248  OK  | GOLD OK
+自检 ⑤b 描边几何（select 件：覆盖率级数 / 实体面厚度 / 圆角处法向厚度）
+   select_off 覆盖率非零像素= 1176  取值级数=  5  最大覆盖=1.00
+              顶边中段（x80-180）实体面内 2px 带厚：min=2 max=2 极差=0（目标 2/2/0）
+   select_on  覆盖率非零像素= 1172  取值级数=  5  最大覆盖=1.00
+              顶边中段（x80-180）实体面内 2px 带厚：min=2 max=2 极差=0（目标 2/2/0）
+自检 ⑥ 两态差 ΔRGB（掩码：两态 alpha 均 >211；均=逐像素三通道均差，最大=逐像素单通道最大差）
+   section  n=10749  改前   3.34 /  71  →  改后  13.69 /  26   目标 均≥8 且 最大≥20  OK
+            _on 不透明区单通道==255 的像素：3/11024 (0.03%)
+   select   n=12047  改前   2.46 /  54  →  改后   9.76 /  99   目标 均≥8 且 最大≥20  OK
+            _on 不透明区单通道==255 的像素：0/12096 (0.00%)
+   frag     n=10328  改前   4.26 /  41  →  改后  14.08 /  29   目标 均≥8 且 最大≥20  OK
+            _on 不透明区单通道==255 的像素：0/10682 (0.00%)
+   对照图写出：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-05_流程图实现\取证\节点素材_方案A_前后对照.png  (1608, 1079)
+对照图： E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260927-05_流程图实现\取证\节点素材_方案A_前后对照.png
+==============================================================================
+结果：**全部自检通过**

@@ -1,0 +1,21 @@
+```python
+class InvalidValueError(ValueError):
+    pass
+
+
+def validate_gray8_input(data, width, height):
+    if type(width) is not int or type(height) is not int:
+        raise InvalidValueError("width and height must be int")
+    if not (0 <= width <= 16000000 and 0 <= height <= 16000000):
+        raise InvalidValueError("width or height out of range")
+    if width * height > 16000000:
+        raise InvalidValueError("total pixel count out of range")
+    if not isinstance(data, (bytes, bytearray)):
+        raise InvalidValueError("data must be bytes or bytearray")
+
+    stride = (width + 3) & ~3
+    if len(data) != stride * height:
+        raise InvalidValueError("data length does not match stride * height")
+
+    return stride, bytes(data)
+```

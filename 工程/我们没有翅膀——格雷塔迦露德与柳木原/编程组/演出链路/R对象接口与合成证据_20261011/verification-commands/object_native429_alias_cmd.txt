@@ -1,0 +1,40 @@
+@'
+from pathlib import Path
+import sys,struct,json,importlib.util,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')];from pe_min import PE;from lucifen_vm_micro import map_pe;from lucifen_thiscall_probe import invoke_thiscall_args
+from unicorn.x86_const import UC_X86_REG_ESI,UC_X86_REG_EBX,UC_X86_REG_ESP,UC_X86_REG_EIP
+spec=importlib.util.spec_from_file_location('observer',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');outer,src,aux,frame,pix=0x1002000,0x1004000,0x1006000,0x1008000,0x100a000;records=[]
+def word(u,p):return struct.unpack('<I',u.mem_read(p,4))[0]
+def prepare(kind=9,link=False):
+ u=map_pe(pe);u.mem_map(0,0x1000);u.mem_write(outer,b'\xa5'*0xd8);u.reg_write(UC_X86_REG_ESI,outer);u.reg_write(UC_X86_REG_EBX,0);u.reg_write(UC_X86_REG_ESP,0x2008000)
+ a,z,vt,ivt=(0x4ba6df,0x4ba70a,0x519038,0x519094) if kind==9 else (0x4ba7ff,0x4ba82a,0x518f7c,0x518fd8)
+ u.emu_start(a,z,count=10000,timeout=1000000);assert u.reg_read(UC_X86_REG_EIP)==z and word(u,outer)==vt and word(u,outer+0x30)==ivt and word(u,outer+0xbc)==0
+ invoke_thiscall_args(u,0x4540b0,src,());invoke_thiscall_args(u,0x459dc0,aux,());assert word(u,aux)==0x5199ec and word(u,aux+8)==0
+ u.mem_write(src+0x3c,struct.pack('<I',pix));u.mem_write(pix,b'\x12'*64)
+ if link:u.mem_write(outer+0xbc,struct.pack('<I',aux))
+ return u
+
+cases=[]
+for kind in [9,10]:
+ for chunked in [0,1]:
+  for skip_clear in [0,1]:
+   u=prepare(kind,True);bitmap=outer+0x34;buffer=0x100c000;color=0x80123456
+   u.mem_write(bitmap+4,struct.pack('<III',3,2,16));u.mem_write(bitmap+0x14,struct.pack('<4i',0,0,3,2));u.mem_write(bitmap+0x3c,struct.pack('<II',buffer,32));u.mem_write(buffer,b'\x55'*96)
+   assert invoke_thiscall_args(u,0x459ee0,aux,(bitmap,0))==0;u.mem_write(aux+0x50,struct.pack('<I',color));u.mem_write(aux+0x55,bytes([skip_clear]));u.mem_write(0x529e6d,bytes([chunked]));raw=struct.pack('<5I',outer,outer,0,0,0);u.mem_write(frame,raw)
+   r=m.observe_cdecl_until(u,0x4249e0,frame,0x400000,8,count=100000);actual=bytes(u.mem_read(buffer,96));expected=bytearray(b'\x55'*96)
+   if not skip_clear:
+    for y in range(2):
+     for x in range(3):expected[y*16+x*4:y*16+x*4+4]=struct.pack('<I',color)
+   assert r['returned'] and not r['error'] and r['eax']==0 and actual==bytes(expected) and bytes(u.mem_read(frame,20))==raw
+   cases.append({'type':kind,'chunked':chunked,'controlled_aux_55':skip_clear,'input_object_aliases_bound_bitmap':True,'expected_unchanged':bool(skip_clear),'result':r,'actual_sha256':hashlib.sha256(actual).hexdigest()})
+for name,patch,expected in [('arg_bitmap_null_pixels',(src+0x3c,0),1),('bound_bitmap_width_mismatch',(outer+0x38,99),2),('aux_no_bound_bitmap',(aux+8,0),2)]:
+ u=prepare(9,True);bound=outer+0x34
+ for bmp,buffer in [(src,pix),(bound,0x100c000)]:
+  u.mem_write(bmp+4,struct.pack('<III',2,2,8));u.mem_write(bmp+0x14,struct.pack('<4i',0,0,2,2));u.mem_write(bmp+0x3c,struct.pack('<II',buffer,32));u.mem_write(buffer,b'\x55'*64)
+ assert invoke_thiscall_args(u,0x459ee0,aux,(bound,0))==0;u.mem_write(patch[0],struct.pack('<I',patch[1]));u.mem_write(frame,struct.pack('<5I',outer,src,0,0,0));r=m.observe_cdecl_until(u,0x4249e0,frame,0x400000,8)
+ assert r['returned'] and not r['error'] and r['eax']==expected;assert bytes(u.mem_read(pix,64))==b'\x55'*64
+ cases.append({'name':name,'original_return':expected,'pixels_unchanged':True,'result':r})
+p=b/'native429-alias-clear-boundaries.json';assert not p.exists();p.write_text(json.dumps({'scope':'controlled original empty compositor and bitmap casts; no-child/no-notify; allocation/startup/children unproved','cases':cases},indent=2),encoding='utf-8');print('PASS',len(cases),'alias/clear suppression/return-code cases')
+
+'@ | python -X utf8 -B -

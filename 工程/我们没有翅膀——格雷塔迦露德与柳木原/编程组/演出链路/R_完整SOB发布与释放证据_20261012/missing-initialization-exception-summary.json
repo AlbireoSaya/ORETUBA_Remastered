@@ -1,0 +1,80 @@
+{
+  "RaiseException_IAT_candidates": [
+    5341680,
+    5400588
+  ],
+  "api": "RaiseException",
+  "intercept_only_no_dispatch": true,
+  "original_return_address": 5265832,
+  "exception_code": 3765269347,
+  "flags": 1,
+  "parameter_count": 3,
+  "parameters": [
+    429065504,
+    33586748,
+    5386040
+  ],
+  "SEH_chain": [
+    {
+      "frame": 33586784,
+      "next": 33586840,
+      "handler": 5332064,
+      "frame_words": [
+        33586840,
+        5332064,
+        0,
+        117469312,
+        4711726,
+        5411236,
+        4791840,
+        4791888
+      ]
+    },
+    {
+      "frame": 33586840,
+      "next": 33587188,
+      "handler": 5329515,
+      "frame_words": [
+        33587188,
+        5329515,
+        4294967295,
+        4876353,
+        5411236,
+        0,
+        117469312,
+        0
+      ]
+    },
+    {
+      "frame": 33587188,
+      "next": 4294967295,
+      "handler": 5334233,
+      "frame_words": [
+        4294967295,
+        5334233,
+        0,
+        33615872,
+        5411236,
+        5411256,
+        5411276,
+        1
+      ]
+    }
+  ],
+  "original_boot_entry": 4876256,
+  "actual_resource_request_missing": "SCRIPT/SOB_INIT.DAT",
+  "not_original_boot_success": true,
+  "actual_API_counts": {
+    "HeapCreate": 1,
+    "GetVersionExA": 1,
+    "ReadFile": 2,
+    "lstrcpyA": 5,
+    "CharUpperA": 1,
+    "lstrlenA": 3,
+    "HeapAlloc": 19,
+    "HeapFree": 12,
+    "lstrcatA": 1,
+    "CreateFileA": 1,
+    "CharLowerA": 2
+  }
+}

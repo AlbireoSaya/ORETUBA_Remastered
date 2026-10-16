@@ -1,0 +1,270 @@
+{
+  "id": "ending",
+  "title_cn": "片尾（STAFF/歌词）",
+  "owner": "M5",
+  "note": "片尾屏。滚动区用 kind:list 的 scroll 字段（page_size 8，滚动条由编程组按进度设置）；片尾角色卡取原版 sr_01…24（408×308，M1 已目视确认**无烘焙文字**），本屏摆 3 张作演示。歌词条用 kind:text 由引擎绘制——原版 sr2_t01…t07 七张歌词条**含日文烘焙**，不得用作文字层。原版 np/end_staff 421×6531 竖长条（H3）本资产集未纳入，长条滚动由编程组按 H3「1:1 纵向滚动」实现。⚠ STAFF/歌词内容为演示占位。",
+  "elements": [
+    {
+      "id": "ending.backdrop",
+      "kind": "rect",
+      "z": 0,
+      "visible_default": true,
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 1080,
+      "color": "@palette.letterbox",
+      "opacity": 255,
+      "note": "画布底色（片尾为全屏黑底演出）"
+    },
+    {
+      "id": "ending.title",
+      "kind": "text",
+      "z": 5,
+      "visible_default": true,
+      "x": 60,
+      "y": 36,
+      "w": 270,
+      "h": 66,
+      "font": {
+        "size": 42,
+        "bold": true,
+        "color": "@palette.text_title",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 3
+      },
+      "align": "left",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "片尾",
+      "note": "屏标题（中文，引擎绘制）"
+    },
+    {
+      "id": "ending.lyric_bar",
+      "kind": "rect",
+      "z": 6,
+      "visible_default": true,
+      "x": 360,
+      "y": 42,
+      "w": 1200,
+      "h": 78,
+      "color": "@palette.highlight",
+      "opacity": "@palette.highlight_opa",
+      "note": "歌词条底（半透明高亮色块；原版 sr2_t* 歌词条含日文烘焙，改引擎绘字）"
+    },
+    {
+      "id": "ending.lyric_text",
+      "kind": "text",
+      "z": 7,
+      "visible_default": true,
+      "x": 390,
+      "y": 51,
+      "w": 1140,
+      "h": 60,
+      "font": {
+        "size": 36,
+        "bold": false,
+        "color": "@palette.text_menu_sel",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 3
+      },
+      "align": "center",
+      "valign": "middle",
+      "wrap": false,
+      "max_lines": 1,
+      "sample": "歌词条（演示占位，真值由编程组从片尾数据填充）",
+      "note": "歌词条文本（引擎绘制；**不编造歌词**，仅通用占位）"
+    },
+    {
+      "id": "ending.scroll_fill",
+      "kind": "rect",
+      "z": 10,
+      "visible_default": true,
+      "x": 180,
+      "y": 144,
+      "w": 1560,
+      "h": 450,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "滚动区底板填充"
+    },
+    {
+      "id": "ending.scroll_frame",
+      "kind": "image",
+      "z": 11,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 180,
+      "y": 144,
+      "w": 1560,
+      "h": 450,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 225,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png（由 if_lt/rt/lb/rb + if_tbar/bbar + if_lbar/rbar 拼合）",
+      "note": "滚动区九宫格边框"
+    },
+    {
+      "id": "ending.scroll_list",
+      "kind": "list",
+      "z": 20,
+      "visible_default": true,
+      "orientation": "v",
+      "x": 210,
+      "y": 165,
+      "w": 1500,
+      "item_h": 48,
+      "gap": 6,
+      "max_rows": 8,
+      "scroll": {
+        "mode": "page",
+        "page_size": 8
+      },
+      "labels": [
+        "企划",
+        "剧本",
+        "原画",
+        "音乐",
+        "演出",
+        "程序",
+        "制作",
+        "特别鸣谢"
+      ],
+      "actions": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "font": {
+        "size": 27,
+        "bold": false,
+        "color": "@palette.text_primary",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "left",
+      "item_frame": {
+        "asset": "ui/panel_frame.png",
+        "nine": {
+          "l": 20,
+          "t": 8,
+          "r": 20,
+          "b": 8
+        },
+        "opacity": 190
+      },
+      "source": "UI 组自制：行框用九宫格件 ui/panel_frame.png；行文本由引擎绘制（原版 end_staff 421×6531 未纳入本资产集，长条纵向滚动由编程组按 美术规范 §6.3 H3 实现）",
+      "note": "滚动区文本列表（STAFF 角色名，通用词；真值由编程组填充）。scroll 字段给出翻页口径 page_size=8；actions 暂为空串——片尾行无交互语义（见 M5 报告「需裁决点」）"
+    },
+    {
+      "id": "ending.card_1",
+      "kind": "image",
+      "z": 30,
+      "visible_default": true,
+      "asset": "ui/sr_01.png",
+      "x": 18,
+      "y": 606,
+      "w": 612,
+      "h": 462,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\sr_01.png",
+      "note": "片尾角色卡 1（原版 sr_01，408×308，无烘焙文字，1:1 不缩放）。演示数据，真值由编程组按片尾序列填充"
+    },
+    {
+      "id": "ending.card_2",
+      "kind": "image",
+      "z": 30,
+      "visible_default": true,
+      "asset": "ui/sr_02.png",
+      "x": 654,
+      "y": 606,
+      "w": 612,
+      "h": 462,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\sr_02.png",
+      "note": "片尾角色卡 2（原版 sr_02，408×308，无烘焙文字，1:1 不缩放）。演示数据"
+    },
+    {
+      "id": "ending.card_3",
+      "kind": "image",
+      "z": 30,
+      "visible_default": true,
+      "asset": "ui/sr_03.png",
+      "x": 1290,
+      "y": 606,
+      "w": 612,
+      "h": 462,
+      "opacity": 255,
+      "source": "资源组\\美术统一\\系统UI\\sr_03.png",
+      "note": "片尾角色卡 3（原版 sr_03，408×308，无烘焙文字，1:1 不缩放）。演示数据"
+    },
+    {
+      "id": "ending.btn_skip_fill",
+      "kind": "rect",
+      "z": 40,
+      "visible_default": true,
+      "x": 1650,
+      "y": 36,
+      "w": 210,
+      "h": 66,
+      "color": "@palette.panel_fill",
+      "opacity": "@palette.panel_fill_opa",
+      "note": "跳过键底"
+    },
+    {
+      "id": "ending.btn_skip_frame",
+      "kind": "image",
+      "z": 41,
+      "visible_default": true,
+      "asset": "ui/panel_frame.png",
+      "x": 1650,
+      "y": 36,
+      "w": 210,
+      "h": 66,
+      "nine": {
+        "l": 20,
+        "t": 8,
+        "r": 20,
+        "b": 8
+      },
+      "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png",
+      "note": "跳过键边框"
+    },
+    {
+      "id": "ending.btn_skip",
+      "kind": "hit",
+      "z": 42,
+      "visible_default": true,
+      "x": 1650,
+      "y": 36,
+      "w": 210,
+      "h": 66,
+      "action": "skip_on",
+      "label": "跳过",
+      "font": {
+        "size": 30,
+        "bold": false,
+        "color": "@palette.text_menu",
+        "shadow": true,
+        "shadow_color": "@palette.shadow",
+        "shadow_ofs": 2
+      },
+      "align": "center",
+      "note": "跳过片尾（热区 + 引擎绘制标签；action 取动作表 skip_on）"
+    }
+  ]
+}

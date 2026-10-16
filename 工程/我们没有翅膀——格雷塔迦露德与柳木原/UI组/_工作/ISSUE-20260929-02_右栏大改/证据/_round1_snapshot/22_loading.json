@@ -1,0 +1,45 @@
+{
+ "id": "loading",
+ "title_cn": "加载提示",
+ "owner": "M33",
+ "note": "**PSV 换皮（2026-09-26，ISSUE-20260926-06）· 22 加载提示**。\n★ `ld.plate` 由 AI 冰蓝提示牌（`x_ui_loading_plate.png` 420×148）**换成 PSV 件** `ui/x_ui_psv_loading.png`\n  （`otv_loading_cn.png` 640×240，1:1、无 nine ⇒ `w/h` == PNG 实尺寸）。**图上烘焙「载入中…」**\n  （墨迹实测 505×104，在 640×240 内居中：左69/右66、上68/下68）⇒ 画布居中摆放 `x=640 y=420` 即墨迹居中。\n★ 故 `ld.text`（引擎绘「加载中……」）**退场**：与新图文字重复（会叠字）。\n  ⚠️ 措辞随之由「加载中……」变为图内烘焙的「**载入中…**」（三字 + 空心圆省略号）。\n★ `ld.bg`（满幅冰蓝底）**已删除**（★ ISSUE-20260929-02 · 用户指令 6「加载提示页中删除 ld.bg，其他元素不要动」；本批只删元素，`ld.dim` 的 z/几何/字段一律未动）；`ld.dim`（压暗遮罩 `@palette.backdrop` ×100）**保留现状**（用户裁决允许\"保留现状或按\n  PSV 观感调整\"）——PSV 件本身是透明底文字层，压在现有底上观感与 PSV 原屏一致。★ 已删素材的处置：`ui/x_ui_backlog_bg.png`（1916×1080，md5 `5d05e6e90ce7b5080b7f040b3571a42f`）**保留不删**（工程口径「旧素材一件不删」）。★ **勘误（同一批）**：原记「该素材仍被 `26_backlog` 引用、删文件即断链」的**引用关系不成立** —— `26_backlog` 自 PSV 换皮（ISSUE-20260926-06 · B 组）起底图已改引 `ui/x_ui_psv_backlog_bg.png`；本批删除 `ld.bg` 后，`ui/x_ui_backlog_bg.png` 在**全 17 屏屏数据中已无任何元素引用**（`复刻/asset_index.js` 仍列出该文件，那是素材清单、非引用）。★ 本批未跑 `工具/gen_layout.py` 与 `工具/emit_asset_index.py`（三处产物与素材索引由本批 E2／主代理统一重跑）。\n★ 退场登记：`工具\\test_gen_sync.py` 的 `GENERATORS` m33 条目（该模块已标\"失效、不得再运行\"，\n  其 `build_loading()` 产出的是 `x_gen_sd_*` 旧素材体系；重跑会改回旧形并引用缺图）。",
+ "elements": [
+  {
+   "id": "ld.dim",
+   "kind": "rect",
+   "z": 1,
+   "visible_default": true,
+   "x": 0,
+   "y": 0,
+   "w": 1920,
+   "h": 1080,
+   "color": "@palette.backdrop",
+   "opacity": 100,
+   "note": "压暗遮罩"
+  },
+  {
+   "id": "ld.text",
+   "kind": "text",
+   "x": 640,
+   "y": 470,
+   "w": 640,
+   "h": 148,
+   "text": "载入中…",
+   "align": "center",
+   "valign": "middle",
+   "font": {
+    "size": 54,
+    "bold": true,
+    "color": "@palette.text_primary",
+    "outline": true,
+    "outline_color": "#3E63B8",
+    "outline_width": 3,
+    "shadow": true,
+    "shadow_color": "#000066",
+    "shadow_ofs": 2
+   },
+   "note": "ISSUE-20260926-06：PSV 贴图片因 alpha 为日文字形轮廓而退场，改引擎绘字（样式仿 PSV：白字+蓝描边）",
+   "sample": "载入中…"
+  }
+ ]
+}

@@ -1,0 +1,162 @@
+{
+  "scope": "original insert guards and allocator entry only, no fake allocator return, no successful allocation/insertion",
+  "source_exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "cases": [
+    {
+      "entry": 4560560,
+      "state": "null-child",
+      "snapshot": {
+        "stop_reached": false,
+        "returned": true,
+        "eip": 33615872,
+        "esp": 33587216,
+        "eax": 1,
+        "ecx": 16900096,
+        "edx": 0,
+        "stack_words": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "owner_unchanged": true,
+      "child_owner": 0
+    },
+    {
+      "entry": 4560560,
+      "state": "already-owned",
+      "snapshot": {
+        "stop_reached": false,
+        "returned": true,
+        "eip": 33615872,
+        "esp": 33587216,
+        "eax": 2,
+        "ecx": 16900096,
+        "edx": 0,
+        "stack_words": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "owner_unchanged": true,
+      "child_owner": 16900096
+    },
+    {
+      "entry": 4560560,
+      "state": "clean-child",
+      "snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587180,
+        "eax": 16842752,
+        "ecx": 16900096,
+        "edx": 0,
+        "stack_words": [
+          4560609,
+          36,
+          16785456,
+          16785408,
+          0,
+          33615872,
+          16842752,
+          2147483649
+        ],
+        "error": null
+      },
+      "owner_unchanged": true,
+      "child_owner": 0
+    },
+    {
+      "entry": 4560800,
+      "state": "null-child",
+      "snapshot": {
+        "stop_reached": false,
+        "returned": true,
+        "eip": 33615872,
+        "esp": 33587216,
+        "eax": 1,
+        "ecx": 16900096,
+        "edx": 0,
+        "stack_words": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "owner_unchanged": true,
+      "child_owner": 0
+    },
+    {
+      "entry": 4560800,
+      "state": "already-owned",
+      "snapshot": {
+        "stop_reached": false,
+        "returned": true,
+        "eip": 33615872,
+        "esp": 33587216,
+        "eax": 2,
+        "ecx": 16900096,
+        "edx": 0,
+        "stack_words": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "error": null
+      },
+      "owner_unchanged": true,
+      "child_owner": 16900096
+    },
+    {
+      "entry": 4560800,
+      "state": "clean-child",
+      "snapshot": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 5265279,
+        "esp": 33587180,
+        "eax": 16842752,
+        "ecx": 16900096,
+        "edx": 0,
+        "stack_words": [
+          4560849,
+          36,
+          16785456,
+          16785408,
+          0,
+          33615872,
+          16842752,
+          2147483649
+        ],
+        "error": null
+      },
+      "owner_unchanged": true,
+      "child_owner": 0
+    }
+  ]
+}

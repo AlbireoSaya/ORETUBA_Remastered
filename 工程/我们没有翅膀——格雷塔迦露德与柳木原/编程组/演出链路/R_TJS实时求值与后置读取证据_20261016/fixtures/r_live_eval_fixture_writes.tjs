@@ -1,0 +1,39 @@
+// r_live_eval_fixture_writes.tjs
+// 仅 fixture 专用：受控实时写入口 —— 委托 global.RMemoryWrite*，写前经 global.RLFWatched 白名单校验。
+// 说明：本文件不读内存、不伪造 VM 写、不拆宽度记录；宽度按 32/8 分别登记为 4/1。
+
+function RVEWrite32(q, v)
+{
+    if (!global.RLFWatched(this, q))
+    {
+        throw new global.Exception("UNEXPECTED_LIVE_EVAL_WRITE");
+    }
+    v = v & 0xffffffff;
+    if (this.phase == "vm")
+    {
+        this.vm_writes.add([q, 4, v]);
+    }
+    else
+    {
+        this.events.add([this.phase, "w", q, 4, v]);
+    }
+    global.RMemoryWrite32(this.memory, q, v);
+}
+
+function RVEWrite8(q, v)
+{
+    if (!global.RLFWatched(this, q))
+    {
+        throw new global.Exception("UNEXPECTED_LIVE_EVAL_WRITE");
+    }
+    v = v & 255;
+    if (this.phase == "vm")
+    {
+        this.vm_writes.add([q, 1, v]);
+    }
+    else
+    {
+        this.events.add([this.phase, "w", q, 1, v]);
+    }
+    global.RMemoryWrite8(this.memory, q, v);
+}

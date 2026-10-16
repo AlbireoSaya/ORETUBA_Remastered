@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "bits": 64,
+  "own_synthetic_x86_call_jump_disp_metadata": [
+    {
+      "va": 4096,
+      "size": 5,
+      "mnemonic": "call",
+      "op_str": "0x100a",
+      "direct_target": 4106,
+      "memory_displacements": []
+    },
+    {
+      "va": 4101,
+      "size": 2,
+      "mnemonic": "jmp",
+      "op_str": "0x1008",
+      "direct_target": 4104,
+      "memory_displacements": []
+    },
+    {
+      "va": 4103,
+      "size": 1,
+      "mnemonic": "nop",
+      "op_str": "",
+      "direct_target": null,
+      "memory_displacements": []
+    },
+    {
+      "va": 4104,
+      "size": 3,
+      "mnemonic": "mov",
+      "op_str": "eax, dword ptr [ebx + 4]",
+      "direct_target": null,
+      "memory_displacements": [
+        4
+      ]
+    },
+    {
+      "va": 4107,
+      "size": 1,
+      "mnemonic": "ret",
+      "op_str": "",
+      "direct_target": null,
+      "memory_displacements": []
+    }
+  ],
+  "guard_failures_verified": true,
+  "source_reachability_not_claimed": true
+}

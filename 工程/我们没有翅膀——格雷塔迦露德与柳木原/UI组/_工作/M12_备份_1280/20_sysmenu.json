@@ -1,0 +1,65 @@
+{
+  "id": "sysmenu",
+  "title_cn": "系统菜单",
+  "owner": "M5",
+  "note": "常驻系统菜单（原版 ot/sys 的 sm_* 族）。原版 sm_save/sm_load/sm_cfg/sm_skip/sm_auto/sm_win/sm_log/sm_ret/sm_title/sm_end 共 10 件为 612×26 的**菜单条日文图**（セーブ/ロード/環境設定…），文字烘焙进像素，故一律不用其贴图：菜单条改用九宫格边框件 panel_frame.png + 引擎绘制中文标签。空白底板 sm_base/sm_base2 仅作左右装饰侧栏。菜单项 10 条按原版 sm_* 逐件对应。",
+  "elements": [
+    { "id": "sysmenu.backdrop", "kind": "rect", "z": 0, "visible_default": true,
+      "x": 0, "y": 0, "w": 1280, "h": 720, "color": "@palette.backdrop", "opacity": "@palette.backdrop_opa",
+      "note": "全屏压暗遮罩（菜单为覆盖层，压住下层剧情画面）" },
+
+    { "id": "sysmenu.side_left", "kind": "image", "z": 5, "visible_default": true,
+      "asset": "ui/sm_base.png", "x": 150, "y": 186, "w": 182, "h": 348, "opacity": 210,
+      "source": "资源组\\美术统一\\系统UI\\sm_base.png",
+      "note": "原版系统菜单底板（182×348 空白件）作左侧装饰侧栏；1:1 不缩放，不作文字层" },
+
+    { "id": "sysmenu.side_right", "kind": "image", "z": 5, "visible_default": true,
+      "asset": "ui/sm_base2.png", "x": 948, "y": 186, "w": 182, "h": 265, "opacity": 210,
+      "source": "资源组\\美术统一\\系统UI\\sm_base2.png",
+      "note": "原版系统菜单底板（182×265 空白件）作右侧装饰侧栏；1:1 不缩放，不作文字层" },
+
+    { "id": "sysmenu.panel_fill", "kind": "rect", "z": 10, "visible_default": true,
+      "x": 410, "y": 64, "w": 460, "h": 592, "color": "@palette.panel_fill", "opacity": "@palette.panel_fill_opa",
+      "note": "主面板填充（半透明深色底）" },
+
+    { "id": "sysmenu.panel_frame", "kind": "image", "z": 11, "visible_default": true,
+      "asset": "ui/panel_frame.png", "x": 410, "y": 64, "w": 460, "h": 592,
+      "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png（由 if_lt/rt/lb/rb + if_tbar/bbar + if_lbar/rbar 拼合）",
+      "note": "主面板边框（九宫格可拉伸；中心透明，填充由 panel_fill 承担）" },
+
+    { "id": "sysmenu.title", "kind": "text", "z": 20, "visible_default": true,
+      "x": 410, "y": 78, "w": 460, "h": 38,
+      "font": { "size": 30, "bold": true, "color": "@palette.text_title", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 2 },
+      "align": "center", "valign": "middle", "wrap": false, "max_lines": 1, "sample": "系统菜单",
+      "note": "面板标题（中文，引擎绘制）" },
+
+    { "id": "sysmenu.menu", "kind": "list", "z": 30, "visible_default": true,
+      "orientation": "v", "x": 432, "y": 128, "w": 416, "item_h": 42, "gap": 6, "max_rows": 10,
+      "labels": ["存档", "读档", "回想", "快进", "自动播放", "隐藏窗口", "环境设置", "返回游戏", "返回标题", "退出游戏"],
+      "actions": ["open_save", "open_load", "open_backlog", "skip_on", "auto_on", "hide_window", "open_config", "close", "open_title", "quit_game"],
+      "font": { "size": 22, "bold": false, "color": "@palette.text_menu", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "item_frame": { "asset": "ui/panel_frame.png", "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 210 },
+      "highlight": { "kind": "rect", "color": "@palette.highlight", "opacity": "@palette.highlight_opa" },
+      "highlight_font_color": "@palette.text_menu_sel",
+      "source": "UI 组自制：每项背景框用九宫格件 ui/panel_frame.png；标签由引擎绘制（原版 sm_save/load/log/skip/auto/win/cfg/ret/title/end 十件含日文烘焙，不引用）",
+      "note": "菜单项 10 条，逐条对应原版 sm_save / sm_load / sm_log / sm_skip / sm_auto / sm_win / sm_cfg / sm_ret / sm_title / sm_end；中文标签为通用 UI 词" },
+
+    { "id": "sysmenu.btn_close_fill", "kind": "rect", "z": 40, "visible_default": true,
+      "x": 786, "y": 76, "w": 72, "h": 34, "color": "@palette.panel_fill", "opacity": "@palette.panel_fill_opa",
+      "note": "关闭键底" },
+
+    { "id": "sysmenu.btn_close_frame", "kind": "image", "z": 41, "visible_default": true,
+      "asset": "ui/panel_frame.png", "x": 786, "y": 76, "w": 72, "h": 34,
+      "nine": { "l": 13, "t": 5, "r": 13, "b": 5 }, "opacity": 235,
+      "source": "UI 组自制：九宫格边框件 ui/panel_frame.png",
+      "note": "关闭键边框（原版 th_close 92×17 含日文/动作文字烘焙，不引用）" },
+
+    { "id": "sysmenu.btn_close", "kind": "hit", "z": 42, "visible_default": true,
+      "x": 786, "y": 76, "w": 72, "h": 34, "action": "close", "label": "关闭",
+      "font": { "size": 18, "bold": false, "color": "@palette.text_menu", "shadow": true, "shadow_color": "@palette.shadow", "shadow_ofs": 1 },
+      "align": "center",
+      "note": "关闭系统菜单（热区 + 引擎绘制标签；无贴图）" }
+  ]
+}

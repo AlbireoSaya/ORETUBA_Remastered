@@ -1,0 +1,78 @@
+{
+  "process_exit0_verified": true,
+  "worker_errors": [],
+  "large_ReadFile": [
+    {
+      "api": "ReadFile",
+      "args": [
+        1610612738,
+        132452480,
+        1571162,
+        57735228,
+        0
+      ],
+      "native_return_address": 4789632,
+      "actual_bytes_read": 1571162,
+      "guest_result": 1
+    }
+  ],
+  "native_resume_slices": 8,
+  "next_EIP": 5179317,
+  "native_instruction_budget_stop_not_missing_API": true,
+  "parent_dispatch": {
+    "original_return_address": 4533676,
+    "actual_OS_LRESULT": 0,
+    "actual_message_id": 799,
+    "native_callbacks": [
+      {
+        "original_WNDPROC": 4847712,
+        "actual_host_message": 799,
+        "original_stdcall_stack_bytes": 20,
+        "original_return_value": 0,
+        "guest_HWND_token": 1777664000,
+        "original_window_object": 33567052,
+        "before_guest_object_HWND": 1777664000,
+        "after_guest_object_HWND": 1777664000,
+        "message_buffer_bytes": 0,
+        "message_input_SHA256": null,
+        "exact_CREATESTRUCT_pointer_fields_mapped": false,
+        "API_events": [
+          {
+            "original_API": "GetWindowLongA",
+            "original_return_address": 4847769,
+            "original_API_args": [
+              1777664000,
+              4294967275
+            ],
+            "actual_host_API": true,
+            "mapped_guest_result": 33567052,
+            "actual_error": 0,
+            "host_API_called_only_after_outer_emu_stop": true
+          },
+          {
+            "original_API": "DefWindowProcA",
+            "original_return_address": 4847955,
+            "original_API_args": [
+              1777664000,
+              799,
+              1,
+              0
+            ],
+            "actual_host_API": true,
+            "mapped_guest_result": 0,
+            "actual_error": 0,
+            "host_API_called_only_after_outer_emu_stop": true
+          }
+        ],
+        "no_guest_function_registered_with_OS": true,
+        "no_outer_emu_start_active_on_host_API": true
+      }
+    ],
+    "next_EIP": 1211230,
+    "next_import": "GetMessageA",
+    "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+    "original_WNDPROC_called_without_outer_emu_active": true,
+    "other_messages_and_live_worker_scheduler_not_proven": true
+  },
+  "cleanup": true
+}

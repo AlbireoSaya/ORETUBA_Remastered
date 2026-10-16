@@ -1,0 +1,53 @@
+{
+  "handler": 5332064,
+  "establisher_frame": 33586784,
+  "controlled_guest_EXCEPTION_RECORD_32": true,
+  "controlled_guest_CONTEXT_i386": true,
+  "not_host_RaiseException_dispatch": true,
+  "returned": true,
+  "EAX": 0,
+  "EIP": 33615872,
+  "last_guest_API_calls": [
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117440640
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "TlsGetValue",
+      "args": [
+        18
+      ],
+      "native_return_address": 5275512,
+      "actual_Windows_API": true,
+      "guest_result": 117604480,
+      "actual_host_pointer": 2565396520224
+    },
+    {
+      "api": "HeapFree",
+      "args": [
+        1744830464,
+        0,
+        117604480
+      ],
+      "native_return_address": 5269096,
+      "guest_result": 1
+    },
+    {
+      "api": "TlsSetValue",
+      "args": [
+        18,
+        0
+      ],
+      "native_return_address": 5275640,
+      "actual_Windows_API": true,
+      "guest_result": 1,
+      "actual_host_pointer": 0
+    }
+  ]
+}

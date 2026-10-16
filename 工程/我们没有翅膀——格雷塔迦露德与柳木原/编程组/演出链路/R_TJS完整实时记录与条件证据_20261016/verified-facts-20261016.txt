@@ -1,0 +1,10 @@
+
+2026-10-16，ISSUE-20261011-02，issue/ISSUE-20261011-02-original-fidelity，main基线bffa02420a267cac67057be9d2efa9efc2cff30d。目标工程编程组/原作忠实层/R。证据阶段编程组/演出链路/R_TJS完整实时记录与条件证据_20261016。
+新增4生产TJS r_live_array_value/condition/record_gate/record；旧3payload/item/parameters追加可选arrayValue=void，旧调用默认行为不变；另修r_vm_control的op30，Python工具lucifen_inline_vm_reference同修。13fixture，严格原比较器没修改。所有实现editor-easy high，root研判/原码验证/平台装配/批次审查/Git行政。
+原42FB50只在Unicorn执行，备份EXE SHA b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33，原件只读，不OS装载EXE/DLL；原作PE/剧本/素材未外发。原码只传本地，提供者只接自有规范/源码/数值接口。
+条件tag0即时DWORD常量，tag1常1不读payload，tag2数组，tag3绑定/真实VM/后置取结果。保存入口opcode，opcode0反相；表达式修改源opcode仅影响下一次记录。假分支只读length并u32推进，不读ctx434/count/items；真分支先rd(ctx+434)再rb(count)，不读length。即使count0仍rdctx434，但不解引用param_base，故允许poisonparampointer。next不是简单length而实时读取推进。
+条件/参数数组必须先rd global5355f0再bank index；依赖ensureBank(desc,bank)返回vector、只支持既存bank验证；随后先读element index，再rd vector+bank*12，再rd base+element*4。旧resolveBank返回entry，不能满足完整顺序，故新增可选arrayValue回调。增长未实现显式抛。
+原45组自主合成88次连续记录(每架构)，1703条限定caller pre/post读写、525条有序VM写、133条[runIndex,PC,op]、60次VM运行与返回、4次真实原native411c40只读查询frame。一次记录可0/1/3个表达式。目标32/64各全部通过，逐source512字节、写DWORD、condition/opcode/accepted/next/paramend/count、binding/nativeframe精确比较。phase首次pre，VM期间vm(不比VM读取)，之后post，次表达式绑定不重置pre。两类原native临时游标cell按观测准备，除此源/heap/VMctx/SP连续保留。
+本轮拓宽暴露旧VM op30零条件漏中间PC写：原4a7d4d先wr(ctx+8,p+4)，4a7d52再wr(ctx+8,rd(p+4))；非零照旧。TJS/Python均修，新增重新生成1390自主合成VM用例1391段：新加原CPU有序写hook，逐条确认原码写序以及旧已有全内存/trace/return；32/64各1390/1391通过。旧1390数据有branch0预期遗漏，保留历史不覆盖，新集替代相关写序预期；此前原码全内存/trace结论不变。仍只17/47 opcode，本轮组合覆盖全部已支持17种，不等于47全实现。
+旧11liveparam/91scoped事件双架构回归通过；旧18组33liveeval/735caller/248writes/62trace双架构回归通过。五类故障×双架构共10次全检出：ctx/count倒序、假分支读ctx、array element/entry倒序、表达式后重读opcode、漏中间PC写。全部私有副本，生产候选未受故障注入改动；第五类故障会故意修改私有VM helper，不能说所有故障连私有VM都不改。
+边界：完整实时记录只到ctx434发布/129dispatch之前；VM访存读序和native内部栈不比，heap/PE快照仅写覆盖核查；临时cell不代表任意机器帧别名建模；无真实银行增长/native生命周期/inline live头/剩余30VM/全路线画音/四版100%。OTV=MAGES Task DSL+CRI非Lucifen，无新成品，不改游戏startup。下一步扩大3794真实动态记录原字节覆盖，与余下VM/native/演出接口并行；合成例不能替代正文。goal保持active。

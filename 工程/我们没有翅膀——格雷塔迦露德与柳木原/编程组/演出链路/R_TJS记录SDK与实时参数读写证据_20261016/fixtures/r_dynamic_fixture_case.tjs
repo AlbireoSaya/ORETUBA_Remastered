@@ -1,0 +1,29 @@
+var RDynamicCaseCount = 0;
+var RDynamicRecordCount = 0;
+
+function RDynamicCheck(spec) {
+    var s = RDynamicState(spec);
+    var i, j, seg, rw, got;
+    for (i = 0; i < spec.segments.count; i++) {
+        seg = spec.segments[i];
+        for (j = 0; j < spec.reset_words.count; j++) {
+            rw = spec.reset_words[j];
+            RMemoryWrite32(s.memory, rw[0], rw[1]);
+        }
+        s.writes = [];
+        s.calls = [];
+        s.vm_runs = [];
+        s.vm_traces = [];
+        s.bindings = [];
+        got = RRunRecord(spec.record, s.base, s.params, s.rd, s.wr, s.eval_cb, s.maps[0]);
+        RDynamicCompare(s, seg, got);
+        RDynamicRecordCount++;
+    }
+    RDynamicCaseCount++;
+    s.rd = void;
+    s.rb = void;
+    s.wr = void;
+    s.wb = void;
+    s.native_cb = void;
+    s.eval_cb = void;
+}

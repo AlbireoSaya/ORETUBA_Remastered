@@ -1,0 +1,39 @@
+// r_expr_read.tjs
+// 仅提供四个只读表达式字节读取函数；无 IO / UI / OS 调用。
+
+function RExprNeed(limit, off, n) {
+    if (typeof limit != "Integer" || typeof off != "Integer" || typeof n != "Integer") {
+        throw new Exception("TRUNCATED_EXPRESSION");
+    }
+    if (limit < 0 || limit > 0xffffffff) {
+        throw new Exception("TRUNCATED_EXPRESSION");
+    }
+    if (off < 0 || n < 0 || off > limit || n > limit - off) {
+        throw new Exception("TRUNCATED_EXPRESSION");
+    }
+}
+
+function RExprByte(rb, limit, off) {
+    RExprNeed(limit, off, 1);
+    var b = rb(off);
+    if (typeof b != "Integer" || b < 0 || b > 255) {
+        throw new Exception("INVALID_EXPRESSION_BYTE");
+    }
+    return b;
+}
+
+function RExprU16(rb, limit, off) {
+    RExprNeed(limit, off, 2);
+    var b0 = RExprByte(rb, limit, off);
+    var b1 = RExprByte(rb, limit, off + 1);
+    return (b0 | (b1 << 8)) & 0xffff;
+}
+
+function RExprU32(rb, limit, off) {
+    RExprNeed(limit, off, 4);
+    var b0 = RExprByte(rb, limit, off);
+    var b1 = RExprByte(rb, limit, off + 1);
+    var b2 = RExprByte(rb, limit, off + 2);
+    var b3 = RExprByte(rb, limit, off + 3);
+    return (b0 | (b1 << 8) | (b2 << 16) | (b3 << 24)) & 0xffffffff;
+}

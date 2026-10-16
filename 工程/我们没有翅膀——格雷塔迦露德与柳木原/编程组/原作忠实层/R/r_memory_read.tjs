@@ -1,0 +1,33 @@
+// r_memory_read.tjs
+// 目标运行时内存读取：缓存命中优先，未命中回落底层读取。
+// 依赖 RMemoryFind（其他模块提供），此处不复制其实现。
+
+function RMemoryRead8(s, q) {
+    var r = RMemoryFind(s, q, 1, false);
+    var v;
+    // 必须在取值前对直接表达式做 typeof 判断：
+    // TJS2 中 var v = dict["missing"] 之后 typeof v 会变成 "void"，
+    // 故先取的写法永远走不到 fallback 分支。
+    if (typeof s.dirty["" + q] == "undefined") {
+        v = r.read_byte(q - r.base);
+    } else {
+        v = s.dirty["" + q];
+    }
+    // 显式写入的 void 不作缺失处理，在此处被拒绝；不默认补 0。
+    if (typeof v != "Integer" || v < 0 || v > 255) {
+        throw new Exception("INVALID_MEMORY_BYTE");
+    }
+    return v;
+}
+
+function RMemoryRead32(s, q) {
+    if (typeof q != "Integer" || q < 0 || q > 0xfffffffc) {
+        throw new Exception("INVALID_MEMORY_ACCESS");
+    }
+    var b0 = RMemoryRead8(s, q);
+    var b1 = RMemoryRead8(s, q + 1);
+    var b2 = RMemoryRead8(s, q + 2);
+    var b3 = RMemoryRead8(s, q + 3);
+    var w = b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+    return w & 0xffffffff;
+}

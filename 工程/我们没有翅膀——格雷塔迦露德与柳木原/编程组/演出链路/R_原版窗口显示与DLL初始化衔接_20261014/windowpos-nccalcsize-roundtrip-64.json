@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "host_bits": 64,
+  "WINDOWPOS_size": 40,
+  "NCCALCSIZE_size": 56,
+  "guest_sizes": [
+    28,
+    52
+  ],
+  "negative_coordinates_roundtrip": true,
+  "host_pointer_fields_unchanged": true,
+  "nested_pointer_unchanged": true,
+  "rejected": [
+    {
+      "case": "wrong-window-hwnd",
+      "exception": "ValueError"
+    },
+    {
+      "case": "wrong-insert-token",
+      "exception": "ValueError"
+    },
+    {
+      "case": "wrong-nested-pos",
+      "exception": "ValueError"
+    },
+    {
+      "case": "short-pos",
+      "exception": "error"
+    },
+    {
+      "case": "long-nc",
+      "exception": "error"
+    },
+    {
+      "case": "host64-pointer-as-guest",
+      "exception": "error"
+    },
+    {
+      "case": "host64-nc-pointer-as-guest",
+      "exception": "error"
+    }
+  ],
+  "source_hashes": {
+    "lucifen_guest_nccalcsize.py": "8a125f0bb5253ff372f924c33c5dfa397f44050f6a8c35dfd71031b08a9b8910",
+    "lucifen_guest_nccalcsize_apply.py": "03827dd31d7c193f0460256a18a62b90e9f6e24dade100aed55f71a7253b0b22",
+    "lucifen_guest_windowpos.py": "4e8898b3a549e196f1b62284f2c9a8293543a1806d763154bd0c3eff08ab91ea",
+    "lucifen_guest_windowpos_apply.py": "9035970db6415546f61c7c1bfbb1c13308f86ec396bd88130d8c3a8bea2a4669",
+    "lucifen_host_nccalcsize.py": "99058c8d9591bbd08bbb929d245d4ef0b8429e01dc8523225e7d7f7627c63c7a",
+    "lucifen_host_windowpos.py": "97ca9d7ea272c242307e7387ec09a3a6ed8148a618477901c8b304fd4e37fa24",
+    "lucifen_host_window_show.py": "fe092a390d2b4ed259fc441bcf29c367a75dc3643be7cd028bfd87ca67e5da57"
+  },
+  "no_original_window_Shown": true
+}

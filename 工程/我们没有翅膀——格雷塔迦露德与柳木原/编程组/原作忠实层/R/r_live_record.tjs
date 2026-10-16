@@ -1,0 +1,24 @@
+function RLiveRecord(rd, wr, rh, rb, ctx, start, readArray, evaluateCond, evaluateParam) {
+    var h = global.RRecordLivePrefix(rd, rb, start);
+    var c = global.RLiveCondition(rd, h.condition_tag, h.condition_cursor, readArray, evaluateCond);
+    var gate = global.RLiveRecordGate(rd, rb, ctx, h.opcode, c[0], c[1]);
+    if (!gate.accepted) {
+        return %[
+            "accepted" => false,
+            "opcode" => h.opcode,
+            "condition_value" => 0,
+            "next_cursor" => gate.next_cursor,
+            "param_end" => void,
+            "param_count" => 0
+        ];
+    }
+    var v = global.RRecordLiveParameters(rd, rh, rb, wr, gate.items_cursor, gate.param_base, gate.item_count, void, evaluateParam, readArray);
+    return %[
+        "accepted" => true,
+        "opcode" => h.opcode,
+        "condition_value" => gate.condition_value,
+        "next_cursor" => v.next_cursor,
+        "param_end" => v.param_end,
+        "param_count" => v.param_count
+    ];
+}

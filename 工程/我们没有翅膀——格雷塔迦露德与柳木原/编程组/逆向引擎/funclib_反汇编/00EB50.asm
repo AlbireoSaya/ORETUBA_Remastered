@@ -1,0 +1,38 @@
+; V=0xEB50  core=0xEB50..0xEB68（2 条）  过程=0xEB50..0xECD4（6 块/34 条，段数 2）
+; native=[207, 9, 564, 208]
+; 内嵌串 core=-
+; 库内 CALL -> -
+0000EB50  LD_STK        0xC[-] 0x184D330[L_EB60]                 ★ V 入口
+0000EB5C  JZ            0x0[-] 0x184D4A0[L_ECD0]                 
+0000EB68  LEA_STK       0x0[-] 0x184D360[L_EB90]                 
+0000EB74  LD_STK        0xC[-] 0x184D354[L_EB84]                 
+0000EB80  PUSH          0x0[-]                                   
+0000EB88  CALLNATIVE    0xD0[native#207] 0x0[-] 0x184D374[L_EBA4] 
+0000EB98  SP_DROP       0x4[-]                                   
+0000EBA0  JZ            0x0[-] 0x184D48C[L_ECBC]                 
+0000EBAC  LD_STK        0x8[-] 0x184D38C[L_EBBC]                 
+0000EBB8  JZ            0x0[-] 0x184D484[L_ECB4]                 
+0000EBC4  MOV_D         0x183E7B8[var#915] 0x184D3B0[L_EBE0]     
+0000EBD0  MOV_D         0x183E738[var#914] 0x184D3B4[L_EBE4]     
+0000EBDC  OR            0x0[-] 0x0[-] 0x184D400[L_EC30]          
+0000EBEC  LEA_STK       0x0[-] 0x184D3E0[L_EC10]                 
+0000EBF8  PUSH          0x0[-]                                   
+0000EC00  PUSH          0x6[-]                                   
+0000EC08  CALLNATIVE    0xA[native#9] 0x0[-] 0x184D3F4[L_EC24]   
+0000EC18  SP_DROP       0x8[-]                                   
+0000EC20  EQZ           0x0[-] 0x184D404[L_EC34]                 
+0000EC2C  OR            0x0[-] 0x0[-] 0x184D42C[L_EC5C]          
+0000EC3C  LEA_STK       0x0[-] 0x184D420[L_EC50]                 
+0000EC48  CALLNATIVE    0x235[native#564] 0x0[-] 0x184D430[L_EC60] 
+0000EC58  OR            0x0[-] 0x0[-] 0x184D43C[L_EC6C]          
+0000EC68  JZ            0x0[-] 0x184D484[L_ECB4]                 
+0000EC74  LEA_STK       0x0[-] 0x184D46C[L_EC9C]                 
+0000EC80  LEA_STK       0xC[-] 0x184D460[L_EC90]                 
+0000EC8C  PUSH          0x0[-]                                   
+0000EC94  CALLNATIVE    0xD1[native#208] 0x0[-] 0x1869F06[str@""] 
+0000ECA4  SP_DROP       0x4[-]                                   
+0000ECAC  JMP           0x184D4A0[L_ECD0]                        
+0000ECB4  JMP           0x184D494[L_ECC4]                        
+0000ECBC  JMP           0x184D4A0[L_ECD0]                        
+0000ECC4  HALT_OK                                                
+0000ECD0  RET                                                    

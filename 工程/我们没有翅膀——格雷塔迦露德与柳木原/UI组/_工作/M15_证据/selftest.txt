@@ -1,0 +1,27 @@
+SELFTEST total=25 fail=0
+PASS	canvas-1920	1920pxx1080px
+PASS	dialog.screen	dialog
+PASS	dialog.under=null	null
+PASS	dialog.overlay-empty	0
+PASS	sysicons.open	sysicons
+PASS	sysicons.under=dialog	dialog
+PASS	sysicons.base-painted	10
+PASS	sysicons.base-DOM-preserved	
+PASS	sysicons.overlay-children	20
+PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+PASS	sysicons.icons-9	9
+PASS	sysicons.dismiss-click	dialog
+PASS	sysicons.overlay-cleared	0
+PASS	sysicons.back-to-dialog-DOM-preserved	
+PASS	sysicons.reopen	sysicons
+PASS	sysicons.icon-dispatch	save
+PASS	zeronine.img-not-borderimage	13/13 
+PASS	zeronine.no-placeholder	
+PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+PASS	dynamic.slot_thumb-placeholder	[占位] 动态层 | dynamic:slot_thumb
+PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+PASS	overlay.no-history-entry	开浮层前 history=0
+PASS	overlay.close-overlay	dialog
+PASS	zeronine.stretched-to-element-box	13/13 
+PASS	zeronine.size-differs-from-png-still-rendered	13/13 张 PNG 实宽(1152) ≠ 元素宽(552)，仍正常绘制
+RESULT=OK

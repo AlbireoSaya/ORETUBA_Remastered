@@ -1,0 +1,20 @@
+from pathlib import Path
+import importlib.util,json
+b=Path('临时/ISSUE-20261011-02/r-nonempty-layer-replay-01');b.mkdir(parents=True,exist_ok=True)
+s=importlib.util.spec_from_file_location('oracle',Path('工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_opaque_layers_reference.py'));m=importlib.util.module_from_spec(s);s.loader.exec_module(m);f=m.opaque_layers32_reference
+dest=bytearray(b'\x55'*12);src=bytearray(bytes.fromhex('67452301efcdab89'));layer={'data':src,'width':2,'height':1,'pitch':8,'row0':0,'x':0,'y':0,'id':0x8000002b,'visible':1,'enabled':255};rows=[]
+got=f(dest,2,1,8,0,0,[layer],1,0x8000002b)
+assert got==src+b'\x55'*4 and dest==b'\x55'*12 and src==bytes.fromhex('67452301efcdab89');rows.append('input-readonly-and-full32-copy')
+assert f(dest,2,1,8,0,0x44332211,[],3)==bytes.fromhex('1122334411223344')+b'\x55'*4;rows.append('invalid-mode-still-clear')
+assert f(dest,2,1,8,0,0,[],0,clear=False)==dest;rows.append('no-clear-preserves')
+for name,args in [('zero-width',(dest,0,1,8,0,0,[])),('bool-width',(dest,True,1,8,0,0,[])),('zero-height',(dest,2,0,8,0,0,[])),('zero-pitch',(dest,2,1,0,0,0,[])),('bad-row',(dest,2,1,8,False,0,[])),('clear-oob',(dest,2,2,8,0,0,[])),('source-oob',(dest,2,1,8,0,0,[dict(layer,data=b'')]))]:
+ try:f(*args)
+ except ValueError:rows.append(name)
+ else:raise AssertionError(name)
+assert dest==b'\x55'*12 and src==bytes.fromhex('67452301efcdab89')
+# Independent wrong-order expected catches overlapping pixel, using fixed hand expectation.
+over=dict(layer,data=bytes.fromhex('deadbeef'),width=1,pitch=4,id=1)
+result=f(dest,2,1,8,0,0,[layer,over]);assert result==bytes.fromhex('deadbeefefcdab89')+b'\x55'*4
+wrong=bytes.fromhex('67452301efcdab89')+b'\x55'*4
+assert sum(a!=z for a,z in zip(result,wrong))==4;rows.append('wrong-order-negative-control')
+p=b/'opaque-reference-verification.json';assert not p.exists();p.write_text(json.dumps({'groups':rows,'count':len(rows),'scope':'root independent hardcoded checks; original native matrix is separate','passed':True},indent=2),encoding='utf-8');print('PASS',len(rows),'oracle checks')

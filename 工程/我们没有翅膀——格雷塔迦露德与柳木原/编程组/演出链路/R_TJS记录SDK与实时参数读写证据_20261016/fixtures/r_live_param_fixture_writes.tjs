@@ -1,0 +1,20 @@
+// r_live_param_fixture_writes.tjs — 参数写回 fixture：受控写、bank=0 固定、表达式不支持
+
+function RLPWR(q, v)
+{
+    if(!RLPWatched(this, q)) throw new Exception("UNEXPECTED_PARAMETER_WRITE");
+    v &= 0xffffffff;
+    this.events.add(["w", q, 4, v]);
+    RMemoryWrite32(this.memory, q, v);
+}
+
+function RLPResolveBank(bank)
+{
+    if(bank != 0) throw new Exception("UNSUPPORTED_FIXTURE_BANK");
+    return this.bank;
+}
+
+function RLPExpr(p)
+{
+    throw new Exception("UNSUPPORTED_LIVE_EXPRESSION_FIXTURE");
+}

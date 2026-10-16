@@ -1,0 +1,13 @@
+// r_live_expression_result.tjs
+// VM 执行后的实际读取：desc → size → vector → ptr → value → next_cursor
+// 每次读取均为真实读；不得跳过、不得预存、不得缓存（desc 以外）
+
+function RLiveExpressionResult(rd, rh, table)
+{
+    var desc = rd(0x5355e8) & 0xffffffff;
+    var size = rh(table) & 65535;
+    var vector = rd((desc + 4) & 0xffffffff) & 0xffffffff;
+    var ptr = rd(vector) & 0xffffffff;
+    var value = rd(ptr) & 0xffffffff;
+    return %["value" => value, "next_cursor" => (table + size) & 0xffffffff];
+}

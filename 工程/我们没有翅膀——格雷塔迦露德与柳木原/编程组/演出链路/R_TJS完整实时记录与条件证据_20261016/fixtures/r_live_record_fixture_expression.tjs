@@ -1,0 +1,20 @@
+function RRExpression(p,kind)
+{
+	var prep=global.RRPrepare incontextof this;
+	var cursor=prep(p,kind);
+
+	var rd = global.RRRead32 incontextof this;
+	var rh = global.RRRead16 incontextof this;
+	var rb = global.RRRead8 incontextof this;
+	var wr = global.RRWrite32 incontextof this;
+	var wb = global.RRWrite8 incontextof this;
+	var resolve = global.RRResolve incontextof this;
+	var native = global.RRNative incontextof this;
+	var run = global.RRVM incontextof this;
+
+	var r = global.RLiveExpressionEvaluate(rd, wr, rh, rb, wb, p, cursor, this.vmctx, resolve, native, run, 10000);
+
+	if(r.bound)this.bindings.add([kind,r.code_start]);
+
+	return [r.value, r.next_cursor];
+}

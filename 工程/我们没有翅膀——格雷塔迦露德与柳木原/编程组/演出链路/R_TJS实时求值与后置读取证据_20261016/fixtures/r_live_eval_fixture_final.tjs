@@ -1,0 +1,13 @@
+function RVEFinalMemory(spec, s, seg) {
+    for (var i = 0; i < seg.source_final.count; i++) {
+        if ((global.RMemoryRead8 incontextof this)(s.memory, spec.source + i) != seg.source_final[i]) {
+            throw new global.Exception("LIVE_EVAL_FINAL_SOURCE");
+        }
+    }
+    for (var j = 0; j < seg.final_words.count; j++) {
+        var row = seg.final_words[j];
+        if (((global.RMemoryRead32 incontextof this)(s.memory, row[0]) & 0xffffffff) != (row[1] & 0xffffffff)) {
+            throw new global.Exception("LIVE_EVAL_FINAL_WORD");
+        }
+    }
+}

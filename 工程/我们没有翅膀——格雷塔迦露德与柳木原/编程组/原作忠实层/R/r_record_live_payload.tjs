@@ -1,0 +1,56 @@
+function RRecordLivePayload(rd, rh, rb, wr, tag, p, dest, resolveBank, evaluateExpr, arrayValue = void)
+{
+    if (tag == 0) {
+        return [0, p & 0xffffffff];
+    }
+
+    if (tag == 2) {
+        var value = rd(p & 0xffffffff) & 0xffffffff;
+        var next = (p + 4) & 0xffffffff;
+        return [value, next];
+    }
+
+    var selector = rb(p & 0xffffffff);
+    p = (p + 1) & 0xffffffff;
+
+    if (selector == 0) {
+        var value = rd(p & 0xffffffff) & 0xffffffff;
+        var next = (p + 4) & 0xffffffff;
+        return [value, next];
+    }
+
+    if (selector == 1) {
+        var flags = rd(dest & 0xffffffff) & 0xffffffff;
+        wr(dest & 0xffffffff, (flags | 2) & 0xffffffff);
+
+        var n = rh(p & 0xffffffff) & 0xffff;
+        var data = (p + 2) & 0xffffffff;
+        var value = (n == 0) ? 0 : data;
+        var next = (data + n) & 0xffffffff;
+        return [value, next];
+    }
+
+    if (selector == 2) {
+        if (typeof arrayValue == "Object") return arrayValue(p);
+        var bank = rd(p & 0xffffffff) & 0xffffffff;
+        var base = resolveBank(bank);
+        if (typeof base != "Integer") {
+            throw new Exception("MISSING_LIVE_BANK");
+        }
+
+        var element = rd((p + 4) & 0xffffffff) & 0xffffffff;
+        var value = rd((base + 4 * element) & 0xffffffff) & 0xffffffff;
+        var next = (p + 8) & 0xffffffff;
+        return [value, next];
+    }
+
+    if (selector == 3) {
+        var pair = evaluateExpr(p);
+        if (pair.count != 2 || typeof pair[0] != "Integer" || typeof pair[1] != "Integer") {
+            throw new Exception("INVALID_LIVE_EXPRESSION_RESULT");
+        }
+        return [pair[0] & 0xffffffff, pair[1] & 0xffffffff];
+    }
+
+    throw new Exception("UNSUPPORTED_LIVE_RECORD_SELECTOR");
+}

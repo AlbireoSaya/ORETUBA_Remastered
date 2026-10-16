@@ -1,0 +1,16 @@
+"""Root checker controls, private copies only."""
+from pathlib import Path
+import hashlib,json,subprocess,sys
+r=Path.cwd().resolve();w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS九项VM指令扩展证据_20261016';bits,kind=int(sys.argv[1]),sys.argv[2];assert bits in(32,64)and kind in('operand-order','shift-count','stale-pc')
+out=r/'临时/ISSUE-20261011-02'/f'r-vm-extra-fault-input-{kind}-{bits}-20261016-01';assert not out.exists();out.mkdir()
+name={'operand-order':'r_vm_extra_operands.tjs','shift-count':'r_value_extra_bits.tjs','stale-pc':'r_vm_extra_value.tjs'}[kind];p=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R'/name;text=p.read_text(encoding='utf-8');before=hashlib.sha256(p.read_bytes()).hexdigest()
+if kind=='operand-order':
+ old='            b = rd((p0 + 4) & M);\n            d = rd((p0 + 8) & M);\n            a = rd(p0);';new='            a = rd(p0);\n            b = rd((p0 + 4) & M);\n            d = rd((p0 + 8) & M);'
+elif kind=='shift-count':old='b & 31';new='b & 63'
+else:
+ old='    wr(d & 0xFFFFFFFF, v & 0xFFFFFFFF);\n\n    var pc = rd((ctx + 8) & 0xFFFFFFFF);';new='    var pc = rd((ctx + 8) & 0xFFFFFFFF);\n\n    wr(d & 0xFFFFFFFF, v & 0xFFFFFFFF);'
+assert text.count(old)==(2 if kind=='shift-count'else 1);(out/name).write_text(text.replace(old,new),encoding='utf-8')
+manifest=w/'self-authored-inputs'/('full'if kind=='shift-count'else'micro')/'manifest.json';tag=f'r-vm-extra-fault-{kind}-{bits}-20261016-01'
+process=subprocess.run([sys.executable,'-X','utf8','-B',str(w/'verify-extra-runtime.txt'),str(bits),tag,str(manifest),'60',str(out)],capture_output=True,timeout=80)
+ev=r/'临时/ISSUE-20261011-02'/tag/'evidence';v=json.loads((ev/'verdict.json').read_text());console=(ev/'console.utf8.txt').read_text();passed=process.returncode==1 and not v['passed']and('RVM_COMPARE'in console or'RVM_FINAL'in console)and v['process']['returncode']==0 and v['process']['cleanup_ok'];assert hashlib.sha256(p.read_bytes()).hexdigest()==before
+result=dict(passed=passed,bits=bits,fault=kind,private_override=True,production_unchanged_sha256=before,failed_test_receipt=(ev/'verdict.json').relative_to(r).as_posix());(ev/'fault-verdict.json').write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result));sys.exit(0 if passed else 1)

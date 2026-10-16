@@ -1,0 +1,194 @@
+[
+  {
+    "addr": "0x4f8d50",
+    "op": "push -1"
+  },
+  {
+    "addr": "0x4f8d52",
+    "op": "push 0x5176e0"
+  },
+  {
+    "addr": "0x4f8d57",
+    "op": "mov eax, dword ptr fs:[0]"
+  },
+  {
+    "addr": "0x4f8d5d",
+    "op": "push eax"
+  },
+  {
+    "addr": "0x4f8d5e",
+    "op": "mov dword ptr fs:[0], esp"
+  },
+  {
+    "addr": "0x4f8d65",
+    "op": "sub esp, 0x14"
+  },
+  {
+    "addr": "0x4f8d68",
+    "op": "push esi"
+  },
+  {
+    "addr": "0x4f8d69",
+    "op": "mov esi, dword ptr [esp + 0x28]"
+  },
+  {
+    "addr": "0x4f8d6d",
+    "op": "lea eax, [esp + 4]"
+  },
+  {
+    "addr": "0x4f8d71",
+    "op": "push edi"
+  },
+  {
+    "addr": "0x4f8d72",
+    "op": "push eax"
+  },
+  {
+    "addr": "0x4f8d73",
+    "op": "mov ecx, esi"
+  },
+  {
+    "addr": "0x4f8d75",
+    "op": "call 0x4f8ef0"
+  },
+  {
+    "addr": "0x4f8d7a",
+    "op": "mov edx, dword ptr [esi + 0x18]"
+  },
+  {
+    "addr": "0x4f8d7d",
+    "op": "lea edi, [esi + 0x18]"
+  },
+  {
+    "addr": "0x4f8d80",
+    "op": "mov ecx, edi"
+  },
+  {
+    "addr": "0x4f8d82",
+    "op": "mov dword ptr [esp + 0x24], 0"
+  },
+  {
+    "addr": "0x4f8d8a",
+    "op": "call dword ptr [edx + 4]"
+  },
+  {
+    "addr": "0x4f8d8d",
+    "op": "mov eax, dword ptr [esi + 0x5c]"
+  },
+  {
+    "addr": "0x4f8d90",
+    "op": "push eax"
+  },
+  {
+    "addr": "0x4f8d91",
+    "op": "call dword ptr [0x518204]"
+  },
+  {
+    "addr": "0x4f8d97",
+    "op": "mov ecx, dword ptr [esp + 0xc]"
+  },
+  {
+    "addr": "0x4f8d9b",
+    "op": "test ecx, ecx"
+  },
+  {
+    "addr": "0x4f8d9d",
+    "op": "jne 0x4f8da8"
+  },
+  {
+    "addr": "0x4f8d9f",
+    "op": "mov edx, dword ptr [esi]"
+  },
+  {
+    "addr": "0x4f8da1",
+    "op": "mov ecx, esi"
+  },
+  {
+    "addr": "0x4f8da3",
+    "op": "call dword ptr [edx + 4]"
+  },
+  {
+    "addr": "0x4f8da6",
+    "op": "jmp 0x4f8dca"
+  },
+  {
+    "addr": "0x4f8da8",
+    "op": "mov eax, dword ptr [esp + 0x14]"
+  },
+  {
+    "addr": "0x4f8dac",
+    "op": "test eax, eax"
+  },
+  {
+    "addr": "0x4f8dae",
+    "op": "je 0x4f8db5"
+  },
+  {
+    "addr": "0x4f8db0",
+    "op": "mov eax, dword ptr [eax + 0xc]"
+  },
+  {
+    "addr": "0x4f8db3",
+    "op": "jmp 0x4f8db7"
+  },
+  {
+    "addr": "0x4f8db5",
+    "op": "xor eax, eax"
+  },
+  {
+    "addr": "0x4f8db7",
+    "op": "imul eax, dword ptr [esp + 0x10]"
+  },
+  {
+    "addr": "0x4f8dbc",
+    "op": "add ecx, eax"
+  },
+  {
+    "addr": "0x4f8dbe",
+    "op": "mov eax, dword ptr [ecx]"
+  },
+  {
+    "addr": "0x4f8dc0",
+    "op": "call dword ptr [eax]"
+  },
+  {
+    "addr": "0x4f8dc2",
+    "op": "mov edx, dword ptr [esi + 0x48]"
+  },
+  {
+    "addr": "0x4f8dc5",
+    "op": "lea ecx, [esi + 0x48]"
+  },
+  {
+    "addr": "0x4f8dc8",
+    "op": "call dword ptr [edx]"
+  },
+  {
+    "addr": "0x4f8dca",
+    "op": "mov eax, dword ptr [esi]"
+  },
+  {
+    "addr": "0x4f8dcc",
+    "op": "mov ecx, esi"
+  },
+  {
+    "addr": "0x4f8dce",
+    "op": "call dword ptr [eax + 0x20]"
+  },
+  {
+    "addr": "0x4f8dd1",
+    "op": "mov edx, dword ptr [edi]"
+  },
+  {
+    "addr": "0x4f8dd3",
+    "op": "mov ecx, edi"
+  },
+  {
+    "addr": "0x4f8dd5",
+    "op": "call dword ptr [edx + 8]"
+  },
+  {
+    "addr": "0x4f8dd8",
+    "op": "mov dword ptr [esp + 8], 0x51a414"
+  }
+]

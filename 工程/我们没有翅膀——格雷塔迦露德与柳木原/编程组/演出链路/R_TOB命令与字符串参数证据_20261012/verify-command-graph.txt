@@ -1,0 +1,36 @@
+from pathlib import Path
+import sys,json,hashlib,struct
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';stage=root/'临时/ISSUE-20261011-02/r-tob-command-audit-replay-01'
+sys.path[:0]=[str(g/'工具'),str(g/'逆向引擎'),str(root/'工具/capstone-5.0.7-py3')]
+from pe_min import PE
+from lucifen_direct_cfg import walk_direct_function,collect_direct_graph
+from capstone import Cs,CS_ARCH_X86,CS_MODE_32
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');sha=hashlib.sha256(pe.data).hexdigest();assert sha=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+table=json.loads((stage/'command-source-census.json').read_text('utf-8'))['commands'];roots=sorted(set(x['handler_va'] for x in table));ranges=[(pe.image_base+s['vaddr'],pe.image_base+s['vaddr']+s['rawsize']) for s in pe.sections if s['chars']&0x20000000]
+def read(a,n):
+ d=pe.read_rva(a-pe.image_base,n);return d if d is not None and len(d)==n else None
+def walk(entry,known,limit):return walk_direct_function(read,ranges,entry,known,limit)
+graph=collect_direct_graph(walk,roots,[],max_functions=2500,max_instructions=1000000)
+out=stage/'command-call-graph.json';assert not out.exists();out.write_text(json.dumps({'source_sha256':sha,'scope':'static direct paths only; IAT and virtual calls unresolved; not runtime reachability or semantic completion','roots':roots,'graph':graph},indent=2),encoding='utf-8')
+md=Cs(CS_ARCH_X86,CS_MODE_32);md.detail=True;fields=[];iat_sites=[];maps={};desc=pe.ddirs[1][0]
+for dll,fs in pe.imports():
+ ilt,ts,fc,name,iat=struct.unpack('<5I',pe.read_rva(desc,20));desc+=20
+ for i,(fn,hint) in enumerate(fs):maps[pe.image_base+iat+i*4]={'dll':dll,'name':fn}
+# Walked instructions, rather than naive whole-section linear decoding (which can stop at embedded data).
+for f in graph['functions']:
+ captured={}
+ def cap(a,n):
+  d=read(a,n)
+  if d:captured[a]=d
+  return d
+ walk_direct_function(cap,ranges,f['entry'],roots,10000)
+ for a,data in sorted(captured.items()):
+  x=next(md.disasm(data,a,count=1),None)
+  if not x:continue
+  for o in x.operands:
+   if o.type!=3:continue
+   if o.mem.disp in (0x64d1,0x64e2):fields.append({'function_entry':f['entry'],'site':a,'mnemonic':x.mnemonic,'op_str':x.op_str,'displacement':o.mem.disp})
+   if x.mnemonic in ('call','jmp') and not o.mem.base and not o.mem.index and o.mem.disp in maps:iat_sites.append({'function_entry':f['entry'],'site':a,'iat':o.mem.disp,**maps[o.mem.disp]})
+p=stage/'command-resource-consumers.json';assert not p.exists();p.write_text(json.dumps({'source_sha256':sha,'static_field_sites':fields,'static_import_calls':iat_sites,'scope':'static direct corpus paths only; absolute IAT names verified from descriptors; semantic and dynamic paths pending'},indent=2),encoding='utf-8')
+print(json.dumps({'budget':graph['budget'],'graph_diagnostics':graph['diagnostics'],'indirect_gaps':sum(len(x['unresolved']) for x in graph['functions']),'function_diagnostics':sum(len(x['diagnostics']) for x in graph['functions']),'field_sites':fields,'import_calls':len(iat_sites)},ensure_ascii=False),flush=True)
+

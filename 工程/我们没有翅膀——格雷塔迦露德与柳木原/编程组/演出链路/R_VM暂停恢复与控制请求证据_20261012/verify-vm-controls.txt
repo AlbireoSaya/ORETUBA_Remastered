@@ -1,0 +1,49 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=root/'子代理工作区/ISSUE-20261011-02/r-tob-dynamic-control';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((b/'expression-reference-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+import importlib.util
+from lucifen_instruction_evidence import collect_function_rows
+out=root/'临时/ISSUE-20261011-02/r-inline-vm-chain-replay-01'
+u=map_pe(pe);table=struct.unpack('<47I',bytes(u.mem_read(0x4a7f54,188)))
+entries=[0x4a7a30,0x4a7a50]+[table[i] for i in [0,30,41]]+[0x41b3a0,0x4187aa,0x4a5a00,0x426520,0x464bd0]
+functions=[collect_function_rows(lambda a,n:bytes(u.mem_read(a,n)),[(0x400000,0x540000)],e,[0x4a7a75]+entries+list(table),10000) for e in entries]
+assert all(not x['diagnostics'] for x in functions)
+(out/'inline-vm-control-and-callback-instructions.json').write_text(json.dumps({'source_sha256':hashlib.sha256(pe.data).hexdigest(),'functions':functions,'scope':'static relevant VM/callback cases; import and virtual boundaries remain explicit'},ensure_ascii=False,indent=2),encoding='utf-8')
+spec=importlib.util.spec_from_file_location('inline_ref',out/'lucifen_inline_vm_reference03.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+u.mem_map(buffer,4096);sb=0x1028000;d=0x102f000;rows=[]
+values=[0,1,0xffffffff,0x7fffffff,0x80000000,0x80000001]
+for a in values:
+ for b in values:
+  u.mem_write(ctx,b'\0'*64);u.mem_write(ctx+4,struct.pack('<I',sb));u.mem_write(ctx+12,struct.pack('<I',sb));u.mem_write(buffer,struct.pack('<5I',41,a,b,d,1));u.mem_write(d-4,b'G'*12)
+  assert invoke_thiscall_args(u,0x4a7a30,ctx,[buffer],timeout=0)==0
+  v=struct.unpack('<I',u.mem_read(d,4))[0];assert v==m.value_op(41,a,b) and bytes(u.mem_read(d-4,4))==b'G'*4 and bytes(u.mem_read(d+4,4))==b'G'*4
+  rows.append({'opcode':41,'a':a,'b':b,'result':v,'passed':True})
+for a in [0,1,0x80000000,0xffffffff]:
+ u.mem_write(ctx,b'\0'*64);u.mem_write(ctx+4,struct.pack('<I',sb));u.mem_write(ctx+12,struct.pack('<I',sb));u.mem_write(buffer,struct.pack('<11I',30,a,buffer+28,31,0x123,d,1,31,0x456,d,1))
+ assert invoke_thiscall_args(u,0x4a7a30,ctx,[buffer],timeout=0)==0
+ v=struct.unpack('<I',u.mem_read(d,4))[0];assert v==(0x456 if a==0 else 0x123);rows.append({'opcode':30,'condition':a,'result':v,'passed':True})
+u.mem_write(ctx,b'\0'*64);u.mem_write(ctx+4,struct.pack('<I',sb));u.mem_write(ctx+12,struct.pack('<I',sb));u.mem_write(buffer,struct.pack('<5I',0,31,0x987,d,1))
+assert invoke_thiscall_args(u,0x4a7a30,ctx,[buffer],timeout=0)==1 and struct.unpack('<I',u.mem_read(ctx+8,4))[0]==buffer+4 and struct.unpack('<I',u.mem_read(ctx+12,4))[0]==sb+4
+assert invoke_thiscall_args(u,0x4a7a50,ctx,[],timeout=0)==0 and struct.unpack('<I',u.mem_read(d,4))[0]==0x987 and struct.unpack('<I',u.mem_read(ctx+12,4))[0]==sb
+rows.append({'opcode':0,'yield':1,'resume':0,'stack_balanced_after_resume':True,'passed':True})
+(out/'vm-control-fixtures.json').write_text(json.dumps({'cases':len(rows),'rows':rows,'passed':True,'scope':'36 signed less comparisons,4 zero jumps and one original yield/resume fixture'},ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps({'cases':len(rows),'static_functions':len(functions),'static_instructions':sum(x['instruction_count'] for x in functions)}))
+

@@ -1,0 +1,89 @@
+==============================================================================
+全屏点击可达性守门（复算 uiScreenClick / uiDialogClick / uiScreenAttachClick 口径）
+  屏数 20 ｜ 目录 E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+  豁免表 4 条（DESIGN 1 / REVIEW 3）—— 逐条打印可达面积以证明不是死件
+==============================================================================
+
+── 01_title.json    OK  元素  17（可点   7）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 7
+
+── 10_dialog.json   OK  元素  26（可点  10）｜ 状态 2 ｜ 重叠对 3 ｜ 中心检查 19
+   [10_dialog.json·默认态] 重叠：dlg.icon_hit_02_qload(z=29) 覆盖 dlg.icon_hit_03_config(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·默认态] 重叠：dlg.icon_hit_05_prev(z=29) 覆盖 dlg.icon_hit_06_close(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·默认态] 重叠：dlg.icon_hit_08_load(z=29) 覆盖 dlg.icon_hit_09_repeat(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·对话屏·选择肢展开态（等价 UIDlgChoicesOpen=true）] 重叠：dlg.icon_hit_02_qload(z=29) 覆盖 dlg.icon_hit_03_config(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·对话屏·选择肢展开态（等价 UIDlgChoicesOpen=true）] 重叠：dlg.icon_hit_05_prev(z=29) 覆盖 dlg.icon_hit_06_close(z=29)  0.75 px（占被覆盖者 0.0%）
+   [10_dialog.json·对话屏·选择肢展开态（等价 UIDlgChoicesOpen=true）] 重叠：dlg.icon_hit_08_load(z=29) 覆盖 dlg.icon_hit_09_repeat(z=29)  0.75 px（占被覆盖者 0.0%）
+
+── 20_sysmenu.json  OK  元素  29（可点   9）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 9
+
+── 21_confirm.json  OK  元素   9（可点   2）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 2
+
+── 22_loading.json  OK  元素   7（可点   0）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 0
+
+── 23_save.json     OK  元素 118（可点  32）｜ 状态 1 ｜ 重叠对 2 ｜ 中心检查 32
+   [23_save.json·默认态] 重叠：sv.mov(z=97) 覆盖 sv.hit_back(z=96)  2379 px（占被覆盖者 10.9%）
+   [23_save.json·默认态] 重叠：sv.cpy(z=97) 覆盖 sv.hit_back(z=96)  9516 px（占被覆盖者 43.7%）
+   [豁免·REVIEW] sv.hit_back 可达面积 56.3%（被覆盖 43.7%）被 sv.cpy 吞掉中心
+       理由：存档屏的「返回」热区（x1560 y960 w320 h68，**无对应美术的宽热区**）与编辑行同区：2026-09-22 的 M7/G1 修复把 `sv.cpy/del/mod/mov` 提到 z=97（子控件赢），于是本件的**几何中心**(1720,994)恰好落在 `sv.cpy`（x1623 y964 156×61）里 ⇒ 中心不归它。但**不是死件**：z=97 的 4 件只吃掉它 43.7%，左侧 63px 带（x1560–1623）+ 右侧 101px 带（x1779–1880）仍归本件（56.3% 可达，本脚本打印实测值）。★ 待裁决：若要求「中心也必须归返回」，须把本件**收窄**到不与编辑行重叠（如 x1560..1623 y960..1028）；未收窄是因为它的意图范围**无美术可量**（M7/G1 已在 m34 生成器注释里说明为何不改它）。
+       ★ **待裁决**（见豁免表 REVIEW 类）
+
+── 24_load.json     OK  元素 118（可点  32）｜ 状态 1 ｜ 重叠对 2 ｜ 中心检查 32
+   [24_load.json·默认态] 重叠：sv.mov(z=97) 覆盖 sv.hit_back(z=96)  2379 px（占被覆盖者 10.9%）
+   [24_load.json·默认态] 重叠：sv.cpy(z=97) 覆盖 sv.hit_back(z=96)  9516 px（占被覆盖者 43.7%）
+   [豁免·REVIEW] sv.hit_back 可达面积 56.3%（被覆盖 43.7%）被 sv.cpy 吞掉中心
+       理由：同存档屏（读档屏的 `sv.hit_back` 与 `sv.cpy` 几何相同，理由同上）。
+       ★ **待裁决**（见豁免表 REVIEW 类）
+
+── 25_config.json   OK  元素 121（可点  44）｜ 状态 1 ｜ 重叠对 5 ｜ 中心检查 36
+   [25_config.json·默认态] 重叠：cfg.hit_reset(z=95) 覆盖 cfg.sys_end_hit(z=95)  121 px（占被覆盖者 2.4%）
+   [25_config.json·默认态] 重叠：cfg.on_hit(z=96) 覆盖 cfg.it_facewindow_hit(z=95)  3068 px（占被覆盖者 20.3%）
+   [25_config.json·默认态] 重叠：cfg.off_hit(z=96) 覆盖 cfg.it_facewindow_hit(z=95)  3717 px（占被覆盖者 24.6%）
+   [25_config.json·默认态] 重叠：cfg.it_allskip_hit(z=95) 覆盖 cfg.autospeed_hit(z=95)  138 px（占被覆盖者 0.6%）
+   [25_config.json·默认态] 重叠：cfg.it_textcolchg_hit(z=95) 覆盖 cfg.char2(z=95)  1168 px（占被覆盖者 9.7%）
+
+── 26_backlog.json  OK  元素  15（可点   7）｜ 状态 1 ｜ 重叠对 4 ｜ 中心检查 7
+   [26_backlog.json·默认态] 重叠：bl.jump_hit(z=95) 覆盖 bl.list(z=20)  28448 px（占被覆盖者 2.9%）
+   [26_backlog.json·默认态] 重叠：bl.spk_hit(z=95) 覆盖 bl.list(z=20)  273728 px（占被覆盖者 28.2%）
+   [26_backlog.json·默认态] 重叠：bl.close_hit(z=95) 覆盖 bl.up_hit(z=95)  196 px（占被覆盖者 4.5%）
+   [26_backlog.json·默认态] 重叠：bl.jump_hit(z=95) 覆盖 bl.spk_hit(z=95)  224 px（占被覆盖者 0.1%）
+   [豁免·REVIEW] bl.list 可达面积 100.0%（被覆盖 0.0%）  项 2/3 各自中心可达
+       理由：回想消息块列表（x208 y108 w1349 item_h240×3）的**第 1 块**被 `bl.spk_hit`（z=95、x334 y117 w1222 h224 —— PSB `#rects/speaker` 规定「整条消息行可点=语音重播」）盖住，故第 1 块中心不派发列表项（第 2/3 块可达，本脚本会打印实测「项 2/3 可达」）。`bl.list.actions` **全为空串**（schema §六「动作表未覆盖的控件允许空 action，待编程组定义」）⇒ 今日点列表项本就没有动作，覆盖**无功能影响**。★ 待裁决：编程组给「点击回想某一行」定义 action 时，第 1 块会真的不可达 —— 届时应改为按行热区，或把语音重播热区缩到喇叭图标上（`bl.spk` 25×35 @(349,138)）。
+       ★ **待裁决**（见豁免表 REVIEW 类）
+          （豁免项内的列表项失配）[26_backlog.json·默认态] bl.list 的**第 0 项**中心(882.5,228) 被 **bl.spk_hit** 吞掉（列表项不可达）
+
+── 27_gallery.json  OK  元素  19（可点   7）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 7
+
+── 28_music.json    OK  元素 128（可点  44）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 44
+
+── 29_ending.json   OK  元素   7（可点   1）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 1
+
+── 30_chapter.json  OK  元素  15（可点   3）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 3
+
+── 31_fragment.json OK  元素  83（可点  41）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 41
+
+── 32_flowchart.json OK  元素  74（可点  12）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 12
+
+── 33_sysicons.json OK  元素  20（可点  10）｜ 状态 1 ｜ 重叠对 9 ｜ 中心检查 10
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_01_qsave(z=30) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_02_qload(z=31) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_03_skip(z=32) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_04_prev(z=33) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_05_save(z=34) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_06_load(z=35) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_07_config(z=36) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_08_close(z=37) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_09_repeat(z=38) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [豁免·DESIGN] sysicons.dismiss 可达面积 96.0%（被覆盖 4.0%）被 sysicons.hit_05_save 吞掉中心
+       理由：浮层的「点击空白关闭」全屏热区：schema §六「全屏 hit（低 z）+ 各控件热区（高 z）」是**规定做法** —— 9 个功能图标（z30..38）压在它上面正是为了「点图标不关屏」。它本身**不是**被吞死的元素：矩形 1920×1080、被 9 个图标合计覆盖仅 ~4%，其余 95%+ 面积仍是它的命中区（本脚本会打印实测值）。
+
+── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+
+── 35_quickbar.json OK  元素  29（可点  13）｜ 状态 27 ｜ 重叠对 0 ｜ 中心检查 170
+
+── 36_choices.json  OK  元素   9（可点   3）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 3
+
+── 37_dress.json    OK  元素 107（可点  42）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 42
+
+------------------------------------------------------------------------------
+合计：屏 20 ｜ 重叠对 25 ｜ 中心可达性检查 481 次 ｜ 豁免命中 4 条
+结果：**全部通过**（无未登记的可达性缺陷；豁免项均已在表中写明理由）

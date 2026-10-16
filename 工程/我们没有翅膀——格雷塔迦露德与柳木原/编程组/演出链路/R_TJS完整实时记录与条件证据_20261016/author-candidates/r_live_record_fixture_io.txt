@@ -1,0 +1,98 @@
+// r_live_record_fixture_io.tjs
+//
+// Fixture-side live record I/O entry points:
+//   RRRead32(q) / RRRead16(q) / RRRead8(q)
+//   RRWrite32(q, v) / RRWrite8(q, v)
+//
+// Contract:
+//   - every read must first pass global.RRWatched(this, q);
+//     unregistered reads throw UNEXPECTED_LIVE_EVAL_READ;
+//   - the read itself always really executes through
+//     global.RMemoryRead32/16/8 -- including while this.phase == "vm"
+//     (VM reads are simply not recorded in this.events);
+//   - only non-"vm" phases append [phase, "r", q, width, value]
+//     to this.events.
+//
+// Callers must invoke these as global.RRReadNN incontextof <state>
+// (a lookup on a Dictionary state object would yield void).
+
+function RRRead32(q)
+{
+	if (!global.RRWatched(this, q))
+	{
+		throw new global.Exception("UNEXPECTED_LIVE_EVAL_READ");
+	}
+	var v = global.RMemoryRead32(this.memory, q);
+	if (this.phase != "vm")
+	{
+		this.events.add([this.phase, "r", q, 4, v]);
+	}
+	return v;
+}
+
+function RRRead16(q)
+{
+	if (!global.RRWatched(this, q))
+	{
+		throw new global.Exception("UNEXPECTED_LIVE_EVAL_READ");
+	}
+	var v = global.RMemoryRead16(this.memory, q);
+	if (this.phase != "vm")
+	{
+		this.events.add([this.phase, "r", q, 2, v]);
+	}
+	return v;
+}
+
+function RRRead8(q)
+{
+	if (!global.RRWatched(this, q))
+	{
+		throw new global.Exception("UNEXPECTED_LIVE_EVAL_READ");
+	}
+	var v = global.RMemoryRead8(this.memory, q);
+	if (this.phase != "vm")
+	{
+		this.events.add([this.phase, "r", q, 1, v]);
+	}
+	return v;
+}
+
+// 仅 fixture 专用：受控实时写入口 —— 委托 global.RMemoryWrite*，写前经 global.RRWatched 白名单校验。
+// 说明：本文件不读内存、不伪造 VM 写、不拆宽度记录；宽度按 32/8 分别登记为 4/1。
+
+function RRWrite32(q, v)
+{
+    if (!global.RRWatched(this, q))
+    {
+        throw new global.Exception("UNEXPECTED_LIVE_EVAL_WRITE");
+    }
+    v = v & 0xffffffff;
+    if (this.phase == "vm")
+    {
+        this.vm_writes.add([q, 4, v]);
+    }
+    else
+    {
+        this.events.add([this.phase, "w", q, 4, v]);
+    }
+    global.RMemoryWrite32(this.memory, q, v);
+}
+
+function RRWrite8(q, v)
+{
+    if (!global.RRWatched(this, q))
+    {
+        throw new global.Exception("UNEXPECTED_LIVE_EVAL_WRITE");
+    }
+    v = v & 255;
+    if (this.phase == "vm")
+    {
+        this.vm_writes.add([q, 1, v]);
+    }
+    else
+    {
+        this.events.add([this.phase, "w", q, 1, v]);
+    }
+    global.RMemoryWrite8(this.memory, q, v);
+}

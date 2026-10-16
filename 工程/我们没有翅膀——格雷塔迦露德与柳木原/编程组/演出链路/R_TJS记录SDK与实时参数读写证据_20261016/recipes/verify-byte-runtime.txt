@@ -1,0 +1,79 @@
+"""Root platform verification: small byte-parser cases and existing controlled VM fixtures."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import sys
+import time
+import uuid
+
+root = Path.cwd()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015"
+prior = root / "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015"
+sys.path.insert(0, str(group / "工具"))
+from performance_runtime import execute
+
+bits, tag, manifest_path = int(sys.argv[1]), sys.argv[2], Path(sys.argv[3]).resolve()
+assert bits in (32, 64) and "/" not in tag and "\\" not in tag
+assert manifest_path.is_relative_to(root)
+manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+counts = [manifest[k] for k in ("checks", "rejects", "dynamic_cases", "dynamic_records")]
+assert counts == [30, 22, 12, 24]
+out = root / "临时/ISSUE-20261011-02" / tag
+assert not out.exists()
+game, save, evidence = out / "game", out / "savedata", out / "evidence"
+for path in (game, save, evidence):
+    path.mkdir(parents=True)
+core = ["r_expr_read.tjs", "r_expr_header.tjs", "r_expr_relocations.tjs", "r_parse_expression.tjs",
+        "r_u32.tjs", "r_vm_entry.tjs", "r_vm_memory.tjs", "r_vm_control.tjs", "r_vm_value.tjs", "r_vm_step.tjs",
+        "r_vm_run.tjs", "r_relocation_pair.tjs", "r_relocation_writes.tjs", "r_record_value.tjs"]
+fixtures = ["r_vm_native_flags_fixture.tjs", "r_vm_native_keyboard_fixture.tjs", "r_vm_native_query_fixture.tjs",
+            "r_vm_native_control_fixture.tjs", "r_vm_native_dispatch_fixture.tjs", "r_vm_fixture_nativecall.tjs", "r_vm_fixture_compare.tjs"]
+owned = list(json.loads((work / "accepted-map.json").read_text(encoding="utf-8-sig")))
+previous = [name for name in json.loads((prior / "accepted-map.json").read_text(encoding="utf-8")) if name.endswith(".tjs")]
+names = core + previous + owned + fixtures
+assert len(names) == len(set(names))
+sources = []
+for name in names:
+    src = (work / name if name in owned else prior / name if name in previous else
+           group / "演出链路/R_TJS表达式VM与暂停恢复证据_20261015" / name if name in fixtures else
+           group / "原作忠实层/R" / name)
+    shutil.copyfile(src, game / name)
+    sources.append({"name": name, "source": src.relative_to(root).as_posix(), "sha256": hashlib.sha256(src.read_bytes()).hexdigest()})
+nonce = uuid.uuid4().hex
+commands = ["Debug.startLogToFile();", "try {", f'Debug.message("RBYTES_BEGIN {nonce}");']
+for name in names:
+    commands += [f'Debug.message("RBYTES_LOAD {nonce} {name}");', f'Scripts.execStorage("{name}");']
+for i, row in enumerate(manifest["files"]):
+    src = root / row["source"]
+    assert src.resolve().is_relative_to(root)
+    assert hashlib.sha256(src.read_bytes()).hexdigest() == row["sha256"]
+    dest = f"cases-{i:04d}.tjs"
+    shutil.copyfile(src, game / dest)
+    sources.append({"name": dest, "source": row["source"], "sha256": row["sha256"]})
+    commands.append(f'Scripts.execStorage("{dest}");')
+counter_names = ["RRecordCheckCount", "RRecordRejectCount", "RDynamicCaseCount", "RDynamicRecordCount"]
+condition = " || ".join(f"{name}!=={value}" for name, value in zip(counter_names, counts))
+commands += [f'if({condition})throw new Exception("WRONG_BYTE_RECORD_COUNTS");',
+             f'Debug.message("RBYTES_PASS {nonce} "+' + '+" "+'.join(counter_names) + ");", "} catch(e) {",
+             f'Debug.message("RBYTES_EXCEPTION {nonce} "+((typeof e=="Object")?e.message:(""+e)));', "}", "System.exit();"]
+(game / "startup.tjs").write_text("\n".join(commands) + "\n", encoding="utf-8")
+engine = root / f"工具/krkrz/krkrz_20171225/tvpwin{bits}.exe"
+start = time.time_ns()
+process = execute([str(engine), str(game), "-datapath=" + str(save) + "/", "-readencoding=UTF-8", "-startup=startup.tjs", "-userconf=no"], out, 45, evidence)
+log = save / "krkr.console.log"
+raw = log.read_bytes() if log.exists() else b""
+text = raw.decode("utf-16") if raw.startswith(b"\xff\xfe") else raw.decode("utf-16-le", errors="replace")
+fresh = log.exists() and log.stat().st_mtime_ns >= start
+marker = f"RBYTES_PASS {nonce} " + " ".join(map(str, counts))
+passed = process["returncode"] == 0 and not process["timed_out"] and process["cleanup_ok"] and fresh and marker in text and f"RBYTES_EXCEPTION {nonce}" not in text
+receipt = {"passed": passed, "bits": bits, "nonce": nonce, "counts": dict(zip(("checks", "rejects", "dynamic_cases", "dynamic_records"), counts)),
+           "fresh_log": fresh, "process": process, "sources": sources, "engine_sha256": hashlib.sha256(engine.read_bytes()).hexdigest(),
+           "console_sha256": hashlib.sha256(raw).hexdigest(), "input_manifest": manifest_path.relative_to(root).as_posix(),
+           "native_callbacks_are_fixtures": True, "original_read_order_or_full_game_fidelity_proven": False}
+(evidence / "verdict.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+(evidence / "console.utf8.txt").write_text(text, encoding="utf-8")
+print(json.dumps({key: receipt[key] for key in ("passed", "bits", "counts", "process")}))
+print("\n".join(line for line in text.splitlines() if "RBYTES_" in line)[-1200:])
+sys.exit(0 if passed else 1)

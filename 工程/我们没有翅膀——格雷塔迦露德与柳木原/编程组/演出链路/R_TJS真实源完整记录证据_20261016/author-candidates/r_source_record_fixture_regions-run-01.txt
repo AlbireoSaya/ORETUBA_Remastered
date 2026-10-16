@@ -1,0 +1,21 @@
+function RSourceByte(offset)
+{
+    if (offset < 0) throw new Error("negative offset");
+    if (offset < this.bytes.count) return this.bytes[offset];
+    return 0;
+}
+
+function RSourceRegions(spec)
+{
+    var backing = %["bytes" => spec.data];
+    var n = int((spec.data.count + 4095) / 4096) * 4096;
+    if (n < 4096) n = 4096;
+    var sourceReader = global.RSourceByte incontextof backing;
+    return global.RMemoryCreate([
+        %["base" => 0,          "size" => 4096,      "read_byte" => global.RRZero, "writable" => 1],
+        %["base" => 0x530000,   "size" => 0x10000,   "read_byte" => global.RRZero, "writable" => 1],
+        %["base" => 0x1000000,  "size" => 0x100000,  "read_byte" => global.RRZero, "writable" => 1],
+        %["base" => 0x2000000,  "size" => 0x10000,   "read_byte" => global.RRZero, "writable" => 1],
+        %["base" => spec.source,"size" => n,          "read_byte" => sourceReader,  "writable" => 1]
+    ]);
+}

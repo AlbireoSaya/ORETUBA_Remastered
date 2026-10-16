@@ -1,0 +1,1656 @@
+// ============================================================
+// ui_widget.tjs —— 五种 kind 的通用渲染器（M2 · UI 组）
+//
+// 严格实现 layout/_schema.md §四 的五种 kind：
+//   image （含九宫格拉伸 / dynamic 动态层 / anim 修饰）
+//   text  （引擎绘字：折行、max_lines 截断、align、valign、阴影）
+//   rect  （半透明色块：面板底 / 高亮 / 遮罩）
+//   hit   （可点击热区）
+//   list  （v/h 两向、stack_bottom、item_frame、highlight、翻页 scroll）
+//   anim  （独立 kind：asset_frames 逐帧；另支持 blink / 预留 scroll_x|scroll_y）
+//   slider（★ M47：轨道 + 手柄，值写设置仓；见本文件「★ M47 滑块」区块）
+//
+// 本文件里**没有任何坐标/尺寸/字号/颜色字面量**——全部从传入的 el
+// （= UILayoutData.screens[*].elements[*]）与 ui_theme.tjs 的取数函数来。
+//
+// 合成模型（关键设计）：
+//   所有元素都画在**同一个 stage 层**（ltAlpha，全画布）上，按 z 从小到大叠加：
+//     rect   -> colorRect()          （FillColorOnAlpha：真 alpha 混合）
+//     image  -> operateStretch()     （omAlpha：真 alpha 混合，可带 opacity）
+//     text   -> drawText()           （bmAlphaOnAlpha）
+//   用 operateRect/operateStretch（而非 copyRect）的原因：
+//     copyRect 是**原样覆盖**（含 alpha），会把半透明贴图区域"打洞"露出下层，
+//     不能做 UI 叠加；operate* 才走混合。实测见 _工作\M2_证据\报告。
+//
+// TJS2 注意：Dictionary 读缺失键返回 void（不抛），故 el.xxx === void 判空即可。
+// ============================================================
+
+// ------------------------------------------------------------
+// 元素几何
+// ------------------------------------------------------------
+function uiWidgetNum(el, key, def)
+{
+	var v = el[key];
+	if(v === void || v === null) return def;
+	return v;
+}
+
+// 列表总高/总宽（count 可指定；-1 = 用 labels 全量）
+//   ★ M1（ISSUE-20260924-08）：`orientation:"h"` 起支持**多行网格**（`max_cols`×`max_rows`，
+//     逐行折行）—— 与 HTML 侧 `replica.js` 的 buildList 同一公式（那边 `cols=max_cols`、
+//     `rowsCap=max_rows`、`perPage=cols*rowsCap`、`row=floor(k/cols)`、`c=k%cols`）。
+//     本函数对 "h" 返回**主跨（宽度）**；网格外框的高由 `uiWidgetListGridRows()` 另行给出。
+function uiWidgetListSpan(el, count)
+{
+	var n = (count === void || count < 0)
+		? ((el.labels !== void) ? el.labels.count : 0)
+		: count;
+	var gap = uiWidgetNum(el, "gap", 0);
+	var ori = (el.orientation !== void) ? el.orientation : "v";
+	if(ori == "h")
+	{
+		var iw = uiWidgetNum(el, "item_w", 0);
+		var cols = uiWidgetListCols(el);
+		if(cols < 1) cols = 1;
+		return cols * iw + (cols > 0 ? (cols - 1) * gap : 0);
+	}
+	var ih = uiWidgetNum(el, "item_h", 0);
+	return n * ih + (n > 0 ? (n - 1) * gap : 0);
+}
+
+// ★ M1：网格列数（`orientation:"h"` ⇒ `max_cols`，缺省 = 全量一行；"v" ⇒ 1）
+function uiWidgetListCols(el)
+{
+	var ori = (el.orientation !== void) ? el.orientation : "v";
+	if(ori != "h") return 1;
+	var mc = uiWidgetNum(el, "max_cols", 0);
+	var n = (el.labels !== void) ? el.labels.count : 0;
+	if(mc > 0) return mc;
+	return (n > 0) ? n : 1;
+}
+
+// ★ M1：网格外框高（"v" ⇒ 可见项高之和；"h" ⇒ 行数×item_h + 行距）
+function uiWidgetListGridH(el, count)
+{
+	var gap = uiWidgetNum(el, "gap", 0);
+	var ori = (el.orientation !== void) ? el.orientation : "v";
+	var ih = uiWidgetNum(el, "item_h", 0);
+	if(ori != "h") return uiWidgetListSpan(el, count);
+	var cols = uiWidgetListCols(el);
+	if(cols < 1) cols = 1;
+	var rows = (count === void || count < 0) ? 0 : Math.floor((count + cols - 1) / cols);
+	if(rows <= 0) return 0;
+	return rows * ih + (rows - 1) * gap;
+}
+
+// 元素矩形（不含 list 的分页/stack_bottom 影响）
+function uiWidgetRect(el)
+{
+	var r = %[ x: uiWidgetNum(el, "x", 0), y: uiWidgetNum(el, "y", 0),
+	           w: uiWidgetNum(el, "w", 0), h: uiWidgetNum(el, "h", 0) ];
+	if(el.kind == "list")
+	{
+		// 有分页时高度按"当页可见项数"算，否则按全量算
+		//   ★ M1 修正：`orientation:"h"` 的**网格**外框高 = 行数×item_h + 行距（原先错取成
+		//     主跨宽度 ⇒ h 变成了宽度值，与 HTML 侧 resolveBox 的数据 w/h 口径分叉）。
+		//     "h" 网格的外框**一律取数据 w/h**（数据即外框，两端同源），故此处不改 r.h。
+		var span = -1;
+		var ori = (el.orientation !== void) ? el.orientation : "v";
+		if(ori == "v")
+		{
+			if(el.scroll !== void)
+			{
+				var pg = uiWidgetListPage(el, 0);
+				span = pg.perPage;
+			}
+			r.h = uiWidgetListSpan(el, span);
+		}
+		if(el.stack_bottom !== void)
+			r.y = el.stack_bottom - r.h;      // 选择肢：由下往上堆
+	}
+	return r;
+}
+
+// 列表分页信息
+//   %[ perPage:, pages:, page:, first:, visibleCount:, total: ]
+//   ★ M1（ISSUE-20260924-08）：`orientation:"h"` + `max_cols`×`max_rows` ⇒ perPage = 列×行
+//     （**多行网格**，与 HTML 侧 buildList 同一公式）。两者缺一 ⇒ 退化为单行（旧口径）。
+function uiWidgetListPage(el, pageWanted)
+{
+	var n = (el.labels !== void) ? el.labels.count : 0;
+	var perPage = n;
+	var ori = (el.orientation !== void) ? el.orientation : "v";
+	if(ori == "h")
+	{
+		var mc = uiWidgetNum(el, "max_cols", 0);
+		var mr = uiWidgetNum(el, "max_rows", 0);
+		if(mc > 0 && mr > 0) perPage = mc * mr;          // ★ M1：网格
+		else if(mc > 0 && perPage > mc) perPage = mc;
+	}
+	else
+	{
+		var mr2 = uiWidgetNum(el, "max_rows", 0);
+		if(mr2 > 0 && perPage > mr2) perPage = mr2;
+	}
+	if(el.scroll !== void && el.scroll.page_size !== void)
+	{
+		var ps = el.scroll.page_size;
+		if(ps > 0 && perPage > ps) perPage = ps;
+	}
+	if(perPage <= 0) perPage = n;
+	var pages = (perPage > 0) ? Math.floor((n + perPage - 1) / perPage) : 1;
+	if(pages <= 0) pages = 1;
+	var page = (pageWanted === void) ? 0 : pageWanted;
+	if(page < 0) page = 0;
+	if(page >= pages) page = pages - 1;
+	var first = page * perPage;
+	var vis = n - first;
+	if(vis > perPage) vis = perPage;
+	if(vis < 0) vis = 0;
+	return %[ perPage: perPage, pages: pages, page: page, first: first, visibleCount: vis, total: n ];
+}
+
+// 单个列表项的矩形（相对画布）。index 是**当页局部序号**（0 .. visibleCount-1）。
+//   ★ M1：`orientation:"h"` 按 `max_cols` **折行**（col = index % cols、row = floor(index/cols)），
+//     与 HTML 侧 buildList 的 `row = floor(k/cols)` / `c = k % cols` 同一公式。
+function uiWidgetListItemRect(el, index)
+{
+	var gap = uiWidgetNum(el, "gap", 0);
+	var ori = (el.orientation !== void) ? el.orientation : "v";
+	var r = uiWidgetRect(el);
+	if(ori == "h")
+	{
+		var iw = uiWidgetNum(el, "item_w", 0);
+		var ih = uiWidgetNum(el, "item_h", 0);
+		var cols = uiWidgetListCols(el);
+		if(cols < 1) cols = 1;
+		var c = index % cols;
+		var row = Math.floor(index / cols);
+		return %[ x: r.x + c * (iw + gap), y: r.y + row * (ih + gap), w: iw, h: ih ];
+	}
+	var ih2 = uiWidgetNum(el, "item_h", 0);
+	return %[ x: r.x, y: r.y + index * (ih2 + gap), w: r.w, h: ih2 ];
+}
+
+// 列表内某点的项序号（-1 = 没命中）
+function uiWidgetListHit(el, px, py, page)
+{
+	var pg = uiWidgetListPage(el, page);
+	for(var i = 0; i < pg.visibleCount; i++)
+	{
+		var ir = uiWidgetListItemRect(el, i);
+		if(px >= ir.x && px < ir.x + ir.w && py >= ir.y && py < ir.y + ir.h)
+			return pg.first + i;
+	}
+	return -1;
+}
+
+// ------------------------------------------------------------
+// 九宫格
+// ------------------------------------------------------------
+// 在 stage 上按 nine 边距把 src 拉伸到 (dx,dy,dw,dh)。
+// 返回 %[ ok:, note: ]。srcW/srcH 为源贴图实际尺寸。
+function uiWidgetNine(stage, src, srcW, srcH, dx, dy, dw, dh, nine, opacity)
+{
+	var l = nine.l, t = nine.t, r = nine.r, b = nine.b;
+	if(srcW < l + r || srcH < t + b)
+	{
+		return %[ ok: false, note: "源贴图 " + srcW + "x" + srcH
+			+ " 小于九宫格边距 l+r=" + (l + r) + " t+b=" + (t + b) ];
+	}
+	var scw = srcW - l - r;      // 源中列宽
+	var sch = srcH - t - b;      // 源中行高
+	var dcw = dw - l - r;        // 目标中列宽
+	var dch = dh - t - b;        // 目标中行高
+	if(dcw < 0) dcw = 0;
+	if(dch < 0) dch = 0;
+
+	// 九块：(目标x,y,w,h) × (源x,y,w,h)
+	var cells = [
+		%[ dx: dx,           dy: dy,           dw: l,   dh: t,   sx: 0,     sy: 0,     sw: l,   sh: t   ],
+		%[ dx: dx + l,       dy: dy,           dw: dcw, dh: t,   sx: l,     sy: 0,     sw: scw, sh: t   ],
+		%[ dx: dx + l + dcw, dy: dy,           dw: r,   dh: t,   sx: l+scw, sy: 0,     sw: r,   sh: t   ],
+		%[ dx: dx,           dy: dy + t,       dw: l,   dh: dch, sx: 0,     sy: t,     sw: l,   sh: sch ],
+		%[ dx: dx + l,       dy: dy + t,       dw: dcw, dh: dch, sx: l,     sy: t,     sw: scw, sh: sch ],
+		%[ dx: dx + l + dcw, dy: dy + t,       dw: r,   dh: dch, sx: l+scw, sy: t,     sw: r,   sh: sch ],
+		%[ dx: dx,           dy: dy + t + dch, dw: l,   dh: b,   sx: 0,     sy: t+sch, sw: l,   sh: b   ],
+		%[ dx: dx + l,       dy: dy + t + dch, dw: dcw, dh: b,   sx: l,     sy: t+sch, sw: scw, sh: b   ],
+		%[ dx: dx + l + dcw, dy: dy + t + dch, dw: r,   dh: b,   sx: l+scw, sy: t+sch, sw: r,   sh: b   ]
+	];
+	for(var i = 0; i < cells.count; i++)
+	{
+		var c = cells[i];
+		if(c.dw <= 0 || c.dh <= 0 || c.sw <= 0 || c.sh <= 0) continue;
+		stage.operateStretch(c.dx, c.dy, c.dw, c.dh, src, c.sx, c.sy, c.sw, c.sh,
+			omAlpha, opacity, stNearest);
+	}
+	return %[ ok: true, note: "" ];
+}
+
+// 把一个素材画到矩形内（自动判断是否需要九宫格 / 是否需要缩放）
+// 返回 %[ ok:, scaled:, note: ]
+function uiWidgetBlitAsset(stage, assetPath, dx, dy, dw, dh, nine, opacity)
+{
+	var src = uiAssetGet(assetPath);
+	if(src === void)
+		return %[ ok: false, scaled: false, missing: true, note: "缺件 " + assetPath ];
+
+	var sz = uiAssetSize(assetPath);
+	if(sz === void) sz = %[ w: dw, h: dh ];
+
+	if(nine !== void && nine !== null)
+	{
+		var nr = uiWidgetNine(stage, src, sz.w, sz.h, dx, dy, dw, dh, nine, opacity);
+		return %[ ok: nr.ok, scaled: nr.ok, missing: false, note: nr.note ];
+	}
+
+	stage.operateStretch(dx, dy, dw, dh, src, 0, 0, sz.w, sz.h, omAlpha, opacity, stNearest);
+	return %[ ok: true, scaled: (sz.w != dw || sz.h != dh), missing: false, note: "" ];
+}
+
+// ------------------------------------------------------------
+// 动画修饰（blink / scroll_x / scroll_y / frames）
+// ------------------------------------------------------------
+// 返回该帧应使用的透明度
+function uiWidgetAnimOpacity(el, phase01)
+{
+	if(el.anim === void || el.anim.mode !== "blink") return uiWidgetNum(el, "opacity", 255);
+	return (phase01 < 0.5) ? uiWidgetNum(el, "opacity", 255) : 0;
+}
+
+// ------------------------------------------------------------
+// 逐元素绘制
+// ------------------------------------------------------------
+function uiWidgetDrawRect(stage, el, opacityOverride)
+{
+	var opa = uiThemeOpacity(el.opacity);
+	if(opacityOverride !== void) opa = opacityOverride;
+	stage.colorRect(el.x, el.y, el.w, el.h, uiThemeColor(el.color), opa);
+}
+
+// ------------------------------------------------------------
+// 状态贴图（★ M35b）
+//   ① **`state_assets` 不再只属于 `hit`**：任何元素（含 `image`）都可以带三态图，
+//      由 uiWidgetStateAsset() 统一选图 —— 文字图靠它才能有悬停/按下形态。
+//   ② **`state_group` 组绑定**：同一 `state_group` 的多个元素**共享**悬停/按下状态。
+//      典型用法：一个按钮 = 图标（hit，带 state_assets）+ 文字（image，带 state_assets），
+//      两者同组 ⇒ 鼠标落在任意一者上，两者**同时**进入悬停/按下形态。
+//      实现口径：直接比 id 命中 → 生效；否则若本元素的 state_group 等于
+//      「当前悬停（按下）元素所属的组」→ 同样生效。
+//      ⚠️ 与 复刻/replica.js 的对应实现必须表现一致（那边是 DOM 事件 + 组内广播，这边是
+//      每帧由 ctx 重新判定；模型不同、结果相同），改一处须改两处。
+// ------------------------------------------------------------
+function uiWidgetStateGroup(el)
+{
+	if(el.state_group === void || el.state_group === null) return "";
+	var g = "" + el.state_group;
+	return (g == "") ? "" : g;
+}
+
+function uiWidgetStateFlags(el, ctx)
+{
+	var hover = false, press = false;
+	if(ctx === void) return %[ hover: hover, press: press ];
+	var id = "" + el.id;
+	var grp = uiWidgetStateGroup(el);
+	if(ctx.hoverHit !== void && ctx.hoverHit !== null)
+		hover = ("" + ctx.hoverHit) == id;
+	if(!hover && grp != "" && ctx.hoverGroup !== void && ctx.hoverGroup !== null && ("" + ctx.hoverGroup) != "")
+		hover = ("" + ctx.hoverGroup) == grp;
+	if(ctx.pressHit !== void && ctx.pressHit !== null)
+		press = ("" + ctx.pressHit) == id;
+	if(!press && grp != "" && ctx.pressGroup !== void && ctx.pressGroup !== null && ("" + ctx.pressGroup) != "")
+		press = ("" + ctx.pressGroup) == grp;
+	return %[ hover: hover, press: press ];
+}
+
+// 当前应画的素材：有 state_assets 则取「**段位最高且存在**」的那一态，没有则回落 el.asset。
+//   ★ M35b 修（实机 A/B 抓到的真 bug）：回落必须是**按段位向下逐级**的，不能只看本态有没有键。
+//     旧写法：
+//         a = normal; if(hover && sa.hover) a = sa.hover; if(press && sa.pressed) a = sa.pressed;
+//     在「按下时 hover 为假、且元素没填 pressed」的情况下（巡演无鼠标 ⇒ hoverHit 恒为空、
+//     探针只设 pressHit；而文字图只填了 normal/hover）⇒ 旧写法掉回 normal，**画面纹丝不动**
+//     （实机实测：文字区差异 0 像素，而图标区正常变化）。
+//     正确规则：按下 → 依次试 pressed / hover / normal；悬停 → 依次试 hover / normal；否则 normal。
+function uiWidgetStateAsset(el, ctx)
+{
+	var sa = el.state_assets;
+	if(sa === void || sa === null) return el.asset;
+	var f = uiWidgetStateFlags(el, ctx);
+	var a = void;
+	if(f.press && sa.pressed !== void && sa.pressed !== null && ("" + sa.pressed) != "")
+		a = sa.pressed;
+	if(a === void && (f.press || f.hover) && sa.hover !== void && sa.hover !== null && ("" + sa.hover) != "")
+		a = sa.hover;
+	if(a === void && sa.normal !== void && sa.normal !== null && ("" + sa.normal) != "")
+		a = sa.normal;
+	if(a === void) a = el.asset;
+	return a;
+}
+
+function uiWidgetDrawImage(stage, el, ctx)
+{
+	var id = el.id;
+	var opa = uiWidgetNum(el, "opacity", 255);
+
+	// anim 修饰
+	if(el.anim !== void && ctx !== void && ctx.phase !== void)
+	{
+		if(el.anim.mode == "blink") opa = uiWidgetAnimOpacity(el, ctx.phase);
+	}
+	if(ctx !== void && ctx.opacityOverride !== void && ctx.opacityOverride[id] !== void)
+		opa = ctx.opacityOverride[id];
+
+	// 动态层（asset=null, dynamic=…）：由调用方在 ctx.boxOverride 里给框位
+	var r = %[ x: el.x, y: el.y, w: el.w, h: el.h ];
+	if(ctx !== void && ctx.boxOverride !== void && ctx.boxOverride[id] !== void)
+	{
+		var b = ctx.boxOverride[id];
+		r.x = b.x; r.y = b.y; r.w = b.w; r.h = b.h;
+	}
+
+	// ★ M35b：有 state_assets 就按状态取图（组绑定见 uiWidgetStateAsset）
+	var asset = uiWidgetStateAsset(el, ctx);
+
+	if(asset === void || asset === null)
+	{
+		// ★ M35b 一审（Minor）：**带 state_assets 却选不出图**时不得画「动态层占位」——
+		//   那是给「dynamic 未填充」用的文案（写成 [占位] 动态层），用在这里是错的。
+		//   编辑器明确允许「只给 state_assets、不给 asset」的 image（editor_ui.js 的
+		//   sizeRef = asset || state_assets.normal）；HTML 侧同情形只是空白（backgroundImage=none），
+		//   故这里也**什么都不画**，两端一致。
+		if(el.state_assets !== void) return;
+		// 动态层未填充 → 画占位底色（不得跳过，见 schema §四 dynamic）
+		uiWidgetDrawPlaceholder(stage, el, r, "dynamic:" + ((el.dynamic === void) ? "?" : el.dynamic));
+		return;
+	}
+
+	var res = uiWidgetBlitAsset(stage, asset, r.x, r.y, r.w, r.h, el.nine, opa);
+	if(!res.ok)
+	{
+		var why = res.note;
+		uiWidgetDrawPlaceholder(stage, el, r, why);
+		if(res.missing) uiWidgetNoteMiss(id, asset);
+	}
+	else if(res.scaled && el.nine === void && res.note == "")
+	{
+		// 非九宫格且尺寸不符 → 说明被缩放；D1 要求素材本体不放大，记录下来
+		var sz = uiAssetSize(asset);
+		if(sz !== void && (sz.w != r.w || sz.h != r.h))
+			uiWidgetNoteScale(id, asset, sz.w, sz.h, r.w, r.h);
+	}
+}
+
+function uiWidgetDrawText(stage, el, ctx)
+{
+	var txt = void;
+	if(ctx !== void && ctx.textOverride !== void && ctx.textOverride[el.id] !== void)
+		txt = ctx.textOverride[el.id];
+
+	var lay = uiThemeLayoutText(stage, el, txt);
+	uiThemeRenderText(stage, lay, uiWidgetNum(el, "opacity", 255));
+	if(lay.truncated)
+		uiWidgetNoteTrunc(el.id, txt);
+}
+
+function uiWidgetDrawHit(stage, el, ctx)
+{
+	// hit 是热区：默认不画东西；若给了 state_assets 就画 normal / hover / pressed 态。
+	// ★ M20：悬停态；★ M35：按下态；★ M35b：`state_group` 组绑定 + `image` 也走同一套。
+	//   选图统一交给 uiWidgetStateAsset()（优先级 pressed > hover > normal，缺键逐级回落）；
+	//   语义与 复刻/replica.js 的对应实现一致，改一处须改两处（见该函数注释）。
+	if(el.state_assets !== void)
+	{
+		var opa = uiWidgetNum(el, "opacity", 255);
+		var asset = uiWidgetStateAsset(el, ctx);
+		if(asset !== void && asset !== null)
+			uiWidgetBlitAsset(stage, asset, el.x, el.y, el.w, el.h, void, opa);
+	}
+	if(el.label !== void && el.label != "")
+	{
+		// 有 label 的按钮：把 label 当文本画（沿用 text 的排版路径，用 hit 自身的 font/align）
+		//   ★ ISSUE-20260927-03（模块 I · 用户裁决「统一两端按钮标签墨迹口径」）：与
+		//     `uiWidgetDrawList` 的 `item_buttons[].label` **同族同病**（同一构造：现建 text 元素 +
+		//     `valign:"middle"` + `h = el.h`）⇒ **同样处理**：`y` 由 `el.y` 改为 `el.y + 6`，
+		//     让标签**墨迹**落在按钮**可见体**中线（算式与副作用面见 `uiWidgetDrawList` 处注释；
+		//     HTML 端同款落点是 `复刻\replica.js::buildHit` 的 `translateY` 项，一并 +3）。
+		//     影响面经全仓 grep 核对 = **仅 2 件**（`29_ending.json::ed.hit_skip` h64/字号 26、
+		//     `31_fragment.json::fragment.hit_back` h58/字号 30）。常数 +6 对两件**实测**效果：
+		//     `ed.hit_skip` 由「高 6.0px」变「居中 0.0px」（+6 正是其精确居中量）；
+		//     `fragment.hit_back` 由「高 7.5px」变「高 1.5px」（其精确居中是 +7.5，残差 1.5px
+		//     —— 因该件字号 30 / 行盒 42 的取整使精确量比 +6 大；1.5px 仍在模块 I 的
+		//     验收容差（≤1.5px）内）。两侧数值见
+		//     `_工作\ISSUE-20260927-03_墨迹与套B\取证\量测_hitlabel_两端_改前改后.txt`。
+		//     ★ ISSUE-20260928-06（2026-09-28）：第二件随 `fragment` 屏整体删除**已不存在**
+		//     ⇒ 现影响面 = **仅 1 件**（`ed.hit_skip`）；上面对 `fragment.hit_back` 的量测
+		//     属**历史记录**，保留以备追溯，不再是当前判据。
+		var tmp = %[ id: el.id, kind: "text", x: el.x, y: el.y + 6, w: el.w, h: el.h,
+			align: (el.align !== void) ? el.align : "center", valign: "middle",
+			wrap: false, max_lines: 1, sample: el.label ];
+		if(el.font !== void) tmp.font = el.font;
+		uiWidgetDrawText(stage, tmp, ctx);
+	}
+}
+
+// ------------------------------------------------------------
+// ★ M46（2026-09-23，用户指令「让选择支能有三态效果」）：**列表逐项三态图**
+//   背景：`list` 原先只能给 `item_frame` 一张静态素材 ⇒ 选择支条做不出「悬停/按下换图」。
+//   现在：`item_frame.state_assets = {normal, hover, pressed}`（**可选**，缺省行为完全不变）
+//         + ctx 携带的 `hoverIndex/pressIndex`（项序号，见 ui_screens.tjs `uiScreenCtx`）
+//         ⇒ 逐项按「按下 > 悬停 > 常态」选图，**回落规则与元素级 `state_assets` 完全一致**。
+//   与元素级的差别（有意）：项状态由**指针所在的项**决定（不是元素整体命中），
+//   因为同一个 list 元素内部有 N 个项；`ctx.hoverHit/pressHit` 仍记元素 id，项序号另记。
+// ------------------------------------------------------------
+function uiWidgetListItemState(el, ctx, i)
+{
+	if(ctx === void || ctx === null) return "";
+	var id = "" + el.id;
+	var hot = false, pss = false;
+	if(ctx.pressHit !== void && ctx.pressHit !== null && ("" + ctx.pressHit) == id)
+		if(ctx.pressIndex !== void && ctx.pressIndex !== null && ctx.pressIndex == i) pss = true;
+	if(ctx.hoverHit !== void && ctx.hoverHit !== null && ("" + ctx.hoverHit) == id)
+		if(ctx.hoverIndex !== void && ctx.hoverIndex !== null && ctx.hoverIndex == i) hot = true;
+	if(pss) return "pressed";
+	if(hot) return "hover";
+	return "";
+}
+
+function uiWidgetItemFrameAsset(fr, state)
+{
+	var sa = (fr !== void && fr !== null) ? fr.state_assets : void;
+	if(sa === void || sa === null) return fr.asset;
+	var a = void;
+	if(state == "pressed" && sa.pressed !== void && sa.pressed !== null && ("" + sa.pressed) != "") a = sa.pressed;
+	if(a === void && (state == "pressed" || state == "hover")
+		&& sa.hover !== void && sa.hover !== null && ("" + sa.hover) != "") a = sa.hover;
+	if(a === void && sa.normal !== void && sa.normal !== null && ("" + sa.normal) != "") a = sa.normal;
+	if(a === void) a = fr.asset;
+	return a;
+}
+
+// ------------------------------------------------------------
+// ★ M06（2026-09-24 · ISSUE-20260924-06_回想屏重排 · 冻结书 §1b/§2）：**逐项按钮 `item_buttons`**
+//   ＋ **逐项文本区 `item_text`**
+//
+//   背景：`list` 原先只有「整行一个 action + 一行居中标签」；回想屏要求**每一块里都有
+//   「跳转」「重新播放」两个按钮**，且每块文案要按真实语料折行（最坏 132 全角字）。
+//   静态元素做不到（列表会分页滚动，静态件不随块走，见冻结书 §0 结论）⇒ 必须逐项渲染
+//   ＋ 逐项子命中，沿用 M46「列表逐项三态」的同一套路。
+//
+//   数据契约（**接口冻结，不得改名**；`layout\_schema.md` §四 `list` 节）：
+//     `item_buttons`: [ { key, x, y, w, h,            // **块内局部坐标**（相对项矩形左上）
+//                          asset, nine?, state_assets?,
+//                          action,                    // 串内 `%row%` = **全局项序号**
+//                          label?, font?, align? } ]
+//     `item_text`   : { x, y, w, h, wrap, max_lines, align, valign, font? }  // 同样块内局部
+//
+//   两端同口径（**改一处须改两处**，HTML 侧见 复刻/replica.js 的 buildList）：
+//     ① 渲染：逐按钮贴图（九宫格／1:1）＋ 按 `state_assets` 取态；给了 `label` 才画文字；
+//     ② 命中：按钮矩形**优先于整行**（块内其余区域仍走既有 `actions[项]`）；
+//        悬停/按下态**只影响被指到的那一个按钮的那一行**（与 M46 逐项态同规矩）；
+//     ③ 派发：`%row%` 替换为全局项序号（含分页偏移，由 `uiWidgetListHit` 给出）；
+//     ④ `item_text` 缺省 ⇒ **旧路径逐字不变**（单行、无内缩、整项垂直居中）。
+//
+//   守卫（**显式拒绝 + 打日志判词，不得静默**；判词沿用 `★…-REJECT★` 惯例）：
+//     结构非法 / 缺 key / key 重复 / 矩形零面积或出块 / `action` 为空 / 既无 asset 又无
+//     `state_assets` / 行号越界 / 按钮 key 不存在 —— 逐条产出 `★M06ITEMBTN-REJECT★ …`。
+//     绘制与命中**共用同一个校验函数**（`uiWidgetItemButtonProblems`），故「画出来的」与
+//     「点得到的」永远同集。
+// ------------------------------------------------------------
+
+// item_buttons 数组（非数组一律 null；TJS2 数组是 Object，故再查 count）
+function uiWidgetItemButtons(el)
+{
+	if(el.item_buttons === void || el.item_buttons === null) return null;
+	if(typeof el.item_buttons != "Object") return null;
+	if(el.item_buttons.count === void) return null;
+	return el.item_buttons;
+}
+
+// item_text 是否给了（一个字面量判定：给了（无论是否合法）就不走旧路径）
+function uiWidgetHasItemText(el)
+{
+	return !(el.item_text === void || el.item_text === null);
+}
+
+// 项矩形内的**局部**矩形 → 画布矩形
+function uiWidgetItemLocalRect(ir, r)
+{
+	return %[ x: ir.x + uiWidgetNum(r, "x", 0), y: ir.y + uiWidgetNum(r, "y", 0),
+	          w: uiWidgetNum(r, "w", 0), h: uiWidgetNum(r, "h", 0) ];
+}
+
+// 项矩形尺寸（越界判定的上界；纵向取元素 w、横向取 item_w）
+function uiWidgetItemSize(el)
+{
+	var ori = (el.orientation !== void) ? el.orientation : "v";
+	var w = (ori == "h") ? uiWidgetNum(el, "item_w", 0) : uiWidgetNum(el, "w", 0);
+	return %[ w: w, h: uiWidgetNum(el, "item_h", 0) ];
+}
+
+// 逐块按钮的**系统键**（守卫台账的查找键，绘制与命中共用）：
+//   · 有非空 `key` ⇒ 用它；
+//   · 缺 key / key 为空串 ⇒ 用 `#<下标>`（**不得用空串当键** —— TJS2 里 `t[""]` 与
+//     「有非空 key」的按钮撞不到一起，会让「缺 key」的那一条**照样被画、照样可点**，
+//     而它已经被守卫判为非法（首轮实机由 HTML 自检 ⑳m 抓到同源缺陷：判词打了、按钮还在）。
+function uiWidgetItemBtnSysKey(b, i)
+{
+	var k = (b === void || b === null || b.key === void || b.key === null) ? "" : ("" + b.key);
+	return (k == "") ? ("#" + i) : k;
+}
+
+// 浅拷贝一个 `font` 规格（本工程只用于 font 字典；其余值一律共享引用）。
+//   ⚠️ **不用 `for-in`**：TJS2 的 for-in 在本工程里无先例，且实测 `for(var k in d)` 在本
+//   引擎（krkrz 1.4.0.8 / TJS2 2.4.28）**语法报错**（ui_widget.tjs 装载 FAIL，见巡演日志
+//   「语法有误 at line 474」）。故按 `uiThemeApplyFont` 实际读取的 10 个键**逐键显式列举**
+//   —— 新增 font 子键时这里必须同步补一行（否则覆盖色时会丢该键）。
+function uiWidgetDictShallowCopy(d)
+{
+	var o = %[];
+	if(d === void || d === null) return o;
+	if(d.faces         !== void) o.faces         = d.faces;
+	if(d.size          !== void) o.size          = d.size;
+	if(d.bold          !== void) o.bold          = d.bold;
+	if(d.color         !== void) o.color         = d.color;
+	if(d.shadow        !== void) o.shadow        = d.shadow;
+	if(d.shadow_color  !== void) o.shadow_color  = d.shadow_color;
+	if(d.shadow_ofs    !== void) o.shadow_ofs    = d.shadow_ofs;
+	if(d.outline       !== void) o.outline       = d.outline;
+	if(d.outline_color !== void) o.outline_color = d.outline_color;
+	if(d.outline_width !== void) o.outline_width = d.outline_width;
+	return o;
+}
+
+// font 规格 + 指定颜色（返回**新字典**，不改原对象）—— 供「选中项换字色」用
+function uiWidgetFontWithColor(fontSpec, colorRef)
+{
+	if(colorRef === void || colorRef === null) return fontSpec;
+	var o = uiWidgetDictShallowCopy(fontSpec);
+	o.color = colorRef;
+	return o;
+}
+
+// item_buttons 的结构校验 —— **绘制路径与命中路径共用**。
+// 返回非法项清单：%[ key:, reason: ]；合法数据恒返回空数组。
+function uiWidgetItemButtonProblems(el)
+{
+	var out = [];
+	var arr = uiWidgetItemButtons(el);
+	if(arr === null)
+	{
+		if(el.item_buttons !== void && el.item_buttons !== null)
+			out.push(%[ key: "(item_buttons)", reason: "item_buttons 不是数组" ]);
+		return out;
+	}
+	var size = uiWidgetItemSize(el);
+	var seen = %[];
+	for(var i = 0; i < arr.count; i++)
+	{
+		var b = arr[i];
+		//    ⚠️ 判定「是不是对象」**只看 typeof** —— 不能用 `b.count === void` 判：
+		//   TJS2 的 **Dictionary 没有 `count` 成员**（那是数组才有的），拿它当「非对象」判据
+		//   会把**全部合法按钮**误判成非法（本函数首轮实机就是这么错的，巡演日志里
+		//   `★M06ITEMBTN-REJECT★ bl.list[#0] 第 0 项不是对象` 即此）。
+		if(b === void || b === null || typeof b != "Object")
+		{
+			out.push(%[ key: "#" + i, reason: "第 " + i + " 项不是对象" ]);
+			continue;
+		}
+		var k = (b.key === void || b.key === null) ? "" : ("" + b.key);
+		if(k == "") { out.push(%[ key: "#" + i, reason: "第 " + i + " 项缺 key" ]); continue; }
+		if(seen[k] === true) { out.push(%[ key: k, reason: "key 重复" ]); continue; }
+		seen[k] = true;
+		var bw = uiWidgetNum(b, "w", 0), bh = uiWidgetNum(b, "h", 0);
+		var bx = uiWidgetNum(b, "x", 0), by = uiWidgetNum(b, "y", 0);
+		if(bw <= 0 || bh <= 0)
+		{
+			out.push(%[ key: k, reason: "矩形零/负面积（" + bw + "×" + bh + "）" ]);
+			continue;
+		}
+		if(bx < 0 || by < 0 || bx + bw > size.w || by + bh > size.h)
+		{
+			out.push(%[ key: k, reason: "矩形出块（局部 " + bx + "," + by + " " + bw + "×" + bh
+				+ " 不在 " + size.w + "×" + size.h + " 内）" ]);
+			continue;
+		}
+		var act = (b.action === void || b.action === null) ? "" : ("" + b.action);
+		if(act == "") { out.push(%[ key: k, reason: "action 为空" ]); continue; }
+		if(b.asset === void && b.state_assets === void)
+		{
+			out.push(%[ key: k, reason: "既无 asset 也无 state_assets" ]);
+			continue;
+		}
+	}
+	return out;
+}
+
+var UIWidgetItemBtnRejectSeen  = %[];
+var UIWidgetItemBtnRejectLines = [];
+
+// 逐项按钮守卫的判词出口：`★M06ITEMBTN-REJECT★ <listId>[<key>] <理由>`
+//   · 去重（同一 (list,key,理由) 只记一次，避免每帧刷屏）；
+//   · 同时进 `Debug.message`（巡演日志立即可见）与 `UIWidgetItemBtnRejectLines`
+//     （收尾由 uiWidgetDiagSummary 汇总，供机检）。
+function uiWidgetItemBtnReject(listId, key, reason)
+{
+	var line = "★M06ITEMBTN-REJECT★ " + listId + "[" + key + "] " + reason;
+	if(UIWidgetItemBtnRejectSeen[line] === true) return line;
+	UIWidgetItemBtnRejectSeen[line] = true;
+	UIWidgetItemBtnRejectLines.push(line);
+	try { Debug.message("[UI][REJECT] " + line); } catch(e) { }
+	return line;
+}
+
+// 逐项按钮的矩形（画布坐标）。调用方须先确认该 button 已通过结构校验。
+function uiWidgetItemButtonRect(el, index, bi)
+{
+	var arr = uiWidgetItemButtons(el);
+	if(arr === null || bi < 0 || bi >= arr.count) return null;
+	return uiWidgetItemLocalRect(uiWidgetListItemRect(el, index), arr[bi]);
+}
+
+// 按钮的身份令牌（两端同构成：`<list 元素 id>:<全局项序号>:<按钮 key>`）。
+// 作用：ctx 只携带**一个字符串**即可表达「哪一行的哪个按钮」，与 M46 的 hoverIndex/
+// pressIndex 同一思路（那边只表达项、这边连按钮一起表达）。
+function uiWidgetItemBtnToken(listId, idx, key)
+{
+	return ("" + listId) + ":" + idx + ":" + ("" + key);
+}
+
+// 该按钮此刻的状态：""（常态）｜"hover"｜"pressed"
+function uiWidgetItemButtonState(el, ctx, idx, key)
+{
+	if(ctx === void || ctx === null) return "";
+	var tk = uiWidgetItemBtnToken(el.id, idx, key);
+	if(ctx.pressBtn !== void && ctx.pressBtn !== null && ("" + ctx.pressBtn) == tk) return "pressed";
+	if(ctx.hoverBtn !== void && ctx.hoverBtn !== null && ("" + ctx.hoverBtn) == tk) return "hover";
+	return "";
+}
+
+// 按钮素材：按「按下 > 悬停 > 常态」取 `state_assets`，缺键**逐级回落**到 `asset`
+//   （梯级与 uiWidgetItemFrameAsset / uiWidgetStateAsset 完全一致）
+function uiWidgetItemButtonAsset(b, state)
+{
+	var sa = (b !== void && b !== null) ? b.state_assets : void;
+	if(sa === void || sa === null) return b.asset;
+	var a = void;
+	if(state == "pressed" && sa.pressed !== void && sa.pressed !== null && ("" + sa.pressed) != "")
+		a = sa.pressed;
+	if(a === void && (state == "pressed" || state == "hover")
+		&& sa.hover !== void && sa.hover !== null && ("" + sa.hover) != "") a = sa.hover;
+	if(a === void && sa.normal !== void && sa.normal !== null && ("" + sa.normal) != "") a = sa.normal;
+	if(a === void) a = b.asset;
+	return a;
+}
+
+// 逐项按钮命中（**最高优先的子命中**，先于整行）：返回 null（未命中任何按钮）
+// 或 %[ index: 全局项序号, key:, bi:, action: ]（`action` 里的 `%row%` **尚未**替换）。
+//   · 只扫**当前页可见项**；分页滚动后按钮天然随块走（逐项渲染 ⇒ 无需额外处理）；
+//   · 非法按钮**不参与命中**（与绘制同集）并逐条打 REJECT 判词。
+function uiWidgetItemButtonAt(el, px, py, page)
+{
+	var arr = uiWidgetItemButtons(el);
+	if(arr === null) return null;
+	var bad = uiWidgetItemButtonProblems(el);
+	var badKey = %[];
+	for(var q = 0; q < bad.count; q++)
+	{
+		badKey["" + bad[q].key] = true;
+		uiWidgetItemBtnReject(el.id, bad[q].key, bad[q].reason);
+	}
+	var pg = uiWidgetListPage(el, page);
+	for(var i = 0; i < pg.visibleCount; i++)
+	{
+		var ir = uiWidgetListItemRect(el, i);
+		if(px < ir.x || px >= ir.x + ir.w || py < ir.y || py >= ir.y + ir.h) continue;
+		for(var bi = 0; bi < arr.count; bi++)
+		{
+			var b = arr[bi];
+			if(b === void || b === null || typeof b != "Object") continue;
+			if(badKey[uiWidgetItemBtnSysKey(b, bi)] === true) continue;
+			var br = uiWidgetItemLocalRect(ir, b);
+			if(px < br.x || px >= br.x + br.w || py < br.y || py >= br.y + br.h) continue;
+			return %[ index: pg.first + i, key: "" + b.key, bi: bi, action: "" + b.action ];
+		}
+		return null;      // 落在该项内、但不在任何按钮上 ⇒ 交回整行命中
+	}
+	return null;
+}
+
+// item_text 的生效规格（已合并 font / line_spacing 的回落）；非法一律 **REJECT + 退回旧路径**
+function uiWidgetItemText(el)
+{
+	if(!uiWidgetHasItemText(el)) return null;
+	var it = el.item_text;
+	if(it === void || it === null || typeof it != "Object")
+	{
+		uiWidgetItemBtnReject(el.id, "item_text", "item_text 不是对象");
+		return null;
+	}
+	var w = uiWidgetNum(it, "w", 0), h = uiWidgetNum(it, "h", 0);
+	if(w <= 0 || h <= 0)
+	{
+		uiWidgetItemBtnReject(el.id, "item_text", "文本区零/负面积（" + w + "×" + h + "）");
+		return null;
+	}
+	var size = uiWidgetItemSize(el);
+	var tx = uiWidgetNum(it, "x", 0), ty = uiWidgetNum(it, "y", 0);
+	if(tx < 0 || ty < 0 || tx + w > size.w || ty + h > size.h)
+	{
+		uiWidgetItemBtnReject(el.id, "item_text", "文本区出块（局部 " + tx + "," + ty + " " + w + "×" + h
+			+ " 不在 " + size.w + "×" + size.h + " 内）");
+		return null;
+	}
+	// font / line_spacing 的缺省 = 该 list 自身的（`item_text.font` 是**可选覆盖**）
+	var out = %[ x: tx, y: ty, w: w, h: h,
+		wrap: (it.wrap === void) ? true : (it.wrap === true),
+		max_lines: uiWidgetNum(it, "max_lines", 0),
+		align: (it.align !== void) ? it.align : ((el.align !== void) ? el.align : "left"),
+		valign: (it.valign !== void) ? it.valign : "top" ];
+	out.font = (it.font !== void) ? it.font : el.font;
+	if(it.line_spacing !== void) out.line_spacing = it.line_spacing;
+	else if(el.line_spacing !== void) out.line_spacing = el.line_spacing;
+	return out;
+}
+
+// ------------------------------------------------------------
+// ★ M1（2026-09-24 · ISSUE-20260924-08_鉴赏模式）：**栏位内 `n/N` 差分翻页 `item_variants`**
+//
+//   背景：鉴赏模式要求「同场景差分合并为一栏，栏位内用 `n/N` 翻差分」。`list` 原先只能
+//   「整行一张静态图」；静态元素做不到（列表会分页滚动，静态件不随块走）⇒ 必须**逐项渲染
+//   ＋逐项子命中**，沿用 M46「列表逐项三态」与 M06「逐块按钮」的同一套路。
+//
+//   数据契约（**接口冻结，不得改名**；`layout\_schema.md` §四 `item_variants` 节）：
+//     `item_variants`: {
+//        frames: [ [asset,…], … ],        // **按全局项序号索引**（含分页偏移）；空数组/越界 = 留空
+//        thumb?: { x,y,w,h, nine? },      // 缩略图绘制区（**块内局部坐标**）；可省 ⇒ 整个项矩形
+//        prev:   { key,x,y,w,h, asset, nine?, state_assets?, action },  // 与 item_buttons 同字段形状
+//        next:   { … },
+//        text?:  { x,y,w,h, align?, valign?, font? },   // `n/N` 文本区（**引擎绘制**）
+//        edge?:  "clamp"                  // 可省 ⇒ "clamp"（当前唯一合法值）
+//     }
+//
+//   两端同口径（**改一处须改两处**，HTML 侧见 复刻/replica.js 的 buildList 的 variants 段）：
+//     ① 渲染：每可见栏画「当前差分缩略图（画进 thumb 区）」＋左右两子按钮 ＋ `n/N` 文本；
+//     ② 命中：`item_buttons`（声明序）→ `prev` → `next` → **整行**；三者可共存于同一行；
+//     ③ 派发：`%row%` 换成**全局项序号**（含分页偏移）；
+//     ④ 运行期差分序号按 **(listId, 全局行号)** 存（`ctx.variantIndex`）⇒ 换屏/翻页不串；
+//     ⑤ **边界 = clamp（钳制）**：到第 1/N 张时按钮照常画、照常可点、照常派发，序号夹在
+//        `[0, N-1]` ⇒ `n/N` 不变。不引入 disable 轴（「画出来的」与「点得到的」恒同集）。
+//
+//   守卫（**显式拒绝 + 打日志判词，不得静默**；判词沿用 `★…-REJECT★` 惯例）：
+//     非对象 / `frames` 非数组 / `frames[row]` 非数组 / **差分素材为空**（含空串或非字符串）/
+//     按钮缺 `key` / 按钮矩形零面积或**出块** / 按钮 `action` 为空 / 按钮既无 asset 又无
+//     `state_assets` / `text` 或 `thumb` 零面积或出块 / `edge` 取值非法 ⇒ 该件**不画、不可点**，
+//     产出 `★M08VARIANT-REJECT★ <listId>[<key>] <理由>`。
+//     绘制、命中、巡演守卫**共用同一套校验函数**（`uiWidgetItemVariantProblems` /
+//     `uiWidgetItemVariantRowProblem`）⇒「画出来的」与「点得到的」永远同集。
+// ------------------------------------------------------------
+
+// item_variants 字典（非对象 / 是数组一律 null）
+function uiWidgetItemVariants(el)
+{
+	if(el.item_variants === void || el.item_variants === null) return null;
+	var v = el.item_variants;
+	if(typeof v != "Object") return null;
+	if(v.count !== void) return null;          // 数组（TJS2 数组有 count，Dictionary 没有）
+	return v;
+}
+
+function uiWidgetHasItemVariants(el)
+{
+	return !(el.item_variants === void || el.item_variants === null);
+}
+
+// frames 数组（非法一律 null）
+function uiWidgetVariantFrames(el)
+{
+	var v = uiWidgetItemVariants(el);
+	if(v === null) return null;
+	var fr = v.frames;
+	if(fr === void || fr === null || typeof fr != "Object" || fr.count === void) return null;
+	return fr;
+}
+
+// 某栏的差分表（**全局行号**）；null = 该栏留空（合法）
+function uiWidgetVariantFramesRow(el, row)
+{
+	var fr = uiWidgetVariantFrames(el);
+	if(fr === null) return null;
+	if(row < 0 || row >= fr.count) return null;
+	var r = fr[row];
+	if(r === void || r === null || typeof r != "Object" || r.count === void) return null;
+	return r;
+}
+
+// 子按钮（prev/next）的字段校验 —— 与 M06 的 `uiWidgetItemButtonProblems` 同一套判据与措辞。
+// 返回 "" = 合法；否则 = 拒绝理由（绘制/命中/守卫共用）。
+function uiWidgetVariantBtnProblem(el, b)
+{
+	if(b === void || b === null || typeof b != "Object") return "不是对象";
+	var k = (b.key === void || b.key === null) ? "" : ("" + b.key);
+	if(k == "") return "缺 key";
+	var size = uiWidgetItemSize(el);
+	var bw = uiWidgetNum(b, "w", 0), bh = uiWidgetNum(b, "h", 0);
+	var bx = uiWidgetNum(b, "x", 0), by = uiWidgetNum(b, "y", 0);
+	if(bw <= 0 || bh <= 0) return "矩形零/负面积（" + bw + "×" + bh + "）";
+	if(bx < 0 || by < 0 || bx + bw > size.w || by + bh > size.h)
+		return "矩形出块（局部 " + bx + "," + by + " " + bw + "×" + bh
+			+ " 不在 " + size.w + "×" + size.h + " 内）";
+	var act = (b.action === void || b.action === null) ? "" : ("" + b.action);
+	if(act == "") return "action 为空";
+	if(b.asset === void && b.state_assets === void) return "既无 asset 也无 state_assets";
+	return "";
+}
+
+// `item_variants` 的**容器级**结构校验。返回非法清单 %[ key:, reason: ]；合法数据恒空数组。
+//   ⚠️ 只查容器与 prev/next/text/thumb 的**结构**；逐栏 `frames[row]` 的检查在
+//   `uiWidgetItemVariantRowProblem`（按可见栏调用，避免每帧扫全表）。
+function uiWidgetItemVariantProblems(el)
+{
+	var out = [];
+	if(!uiWidgetHasItemVariants(el)) return out;
+	var v = uiWidgetItemVariants(el);
+	if(v === null)
+	{
+		out.push(%[ key: "(item_variants)", reason: "item_variants 不是对象" ]);
+		return out;
+	}
+	if(uiWidgetVariantFrames(el) === null)
+	{
+		out.push(%[ key: "(frames)", reason: "frames 不是数组" ]);
+		return out;
+	}
+	var rp = uiWidgetVariantBtnProblem(el, v.prev);
+	if(rp != "") out.push(%[ key: uiWidgetVariantBtnKey(v.prev, "prev"), reason: rp ]);
+	var rn = uiWidgetVariantBtnProblem(el, v.next);
+	if(rn != "") out.push(%[ key: uiWidgetVariantBtnKey(v.next, "next"), reason: rn ]);
+	var rtext = uiWidgetVariantTextProblem(el, v.text);
+	if(rtext != "") out.push(%[ key: "text", reason: rtext ]);
+	var rthumb = uiWidgetVariantRectProblem(el, v.thumb, "缩略区");
+	if(rthumb != "") out.push(%[ key: "thumb", reason: rthumb ]);
+	if(v.edge !== void && v.edge !== null && ("" + v.edge) != "clamp")
+		out.push(%[ key: "edge", reason: "edge 取值非法（只认 \"clamp\"）：" + ("" + v.edge) ]);
+	return out;
+}
+
+// 子按钮的判词键：有非空 `key` 用它，否则用缺省名（prev/next）—— 两端同口径。
+function uiWidgetVariantBtnKey(b, def)
+{
+	if(b === void || b === null || typeof b != "Object") return def;
+	var k = (b.key === void || b.key === null) ? "" : ("" + b.key);
+	return (k == "") ? def : k;
+}
+
+// 块内局部矩形的通用校验（text / thumb 共用）。what = 报错里用的名字。
+function uiWidgetVariantRectProblem(el, r, what)
+{
+	if(r === void || r === null) return "";
+	if(typeof r != "Object") return what + "不是对象";
+	var w = uiWidgetNum(r, "w", 0), h = uiWidgetNum(r, "h", 0);
+	if(w <= 0 || h <= 0) return what + "零/负面积（" + w + "×" + h + "）";
+	var size = uiWidgetItemSize(el);
+	var x = uiWidgetNum(r, "x", 0), y = uiWidgetNum(r, "y", 0);
+	if(x < 0 || y < 0 || x + w > size.w || y + h > size.h)
+		return what + "出块（局部 " + x + "," + y + " " + w + "×" + h
+			+ " 不在 " + size.w + "×" + size.h + " 内）";
+	return "";
+}
+
+function uiWidgetVariantTextProblem(el, t)
+{
+	return uiWidgetVariantRectProblem(el, t, "文本区");
+}
+
+// 某栏（**全局行号**）的差分表校验。返回 "" = 合法或留空；否则 = 拒绝理由。
+//   · row 越界 / frames[row] 为空数组 ⇒ ""（**留空是合法状态**，用于「其余留空」的页）；
+//   · frames[row] 非数组 ⇒ 非法；· 含空串/非字符串 ⇒ 非法（**空素材**）。
+function uiWidgetItemVariantRowProblem(el, row)
+{
+	var v = uiWidgetItemVariants(el);
+	if(v === null) return "";
+	var fr = uiWidgetVariantFrames(el);
+	if(fr === null) return "";
+	if(row < 0 || row >= fr.count) return "";
+	var r = fr[row];
+	if(r === void || r === null) return "";
+	if(typeof r != "Object" || r.count === void)
+		return "第 " + row + " 栏差分列表不是数组";
+	if(r.count == 0) return "";
+	for(var i = 0; i < r.count; i++)
+	{
+		var a = r[i];
+		if(a === void || a === null || typeof a != "String" || ("" + a) == "")
+			return "差分素材为空（第 " + (i + 1) + " 张）";
+	}
+	return "";
+}
+
+var UIWidgetVariantRejectSeen  = %[];
+var UIWidgetVariantRejectLines = [];
+
+// 差分守卫的判词出口：`★M08VARIANT-REJECT★ <listId>[<key>] <理由>`
+//   · 去重（同一 (list,key,理由) 只记一次，避免每帧刷屏）；
+//   · 同时进 `Debug.message`（巡演日志立即可见）与 `UIWidgetVariantRejectLines`（机检汇总）。
+function uiWidgetItemVariantReject(listId, key, reason)
+{
+	var line = "★M08VARIANT-REJECT★ " + listId + "[" + key + "] " + reason;
+	if(UIWidgetVariantRejectSeen[line] === true) return line;
+	UIWidgetVariantRejectSeen[line] = true;
+	UIWidgetVariantRejectLines.push(line);
+	try { Debug.message("[UI][REJECT] " + line); } catch(e) { }
+	return line;
+}
+
+// 差分按钮的身份令牌 —— **与 M06 的 `uiWidgetItemBtnToken` 同构**
+//（`<listId>:<全局行号>:<key>`），故可复用 `ctx.hoverBtn` / `ctx.pressBtn` 那一套悬停/按下机制。
+function uiWidgetVariantBtnToken(listId, idx, key)
+{
+	return ("" + listId) + ":" + idx + ":" + ("" + key);
+}
+
+// 该差分按钮此刻的状态：""｜"hover"｜"pressed"（复用 M06 的令牌机制 ⇒ 规则表同 M46/M06）
+function uiWidgetVariantBtnState(el, ctx, idx, key)
+{
+	return uiWidgetItemButtonState(el, ctx, idx, key);
+}
+
+// 差分按钮素材：`state_assets` 按「按下 > 悬停 > 常态」取，缺键逐级回落 `asset`
+//（梯级与 `uiWidgetItemButtonAsset` 完全一致 ⇒ 直接复用）
+function uiWidgetVariantBtnAsset(b, state)
+{
+	return uiWidgetItemButtonAsset(b, state);
+}
+
+// 某栏某件的**画布矩形**（part ∈ "thumb"|"prev"|"next"|"text"）。
+//   ⚠️ **绘制与命中共用这一个函数**（契约要求）：index = 当页**局部**序号。
+function uiWidgetVariantRect(el, index, part)
+{
+	var v = uiWidgetItemVariants(el);
+	if(v === null) return null;
+	var spec = null;
+	if(part == "thumb")
+	{
+		spec = v.thumb;
+		if(spec === void || spec === null || typeof spec != "Object")
+		{
+			var size = uiWidgetItemSize(el);
+			spec = %[ x: 0, y: 0, w: size.w, h: size.h ];
+		}
+	}
+	else spec = v[part];
+	if(spec === void || spec === null || typeof spec != "Object") return null;
+	return uiWidgetItemLocalRect(uiWidgetListItemRect(el, index), spec);
+}
+
+// 该栏此刻应显示的差分序号（clamp 到 [0, n-1]）；n<=0 ⇒ 0。
+//   运行期值由 `ctx.variantIndex` 携带，结构 = **嵌套字典**：`{ <listId>: { <全局行号>: 序号 } }`
+//   （与 `ui_screens.tjs` 的 `UIScrVarIdx` 同构，直接传引用 ⇒ 每帧零拷贝）。
+function uiWidgetVariantIdx(ctx, el, row, n)
+{
+	var i = 0;
+	if(ctx !== void && ctx !== null && ctx.variantIndex !== void && ctx.variantIndex !== null)
+	{
+		var m = ctx.variantIndex["" + el.id];
+		if(m !== void && m !== null)
+		{
+			var v = m["" + row];
+			if(v !== void && v !== null) i = v;
+		}
+	}
+	i = Math.floor(i);
+	if(i < 0) i = 0;
+	if(n > 0 && i >= n) i = n - 1;
+	return i;
+}
+
+// 差分子命中（**先于整行**，后于 `item_buttons`）：返回 null 或
+//   %[ index: 全局项序号, key:, bi:, action:, kind: "variant" ]（`action` 里的 `%row%` 未替换）。
+//   只扫当前页可见项；非法件**不参与命中**（与绘制同集）并逐条打 REJECT 判词。
+function uiWidgetItemVariantButtonAt(el, px, py, page)
+{
+	var v = uiWidgetItemVariants(el);
+	if(v === null) return null;
+	var bad = uiWidgetItemVariantProblems(el);
+	var badKey = %[];
+	for(var q = 0; q < bad.count; q++)
+	{
+		badKey["" + bad[q].key] = true;
+		uiWidgetItemVariantReject(el.id, bad[q].key, bad[q].reason);
+	}
+	var keys = [ "prev", "next" ];
+	var pg = uiWidgetListPage(el, page);
+	for(var i = 0; i < pg.visibleCount; i++)
+	{
+		var rowG = pg.first + i;
+		var rp = uiWidgetItemVariantRowProblem(el, rowG);
+		if(rp != "")
+		{
+			uiWidgetItemVariantReject(el.id, "frames[" + rowG + "]", rp);
+			continue;
+		}
+		var fr = uiWidgetVariantFramesRow(el, rowG);
+		if(fr === null || fr.count == 0) continue;
+		var ir = uiWidgetListItemRect(el, i);
+		if(px < ir.x || px >= ir.x + ir.w || py < ir.y || py >= ir.y + ir.h) continue;
+		for(var b = 0; b < 2; b++)
+		{
+			var which = keys[b];
+			var spec = v[which];
+			if(spec === void || spec === null || typeof spec != "Object") continue;
+			if(badKey[uiWidgetVariantBtnKey(spec, which)] === true) continue;
+			var br = uiWidgetItemLocalRect(ir, spec);
+			if(px < br.x || px >= br.x + br.w || py < br.y || py >= br.y + br.h) continue;
+			return %[ index: rowG, key: "" + spec.key, bi: b, which: which,
+				action: "" + spec.action, kind: "variant" ];
+		}
+		return null;      // 落在该项内、但不在任何差分按钮上 ⇒ 交回整行命中
+	}
+	return null;
+}
+
+// 差分子按钮的**绘制**（与命中共用 `uiWidgetVariantRect` / `uiWidgetItemVariantRowProblem`）
+function uiWidgetDrawListVariants(stage, el, ctx, pg, opa, badKey)
+{
+	var v = uiWidgetItemVariants(el);
+	if(v === null) return;
+	var keys = [ "prev", "next" ];
+	for(var i = 0; i < pg.visibleCount; i++)
+	{
+		var rowG = pg.first + i;
+		var rp = uiWidgetItemVariantRowProblem(el, rowG);
+		if(rp != "")
+		{
+			uiWidgetItemVariantReject(el.id, "frames[" + rowG + "]", rp);
+			continue;
+		}
+		var fr = uiWidgetVariantFramesRow(el, rowG);
+		if(fr === null || fr.count == 0) continue;      // 留空（合法）
+		var n = fr.count;
+		var idx = uiWidgetVariantIdx(ctx, el, rowG, n);
+		// ① 缩略图（当前差分）
+		var asset = fr[idx];
+		var tr = uiWidgetVariantRect(el, i, "thumb");
+		if(tr !== null)
+		{
+			var thumbNine = void;
+			if(v.thumb !== void && v.thumb !== null && typeof v.thumb == "Object") thumbNine = v.thumb.nine;
+			var rr = uiWidgetBlitAsset(stage, "" + asset, tr.x, tr.y, tr.w, tr.h, thumbNine, opa);
+			if(rr.missing) uiWidgetNoteMiss(el.id + "[frames[" + rowG + "]]", "" + asset);
+		}
+		// ② 左右差分按钮（逐按钮三态，复用 M06 令牌机制）
+		for(var b = 0; b < 2; b++)
+		{
+			var which = keys[b];
+			var spec = v[which];
+			if(spec === void || spec === null || typeof spec != "Object") continue;
+			if(badKey[uiWidgetVariantBtnKey(spec, which)] === true) continue;
+			var br = uiWidgetVariantRect(el, i, which);
+			if(br === null) continue;
+			var st = uiWidgetVariantBtnState(el, ctx, rowG, "" + spec.key);
+			var ba = uiWidgetVariantBtnAsset(spec, st);
+			if(ba === void || ba === null || ("" + ba) == "") continue;
+			var brr = uiWidgetBlitAsset(stage, "" + ba, br.x, br.y, br.w, br.h, spec.nine,
+				(spec.opacity !== void) ? spec.opacity : opa);
+			if(brr.missing) uiWidgetNoteMiss(el.id + "[" + spec.key + "]", "" + ba);
+			if(spec.label !== void && ("" + spec.label) != "")
+			{
+				var bt = %[ id: uiWidgetVariantBtnToken(el.id, rowG, spec.key) + ".label", kind: "text",
+					x: br.x, y: br.y, w: br.w, h: br.h,
+					align: (spec.align !== void) ? spec.align : "center", valign: "middle",
+					wrap: false, max_lines: 1, sample: spec.label ];
+				bt.font = (spec.font !== void) ? spec.font : el.font;
+				uiWidgetDrawText(stage, bt, ctx);
+			}
+		}
+		// ③ `n/N` 文本（**引擎绘制**；口径 = 既有 text 元素同一条路径）
+		var tsp = v.text;
+		if(tsp !== void && tsp !== null && typeof tsp == "Object")
+		{
+			var txtR = uiWidgetVariantRect(el, i, "text");
+			if(txtR !== null)
+			{
+				var label = "" + (idx + 1) + "/" + n;
+				var tmp = %[ id: el.id + "[" + rowG + "].var", kind: "text",
+					x: txtR.x, y: txtR.y, w: txtR.w, h: txtR.h,
+					align: (tsp.align !== void) ? tsp.align : "center",
+					valign: (tsp.valign !== void) ? tsp.valign : "middle",
+					wrap: false, max_lines: 1, sample: label ];
+				tmp.font = (tsp.font !== void) ? tsp.font : el.font;
+				uiWidgetDrawText(stage, tmp, ctx);
+			}
+		}
+	}
+}
+
+// ★ M1：**列表逐项子命中的统一出口**（`item_buttons` 优先，其次 `item_variants.prev/next`）。
+//   返回 null 或 %[ index:, key:, bi:, action:, kind: "button"|"variant" ]。
+//   为什么要有这一层：`uiScreenClick` / `uiScreenListItemBtnHit`（悬停·按下令牌）都要问
+//   「这一行上有没有子控件」，两处必须**同集**；把优先级收在一个函数里，两端也只需对齐这一处。
+function uiWidgetItemSubHitAt(el, px, py, page)
+{
+	var bt = uiWidgetItemButtonAt(el, px, py, page);
+	if(bt !== null)
+		return %[ index: bt.index, key: bt.key, bi: bt.bi, action: bt.action, kind: "button" ];
+	return uiWidgetItemVariantButtonAt(el, px, py, page);
+}
+
+// 该 list 是否声明了**任何一种**逐项子控件（`item_buttons` / `item_variants`）
+function uiWidgetHasItemSub(el)
+{
+	if(uiWidgetItemButtons(el) !== null) return true;
+	return uiWidgetItemVariants(el) !== null;
+}
+
+function uiWidgetDrawList(stage, el, ctx)
+{
+	var page = 0;
+	var focus = -1;
+	if(ctx !== void)
+	{
+		if(ctx.page !== void && ctx.page[el.id] !== void)  page  = ctx.page[el.id];
+		if(ctx.focus !== void && ctx.focus[el.id] !== void) focus = ctx.focus[el.id];
+	}
+	var pg = uiWidgetListPage(el, page);
+	var opa = uiWidgetNum(el, "opacity", 255);
+
+	// 每项背景框（九宫格）—— ★ M46：带 `item_frame.state_assets` 时**逐项**按「按下>悬停>常态」选图
+	if(el.item_frame !== void)
+	{
+		var fOpa = (el.item_frame.opacity !== void) ? el.item_frame.opacity : opa;
+		for(var i = 0; i < pg.visibleCount; i++)
+		{
+			var ir = uiWidgetListItemRect(el, i);
+			var fAsset = uiWidgetItemFrameAsset(el.item_frame, uiWidgetListItemState(el, ctx, pg.first + i));
+			uiWidgetBlitAsset(stage, fAsset, ir.x, ir.y, ir.w, ir.h,
+				el.item_frame.nine, fOpa);
+		}
+	}
+
+	// 高亮块
+	if(el.highlight !== void && focus >= pg.first && focus < pg.first + pg.visibleCount)
+	{
+		var hri = uiWidgetListItemRect(el, focus - pg.first);
+		var h = el.highlight;
+		if(h.kind == "rect" || h.kind === void)
+			stage.colorRect(hri.x, hri.y, hri.w, hri.h,
+				uiThemeColor(h.color), uiThemeOpacity(h.opacity));
+		else if(h.kind == "image" && h.asset !== void)
+			uiWidgetBlitAsset(stage, h.asset, hri.x, hri.y, hri.w, hri.h, h.nine,
+				uiThemeOpacity(h.opacity));
+	}
+
+	// ---- ★ M06：逐项按钮的结构校验（绘制与命中共用同一函数；非法项**不打**、不能点）----
+	var btnArr = uiWidgetItemButtons(el);
+	var btnBadKey = %[];
+	if(btnArr !== null)
+	{
+		var btnProblems = uiWidgetItemButtonProblems(el);
+		for(var bp = 0; bp < btnProblems.count; bp++)
+		{
+			btnBadKey["" + btnProblems[bp].key] = true;
+			uiWidgetItemBtnReject(el.id, btnProblems[bp].key, btnProblems[bp].reason);
+		}
+	}
+	// ★ M06：`item_text` 生效规格；null ⇒ **走旧标签路径（逐字不变）**
+	var itemTextSpec = uiWidgetItemText(el);
+
+	if(itemTextSpec !== null)
+	{
+		// ---- ★ M06：**逐项文本区**（折行 + 内缩 + 行距；口径 = 既有 text 元素同一条路径，
+		//      故行首/行尾禁则、max_lines 截断都由 uiThemeWrap 保证）----
+		for(var j2 = 0; j2 < pg.visibleCount; j2++)
+		{
+			var idx2 = pg.first + j2;
+			var ir3 = uiWidgetListItemRect(el, j2);
+			var label2 = "" + el.labels[idx2];
+			var tmp2 = %[ id: "" + el.id + "[" + idx2 + "].text", kind: "text",
+				x: 0, y: 0, w: itemTextSpec.w, h: itemTextSpec.h,
+				align: itemTextSpec.align, valign: itemTextSpec.valign,
+				wrap: itemTextSpec.wrap, max_lines: itemTextSpec.max_lines,
+				sample: label2 ];
+			var lr = uiWidgetItemLocalRect(ir3, itemTextSpec);
+			tmp2.x = lr.x; tmp2.y = lr.y;
+			var tfont = itemTextSpec.font;
+			if(idx2 == focus && el.highlight_font_color !== void)
+				tfont = uiWidgetFontWithColor(tfont, el.highlight_font_color);
+			if(tfont !== void) tmp2.font = tfont;
+			if(itemTextSpec.line_spacing !== void) tmp2.line_spacing = itemTextSpec.line_spacing;
+			uiWidgetDrawText(stage, tmp2, ctx);
+		}
+	}
+	else
+	{
+		// 标签（**旧路径**：单行、无内缩、整项垂直居中 —— 与 M06 之前逐字相同）
+		var fontSpec = (el.font !== void) ? el.font : void;
+		var f = uiThemeApplyFont(stage, fontSpec, el);
+		var lineH = f.lineH;
+
+		for(var j = 0; j < pg.visibleCount; j++)
+		{
+			var idx = pg.first + j;
+			var ir2 = uiWidgetListItemRect(el, j);
+			var label = "" + el.labels[idx];
+			var isFocus = (idx == focus);
+
+			var col = f.color;
+			if(isFocus && el.highlight_font_color !== void)
+				col = uiThemeColor(el.highlight_font_color);
+
+			var w = uiThemeTextWidth(stage, label);
+			var tx = ir2.x;
+			var align = (el.align !== void) ? el.align : "center";
+			if(align == "center")      tx = ir2.x + Math.floor((ir2.w - w) / 2);
+			else if(align == "right")  tx = ir2.x + ir2.w - w;
+			var ty = ir2.y + Math.floor((ir2.h - lineH) / 2);
+
+			var savedColor = f.color;
+			f.color = col;
+			uiThemeDrawLine(stage, tx, ty, label, f, opa);
+			f.color = savedColor;
+		}
+	}
+
+	// ---- ★ M06：**逐项按钮绘制**（每个可见行各画一遍 ⇒ 天然随分页/滚动走）----
+	if(btnArr !== null)
+	{
+		for(var j3 = 0; j3 < pg.visibleCount; j3++)
+		{
+			var idx3 = pg.first + j3;
+			var irb = uiWidgetListItemRect(el, j3);
+			for(var bi = 0; bi < btnArr.count; bi++)
+			{
+				var b = btnArr[bi];
+				if(b === void || b === null || typeof b != "Object") continue;
+				if(btnBadKey[uiWidgetItemBtnSysKey(b, bi)] === true) continue;   // 非法项：已打 REJECT，不画
+				var br = uiWidgetItemLocalRect(irb, b);
+				var st = uiWidgetItemButtonState(el, ctx, idx3, "" + b.key);
+				var ba = uiWidgetItemButtonAsset(b, st);
+				if(ba === void || ba === null || ("" + ba) == "") continue;
+				var brr = uiWidgetBlitAsset(stage, "" + ba, br.x, br.y, br.w, br.h, b.nine,
+					(b.opacity !== void) ? b.opacity : opa);
+				if(brr.missing) uiWidgetNoteMiss(el.id + "[" + b.key + "]", "" + ba);
+				// 可选文字（**引擎绘制**，单行居中 —— 口径同既有 hit.label）
+				//   ★ ISSUE-20260927-03（模块 I · 用户裁决「统一两端按钮标签墨迹口径」）：
+				//     标签元素 `y` 由 `br.y` 改为 `br.y + 6` ⇒ **墨迹**落在胶囊**可见体**中线。
+				//     算式（按本文件既有排版路径 `ui_theme.tjs::uiThemeLayoutText` /
+				//     `uiThemeRenderText` 推）：lineH = floor(字号 20 × 行距 1.4) = 28、
+				//     h = br.h = 29 ⇒ 行盒顶 = `el.y + floor((29−28)/2)` = **元素顶**；
+				//     而 `uiThemeRenderText` 把字形墨迹画在**行盒顶**（字形顶再上探 1px、墨高 20）
+				//     ⇒ 墨迹中线 = 行盒顶 + 8.5 = 元素顶 + 8.5，胶囊可见体中线 = 元素顶 + 29/2 = 14.5
+				//     ⇒ **高 6.0px**（实机四块一致；量测见
+				//     `_工作\ISSUE-20260927-02_backlog收尾\取证\{改前,改后}\量测_*.txt`）。
+				//     本文件头「无字面量」的约束针对**元素几何**（坐标/尺寸/字号/颜色一律来自 el）；
+				//     本项是**排版修正量**（无数据端口，`item_buttons[]` 没有标签纵向偏移字段）。
+				//     ⚠️ 只动标签落点：`br` 的几何、命中矩形（`uiWidgetItemButtonAt`）、三态素材、
+				//     `action`、`labels` 一律未动。
+				//     ⚠️ HTML 端同一支再 +3px（`复刻\replica.js::buildList` 的 `translateY` 项）——
+				//     两端墨迹口径**恒差 3.0px**，故引擎 +6 = HTML +3 + 3。**改一处须改两处。**
+				//     同款落点：本文件 `uiWidgetDrawHit` 的 `hit.label`（同为按钮标签，一并 +6）。
+				if(b.label !== void && ("" + b.label) != "")
+				{
+					var bt = %[ id: uiWidgetItemBtnToken(el.id, idx3, b.key) + ".label", kind: "text",
+						x: br.x, y: br.y + 6, w: br.w, h: br.h,
+						align: (b.align !== void) ? b.align : "center", valign: "middle",
+						wrap: false, max_lines: 1, sample: b.label ];
+					bt.font = (b.font !== void) ? b.font : el.font;
+					uiWidgetDrawText(stage, bt, ctx);
+				}
+			}
+		}
+	}
+
+	// ---- ★ M1：**栏位内差分**（缩略图 + 左右子按钮 + `n/N` 文本）----
+	//   容器级非法 ⇒ 逐条 REJECT 且**整段不画**（与 item_buttons 的「非法项不画」同口径）；
+	//   逐栏非法（`frames[row]`）在绘制/命中函数内部按可见栏逐条 REJECT 并跳过该栏。
+	if(uiWidgetHasItemVariants(el))
+	{
+		var varBad = uiWidgetItemVariantProblems(el);
+		var varBadKey = %[];
+		for(var vq = 0; vq < varBad.count; vq++)
+		{
+			varBadKey["" + varBad[vq].key] = true;
+			uiWidgetItemVariantReject(el.id, varBad[vq].key, varBad[vq].reason);
+		}
+		if(varBad.count == 0) uiWidgetDrawListVariants(stage, el, ctx, pg, opa, varBadKey);
+	}
+}
+
+// ------------------------------------------------------------
+// ★ M47（2026-09-24 · ISSUE-20260924-01 · 《M47_设置屏重设方案》§三.1）：新 kind = `slider`
+//   元素字段（**接口冻结，不得改名**）：
+//     min / max / step / value（**初值**）/ setting（设置键名；空串 = 纯视觉滑块，不写仓）
+//     rail   { asset, nine? }                轨道素材（以元素**垂直中心线**为轴）
+//     handle { asset, state_assets { normal, hover } }  手柄素材（**不随元素框裁剪**）
+//   语义：`x..x+w` 映射 `min..max`，`step` 取整；手柄中心 x = 值对应的轨道 x。
+//   **运行期值**统一取自 ui_settings.tjs 的 `UIScrSliderVal[<元素 id>]`（元素 `value` 只是初值；
+//   初始化只在「该 id 尚无值」时写，见 ui_screens.tjs 的 uiScreenSliderInitFor ⇒ 换屏回来保留用户值）。
+//   手柄的「悬停 / 拖动中」形态由 ctx 的两个键驱动：`hoverSlider` / `dragSlider`
+//   （由 uiScreenCtx / uiDialogBuildCtx 透传，见 uiWidgetSliderHot）。
+//   ★ 本 kind **不参与** `uiScreenHoverAtIn` 的候选并集（那条判据被 test_state_targets.py
+//     的指纹盯着）：滑块的悬停 / 拖动由它自己的命中 hit（带 `slider` 字段）驱动，
+//     判定见 ui_screens.tjs 的 uiScreenSliderHitEl / uiScreenHoverUpdate。
+// ------------------------------------------------------------
+function uiWidgetSliderSpan(el)
+{
+	var a = uiWidgetNum(el, "min", 0);
+	var b = uiWidgetNum(el, "max", 0);
+	if(b < a) b = a;                       // 跨度非法时退化为「只有一个值」，避免除零
+	return %[ min: a, max: b, step: uiWidgetNum(el, "step", 0) ];
+}
+
+// 值标准化：取整 + step 对齐（四舍五入到最近一档）+ clamp 到 [min,max]
+function uiWidgetSliderClamp(el, v)
+{
+	var sp = uiWidgetSliderSpan(el);
+	var n = Math.round(uiSettingToInt(v));
+	var step = uiSettingToInt(sp.step);
+	if(step > 0) n = Math.round(n / step) * step;
+	if(n < sp.min) n = sp.min;
+	if(n > sp.max) n = sp.max;
+	return n;
+}
+
+// 初值：有 `setting` 且设置仓认这个键 ⇒ 用**仓里的值**（读档读回来的值必须一进来就体现）；
+//       否则用元素自己的 `value`。
+function uiWidgetSliderDefault(el)
+{
+	var st = (el.setting === void || el.setting === null) ? "" : ("" + el.setting);
+	if(st != "" && uiSettingHas(st)) return UISettingGet(st);
+	return uiWidgetNum(el, "value", 0);
+}
+
+// 运行期值（只在「该 id 尚无值」时用初值初始化；此后用户拖出来的值一直有效）
+function uiWidgetSliderValue(el)
+{
+	var id = "" + el.id;
+	var v = UIScrSliderVal[id];
+	if(v === void || v === null)
+	{
+		v = uiWidgetSliderClamp(el, uiWidgetSliderDefault(el));
+		UIScrSliderVal[id] = v;
+	}
+	return uiWidgetSliderClamp(el, v);
+}
+
+// 值 → 手柄中心 x（`min` 落在轨道左端、`max` 落在右端；轨道横跨元素 x..x+w）
+function uiWidgetSliderXOf(el, v)
+{
+	var sp = uiWidgetSliderSpan(el);
+	if(sp.max <= sp.min) return el.x;
+	var t = (uiWidgetSliderClamp(el, v) - sp.min) / (sp.max - sp.min);
+	return el.x + Math.round(t * el.w);
+}
+
+// 轨道 x → 值（clamp + step 对齐）。**拖动与巡演合成拖动共用这一条换算**（单一真相源）
+function uiWidgetSliderValueAt(el, x)
+{
+	var sp = uiWidgetSliderSpan(el);
+	if(el.w <= 0 || sp.max <= sp.min) return sp.min;
+	var t = (x - el.x) / el.w;
+	if(t < 0) t = 0;                       // 指针拖到轨道外 ⇒ 夹到两端（不取消拖动）
+	if(t > 1) t = 1;
+	return uiWidgetSliderClamp(el, sp.min + t * (sp.max - sp.min));
+}
+
+// 该滑块此刻是否「活动」（拖动中 或 指针悬停其命中热区）⇒ 手柄画 hover 图
+function uiWidgetSliderHot(el, ctx)
+{
+	if(ctx === void || ctx === null) return false;
+	var id = "" + el.id;
+	var d = ctx.dragSlider;
+	if(d !== void && d !== null && ("" + d) == id) return true;
+	var h = ctx.hoverSlider;
+	if(h !== void && h !== null && ("" + h) == id) return true;
+	return false;
+}
+
+// 手柄素材：活动态 → `state_assets.hover`，否则 `state_assets.normal`；
+// 缺键逐级回落 `handle.asset`（回落口径与 uiWidgetStateAsset 的「按下>悬停>常态」同款）
+function uiWidgetSliderHandleAsset(el, ctx)
+{
+	var h = el.handle;
+	if(h === void || h === null) return void;
+	var sa = h.state_assets;
+	if(uiWidgetSliderHot(el, ctx)
+		&& sa !== void && sa !== null && sa.hover !== void && sa.hover !== null && ("" + sa.hover) != "")
+		return "" + sa.hover;
+	if(sa !== void && sa !== null && sa.normal !== void && sa.normal !== null && ("" + sa.normal) != "")
+		return "" + sa.normal;
+	return h.asset;
+}
+
+function uiWidgetDrawSlider(stage, el, ctx)
+{
+	var opa = uiWidgetNum(el, "opacity", 255);
+	var val = uiWidgetSliderValue(el);
+
+	// ---- ① 轨道 ----
+	//  以元素**垂直中心线**为轴：给 `rail.nine` 才拉伸到元素框，否则按素材自身高度居中
+	//  （素材 364x11 与元素 w 相等时即 1:1，见方案 §1.2 的滑块几何）。
+	if(el.rail !== void && el.rail !== null
+		&& el.rail.asset !== void && el.rail.asset !== null && ("" + el.rail.asset) != "")
+	{
+		var rAsset = "" + el.rail.asset;
+		var rNine = el.rail.nine;
+		uiAssetGet(rAsset);                       // 先载入（缺件由它自己登记）
+		var rsz = uiAssetSize(rAsset);
+		var rh2 = (rNine !== void && rNine !== null) ? el.h : ((rsz !== void) ? rsz.h : el.h);
+		var ry = el.y + Math.floor((el.h - rh2) / 2);
+		var rr = uiWidgetBlitAsset(stage, rAsset, el.x, ry, el.w, rh2, rNine, opa);
+		if(rr.missing) uiWidgetNoteMiss(el.id + ".rail", rAsset);
+	}
+
+	// ---- ② 手柄 ----
+	//  **不随元素框裁剪**：本渲染器不做裁剪，直接按素材自身尺寸画在以轨道 x 为中心的位置上
+	//  （与元素高无关 ⇒ 手柄可以比元素框高，即方案说的「手柄不裁剪」）。
+	if(el.handle !== void && el.handle !== null)
+	{
+		var hAsset = uiWidgetSliderHandleAsset(el, ctx);
+		if(hAsset !== void && hAsset !== null && ("" + hAsset) != "")
+		{
+			uiAssetGet("" + hAsset);
+			var hsz = uiAssetSize("" + hAsset);
+			var hw = (hsz !== void) ? hsz.w : el.h;
+			var hh = (hsz !== void) ? hsz.h : el.h;
+			uiWidgetBlitAsset(stage, "" + hAsset, uiWidgetSliderXOf(el, val) - Math.floor(hw / 2),
+				el.y + Math.floor((el.h - hh) / 2), hw, hh, void, opa);
+		}
+	}
+}
+
+// 独立 kind=anim：asset_frames 逐帧 + blink/scroll 预留
+function uiWidgetDrawAnim(stage, el, ctx)
+{
+	var phase = (ctx !== void && ctx.phase !== void) ? ctx.phase : 0;
+	if(el.asset_frames !== void && el.asset_frames.count > 0)
+	{
+		var n = uiWidgetNum(el, "count", el.asset_frames.count);
+		if(n <= 0) n = el.asset_frames.count;
+		var idx = Math.floor(phase * n) % n;
+		var opa = uiWidgetNum(el, "opacity", 255);
+		uiWidgetBlitAsset(stage, el.asset_frames[idx], el.x, el.y, el.w, el.h, el.nine, opa);
+		return;
+	}
+	// 无帧序列时退化为 blink 方块
+	stage.colorRect(el.x, el.y, el.w, el.h, uiThemeColor(el.color), uiWidgetAnimOpacity(el, phase));
+}
+
+function uiWidgetDrawElement(stage, el, ctx)
+{
+	var k = el.kind;
+	if(k == "rect")       uiWidgetDrawRect(stage, el, void);
+	else if(k == "image") uiWidgetDrawImage(stage, el, ctx);
+	else if(k == "text")  uiWidgetDrawText(stage, el, ctx);
+	else if(k == "hit")   uiWidgetDrawHit(stage, el, ctx);
+	else if(k == "list")  uiWidgetDrawList(stage, el, ctx);
+	else if(k == "anim")  uiWidgetDrawAnim(stage, el, ctx);
+	else if(k == "slider") uiWidgetDrawSlider(stage, el, ctx);   // ★ M47
+	else uiWidgetNoteWarn("未知 kind：" + k + "（元素 " + el.id + "）");
+}
+
+// ------------------------------------------------------------
+// 元素可见性
+//   ★ M1（ISSUE-20260922-28）：屏级 flag 判定**统一**走 ui_screens.tjs 的
+//     uiScreenElementVisible（判定语义见该文件顶部「屏级状态 flag」区块）——
+//     本函数只保留 ctx 的两条渲染期覆盖（forceShow / hide），最后回落该谓词。
+//     本文件先于 ui_screens.tjs 装载，但本函数只在事件循环开始后才被调用
+//     （那时 ui_screens.tjs 已装载完毕；同款跨文件前向引用已见于 ui_dialog.tjs）。
+// ------------------------------------------------------------
+function uiWidgetElementVisible(el, ctx)
+{
+	if(ctx !== void && ctx.forceShow !== void && ctx.forceShow[el.id] === true) return true;
+	if(ctx !== void && ctx.hide !== void && ctx.hide[el.id] === true) return false;
+	return uiScreenElementVisible(el);
+}
+
+// ------------------------------------------------------------
+// 整屏绘制：按 z 稳定排序后逐个画
+// ------------------------------------------------------------
+function uiWidgetDrawScreen(stage, screen, ctx)
+{
+	var els = screen.elements;
+	if(els === void) return 0;
+
+	// 稳定插入排序（按 z 升序；同 z 保持声明顺序）
+	var order = [];
+	for(var i = 0; i < els.count; i++) order.push(i);
+	for(var a = 1; a < order.count; a++)
+	{
+		var key = order[a];
+		var zk = uiWidgetNum(els[key], "z", 0);
+		var b = a - 1;
+		while(b >= 0)
+		{
+			var zb = uiWidgetNum(els[order[b]], "z", 0);
+			if(zb <= zk) break;
+			order[b + 1] = order[b];
+			b--;
+		}
+		order[b + 1] = key;
+	}
+
+	var drawn = 0;
+	for(var n = 0; n < order.count; n++)
+	{
+		var el = els[order[n]];
+		if(!uiWidgetElementVisible(el, ctx)) continue;
+		uiWidgetDrawElement(stage, el, ctx);
+		drawn++;
+	}
+	return drawn;
+}
+
+// 屏幕 bg（屏对象自带的 bg 字段）
+function uiWidgetDrawScreenBg(stage, screen)
+{
+	if(screen.bg === void) return;
+	var el = screen.bg;
+	el.id = "__bg__";
+	if(el.kind == "rect") uiWidgetDrawRect(stage, el, void);
+	else if(el.kind == "image") uiWidgetDrawImage(stage, el, void);
+}
+
+// ------------------------------------------------------------
+// 占位与诊断（缺件不崩：画方块 + 画可读文字）
+// ------------------------------------------------------------
+function uiWidgetDrawPlaceholder(stage, el, r, why)
+{
+	// 占位底色 + 边框，颜色取色板（不硬编码）
+	// ★ 底色与不透明度**不动**（本轮只修文字的横向溢出；颜色/不透明度是两端共用机制）。
+	stage.colorRect(r.x, r.y, r.w, r.h, uiThemePalette("node_locked"),
+		uiThemePalette("panel_fill_opa"));
+
+	var f = uiThemeApplyFont(stage, void, el);
+	var lineH = f.lineH;
+	var lines = [
+		"[占位] " + ((el.asset === void) ? "动态层" : ("" + el.asset)),
+		why
+	];
+	// 只在框够高时写第二行，避免溢出到框外
+	var maxL = (r.h >= lineH * 2) ? 2 : 1;
+	var yy = r.y;
+	var oldColor = f.color;
+	f.color = uiThemePalette("text_small");
+	// ★ ISSUE-20260929-02 第 3 轮（vision 实机复审后）· **横向钳位（两端同判据）**
+	//   原先只按**高度**决定写不写第二行，**横向没有任何约束** ⇒ 长行（如
+	//   `dynamic:flow_scene_frames`，25 字符、全局 body 字号）会戳出元素矩形、
+	//   越过栏右边、贴到屏宽被切断（实测墨迹 x1456..1918；窗右沿 1822 / 屏宽 1919）。
+	//   修法：**每一行都必须完整落在元素矩形 r 之内** —— 装不下就**截断并追加「…」**
+	//   （**不换行**；HTML 侧 `复刻/replica.js::ellipsizeTo` 同判据）。
+	//   描边 / 阴影属**渲染层的额外墨迹**：先把它们的越界量从可用宽度里扣掉（描边两侧各占
+	//   outlineW ⇒ 起点内缩 outlineW），再交给 `uiThemeEllipsize()` 用 `Font.getTextWidth` 实测截断。
+	var ins = 0;
+	var budget = r.w;
+	if(f.outline === true && f.outlineW > 0)
+	{
+		ins = f.outlineW;
+		budget = r.w - 2 * f.outlineW;
+	}
+	if(f.shadow === true) budget = budget - ((f.shadowOfs > 0) ? f.shadowOfs : 1);
+	for(var i = 0; i < maxL && i < lines.count; i++)
+	{
+		uiThemeDrawLine(stage, r.x + ins, yy, uiThemeEllipsize(stage, lines[i], budget), f, 255);
+		yy += lineH;
+	}
+	f.color = oldColor;
+}
+
+// 缺件/缩放/截断/未知 kind 的登记（去重，供日志与巡演汇总）
+var UIWidgetMissSeen  = %[];
+var UIWidgetScaleSeen = %[];
+var UIWidgetTruncSeen = %[];
+var UIWidgetWarnSeen  = %[];
+var UIWidgetMissLines  = [];
+var UIWidgetScaleLines = [];
+var UIWidgetTruncLines = [];
+var UIWidgetWarnLines  = [];
+
+function uiWidgetNoteMiss(id, asset)
+{
+	var k = id + "|" + asset;
+	if(UIWidgetMissSeen[k] === true) return;
+	UIWidgetMissSeen[k] = true;
+	UIWidgetMissLines.push(id + " -> " + asset);
+}
+
+function uiWidgetNoteScale(id, asset, sw, sh, dw, dh)
+{
+	var k = id + "|" + asset;
+	if(UIWidgetScaleSeen[k] === true) return;
+	UIWidgetScaleSeen[k] = true;
+	UIWidgetScaleLines.push(id + " " + asset + " 源 " + sw + "x" + sh + " -> 目标 " + dw + "x" + dh);
+}
+
+function uiWidgetNoteTrunc(id, txt)
+{
+	if(UIWidgetTruncSeen[id] === true) return;
+	UIWidgetTruncSeen[id] = true;
+	UIWidgetTruncLines.push(id + " : " + ("" + txt).substring(0, 24) + "…");
+}
+
+function uiWidgetNoteWarn(msg)
+{
+	if(UIWidgetWarnSeen[msg] === true) return;
+	UIWidgetWarnSeen[msg] = true;
+	UIWidgetWarnLines.push(msg);
+}
+
+function uiWidgetDiagSummary()
+{
+	var s = "";
+	s = s + "缺件元素 " + UIWidgetMissLines.count + " 处";
+	if(UIWidgetMissLines.count > 0)  s = s + " [" + UIWidgetMissLines.join(" ; ") + "]";
+	s = s + " | 缩放元素 " + UIWidgetScaleLines.count + " 处";
+	if(UIWidgetScaleLines.count > 0) s = s + " [" + UIWidgetScaleLines.join(" ; ") + "]";
+	s = s + " | 截断文本 " + UIWidgetTruncLines.count + " 处";
+	if(UIWidgetTruncLines.count > 0) s = s + " [" + UIWidgetTruncLines.join(" ; ") + "]";
+	s = s + " | 未知 kind " + UIWidgetWarnLines.count + " 处";
+	if(UIWidgetWarnLines.count > 0)  s = s + " [" + UIWidgetWarnLines.join(" ; ") + "]";
+	// ★ M06：逐项按钮（`item_buttons`）/ 逐项文本区（`item_text`）守卫的拒绝判词汇总
+	//   —— 合法数据恒为 0 处；非法数据必须在这里与被 grep 的 `★M06ITEMBTN-REJECT★` 行同时出现。
+	s = s + " | item_buttons/item_text 拒绝 " + UIWidgetItemBtnRejectLines.count + " 处";
+	if(UIWidgetItemBtnRejectLines.count > 0)
+		s = s + " [" + UIWidgetItemBtnRejectLines.join(" ; ") + "]";
+	return s;
+}

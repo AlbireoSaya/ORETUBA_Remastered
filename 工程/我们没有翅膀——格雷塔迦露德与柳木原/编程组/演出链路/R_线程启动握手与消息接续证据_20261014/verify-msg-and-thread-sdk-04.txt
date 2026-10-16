@@ -1,0 +1,73 @@
+# Root OS and ABI verification of exact editor-easy handle/MSG candidates.
+from pathlib import Path
+import ctypes as C,sys,struct,json,uuid
+r=Path.cwd();w=g/'工具';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(w),str(g/'工具')]
+from lucifen_guest_thread_handles import GuestThreadHandles
+from lucifen_guest_msg_pack import pack_guest_msg
+from lucifen_guest_msg_unpack import unpack_guest_msg
+from lucifen_host_msg_types import MSG
+from lucifen_host_thread_create import CreateThread,HOST_THREADPROC
+from lucifen_host_thread_id import GetThreadId
+from lucifen_host_thread_exit_code import GetExitCodeThread
+k=C.WinDLL('kernel32',use_last_error=True);k.WaitForSingleObject.argtypes=[C.c_void_p,C.c_uint32];k.WaitForSingleObject.restype=C.c_uint32;k.CloseHandle.argtypes=[C.c_void_p];k.CloseHandle.restype=C.c_int
+@HOST_THREADPROC
+def owned_worker(_):return 0x55
+tid=C.c_uint32();host=CreateThread(None,0,owned_worker,None,0,C.byref(tid));assert host and tid.value
+handles=GuestThreadHandles()
+try:
+ handles.register(0x69d80000,int(host));assert handles.resolve(0x69d80000)==int(host) and handles.live_count==1 and GetThreadId(host)==tid.value
+ for guest,value in [(0x69d80000,int(host)),(0x69d80001,int(host)),(True,1),(0,1),(1,0),(1,True),(1,(1<<(C.sizeof(C.c_void_p)*8)))]:
+  try:handles.register(guest,value)
+  except (TypeError,ValueError):pass
+  else:raise AssertionError('invalid or duplicate registration accepted')
+  assert handles.live_count==1
+ assert k.WaitForSingleObject(host,5000)==0;exitcode=C.c_uint32();assert GetExitCodeThread(host,C.byref(exitcode)) and exitcode.value==0x55
+ assert handles.remove(0x69d80000)==int(host) and handles.live_count==0
+ try:handles.resolve(0x69d80000)
+ except ValueError:pass
+ else:raise AssertionError('stale handle accepted')
+finally:assert k.CloseHandle(host)
+msg=MSG();msg.hwnd=(1<<48)+123 if C.sizeof(C.c_void_p)==8 else 0x12345678;msg.wParam=~0 & ((1<<(C.sizeof(C.c_size_t)*8))-1);msg.lParam=-42;msg.message=0xffffffff;msg.time=0xffffffff;msg.pt.x=-2147483648;msg.pt.y=2147483647;msg.lPrivate=0x13572468
+before=bytes(msg);encoded=pack_guest_msg(msg,0x69f50000,0xfedcba98,-2147483648);assert len(encoded)==32 and bytes(msg)==before
+decoded=unpack_guest_msg(encoded);assert decoded=={'hwnd':0x69f50000,'message':0xffffffff,'wParam':0xfedcba98,'lParam':-2147483648,'time':0xffffffff,'pt_x':-2147483648,'pt_y':2147483647,'lPrivate':0x13572468}
+assert struct.pack('<IIIiIiiI',*decoded.values())==encoded
+for args in [(True,0,0),(1,True,0),(1,0,True),(1,0,2147483648),(1,0,-2147483649),(1<<32,0,0)]:
+ try:pack_guest_msg(msg,*args)
+ except (TypeError,ValueError):pass
+ else:raise AssertionError('invalid pointer/numeric boundary accepted')
+for data in [bytearray(encoded),encoded[:-1],encoded+bytes([0]),None]:
+ try:unpack_guest_msg(data)
+ except (TypeError,ValueError):pass
+ else:raise AssertionError('invalid buffer accepted')
+from lucifen_host_set_window_pos import SetWindowPos,SWP_NOMOVE,SWP_NOSIZE,SWP_NOACTIVATE
+from lucifen_host_foreground_get import GetForegroundWindow
+from lucifen_host_message_window_bindings import user32,kernel32
+from lucifen_host_window_rect import GetWindowRect
+from lucifen_host_nccalcsize import RECT
+owned_window=user32.CreateWindowExW(0,'STATIC','owned NOACTIVATE verification',0x80000000,20,30,64,48,None,None,kernel32.GetModuleHandleW(None),None);assert owned_window
+try:
+ before=RECT();after=RECT();assert GetWindowRect(owned_window,C.byref(before));fg_before=GetForegroundWindow()
+ assert SetWindowPos(owned_window,None,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE)
+ assert GetWindowRect(owned_window,C.byref(after)) and bytes(before)==bytes(after);fg_after=GetForegroundWindow()
+finally:assert user32.DestroyWindow(owned_window)
+from lucifen_host_get_message import GetMessageA
+from lucifen_host_translate_accelerator import TranslateAcceleratorA
+from lucifen_host_peek_message import PeekMessageA
+from lucifen_host_accelerator import ACCEL,CreateAcceleratorTableA,DestroyAcceleratorTable
+actual_msg=MSG();actual_msg.message=0xf
+acc=ACCEL();acc.fVirt=1;acc.key=0x42;acc.cmd=123;owned_acc=CreateAcceleratorTableA(C.byref(acc),1);assert owned_acc
+try:assert TranslateAcceleratorA(None,owned_acc,C.byref(actual_msg))==0
+finally:assert DestroyAcceleratorTable(owned_acc)
+user32.PostQuitMessage.argtypes=[C.c_int];user32.PostQuitMessage.restype=None
+user32.PostQuitMessage(23);assert PeekMessageA(C.byref(actual_msg),None,0,0,0)==1 and actual_msg.message==0x12
+msg_guard=bytes([165])*32;buf=C.create_string_buffer(msg_guard+bytes(C.sizeof(MSG))+msg_guard,64+C.sizeof(MSG));ptr=C.cast(C.byref(buf,32),C.POINTER(MSG))
+assert GetMessageA(ptr,None,0,0)==0 and ptr.contents.message==0x12 and ptr.contents.wParam==23
+assert buf.raw[:32]==buf.raw[-32:]==msg_guard
+from lucifen_host_wvsprintf_a import wvsprintfA
+vguard=bytes([165])*32;vstr=b'owned_widget';vfmt=b'TST/'+bytes([37,115])+b'.IMG';vexpected=vfmt%vstr
+strbuf=C.create_string_buffer(vguard+vstr+bytes([0])+vguard,65+len(vstr));fmtbuf=C.create_string_buffer(vguard+vfmt+bytes([0])+vguard,65+len(vfmt));vapayload=struct.pack('<Q'if C.sizeof(C.c_void_p)==8 else'<I',C.addressof(strbuf)+32);vabuf=C.create_string_buffer(vguard+vapayload+vguard,64+len(vapayload));outbuf=C.create_string_buffer(vguard+bytes(1024)+vguard,1088)
+assert(C.addressof(vabuf)+32)%C.sizeof(C.c_void_p)==0
+assert wvsprintfA(C.byref(outbuf,32),C.byref(fmtbuf,32),C.byref(vabuf,32))==len(vexpected)
+assert outbuf.raw[32:32+len(vexpected)+1]==vexpected+bytes([0]) and outbuf.raw[:32]==outbuf.raw[-32:]==vguard
+assert strbuf.raw==vguard+vstr+bytes([0])+vguard and fmtbuf.raw==vguard+vfmt+bytes([0])+vguard and vabuf.raw==vguard+vapayload+vguard
+out={'pointer_bits':C.sizeof(C.c_void_p)*8,'passed':True,'native_MSG_bytes':C.sizeof(MSG),'guest_MSG_bytes':len(encoded),'actual_owned_thread_id_and_cleanup':True,'owned_SetWindowPos_preserved_RECT':True,'actual_foreground_observed_only':True,'invalid_and_duplicate_registry_no_mutation':True,'explicit_pointer_mapping_and_signed_limits_pass':True,'native_struct_unchanged':True,'actual_wvsprintf_host_pointer_width_va_list_guards':True,'GetMessage_actual_WM_QUIT_zero_return_guarded':True,'TranslateAccelerator_non_key_message_zero_return':True,'no_original_worker_liveness_or_pointer_message_coverage_claim':True};p=w/('sdk-parent-msg-'+str(out['pointer_bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(out,indent=2),encoding='utf-8');print(json.dumps(out))

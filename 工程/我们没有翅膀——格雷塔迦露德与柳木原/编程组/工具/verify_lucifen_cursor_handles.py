@@ -1,0 +1,25 @@
+import json
+from lucifen_guest_cursor_handles import GuestCursorHandles
+
+def raises(exc, fn, *a):
+    try:
+        fn(*a)
+    except exc:
+        return
+    raise AssertionError("expected %s" % exc.__name__)
+
+h = GuestCursorHandles()
+t = h.intern(0x100000001)
+assert h.intern(0x100000001) == t
+assert h.to_host(t) == 0x100000001
+assert h.to_host(h.intern(0)) == 0
+h.clear()
+raises(KeyError, h.to_host, t)
+assert h.intern(0x100000001) != t
+raises(ValueError, h.intern, True)
+raises(ValueError, h.intern, -1)
+o = GuestCursorHandles(base=0xFFFFFFFF)
+keep = o.intern(1)
+raises(OverflowError, o.intern, 2)
+assert o.to_host(keep) == 1
+print(json.dumps({"passed": True, "scope": "guest_cursor_handles"}))

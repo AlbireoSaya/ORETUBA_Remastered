@@ -1,0 +1,92 @@
+{
+  "passed": false,
+  "bits": 32,
+  "nonce": "af31ac1a98c342239b9a4149d913bf39",
+  "cases": 178,
+  "segments": 2,
+  "fresh_log": true,
+  "process": {
+    "returncode": 0,
+    "timed_out": false,
+    "cleanup_ok": true,
+    "pid": 17256
+  },
+  "engine_SHA256": "9228f50103b2a7bf95c241bef945fa254750840fd1ce4d4ff0b9a5078724175f",
+  "sources": [
+    {
+      "name": "r_expr_read.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_expr_read.tjs",
+      "SHA256": "a6ee0869d097dac2865c25c25c20ec17072e309bbe6e577f1d502a9361ac707b"
+    },
+    {
+      "name": "r_expr_header.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_expr_header.tjs",
+      "SHA256": "e8c5ecc6fc1af7983846afefbc3dd23f9814b4973ae13415491356d7e97b6286"
+    },
+    {
+      "name": "r_expr_relocations.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_expr_relocations.tjs",
+      "SHA256": "d093692b45be401831dcab4af391bfe7a464abd4929eb3535c241cd219b34835"
+    },
+    {
+      "name": "r_parse_expression.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_parse_expression.tjs",
+      "SHA256": "8c80fb378512f1ec4b2f6fecfb785dc9fba12c36acf6bd3a655b4f8dedc43b07"
+    },
+    {
+      "name": "r_inline_expr_header.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_inline_expr_header.tjs",
+      "SHA256": "d84553159c51f03e924c0025385b5ad4efd63522ecc092d78215e4a1b8fbfbad"
+    },
+    {
+      "name": "r_inline_expr_relocations.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_inline_expr_relocations.tjs",
+      "SHA256": "e28d46fa0bfb0b87d182a8e5b4e2a17aabef50c7b9727358a091c66647b216cc"
+    },
+    {
+      "name": "r_parse_inline_expression.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_parse_inline_expression.tjs",
+      "SHA256": "a1f7c71582c2ccfb92483a9c15b4c252363b1b390ffa4f8adc7cc6934265901b"
+    },
+    {
+      "name": "r_relocation_pair.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_relocation_pair.tjs",
+      "SHA256": "05b9cc26d9ae1bbb6daf8c2d8d9fd35dbf3cdaffab7f97f0048734877bd2afea"
+    },
+    {
+      "name": "r_relocation_writes.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_relocation_writes.tjs",
+      "SHA256": "e70ab363d852a4da830c9f23ac7e2905bcccf6a219082951ffb57038e7cd5be9"
+    },
+    {
+      "name": "r_record_value.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_record_value.tjs",
+      "SHA256": "e8ad99138725d7fc7e9f118b449305e2a8296c2b9e93310e76d1dce3413ef1ed"
+    },
+    {
+      "name": "r_record_arguments.tjs",
+      "source": "子代理工作区/ISSUE-20261011-02/r-target-bind-20261015/r_record_arguments.tjs",
+      "SHA256": "a9e0cf41747505ae3c6dd0f427f1af691b9ff88c8e21e3db653452a682cda045"
+    },
+    {
+      "name": "r_vm_fixture_compare.tjs",
+      "source": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015/r_vm_fixture_compare.tjs",
+      "SHA256": "50b1ed1833fc721b683e8d17e37c6ebdd9c355bff87898335faadac528227e45"
+    },
+    {
+      "fault_injection_only": true,
+      "file": "r_relocation_pair.tjs",
+      "mutation": "group4-wrong-base",
+      "mutated_SHA256": "6b6395ae44f20e0a9e299bd4dbf8ea261a9d95532e2457aee808a8e82eead96e"
+    },
+    {
+      "name": "cases-0000.tjs",
+      "source": "临时/ISSUE-20261011-02/r-target-bind-synthetic-02/synthetic.tjs",
+      "SHA256": "67c4b101be4a99b33a85c2f42060715056960bc5a95ae7a2dd8e22759986a479"
+    }
+  ],
+  "console_SHA256": "5307d36015e055622542f5434eda4bb5620e4566e80871e370d3e1b199390a4c",
+  "input_manifest": "临时/ISSUE-20261011-02/r-target-bind-synthetic-02/manifest.json",
+  "counter_semantics": "cases=parse_or_synthetic_checks; segments=relocation_plans, not VM execution segments",
+  "full_native_lifecycle_or_game_fidelity_proven": false
+}

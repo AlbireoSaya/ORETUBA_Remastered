@@ -1,0 +1,59 @@
+序章开场段 · 片头影片播放链路探针（可复跑，实测记录）
+生成：2026-09-30 ｜ 模块：资源组 ｜ Issue：ISSUE-20260930-07
+被测：krkr素材库\ot\movie\ot_op1.mpg ｜ ot_op2.mpg（ot 的 2 支片头影片）
+
+复跑命令（Git Bash，工作区根目录）：
+  ffprobe -v error -show_entries stream=index,codec_name,codec_type,width,height,duration -of default=nw=1 "E:/ZCode Workspace/Galgame/工程/我们没有翅膀——格雷塔迦露德与柳木原/资源组/krkr素材库/ot/movie/<影片>"
+  powershell -NoProfile -ExecutionPolicy Bypass -File "工程\我们没有翅膀——格雷塔迦露德与柳木原\资源组\工具\probe_mci_playable.ps1" -MpgDir "<影片目录>" -SourceDir "<任意无 .usm 的目录>" -PlaySeconds 2
+
+==============================================================================
+[一] ffprobe：容器 / 编码事实
+==============================================================================
+--- ot_op1.mpg
+index=0
+codec_name=mpeg1video
+codec_type=video
+width=800
+height=600
+duration=124.707911
+index=1
+codec_name=mp2
+codec_type=audio
+duration=124.969789
+format_name=mpeg
+duration=124.969789
+bit_rate=4716062
+--- ot_op2.mpg
+index=0
+codec_name=mpeg1video
+codec_type=video
+width=800
+height=600
+duration=177.160311
+index=1
+codec_name=mp2
+codec_type=audio
+duration=177.136322
+format_name=mpeg
+duration=177.160311
+bit_rate=6103852
+
+==============================================================================
+[二] DirectShow / MCI 可播性（与 krkrz 视频播放同一 API：IGraphBuilder::Render）
+==============================================================================
+== 一、产物 .mpg 可播性（E:\ZCode Workspace\Galgame\工程\我们没有翅膀——格雷塔迦露德与柳木原\资源组\krkr素材库\ot\movie） ==
+  WARN  期望 7 支 .mpg，实得 2
+  PASS  ot_op1.mpg       OPEN-OK lengthMs=124996 mode0=stopped play_rc=0 mode_after_2s=playing
+  PASS  ot_op2.mpg       OPEN-OK lengthMs=177189 mode0=stopped play_rc=0 mode_after_2s=playing
+
+== 二、源 .usm 负向对照（E:\ZCode Workspace\Galgame\临时\stage1） ==
+
+== 探针结论：全部 PASS ==
+(注：该探针原为 7 支 PSV 片尾设计，对 2 支片头影片运行会出现「期望 7 支，实得 2」的 WARN——非失败。)
+
+==============================================================================
+[三] 结论
+==============================================================================
+  片头影片 2/2：MPEG-1 program stream + MP2 audio，800x600，125.0 s / 177.2 s。
+  片头影片 2/2：MCI(IGraphBuilder::Render) OPEN-OK 且 mode=playing ⇒ 宿主 DirectShow 链路可播。
+  未做：krkrz 实机播放（编程组接入后确认）；4:3→16:9 画幅处理方式未定。

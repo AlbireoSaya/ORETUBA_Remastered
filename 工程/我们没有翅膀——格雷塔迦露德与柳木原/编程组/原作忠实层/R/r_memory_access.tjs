@@ -1,0 +1,16 @@
+// r_memory_access.tjs —— 访存参数校验（只检参数，不读 region）
+// 未知/非法一律抛异常，不静默 noop
+
+function RMemoryAccessCheck(q, n, writing)
+{
+	if (typeof q != "Integer" || typeof n != "Integer" || typeof writing != "Integer")
+		throw new Exception("INVALID_MEMORY_ACCESS");
+	if (q < 0 || q > 0xffffffff)
+		throw new Exception("INVALID_MEMORY_ACCESS");
+	if (n != 1 && n != 4)
+		throw new Exception("INVALID_MEMORY_ACCESS");
+	if (q + n > 0x100000000)
+		throw new Exception("INVALID_MEMORY_ACCESS");
+	if (writing != 0 && writing != 1)
+		throw new Exception("INVALID_MEMORY_ACCESS");
+}

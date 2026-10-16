@@ -1,0 +1,17 @@
+## 追加：ISSUE-20261011-02 原版保真影响与 all4version 待定
+
+阶段提议 `R_活工作线程交接与标题演出证据_20261014`。以下仅为证据记录，不构成实现完成或标题保真声明。
+
+**对 faithful target runtime 的影响**
+- canonical137 仅支持活工作线程交接局部：原父线程处理真实消息0x31F时，实际 worker STILL_ACTIVE259；5个实际 HFONT GetObjectA=60 有效；contexts+FS0 在同一实际 OS TID 恢复；无并发 Unicorn、无源关闭。不能推导完整调度。
+- canonical138：原父线程后1M指令、11 blit、33样本全匹配、源DC clip2；局部，非通用裁剪修复。
+- canonical139：原父线程后12M无异常；原 R 菜单 START/LOAD/CONFIG/EXIT 局部可见；但白带/全帧792977 RGB字节不匹配，169 blit 中146匹配、23 NULLREGION。不得称标题完整。
+- canonical140：原父线程后24M有限预算，338 blit 中131 clip2、207 NULLREGION/样本失败；六次实捕获全帧均失败；同一 canonical140 单次运行中的 captures1,2 在 RECT[0,90,800,540] 精确，但全帧351009不匹配，差异行0..89与540..599，其余并集也失败。并集源自源 strip 调用，非隐藏不匹配；仍仅有限捕获，不是100%；captures1/2 同属这一次 canonical140 运行，非两次运行。原绘制 y90..538 的8像素水平条，源 ret45B762/ReleaseDC45B908；CLR_INVALID/NULLREGION/SetCursorPos BOOL0 等保留，不伪成功。
+- SDK：WorkerParkGate 一次性 + WorkerStepState/WorkerStepGate 多代；实际 Win32 TID 导入 `lucifen_host_tls`；两门模块合成实际 OS32/64 的 synthetic multi32 代际生成，跑32代，alive259、GDI font/DC 可用，owner/stale/skip/timeout/duplicate 负例与 sameworker 清理通过。多代/synthetic multi32 未接原完整调度。stepgate provider 初始10000作业无产物；两个较小模块与 actual-TID import 小修正已接受。游标实际 signed 请求与 BOOL0/1 保留；仅仍处最后请求位置才恢复，保留期间用户移动。
+- Root 失败是验证适配器限制，非游戏失败。
+
+**对 pending all4version target 的影响**
+Native `/goal` 仍 active；OT/OTA/OTV/OTR 的 faithful all scripts/runtime/all routes/states/frames/audio 100% 仍不完整。尚无完整原版 Exit/detach/TEB/loader、所有消息/WM_PAINT/键鼠、目标 TJS/普通 VM 全音频/全路线证明。合并前需源完整性最终验证。
+
+**约束**
+仅自有 SDK/派生元数据；原版 PE/DLL 仅 Unicorn；自有 OS 线程回调仅 Python。非翻译技术知识，不改术语。Norm cache `AGENTS` 不变，LF SHA `ecd14ee3924532a75eb02cf7ad1b02a49cf76329ca4be6ff74c612c4d56af4bf`。

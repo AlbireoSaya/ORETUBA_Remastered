@@ -1,0 +1,93 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "branch": "issue/ISSUE-20261011-02-original-fidelity",
+  "date": "2026-10-16",
+  "reviewer": "root",
+  "approved": true,
+  "production_tjs": 26,
+  "python_references": 4,
+  "fixture_and_guard_files": 23,
+  "full_metadata_matrix_per_architecture": {
+    "pairs": 22764,
+    "records": 45528,
+    "ordered_writes": 792374
+  },
+  "strict_parser_per_architecture": {
+    "checks": 30,
+    "exact_rejections": 22,
+    "metadata_record_runs": 24
+  },
+  "original_live_gate_calls": 3,
+  "original_live_parameter_calls": 11,
+  "live_parameter_scoped_events": 91,
+  "synthetic_checks_per_architecture": {
+    "cache": 2,
+    "pause": 4,
+    "atomic": 6,
+    "live_bank": 2,
+    "live_expression_reject": 2,
+    "live_count": 2
+  },
+  "additional_guard_receipts": [
+    {
+      "path": "receipts/r-live-param-bank-guard-32-20261016-01.json",
+      "sha256": "e2f0a39397f5df5abc63ada7173f8d8ebfd8e89feb91c4e645f4bdc78051b194",
+      "bits": 32,
+      "checks": 2
+    },
+    {
+      "path": "receipts/r-live-param-expression-guard-32-20261016-01.json",
+      "sha256": "0ecdd7082327578991e2e2201693283923988d9c563de50e4387310a09b70716",
+      "bits": 32,
+      "checks": 2
+    },
+    {
+      "path": "receipts/r-live-param-count-guard-32-20261016-01.json",
+      "sha256": "e7d94cb96510697f62b8ebdd726d00e4ed95c4d17145a7a158b69d9283470e68",
+      "bits": 32,
+      "checks": 2
+    },
+    {
+      "path": "receipts/r-live-param-bank-guard-64-20261016-01.json",
+      "sha256": "4322036974cd7a69ebde03128a49a550066088685fb7fb5077007f6e13fc72c7",
+      "bits": 64,
+      "checks": 2
+    },
+    {
+      "path": "receipts/r-live-param-expression-guard-64-20261016-01.json",
+      "sha256": "6eedeb0c54f015aa4a8d47a94870f1a97ff3f679f36b543c2fd72d9c9e6a89f3",
+      "bits": 64,
+      "checks": 2
+    },
+    {
+      "path": "receipts/r-live-param-count-guard-64-20261016-01.json",
+      "sha256": "d8f993d18d41ba4f590b92dbc9f68bd2cf340fb73e2d6e3324dfd6302344fcb0",
+      "bits": 64,
+      "checks": 2
+    }
+  ],
+  "fault_detection_cases": 6,
+  "installed_live_parameter_smoke_per_architecture": 11,
+  "index_changed_lines": [
+    23,
+    32
+  ],
+  "source_reference_hashes": "source-reference-hash-index.json",
+  "delivery_inventories": [
+    "delivery-inventory.json",
+    "additional-guard-delivery.json",
+    "document-delivery.json"
+  ],
+  "historical_pending_receipts_superseded_by_this_review": true,
+  "failed_or_rejected_deliveries": "5 length and 1 HTTP failure in current 30 API calls; draft guard argument order/length/Error and draft documentation rejected and editor-fixed; unfinished callback-positive helpers excluded",
+  "limits": [
+    "controlled metadata matrix, not all states/routes or live byte execution",
+    "native callbacks are fixtures",
+    "target not whole-image hash",
+    "live expression and bank growth not implemented",
+    "stops before ctx434 publication/129 dispatch",
+    "VM17/47 only",
+    "no new game startup/product",
+    "full four-version fidelity not complete"
+  ]
+}

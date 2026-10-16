@@ -1,0 +1,20 @@
+function RRBankVector(desc, bank) {
+    var rd = global.RRRead32 incontextof this;
+    desc = desc & 0xffffffff;
+    var base = rd(desc + 4) & 0xffffffff;
+    if (base == 0) {
+        throw new global.Exception("FIXTURE_BANK_GROWTH_UNIMPLEMENTED");
+    }
+    var end = rd(desc + 8) & 0xffffffff;
+    var capacity = int((end - base) / 12);
+    if (bank >= capacity) {
+        throw new global.Exception("FIXTURE_BANK_GROWTH_UNIMPLEMENTED");
+    }
+    return rd(desc + 4) & 0xffffffff;
+}
+
+function RRArray(p) {
+    var rd = global.RRRead32 incontextof this;
+    var ensure = global.RRBankVector incontextof this;
+    return global.RLiveArrayValue(rd, p, ensure);
+}

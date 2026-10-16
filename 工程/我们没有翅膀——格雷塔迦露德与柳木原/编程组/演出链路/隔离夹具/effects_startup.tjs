@@ -1,0 +1,14 @@
+Scripts.execStorage("config.tjs");
+Debug.startLogToFile();
+Debug.message("C0_BEGIN " + C0Nonce);
+try {
+    Scripts.execStorage("ui_stage_effects.tjs");
+    // Legacy fixture auto-runs once at its final line.
+    Scripts.execStorage("ui_stage_effects_fixture.tjs");
+    Debug.message("C0_VERDICT " + C0Nonce + ((FXFIXBad == 0 && FXFIXOK > 0) ? " PASS " : " FAIL ")
+        + FXFIXOK + "/" + (FXFIXOK + FXFIXBad));
+} catch(C0Error) {
+    Debug.message("C0_EXCEPTION " + C0Nonce + " " + C0Error.message);
+    Debug.message("C0_VERDICT " + C0Nonce + " FAIL 0/0");
+}
+System.exit();

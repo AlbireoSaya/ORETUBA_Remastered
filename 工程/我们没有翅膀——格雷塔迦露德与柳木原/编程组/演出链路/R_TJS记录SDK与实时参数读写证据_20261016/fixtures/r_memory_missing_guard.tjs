@@ -1,0 +1,21 @@
+function RGZeroByte(offset) { return 0; }
+
+function RGMemoryMissing() {
+    var r = %["base" => 4096, "size" => 4, "read_byte" => RGZeroByte, "writable" => 1];
+    var s = RMemoryCreate([r]);
+    var v = RMemoryRead8(s, 4096);
+    if (v !== 0) {
+        throw new Exception("RG_MISSING_BACKING_NOT_ZERO:" + v);
+    }
+    s.dirty["4096"] = void;
+    var msg = null;
+    try {
+        RMemoryRead8(s, 4096);
+    } catch (e) {
+        msg = e.message;
+    }
+    if (msg !== "INVALID_MEMORY_BYTE") {
+        throw new Exception("RG_MISSING_DIRTY_NOT_REJECTED:" + msg);
+    }
+    return 2;
+}

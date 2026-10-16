@@ -1,0 +1,39 @@
+from pathlib import Path
+import sys,ctypes as C,json,uuid,runpy
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-source-input-20261015';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(w),str(g/'工具')]
+from lucifen_host_message_window_bindings import user32 as u,kernel32 as k,WNDCLASSEXW,WNDPROC
+from lucifen_host_msg_types import MSG
+from lucifen_host_peek_message import PeekMessageA
+from lucifen_host_dispatch_message import DispatchMessageA
+from lucifen_host_post_message import PostMessageA
+from lucifen_guest_mouse_message import pack_client_mouse
+from lucifen_host_get_capture import GetCapture
+from lucifen_host_set_capture import SetCapture
+from lucifen_host_release_capture import ReleaseCapture
+from lucifen_host_get_focus import GetFocus
+from lucifen_host_set_focus import SetFocus
+from lucifen_host_get_foreground import GetForegroundWindow
+seen=[];focus_callbacks=[]
+@WNDPROC
+def proc(hwnd,msg,wp,lp):
+ if msg in(6,7,8):focus_callbacks.append({"message":msg,"focus":int(GetFocus()or 0),"own":int(hwnd)})
+ if msg in(0x200,0x201,0x202):seen.append((msg,int(wp),int(lp)));return 0
+ return u.DefWindowProcW(hwnd,msg,wp,lp)
+inst=k.GetModuleHandleW(None);name='GalgameInputABI'+uuid.uuid4().hex;c=WNDCLASSEXW();c.cbSize=C.sizeof(c);c.hInstance=inst;c.lpfnWndProc=proc;c.lpszClassName=name;atom=u.RegisterClassExW(C.byref(c));assert atom
+hwnd=u.CreateWindowExW(0,name,'owned input ABI fixture',0,0,0,2,2,None,None,inst,None);assert hwnd
+try:
+ focus_before=int(GetFocus()or 0);foreground_before=int(GetForegroundWindow()or 0);C.set_last_error(0);focus_previous=int(SetFocus(hwnd)or 0);focus_error=C.get_last_error();focus_after=int(GetFocus()or 0);foreground_after=int(GetForegroundWindow()or 0)
+ assert focus_after==int(hwnd),(focus_before,focus_previous,focus_after,int(hwnd),focus_error)
+ returned=int(SetFocus(C.c_void_p(focus_before))or 0);assert returned==int(hwnd)and int(GetFocus()or 0)==focus_before
+ original=int(GetCapture()or 0);prev=int(SetCapture(hwnd)or 0);assert prev==original and int(GetCapture()or 0)==int(hwnd);assert ReleaseCapture()and int(GetCapture()or 0)==0
+ for msg,flags in [(0x200,0),(0x201,1),(0x202,0)]:
+  packet=pack_client_mouse(msg,715,385,flags);assert PostMessageA(hwnd,msg,packet['wparam'],C.c_int32(packet['lparam']).value)
+ m=MSG()
+ for n in range(3):assert PeekMessageA(C.byref(m),hwnd,0x200,0x202,1)and m.hwnd==hwnd;DispatchMessageA(C.byref(m))
+ assert seen==[(0x200,0,0x018102cb),(0x201,1,0x018102cb),(0x202,0,0x018102cb)]
+ assert not PeekMessageA(C.byref(m),hwnd,0x200,0x202,1)
+finally:
+ if int(GetCapture()or 0)==int(hwnd):assert ReleaseCapture()
+ assert u.DestroyWindow(hwnd)and u.UnregisterClassW(name,inst)
+# Three new raw bindings are verified against only the fixture-owned window.
+out={'bits':C.sizeof(C.c_void_p)*8,'passed':True,'actual_owned_PostMessage_Peek_Dispatch_order':seen,'native_capture_previous_and_owner_release':True,'no_physical_mouse_or_keyboard_injection':True,'focus':{'actual_before':focus_before,'actual_SetFocus_raw_return':focus_previous,'native_focus_callbacks':focus_callbacks,'previous_equals_sampled_before':focus_previous==focus_before,'actual_after_is_owned':focus_after==int(hwnd),'actual_error':focus_error,'foreground_unchanged':foreground_before==foreground_after,'restored_original_thread_focus':True},'scope':'own OS focus/capture/message ABI only, not original START route'};(w/('sdk-focus-callbacks-'+str(out['bits'])+'.json')).write_text(json.dumps(out,indent=2),encoding='utf-8');print(json.dumps(out))

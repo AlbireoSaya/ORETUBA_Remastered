@@ -1,0 +1,30 @@
+from pathlib import Path
+import sys,ctypes,struct,json,hashlib
+root=Path.cwd();work=root/'子代理工作区/ISSUE-20261011-02/r-accelerator-20261013';g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+sys.path[:0]=[str(g/'工具'),str(root/'工具/pefile-2024.8.26'),str(g/'工具'),str(g/'逆向引擎')]
+from lucifen_host_accelerator import ACCEL,CreateAcceleratorTableA,CopyAcceleratorTableA,DestroyAcceleratorTable
+from lucifen_accelerator_resource import decode_accelerator_resource
+from lucifen_pe_resource_entries import resource_entries
+from pe_min import PE
+bits=ctypes.sizeof(ctypes.c_void_p)*8
+stage=root/('临时/ISSUE-20261011-02/r-accelerator-ABI-'+str(bits)+'-24');stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');e=next(e for e in resource_entries(pe)if(e['type'],e['name'],e['language'])==(9,102,1041));data=pe.data[e['file_offset']:e['file_offset']+e['size']]
+rows=decode_accelerator_resource(data)
+assert ctypes.sizeof(ACCEL)==6 and [getattr(ACCEL,n).offset for n in('fVirt','key','cmd')]==[0,2,4]
+arr=(ACCEL*len(rows))(*(ACCEL(*v)for v in rows));ctypes.set_last_error(0);host=int(CreateAcceleratorTableA(arr,len(rows))or 0);err=ctypes.get_last_error();assert host
+try:
+ n=CopyAcceleratorTableA(host,None,0);assert n==7
+ guarded=ctypes.create_string_buffer(b'\xa5'*(32+n*6+32),32+n*6+32);ptr=ctypes.cast(ctypes.addressof(guarded)+32,ctypes.POINTER(ACCEL));copied=CopyAcceleratorTableA(host,ptr,n);assert copied==n
+ got=[(ptr[i].fVirt,ptr[i].key,ptr[i].cmd)for i in range(n)];assert got==rows
+ assert ctypes.string_at(ctypes.addressof(guarded),32)==b'\xa5'*32 and ctypes.string_at(ctypes.addressof(guarded)+32+n*6,32)==b'\xa5'*32
+ report={'passed':True,'pointer_bits':bits,'ACCEL_size':ctypes.sizeof(ACCEL),'ACCEL_offsets':[ACCEL.fVirt.offset,ACCEL.key.offset,ACCEL.cmd.offset],'resource':e,'resource_SHA256':hashlib.sha256(data).hexdigest(),'runtime_rows':rows,'actual_Create_nonnull':bool(host),'actual_Create_error':err,'actual_Copy_count':n,'actual_Copy_rows':got,'guard_bytes_unchanged':True,'no_host_handle_truncation':True,'not_OS_LoadAccelerators_resource_cache_proof':True,'not_original_64bit_WinMain_proof':True}
+finally:
+ destroyed=DestroyAcceleratorTable(host);assert destroyed==1
+ report['actual_Destroy_success']=True
+negative=[('empty',b''),('misaligned',b'\0'*7),('missing_end',struct.pack('<4H',7,65,1,0)),('early_end',struct.pack('<4H',0x87,65,1,0)+struct.pack('<4H',0x87,66,2,0)),('unknown_flags',struct.pack('<4H',0xa7,65,1,0)),('nonzero_padding',struct.pack('<4H',0x87,65,1,1)),('over_count',struct.pack('<4H',7,65,1,0)*32767+struct.pack('<4H',0x87,65,1,0))]
+for name,b in negative:
+ try:decode_accelerator_resource(b)
+ except ValueError:pass
+ else:raise AssertionError(name)
+report['negative_rejections']=[n for n,b in negative]
+(stage/'accelerator-ABI.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf8');print(json.dumps(report),flush=True)

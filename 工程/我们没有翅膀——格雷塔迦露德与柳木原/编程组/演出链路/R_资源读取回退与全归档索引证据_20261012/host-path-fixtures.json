@@ -1,0 +1,67 @@
+{
+  "passed": true,
+  "actual_string_host_cases": [
+    {
+      "api": "lstrlenA",
+      "length": 0
+    },
+    {
+      "api": "lstrlenA",
+      "length": 1
+    },
+    {
+      "api": "lstrlenA",
+      "length": 2
+    },
+    {
+      "api": "lstrlenA",
+      "length": 4095
+    },
+    {
+      "api": "lstrcatA",
+      "length": 0,
+      "capacity": 1
+    },
+    {
+      "api": "lstrcatA",
+      "length": 2,
+      "capacity": 3
+    },
+    {
+      "api": "lstrcatA",
+      "length": 4,
+      "capacity": 16
+    },
+    {
+      "api": "lstrcatA",
+      "length": 4,
+      "capacity": 16
+    },
+    {
+      "api": "lstrcatA",
+      "length": 4095,
+      "capacity": 4096
+    },
+    {
+      "api": "CharLowerA",
+      "length": 0
+    },
+    {
+      "api": "CharLowerA",
+      "length": 15
+    },
+    {
+      "api": "CharLowerA",
+      "length": 127
+    },
+    {
+      "api": "CharLowerA",
+      "length": 4095
+    }
+  ],
+  "actual_guest_cases": 3,
+  "unsupported_rejections": 15,
+  "actual_missing_path_error": 3,
+  "unexpected_existing_file_opened_readonly_then_closed_and_rejected": true,
+  "scope": "actual host64 API, source/target guard and untouched tail checks; ASCII CharLowerA only; no original x86 kernel; file helper only supports missing READ/OPEN_EXISTING flags"
+}

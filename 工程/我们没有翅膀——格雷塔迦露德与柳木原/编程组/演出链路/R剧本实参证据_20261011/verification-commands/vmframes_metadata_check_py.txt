@@ -1,0 +1,25 @@
+@'
+
+from pathlib import Path
+import json,sys,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-source-frame-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path.insert(0,str(g/'工具'));from lucifen_sob_loader import parse_container
+metadata=json.loads((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R剧本实参证据_20261011/source-slices-local.json').read_text());results=[];modules={}
+for row in metadata['rows']:
+ name=row['module']
+ if name not in modules:
+  data=(root/'工程/我们没有翅膀R/语料/R版SCRIPT'/name).read_bytes();modules[name]=parse_container(data,name)
+ m=modules[name];assert m['hash']==row['module_sha256']
+ assert row['items'][0]['codeoffset']==row['start'] and row['items'][-1]['end_codeoffset']==row['end']
+ for j,i in enumerate(row['items']):
+  start=i['codeoffset'];end=i['end_codeoffset'];words=m['cells'][start//4:end//4]
+  assert words==[i['op']]+i['raw_operands'] and end-start==len(words)*4 and i['fileoffset']==m['header']+start
+  if j+1<len(row['items']):assert end==row['items'][j+1]['codeoffset']
+  assert i['op'] in [5,8,13,31,32,35,40]
+  for k,operand in enumerate(i['operands']):
+   off=start+4*(k+1);assert operand['codeoffset']==off and operand['fileoffset']==m['header']+off and operand['raw']==m['cells'][off//4]
+   expected=[(ti,t[off]) for ti,t in enumerate(m['maps']) if off in t];assert [(h['table'],h['value']) for h in operand['relocations']]==expected
+ assert m['maps'][1][row['call']+4]==row['native_index']
+ results.append({'module':name,'start':row['start'],'call':row['call'],'source_sha256':m['hash'],'all_opcode_operand_offset_and_relocation_words_match':True})
+p=b/'source-metadata-independent-verification.json';assert not p.exists();p.write_text(json.dumps({'scope':'fixed31 metadata independently reconciled to original raw SOB bytes and mature loader maps; no B0 imported; full decoder/B0 not audited','cases':results},ensure_ascii=False,indent=2),encoding='utf-8');print('PASS independent metadata',len(results),'source fragments; no B0 runtime import')
+
+'@ | python -X utf8 -B -

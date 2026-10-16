@@ -1,0 +1,39 @@
+{
+  "bits": 64,
+  "scope": "real owned heap resize plus finite guest passport remapping, not source heap layout equivalence",
+  "checks": {
+    "real_resize_and_passport_updates": true,
+    "invalid_calls_leave_passports": true,
+    "all_owned_blocks_and_guests_released": true
+  },
+  "rows": [
+    {
+      "new_size": 144,
+      "actual_old_host": 2348429936736,
+      "actual_new_host": 2348429936736,
+      "host_moved": false,
+      "guest_moved": false,
+      "prefix_preserved": true,
+      "zero_growth_preserved": true
+    },
+    {
+      "new_size": 8192,
+      "actual_old_host": 2348429936736,
+      "actual_new_host": 2348429936896,
+      "host_moved": true,
+      "guest_moved": true,
+      "prefix_preserved": true,
+      "zero_growth_preserved": true
+    },
+    {
+      "new_size": 64,
+      "actual_old_host": 2348429936896,
+      "actual_new_host": 2348429936896,
+      "host_moved": false,
+      "guest_moved": false,
+      "prefix_preserved": true,
+      "zero_growth_preserved": true
+    }
+  ],
+  "pass": true
+}

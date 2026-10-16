@@ -1,0 +1,48 @@
+from pathlib import Path
+import sys,json,hashlib,struct,ast,collections,time
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015';sys.path[:0]=[str(g/'工具'),str(g/'逆向引擎'),str(r/'工具/unicorn-2.1.4-py314')]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+from lucifen_tob_dynamic_structure import parse_expression
+from lucifen_inline_expression_reference import parse_inline_expression
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_MEM_WRITE
+kind=sys.argv[1];group=int(sys.argv[2]);groups=int(sys.argv[3]);out=Path(sys.argv[4]).resolve();limit=int(sys.argv[5])if len(sys.argv)>5 else 0
+assert kind in('parameter','inline')and 0<=group<groups<=16 and out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+pe=PE(r/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+recipe=g/'演出链路/R_TOB动态绑定与无损IR证据_20261011/verify-binding.txt';tree=ast.parse(recipe.read_text(encoding='utf8'));prepare=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='prepare');env={'pe':pe,'map_pe':map_pe,'struct':struct,'buffer':buffer};exec(compile(ast.Module(body=[prepare],type_ignores=[]),str(recipe)+'-prepare','exec'),env)
+meta_path=r/'子代理工作区/ISSUE-20261011-02/r-literal-run-01/inline-expression-metadata.json'if kind=='inline'else g/'演出链路/R_TOB动态绑定与无损IR证据_20261011/expression-reference-metadata.json';meta=json.loads(meta_path.read_text(encoding='utf8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+fields=['code_start','code_size','flag_offset','compiled_flag','reloc_start','reloc_size'];rows=[];lines=[];native=[];count=plans=0;beg=time.time()
+helper='var RBindCheckCount=0;var RBindPlanCount=0;\nfunction RBindRead(q){if(q<this.base || q>=this.base+this.data.length)throw new Exception("FIXTURE_READ_BOUND");return this.data[q-this.base];}\nfunction RBindCheck(mode,data,start,limit,expected,seeds){\n var reader=RBindRead incontextof %["data"=>data,"base"=>start];\n var pair=mode?void:RParseExpression(reader,limit,start);\n var got=mode?RParseInlineExpression(reader,limit,start):pair[0];\n var end=mode?got.end:pair[1];if(end!==expected.end)throw new Exception("PARSE_END");\n var fields=["code_start","code_size","flag_offset","compiled_flag","reloc_start","reloc_size"];\n for(var k=0;k<fields.count;k++)if(got[fields[k]]!==expected[fields[k]])throw new Exception("PARSE_FIELD "+fields[k]);\n var rel=[];for(var j=0;j<got.relocations.count;j++){var v=got.relocations[j];rel.add([v.group,v.slot_offset,v.index]);}RVMFCompareRows(rel,expected.rows,"relocations");\n for(var j=0;j<seeds.count;j++){var seed=seeds[j];var writes=RRelocationWrites(got,0x3000000+got.code_start,seed.maps,seed.string_base);RVMFCompareRows(writes,seed.writes,"binder-writes");RBindPlanCount++;}\n RBindCheckCount++;\n}\n'
+def flush():
+ if not lines:return
+ p=out/f'batch-{len(rows):04d}.tjs';text=(helper if not rows else'')+'\n'.join(lines)+'\n';p.write_text(text,encoding='utf8');rows.append({'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'checks':len(lines),'plans':2*len(lines)});lines.clear()
+for fi,(path,exprs)in enumerate(grouped.items()):
+ if fi%groups!=group:continue
+ data=(r/path).read_bytes();prepared=[env['prepare'](data,seed)for seed in[0,1]]
+ for e in exprs:
+  start=e['start']if kind=='inline'else e['code_start']-2;parsed=parse_inline_expression(data,start)if kind=='inline'else parse_expression(data,start)[0];end=parsed.get('end',parsed['reloc_start']+parsed['reloc_size'])
+  assert all(parsed[k]==e[k]for k in fields)and parsed['relocations']==e['relocations'];expected={k:parsed[k]for k in fields};expected.update(end=end,rows=[[x['group'],x['slot_offset'],x['index']]for x in parsed['relocations']]);seeds=[]
+  for seed,(u,maps)in enumerate(prepared):
+   u.mem_write(buffer,data);u.mem_write(cursor,struct.pack('<I',buffer+e['reloc_start']+(4 if kind=='inline'else 2)));baseline=bytes(u.mem_read(0x1000000,0x100000));writes=relocation_writes(e,buffer+e['code_start'],maps,0x10d0000+seed*0x1000);shadow=bytearray(data)
+   for addr,value in writes:struct.pack_into('<I',shadow,addr-buffer,value)
+   actual=[];pewrites=[]
+   def hook(uc,access,address,size,value,user):
+    if buffer<=address<buffer+len(data):actual.append([address,value&((1<<(size*8))-1)]);assert size==4
+    if pe.image_base<=address<pe.image_base+pe.size_image:pewrites.append([address,size,value])
+   h=u.hook_add(UC_HOOK_MEM_WRITE,hook)
+   try:invoke_thiscall_args(u,0x430090,ctx,[cursor,buffer+e['code_start'],0 if kind=='inline'else 1],timeout=0)
+   finally:u.hook_del(h)
+   assert actual==[list(x)for x in writes]and not pewrites,(kind,path,e['code_start'],'write order/PE')
+   expected_live=bytearray(baseline);struct.pack_into('<I',expected_live,cursor-0x1000000,buffer+end);assert bytes(u.mem_read(0x1000000,0x100000))==bytes(expected_live)and bytes(u.mem_read(buffer,len(data)))==shadow
+   sparse=[{str(x['index']):maps[k][x['index']]for x in parsed['relocations']if x['group']==k}for k in range(3)];seeds.append({'maps':sparse,'string_base':0x10d0000+seed*0x1000,'writes':writes});native.append({'path':path,'code_start':e['code_start'],'seed':seed,'write_count':len(writes),'patched_source_sha256':hashlib.sha256(shadow).hexdigest(),'live_sha256':hashlib.sha256(expected_live).hexdigest(),'passed':True});plans+=1
+  raw=data[start:end];hx=' '.join(f'{b:02X}'for b in raw);lines.append('RBindCheck('+','.join([str(int(kind=='inline')),'<% '+hx+' %>',str(start),str(end),lit(expected),lit(seeds)])+');');count+=1
+  if len(lines)==64:flush()
+  if limit and count>=limit:break
+ if limit and count>=limit:break
+ assert(r/path).read_bytes()==data
+flush();manifest={'kind':kind,'group':group,'groups':groups,'limited':bool(limit),'checks':count,'plans':plans,'metadata_SHA256':hashlib.sha256(meta_path.read_bytes()).hexdigest(),'original_fresh_430090_cases':len(native),'original_full_source_live_and_ordered_writes_match':True,'elapsed_seconds':round(time.time()-beg,2),'files':rows};(out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf8');(out/'native-results.json').write_text(json.dumps(native,ensure_ascii=False,separators=(',',':')),encoding='utf8');print(json.dumps({k:v for k,v in manifest.items()if k!='files'}))

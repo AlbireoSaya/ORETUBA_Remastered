@@ -1,0 +1,19 @@
+"""Root checker controls: corrupt offset/backing/final-byte expectation locally only."""
+from pathlib import Path
+import hashlib,json,re,subprocess,sys
+r=Path.cwd().resolve();w=r/'子代理工作区/ISSUE-20261011-02/r-target-real-source-record-20261016';bits,kind=int(sys.argv[1]),sys.argv[2];assert bits in(32,64)and kind in('wrong-start','zero-backing','bad-source-final')
+ref=r/'临时/ISSUE-20261011-02/r-source-live-original-0-20261016-02';orig=json.loads((ref/'original-results.json').read_text(encoding='utf-8'));case=orig['results'][0];segments=case['segments'];out=r/'临时/ISSUE-20261011-02'/f'r-source-live-fault-input-{kind}-{bits}-20261016-01';assert not out.exists();out.mkdir();override=out/'override';override.mkdir()
+line=(ref/'cases-000.tjs').read_text(encoding='utf-8').splitlines()[0]
+if kind=='bad-source-final':
+ line,n=re.subn(r'("source_checks"=>\[\[\d+,)(\d+)',lambda m:m[1]+str(int(m[2])^1),line,count=1);assert n==1
+else:
+ name='r_live_record_fixture_execute.tjs'if kind=='wrong-start'else'r_source_record_fixture_regions.tjs';text=(w/name).read_text(encoding='utf-8')
+ old='spec.ctx, start, arr'if kind=='wrong-start'else'if (offset < this.bytes.count) return this.bytes[offset];';new='spec.ctx, spec.source, arr'if kind=='wrong-start'else'if (offset < this.bytes.count) return 0;';assert text.count(old)==1;(override/name).write_text(text.replace(old,new),encoding='utf-8')
+casefile=out/'case.tjs';casefile.write_text(line+'\n',encoding='utf-8');source=ref/'source-000.tjs'
+m=dict(cases=1,records=2,original_result_source=(ref/'original-results.json').relative_to(r).as_posix(),original_result_sha256=hashlib.sha256((ref/'original-results.json').read_bytes()).hexdigest(),files=[dict(source=p.relative_to(r).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest())for p in(source,casefile)])
+for key,field in [('caller_events','events'),('vm_writes','vm_writes'),('vm_steps','vm_trace'),('vm_runs','vm_runs'),('native_calls','calls')]:m[key]=sum(len(s[field])for s in segments)
+mp=out/'manifest.json';mp.write_text(json.dumps(m,indent=2),encoding='utf-8');tag=f'r-source-live-fault-{kind}-{bits}-20261016-01'
+command=[sys.executable,'-X','utf8','-B',str(w/'verify-real-source-runtime.txt'),str(bits),tag,str(mp),str(override)]
+process=subprocess.run(command,capture_output=True,timeout=80);ev=r/'临时/ISSUE-20261011-02'/tag/'evidence';receipt=json.loads((ev/'verdict.json').read_text(encoding='utf-8'));console=(ev/'console.utf8.txt').read_text(encoding='utf-8');diagnostic='LIVE_RECORD_SOURCE_CHECK'if kind=='bad-source-final'else'RRECORD_EXCEPTION'
+passed=process.returncode==1 and not receipt['passed']and diagnostic in console and receipt['process']['returncode']==0 and receipt['process']['cleanup_ok'];result=dict(passed=passed,bits=bits,fault=kind,expected_diagnostic=diagnostic,receipt=(ev/'verdict.json').relative_to(r).as_posix(),private_original_data=True,production_unchanged=True)
+(ev/'fault-verdict.json').write_text(json.dumps(result,indent=2),encoding='utf-8');print(json.dumps(result));sys.exit(0 if passed else 1)

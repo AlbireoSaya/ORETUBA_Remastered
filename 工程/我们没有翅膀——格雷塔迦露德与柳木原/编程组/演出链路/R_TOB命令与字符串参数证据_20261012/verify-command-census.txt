@@ -1,0 +1,51 @@
+from pathlib import Path
+import sys,json,hashlib,collections,struct
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';stage=root/'临时/ISSUE-20261011-02/r-tob-command-audit-replay-01'
+assert not stage.exists();stage.mkdir()
+src=(root/'子代理工作区/ISSUE-20261011-02/r-tob-command-counts-editor-01/candidate.txt').read_text('utf-8')
+fix=json.loads((root/'子代理工作区/ISSUE-20261011-02/r-tob-command-counts-fix-editor-01/candidate.txt').read_text('utf-8'))
+assert src.count(fix['old'])==1;src=src.replace(fix['old'],fix['new']);compile(src,'lucifen_tob_command_census.py','exec')
+(stage/'lucifen_tob_command_census.py').write_text(src,encoding='utf-8')
+sys.path[:0]=[str(stage),str(g/'工具'),str(g/'逆向引擎'),str(root/'工具/capstone-5.0.7-py3')]
+from lucifen_tob_command_census import command_counts
+from lucifen_tob_dynamic_structure import pack_ir
+from lucifen_instruction_evidence import collect_function_rows
+from pe_min import PE
+registrations=json.loads((g/'演出链路/R_表达式VM与动态记录证据_20261012/tob-command-registration.json').read_text('utf-8'))['rows']
+assert len(registrations)==129 and [x['slot'] for x in registrations]==list(range(129))
+files=[];totals=collections.Counter();islands=0;unknown=set();shape=collections.defaultdict(collections.Counter)
+for p in sorted((root/'工程/我们没有翅膀R/语料/R版SCRIPT').rglob('*.TOB')):
+ raw=p.read_bytes();ir=pack_ir(raw);stats=command_counts(ir['parts']);independent=collections.Counter(x['opcode'] for x in ir['parts'] if x['kind']=='record')
+ assert {x['opcode']:x['records'] for x in stats}==dict(independent)
+ for x in stats:
+  rs=[q for q in ir['parts'] if q['kind']=='record' and q['opcode']==x['opcode']]
+  assert x['first3']==[q['start'] for q in rs[:3]] and sum(x['arity'].values())==x['records'] and sum(x['conditions'].values())==x['records']
+  assert sum(x['item_kinds'].values())==sum(len(q['items']) for q in rs)
+  totals[x['opcode']]+=x['records']
+  if x['opcode'] not in range(129):unknown.add(x['opcode'])
+  if x['opcode']==25:
+   for q in rs:shape[25].update([tuple(item['kind'] for item in q['items'])])
+ islands+=sum(q['end']-q['start'] for q in ir['parts'] if q['kind']=='island')
+ assert p.read_bytes()==raw
+ files.append({'path':p.relative_to(root).as_posix(),'sha256':hashlib.sha256(raw).hexdigest(),'commands':stats})
+assert len(files)==418 and sum(totals.values())==218615 and islands==4118728 and not unknown
+result={'semantic_status':'unresolved','files':files,'total_files':len(files),'total_records':sum(totals.values()),'unclassified_island_bytes':islands,'commands':[dict(row,records=totals[row['slot']]) for row in registrations],'unknown_commands':sorted(unknown),'scope':'static source occurrence census, not reachable runtime or handler semantics'}
+(stage/'command-source-census.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+ranges=[(pe.image_base+s['vaddr'],pe.image_base+s['vaddr']+s['rawsize']) for s in pe.sections if s['chars']&0x20000000]
+entries=sorted(set(x['handler_va'] for x in registrations))
+def read(a,n):
+ d=pe.read_rva(a-pe.image_base,n);return d if d is not None and len(d)==n else None
+functions=[collect_function_rows(read,ranges,a,entries,limit=10000) for a in entries]
+summary={'command_slots':129,'unique_handlers':len(entries),'instruction_rows':sum(x['instruction_count'] for x in functions),'direct_edges':sum(len(x['edges']) for x in functions),'indirect_gaps':sum(len(x['unresolved']) for x in functions),'diagnostics':sum(len(x['diagnostics']) for x in functions),'scope':'all registered TOB handler static direct instructions; actual callees and indirect gaps remain unresolved'}
+(stage/'command-instruction-evidence.json').write_text(json.dumps({'source_sha256':hashlib.sha256(pe.data).hexdigest(),'summary':summary,'functions':functions},ensure_ascii=False,indent=2),encoding='utf-8')
+# Verify the exact original import descriptor/IAT slot by two views of existing PE parser.
+imports=pe.imports();descriptor=pe.ddirs[1][0];mapped={}
+for dll, funcs in imports:
+ ilt,ts,fc,name,iat=struct.unpack('<5I',pe.read_rva(descriptor,20));descriptor+=20
+ assert pe.read_rva(name,256).split(b'\0')[0].decode('latin1')==dll
+ for i,(fn,hint) in enumerate(funcs):mapped[pe.image_base+iat+i*4]={'dll':dll,'name':fn,'hint_rva':hint}
+assert mapped[0x518188]['name']=='lstrcpynA'
+(stage/'selected-resource-boundaries.json').write_text(json.dumps({'command25':{'handler_va':0x43fda0,'strings_destination_offsets':[0x64d1,0x64e2],'length_limits_including_terminator':[17,16],'iat':0x518188,'import':mapped[0x518188],'source_parameter_shapes':[{'kinds':list(k),'count':v} for k,v in shape[25].items()],'semantic_name':'unresolved','runtime_verified':False},'scope':'original direct code and exact import metadata, no OS launch/import emulation'},indent=2),encoding='utf-8')
+print(json.dumps({'files':len(files),'records':sum(totals.values()),'top_commands':totals.most_common(10),'instruction_summary':summary,'command25_shapes':[{'kinds':list(k),'count':v} for k,v in shape[25].items()]},ensure_ascii=False),flush=True)
+

@@ -1,0 +1,14 @@
+// r_vm_fixture_compare.tjs — 仅测试用行比较器，不比较游戏资源、不作格式推断
+function RVMFCompareRows(actual, expected, label)
+{
+    if(actual.count !== expected.count) throw new Exception("RVM_COMPARE " + label + " row=count col=count");
+    for(var i = 0; i < actual.count; i++)
+    {
+        if(actual[i].count !== expected[i].count) throw new Exception("RVM_COMPARE " + label + " row=" + i + " col=count");
+        for(var j = 0; j < actual[i].count; j++)
+        {
+            if(actual[i][j] !== expected[i][j]) throw new Exception("RVM_COMPARE " + label + " row=" + i + " col=" + j);
+        }
+    }
+    return void;
+}

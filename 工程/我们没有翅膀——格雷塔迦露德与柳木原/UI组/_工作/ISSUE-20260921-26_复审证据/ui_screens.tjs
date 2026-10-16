@@ -1,0 +1,862 @@
+// ============================================================
+// ui_screens.tjs —— 屏渲染调度 / 界面栈导航 / 动作表 / 自动巡演（M2 · UI 组）
+//
+// 设计原则（用户与 M2 验收硬要求）：
+//   * **一切由 layout 数据驱动**：本文件不出现任何屏级坐标；某屏存在就按
+//     UILayoutData.screens[id] 的元素表渲染，不存在就画「模块未接入」占位。
+//     ⇒ M5 之后新增 layout/screens/2x_*.json 时，只要重跑 gen_layout.py，
+//        本渲染器**无需改动**即可覆盖新屏。
+//   * 屏级"装饰"（占位画面）的几何也全部由 UILayoutData 的 canvas 与 fonts 推出。
+//   * 缺件/缺屏不崩：登记 + 占位 + 日志，绝不抛异常打断演示。
+//
+// 与 M4 的接口（本模块不实现，只留调用点）：
+//   open_flowchart / open_fragment → 若 layout 里已有该屏则正常渲染；
+//   否则显示「模块未接入」占位（等 M4 交付 3x_*.json 与 ui_flow.tjs / ui_fragment.tjs 后自动接管）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 界面栈与状态
+// ------------------------------------------------------------
+var UIScrStack        = [];
+var UIScrPage         = %[];    // 键 = 元素 id，值 = 页码
+var UIScrFocus        = %[];    // 键 = 元素 id，值 = 高亮项下标
+var UIScrActiveList   = "";     // 最近交互的列表 id（翻页键的目标）
+var UIScrBlinkPhase   = 0.0;    // 通用闪烁相位（0/1）
+var UIScrSeenThisRun  = [];
+var UIScrSeenIndex    = %[];
+var UIScrEventLog     = [];
+var UIScrLastEvent    = "";
+var UIScrPlaceholder  = "";     // 当前屏是占位时的原因（"" = 正常）
+var UIScrQuitRequest  = false;  // 请求退出（由窗口执行 close）
+var UIScrDrawCount    = 0;
+// ★ M13：窗口对象的登记点。startup.tjs 在 UiWindow 构造完成后写入（= 引擎里那个 Window 实例），
+//   供巡演的「合成鼠标事件」步骤调用 onMouseDown —— 自动巡演本身不产生真实鼠标事件，
+//   右键图标浮层（sysicons）无法被巡演覆盖，故用同一入口合成一次右键。
+//   方向说明：startup.tjs 读 ui_screens.tjs 的变量是**已实测成立**的方向（如 UIScrTourIdList），
+//   故这里声明、startup 赋值，不依赖反向。
+var UIScrMouseSink    = null;
+var UIScrMouseLastMsg = "";
+var UIScrSynthMouse   = false;  // ★ M13：合成鼠标事件进行中（startup.tjs 的 onMouseDown 据此跳过静默期/巡演判定）
+var UIScrOverlayLogged = %[];   // ★ M13：浮层「先画下层」日志去重表（键 = "下层>浮层"）
+// ★ M20：悬停态。UIScrHoverHit = 当前鼠标悬停命中的 hit 元素 id（"" = 无）。
+//   由 startup.tjs 的 onMouseMove(x,y) 每帧调用 uiScreenHoverUpdate() 维护；
+//   uiScreenCtx() 把它透传给渲染 ctx，ui_widget.tjs 的 uiWidgetDrawHit 据此画 hover 图。
+var UIScrHoverHit   = "";
+var UIScrHoverMsg   = "";       // 最近一次悬停变化的可读描述（诊断用）
+// ★ M35：按下态（点击态）。UIScrPressHit = 当前左键**按住**时命中的 hit 元素 id（"" = 无）。
+//   置位：startup.tjs 的 onMouseDown 左键分支 → uiScreenPressUpdate()；
+//   清空：① onClick（左键抬起，源码 TVPWindow.cpp:95 WM_LBUTTONUP→OnClick）
+//         ② 指针移出该元素（在 uiScreenHoverUpdate 里连同悬停一起判，见下方规则表）
+//         ③ 换屏（随 uiScreenHoverClear 一起清）
+//   UIScrPressProbe = **验收用强制按下探针**（非空时优先于 UIScrPressHit，供巡演导出按下态截图）。
+//   来源：**项目根 `press_probe.tjs`**（一行 `UIScrPressProbe = "<元素id>";`），
+//         由 startup.tjs 的 uiInitPressProbe() 用 Scripts.execStorage 执行 —— 详见该函数注释
+//         （为什么不用命令行参数：本轮实测本引擎版本脚本读不到命令行参数）。
+var UIScrPressHit   = "";
+var UIScrPressMsg   = "";       // 最近一次按下变化的可读描述（诊断用）
+var UIScrPressProbe = "";
+
+// ------------------------------------------------------------
+// 基本查询
+// ------------------------------------------------------------
+function uiScreenExists(id)
+{
+	if(id === void) return false;
+	var sc = UILayoutData.screens["" + id];
+	return (sc !== void);
+}
+
+function uiScreenCurrent()
+{
+	if(UIScrStack.count == 0) return "";
+	return UIScrStack[UIScrStack.count - 1];
+}
+
+function uiScreenMarkSeen(id)
+{
+	var k = "" + id;
+	if(UIScrSeenIndex[k] === true) return;
+	UIScrSeenIndex[k] = true;
+	UIScrSeenThisRun.push(k);
+	uiStateMarkSeen(k);
+}
+
+function uiScreenNote(msg)
+{
+	UIScrLastEvent = "" + msg;
+	UIScrEventLog.push(UIScrLastEvent);
+}
+
+// ------------------------------------------------------------
+// 栈操作
+// ------------------------------------------------------------
+function uiScreenReset(id)
+{
+	UIScrStack = ["" + id];
+	uiScreenMarkSeen(id);
+	uiScreenNote("reset -> " + id);
+	uiScreenHoverClear();          // ★ M20：换屏即清悬停，避免旧屏 id 残留
+}
+
+function uiScreenPush(id)
+{
+	UIScrStack.push("" + id);
+	uiScreenMarkSeen(id);
+	uiScreenNote("push -> " + id + "  (depth=" + UIScrStack.count + ")");
+	uiScreenHoverClear();
+}
+
+function uiScreenPop()
+{
+	if(UIScrStack.count <= 1) { uiScreenNote("pop 被拒：已是栈底 " + uiScreenCurrent()); return false; }
+	UIScrStack.pop();
+	uiScreenNote("pop -> " + uiScreenCurrent() + "  (depth=" + UIScrStack.count + ")");
+	uiScreenHoverClear();
+	return true;
+}
+
+function uiScreenStackText()
+{
+	return UIScrStack.join(" > ");
+}
+
+// ------------------------------------------------------------
+// 悬停命中（★ M20）
+//   目的：让带 state_assets 的 hit 在鼠标悬停时画 hover 图（标题屏菜单变金色）。
+//   坐标口径：与 onClick / handleClick → uiScreenClick 完全一致 —— **直接用引擎传入的
+//   x,y 当画布坐标**。依据：startup.tjs 用 setInnerSize(1920,1080) 且**未调用 setZoom**，
+//   客户区尺寸 = 画布尺寸，故 Window 事件坐标（客户区像素）即画布坐标，无需 ×1.5。
+//   （资源组\04_1920画布与双分辨率方案.md §6.4 所述「×1.5」适用于「客户区 1280×720 +
+//    setZoom(2,3)」的配置；本工程当前不是该配置。若编程组日后切到该配置，须把 onClick 与
+//    本函数**一起**改为走 Layer 坐标或动态换算，两者不得分叉。）
+// ------------------------------------------------------------
+function uiScreenHoverClear()
+{
+	UIScrHoverHit = "";
+	UIScrHoverMsg = "";
+	// ★ M35：换屏同时清按下态（旧屏的 id 必须不留；探针是验收用的，不清）
+	UIScrPressHit = "";
+	UIScrPressMsg = "";
+}
+
+// ------------------------------------------------------------
+// 按下态（★ M35）
+//   规则表（**与 复刻/replica.js 的 buildHit 必须逐条一致**，改一处就要改两处）：
+//     ① 左键在元素上按下        -> 该元素进入按下态（同一时刻至多一个）
+//     ② 左键抬起（不论位置）    -> 清除
+//     ③ 指针移出该元素          -> 清除（按住期间移开 = 取消）
+//     ④ 换屏                    -> 清除（见 uiScreenHoverClear）
+//                                  注：krkr 只在换屏（reset/push/pop）时清；HTML 侧另需在
+//                                  **同屏重渲染**时清（DOM 重建，否则台账悬挂）——那是实现差异，
+//                                  不是语义差异（一审 Minor-3）。
+//     ⑤ 绘制优先级              -> pressed > hover > normal，缺键逐级回落（见 ui_widget.tjs）
+//   命中判据与悬停**完全相同**（复用 uiScreenHoverAt：只认带 state_assets 的可见 hit，取最高 z）。
+// ------------------------------------------------------------
+function uiScreenPressClear()
+{
+	if(UIScrPressHit == "") return false;
+	UIScrPressMsg = "抬起 -> 清除（原 " + UIScrPressHit + "）";
+	UIScrPressHit = "";
+	return true;
+}
+
+// 置/改按下目标；返回 true = 目标发生变化（调用方须重画）
+function uiScreenPressUpdate(x, y)
+{
+	if(UIScrPressProbe != "")
+	{
+		if(UIScrPressHit == UIScrPressProbe) return false;
+		UIScrPressHit = UIScrPressProbe;
+		UIScrPressMsg = "探针强制按下 -> " + UIScrPressProbe;
+		return true;
+	}
+	var id = uiScreenHoverAt(x, y);
+	if(id == UIScrPressHit) return false;
+	UIScrPressHit = id;
+	UIScrPressMsg = "按下 -> " + ((id == "") ? "(无)" : id) + "  @ " + x + "," + y;
+	return true;
+}
+
+// 当前屏 (x,y) 命中的、**参与状态检测的元素** id（取最高 z）；无则 ""
+//   ★ M35b：判据 = 「**带 `state_assets` 的任何元素**」∪ 「**带非空 `state_group` 的 hit**」。
+//     · 前半句：`image` 也能带三态图（文字按钮就靠这个），且**组绑定要求鼠标落在它上面也被检测到**。
+//     · 后半句：热区迁移后退回**纯热区**（不持有美术，避免按 PSB 交互区矩形拉伸绘制），
+//       但它仍必须是状态目标 —— 否则「悬停整条消息行」不会点亮旁边的喇叭图标。
+//   ★★ 二审 Major-1 修：**判据收紧为「有组」的 hit，不能是「任何 hit」**。实测反例：
+//     配置屏 `cfg.mute_hit`（z=95、组 config.mute）与 `cfg.it_facewindow_hit`（z=95、**无组**、
+//     声明更晚、矩形覆盖静音勾选框）在勾选框处**同 z 平票**，而本函数的平票规则是「z >= bestZ 则后者胜」
+//     ⇒ 放宽成「任何 hit」时，无组的那件会抢走命中 ⇒ `ctx.hoverGroup` 为空 ⇒
+//     勾选框的 pressed 态（x_ui_check_on.png）**再也画不出来**（改动前它是能画的）。
+//     收紧后无组 hit 不再是候选，`cfg.mute_hit` 胜出、组生效（数据侧另把它的 z 提到 96，
+//     让 HTML 的 DOM 顶层归属也一致 —— 见 25_config.json 的 note）。
+//   ★ 附带好处：纯热区（既无态图又无组）不再参与，鼠标划过它们不再触发无谓的整屏 redraw
+//     （原先的「未变化不重画」在这一档上已不成立）。
+function uiScreenHoverAt(x, y)
+{
+	var id = uiScreenCurrent();
+	if(id == "") return "";
+	if(!uiScreenExists(id)) return "";
+	var els = UILayoutData.screens[id].elements;
+	var bestZ = -1, bestId = "";
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el.state_assets === void)
+		{
+			if(el.kind != "hit") continue;
+			if(uiWidgetStateGroup(el) == "") continue;   // 见上方判据：只认「有组」的热区
+		}
+		if(el.visible_default === false) continue;
+		var r = uiWidgetRect(el);
+		if(x < r.x || x >= r.x + r.w || y < r.y || y >= r.y + r.h) continue;
+		var z = uiWidgetNum(el, "z", 0);
+		if(z < bestZ) continue;
+		bestZ = z; bestId = "" + el.id;
+	}
+	return bestId;
+}
+
+// 更新悬停/按下目标；返回 true = 任一目标发生变化（调用方须重画）。未变化不重画（性能要求）。
+function uiScreenHoverUpdate(x, y)
+{
+	var id = uiScreenHoverAt(x, y);
+	var changed = false;
+	if(id != UIScrHoverHit)
+	{
+		var from = UIScrHoverHit;
+		UIScrHoverHit = id;
+		UIScrHoverMsg = "悬停 " + ((from == "") ? "(无)" : from) + " -> "
+			+ ((id == "") ? "(无)" : id) + "  @ " + x + "," + y;
+		changed = true;
+	}
+	// ★ M35：规则 ③ —— 按住期间指针移出按下目标即取消按下态。
+	//   放在这里而不是单开一个事件：悬停命中判据与按下**完全相同**，同一次计算即可得出。
+	if(UIScrPressProbe == "" && UIScrPressHit != "" && UIScrPressHit != id)
+	{
+		UIScrPressMsg = "按下取消（指针移出 " + UIScrPressHit + "）";
+		UIScrPressHit = "";
+		changed = true;
+	}
+	return changed;
+}
+
+// ------------------------------------------------------------
+// 绘制上下文（每屏一份：高亮 / 页码 / 闪烁相位 / 悬停 / 按下 / 组绑定）
+// ------------------------------------------------------------
+// ★ M35b：取某元素 id 所属的 `state_group`（"" = 无组）。供 ctx 携带「当前悬停/按下元素
+//   所属的组」，使**同组的其它元素**也能进入同一形态（图标 + 文字同步高亮）。
+function uiScreenStateGroupOf(screen, id)
+{
+	if(screen === void || screen.elements === void) return "";
+	if(id === void || id === null || ("" + id) == "") return "";
+	var els = screen.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(("" + el.id) == ("" + id))
+		{
+			if(el.state_group === void || el.state_group === null) return "";
+			var g = "" + el.state_group;
+			return (g == "") ? "" : g;
+		}
+	}
+	return "";
+}
+
+function uiScreenCtx(screen)
+{
+	var hid = UIScrHoverHit;
+	var pid = (UIScrPressProbe != "") ? UIScrPressProbe : UIScrPressHit;
+	var ctx = %[ page: %[], focus: %[], hide: %[], textOverride: %[], boxOverride: %[],
+	             phase: UIScrBlinkPhase, hoverHit: hid, pressHit: pid,
+	             hoverGroup: "", pressGroup: "" ];
+	// 组绑定：把「当前悬停/按下元素」的 state_group 也放进 ctx，供 ui_widget.tjs 判同组元素
+	ctx.hoverGroup = uiScreenStateGroupOf(screen, hid);
+	ctx.pressGroup = uiScreenStateGroupOf(screen, pid);
+	if(screen === void || screen.elements === void) return ctx;
+	var els = screen.elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		var id = "" + el.id;
+		if(UIScrPage[id] !== void)  ctx.page[id]  = UIScrPage[id];
+		if(UIScrFocus[id] !== void) ctx.focus[id] = UIScrFocus[id];
+	}
+	return ctx;
+}
+
+// ------------------------------------------------------------
+// 合成鼠标事件（★ M13，仅巡演用）
+//   自动巡演不产生真实鼠标事件，右键呼出的 sysicons 屏无法被巡演覆盖。
+//   这里直接调用窗口的 onMouseDown —— 即引擎处理真实鼠标按下时走的**同一个入口**
+//   （源码 environ/win32/TVPWindow.cpp:77-145 → WindowIntf.cpp:346）。
+//   局限（如实登记，见 _工作/M13_报告.md §未决问题）：本函数只证明「处理器 + 键码分支」
+//   正确，**不能**证明引擎对真实右键传入的 mb 值；后者依据源码
+//   （visual/tvpinputdefs.h:20-26 枚举 mbLeft,mbRight,mbMiddle + base/ScriptMgnIntf.cpp:65
+//   注册 mbLeft=0/mbRight=1/mbMiddle=2 + TVPWindow.cpp:110 WM_RBUTTONDOWN→mbRight），
+//   真实鼠标右键的实测需人工在 run_loose.bat 下按一次右键。
+// ------------------------------------------------------------
+function uiScreenSyntheticMouse(which)
+{
+	var mb = 1;                      // 1 = mbRight（见上方源码依据）；左键 = 0
+	if(which == "left") mb = 0;
+	if(UIScrMouseSink === null || UIScrMouseSink === void)
+	{
+		UIScrMouseLastMsg = "窗口未登记（UIScrMouseSink=null），合成鼠标跳过";
+		Debug.message("[UI][MOUSE] " + UIScrMouseLastMsg);
+		return UIScrMouseLastMsg;
+	}
+	var cx = Math.floor(uiThemeCanvasW() / 2);
+	var cy = Math.floor(uiThemeCanvasH() / 2);
+	Debug.message("[UI][MOUSE] 合成鼠标按下（巡演）：which=" + which + " mb=" + mb
+		+ " at " + cx + "," + cy + " —— 走 onMouseDown 同一入口");
+	UIScrSynthMouse = true;
+	try { UIScrMouseSink.onMouseDown(cx, cy, mb, 0); }
+	catch(e) { Debug.message("[UI][MOUSE] 合成鼠标 EXCEPTION：" + e.message); }
+	UIScrSynthMouse = false;
+	UIScrMouseLastMsg = "合成鼠标 " + which + "（mb=" + mb + "）-> 当前屏 " + uiScreenCurrent();
+	return UIScrMouseLastMsg;
+}
+
+// ------------------------------------------------------------
+// 屏绘制
+// ------------------------------------------------------------
+function uiScreenDraw(stage)
+{
+	UIScrDrawCount++;
+	var id = uiScreenCurrent();
+	if(id == "") return 0;
+
+	uiScreenMarkSeen(id);
+	UIScrPlaceholder = "";
+
+	if(!uiScreenExists(id))
+	{
+		UIScrPlaceholder = "layout 中没有屏 \"" + id + "\"（M4/M5 未交付或 _index.json 未登记）";
+		uiScreenDrawPlaceholder(stage, id, UIScrPlaceholder);
+		return -1;
+	}
+
+	var sc = UILayoutData.screens[id];
+	// ★ M13：浮层屏（屏对象带 overlay:true，如 sysicons）—— 先把**它下面那一屏**画出来，
+	//   再叠自己。本渲染器只画栈顶屏（不做整栈合成），若不补这一步，「全屏压暗遮罩」
+	//   压的是一张被清空的透明画面（实机表现为纯黑），而不是游戏画面。
+	//   下面那一屏若是 dialog，仍走它的状态机（打字机/选择肢状态不丢）。
+	if(sc.overlay === true && UIScrStack.count >= 2)
+	{
+		var underId = "" + UIScrStack[UIScrStack.count - 2];
+		var under = UILayoutData.screens[underId];
+		if(under !== void && under.elements !== void)
+		{
+			// ★ M18：下层屏的重绘套 try/catch。本块在**每一帧**都会跑（blinkTimer 120ms
+			//   一次 redraw），若下层渲染抛错，异常会从 uiScreenDraw 一路冒到 startup.tjs 的
+			//   redraw，使本帧整体失败（浮层与下层同时消失）。这里降级为「只画浮层」并
+			//   去重记一行，绝不让单帧异常扩散。
+			try
+			{
+				uiWidgetDrawScreenBg(stage, under);
+				if(underId == "dialog") uiDialogDraw(stage, under);
+				else uiWidgetDrawScreen(stage, under, uiScreenCtx(under));
+			}
+			catch(eUnder)
+			{
+				var ekey = "ERR>" + underId + ">" + id;
+				if(UIScrOverlayLogged[ekey] !== true)
+				{
+					UIScrOverlayLogged[ekey] = true;
+					Debug.message("[UI][OVERLAY][ERR] 下层屏 " + underId
+						+ " 重绘失败，本帧仅绘制浮层 " + id + "：" + eUnder.message);
+				}
+			}
+			// 每对 (下层, 浮层) 只记一次，否则闪烁重画会每 120ms 刷一行
+			var okey = underId + ">" + id;
+			if(UIScrOverlayLogged[okey] !== true)
+			{
+				UIScrOverlayLogged[okey] = true;
+				Debug.message("[UI][OVERLAY] 先绘制下层屏 " + underId + "，再叠 " + id
+					+ "（本对只记一次）");
+			}
+		}
+		else
+		{
+			Debug.message("[UI][OVERLAY] 下层屏 " + underId + " 无布局数据，浮层将叠在空画面上");
+		}
+	}
+	uiWidgetDrawScreenBg(stage, sc);
+
+	// 对话框屏有专用状态机（打字机 / 光标 / 选择肢）
+	if(id == "dialog") return uiDialogDraw(stage, sc);
+
+	return uiWidgetDrawScreen(stage, sc, uiScreenCtx(sc));
+}
+
+// 「模块未接入 / 屏未登记」占位：几何全部由 canvas 与 fonts 推出，无硬编码坐标
+function uiScreenDrawPlaceholder(stage, id, reason)
+{
+	var W = uiThemeCanvasW();
+	var H = uiThemeCanvasH();
+	stage.colorRect(0, 0, W, H, uiThemePalette("backdrop"), uiThemePalette("backdrop_opa"));
+
+	var fTitle = uiThemeApplyFont(stage, %[
+		size: uiThemeFontSize("title"),
+		color: uiThemePalette("text_title"),
+		shadow: true, shadow_color: uiThemePalette("shadow"), shadow_ofs: 0
+	], void);
+	var fBody = uiThemeApplyFont(stage, %[
+		size: uiThemeFontSize("body"),
+		color: uiThemePalette("text_hint"),
+		shadow: true, shadow_color: uiThemePalette("shadow"), shadow_ofs: 0
+	], void);
+
+	var lines = [ "模块未接入 / 屏未登记：", "" + id, "" + reason ];
+	var blockH = fTitle.lineH + fBody.lineH * (lines.count - 1);
+	var y = Math.floor((H - blockH) / 2);
+
+	// 第一行用 title 字号
+	var s0 = lines[0];
+	var x0 = Math.floor((W - uiThemeTextWidth(stage, s0)) / 2);
+	uiThemeDrawLine(stage, x0, y, s0, fTitle, 255);
+	y += fTitle.lineH;
+
+	for(var i = 1; i < lines.count; i++)
+	{
+		var s = lines[i];
+		var x = Math.floor((W - uiThemeTextWidth(stage, s)) / 2);
+		uiThemeDrawLine(stage, x, y, s, fBody, 255);
+		y += fBody.lineH;
+	}
+	return 1;
+}
+
+// ------------------------------------------------------------
+// 动作表（layout/_schema.md §六 的跨组契约；本模块是"演示层实现"）
+//   返回 %[ handled:, effect:, msg: ]；effect = "" | "quit" | "hide_window"
+// ------------------------------------------------------------
+function uiScreenMapOpen(action)
+{
+	var map = %[
+		open_save: "save", open_load: "load", open_config: "config",
+		open_backlog: "backlog", open_gallery: "gallery", open_music: "music",
+		open_sysmenu: "sysmenu", open_chapter: "chapter",
+		open_fragment: "fragment", open_flowchart: "flowchart"
+	];
+	var v = map["" + action];
+	return (v === void) ? "" : v;
+}
+
+function uiScreenActionListForCurrent()
+{
+	var id = uiScreenCurrent();
+	if(!uiScreenExists(id)) return "";
+	if(UIScrActiveList != "") return UIScrActiveList;
+	var els = UILayoutData.screens[id].elements;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el.kind == "list" && el.scroll !== void) return "" + el.id;
+	}
+	return "";
+}
+
+function uiActionDispatch(action, index)
+{
+	var act = "" + action;
+	uiScreenNote("action " + act + ((index === void) ? "" : (" idx=" + index)));
+
+	// ---- 栈操作 ----
+	if(act == "game_start")
+	{
+		uiDialogReset();
+		uiScreenPush("dialog");
+		return %[ handled: true, effect: "", msg: "开始新游戏（真实语料演示）" ];
+	}
+	if(act == "game_continue")
+	{
+		uiDialogReset();
+		UIDlgLine = UIStateDialogLine;
+		if(UIDlgLine < 0 || UIDlgLine >= UIDemoLineCount) UIDlgLine = 0;
+		uiDialogStartTyping();
+		uiScreenPush("dialog");
+		return %[ handled: true, effect: "", msg: "继续（读回上次台词序号 " + UIDlgLine + "）" ];
+	}
+	if(act == "open_title")
+	{
+		uiScreenReset("title");
+		return %[ handled: true, effect: "", msg: "返回标题" ];
+	}
+	if(act == "close")
+	{
+		var ok = uiScreenPop();
+		return %[ handled: true, effect: "", msg: ok ? "关闭当前层" : "已在栈底" ];
+	}
+	if(act == "quit_game")
+	{
+		UIScrQuitRequest = true;
+		return %[ handled: true, effect: "quit", msg: "退出游戏" ];
+	}
+	if(act == "hide_window")
+	{
+		return %[ handled: true, effect: "hide_window", msg: "切换窗口显示" ];
+	}
+
+	// ---- 打开某屏 ----
+	var target = uiScreenMapOpen(act);
+	if(target != "")
+	{
+		if(uiScreenExists(target))
+		{
+			uiScreenPush(target);
+			return %[ handled: true, effect: "", msg: "打开 " + target ];
+		}
+		// M4/M5 未交付：仍然入栈，绘制时走「模块未接入」占位
+		uiScreenPush(target);
+		return %[ handled: true, effect: "",
+			msg: "打开 " + target + "（layout 缺该屏 -> 显示模块未接入占位）" ];
+	}
+
+	// ---- 对话推进 / 选择 ----
+	if(act == "advance_dialog")
+	{
+		var r = uiDialogAdvance();
+		return %[ handled: true, effect: "", msg: r.msg ];
+	}
+	if(act == "open_choices")
+	{
+		uiDialogCompleteTyping();
+		uiDialogOpenChoices();
+		return %[ handled: true, effect: "", msg: "展开选择肢（文本取自 layout dlg.choices.labels，出自 ot_s01_02c）" ];
+	}
+	if(act == "select_choice")
+	{
+		var m = uiDialogChoiceCommit((index === void) ? 0 : index);
+		return %[ handled: true, effect: "", msg: m ];
+	}
+
+	// ---- 模式开关 ----
+	if(act == "skip_on")
+	{
+		UIDlgSkipMode = !UIDlgSkipMode;
+		if(UIDlgSkipMode) UIDlgAutoMode = false;
+		return %[ handled: true, effect: "", msg: "快进 " + (UIDlgSkipMode ? "开" : "关") ];
+	}
+	if(act == "auto_on")
+	{
+		UIDlgAutoMode = !UIDlgAutoMode;
+		if(UIDlgAutoMode) UIDlgSkipMode = false;
+		return %[ handled: true, effect: "", msg: "自动播放 " + (UIDlgAutoMode ? "开" : "关") ];
+	}
+
+	// ---- 翻页 ----
+	if(act == "page_prev" || act == "page_next")
+	{
+		var lid = uiScreenActionListForCurrent();
+		if(lid == "") return %[ handled: false, effect: "", msg: "当前屏没有可翻页的列表" ];
+		var cur = (UIScrPage[lid] === void) ? 0 : UIScrPage[lid];
+		var next = (act == "page_next") ? cur + 1 : cur - 1;
+		if(next < 0) next = 0;
+		UIScrPage[lid] = next;
+		return %[ handled: true, effect: "", msg: "列表 " + lid + " 翻页 -> " + (next + 1) ];
+	}
+
+	// ---- 存/读槽 ----
+	if(act == "do_save")
+	{
+		uiStateSave();
+		return %[ handled: true, effect: "", msg: "写入存档槽 " + ((index === void) ? 0 : index + 1) ];
+	}
+	if(act == "do_load")
+	{
+		uiStateLoad();
+		return %[ handled: true, effect: "", msg: "读取存档槽 " + ((index === void) ? 0 : index + 1) ];
+	}
+
+	// ---- M13：右键图标浮层 + 9 图标动作 ----
+	// open_sysicons：打开/收起浮层（右键的处理器 toggleSysIcons 也走这个动作语义）
+	if(act == "open_sysicons")
+	{
+		if(!uiScreenExists("sysicons"))
+			return %[ handled: false, effect: "", msg: "layout 缺 sysicons 屏（_index.json 未登记）" ];
+		if(uiScreenCurrent() == "sysicons")
+		{
+			uiScreenPop();
+			return %[ handled: true, effect: "", msg: "收起图标浮层 -> " + uiScreenCurrent() ];
+		}
+		uiScreenPush("sysicons");
+		return %[ handled: true, effect: "", msg: "呼出 9 图标浮层（sysicons）" ];
+	}
+	if(act == "do_quicksave")
+	{
+		uiStateSave();
+		return %[ handled: true, effect: "", msg: "快速存档 -> "
+			+ ((UIStateSavePath == "") ? "(写入失败)" : UIStateSavePath) ];
+	}
+	if(act == "do_quickload")
+	{
+		uiStateLoad();
+		return %[ handled: true, effect: "", msg: "快速读档 -> " + UIStateReport ];
+	}
+	if(act == "prev_choice")
+	{
+		if(UIDlgChoicesOpen)
+		{
+			uiDialogCloseChoices();
+			return %[ handled: true, effect: "", msg: "返回上一选择点：收起选择肢" ];
+		}
+		return %[ handled: true, effect: "", msg: "返回上一选择点（演示层无回溯数据，仅登记动作）" ];
+	}
+	if(act == "replay_voice")
+	{
+		return %[ handled: true, effect: "", msg: "重复语音（演示工程无语音资源，仅登记动作）" ];
+	}
+
+	// ---- M4 预留：进入番外 / 章节 ----
+	if(act == "fragment_enter" || act == "chapter_enter")
+	{
+		uiScreenPush("dialog");
+		return %[ handled: true, effect: "", msg: act + "（内容待 M4 接入）" ];
+	}
+
+	uiScreenNote("未实现的动作：" + act);
+	return %[ handled: false, effect: "", msg: "未实现的动作：" + act ];
+}
+
+// ------------------------------------------------------------
+// 点击 / 按键
+// ------------------------------------------------------------
+function uiScreenClick(stage, x, y)
+{
+	var id = uiScreenCurrent();
+	if(id == "") return %[ action: "", hit: false ];
+
+	if(!uiScreenExists(id)) return %[ action: "", hit: false ];
+
+	// 对话框屏有专用命中（选择肢 → kind=hit（★ M25：九宫格 9 功能图标）→ 推进）
+	if(id == "dialog") return uiDialogClick(stage, UILayoutData.screens[id], x, y);
+
+	var els = UILayoutData.screens[id].elements;
+	// 由上层往下层扫（后声明的、z 更大的先命中）
+	var bestZ = -1, best = null;
+	for(var i = 0; i < els.count; i++)
+	{
+		var el = els[i];
+		if(el.kind != "list" && el.kind != "hit") continue;
+		if(el.visible_default === false) continue;
+		var r = uiWidgetRect(el);
+		if(x < r.x || x >= r.x + r.w || y < r.y || y >= r.y + r.h) continue;
+		var z = uiWidgetNum(el, "z", 0);
+		if(z < bestZ) continue;
+		bestZ = z; best = el;
+	}
+	if(best === null) return %[ action: "", hit: false ];
+
+	if(best.kind == "list")
+	{
+		var pg = uiWidgetListPage(best, UIScrPage[best.id]);
+		var hit = uiWidgetListHit(best, x, y, pg.page);
+		if(hit < 0) return %[ action: "", hit: false ];
+		UIScrFocus[best.id] = hit;
+		UIScrActiveList = "" + best.id;
+		return %[ action: best.actions[hit], index: hit, hit: true ];
+	}
+	return %[ action: best.action, index: -1, hit: true ];
+}
+
+function uiScreenKey(key)
+{
+	var id = uiScreenCurrent();
+
+	if(id == "dialog" && uiScreenExists(id))
+	{
+		var r = uiDialogKey(UILayoutData.screens[id], key);
+		if(r.handled) return %[ handled: true, action: r.action ];
+	}
+
+	// Esc：非标题屏 → 关闭当前层；标题屏 → 退出
+	if(key == 27)
+	{
+		if(UIScrStack.count > 1) return %[ handled: true, action: "close" ];
+		return %[ handled: true, action: "quit_game" ];
+	}
+	// 上下键：移动当前屏第一个列表的高亮
+	if(key == 38 || key == 40)
+	{
+		var lid = uiScreenActionListForCurrent();
+		if(lid == "")
+		{
+			var sc = uiScreenExists(id) ? UILayoutData.screens[id] : void;
+			if(sc !== void)
+			{
+				for(var i = 0; i < sc.elements.count; i++)
+				{
+					var el = sc.elements[i];
+					if(el.kind == "list" && el.visible_default !== false) { lid = "" + el.id; break; }
+				}
+			}
+		}
+		if(lid == "") return %[ handled: false, action: "" ];
+		UIScrActiveList = lid;
+		var n = 0;
+		var sc2 = UILayoutData.screens[id];
+		for(var j = 0; j < sc2.elements.count; j++)
+			if("" + sc2.elements[j].id == lid) n = sc2.elements[j].labels.count;
+		if(n <= 0) return %[ handled: false, action: "" ];
+		var cur = (UIScrFocus[lid] === void) ? -1 : UIScrFocus[lid];
+		cur += (key == 40) ? 1 : -1;
+		while(cur < 0) cur += n;
+		while(cur >= n) cur -= n;
+		UIScrFocus[lid] = cur;
+		return %[ handled: true, action: "move" ];
+	}
+	// Enter：触发当前高亮项
+	if(key == 13)
+	{
+		var lid2 = uiScreenActionListForCurrent();
+		if(lid2 == "" || UIScrFocus[lid2] === void) return %[ handled: false, action: "" ];
+		var idx = UIScrFocus[lid2];
+		var sc3 = UILayoutData.screens[id];
+		for(var k = 0; k < sc3.elements.count; k++)
+		{
+			var e3 = sc3.elements[k];
+			if("" + e3.id == lid2)
+				return %[ handled: true, action: e3.actions[idx], index: idx ];
+		}
+	}
+	return %[ handled: false, action: "" ];
+}
+
+// ------------------------------------------------------------
+// 自动巡演（步骤表）
+//   顺序按 M2 验收要求：标题 → 对话框 → 选择肢 → 系统菜单 → 存档 → 读档 →
+//   配置 → 回想 → 画廊 → 音乐 → 章节选择 → Fragment 占位 → 流程图占位 →
+//   片尾 → 加载提示 → 标题
+//   末尾再自动追加「layout 里存在但上面没列到」的屏（M5 新增屏自动纳入）
+// ------------------------------------------------------------
+var UIScrTourSteps = [
+	%[ kind: "screen", v: "title",     label: "标题画面" ],
+	%[ kind: "screen", v: "dialog",    label: "对话框（真实台词）" ],
+	%[ kind: "action", v: "open_choices", label: "选择肢" ],
+	// ★ M13：右键图标浮层（sysicons）。巡演不产生真实鼠标事件，故用合成鼠标按下走
+	//   onMouseDown 同一入口，验证「右键 → 呼出 / 再右键 → 收起」这条路径。
+	%[ kind: "mouse",  v: "right",     label: "合成右键：呼出 9 图标浮层" ],
+	%[ kind: "mouse",  v: "right",     label: "合成右键：收起 9 图标浮层" ],
+	%[ kind: "screen", v: "sysmenu",   label: "系统菜单" ],
+	%[ kind: "screen", v: "save",      label: "存档" ],
+	%[ kind: "screen", v: "load",      label: "读档" ],
+	%[ kind: "screen", v: "config",    label: "配置" ],
+	%[ kind: "screen", v: "backlog",   label: "回想" ],
+	%[ kind: "screen", v: "gallery",   label: "CG 画廊" ],
+	%[ kind: "screen", v: "music",     label: "音乐鉴赏" ],
+	%[ kind: "screen", v: "chapter",   label: "章节选择" ],
+	%[ kind: "action", v: "open_fragment",  label: "番外 Fragment 占位" ],
+	%[ kind: "action", v: "open_flowchart", label: "剧情流程图占位" ],
+	%[ kind: "screen", v: "ending",    label: "片尾" ],
+	%[ kind: "screen", v: "loading",   label: "加载提示" ],
+	%[ kind: "screen", v: "title",     label: "回到标题" ]
+];
+
+var UIScrTourIndex  = 0;
+var UIScrTourPlan   = null;
+
+// 生成本次巡演的完整步骤表（含自动追加的未列屏）
+function uiTourBuildPlan()
+{
+	var plan = [];
+	for(var i = 0; i < UIScrTourSteps.count; i++) plan.push(UIScrTourSteps[i]);
+
+	// 追加 layout 中存在但未列到的屏
+	var listed = %[];
+	for(var j = 0; j < plan.count; j++)
+		if(plan[j].kind == "screen") listed[plan[j].v] = true;
+	var extra = [];
+	var sc = UILayoutData.screens;
+	for(var m = 0; m < UIScrTourIdList.count; m++)
+	{
+		var sid = UIScrTourIdList[m];
+		if(listed[sid] === true) continue;
+		extra.push(%[ kind: "screen", v: sid, label: "追加：" + sid ]);
+	}
+	for(var n = 0; n < extra.count; n++) plan.push(extra[n]);
+	return plan;
+}
+
+// layout 里已登记的屏 id 清单（并行数组维护；Dictionary 不能枚举）
+var UIScrTourIdList = [];
+
+function uiTourCollectScreenIds()
+{
+	UIScrTourIdList = [];
+	// 已知屏 id 白名单来自 layout/screens/_index.json 的 15 类界面（M13 追加 sysicons → 16 类），
+	// 这里按"存在性"探测（Dictionary 读缺失键返回 void，不抛）
+	var probe = [ "title", "dialog", "sysmenu", "confirm", "loading", "save", "load",
+		"config", "backlog", "gallery", "music", "ending",
+		"chapter", "fragment", "flowchart", "sysicons",
+		// ★ M34 新增屏（PSB 复刻）：底部系统条 / 系统菜单快捷条 / 选择支 / 立绘鉴赏
+		"sysbar", "quickbar", "choices", "dress" ];
+	for(var i = 0; i < probe.count; i++)
+		if(UILayoutData.screens[probe[i]] !== void) UIScrTourIdList.push(probe[i]);
+	return UIScrTourIdList.count;
+}
+
+function uiTourReset()
+{
+	UIScrTourPlan = uiTourBuildPlan();
+	UIScrTourIndex = 0;
+	uiScreenReset("title");
+}
+
+// 执行下一步；返回 %[ done:, label:, screen:, note: ]
+function uiTourStep()
+{
+	if(UIScrTourPlan === null) uiTourReset();
+	if(UIScrTourIndex >= UIScrTourPlan.count)
+		return %[ done: true, label: "(巡演结束)", screen: uiScreenCurrent(), note: "" ];
+
+	var st = UIScrTourPlan[UIScrTourIndex];
+	UIScrTourIndex++;
+
+	var note = "";
+	if(st.kind == "screen")
+	{
+		if(uiScreenExists(st.v)) uiScreenReset(st.v);
+		else
+		{
+			uiScreenReset(st.v);
+			note = "屏未登记 -> 占位";
+		}
+	}
+	else if(st.kind == "mouse")     // ★ M13：合成鼠标事件（走 onMouseDown 同一入口）
+	{
+		note = uiScreenSyntheticMouse(st.v);
+	}
+	else
+	{
+		var r = uiActionDispatch(st.v, 0);
+		note = r.msg;
+	}
+
+	return %[ done: false, label: st.label, screen: uiScreenCurrent(),
+		note: note, kind: st.kind, value: st.v ];
+}
+
+function uiTourProgress()
+{
+	var total = (UIScrTourPlan === null) ? 0 : UIScrTourPlan.count;
+	return (UIScrTourIndex) + "/" + total;
+}
+
+// 巡演单屏日志行（要求：当前屏 id / 元素数 / 字体 / 是否缺件）
+function uiTourLogLine(label, drawn)
+{
+	var id = uiScreenCurrent();
+	var n = 0;
+	if(uiScreenExists(id)) n = UILayoutData.screens[id].elements.count;
+	var line = "[UI][TOUR] " + uiTourProgress() + "  屏=" + id
+		+ "  中文名=" + (uiScreenExists(id) ? ("" + UILayoutData.screens[id].title_cn) : "(未登记)")
+		+ "  元素数=" + n
+		+ "  实绘元素=" + drawn
+		+ "  字体=" + ((UIThemeFace != "") ? UIThemeFace : "(引擎默认)")
+		+ "  缺件=" + uiAssetMissCount()
+		+ "  占位=" + ((UIScrPlaceholder == "") ? "无" : "有")
+		+ "  标签=" + label;
+	return line;
+}

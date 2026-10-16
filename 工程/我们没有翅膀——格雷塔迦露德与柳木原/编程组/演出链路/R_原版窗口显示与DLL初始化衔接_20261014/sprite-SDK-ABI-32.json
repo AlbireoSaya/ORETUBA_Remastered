@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "host_bits": 32,
+  "function_count": 10,
+  "module_count": 9,
+  "actual_timeGetTime_in_u32_range": true,
+  "actual_GetQueueStatus_zero": 0,
+  "actual_current_thread_priority": 0,
+  "actual_zero_handle_zero_timeout_wait": 258,
+  "actual_MulDiv_cases": [
+    [
+      5,
+      3,
+      2,
+      8
+    ],
+    [
+      -5,
+      3,
+      2,
+      -8
+    ],
+    [
+      1,
+      1,
+      2,
+      1
+    ],
+    [
+      -1,
+      1,
+      2,
+      -1
+    ],
+    [
+      2147483647,
+      2,
+      1,
+      -1
+    ],
+    [
+      7,
+      9,
+      0,
+      -1
+    ]
+  ],
+  "RegisterWindowMessage_and_PostThreadMessage_not_executed": true,
+  "timeBeginPeriod_and_timeEndPeriod_not_executed": true,
+  "current_thread_pseudohandle_not_closed": true,
+  "no_original_guest_callback_registered_with_OS": true,
+  "not_original_DS_SPRITE_execution_proof": true
+}

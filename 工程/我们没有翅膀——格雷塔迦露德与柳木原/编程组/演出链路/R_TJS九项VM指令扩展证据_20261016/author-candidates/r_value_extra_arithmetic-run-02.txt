@@ -1,0 +1,14 @@
+function RValueExtraArithmetic(op, a, b) {
+    if (!(op instanceof Integer) || !(a instanceof Integer) || !(b instanceof Integer)) {
+        throw new Error("RValueExtraArithmetic: op, a, b must be Integer");
+    }
+    var x = a & 0xffffffff;
+    var y = b & 0xffffffff;
+    if (op == 14) {
+        return (x - y) & 0xffffffff;
+    }
+    if (op == 15) {
+        return global.RValueExtraMul(x, y);
+    }
+    throw new Error("RValueExtraArithmetic: unsupported op " + op);
+}

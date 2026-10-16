@@ -1,0 +1,68 @@
+"""Root negative verification: mutate only a copied file in a fresh private test game."""
+from pathlib import Path
+import hashlib
+import json
+import runpy
+import shutil
+import sys
+
+root = Path.cwd().resolve()
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-record-runtime-20261015"
+bits, kind, tag = int(sys.argv[1]), sys.argv[2], sys.argv[3]
+assert bits in (32, 64) and kind in ("late-flag", "force-rebind", "void-as-zero")
+assert "/" not in tag and "\\" not in tag
+name = "r_memory_read.tjs" if kind == "void-as-zero" else "r_bind_expression.tjs"
+original_path = work / name
+original = original_path.read_bytes()
+target = root / "临时/ISSUE-20261011-02" / tag / "game" / name
+assert target.resolve().is_relative_to(root / "临时/ISSUE-20261011-02")
+assert not target.parent.parent.exists()
+copyfile = shutil.copyfile
+injections = []
+
+def inject(src, dst, *args, **kwargs):
+    result = copyfile(src, dst, *args, **kwargs)
+    if Path(dst).resolve() == target:
+        text = target.read_text(encoding="utf-8")
+        if kind == "late-flag":
+            assert text.count("wb(flag, 1);") == 1 and text.count("RApplyRelocations(wr, writes);") == 1
+            text = text.replace("wb(flag, 1);", "").replace("RApplyRelocations(wr, writes);", "RApplyRelocations(wr, writes);\n    wb(flag, 1);")
+        elif kind == "force-rebind":
+            assert text.count("if (rb(flag) != 0) {") == 1
+            text = text.replace("if (rb(flag) != 0) {", "if (false) {")
+        else:
+            assert text.count('throw new Exception("INVALID_MEMORY_BYTE");') == 1
+            text = text.replace('throw new Exception("INVALID_MEMORY_BYTE");', "return 0;")
+        target.write_text(text, encoding="utf-8")
+        injections.append({"path": target.relative_to(root).as_posix(), "sha256": hashlib.sha256(target.read_bytes()).hexdigest()})
+    return result
+
+shutil.copyfile = inject
+if kind == "void-as-zero":
+    recipe = work / "verify-guard-runtime.txt"
+    sys.argv = [str(recipe), str(bits), tag, "r_memory_missing_guard.tjs", "RGMemoryMissing", "2"]
+    expected = "RG_MISSING_DIRTY_NOT_REJECTED:"
+else:
+    recipe = work / "verify-record-runtime.txt"
+    sys.argv = [str(recipe), str(bits), tag, str(root / "临时/ISSUE-20261011-02/r-target-record-native-probe-01/manifest.json"), "45"]
+    expected = "RVM_COMPARE writes"
+exit_code = None
+try:
+    runpy.run_path(str(recipe), run_name="__main__")
+except SystemExit as exc:
+    exit_code = exc.code
+finally:
+    shutil.copyfile = copyfile
+evidence = target.parent.parent / "evidence"
+verdict = json.loads((evidence / "verdict.json").read_text(encoding="utf-8"))
+console = (evidence / "console.utf8.txt").read_text(encoding="utf-8")
+detected = (exit_code == 1 and len(injections) == 1 and not verdict["passed"] and verdict["fresh_log"] and
+            verdict["process"]["returncode"] == 0 and not verdict["process"]["timed_out"] and verdict["process"]["cleanup_ok"] and expected in console)
+assert original_path.read_bytes() == original
+receipt = {"passed": detected, "fault": kind, "bits": bits, "expected_diagnostic": expected,
+           "failed_test_receipt_preserved": True, "test_exit_code": exit_code, "test_process": verdict["process"],
+           "original_candidate_unchanged_sha256": hashlib.sha256(original).hexdigest(), "injections": injections,
+           "scope": "negative checker test only; mutated game copy, not production/candidate/original files"}
+(evidence / "fault-verdict.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+print(json.dumps({"fault_detected": detected, "fault": kind, "bits": bits}))
+sys.exit(0 if detected else 1)

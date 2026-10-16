@@ -1,0 +1,46 @@
+"""Root checker negative controls on private copies; actual VM is unchanged."""
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+import sys
+
+r=Path.cwd().resolve();w=r/"子代理工作区/ISSUE-20261011-02/r-target-live-eval-20261016"
+bits,kind=int(sys.argv[1]),sys.argv[2]
+assert bits in(32,64)and kind in("early-result","stale-result-pointer","ignore-return-one","wrong-size-width")
+labels={"early-result":"vm-changes-result-global","stale-result-pointer":"vm-changes-result-vector-item","ignore-return-one":"pause-still-reads-result-and-pushes-again","wrong-size-width":"vm-changes-table-size"}
+ref=r/"临时/ISSUE-20261011-02/r-live-eval-original-input-20261016-01"
+original=json.loads((ref/"original-results.json").read_text(encoding="utf-8"));case=next(row for row in original["results"]if row["label"]==labels[kind])
+out=r/"临时/ISSUE-20261011-02"/f"r-live-eval-fault-input-{kind}-{bits}-20261016-01";assert not out.exists()
+override=out/"override";override.mkdir(parents=True)
+line=next(line for line in(ref/"cases.tjs").read_text(encoding="utf-8").splitlines()if '"label"=>"'+labels[kind]+'"'in line)
+casefile=out/"case.tjs";casefile.write_text(line+"\n",encoding="utf-8")
+name="r_live_expression_evaluate.tjs"if kind in("early-result","ignore-return-one")else"r_live_expression_result.tjs"
+source=w/name;text=source.read_text(encoding="utf-8");before=hashlib.sha256(source.read_bytes()).hexdigest()
+if kind=="early-result":
+    old="    var vm = runVM(rd, wr, rb, ctx, h.code_start, native, maxSteps, false);\n    var post = global.RLiveExpressionResult(rd, rh, h.table_start);"
+    new="    var post = global.RLiveExpressionResult(rd, rh, h.table_start);\n    var vm = runVM(rd, wr, rb, ctx, h.code_start, native, maxSteps, false);"
+elif kind=="ignore-return-one":
+    old="    post.vm = vm;";new="    if(vm.return_code != 0) post.value = 0;\n"+old
+elif kind=="stale-result-pointer":
+    old="var ptr = rd(vector) & 0xffffffff;";new=old+"\n    ptr = 0x1090000;"
+else:
+    old="var size = rh(table) & 65535;";new="var size = rd(table) & 65535;"
+assert text.count(old)==1
+(override/name).write_text(text.replace(old,new),encoding="utf-8")
+segments=case["segments"]
+m={"cases":1,"records":len(segments),"vm_steps":sum(len(seg["vm_trace"])for seg in segments),"caller_events":sum(len(seg["events"])for seg in segments),"vm_writes":sum(len(seg["vm_writes"])for seg in segments),
+   "original_result_source":(ref/"original-results.json").relative_to(r).as_posix(),"original_result_sha256":hashlib.sha256((ref/"original-results.json").read_bytes()).hexdigest(),
+   "files":[{"source":casefile.relative_to(r).as_posix(),"sha256":hashlib.sha256(casefile.read_bytes()).hexdigest()}]}
+mp=out/"manifest.json";mp.write_text(json.dumps(m,indent=2),encoding="utf-8")
+tag=f"r-live-eval-fault-{kind}-{bits}-20261016-01"
+proc=subprocess.run([sys.executable,"-X","utf8","-B",str(w/"verify-live-eval-runtime.txt"),str(bits),tag,str(mp),str(override)],capture_output=True,timeout=60)
+ep=r/"临时/ISSUE-20261011-02"/tag/"evidence";test=json.loads((ep/"verdict.json").read_text(encoding="utf-8"));console=(ep/"console.utf8.txt").read_text(encoding="utf-8")
+detected=proc.returncode==1 and not test["passed"]and "RVM_COMPARE"in console and test["process"]["returncode"]==0 and test["process"]["cleanup_ok"]
+assert hashlib.sha256(source.read_bytes()).hexdigest()==before
+result={"passed":detected,"fault":kind,"bits":bits,"case":labels[kind],"expected_diagnostic":"RVM_COMPARE","candidate_unchanged_sha256":before,
+        "failed_test_receipt":(ep/"verdict.json").relative_to(r).as_posix(),"scope":"checker-only private mutation, actual VM untouched; not positive game proof"}
+(ep/"fault-verdict.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+print(json.dumps(result))
+if not detected:print(console[-1800:])
+sys.exit(0 if detected else 1)

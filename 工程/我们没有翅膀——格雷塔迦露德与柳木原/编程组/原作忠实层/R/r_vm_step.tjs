@@ -1,0 +1,34 @@
+// r_vm_step.tjs —— R 原作忠实层 · VM 单步指令分派（本单唯一文件）
+// 接口：RVMStep(rd, wr, ctx, native) -> [pc, op, c]
+//   rd(addr) / wr(addr, value)：读写 guest 内存的原语
+//   ctx   ：VM 上下文基址；ctx+8 为指令指针槽
+//   native：宿主原生调用桥（转交下游 helper，不在本文件解释）
+//   pc = 本步指令地址；op = 已解码操作码；c = 控制状态（void = 继续）
+// 约束：原 26 路径保持原分派；原 17 路径与 RVMExtraValueStep 9 项不变；新增 10 项内存/栈指令由 RVMExtraMemoryStep 分派；未知 11 项仍抛异常，绝不静默返回成功。
+//       既有 RValueOp 13/19/20/23/41/44/45 与既有控制/内存操作码继续走原分派，不交给 RVMExtraValueStep；新 10 项由 RVMExtraMemoryStep 分派。
+// 本文件只做「取指 + 推进 pc + 分派」，不含循环、不含其它 helper 实现。
+
+function RVMStep(rd, wr, ctx, native)
+{
+	var pc = rd(ctx + 8);
+	var op = rd(pc);
+	var p = pc + 4;
+	wr(ctx + 8, p);
+
+	var c = void;
+
+	if(op == 0 || op == 1 || op == 5 || op == 8 || op == 12 || op == 30)
+		c = RVMStepControl(rd, wr, ctx, op, p, native);
+	else if(op == 26 || op == 31 || op == 32 || op == 40)
+		RVMStepMemory(rd, wr, ctx, op, p);
+	else if(op == 13 || op == 19 || op == 20 || op == 23 || op == 41 || op == 44 || op == 45)
+		RVMValueStep(rd, wr, ctx, op, p);
+	else if(op==14||op==15||op==21||op==22||op==24||op==25||op==42||op==43||op==46)
+		global.RVMExtraValueStep(rd,wr,ctx,op,p);
+	else if(op==27||op==28||op==29||op==33||op==34||op==35||op==36||op==37||op==38||op==39)
+		global.RVMExtraMemoryStep(rd,wr,ctx,op,p);
+	else
+		throw new Exception("UNSUPPORTED_VM_OPCODE " + op);
+
+	return [pc, op, c];
+}

@@ -1,0 +1,36 @@
+// r_vm_native_flags_fixture.tjs
+// 仅验证用模型，非生产 native 实现；精确回调读序，无 OS/UI。
+// 数值保持 TJS2 Integer64，不引入浮点。
+
+function RVMNFlags(rd, rb, h, f)
+{
+    if (h == 0x411c40) {
+        var a0 = rd(f);
+        if (a0 != 0) {
+            throw new Exception("RVMNFlags: 0x411c40 rd(f) != 0");
+        }
+        var b13 = rb(f + 4);
+        if (b13 != 13) {
+            throw new Exception("RVMNFlags: 0x411c40 rb(f+4) != 13");
+        }
+        return rb(rd(0x530c94) + 0xf1f);
+    }
+    if (h == 0x418650) {
+        var a9 = rd(f);
+        if (a9 != 9) {
+            throw new Exception("RVMNFlags: 0x418650 rd(f) != 9");
+        }
+        var b3 = rd(f + 4);
+        if (b3 != 3) {
+            throw new Exception("RVMNFlags: 0x418650 rd(f+4) != 3");
+        }
+        var parent = rd(0x530eb4);
+        if (parent == 0) {
+            return 0;
+        }
+        var high = rb(parent + 0x4f5);
+        var low = rb(parent + 0x4f4);
+        return high | low;
+    }
+    throw new Exception("RVMNFlags: unknown h");
+}

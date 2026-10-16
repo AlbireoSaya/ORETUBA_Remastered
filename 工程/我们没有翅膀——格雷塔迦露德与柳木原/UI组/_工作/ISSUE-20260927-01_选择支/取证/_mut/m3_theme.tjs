@@ -1,0 +1,443 @@
+// ============================================================
+// ui_theme.tjs —— 色板 / 字体探测 / 文字度量与折行（M2 · UI 组）
+//
+// 职责（与其它 ui_*.tjs 分离）：
+//   * 从 UILayoutData（= ui_layout.tjs，生成物）读取画布尺寸、色板、字号、行距；
+//   * 启动期用 Font.getList(0) 探测系统字体，按 fallback_faces 顺序回退；
+//   * 用 Font.getTextWidth / getTextHeight 做折行、截断、对齐定位。
+//
+// 硬性约束（本文件的设计前提）：
+//   * 本文件内**不得出现任何坐标/尺寸/字号/颜色字面量**——一律经
+//     uiThemeCanvas* / uiThemePalette / uiThemeFontSize / uiThemeLineSpacing 取。
+//   * 不假设任何字体存在（krkr 不自带字体；缺口 G2）。
+//   * 不假设 assets/ui/ 已交付（M1 并行产出）——缺件由 ui_asset.tjs 负责占位。
+//
+// TJS2 注意事项（依 引擎工作原理.md §5）：
+//   * 无 for...in、无 in；Dictionary 无 count / 无枚举 → 一律用 Array + 下标；
+//   * 顶层 var 无提升，故本文件只定义函数与少量初值；
+//   * 顶层 var 落在 global（Scripts.execStorage 以 context=NULL 调用），
+//     故其它 ui_*.tjs 能看到这里的函数与变量（与 POC flow demo 同款做法）。
+// ============================================================
+
+// ------------------------------------------------------------
+// 全局状态
+// ------------------------------------------------------------
+var UIThemeFace       = "";     // 探测到的字体名（空串 = 保持引擎默认字体）
+var UIThemeFaceCount  = 0;      // Font.getList(0) 的条目数
+var UIThemeFaceList   = null;   // Font.getList(0) 的原始数组
+var UIThemeFaceSource = "未探测";
+var UIThemeWarnList   = [];     // 运行期警告（可读报错，不抛异常）
+var UIThemeHaveFace   = %[];    // Font.getList(0) 的查表（face 名 -> true），供逐元素覆盖用
+
+// 折行用「禁则」字符：不允许出现在行首
+var UIThemeNoHeadChars = "、。，．！？：；）」』】》〉”’!?,.:;)]}";
+// 折行用「禁则」字符：不允许出现在行尾
+var UIThemeNoTailChars = "（「『【《〈“‘([{";
+
+// ★ M38（2026-09-23）：文字「四向描边」的默认边宽（px）。
+//   仅在元素 font.outline === true 且**未写** font.outline_width 时使用。
+//   字段语义见 layout/_schema.md §四「`text` 附加字段」；两端同实现：
+//   本文件 uiThemeDrawOutline()  ↔  复刻/replica.js 的 textOutlineShadow()。
+var UIThemeOutlineDefaultWidth = 1;
+// 8 个描边方向（单位偏移量，实际偏移 = 方向 × outline_width）：
+//   (1,0) (0-1,0) (0,1) (0,0-1) (1,1) (0-1,1) (1,0-1) (0-1,0-1)
+//   ⚠️ 与 HTML 侧 textOutlineShadow() 的 8 条 text-shadow **同序同向**，改一处必须改两处。
+//   （此处用 `0 - 1` 而非 `-1` 只是写法；TJS2 两式等价。方向表本身不是布局数据，
+//     偏移量一律乘 outline_width，不参与任何坐标计算。）
+var UIThemeOutlineDirs = [[1, 0], [0 - 1, 0], [0, 1], [0, 0 - 1],
+                          [1, 1], [0 - 1, 1], [1, 0 - 1], [0 - 1, 0 - 1]];
+
+function uiThemeWarn(msg)
+{
+	UIThemeWarnList.push("" + msg);
+}
+
+// ------------------------------------------------------------
+// 画布 / 色板 / 字号 / 行距 —— 唯一的数值来源
+// ------------------------------------------------------------
+function uiThemeCanvasW() { return UILayoutData.canvas.width; }
+function uiThemeCanvasH() { return UILayoutData.canvas.height; }
+
+function uiThemePalette(key)
+{
+	var v = UILayoutData.palette[key];
+	if(v === void) { uiThemeWarn("色板缺少键 " + key); return 0; }
+	return v;
+}
+
+// 元素 color / opacity 解析：
+//   生成器已把 "@palette.x" 与 "#RRGGBB" 都解析成 0xRRGGBB 整数；
+//   这里再兜底一次字符串写法（防生成器行为变化），绝不硬编码色值。
+function uiThemeColor(v, fallbackKey)
+{
+	if(v === void || v === null)
+		return (fallbackKey === void) ? 0 : uiThemePalette(fallbackKey);
+	if(typeof v == "String")
+	{
+		var s = "" + v;
+		if(s.length > 0 && s.charAt(0) == "@")
+		{
+			var dot = s.indexOf(".");
+			if(dot >= 0) return uiThemePalette(s.substring(dot + 1));
+			return 0;
+		}
+		if(s.length > 0 && s.charAt(0) == "#")
+		{
+			// "#RRGGBB" 或 "#RGB"
+			var hex = s.substring(1);
+			var n = 0;
+			for(var i = 0; i < hex.length; i++)
+			{
+				var c = hex.charAt(i);
+				var d = 0;
+				var cc = c.toLowerCase();
+				// ★ M8 修复：TJS2 的 String **没有 charCodeAt**（实机抛
+				//   「未找到 Member "charCodeAt"」）。这里改用 indexOf 反查数值，
+				//   否则任何 "#RRGGBB" 字符串色值都会把整屏画黑。
+				var dv = "0123456789".indexOf(cc);
+				var hv = "abcdef".indexOf(cc);
+				if(dv >= 0) d = dv;
+				else if(hv >= 0) d = hv + 10;
+				n = n * 16 + d;
+			}
+			if(hex.length == 3)
+			{
+				var r = (n >> 8) & 0xf, g = (n >> 4) & 0xf, b = n & 0xf;
+				n = (r << 20) | (r << 16) | (g << 12) | (g << 8) | (b << 4) | b;
+			}
+			return n;
+		}
+	}
+	return v;
+}
+
+function uiThemeOpacity(v, fallbackKey)
+{
+	if(v === void || v === null)
+		return (fallbackKey === void) ? 255 : uiThemePalette(fallbackKey);
+	if(typeof v == "String")
+	{
+		var s = "" + v;
+		if(s.length > 0 && s.charAt(0) == "@")
+		{
+			var dot = s.indexOf(".");
+			if(dot >= 0) return uiThemePalette(s.substring(dot + 1));
+		}
+	}
+	return v;
+}
+
+function uiThemeFontSize(key)
+{
+	var v = UILayoutData.fonts.sizes[key];
+	if(v === void) { uiThemeWarn("字号表缺少键 " + key); return UILayoutData.fonts.sizes.body; }
+	return v;
+}
+
+function uiThemeLineSpacing(key)
+{
+	var v = UILayoutData.fonts.line_spacing[key];
+	if(v === void) return UILayoutData.fonts.line_spacing.body;
+	return v;
+}
+
+// 元素行距：元素自带 line_spacing 优先，否则用全局 body 行距
+function uiThemeElementSpacing(el)
+{
+	if(el !== void && el.line_spacing !== void) return el.line_spacing;
+	return uiThemeLineSpacing("body");
+}
+
+// 元素字号：元素 font.size 优先，否则全局 body
+function uiThemeElementFontSize(el)
+{
+	if(el !== void && el.font !== void && el.font.size !== void) return el.font.size;
+	return uiThemeFontSize("body");
+}
+
+// ------------------------------------------------------------
+// 字体探测：Font.getList(0) + fallback_faces 回退链
+// ------------------------------------------------------------
+// 返回 true 表示成功挑到字体并写进 UIThemeFace（也可能为 "" = 引擎默认字体）
+function uiThemeProbeFace(layer)
+{
+	if(UIThemeFaceList !== null) return true;
+	try
+	{
+		UIThemeFaceList  = layer.font.getList(0);   // flags=0 → 不过滤，列全部字体
+		UIThemeFaceCount = UIThemeFaceList.count;
+	}
+	catch(e)
+	{
+		UIThemeFaceSource = "Font.getList(0) 失败：" + e.message;
+		UIThemeWarnList.push(UIThemeFaceSource);
+		return false;
+	}
+
+	// 用 Dictionary 做"有没有这个 face"的查表（读缺失键返回 void，不抛）
+	var have = %[];
+	for(var i = 0; i < UIThemeFaceList.count; i++)
+		have[("" + UIThemeFaceList[i])] = true;
+	UIThemeHaveFace = have;
+
+	var chain = UILayoutData.fonts.fallback_faces;
+	for(var k = 0; k < chain.count; k++)
+	{
+		var want = "" + chain[k];
+		if(have[want] === true)
+		{
+			UIThemeFace = want;
+			UIThemeFaceSource = "fallback_faces[" + k + "] 命中";
+			return true;
+		}
+	}
+	UIThemeFace = "";
+	UIThemeFaceSource = "fallback_faces 全部未命中（" + chain.count + " 项），保持引擎默认字体";
+	uiThemeWarn(UIThemeFaceSource);
+	return true;
+}
+
+// 从给定候选链里挑第一个系统确实有的 face；都没有则返回 ""（保持当前 face）
+function uiThemePickFace(chain)
+{
+	for(var k = 0; k < chain.count; k++)
+	{
+		var want = "" + chain[k];
+		if(UIThemeHaveFace[want] === true) return want;
+	}
+	return "";
+}
+
+// 把元素的 font 规格应用到某个 layer 的 font 对象上
+// 返回 %[ size:, lineH:, color:, opacity:, shadow:, shadowColor:, shadowOfs:,
+//         outline:, outlineColor:, outlineW: ]
+//   ★ M38：末三项为**文字四向描边**（可选，默认关）。它只服务渲染（uiThemeDrawOutline），
+//     **不参与布局** —— 折行/截断（uiThemeWrap）与对齐定位（uiThemeLayoutText）
+//     一律只按正文字形度量，与 shadow 同款「渲染层的事」。
+function uiThemeApplyFont(layer, fontSpec, el)
+{
+	var f = layer.font;
+	if(UIThemeFace != "") f.face = UIThemeFace;
+
+	// 逐元素字体覆盖（font.faces）：优先于全局 fallback_faces。
+	// 用途：某个屏要指定字体（如标题菜单用 "DejaVu Sans Mono" 粗体），
+	// 而全局链仍保持中文字体（DejaVu 无 CJK 字形，不可全局切换）。
+	if(fontSpec !== void && fontSpec.faces !== void)
+	{
+		var pf = uiThemePickFace(fontSpec.faces);
+		if(pf !== "") f.face = pf;
+	}
+
+	var size = uiThemeElementFontSize(el);
+	if(fontSpec !== void && fontSpec.size !== void) size = fontSpec.size;
+
+	f.height = size;
+	f.bold   = (fontSpec !== void && fontSpec.bold === true);
+
+	var lineH = Math.floor(size * uiThemeElementSpacing(el));
+	if(lineH < size) lineH = size;
+
+	var color = (fontSpec !== void && fontSpec.color !== void)
+		? uiThemeColor(fontSpec.color) : uiThemePalette("text_primary");
+
+	var shadow = (fontSpec !== void && fontSpec.shadow === true);
+	var shadowColor = (fontSpec !== void && fontSpec.shadow_color !== void)
+		? uiThemeColor(fontSpec.shadow_color) : uiThemePalette("shadow");
+	var shadowOfs = (fontSpec !== void && fontSpec.shadow_ofs !== void) ? fontSpec.shadow_ofs : 0;
+
+	// ★ M38：四向描边（默认关）。缺 outline_color 时回落到色板 shadow（与阴影同色源）。
+	var outline = (fontSpec !== void && fontSpec.outline === true);
+	var outlineColor = (fontSpec !== void && fontSpec.outline_color !== void)
+		? uiThemeColor(fontSpec.outline_color) : uiThemePalette("shadow");
+	var outlineW = (fontSpec !== void && fontSpec.outline_width !== void)
+		? fontSpec.outline_width : UIThemeOutlineDefaultWidth;
+
+	return %[
+		size: size,
+		lineH: lineH,
+		color: color,
+		shadow: shadow,
+		shadowColor: shadowColor,
+		shadowOfs: shadowOfs,
+		outline: outline,
+		outlineColor: outlineColor,
+		outlineW: outlineW
+	];
+}
+
+// ★ M38：8 方向描边 —— 用描边色把同一行文本在 8 个方向各画一次。
+//   ⚠️ **必须只画文字，绝不改度量与定位**：本函数不返回值、不写 layer.font、
+//      不进 uiThemeWrap / uiThemeLayoutText，故描边宽度对流式排版**零影响**。
+//   与 HTML 侧 复刻/replica.js 的 textOutlineShadow() 逐项对应（方向表 UIThemeOutlineDirs）。
+function uiThemeDrawOutline(layer, x, y, s, f, opa)
+{
+	var w = f.outlineW;
+	for(var i = 0; i < UIThemeOutlineDirs.count; i++)
+	{
+		var d = UIThemeOutlineDirs[i];
+		layer.drawText(x + d[0] * w, y + d[1] * w, s, f.outlineColor, opa, true,
+			0, f.outlineColor, 0, 0, 0);
+	}
+}
+
+// 在 layer 上画一行（自带阴影 / 描边参数），返回该行宽度
+function uiThemeDrawLine(layer, x, y, s, f, opacity)
+{
+	var shadowLevel = 0;
+	var shadowW = 0;
+	var ofsx = 0, ofsy = 0;
+	if(f.shadow)
+	{
+		// shadowlevel=200 / shadowwidth=3 与 krkrz 官方样例 imageviewer/startup.tjs 一致
+		shadowLevel = 200;
+		shadowW = (f.shadowOfs > 0) ? f.shadowOfs + 1 : 1;
+		ofsx = f.shadowOfs;
+		ofsy = f.shadowOfs;
+	}
+	var opa = (opacity === void) ? 255 : opacity;
+
+	// ★ M38：四向描边 —— **先按 8 个方向画描边，最后画正文**（正文压在最上层，
+	//   保证字形本色不被描边色污染；顺序与 HTML 侧 text-shadow 的层叠次序一致）。
+	if(f.outline === true && f.outlineW > 0)
+		0;
+
+	layer.drawText(x, y, s, f.color, opa, true,
+		shadowLevel, f.shadowColor, shadowW, ofsx, ofsy);
+	return layer.font.getTextWidth(s);
+}
+
+// ------------------------------------------------------------
+// 折行 / 截断（用 Font.getTextWidth 真实度量，不按字数估算）
+// ------------------------------------------------------------
+// 输入：layer（度量用）、text、maxW（像素）、maxLines
+// 输出：%[ lines: Array<String>, truncated: bool ]
+function uiThemeWrap(layer, text, maxW, maxLines)
+{
+	var src = "" + text;
+	var out = [];
+	var truncated = false;
+
+	// 先按显式换行切开
+	var paragraphs = src.split("\n");
+	var f = layer.font;
+
+	for(var pi = 0; pi < paragraphs.count; pi++)
+	{
+		var para = paragraphs[pi];
+		if(para == "") { out.push(""); continue; }
+
+		var line = "";
+		for(var i = 0; i < para.length; i++)
+		{
+			var ch = para.charAt(i);
+			var cand = line + ch;
+			if(f.getTextWidth(cand) <= maxW || line == "")
+			{
+				line = cand;
+				continue;
+			}
+			// 需要断行：先做一次「行首禁则」——若 ch 是禁则头字符，强行并入本行
+			if(UIThemeNoHeadChars.indexOf(ch) >= 0)
+			{
+				line = cand;
+				continue;
+			}
+			// 行尾禁则：若 line 末字符不能收行，把它挪到下一行
+			var carry = "";
+			if(line.length > 0 && UIThemeNoTailChars.indexOf(line.charAt(line.length - 1)) >= 0)
+			{
+				carry = line.charAt(line.length - 1);
+				line = line.substring(0, line.length - 1);
+			}
+			out.push(line);
+			line = carry + ch;
+		}
+		if(line != "" || para == "") out.push(line);
+	}
+
+	if(maxLines !== void && maxLines > 0 && out.count > maxLines)
+	{
+		truncated = true;
+		while(out.count > maxLines) out.pop();
+	}
+	return %[ lines: out, truncated: truncated ];
+}
+
+// 单行宽度
+function uiThemeTextWidth(layer, s)
+{
+	try { return layer.font.getTextWidth("" + s); } catch(e) { return 0; }
+}
+
+// 多行文本块的排版结果（不画）：
+//   %[ lines:, x:, y:, lineH:, blockH:, f:, truncated: ]
+// align: left|center|right ；valign: top|middle|bottom
+function uiThemeLayoutText(layer, el, textOverride)
+{
+	var fontSpec = (el.font !== void) ? el.font : void;
+	var f = uiThemeApplyFont(layer, fontSpec, el);
+
+	var txt = (textOverride !== void) ? ("" + textOverride) : ("" + el.sample);
+	var maxLines = (el.max_lines !== void) ? el.max_lines : 0;
+	var wrapOn = (el.wrap === true);
+
+	var lines;
+	var truncated = false;
+	if(wrapOn)
+	{
+		var r = uiThemeWrap(layer, txt, el.w, maxLines);
+		lines = r.lines;
+		truncated = r.truncated;
+	}
+	else
+	{
+		lines = [txt];
+		if(maxLines !== void && maxLines > 0 && lines.count > maxLines)
+		{
+			truncated = true;
+			lines = [lines[0]];
+		}
+	}
+
+	var lineH = f.lineH;
+	var blockH = lines.count * lineH;
+
+	var align = (el.align !== void) ? el.align : "left";
+	var valign = (el.valign !== void) ? el.valign : "top";
+
+	var y = el.y;
+	if(valign == "middle")      y = el.y + Math.floor((el.h - blockH) / 2);
+	else if(valign == "bottom") y = el.y + el.h - blockH;
+
+	return %[
+		lines: lines,
+		x: el.x,
+		y: y,
+		w: el.w,
+		lineH: lineH,
+		blockH: blockH,
+		align: align,
+		f: f,
+		truncated: truncated
+	];
+}
+
+// 把排版结果画出来
+function uiThemeRenderText(layer, layout, opacity)
+{
+	var lines = layout.lines;
+	var f = layout.f;
+	var yy = layout.y;
+	for(var i = 0; i < lines.count; i++)
+	{
+		var s = lines[i];
+		var xx = layout.x;
+		if(layout.align == "center")
+			xx = layout.x + Math.floor((layout.w - uiThemeTextWidth(layer, s)) / 2);
+		else if(layout.align == "right")
+			xx = layout.x + layout.w - uiThemeTextWidth(layer, s);
+		uiThemeDrawLine(layer, xx, yy, s, f, (opacity === void) ? 255 : opacity);
+		yy += layout.lineH;
+	}
+	return layout.blockH;
+}

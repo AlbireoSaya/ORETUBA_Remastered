@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "name": "ll_app.sys",
+      "where": "original_GlobalFree_before_release",
+      "guest_pointer": 117723264,
+      "bytes": 25,
+      "sha256": "66f93803063c87e2699e094192e42f133995d3bb4689679c488fde5bddbfdbd1",
+      "exact_source_bytes": true
+    },
+    {
+      "name": "ll_app.inf",
+      "where": "actual_live_original_allocation_at_boundary",
+      "guest_pointer": 117731456,
+      "bytes": 101,
+      "sha256": "bca820fe479e0e8e335ef0b5c8391f54fa4255d8ca8ae63cf404e03b6f813634",
+      "exact_source_bytes": true
+    }
+  ],
+  "no_original_plaintext_serialized": true
+}

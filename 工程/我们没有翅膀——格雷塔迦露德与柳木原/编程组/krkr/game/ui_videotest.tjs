@@ -1,0 +1,325 @@
+// ============================================================
+// ui_videotest.tjs —— 【诊断】影片「扩展名 × 输出模式」可行性矩阵（ISSUE-20261004-07）
+//
+// 为什么单独开一个模块：`ui_boot.tjs` 里的 `uiVideoProbe` 是**只列已知可播者**的保守探针
+//   （一审要求：不支持的扩展名先判后用，避免抛错污染 EXCEPTION 判定线）。
+//   本轮要做的恰恰是**把不支持的组合也逐个试出来**，所以另起一个只在 `videotest.txt` 在场时
+//   才装载的模块，把噪声隔离在这里。**成品不含该开关 ⇒ 零行为改变。**
+//
+// 判据（每个 case 三拍）：
+//   ① `new VideoOverlay(win)` → 设 `mode`（**必须在 open 之前**，源码 `VideoOvlImpl.h:46`
+//      明写「Modeの動的な変更は出来ない。open前にセットしておくこと」）→ `open(url)`
+//   ② `play()` 后记 `originalWidth/Height`（能报出尺寸＝文件被解析、视频流被识别）
+//   ③ 停 800ms 再读 `position` ⇒ **是否推进**是「解码/播放管线真的在跑」的判据
+//      （open 成功但 position 恒 0 ⇒ 只有容器被认了、解码没起来）
+//
+// 引擎侧事实（源码级，见 `工程记录\2026-10-04_…影片格式支持的修改.md`）：
+//   · DShow 路 `dsmovie.cpp:1176-1192 ParseVideoType` 是**扩展名白名单**
+//     （.mpg .mpeg .mpv .m1v .dat .avi .mov；.asf/.wma/.wmv 另走 Windows Media），
+//     命不中且无人注册 ⇒ 抛 `Unknown video format extension.`
+//   · `TVPRegisterDSVideoCodec` 的形参是**裸 C++ 函数指针** `tTVPCreateDSFilter`
+//     ⇒ 脚本调不动（须写插件 DLL）
+//   · `visual/win32/VideoOvlImpl.cpp:166-171` 按 `Mode` 四选一：
+//     vomOverlay(0, DShow 叠加) / vomLayer(1, DShow→Layer) / vomMixer(2) / **vomMFEVR(3, Media Foundation)**
+//     ⇒ **MF 路不查扩展名白名单**，是本轮最可能「零改二进制」就播 H.264 的路
+// ============================================================
+
+var UVTBase  = "file://./e/zcode workspace/galgame/临时/videotest/";
+// 播放基路径（可由 videoplay.tjs 覆盖；指向交付目录即可，**不必再把素材拷进 临时\**）
+var UIVideoBase = "";
+function uvtBase() { return (UIVideoBase === void || UIVideoBase === null || UIVideoBase == "") ? UVTBase : UIVideoBase; }
+var UVTCases = [
+	%[ f: "ed_ai.mpg",       mode: -1, tag: "基线 MPEG-1（DShow 默认路，已实测可播）" ],
+	%[ f: "ed_ai.mp4",       mode: -1, tag: "H.264/AAC MP4（DShow 默认路，预期被扩展名拒）" ],
+	%[ f: "ed_ai_asis.mov",  mode: -1, tag: "H.264 内容 + .mov 扩展名（QTMovie 路）" ],
+	%[ f: "ed_h264_mov.mov", mode: -1, tag: "H.264/AAC 真 MOV 容器（QTMovie 路）" ],
+	%[ f: "ed_xvid.avi",     mode: -1, tag: "Xvid(MPEG-4 Part2)+MP3 AVI（AVI 路）" ],
+	%[ f: "ed_ai.mp4",       mode:  3, tag: "H.264/AAC MP4 + vomMFEVR（Media Foundation 路）" ],
+	%[ f: "ed_xvid.avi",     mode:  2, tag: "Xvid AVI + vomMixer（混音器路）" ],
+	%[ f: "ed_ai.mpg",       mode:  3, tag: "MPEG-1 走 vomMFEVR（MF 对照）" ],
+	%[ f: "ed_xvid.avi",     mode:  3, tag: "Xvid AVI 走 vomMFEVR（MF 可否解 MPEG-4 Part2）" ],
+	%[ f: "ed_ai.mp4",       mode:  3, tag: "H.264 播放 6 秒上屏（供窗口级截屏取像素证据）", hold: true ]
+];
+var UVTIdx = 0, UVTStep = 0, UVTTimer = null, UVTObj = null, UVTWin = null;
+// ★ 肉眼验收模式（`videoplay.tjs` 注入）：非空则**不做矩阵**，改成轮流播这几个片源，
+//   供用户直接看画面与声音。元素形如 %[ f:"ed_asuka.mp4", mode:3, tag:"H.264 + Media Foundation" ]
+var UIVideoPlayList = [];
+var UVTSoloIdx = 0, UVTSoloTick = 0, UVTSoloSecsPerClip = 14;
+var UVTSoloLayer = null, UVTSoloCover = null;
+var UVTOK = 0, UVTAll = 0, UVTLog = [];
+
+function uvtlog(m) { Debug.message("[VIDEOTEST] " + m); }
+
+function uiVideoTestStart(win)
+{
+	if(UVTTimer !== null) return false;
+	UVTWin = win; UVTIdx = 0; UVTStep = 0; UVTOK = 0; UVTAll = 0; UVTLog = [];
+	if(UIVideoPlayList !== void && UIVideoPlayList !== null && UIVideoPlayList.count > 0)
+	{
+		// ★ 肉眼验收模式：先铺一块**不透明白底（黑）遮盖**——见函数头注释的判读说明
+		uvtCheckCover();
+		UVTSoloIdx = 0; UVTSoloTick = 0;
+		try { UVTTimer = new Timer(uvtSoloTick, ''); UVTTimer.interval = 1000; UVTTimer.enabled = true; }
+		catch(e) { Debug.message("[VIDEOTEST][ERR] solo Timer 失败：" + e.message); return false; }
+		uvtProbePaths();
+		uvtlog("★VIDEOPLAY★ 开始肉眼验收：共 " + UIVideoPlayList.count + " 支，每支 "
+			+ UVTSoloSecsPerClip + " 秒轮换");
+		uvtSoloStart(0);
+		return true;
+	}
+	uvtlog("开始：共 " + UVTCases.count + " 个组合；基础路径 " + UVTBase);
+	try
+	{
+		UVTTimer = new Timer(uvtTick, '');
+		UVTTimer.interval = 700;
+		UVTTimer.enabled = true;
+	}
+	catch(e) { Debug.message("[VIDEOTEST][ERR] Timer 建立失败：" + e.message); return false; }
+	return true;
+}
+
+function uvtNext()
+{
+	uvtClose();
+	UVTStep = 0;
+	UVTIdx++;
+	if(UVTIdx >= UVTCases.count)
+	{
+		uvtlog("★VIDEOTEST★ DONE — 可打开且位置推进的组合 " + UVTOK + "/" + UVTAll);
+		for(var i = 0; i < UVTLog.count; i++) uvtlog("   " + UVTLog[i]);
+		if(UVTTimer !== null) { try { UVTTimer.enabled = false; } catch(e) { } }
+		return;
+	}
+}
+
+function uvtClose()
+{
+	if(UVTObj !== null)
+	{
+		try { UVTObj.stop(); } catch(e1) { }
+		try { UVTObj.close(); } catch(e2) { }
+		UVTObj = null;
+	}
+}
+
+function uvtTick()
+{
+	if(UVTTimer === null) return;
+	if(UVTIdx >= UVTCases.count) { uvtNext(); return; }
+	var c = UVTCases[UVTIdx];
+	var url = uvtBase() + c.f;
+	UVTAll++;
+
+	// ① 打开（每 case 只做一次）
+	if(UVTStep == 0)
+	{
+		uvtClose();
+		var has = false;
+		try { has = Storages.isExistentStorage(url); } catch(eH) { has = false; }
+		if(!has)
+		{
+			uvtlog("· [" + UVTIdx + "] 缺件：" + c.f + "（" + c.tag + "）");
+			UVTLog.push("[" + UVTIdx + "] 缺件 " + c.f);
+			uvtNext(); return;
+		}
+		try
+		{
+			var vo = new VideoOverlay(UVTWin);
+			if(c.mode >= 0)
+			{
+				try { vo.mode = c.mode; } catch(eM) { uvtlog("   （设 mode=" + c.mode + " 失败：" + eM.message + "）"); }
+			}
+			var mNow = -999;
+			try { mNow = 0 + vo.mode; } catch(eM2) { }
+			vo.open(url);
+			UVTObj = vo;
+			uvtlog("· [" + UVTIdx + "] OPEN OK  " + c.f + " ｜ mode=" + mNow + " ｜ "
+				+ c.tag + " ｜ 尺寸 " + vo.originalWidth + "x" + vo.originalHeight);
+			try { vo.play(); } catch(eP) { uvtlog("   play 抛错：" + eP.message); }
+			if(c.hold === true)
+			{
+				try { vo.visible = true; } catch(eV) { uvtlog("   （visible=true 失败：" + eV.message + "）"); }
+				uvtlog("   ★VIDEOHOLD★ 开始播放，窗口级截屏请在此后 6 秒内进行");
+			}
+		}
+		catch(e3)
+		{
+			uvtlog("· [" + UVTIdx + "] OPEN FAIL " + c.f + "（mode=" + c.mode + "）：" + e3.message);
+			UVTLog.push("[" + UVTIdx + "] 打不开 " + c.f + " mode=" + c.mode + " : " + e3.message);
+			UVTObj = null;
+			uvtNext(); return;
+		}
+		UVTStep = 1;
+		return;
+	}
+
+	// ② 800ms 后看 position 是否推进
+	if(UVTStep == 1)
+	{
+		var p = -1, vis = false, w = 0, h = 0;
+		try { p = 0 + UVTObj.position; } catch(e4) { }
+		try { vis = (UVTObj.visible == true); } catch(e5) { }
+		try { w = 0 + UVTObj.originalWidth; h = 0 + UVTObj.originalHeight; } catch(e6) { }
+		if(p > 0)
+		{
+			UVTOK++;
+			uvtlog("   ⇒ **可播**（position=" + p + " > 0 ｜ " + w + "x" + h + " ｜ visible=" + vis + "）");
+			UVTLog.push("[" + UVTIdx + "] ★可播 " + c.f + " mode=" + c.mode + " pos=" + p);
+		}
+		else
+		{
+			uvtlog("   ⇒ 打不开画面：position=" + p + "（open 成功但**没有推进**）｜ " + w + "x" + h);
+			UVTLog.push("[" + UVTIdx + "] open 成功但 pos 不推进 " + c.f + " mode=" + c.mode);
+		}
+		UVTStep = 2;
+		return;
+	}
+
+	// ②b hold 用例：停在播放态，每拍记一次 position，共 8 拍（≈5.6 秒）
+	if(UVTStep >= 2 && c.hold === true && UVTStep < 10)
+	{
+		var ph = -1;
+		try { ph = 0 + UVTObj.position; } catch(e7) { }
+		uvtlog("   hold 第 " + (UVTStep - 1) + " 拍：position=" + ph);
+		UVTStep++;
+		return;
+	}
+
+	// ③ 收尾本 case
+	uvtNext();
+}
+
+// ------------------------------------------------------------
+// 肉眼验收模式（ISSUE-20261004-07）
+//   判读说明：本模式先铺**整幅不透明遮盖**，再把影片放上去。
+//     · 若 EVR 合成在**我们的层之上** ⇒ 你会看到片尾画面盖在黑底上 ⇒ 「能用于游戏内播放」。
+//     · 若只看到黑底和顶部那行字、没有画面 ⇒ EVR 被我们的层挡住（或没渲染）⇒ 集成模型要另设计。
+//     这两种结果都有信息量，**不要因为"没看到画面"就以为白跑**。
+//   声音：本探针不做音频判断（引擎侧不采集），请一并留意**有没有声音**。
+// ------------------------------------------------------------
+// ⚠️ 离屏层必须挂在**已建好的宿主层**下：`new Layer(win, null)` 会在 `DrawDevice.cpp:141`
+//   抛内部错误（出处 `ui_asset.tjs:129`）——本工程 `ui_flowfull.tjs:14-15` 早记过这条，本轮我又踩了一次。
+function uvtHostLayer()
+{
+	var h = null;
+	try { h = UIStoryWin.primLayer; } catch(e0) { h = null; }
+	if(h === null || h === void) { try { h = UIStoryWin.stageLayer; } catch(e1) { h = null; } }
+	if(h === null || h === void) { try { h = UIAssetHost; } catch(e2) { h = null; } }
+	return h;
+}
+
+// 存储名解析阶梯（诊断）：同一目标用多种写法试，报出哪些能解析（供定位"绝对名不认"的形态）
+function uvtProbePaths()
+{
+	var cand = [];
+	// ★ 先放**播发单自己那几条**（用与 uvtSoloStart 完全相同的拼法），再看差异
+	var k = 0;
+	for(k = 0; k < UIVideoPlayList.count; k++)
+		if(UIVideoPlayList[k].f !== void) cand.push(uvtBase() + UIVideoPlayList[k].f);
+	cand.push(UIVideoBase + "03_ED与PSV_960x544/ed_asuka.mp4");
+	cand.push(UIVideoBase + "README_交付说明.md");
+	for(var i = 0; i < cand.count; i++)
+	{
+		var r = "?";
+		try { r = (Storages.isExistentStorage(cand[i]) == true) ? "OK" : "NO"; } catch(e) { r = "ERR:" + e.message; }
+		uvtlog("   · 路径阶梯[" + i + "] " + r + "  " + cand[i]);
+	}
+}
+
+function uvtCheckCover()
+{
+	if(UVTSoloCover !== null) return;
+	try
+	{
+		var vp = [1280, 720];
+		try { vp = [UIStoryWin.innerWidth, UIStoryWin.innerHeight]; } catch(e0) { }
+		var hl = uvtHostLayer();
+		if(hl === null) { uvtlog("   （拿不到宿主层 ⇒ 跳过黑底遮盖）"); return; }
+		var cv = new Layer(UVTWin, hl);
+		cv.setSize(1920, 1080);
+		cv.type = ltOpaque;
+		cv.fillRect(0, 0, 1920, 1080, 0x000000);
+		cv.visible = true;
+		UVTSoloCover = cv;
+		uvtlog("   · 黑底遮盖已建立（父层 = " + hl + "）");
+	}
+	catch(e) { uvtlog("   （黑底遮盖建立失败：" + e.message + "）"); }
+}
+
+function uvtSoloHeader(txt)
+{
+	if(UVTSoloLayer !== null) { try { invalidate UVTSoloLayer; } catch(e0) { } UVTSoloLayer = null; }
+	try
+	{
+		var hl2 = uvtHostLayer();
+		if(hl2 === null) { uvtlog("   （拿不到宿主层 ⇒ 跳过顶栏）"); return; }
+		var l = new Layer(UVTWin, hl2);
+		l.setSize(1920, 1080);
+		l.type = ltAlpha;
+		try { l.visible = true; } catch(e1) { }
+		var spec = %[ size: 30, bold: true, color: 0xffffff ];
+		var f = uiThemeApplyFont(l, spec, %[ font: spec, line_spacing: 1.0 ]);
+		l.fillRect(0, 0, 1920, 54, 0x101820);
+		l.drawText(18, 8, txt, 0xffffff, 255, true, 0, 0, 0, 0, 0);
+		UVTSoloLayer = l;
+		uvtlog("   · 顶栏已建立：" + txt);
+	}
+	catch(e2) { uvtlog("   （顶栏建立失败：" + e2.message + "）"); }
+}
+
+function uvtSoloStart(k)
+{
+	uvtClose();
+	var c = UIVideoPlayList[k];
+	var url = uvtBase() + c.f;
+	var has = false;
+	try { has = Storages.isExistentStorage(url); } catch(eH) { has = false; }
+	if(!has) { uvtlog("★VIDEOPLAY★ 缺件：" + c.f); uvtSoloHeader("缺件：" + c.f); return; }
+	try
+	{
+		var vo = new VideoOverlay(UVTWin);
+		if(c.mode >= 0) vo.mode = c.mode;
+		vo.open(url);
+		try { vo.visible = true; } catch(eV1) { }
+		try { vo.setSize(960, 544); } catch(eV2) { }
+		try { vo.left = 160; vo.top = 88; } catch(eV3) { }
+		try { vo.loop = true; } catch(eV4) { }
+		try { vo.play(); } catch(eP) { uvtlog("   play 抛错：" + eP.message); }
+		UVTObj = vo;
+		uvtSoloHeader("正在播放：" + c.tag + "　(" + (k + 1) + "/" + UIVideoPlayList.count
+			+ ")　｜　关窗口即退出");
+		uvtlog("★VIDEOPLAY★ [" + k + "] OPEN OK " + c.f + " mode=" + c.mode + " ｜ " + c.tag);
+	}
+	catch(e3)
+	{
+		uvtlog("★VIDEOPLAY★ [" + k + "] 打不开 " + c.f + " mode=" + c.mode + " : " + e3.message);
+		uvtSoloHeader("打不开：" + c.f + "　(" + e3.message + ")");
+		UVTObj = null;
+	}
+}
+
+function uvtSoloTick()
+{
+	if(UVTTimer === null) return;
+	if(UIVideoPlayList === void || UIVideoPlayList.count < 1) return;
+	UVTSoloTick++;
+	var p = -1, w = 0, h = 0;
+	if(UVTObj === null || UVTObj === void)
+	{
+		// ★ 本 case 没打开成功（缺件/被拒）⇒ **绝不再去读它的属性**（否则每拍抛一次异常，
+		//   实测上一轮因此打了 78 条 dump），只等轮换。
+		if(UVTSoloTick >= UVTSoloSecsPerClip)
+		{ UVTSoloTick = 0; UVTSoloIdx = (UVTSoloIdx + 1) % UIVideoPlayList.count; uvtSoloStart(UVTSoloIdx); }
+		return;
+	}
+	try { p = 0 + UVTObj.position; } catch(e1) { }
+	try { w = 0 + UVTObj.originalWidth; h = 0 + UVTObj.originalHeight; } catch(e2) { }
+	uvtlog("★VIDEOPLAY★ idx=" + UVTSoloIdx + " 第 " + UVTSoloTick + " 秒 position=" + p
+		+ " 尺寸 " + w + "x" + h);
+	if(UVTSoloTick >= UVTSoloSecsPerClip)
+	{
+		UVTSoloTick = 0;
+		UVTSoloIdx = (UVTSoloIdx + 1) % UIVideoPlayList.count;
+		uvtSoloStart(UVTSoloIdx);
+	}
+}

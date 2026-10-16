@@ -1,0 +1,25 @@
+from pathlib import Path
+import sys,ctypes,json,runpy
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-source-string-20261015';sys.path.insert(0,str(w))
+from lucifen_host_lstrcpyn_a import lstrcpynA
+from lucifen_host_ansi_guarded_copy import host_copy_bounded
+from lucifen_guest_lstrcpyn_guarded import bridge_lstrcpyn_bounded
+from lucifen_host_ansi_guard_buffer import make_guarded,read_guarded
+cases=[]
+for payload in (b'',b'a',b'abc',bytes.fromhex('8140'),bytes.fromhex('82a0')):
+ for n in (1,2,3,4,41):
+  before=bytes([0x5b])*n;native_dst=make_guarded(before);src=make_guarded(payload+bytes([0]));ret=lstrcpynA(ctypes.addressof(native_dst)+16,ctypes.addressof(src)+16,n);assert ret==ctypes.addressof(native_dst)+16;expected=read_guarded(native_dst,n);out=host_copy_bounded(payload[:n-1],before);assert out==expected,(payload,n,out,expected);cases.append({'payload_bytes':len(payload),'n':n,'equal_actual_full_source_native':True})
+for f in ('verify_lucifen_ansi_prefix.py','verify_lucifen_ansi_prefix_errors.py'):runpy.run_path(str(w/f),run_name='root_verify')['main']()
+source=0x2000;dst=0x1000;writes=[];reads=[];data=b'a'+bytes([0]);before=b'Z'*41
+def read(q,n):
+ reads.append((q,n))
+ if q==dst and n==41:return before
+ if source<=q<source+len(data)and n==1:return data[q-source:q-source+1]
+ raise EOFError((q,n))
+value=bridge_lstrcpyn_bounded(read,lambda q,b:writes.append((q,b)),dst,source,41);assert value==dst and writes==[(dst,b'a'+bytes([0])+before[2:])]and [x for x in reads if x[0]>=source]==[(source,1),(source+1,1)]
+bad=make_guarded(b'a');bad[0]=b'X'
+try:read_guarded(bad,1)
+except RuntimeError:pass
+else:raise AssertionError('guard corruption was not detected')
+bits=ctypes.sizeof(ctypes.c_void_p)*8
+out={'bits':bits,'passed':True,'actual_native_full_source_oracle_cases':cases,'NUL_after_source_not_read':True,'actual_native_destination_result_exact':True,'atomic_guest_write_once':True,'source_n1_does_not_read':True,'host_guard_corruption_rejected':True,'native_current_OS_only_not_all_locales':True};(w/('sdk-string-'+str(bits)+'.json')).write_text(json.dumps(out,indent=2),encoding='utf-8');print(json.dumps({k:v for k,v in out.items()if k!='actual_native_full_source_oracle_cases'}))

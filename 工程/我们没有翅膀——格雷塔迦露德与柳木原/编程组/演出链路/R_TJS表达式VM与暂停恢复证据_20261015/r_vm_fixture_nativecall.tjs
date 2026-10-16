@@ -1,0 +1,5 @@
+function RVMFNative(h, f)
+{
+    this.calls.add([h, f, this.rd(f), this.rd(f+4), this.rd(f+8), this.rd(f+12)]);
+    return RVMNDispatch(this.rd, this.wr, this.rb, this.wb, h, f);
+}

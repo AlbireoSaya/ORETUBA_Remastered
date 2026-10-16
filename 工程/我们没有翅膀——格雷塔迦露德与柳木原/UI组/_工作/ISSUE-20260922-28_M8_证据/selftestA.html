@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--font-chain: &quot;微软雅黑&quot;,&quot;Microsoft YaHei&quot;,&quot;黑体&quot;,&quot;SimHei&quot;,&quot;宋体&quot;,&quot;SimSun&quot;,&quot;MS Gothic&quot;,sans-serif;"><head>
+<meta charset="utf-8">
+<title> 来自个人汉化者AlbireoSaya 模型&amp;工具:Deepseek v4.1 flash+ZCode</title>
+
+<!-- ==========================================================================
+     复刻\_selftest_states.html —— **三态状态机的行为自测页**（M35）
+
+     为什么需要它：`?hover=` / `?press=` 探针只能证明「初态画对了」，证明不了**状态迁移**
+     ——而 M35 修的正是迁移里的真实 bug（旧 replica.js 的 pressed 只有 mousedown 换图、
+     **没有抬起复位**，按住后在元件内松开会粘住）。迁移必须有断言，不能靠截图。
+
+     做法：加载**同一份** replica.js（不复制渲染逻辑），按规则表逐条派发真实 DOM 事件，
+     断言 `backgroundImage` 的实际变化，把 PASS/FAIL 写进 #verdict。
+     用法（无头）：`msedge --headless=new --dump-dom "file:///…/_selftest_states.html"`
+                    → stdout 里 grep `SELFTEST`。
+
+     覆盖的规则表（与 krkr 的 ui_screens.tjs / ui_widget.tjs 必须一致）：
+       ① 左键在元素上按下      -> 进入按下态
+       ② 左键抬起（不论位置）  -> 清除        ← 旧实现漏的就是这条
+       ③ 指针移出该元素        -> 清除
+       ④ 换屏                  -> 清除
+       ⑤ 绘制优先级 pressed > hover > normal（缺键**按段位逐级回落**）
+       ⑥ **组绑定**：同 `state_group` 的元素共享 ①–③ 的结果（悬停/按下任一方 ⇒ 全组换态）
+     ⑥ 的断言是 M35b 一审打回后补的——当时**组绑定在 HTML 侧零自动断言**，
+       只靠单帧截图，恰好漏掉了「跨渲染代际的注册表泄漏导致悬停永久不灭」这个 Critical。
+     ========================================================================== -->
+
+<link rel="stylesheet" href="replica.css">
+<style>
+  #verdict { font: 14px/1.7 monospace; white-space: pre-wrap; padding: 8px; }
+  .ok { color: #0a0; } .bad { color: #c00; font-weight: bold; }
+</style>
+</head>
+<body>
+<!-- ⚠️ 画布**不能挪到屏幕外**（如 left:-9999px）：规则⑦ 要按真实屏幕坐标做命中测试，
+     挪出去后 elementsFromPoint 的点落在视口外、命中栈为空，⑦ 会假失败（v1 实测 x=-9899）。
+     故用 opacity:0 藏视觉、保留命中能力（opacity 不影响 hit-testing，visibility/display 会）。 -->
+<div id="canvas" style="position: absolute; left: 0px; top: 0px; opacity: 0; width: 1920px; height: 1080px; transform: scale(0.682407);" class=""><div class="ui-screen ui-screen-dialog" style="position: absolute; left: 0px; top: 0px; width: 1920px; height: 1080px; z-index: 0;"><div class="ui-el ui-rect" data-ui-kind="rect" data-ui-id="dlg.letterbox" style="left: 0px; top: 0px; width: 1920px; height: 1080px; z-index: 0; background: rgb(0, 0, 0);"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-dynamic="story_background" data-ui-id="dlg.content" style="left: 360px; top: 90px; width: 1200px; height: 900px; z-index: 101; background: transparent;" data-demo-asset="ui/tl2_bg1.png"><div class="ui-dynamic-demo" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background-size: cover; background-position: center center; background-repeat: no-repeat; background-image: url(&quot;../krkr/assets/ui/tl2_bg1.png&quot;);"></div></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.window" style="left: 146px; top: 725px; width: 1628px; height: 319px; z-index: 2002;"><img class="ui-image-img" alt="ui/x_gen_dialog2.png" draggable="false" src="../krkr/assets/ui/x_gen_dialog2.png"></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="dlg.name" style="left: 331px; top: 747px; width: 345px; height: 56px; z-index: 2203;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 7.2px)); font-size: 36px; line-height: 50.4px; font-weight: normal; color: rgb(255, 240, 200); text-align: center; white-space: nowrap; text-shadow: rgb(0, 0, 0) 2px 2px 0px;">高内</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="dlg.text" style="left: 246px; top: 806px; width: 1224px; height: 201px; z-index: 2204; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 0px; transform: translateY(-4.2px); font-size: 42px; line-height: 50.4px; font-weight: normal; color: rgb(255, 255, 255); text-align: left; white-space: normal; word-break: break-word; text-shadow: rgb(0, 0, 0) 3px 3px 0px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden;"><span>“班长，给我过来一下”</span><span style="visibility: hidden;"></span></div></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_01_qsave" style="left: 1520.8px; top: 794px; width: 80px; height: 75px; z-index: 2405;"><img class="ui-image-img" alt="ui/x_gen_dicon_01_qsave.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_01_qsave.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_02_qload" style="left: 1600.5px; top: 794px; width: 80px; height: 75px; z-index: 2406;"><img class="ui-image-img" alt="ui/x_gen_dicon_02_qload.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_02_qload.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_03_config" style="left: 1680.2px; top: 794px; width: 80px; height: 75px; z-index: 2407;"><img class="ui-image-img" alt="ui/x_gen_dicon_03_config.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_03_config.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_04_skip" style="left: 1520.8px; top: 869px; width: 80px; height: 75px; z-index: 2408;"><img class="ui-image-img" alt="ui/x_gen_dicon_04_skip.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_04_skip.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_05_prev" style="left: 1600.5px; top: 869px; width: 80px; height: 75px; z-index: 2409;"><img class="ui-image-img" alt="ui/x_gen_dicon_05_prev.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_05_prev.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_06_close" style="left: 1680.2px; top: 869px; width: 80px; height: 75px; z-index: 2410;"><img class="ui-image-img" alt="ui/x_gen_dicon_06_close.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_06_close.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_07_save" style="left: 1520.8px; top: 944px; width: 80px; height: 75px; z-index: 2411;"><img class="ui-image-img" alt="ui/x_gen_dicon_07_save.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_07_save.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_08_load" style="left: 1600.5px; top: 944px; width: 80px; height: 75px; z-index: 2412;"><img class="ui-image-img" alt="ui/x_gen_dicon_08_load.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_08_load.png"></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="dlg.icon_09_repeat" style="left: 1680.2px; top: 944px; width: 80px; height: 75px; z-index: 2413;"><img class="ui-image-img" alt="ui/x_gen_dicon_09_repeat.png" draggable="false" src="../krkr/assets/ui/x_gen_dicon_09_repeat.png"></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="dlg.mode_tag" style="left: 1590px; top: 36px; width: 300px; height: 42px; z-index: 2624; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 5.4px)); font-size: 27px; line-height: 37.8px; font-weight: normal; color: rgb(122, 176, 232); text-align: right; white-space: nowrap; text-shadow: rgb(0, 0, 0) 2px 2px 0px;">自动播放中</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="dlg.hint" style="left: 36px; top: 36px; width: 630px; height: 36px; z-index: 2625; display: block;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: normal; color: rgb(200, 200, 210); text-align: left; white-space: nowrap; text-shadow: rgb(0, 0, 0) 2px 2px 0px;">右键：功能图标　空格：快进　Esc：菜单</div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="do_quicksave" data-ui-id="dlg.icon_hit_01_qsave" style="left: 1521px; top: 794px; width: 79.67px; height: 75px; z-index: 2914;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="do_quickload" data-ui-id="dlg.icon_hit_02_qload" style="left: 1600.67px; top: 794px; width: 79.67px; height: 75px; z-index: 2915;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_config" data-ui-id="dlg.icon_hit_03_config" style="left: 1680.33px; top: 794px; width: 79.67px; height: 75px; z-index: 2916;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="skip_on" data-ui-id="dlg.icon_hit_04_skip" style="left: 1521px; top: 869px; width: 79.67px; height: 75px; z-index: 2917;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="prev_choice" data-ui-id="dlg.icon_hit_05_prev" style="left: 1600.67px; top: 869px; width: 79.67px; height: 75px; z-index: 2918;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="hide_window" data-ui-id="dlg.icon_hit_06_close" style="left: 1680.33px; top: 869px; width: 79.67px; height: 75px; z-index: 2919;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_save" data-ui-id="dlg.icon_hit_07_save" style="left: 1521px; top: 944px; width: 79.67px; height: 75px; z-index: 2920;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_load" data-ui-id="dlg.icon_hit_08_load" style="left: 1600.67px; top: 944px; width: 79.67px; height: 75px; z-index: 2921;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="replay_voice" data-ui-id="dlg.icon_hit_09_repeat" style="left: 1680.33px; top: 944px; width: 79.67px; height: 75px; z-index: 2922;"><div class="ui-hit-label" style="font-size: 36px; line-height: 50.4px; transform: translateY(-7.2px); font-weight: normal; color: rgb(232, 232, 240);"></div></div><div class="ui-el ui-list" data-ui-kind="list" data-ui-id="dlg.choices" style="left: 540px; width: 840px; z-index: 3023; display: none;"><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="0" data-ui-action="select_choice" style="left: 0px; top: 531px; width: 840px; height: 62px;"><div class="ui-list-item-frame" style="border-width: 8px 20px; border-image-source: url(&quot;../krkr/assets/ui/panel_frame.png&quot;); border-image-slice: 8 20 fill; border-image-repeat: stretch; opacity: 0.882353;"></div><div class="ui-list-item-hl" style="background: rgb(58, 90, 154); opacity: 0.588235;"></div><div class="ui-list-item-label" style="font-size: 33px; line-height: 46.2px; transform: translateY(-6.6px); font-weight: normal; color: rgb(232, 232, 240); text-align: center; text-shadow: rgb(0, 0, 0) 3px 3px 0px;">为了国家与民众</div></div><div class="ui-list-item" data-ui-interactive="1" data-ui-kind="list-item" data-ui-index="1" data-ui-action="select_choice" style="left: 0px; top: 605px; width: 840px; height: 62px;"><div class="ui-list-item-frame" style="border-width: 8px 20px; border-image-source: url(&quot;../krkr/assets/ui/panel_frame.png&quot;); border-image-slice: 8 20 fill; border-image-repeat: stretch; opacity: 0.882353;"></div><div class="ui-list-item-hl" style="background: rgb(58, 90, 154); opacity: 0.588235;"></div><div class="ui-list-item-label" style="font-size: 33px; line-height: 46.2px; transform: translateY(-6.6px); font-weight: normal; color: rgb(232, 232, 240); text-align: center; text-shadow: rgb(0, 0, 0) 3px 3px 0px;">为了阿斯嘉公主</div></div></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="quick.tgl" style="left: 1845px; top: 12px; width: 63px; height: 513px; z-index: 4024; display: none;"><div class="ui-nine" style="border-width: 78px 15px; border-image-source: url(&quot;../krkr/assets/ui/x_ui_quick_slim_off.png&quot;); border-image-slice: 78 15 fill; border-image-repeat: stretch;"></div></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-id="quick.btn" style="left: 1845px; top: 12px; width: 63px; height: 888px; z-index: 4125;"><div class="ui-nine" style="border-width: 89px 15px; border-image-source: url(&quot;../krkr/assets/ui/x_ui_quick_full_off.png&quot;); border-image-slice: 89 15 fill; border-image-repeat: stretch;"></div></div><div class="ui-el ui-image" data-ui-kind="image" data-ui-nine="zero" data-ui-id="quick.tips" style="left: 1665px; top: 18px; width: 197px; height: 876px; z-index: 4226; display: none;"><img class="ui-image-img" alt="ui/x_ui_quick_tips.png" draggable="false" src="../krkr/assets/ui/x_ui_quick_tips.png"></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_lock" style="left: 1665px; top: 18px; width: 197px; height: 51px; z-index: 6029; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">锁定</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_save" style="left: 1665px; top: 93px; width: 197px; height: 51px; z-index: 6031; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">存档</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_load" style="left: 1665px; top: 168px; width: 197px; height: 51px; z-index: 6033; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">读档</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_qsave" style="left: 1665px; top: 243px; width: 197px; height: 51px; z-index: 6035; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">快速存档</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_qload" style="left: 1665px; top: 318px; width: 197px; height: 51px; z-index: 6037; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">快速读档</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_auto" style="left: 1665px; top: 393px; width: 197px; height: 51px; z-index: 6039; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">自动播放</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_skip" style="left: 1665px; top: 468px; width: 197px; height: 51px; z-index: 6041; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">快进</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_next" style="left: 1665px; top: 543px; width: 197px; height: 51px; z-index: 6043; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">下一选项</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_prev" style="left: 1665px; top: 618px; width: 197px; height: 51px; z-index: 6045; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">上一选项</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_log" style="left: 1665px; top: 693px; width: 197px; height: 51px; z-index: 6047; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">回想</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_chart" style="left: 1665px; top: 768px; width: 197px; height: 51px; z-index: 6049; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">流程图</div></div><div class="ui-el ui-text" data-ui-kind="text" data-ui-id="quick.tx_option" style="left: 1665px; top: 843px; width: 197px; height: 51px; z-index: 6051; display: none;"><div class="ui-text-inner" style="position: absolute; left: 0px; width: 100%; top: 50%; transform: translateY(calc(-50% - 4.8px)); font-size: 24px; line-height: 33.6px; font-weight: bold; color: rgb(74, 74, 86); text-align: left; white-space: nowrap;">设置</div></div><div class="ui-el ui-rect" data-ui-kind="rect" data-ui-id="quick.pin_mark" style="left: 1845px; top: 7px; width: 63px; height: 73px; z-index: 6127; background: rgb(122, 176, 232); opacity: 0.588235; display: none;"></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="quick_pin" data-ui-id="quick.hit_lock" style="left: 1845px; top: 7px; width: 75px; height: 73px; z-index: 12528;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_save" data-ui-id="quick.hit_save" style="left: 1845px; top: 82px; width: 75px; height: 73px; z-index: 12530;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_load" data-ui-id="quick.hit_load" style="left: 1845px; top: 157px; width: 75px; height: 73px; z-index: 12532;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="do_quicksave" data-ui-id="quick.hit_qsave" style="left: 1845px; top: 232px; width: 75px; height: 73px; z-index: 12534;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="do_quickload" data-ui-id="quick.hit_qload" style="left: 1845px; top: 307px; width: 75px; height: 73px; z-index: 12536;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="auto_on" data-ui-id="quick.hit_auto" style="left: 1845px; top: 382px; width: 75px; height: 73px; z-index: 12538;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="skip_on" data-ui-id="quick.hit_skip" style="left: 1845px; top: 457px; width: 75px; height: 73px; z-index: 12540;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="next_choice" data-ui-id="quick.hit_next" style="left: 1845px; top: 532px; width: 75px; height: 73px; z-index: 12542;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="prev_choice" data-ui-id="quick.hit_prev" style="left: 1845px; top: 607px; width: 75px; height: 73px; z-index: 12544;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_backlog" data-ui-id="quick.hit_log" style="left: 1845px; top: 682px; width: 75px; height: 73px; z-index: 12546;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_flowchart" data-ui-id="quick.hit_chart" style="left: 1845px; top: 757px; width: 75px; height: 73px; z-index: 12548;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_config" data-ui-id="quick.hit_option" style="left: 1845px; top: 832px; width: 75px; height: 73px; z-index: 12550;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div><div class="ui-el ui-hit" data-ui-kind="hit" data-ui-interactive="1" data-ui-action="open_sysmenu" data-ui-id="quick.hit_toggle" style="left: 1842px; top: 7px; width: 78px; height: 898px; z-index: 12652; display: none;"><div class="ui-hit-label" style="font-size: 24px; line-height: 33.6px; transform: translateY(-4.8px); font-weight: normal; color: rgb(74, 74, 86);"></div></div></div><div class="ui-layer ui-layer-overlay" style="position: absolute; left: 0px; top: 0px; width: 1920px; height: 1080px; z-index: 1;"></div><div class="ui-toast" style="z-index: 5; font-size: 24px;">前进到下一选择点（演示：不实际前进）</div></div>
+<div id="verdict"><span class="ok">SELFTEST OK   初态 = normal  —— x_ui_choice_off.png</span>
+<span class="ok">SELFTEST OK   ① 左键按下 -&gt; pressed  —— x_ui_choice_press.png</span>
+<span class="ok">SELFTEST OK   ② 元素内抬起 -&gt; 离开 pressed（本 bug 的正身）  —— x_ui_choice_off.png</span>
+<span class="ok">SELFTEST OK   ② document 抬起兜底复位  —— x_ui_choice_press.png -&gt; x_ui_choice_off.png</span>
+<span class="ok">SELFTEST OK   ② 按住期间保持 pressed  —— x_ui_choice_press.png</span>
+<span class="ok">SELFTEST OK   ③ 按住移出 -&gt; 取消按下态  —— x_ui_choice_off.png</span>
+<span class="ok">SELFTEST OK   ⑤ pressed 优先于 hover  —— x_ui_choice_over.png -&gt; x_ui_choice_press.png</span>
+<span class="ok">SELFTEST OK   ⑤ 抬起后回落 hover（仍在悬停）  —— x_ui_choice_over.png</span>
+<span class="ok">SELFTEST OK   ⑤ 移出后回落 normal  —— x_ui_choice_off.png</span>
+<span class="ok">SELFTEST OK   ④ 换屏后旧节点已销毁（pressHolder 随之复位）  —— 旧元素在 DOM 中=已移除</span>
+<span class="ok">SELFTEST OK   ⑥a 悬停**图标** -&gt; 图标与文字同步换态  —— 图标 x_ui_menuicon_start.png→x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start.png→x_ui_btntxt2c_start_on.png</span>
+<span class="ok">SELFTEST OK   ⑥b 悬停**文字** -&gt; 与悬停图标结果逐项相同  —— 图标 x_ui_menuicon_start_on.png ｜ 文字 x_ui_btntxt2c_start_on.png</span>
+<span class="ok">SELFTEST OK   ⑥c 其它组不受影响  —— 另一组 = x_ui_menuicon_continue.png</span>
+<span class="ok">SELFTEST OK   ⑥d 移出后全组回落常态  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png</span>
+<span class="ok">SELFTEST OK   ⑥e 悬停中换屏再回来 -&gt; 悬停移出后仍能回落常态（原 Critical 的回归）  —— 图标 x_ui_menuicon_start.png ｜ 文字 x_ui_btntxt2c_start.png</span>
+<span class="ok">SELFTEST OK   ⑦ 重叠带确实存在（前置）  —— 8×66</span>
+<span class="ok">SELFTEST OK   ⑦ 重叠带点击 -&gt; 触发动作（原为死区；实机本来就会触发）  —— title → dialog</span>
+<span class="ok">SELFTEST OK   ⑧ 附加层只在 dialog 上出现（title 上不出现）  —— dialog: bar/tgl/tips=true/true/true，attachScreen=quickbar；title: bar=false</span>
+<span class="ok">SELFTEST OK   ⑨ 初始态 collapsed：把手可见，展开条与 12 项隐藏（只剩整条把手热区）  —— quickbar=collapsed，quick.btn=none，quick.tgl=，可见 hit 数=1（应为 1 = 把手）</span>
+<span class="ok">SELFTEST OK   ⑩ x ≥ in_x → 展开  —— x=1846（in_x=1842）⇒ quickbar=expanded</span>
+<span class="ok">SELFTEST OK   ⑪a 指针移到 x &lt; out_x → 仅起计时（delay_ms 内**未**收起）  —— out_x=1780，x=1740，排入 400ms 计时=1 个，quickbar=expanded</span>
+<span class="ok">SELFTEST OK   ⑪b 期间指针回到 x ≥ in_x → 撤销收起计时（clearTimeout 命中）  —— clearTimeout(900001) 已调用=true，quickbar=expanded</span>
+<span class="ok">SELFTEST OK   ⑪c 延时未到前保持展开（重复移动不叠加计时器）  —— 在途 400ms 计时=1 个，quickbar=expanded</span>
+<span class="ok">SELFTEST OK   ⑪d 延时到期 → 才收起，并清空气泡  —— quickbar=collapsed，qbar_tip=""</span>
+<span class="ok">SELFTEST OK   ⑫a 点「锁定」→ 钉住且保持展开（action=quick_pin）  —— qbar_pin=1，quickbar=expanded</span>
+<span class="ok">SELFTEST OK   ⑫b 钉住后指针移到 out_x 之外 → **不起计时、不收起**  —— quickbar=expanded，在途计时=0 个</span>
+<span class="ok">SELFTEST OK   ⑫c 钉住时指针离开画布 → 仍不收起  —— quickbar=expanded，在途计时=0 个</span>
+<span class="ok">SELFTEST OK   ⑬ 气泡跟随悬停项：hit_save→save、hit_chart→chart、整条把手区→空  —— save→"save"，chart→"chart"，把手区→""</span>
+<span class="ok">SELFTEST OK   ⑬b 气泡文字随 flag 同步显隐（tx_save 亮 → tx_chart 亮时 tx_save 灭）  —— tx_save 显示=true，切到 chart 后 tx_save 隐藏=true</span>
+<span class="ok">SELFTEST OK   ⑭ 收起态下 12 项不可点（命中栈顶 = 整条把手，不是 quick.hit_option）  —— 命中栈顶=quick.hit_toggle（quickbar=collapsed）</span>
+<span class="ok">SELFTEST OK   ⑭b 收起态点该项位置 → 只派发把手动作（展开），不派发 do_save/open_config 等  —— screen dialog → dialog（未进入 config），点后 quickbar=expanded</span>
+<span class="ok">SELFTEST OK   ⑭c 修复 A 复核：展开态 12 项 × 5 点全部命中**该项自己**（不再被整条把手截获）  —— 60/60 点命中该项</span>
+<span class="ok">SELFTEST OK   ⑭d 修复 A 复核：收起态同一批点全部命中整条把手（12 项被 flag 挡掉）  —— 0/60 点命中项（应全为把手）；首例：quick.hit_lock@1883,44→quick.hit_toggle</span>
+<span class="ok">SELFTEST OK   ⑮ 展开态逐项派发（spy 计数）：quick_pin 两次切换=1/空，next_choice 有反馈，open_config 换屏  —— quick_pin 派发 2 次 → 1→；next_choice 提示="前进到下一选择点（演示：不实际前进）"（screen 仍 dialog）；open_config → config</span>
+<span class="ok">SELFTEST OK   ⑯ open_sysmenu 不再换屏，改为展开竖条（20_sysmenu 数据保留但不可达）  —— screen dialog → dialog，quickbar=expanded，sysmenu 数据存在=true</span>
+<span class="ok">SELFTEST OK   ⑰ ?chrome=0 压掉纯热区的点击瞬闪叠色（computedStyle 实测）  —— 默认=rgba(122, 176, 232, 0.34)　→　chrome=0=rgba(0, 0, 0, 0)</span>
+<span class="ok">SELFTEST ALL PASS</span></div>
+
+<script src="ui_layout.js"></script>
+<script src="replica.js"></script>
+<script>
+(function () {
+  var log = [], fails = 0;
+  function say(ok, name, detail) {
+    if (!ok) fails++;
+    log.push((ok ? 'SELFTEST OK   ' : 'SELFTEST FAIL ') + name + (detail ? '  —— ' + detail : ''));
+  }
+  /* 取某元素当前实际用的贴图文件名。★ M35b：带态图的 `image` 把贴图挂在**内层节点**上
+     （`.ui-stateimage` 走 background-image、`.ui-nine` 走 border-image），
+     热区/inline 元素才挂在外层 —— 故内外都看一遍，否则 image 一律读成「(无)」，
+     ⑥ 那几条断言会**假通过**（v1 实测：文字列恒为「(无)」，比不出差异）。 */
+  function curAsset(d) {
+    var inner = d.querySelector ? (d.querySelector('.ui-stateimage') || d.querySelector('.ui-nine')) : null;
+    var n = inner || d;
+    var s = n.style.backgroundImage || n.style.borderImageSource || '';
+    var m = /url\("?([^")]+)"?\)/.exec(s);
+    return m ? decodeURIComponent(m[1]).replace(/^.*\//, '') : '(无)';
+  }
+  function fire(d, type, props) {
+    var p = { bubbles: true, cancelable: true, view: window, button: 0, buttons: 1 };
+    if (props) for (var k in props) p[k] = props[k];
+    d.dispatchEvent(new MouseEvent(type, p));
+  }
+
+  function run() {
+    var doc = document;
+    if (!window.UI_REPLICA || !window.UI_LAYOUT) { say(false, '前置', 'UI_REPLICA/UI_LAYOUT 未加载'); return done(); }
+
+    /* ★ M35b：被测元素改为 `ch.bg_1` —— 热区态图迁移后，`ch.hit_1` 已**退回纯热区**
+       （不再持有美术，避免按 PSB 交互区矩形拉伸绘制），三态图落在同矩形的 `ch.bg_1` 上。
+       `ch.bg_1` 的三态互不相同（off/over/press），是能同时断言三态的现成元素。 */
+    window.UI_REPLICA.renderScreen('choices');
+    var d = doc.querySelector('[data-ui-id="ch.bg_1"]');
+    if (!d) { say(false, '取元素 ch.bg_1', '没找到（注意 replica.js 是否把 id 写进 data-ui-id）'); return done(); }
+
+    var NORMAL = 'x_ui_choice_off.png', HOVER = 'x_ui_choice_over.png', PRESS = 'x_ui_choice_press.png';
+    var WRONG = 'x_ui_choice_over.png, x_ui_choice_dis.png';   // 错（按下落到 hover 或 normal 的兜底判据：取 !PRESS）
+
+    say(curAsset(d) === NORMAL, '初态 = normal', curAsset(d));
+
+    /* 规则 ① 按下 -> pressed */
+    fire(d, 'mousedown');
+    say(curAsset(d) === PRESS, '① 左键按下 -> pressed', curAsset(d));
+
+    /* 规则 ② **抬起复位**（旧实现漏掉的正是这条：不派发 mouseleave，只在元件内抬起） */
+    fire(d, 'mouseup');
+    say(curAsset(d) !== PRESS, '② 元素内抬起 -> 离开 pressed（本 bug 的正身）', curAsset(d));
+
+    /* 规则 ② 兜底：在**元件外**抬起（元素上接不到）也要复位 —— 由 document 的 mouseup 兜底 */
+    fire(d, 'mousedown');
+    var before = curAsset(d);
+    fire(doc, 'mouseup');                       // 派给 document，不经元素
+    say(before === PRESS && curAsset(d) !== PRESS, '② document 抬起兜底复位', before + ' -> ' + curAsset(d));
+
+    /* 规则 ② 回归：只按下、不抬起，必须**保持** pressed（别把"保持"一起修没了） */
+    fire(d, 'mousedown');
+    say(curAsset(d) === PRESS, '② 按住期间保持 pressed', curAsset(d));
+    fire(d, 'mouseup');
+
+    /* 规则 ③ 按住期间移出 -> 取消 */
+    fire(d, 'mousedown');
+    fire(d, 'mouseleave', { buttons: 1 });
+    say(curAsset(d) !== PRESS, '③ 按住移出 -> 取消按下态', curAsset(d));
+
+    /* 规则 ①+⑤ 同时悬停与按下 -> pressed 优先 */
+    fire(d, 'mouseenter');
+    var hovOnly = curAsset(d);
+    fire(d, 'mousedown');
+    say(hovOnly === HOVER && curAsset(d) === PRESS, '⑤ pressed 优先于 hover', hovOnly + ' -> ' + curAsset(d));
+    fire(d, 'mouseup');
+    say(curAsset(d) === HOVER, '⑤ 抬起后回落 hover（仍在悬停）', curAsset(d));
+    fire(d, 'mouseleave');
+    say(curAsset(d) === NORMAL, '⑤ 移出后回落 normal', curAsset(d));
+
+    /* 规则 ④ 换屏 -> 清除（台账不能指向已销毁的节点）
+       ★ 措辞订正（M35b 一审）：这条只证明 pressHolder 的宿主节点已从 DOM 移除；
+         对**组注册表 stateGroups** 并不成立——那要靠下面的规则 ⑥ 回归来钉。 */
+    fire(d, 'mousedown');
+    var pressedNow = curAsset(d) === PRESS;
+    window.UI_REPLICA.renderScreen('config');
+    var d2 = doc.querySelector('[data-ui-id="ch.bg_1"]');
+    say(pressedNow && !d2, '④ 换屏后旧节点已销毁（pressHolder 随之复位）',
+        '旧元素在 DOM 中=' + (d2 ? '仍在' : '已移除'));
+
+    /* ================= 规则 ⑥ 组绑定（M35b 一审打回后补） =================
+       用**真实带 state_group 的数据**（标题屏 title.menu_start 组 = 图标 hit + 文字 image），
+       这条同时是对「注册表跨代泄漏导致悬停永久不灭」那个 Critical 的回归。 */
+    window.UI_REPLICA.renderScreen('title');
+    var g1 = doc.querySelector('[data-ui-id="title.menu_hit_1"]');       // 图标（hit）
+    var g2 = doc.querySelector('[data-ui-id="title.menu_txt_start"]');   // 文字（image）
+    var other = doc.querySelector('[data-ui-id="title.menu_hit_2"]');    // 另一组，作对照
+    if (!g1 || !g2) {
+      say(false, '⑥ 取组内两件元素', '找不到 title.menu_hit_1 / title.menu_txt_start');
+    } else {
+      var N1 = curAsset(g1), N2 = curAsset(g2), NO = other ? curAsset(other) : '(无)';
+      /* ⑥-a 悬停图标 -> 文字同步换态 */
+      fire(g1, 'mouseenter');
+      var h1 = curAsset(g1), h2 = curAsset(g2);
+      say(h1 !== N1 && h2 !== N2, '⑥a 悬停**图标** -> 图标与文字同步换态',
+          '图标 ' + N1 + '→' + h1 + ' ｜ 文字 ' + N2 + '→' + h2);
+      /* ⑥-b 换成悬停文字（先把上面那件移出），结果必须与 ⑥-a 完全一致 */
+      fire(g1, 'mouseleave');
+      var afterLeave = curAsset(g2) === N2;
+      fire(g2, 'mouseenter');
+      say(afterLeave && curAsset(g1) === h1 && curAsset(g2) === h2,
+          '⑥b 悬停**文字** -> 与悬停图标结果逐项相同',
+          '图标 ' + curAsset(g1) + ' ｜ 文字 ' + curAsset(g2));
+      /* ⑥-c 别的组不受影响 */
+      say(other ? curAsset(other) === NO : true, '⑥c 其它组不受影响', '另一组 = ' + NO);
+      fire(g2, 'mouseleave');
+      say(curAsset(g1) === N1 && curAsset(g2) === N2, '⑥d 移出后全组回落常态',
+          '图标 ' + curAsset(g1) + ' ｜ 文字 ' + curAsset(g2));
+
+      /* ⑥-e ★ 跨渲染代际回归（原 Critical 的复现路径）：
+         在**悬停状态下**换屏（旧 DOM 在指针下被销毁，浏览器不发 mouseleave）再回来，
+         然后悬停再移出 —— 必须回落常态，不能永久停住。 */
+      fire(g1, 'mouseenter');                       // 先悬停
+      window.UI_REPLICA.renderScreen('config');     // 悬停中换屏（旧节点被 innerHTML='' 移除）
+      window.UI_REPLICA.renderScreen('title');      // 回到标题
+      var r1 = doc.querySelector('[data-ui-id="title.menu_hit_1"]');
+      var r2 = doc.querySelector('[data-ui-id="title.menu_txt_start"]');
+      fire(r1, 'mouseenter'); fire(r1, 'mouseleave');   // 悬停再移出
+      var s1 = curAsset(r1), s2 = curAsset(r2);
+      say(s1 === N1 && s2 === N2,
+          '⑥e 悬停中换屏再回来 -> 悬停移出后仍能回落常态（原 Critical 的回归）',
+          '图标 ' + s1 + ' ｜ 文字 ' + s2);
+    }
+
+    /* ================= 规则 ⑦：被遮挡的交互元素兜底（M35b 修 Major-3） =================
+       标题屏的菜单文字图（z 96..102）压在图标热区（z 95）之上、两者重叠 12px。
+       在重叠带点击必须与实机一致（触发动作），不能是死区 —— 原先 HTML 会被文字图吞掉。 */
+    window.UI_REPLICA.renderScreen('title');
+    var img7 = doc.querySelector('[data-ui-id="title.menu_txt_start"]');
+    var hit7 = doc.querySelector('[data-ui-id="title.menu_hit_1"]');
+    if (!img7 || !hit7) {
+      say(false, '⑦ 取标题屏图标与文字', '找不到 title.menu_hit_1 / title.menu_txt_start');
+    } else {
+      var hr = hit7.getBoundingClientRect(), ir = img7.getBoundingClientRect();
+      var bx0 = Math.max(hr.left, ir.left), bx1 = Math.min(hr.right, ir.right);
+      var by0 = Math.max(hr.top, ir.top), by1 = Math.min(hr.bottom, ir.bottom);
+      var ow = Math.round(bx1 - bx0), oh = Math.round(by1 - by0);
+      var cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;
+      /* ★ M3 订正：本页在无头默认视口（756×472）下由 replica 的 fitScale 自动缩放到
+         ≈0.372 倍，故设计稿里 12 画布 px 的重叠带在这里只有 **4 设备 px**；旧判据
+         `ow > 4` 恰好卡死在取整下界上 ⇒ 该断言长期假失败（实测 ow=4/oh=36）。
+         阈值改为「≥ 4 设备 px（≈12 画布 px）」，语义不变（重叠带确实存在）。 */
+      say(ow >= 4 && oh >= 4, '⑦ 重叠带确实存在（前置）', ow + '×' + oh);
+      var sc0 = window.UI_REPLICA.state.screen;
+      try {
+        img7.dispatchEvent(new MouseEvent('click',
+          { bubbles: true, cancelable: true, view: window, button: 0, clientX: cx, clientY: cy }));
+      } catch (e) {}
+      var sc1 = window.UI_REPLICA.state.screen;
+      say(sc0 === 'title' && sc1 !== 'title',
+          '⑦ 重叠带点击 -> 触发动作（原为死区；实机本来就会触发）', sc0 + ' → ' + sc1);
+    }
+
+    /* ============ 规则 ⑧–⑯：右端竖排快捷条（M3 · ISSUE-20260922-28） ============
+       被测行为与 krkr 侧 M2 同契约（`layout/_schema.md` §四「屏级状态 flag」）：
+       附加层 attach、贴边呼出、延时收起、钉住、气泡、动作派发。
+
+       ★ 假计时（本段专用）：把 window.setTimeout / clearTimeout 换成探针，以便**同步**
+         断言「移到 x<out_x 只起计时、回到 x≥in_x 撤销计时、延时到期才收起」——
+         手动触发被捕获的回调即等价于「延时到期」，无需真的等 delay_ms。
+         阈值/延时一律从 `ui_layout.js` 的 `reveal` 读，本文件不写死任何数值。
+         断言跑完（done 前）必须 restoreTimers()，否则会污染后续页面行为。 */
+    var realST = window.setTimeout, realCT = window.clearTimeout;
+    var timers = {}, timerSeq = 900000, clearedIds = [];
+    window.setTimeout = function (fn, ms) { var id = ++timerSeq; timers[id] = { fn: fn, ms: ms }; return id; };
+    window.clearTimeout = function (id) { delete timers[id]; clearedIds.push(id); };
+    function pendings(ms) {
+      return Object.keys(timers).filter(function (k) { return timers[k].ms === ms; }).map(Number);
+    }
+    function fireTimer(id) { var t = timers[id]; delete timers[id]; if (t) t.fn(); }
+    function restoreTimers() { window.setTimeout = realST; window.clearTimeout = realCT; }
+
+    var RPC = window.UI_REPLICA, LAY = window.UI_LAYOUT, CV = LAY.canvas;
+    var QB = LAY.screens.quickbar, RV = QB.reveal, DELAY = RV.delay_ms;
+    function qbBox(id) {
+      for (var i = 0; i < QB.elements.length; i++) if (QB.elements[i].id === id) return QB.elements[i];
+      return null;
+    }
+    function midOf(id) {
+      var e = qbBox(id);
+      return e ? { x: Number(e.x) + Number(e.w) / 2, y: Number(e.y) + Number(e.h) / 2 } : null;
+    }
+    function clientOf(x, y) {                       // 画布坐标 → 视口坐标（含自动缩放）
+      var r = doc.getElementById('canvas').getBoundingClientRect();
+      return { x: r.left + x * (r.width / CV.width), y: r.top + y * (r.height / CV.height) };
+    }
+    function mv(x, y) {                             // 派发一次真实 mousemove（走 replica 的画布监听）
+      var p = clientOf(x, y);
+      doc.getElementById('canvas').dispatchEvent(new MouseEvent('mousemove',
+        { bubbles: true, cancelable: true, view: window, clientX: p.x, clientY: p.y }));
+    }
+    function leaveCanvas() {
+      doc.getElementById('canvas').dispatchEvent(new MouseEvent('mouseleave',
+        { bubbles: false, cancelable: true, view: window }));
+    }
+    function topAt(x, y) {                          // 真实命中栈里最上面的交互元素（含被遮挡者）
+      var p = clientOf(x, y);
+      var st = doc.elementsFromPoint(p.x, p.y) || [];
+      for (var i = 0; i < st.length; i++) {
+        var n = st[i].closest && st[i].closest('[data-ui-interactive]');
+        if (n) return n;
+      }
+      return null;
+    }
+    function nodeOf(id) { return doc.querySelector('[data-ui-id="' + id + '"]'); }
+    function flagOf(n) { return RPC.getFlag(n); }
+
+    /* ⑧ 附加层只挂在承载屏上：dialog 有、title 没有 */
+    RPC.renderScreen('dialog', { noHistory: true });
+    var qbBar = nodeOf('quick.btn'), qbTgl = nodeOf('quick.tgl'), qbTip = nodeOf('quick.tips');
+    RPC.renderScreen('title', { noHistory: true });
+    var onTitleBar = nodeOf('quick.btn');
+    RPC.renderScreen('dialog', { noHistory: true });
+    qbBar = nodeOf('quick.btn'); qbTgl = nodeOf('quick.tgl'); qbTip = nodeOf('quick.tips');
+    say(!!qbBar && !!qbTgl && !!qbTip && !onTitleBar && RPC.attachScreen() === 'quickbar',
+        '⑧ 附加层只在 dialog 上出现（title 上不出现）',
+        'dialog: bar/tgl/tips=' + (!!qbBar) + '/' + (!!qbTgl) + '/' + (!!qbTip)
+        + '，attachScreen=' + RPC.attachScreen() + '；title: bar=' + !!onTitleBar);
+
+    /* ⑨ 初始态 = 收起：把手可见，展开条/气泡/12 项全不可见 */
+    var hides = 0, vhits = 0;
+    QB.elements.forEach(function (e) {
+      if (!e.vis_flag || String(e.vis_flag) !== 'quickbar') return;
+      var n = nodeOf(e.id);
+      if (n && n.style.display === 'none') hides++;
+    });
+    QB.elements.forEach(function (e) {
+      if (String(e.id).indexOf('.hit_') < 0) return;
+      var n = nodeOf(e.id);
+      if (n && n.style.display !== 'none') vhits++;
+    });
+    say(flagOf('quickbar') === 'collapsed' && qbBar.style.display === 'none'
+        && qbTgl.style.display !== 'none' && vhits === 1,
+        '⑨ 初始态 collapsed：把手可见，展开条与 12 项隐藏（只剩整条把手热区）',
+        'quickbar=' + flagOf('quickbar') + '，quick.btn=' + qbBar.style.display
+        + '，quick.tgl=' + qbTgl.style.display + '，可见 hit 数=' + vhits + '（应为 1 = 把手）');
+
+    /* ⑩ x ≥ in_x → 展开（阈值取自 reveal.in_x，本文件不写死） */
+    mv(RV.in_x + 4, 300);
+    say(flagOf('quickbar') === 'expanded', '⑩ x ≥ in_x → 展开', 'x=' + (RV.in_x + 4)
+        + '（in_x=' + RV.in_x + '）⇒ quickbar=' + flagOf('quickbar'));
+
+    /* ⑪ 收起是**延时**行为：移到 out_x 之外只起计时；回到 ≥ in_x 撤销计时；到期才收起 */
+    var lx = RV.out_x - 40;
+    mv(lx, 300);
+    var t1 = pendings(DELAY);
+    say(flagOf('quickbar') === 'expanded' && t1.length === 1,
+        '⑪a 指针移到 x < out_x → 仅起计时（delay_ms 内**未**收起）',
+        'out_x=' + RV.out_x + '，x=' + lx + '，排入 ' + DELAY + 'ms 计时=' + t1.length
+        + ' 个，quickbar=' + flagOf('quickbar'));
+    mv(RV.in_x + 4, 300);
+    say(clearedIds.indexOf(t1[0]) >= 0 && flagOf('quickbar') === 'expanded' && pendings(DELAY).length === 0,
+        '⑪b 期间指针回到 x ≥ in_x → 撤销收起计时（clearTimeout 命中）',
+        'clearTimeout(' + t1[0] + ') 已调用=' + (clearedIds.indexOf(t1[0]) >= 0)
+        + '，quickbar=' + flagOf('quickbar'));
+    mv(lx, 300); mv(lx, 300);                       // 滞回带外连移两次：不得排第二个计时
+    var t2 = pendings(DELAY);
+    say(t2.length === 1 && flagOf('quickbar') === 'expanded',
+        '⑪c 延时未到前保持展开（重复移动不叠加计时器）',
+        '在途 ' + DELAY + 'ms 计时=' + t2.length + ' 个，quickbar=' + flagOf('quickbar'));
+    RPC.setFlag(RV.tip_flag, 'save');               // 预置一个气泡，验证收起时一并清空
+    fireTimer(t2[0]);                               // 手动触发 = 延时到期
+    say(flagOf('quickbar') === 'collapsed' && flagOf(RV.tip_flag) === '',
+        '⑪d 延时到期 → 才收起，并清空气泡',
+        'quickbar=' + flagOf('quickbar') + '，' + RV.tip_flag + '="' + flagOf(RV.tip_flag) + '"');
+
+    /* ⑫ 钉住（quick_pin）：立即展开、不自动收起（指针移出与离开画布都不收） */
+    mv(RV.in_x + 4, 300);
+    nodeOf('quick.hit_lock').click();               // action=quick_pin
+    say(flagOf('qbar_pin') === '1' && flagOf('quickbar') === 'expanded',
+        '⑫a 点「锁定」→ 钉住且保持展开（action=quick_pin）',
+        'qbar_pin=' + flagOf('qbar_pin') + '，quickbar=' + flagOf('quickbar'));
+    mv(lx, 300);
+    say(flagOf('quickbar') === 'expanded' && pendings(DELAY).length === 0,
+        '⑫b 钉住后指针移到 out_x 之外 → **不起计时、不收起**',
+        'quickbar=' + flagOf('quickbar') + '，在途计时=' + pendings(DELAY).length + ' 个');
+    leaveCanvas();
+    say(flagOf('quickbar') === 'expanded' && pendings(DELAY).length === 0,
+        '⑫c 钉住时指针离开画布 → 仍不收起',
+        'quickbar=' + flagOf('quickbar') + '，在途计时=' + pendings(DELAY).length + ' 个');
+
+    /* ⑬ 气泡跟随悬停项（展开中；钉住状态下同样跟随 ⇒ 一并验证） */
+    var cSave = midOf('quick.hit_save'), cChart = midOf('quick.hit_chart'), bTgl = qbBox('quick.hit_toggle');
+    mv(cSave.x, cSave.y);
+    var tip1 = flagOf(RV.tip_flag);
+    var txSave = nodeOf('quick.tx_save'), txChart = nodeOf('quick.tx_chart');
+    var txShown = txSave ? txSave.style.display !== 'none' : false;
+    mv(cChart.x, cChart.y);
+    var tip2 = flagOf(RV.tip_flag);
+    var txSaveHidden = txSave ? txSave.style.display === 'none' : false;
+    mv(Number(bTgl.x) + 1, cSave.y);                // 竖条内、但不在 12 项任何一项里
+    var tip3 = flagOf(RV.tip_flag);
+    say(tip1 === 'save' && tip2 === 'chart' && tip3 === '',
+        '⑬ 气泡跟随悬停项：hit_save→save、hit_chart→chart、整条把手区→空',
+        'save→"' + tip1 + '"，chart→"' + tip2 + '"，把手区→"' + tip3 + '"');
+    say(txShown && txSaveHidden,
+        '⑬b 气泡文字随 flag 同步显隐（tx_save 亮 → tx_chart 亮时 tx_save 灭）',
+        'tx_save 显示=' + txShown + '，切到 chart 后 tx_save 隐藏=' + txSaveHidden);
+
+    /* ⑭ 收起态下展开件不可点：真实命中栈顶是**整条把手**（逐元素查 z 优先），
+       点它只会派发把手自身的 open_sysmenu（= 展开），不会派发任何一项的动作。 */
+    nodeOf('quick.hit_lock').click();               // 再点一次「锁定」→ 解除钉住
+    mv(lx, 300); fireTimer(pendings(DELAY)[0]);     // 收起
+    var cOpt = midOf('quick.hit_option');
+    var topCol = topAt(cOpt.x, cOpt.y);
+    var scPrev = RPC.state.screen;
+    say(flagOf('quickbar') === 'collapsed' && topCol && topCol.getAttribute('data-ui-id') === 'quick.hit_toggle',
+        '⑭ 收起态下 12 项不可点（命中栈顶 = 整条把手，不是 quick.hit_option）',
+        '命中栈顶=' + (topCol ? topCol.getAttribute('data-ui-id') : '无')
+        + '（quickbar=' + flagOf('quickbar') + '）');
+    if (topCol) topCol.click();
+    say(RPC.state.screen === scPrev && flagOf('quickbar') === 'expanded',
+        '⑭b 收起态点该项位置 → 只派发把手动作（展开），不派发 do_save/open_config 等',
+        'screen ' + scPrev + ' → ' + RPC.state.screen + '（未进入 config），点后 quickbar='
+        + flagOf('quickbar'));
+
+    /* ⑭c/⑭d ★ 修复 A 的独立复核（数据层已把 `quick.hit_toggle` 改为 `vis_when=collapsed`）：
+       ⑭c 展开态：逐项抽样（每项 5 点：中心 + 四角内缩 1px）**必须全部命中该项自己**；
+       ⑭d 收起态：同样 60 点**必须全部命中整条把手**（12 项此时被 flag 挡掉）。
+       —— 这两条正是「展开态点第 N 项 = 第 N 项」的命中层证据（动作层见 index.html?selftest=1 的 C4 断言）。 */
+    function qbItems() {
+      return QB.elements.filter(function (e) {
+        return e && e.kind === 'hit' && /\.hit_(.+)$/.test(String(e.id))
+               && String(e.id) !== 'quick.hit_toggle';
+      });
+    }
+    function scanHits(items) {
+      var n = 0, good = 0, bad = [];
+      items.forEach(function (it) {
+        var bx = Number(it.x), by = Number(it.y), bw = Number(it.w), bh = Number(it.h);
+        var pts = [[bx + bw / 2, by + bh / 2],
+                   [bx + 1, by + 1], [bx + bw - 1, by + 1],
+                   [bx + 1, by + bh - 1], [bx + bw - 1, by + bh - 1]];
+        pts.forEach(function (p) {
+          n++;
+          var t = topAt(p[0], p[1]);
+          var id = t ? String(t.getAttribute('data-ui-id') || '') : '(无)';
+          if (id === it.id) good++; else bad.push(it.id + '@' + Math.round(p[0]) + ',' + Math.round(p[1]) + '→' + id);
+        });
+      });
+      return { n: n, good: good, bad: bad };
+    }
+    mv(RV.in_x + 4, 300);                            // 展开
+    var scExp = scanHits(qbItems());
+    say(scExp.n === 60 && scExp.good === scExp.n && flagOf('quickbar') === 'expanded',
+        '⑭c 修复 A 复核：展开态 12 项 × 5 点全部命中**该项自己**（不再被整条把手截获）',
+        scExp.good + '/' + scExp.n + ' 点命中该项' + (scExp.bad.length ? '；例外：' + scExp.bad.slice(0, 6).join(', ') : ''));
+    mv(lx, 300); fireTimer(pendings(DELAY)[0]);      // 收起
+    var scCol = scanHits(qbItems());
+    say(scCol.n === 60 && scCol.good === 0 && scCol.bad.length === scCol.n
+        && scCol.bad.every(function (s) { return s.indexOf('→quick.hit_toggle') > 0; }),
+        '⑭d 修复 A 复核：收起态同一批点全部命中整条把手（12 项被 flag 挡掉）',
+        '0/' + scCol.n + ' 点命中项（应全为把手）' + (scCol.bad.length ? '；首例：' + scCol.bad[0] : ''));
+    mv(RV.in_x + 4, 300);                            // 复位为展开，供 ⑮ 使用
+
+    /* ⑮ 展开态**派发**路径逐项验证（spy 计数）：直派到项节点本身 ——
+       与 ⑭c 的截获问题正交：证明「动作接线正确」（接线与命中层是两件事）。 */
+    var pinClicks = 0, pinSeen = [];
+    nodeOf('quick.hit_lock').click();               // quick_pin → 钉住
+    pinClicks++; pinSeen.push(flagOf('qbar_pin'));
+    nodeOf('quick.hit_lock').click();               // quick_pin → 解除
+    pinClicks++; pinSeen.push(flagOf('qbar_pin'));
+    nodeOf('quick.hit_next').click();               // next_choice（本轮新增动作）
+    var toastEl = doc.querySelector('.ui-toast');
+    var toastTxt = toastEl ? (toastEl.textContent || '') : '';
+    var scAfterNext = RPC.state.screen;
+    nodeOf('quick.hit_option').click();             // open_config → 换到 config 屏
+    var scAfterCfg = RPC.state.screen;
+    say(pinClicks === 2 && pinSeen[0] === '1' && pinSeen[1] === '' && /前进/.test(toastTxt)
+        && scAfterNext === 'dialog' && scAfterCfg === 'config',
+        '⑮ 展开态逐项派发（spy 计数）：quick_pin 两次切换=1/空，next_choice 有反馈，open_config 换屏',
+        'quick_pin 派发 ' + pinClicks + ' 次 → ' + pinSeen.join('→')
+        + '；next_choice 提示="' + toastTxt + '"（screen 仍 ' + scAfterNext + '）'
+        + '；open_config → ' + scAfterCfg);
+
+    /* ⑯ open_sysmenu 不再打开传统系统菜单屏，而是「展开竖条」 */
+    RPC.renderScreen('dialog', { noHistory: true });
+    var sc0 = RPC.state.screen;
+    RPC.doAction('open_sysmenu');                   // = Esc 键走的同一条路径
+    say(RPC.state.screen === sc0 && flagOf('quickbar') === 'expanded' && !!LAY.screens.sysmenu,
+        '⑯ open_sysmenu 不再换屏，改为展开竖条（20_sysmenu 数据保留但不可达）',
+        'screen ' + sc0 + ' → ' + RPC.state.screen + '，quickbar=' + flagOf('quickbar')
+        + '，sysmenu 数据存在=' + !!LAY.screens.sysmenu);
+
+    /* ⑰ ★ C2（M35 独立复审 Minor-5）：`?chrome=0` 必须压掉**纯热区**的点击瞬闪叠色。
+       用 computedStyle 直接量（不依赖真实指针的 `:hover`，无头下无法触发），
+       加/去 `#canvas.chrome-off` 各读一次 —— 两次必须不同，且默认那次是那层蓝。 */
+    var pureHit = doc.querySelector('[data-ui-id="dlg.icon_hit_01_qsave"]');
+    if (!pureHit) {
+      say(false, '⑰ ?chrome=0 压掉纯热区叠色', '取不到纯热区 dlg.icon_hit_01_qsave');
+    } else {
+      pureHit.classList.add('ui-hit-pressed');       // = 真实点击路径加的同一个类
+      var bgOn = getComputedStyle(pureHit).backgroundColor;
+      doc.getElementById('canvas').classList.add('chrome-off');
+      var bgOff = getComputedStyle(pureHit).backgroundColor;
+      doc.getElementById('canvas').classList.remove('chrome-off');
+      pureHit.classList.remove('ui-hit-pressed');
+      say(bgOn !== bgOff && /122, 176, 232/.test(bgOn) && !/122, 176, 232/.test(bgOff),
+          '⑰ ?chrome=0 压掉纯热区的点击瞬闪叠色（computedStyle 实测）',
+          '默认=' + bgOn + '　→　chrome=0=' + bgOff);
+    }
+    restoreTimers();
+
+    done();
+  }
+
+  function done() {
+    log.push('SELFTEST ' + (fails ? ('FAILED ' + fails + ' 项') : 'ALL PASS'));
+    document.getElementById('verdict').innerHTML =
+      log.map(function (l) {
+        return '<span class="' + (l.indexOf('FAIL') >= 0 ? 'bad' : 'ok') + '">' + l + '</span>';
+      }).join('\n');
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+</script>
+
+
+</body></html>

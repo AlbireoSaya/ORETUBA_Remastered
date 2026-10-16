@@ -1,0 +1,43 @@
+function RExprRelocations(rb, limit, header)
+{
+    var cur = header.reloc_start + 2;
+    var end = header.reloc_start + header.reloc_size;
+    var rows = [];
+
+    for (var group = 0; group < 5; group++)
+    {
+        if (cur >= end)
+        {
+            throw new Exception("TRUNCATED_EXPRESSION_TABLE");
+        }
+
+        var count = RExprByte(rb, limit, cur);
+        cur++;
+
+        for (var i = 0; i < count; i++)
+        {
+            if (cur + 8 > end)
+            {
+                throw new Exception("TRUNCATED_EXPRESSION_TABLE");
+            }
+
+            var slot = RExprU32(rb, limit, cur);
+            var index = RExprU32(rb, limit, cur + 4);
+            cur += 8;
+
+            if (slot + 4 > header.code_size)
+            {
+                throw new Exception("EXPRESSION_SLOT_RANGE");
+            }
+
+            rows.add(%["group" => group, "slot_offset" => slot, "index" => index]);
+        }
+    }
+
+    if (cur != end)
+    {
+        throw new Exception("EXPRESSION_TABLE_END_MISMATCH");
+    }
+
+    return rows;
+}

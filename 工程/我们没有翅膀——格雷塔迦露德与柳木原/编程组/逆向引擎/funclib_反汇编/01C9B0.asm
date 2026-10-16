@@ -1,0 +1,27 @@
+; V=0x1C9B0  core=0x1C9B0..0x1CA34（10 条）  过程=0x1C9B0..0x1CACC（3 块/23 条，段数 1）
+; native=[551, 578, 9, 564]
+; 内嵌串 core=-
+; 库内 CALL -> -
+0001C9B0  LD_STK        0x8[-] 0x185B190[L_1C9C0]                ★ V 入口
+0001C9BC  AND           0x0[-] 0x1[-] 0x185B1A0[L_1C9D0]         
+0001C9CC  JZ            0x0[-] 0x185B204[L_1CA34]                
+0001C9D8  LEA_STK       0x0[-] 0x185B1BC[L_1C9EC]                
+0001C9E4  CALLNATIVE    0x228[native#551] 0x0[-] 0x185B1E4[L_1CA14] 
+0001C9F4  LEA_STK       0x0[-] 0x185B1D8[L_1CA08]                
+0001CA00  CALLNATIVE    0x243[native#578] 0x0[-] 0x185B1E8[L_1CA18] 
+0001CA10  OR            0x0[-] 0x0[-] 0x185B1F4[L_1CA24]         
+0001CA20  JZ            0x0[-] 0x185B204[L_1CA34]                
+0001CA2C  RETVAL_RET    0x1[-]                                   
+0001CA34  LD_STK        0x8[-] 0x185B214[L_1CA44]                
+0001CA40  AND           0x0[-] 0x2[-] 0x185B224[L_1CA54]         
+0001CA50  JZ            0x0[-] 0x185B294[L_1CAC4]                
+0001CA5C  LEA_STK       0x0[-] 0x185B250[L_1CA80]                
+0001CA68  PUSH          0x0[-]                                   
+0001CA70  PUSH          0x0[-]                                   
+0001CA78  CALLNATIVE    0xA[native#9] 0x0[-] 0x185B280[L_1CAB0]  
+0001CA88  SP_DROP       0x8[-]                                   
+0001CA90  LEA_STK       0x0[-] 0x185B274[L_1CAA4]                
+0001CA9C  CALLNATIVE    0x235[native#564] 0x0[-] 0x185B284[L_1CAB4] 
+0001CAAC  OR            0x0[-] 0x0[-] 0x185B290[L_1CAC0]         
+0001CABC  RETVAL_RET    0x0[-]                                   
+0001CAC4  RETVAL_RET    0x0[-]                                   

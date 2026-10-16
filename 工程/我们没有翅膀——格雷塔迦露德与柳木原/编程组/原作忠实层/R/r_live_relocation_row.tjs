@@ -1,0 +1,11 @@
+function RLiveRelocationRow(rd, wr, cursorPtr, codeBase, group, resolve)
+{
+    var q = rd(cursorPtr) & 0xffffffff;
+    var slot = rd(q) & 0xffffffff;
+    wr(cursorPtr, (q + 4) & 0xffffffff);
+    var index = rd((q + 4) & 0xffffffff) & 0xffffffff;
+    wr(cursorPtr, (q + 8) & 0xffffffff);
+    var value = resolve(group, index, codeBase);
+    if (typeof value != "Integer") throw new Exception("MISSING_LIVE_RELOCATION_VALUE");
+    wr((codeBase + slot) & 0xffffffff, value & 0xffffffff);
+}

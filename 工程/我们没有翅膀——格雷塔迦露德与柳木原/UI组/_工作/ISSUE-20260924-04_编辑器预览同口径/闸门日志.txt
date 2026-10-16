@@ -1,0 +1,83 @@
+=== ISSUE-20260924-04 闸门日志（2026-09-24 04:14:28）===
+
+### python 工具/gen_layout.py
+
+[OK] 已生成：
+  layout\ui_layout.json  (17 屏)
+  krkr\game\ui_layout.tjs
+  复刻\ui_layout.js
+EXIT=0
+
+### python 工具/verify_ui.py
+[7] opacity 范围      ：检查 867 个 opacity 字段 → 通过
+------------------------------------------------------------------------------
+汇总：引用 0 ｜ 尺寸 0 ｜ 三处一致 0 ｜ 硬编码可疑 0 行 ｜ PNG 0 ｜ 预算 0 处 ｜ opacity 0 处
+资产：463 件 / 39.17 MB
+结果：**全部通过**（退出码 0）
+==============================================================================
+EXIT=0
+
+### python 工具/test_gen_sync.py
+覆盖：生成器产出屏 11 个 ｜ 登记表 ACK 命中 5 条 ｜ 失效生成器待处置 3 条
+警告（不致命）：
+  ~ [23_save.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+  ~ [24_load.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+落盘自证：运行前后 layout/screens/*.json 的 md5 **完全一致** ✓（18 个文件）
+结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）
+EXIT=0
+
+### python 工具/test_gate_field_granularity.py
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ⇒ 退出码 1（期望 ≠0）；逐条明细含 `item_frame.state_assets`+`ch.choices`=True；原文件 md5 95e78f001fb82167475b75afc98937b6 ⇒ 符合预期 ✓
+结果：四项全部符合预期 ✓
+（被审原文件 01_title.json md5 始终 = 12e620b56e43d55c684482b181188293）
+EXIT=0
+
+### python 工具/test_verify_asset_refs.py
+  OK   深层 list 下标路径  —— ['screens.s.elements[0].state_assets.pressed']
+  OK   真实 layout 上收到 state_assets 引用（>0）  —— state_assets=340 / 总 1178
+  OK   非三键的自定义态也被收集（Minor-10）  —— ['ui/dis.png', 'ui/focus.png', 'ui/n.png']
+  OK   state_assets 非字典 -> 计入引用表（供 [1] 报缺件）  —— [('ui/typo.png', 'state_assets')]
+------------------------------------------------------------------------
+结果：**全部通过**
+EXIT=0
+
+### python 工具/test_click_reach.py
+
+── 37_dress.json    OK  元素 107（可点  42）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 42
+
+------------------------------------------------------------------------------
+合计：屏 17 ｜ 重叠对 31 ｜ 中心可达性检查 15004 次 ｜ 豁免命中 4 条
+结果：**全部通过**（无未登记的可达性缺陷；豁免项均已在表中写明理由）
+EXIT=0
+
+### python 工具/test_state_targets.py
+
+[3] 可达性（几何中心）
+  覆盖：态图+组 56 件 ｜ 纯组热区 41 件 ⇒ 合计 97 件（按各自可见所需的 flag 取值复算）
+
+==========================================================================
+结果：**全部通过**（判据指纹一致 + 97 件元素几何中心可达）
+EXIT=0
+
+### python 工具/test_quickbar_reach.py
+  ⓪ 结构：丸体右缘 = icon 左缘 − 8；药丸宽度 = 生成器公式 pill_w(字数)（= 21×n + 2×24 + 2×4，逐条独立） ✓
+  ① 收起态：整条区域 (1845, 7, 75, 898) 共 67350 点**全部无命中**（右端无可点热区，12 项不可见）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态整条区域无命中 / 展开态 12 项各自可达且 action 正确 / M37 新结构齐备）
+EXIT=0
+
+### m39_run_html_selftests.py
+  PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+  PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+  PASS	zeronine.all-subjects-stretched-to-element-box	15/15（主语 = ⑤ 的全集）
+  PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+
+  判定：RESULT=OK ｜ 原始 dump：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260923-01_M39_证据\M39_selftest_B_dump.html ｜ edge rc=0
+
+（已清理无头 Edge 的 user-data-dir：E:/ZCode Workspace/Galgame/临时/edge_m39）
+EXIT=0

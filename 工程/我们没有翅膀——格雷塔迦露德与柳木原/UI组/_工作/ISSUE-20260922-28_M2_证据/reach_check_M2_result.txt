@@ -1,0 +1,42 @@
+==========================================================================
+收起态（flags_default 原值）  flags={'quickbar': 'collapsed', 'qbar_tip': '', 'qbar_pin': ''}
+  竖条区域 x∈[1842,1920) 全高：命中像素 70044
+  12 项胜出 0 ／ 把手热区(quick.hit_toggle)胜出 70044 ／ 其它 0
+      quick.hit_toggle     70044
+  ⇒ 判定：12 项 0 像素、把手独占 ⇒ PASS
+==========================================================================
+展开态  flags={'quickbar': 'expanded', 'qbar_tip': '', 'qbar_pin': ''}
+  竖条区域 x∈[1842,1920) 全高：命中像素 65700
+  12 项胜出 65700 ／ 把手热区(quick.hit_toggle)胜出 0 ／ 其它 0
+      quick.hit_auto       5475
+      quick.hit_chart      5475
+      quick.hit_load       5475
+      quick.hit_lock       5475
+      quick.hit_log        5475
+      quick.hit_next       5475
+      quick.hit_option     5475
+      quick.hit_prev       5475
+      quick.hit_qload      5475
+      quick.hit_qsave      5475
+      quick.hit_save       5475
+      quick.hit_skip       5475
+  ⇒ 判定：12 项各自矩形满覆盖=True，把手胜出 0 像素=True ⇒ PASS
+==========================================================================
+展开态+气泡+钉住  flags={'quickbar': 'expanded', 'qbar_tip': 'lock', 'qbar_pin': '1'}
+  竖条区域 x∈[1842,1920) 全高：命中像素 65700
+  12 项胜出 65700 ／ 把手热区(quick.hit_toggle)胜出 0 ／ 其它 0
+      quick.hit_auto       5475
+      quick.hit_chart      5475
+      quick.hit_load       5475
+      quick.hit_lock       5475
+      quick.hit_log        5475
+      quick.hit_next       5475
+      quick.hit_option     5475
+      quick.hit_prev       5475
+      quick.hit_qload      5475
+      quick.hit_qsave      5475
+      quick.hit_save       5475
+      quick.hit_skip       5475
+  ⇒ 判定：12 项各自矩形满覆盖=True，把手胜出 0 像素=True ⇒ PASS
+==========================================================================
+总判定：PASS（3/3 场景 PASS）

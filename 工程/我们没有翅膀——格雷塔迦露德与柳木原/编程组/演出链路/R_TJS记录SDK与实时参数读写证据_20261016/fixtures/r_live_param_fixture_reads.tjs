@@ -1,0 +1,28 @@
+function RLPWatched(s, q)
+{
+    return (s.source <= q && q < s.source + 4096) || (0x1020000 <= q && q < 0x1020040) || (s.bank <= q && q < s.bank + 64);
+}
+
+function RLPRD(q)
+{
+    if(!RLPWatched(this, q)) throw new Exception("UNEXPECTED_PARAMETER_READ");
+    var v = RMemoryRead32(this.memory, q);
+    this.events.add(["r", q, 4, v]);
+    return v;
+}
+
+function RLPRH(q)
+{
+    if(!RLPWatched(this, q)) throw new Exception("UNEXPECTED_PARAMETER_READ");
+    var v = RMemoryRead16(this.memory, q);
+    this.events.add(["r", q, 2, v]);
+    return v;
+}
+
+function RLPRB(q)
+{
+    if(!RLPWatched(this, q)) throw new Exception("UNEXPECTED_PARAMETER_READ");
+    var v = RMemoryRead8(this.memory, q);
+    this.events.add(["r", q, 1, v]);
+    return v;
+}

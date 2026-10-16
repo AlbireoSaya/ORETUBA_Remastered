@@ -1,0 +1,40 @@
+from pathlib import Path
+import sys,ctypes as C,json
+r=Path.cwd();w=r/'临时/ISSUE-20261011-02'/('full-Cinit-SDK-'+__import__('uuid').uuid4().hex);w.mkdir(exist_ok=False);g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';bits=C.sizeof(C.c_void_p)*8
+sys.path[:0]=[str(g/'工具'),str(r/('工具/unicorn-2.1.4-win32-py313'if bits==32 else'工具/unicorn-2.1.4-py314'))]
+from lucifen_host_realloc_memory import HostReallocMemory
+from lucifen_guest_realloc_bridge import GuestReallocBlocks
+from unicorn import Uc,UC_ARCH_X86,UC_MODE_32
+report={'bits':bits,'scope':'actual owned in-place HeapReAlloc and guest mapping growth/conflict, not source address equivalence','cases':[]}
+for conflict in [False,True]:
+ mem=HostReallocMemory();u=Uc(UC_ARCH_X86,UC_MODE_32);m=GuestReallocBlocks(u,mem,start=0x7000000,stop=0x9000000)
+ heap=mem.heap_create(0,65536,0);host=mem.heap_alloc(heap,8,6000);assert heap and host;guest=m.bind(host);m.sync(guest)
+ host0,base,span,size=m._entry(guest);prior_next=m._next
+ if conflict:u.mem_map(base+span,4096)
+ try:
+  actual=mem.heap_realloc(heap,24,host,9000)
+  row={'conflict':conflict,'old_host':host,'actual_in_place_result':actual,'actual_OS_success':bool(actual)}
+  if actual:
+   assert actual==host
+   if conflict:
+    try:m.remap_after_realloc(guest,actual);raise AssertionError('overlap accepted')
+    except MemoryError:pass
+    assert m._entry(guest)==(host0,base,span,size) and m._next==prior_next
+    assert mem.size(actual)==9000 and m.size(guest)==6000
+    m._check(guest);row['overlap_refused_without_fake_OS_rollback']=True
+   else:
+    result=m.remap_after_realloc(guest,actual);assert result==guest and m.size(guest)==9000 and m._entry(guest)[2]==12288
+    assert m._next==base+12288 and m._check(guest)==bytes(9000)
+    row['actual_same_host_and_guest_page_growth_proven']=True
+  else:
+   assert mem.size(host)==6000 and m._entry(guest)==(host0,base,span,size)
+   row['actual_OS_failure_preserved']=True
+  report['cases'].append(row)
+ finally:
+  for q in list(m._by_guest):m.sync(q);m.unmap(q)
+  if conflict:u.mem_unmap(base+span,4096)
+  mem.close_all();assert not m._by_guest and not mem._blocks and not mem._heaps
+report['all_owned_cleanup_pass']=True
+report['both_expected_branches_proven']=all(row['actual_OS_success']for row in report['cases'])
+(w/('sdk-realloc-inplace-%s.json'%bits)).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+print(json.dumps(report));assert report['both_expected_branches_proven']

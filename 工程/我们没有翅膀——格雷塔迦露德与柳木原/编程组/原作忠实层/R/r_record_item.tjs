@@ -1,0 +1,44 @@
+// r_record_item.tjs
+// 仅解析单个 record item；无 IO / UI / OS 调用，不执行表达式、不写 guest 内存。
+
+function RRecordItem(rb, limit, p, end) {
+    RExprNeed(limit, end, 0);
+    RExprNeed(end, p, 1);
+    var tag = RExprByte(rb, end, p);
+    p = p + 1;
+    if (tag == 0) {
+        return [%["tag" => 0, "kind" => "empty", "flags" => 0, "value" => 0], p];
+    }
+    if (tag == 2) {
+        var literal = RExprU32(rb, end, p);
+        return [%["tag" => 2, "kind" => "literal", "flags" => 0, "value" => literal], p + 4];
+    }
+    var selector = RExprByte(rb, end, p);
+    p = p + 1;
+    if (selector == 0) {
+        var value = RExprU32(rb, end, p);
+        return [%["tag" => tag, "kind" => "literal", "flags" => tag,
+                  "value" => value, "selector" => selector], p + 4];
+    }
+    if (selector == 1) {
+        var size = RExprU16(rb, end, p);
+        var dataOffset = p + 2;
+        RExprNeed(end, dataOffset, size);
+        return [%["tag" => tag, "kind" => "inline", "flags" => tag | 2,
+                  "data_offset" => dataOffset, "data_size" => size,
+                  "selector" => selector], dataOffset + size];
+    }
+    if (selector == 2) {
+        var bankIndex = RExprU32(rb, end, p);
+        var elementIndex = RExprU32(rb, end, p + 4);
+        return [%["tag" => tag, "kind" => "array", "flags" => tag,
+                  "bank_index" => bankIndex, "element_index" => elementIndex,
+                  "selector" => selector], p + 8];
+    }
+    if (selector == 3) {
+        var pair = RParseExpression(rb, end, p);
+        return [%["tag" => tag, "kind" => "expression", "flags" => tag,
+                  "expression" => pair[0], "selector" => selector], pair[1]];
+    }
+    throw new Exception("UNSUPPORTED_RECORD_SELECTOR");
+}

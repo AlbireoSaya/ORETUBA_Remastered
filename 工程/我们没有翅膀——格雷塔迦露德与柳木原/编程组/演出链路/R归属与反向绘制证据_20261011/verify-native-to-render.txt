@@ -1,0 +1,81 @@
+from pathlib import Path
+import sys,struct,json,importlib.util,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-owner-render-replay-01';g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')];b.mkdir(parents=True,exist_ok=True);from pe_min import PE;from lucifen_vm_micro import map_pe;from lucifen_thiscall_probe import invoke_thiscall_args
+from unicorn.x86_const import UC_X86_REG_ESI,UC_X86_REG_EBX,UC_X86_REG_ESP,UC_X86_REG_EIP
+spec=importlib.util.spec_from_file_location('observer',g/'工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');outer,src,aux,frame,pix=0x1002000,0x1004000,0x1006000,0x1008000,0x100a000;records=[]
+def word(u,p):return struct.unpack('<I',u.mem_read(p,4))[0]
+def prepare(kind=9,link=False):
+ u=map_pe(pe);u.mem_map(0,0x1000);u.mem_write(outer,b'\xa5'*0xd8);u.reg_write(UC_X86_REG_ESI,outer);u.reg_write(UC_X86_REG_EBX,0);u.reg_write(UC_X86_REG_ESP,0x2008000)
+ a,z,vt,ivt=(0x4ba6df,0x4ba70a,0x519038,0x519094) if kind==9 else (0x4ba7ff,0x4ba82a,0x518f7c,0x518fd8)
+ u.emu_start(a,z,count=10000,timeout=1000000);assert u.reg_read(UC_X86_REG_EIP)==z and word(u,outer)==vt and word(u,outer+0x30)==ivt and word(u,outer+0xbc)==0
+ invoke_thiscall_args(u,0x4540b0,src,());invoke_thiscall_args(u,0x459dc0,aux,());assert word(u,aux)==0x5199ec and word(u,aux+8)==0
+ u.mem_write(src+0x3c,struct.pack('<I',pix));u.mem_write(pix,b'\x12'*64)
+ if link:u.mem_write(outer+0xbc,struct.pack('<I',aux))
+ return u
+
+from unicorn.x86_const import *
+from unicorn import UC_HOOK_CODE
+from lucifen_opaque_layers_reference import opaque_layers32_reference
+spec=importlib.util.spec_from_file_location('chainref',g/'工具/lucifen_owner_render_reference.py');ref=importlib.util.module_from_spec(spec);spec.loader.exec_module(ref)
+import itertools
+children=[0x1010000+i*0x100 for i in range(3)];nodes=[0x1018000+i*0x100 for i in range(3)];keys0=dict(zip(children,[10,20,20]));rows=[]
+configs=itertools.product([9,10],[0,1],[0x424450,0x4244e0],[(children[0],20,0),(children[0],20,0x100),(children[1],20,0),(children[1],20,0x100),(children[0],0xffffffff,0),(children[2],0,0),(0,20,0),(0x1014000,20,0)])
+for kind,chunked,entry,(child,key,truth) in configs:
+ u=prepare(kind,True)
+ from unicorn.x86_const import *
+ from lucifen_cdecl_probe import invoke_cdecl
+ dll=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/tvpgl.dll');u.mem_map(dll.image_base,(dll.size_image+4095)&~4095);u.mem_write(dll.image_base,bytes(dll.data[:dll.size_headers]))
+ for s in dll.sections:
+  if s['rawsize']:u.mem_write(dll.image_base+s['vaddr'],bytes(dll.data[s['rawptr']:s['rawptr']+s['rawsize']]))
+ libobj=0x1041000;cfg=0x1042000;wrapper=0x1043000
+ u.mem_write(libobj,struct.pack('<I',0x10048108));u.mem_write(cfg,bytes(0x98));assert invoke_cdecl(u,0x10001000,[libobj,cfg],count=100000000,timeout=20000000)==0
+ u.reg_write(UC_X86_REG_EAX,libobj);u.reg_write(UC_X86_REG_ESI,wrapper);u.reg_write(UC_X86_REG_ESP,0x2008000);u.emu_start(0x4a0d91,0x4a1abe,count=10000,timeout=1000000);assert u.reg_read(UC_X86_REG_EIP)==0x4a1abe
+ u.mem_write(wrapper+4,struct.pack('<I',1));invoke_cdecl(u,0x48a3f0,[wrapper])
+
+ owner=aux+0xc;assert word(u,owner)==0x5199e8 and word(u,owner+0xc)==aux
+ bound=outer+0x34;dbuf=0x1050000;before=b'\x55'*64;u.mem_write(dbuf,before)
+ u.mem_write(bound+4,struct.pack('<IIi',3,2,16));u.mem_write(bound+0x14,struct.pack('<4i',0,0,3,2));u.mem_write(bound+0x3c,struct.pack('<II',dbuf+8,32));assert invoke_thiscall_args(u,0x459ee0,aux,(bound,0))==0
+ layers={};binding_marks=[]
+ for i,c in enumerate(children):
+  bitmap=0x1014000+i*0x100;buffer=0x1016000+i*0x100;assert invoke_thiscall_args(u,0x4540b0,bitmap,())==bitmap
+  source=(0x11223344+i*0x33333333).to_bytes(4,'little');u.mem_write(buffer,source)
+  u.mem_write(bitmap+4,struct.pack('<IIi',1,1,4));u.mem_write(bitmap+0x14,struct.pack('<4i',0,0,1,1));u.mem_write(bitmap+0x3c,struct.pack('<II',buffer,32))
+  assert invoke_thiscall_args(u,0x456800,c,())==c and invoke_thiscall_args(u,0x456910,c,(bitmap,0,0,0))==0
+  binding_marks.append(bytes(u.mem_read(c+9,1))[0]);assert binding_marks[-1]==1
+  invoke_thiscall_args(u,0x458220,c,(0,));assert bytes(u.mem_read(c+9,1))==b'\x00'
+  u.mem_write(c+4,struct.pack('<I',i+1));u.mem_write(c+0x18,struct.pack('<I',owner));u.mem_write(nodes[i],b'\xaa'*0x24);u.mem_write(nodes[i],struct.pack('<II',c,0xffffffff));u.mem_write(nodes[i]+0x14,struct.pack('<4I',keys0[c],0x76543210,nodes[i-1] if i else 0,nodes[i+1] if i+1<3 else 0))
+  layers[c]={'data':source,'width':1,'height':1,'pitch':4,'row0':0,'x':0,'y':0,'id':i+1,'visible':1,'enabled':255,'buffer':buffer}
+ u.mem_write(owner+4,struct.pack('<II',nodes[0],nodes[-1]))
+ raw=struct.pack('<4I',outer,child,key,truth);u.mem_write(frame,raw);calls=[]
+ def hook(uc,a,n,x):
+  if a in [0x459890,0x4599a0]:
+   sp=uc.reg_read(UC_X86_REG_ESP);calls.append({'entry':a,'owner_this':uc.reg_read(UC_X86_REG_ECX),'callee_args':list(struct.unpack('<3I',uc.mem_read(sp+4,12)))})
+ h=u.hook_add(UC_HOOK_CODE,hook)
+ try:r=m.observe_cdecl_until(u,entry,frame,0x400000,count=10000)
+ finally:u.hook_del(h)
+ expected=ref.native_owner_reorder_reference(children,keys0,child,key,truth,entry==0x4244e0)
+ assert r['returned'] and r['error'] is None and r['eax']==expected['native_return'] and bytes(u.mem_read(frame,16))==raw
+ actual=[];p=word(u,owner+4);prev=0
+ while p:
+  assert p in nodes and word(u,p+0x1c)==prev;actual.append(word(u,p));prev=p;p=word(u,p+0x20)
+ marks=[bytes(u.mem_read(c+9,1))[0] for c in children]
+ assert marks==[int(c==child and expected['changed']) for c in children]
+ assert len(calls)==1 and calls[0]['owner_this']==owner and calls[0]['callee_args']==[child,key,(frame&0xffffff00)|int(truth!=0)]
+ assert word(u,m.SP0+4)==(frame&0xffffff00)|r['eax']
+ assert actual==expected['order'] and word(u,owner+8)==prev and word(u,owner+0xc)==aux
+ assert all(word(u,c+0x18)==owner for c in children)
+ tailorder=[];p=word(u,aux+0x14)
+ while p:tailorder.append(word(u,p));p=word(u,p+0x1c)
+ assert tailorder==expected['render_order']
+ u.mem_write(aux+0x50,struct.pack('<I',0xdeadbeef));u.mem_write(0x529e6d,bytes([chunked]));drawcalls=[]
+ def drawhook(uc,a,n,x):
+  if a in [0x457900,0x457bd0]:drawcalls.append(uc.reg_read(UC_X86_REG_ECX))
+ h=u.hook_add(UC_HOOK_CODE,drawhook);renderframe=struct.pack('<5I',outer,bound,0,0,0);u.mem_write(frame,renderframe)
+ try:render=m.observe_cdecl_until(u,0x4249e0,frame,0x400000,count=20000)
+ finally:u.hook_del(h)
+ expectedpixels=opaque_layers32_reference(before,3,2,16,8,0xdeadbeef,[layers[c] for c in expected['render_order']])
+ got=bytes(u.mem_read(dbuf,64));assert render['returned'] and render['eax']==0 and render['error'] is None and drawcalls==expected['render_order'] and got==expectedpixels
+ assert bytes(u.mem_read(frame,20))==renderframe and all(bytes(u.mem_read(l['buffer'],4))==l['data'] for l in layers.values())
+ rows.append({'kind':kind,'chunk':chunked,'entry':entry,'child':child,'key':key,'truth_word':truth,'native_eax':r['eax'],'source_binding_marks_before_original_clear':binding_marks,'marks':marks,'caller_argument_slot':(frame&0xffffff00)|r['eax'],'calls':calls,'head_order':actual,'tail_render_order':tailorder,'draw_calls':drawcalls,'final_first_pixel':int.from_bytes(got[8:12],'little'),'all_pixels_padding_source_frame_verified':True})
+p=b/'native-owner-reorder-to-compositor-matrix-02.json';assert not p.exists();p.write_text(json.dumps({'scope':'same embedded owner nodes feed native reorder and original native429/compositor with original DLL; manual preallocation/membership, not original allocator/insertion or scene','exe_sha256':hashlib.sha256(pe.data).hexdigest(),'dll_sha256':hashlib.sha256(dll.data).hexdigest(),'cases':rows},indent=2),encoding='utf-8');print('PASS',len(rows),'native owner reorder -> same owner tail -> actual original compositor pixel chains')

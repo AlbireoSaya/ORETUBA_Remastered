@@ -1,0 +1,39 @@
+   值键→页归属（从数据导出）：cfg_v_allskip=sys, cfg_v_curhide=sys, cfg_v_display=sys, cfg_v_drama=sys, cfg_v_effect=sys, cfg_v_facewindow=sys, cfg_v_loaddialog=sys, cfg_v_mute_vol_bgm=snd, cfg_v_mute_vol_char=snd, cfg_v_mute_vol_master=snd, cfg_v_mute_vol_se=snd, cfg_v_mute_vol_sysse=snd, cfg_v_mute_vol_voice=snd, cfg_v_savedialog=sys, cfg_v_textcolchg=sys, cfg_v_voicecut=sys, cfg_vchar=snd
+== [1] 右列元素右沿 ≤ 1756（面板内 y≥196，排除全幅件）
+   检查件数 447；违规 0
+== [2] 新增相交对（面积>0；全 470 件全对枚举；旧值表 160 件）
+   改前相交对 5299；改后 5305；新增 6（其中**实际共页** 0、互斥页 6）；消失 0
+   ○ 新增相交（互斥页，永不同时可见；仅登记） cfg.sec_preview(sys) × cfg.ch_ban_tx(snd)
+   ○ 新增相交（互斥页，永不同时可见；仅登记） cfg.sec_preview(sys) × cfg.ch_ban_tx_sel(snd)
+   ○ 新增相交（互斥页，永不同时可见；仅登记） cfg.sec_preview(sys) × cfg.ch_mas_tx(snd)
+   ○ 新增相交（互斥页，永不同时可见；仅登记） cfg.sec_preview(sys) × cfg.ch_mas_tx_sel(snd)
+   ○ 新增相交（互斥页，永不同时可见；仅登记） cfg.sl_autospeed(sys) × cfg.ch_kaz_tx(snd)
+   ○ 新增相交（互斥页，永不同时可见；仅登记） cfg.sl_autospeed(sys) × cfg.ch_kaz_tx_sel(snd)
+   参照：**改前**已存在的互斥页几何重叠 2315 对（⇒ 本类重叠是既有数据形态，非本轮新引入）
+      e.g. cfg.row_winopac_hint(sys) × cfg.pv_name_nar(snd)
+      e.g. cfg.sl_textspeed(sys) × cfg.pv_face_mar(snd)
+      e.g. cfg.o_display_off_sel(sys) × cfg.pv_name_kin(snd)
+      e.g. cfg.sl_winopac_hit(sys) × cfg.pv_name_ai_(snd)
+      e.g. cfg.o_allskip_on_hit(sys) × cfg.ch_ten_pill(snd)
+   点名：`cfg.o_display_off`(左列最右) R=1162 ↔ `cfg.row_winopac_lb`(右列) x=1180 ⇒ 水平间距 18；相交面积 0
+   新增相交中牵涉左列(≥x900 且 R≤1162)的：0 对
+   面板内最大右沿 = 1756（上限 1756）
+== [3] 角色列网格均匀性
+   dot     列 [1116, 1333, 1550] 各列件数 [11, 11, 11] 节距 [217, 217] 极差 0
+   hit     列 [1110, 1327, 1544] 各列件数 [11, 11, 11] 节距 [217, 217] 极差 0
+   pill    列 [1110, 1327, 1544] 各列件数 [11, 11, 11] 节距 [217, 217] 极差 0
+   行 [486, 525, 564, '…'] 步进 [39, 39, 39, '…'] 极差 0
+   tx      列 [1136, 1353, 1570] 各列件数 [11, 11, 11] 节距 [217, 217] 极差 0
+   tx_sel  列 [1136, 1353, 1570] 各列件数 [11, 11, 11] 节距 [217, 217] 极差 0
+   单元宽 {'pill': [210], 'hit': [210], 'tx': [184], 'dot': [12]}
+== [4] 预览组内外关系
+   frame              [1180, 576, 1756]
+   bg                 [1180, 576, 1756]
+   mask_left_inset    10
+   mask_right_inset   10
+   text_left_inset    14
+   text_right_inset   14
+   mask_vs_frame_y    [10, 10]
+   text_vs_frame_y    [12, 8]
+   note_rect          [1180, 576]
+   note_x_rect        [1180, 576]

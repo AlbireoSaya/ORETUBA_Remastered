@@ -1,0 +1,12 @@
+global.RValueExtraMul = function(a, b) {
+    if (typeof a != "Integer" || typeof b != "Integer") {
+        throw new global.Exception("RValueExtraMul: arguments must be Integer");
+    }
+    a = a & 0xffffffff;
+    b = b & 0xffffffff;
+    var a0 = a & 65535;
+    var a1 = a >> 16;
+    var b0 = b & 65535;
+    var b1 = b >> 16;
+    return (a0 * b0 + ((a1 * b0 + a0 * b1) << 16)) & 0xffffffff;
+};

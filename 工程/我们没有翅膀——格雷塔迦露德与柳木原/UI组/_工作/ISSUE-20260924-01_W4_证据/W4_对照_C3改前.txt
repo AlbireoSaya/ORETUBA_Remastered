@@ -1,0 +1,36 @@
+shot ?screen=config&set=dlg_winopac:90                        -> W4_系统页_遮罩90.png
+shot ?screen=config&set=dlg_winopac:50                        -> W4_系统页_遮罩50.png
+shot ?screen=config&set=dlg_winopac:0                         -> W4_系统页_遮罩0.png
+shot ?screen=config&set=dlg_winopac:90&click=cfg.tab2_hit     -> W4_声音页_遮罩90.png
+shot ?screen=config&flags=cfg_page:snd                        -> （仅取 DOM）
+shot ?screen=config&flags=cfg_page:snd                        -> W4_横幅头像_asu.png
+shot ?screen=config&flags=cfg_page:snd,cfg_vchar:kob          -> W4_横幅头像_kob.png
+shot ?screen=config&click=cfg.ch_kaa_hit                      -> W4_系统页_派发角色kaa.png
+shot ?screen=dialog&set=dlg_winopac:90                        -> W4_对话框_遮罩90.png
+shot ?screen=dialog&set=dlg_winopac:0                         -> W4_对话框_遮罩0.png
+系统页 90 vs 50 差异框 = (475, 678, 1718, 877)
+系统页 90 vs  0 差异框 = (293, 678, 1718, 877)
+  ⇒ cfg.pv_mask 矩形内差异像素：90↔50 = 62719、90↔0 = 67969（应 >0，且随档位差递增）
+  ⇒ 白名单（遮罩矩形 ∪ 滑块手柄行程带）**之外**的差异像素：90↔50 = 0、90↔0 = 0（应 0 —— 证明除「手柄位置 + 遮罩浓淡」外画面未变）
+  ⇒ 手柄行程带内差异：90↔50 = 1430、90↔0 = 1430（应 >0 —— 滑块手柄随值移动）
+对话框 90 vs 0 差异框 = (0, 733, 1896, 987)
+  ⇒ 差异框高度 = 254 px（遮罩带 350 ⇒ 90↔0 应约为整条 350 的可见部分）
+数据里带页 flag 的元素：sys=81 件 / snd=166 件；值 flag 键 17 个
+  系统页（进屏初值态）：本页（页 flag）元素可见 81/81、**另一页元素可见 0 件**（应 0）
+  系统页（进屏初值态）：带值 flag 的元素共 168 件 —— **非本页仍可见 0 件**
+  系统页（**派发 config_char_kaa 后**）：本页（页 flag）元素可见 81/81、**另一页元素可见 0 件**（应 0）
+  系统页（**派发 config_char_kaa 后**）：带值 flag 的元素共 168 件 —— **非本页仍可见 4 件**
+     cfg.pv_face_kaa(cfg_vchar，属 snd 页)、cfg.pv_name_kaa(cfg_vchar，属 snd 页)、cfg.ch_kaa_pill(cfg_vchar，属 snd 页)、cfg.ch_kaa_tx_sel(cfg_vchar，属 snd 页)
+  声音页（**点击页签**的真实路径）：本页（页 flag）元素可见 166/166、**另一页元素可见 0 件**（应 0）
+  声音页（**点击页签**的真实路径）：带值 flag 的元素共 168 件 —— **非本页仍可见 0 件**
+  声音页（深链 ?flags= 路径，对照）：本页（页 flag）元素可见 166/166、**另一页元素可见 0 件**（应 0）
+  声音页（深链 ?flags= 路径，对照）：带值 flag 的元素共 168 件 —— **非本页仍可见 0 件**
+④b 横幅头像：声音页(asu) 缺件占位 0 件；kob 档 缺件占位 0 件
+     kob 档已加载的 face/ 图 = ['face/ai_01.png', 'face/aki01.png', 'face/ari01.png', 'face/asu07.png', 'face/ban01.png', 'face/bok01.png']
+     asu 档：['cfg.pv_face_asu', 'cfg.pv_name_asu'] 可见=[True, True]
+     kob 档：['cfg.pv_face_kob', 'cfg.pv_name_kob'] 可见=[False, False]
+     两档在横幅区（1099,261,644,239）内差异像素 = 0（应 >0）
+     对照图 -> E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-01_W4_证据\W4_横幅头像两档对照.png
+对照图 -> E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-01_W4_证据\W4_预览遮罩三档对照.png
+并排图 -> E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-01_W4_证据\W4_两页并排.png
+（已删除临时页 E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260924-01_W4_证据\_w4_temp_page.html）

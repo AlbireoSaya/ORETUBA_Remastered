@@ -1,0 +1,169 @@
+{
+  "_comment": "色板 · 唯一色值来源。M1 必须用 PIL 从下列「取样源」实测吸取后填写 _measured 块，并把 verified 置 true。主代理先填的占位值标 verified=false，M1 实测后覆盖。",
+  "_rule": "layout 中一律写 \"@palette.<key>\"，不得直写色值（唯一例外：元素自带 source 明确要求的固定色）。",
+  "_sampling_sources": {
+    "ui/meswin.png": "对话窗底（蓝紫渐变 + 羽毛装饰）→ 取窗内文本区底色与描边色",
+    "ui/nm_frm_b.png": "名字框（空白）→ 取框底与边框色",
+    "ui/sel01b.png": "选择高亮条 723×30 → 取高亮色",
+    "ui/sm_base.png": "系统菜单底板 182×348 → 取面板填充/边框色",
+    "ui/dlg_bg_26.png": "PSV 纯空白对话窗 522×270 → 取幻想侧底色",
+    "ui/tl1_bg1.png": "标题背景 1200×450 → 取标题氛围色"
+  },
+  "colors": {
+    "text_primary": {
+      "value": "#FFFFFF",
+      "verified": false,
+      "note": "对话正文"
+    },
+    "text_name": {
+      "value": "#FFF0C8",
+      "verified": false,
+      "note": "角色名框文字"
+    },
+    "text_menu": {
+      "value": "#E8E8F0",
+      "verified": false,
+      "note": "菜单项文字"
+    },
+    "text_menu_sel": {
+      "value": "#FFE9A8",
+      "verified": false,
+      "note": "菜单选中项文字"
+    },
+    "text_disabled": {
+      "value": "#8A8A96",
+      "verified": false,
+      "note": "未解锁项文字"
+    },
+    "text_title": {
+      "value": "#F5E9C8",
+      "verified": false,
+      "note": "标题主文字"
+    },
+    "text_subtitle": {
+      "value": "#D8CFB8",
+      "verified": false,
+      "note": "标题副文字"
+    },
+    "text_small": {
+      "value": "#C8C8D2",
+      "verified": false,
+      "note": "小字/页码/版权行"
+    },
+    "text_hint": {
+      "value": "#B8B8C8",
+      "verified": false,
+      "note": "说明栏文字"
+    },
+    "psv_ink": {
+      "value": "#16223A",
+      "verified": true,
+      "note": "★ C 组修复（ISSUE-20260926-06，2026-09-26）：**PSV 浅色霜板上的主文字/标签**。实测三种底：霜板 L≈223~240、PSV 药丸壳内 L≈155、值胶囊 L≈188 ⇒ 对比度 ≈11.9 / 5.4 / 8.4（WCAG 2.x，均 ≥ 门槛）。起因：本屏原用 `text_menu`（#E8E8F0，给深色底配的浅字）压浅霜板，对比度仅 ≈1.0~1.1，观感即「洗白残影」（缺陷 ①④）。"
+    },
+    "psv_ink_dim": {
+      "value": "#3E4E70",
+      "verified": true,
+      "note": "★ C 组修复：**PSV 浅色霜板上的次级/说明文字**（预览说明段、滑条提示）。实测底 L≈203~227 ⇒ 对比度 ≈5.1~6.2。"
+    },
+    "panel_fill": {
+      "value": "#141824",
+      "verified": false,
+      "note": "面板半透明填充底"
+    },
+    "panel_fill_opa": {
+      "value": 200,
+      "verified": false,
+      "note": "面板填充不透明度 0-255"
+    },
+    "panel_edge": {
+      "value": "#5A6A8A",
+      "verified": false,
+      "note": "面板边框"
+    },
+    "panel_edge_opa": {
+      "value": 220,
+      "verified": false,
+      "note": "边框不透明度"
+    },
+    "highlight": {
+      "value": "#3A5A9A",
+      "verified": false,
+      "note": "选中高亮块"
+    },
+    "highlight_opa": {
+      "value": 150,
+      "verified": false,
+      "note": "高亮不透明度"
+    },
+    "accent": {
+      "value": "#7AB0E8",
+      "verified": false,
+      "note": "强调/进度/激活态"
+    },
+    "backdrop": {
+      "value": "#000000",
+      "verified": false,
+      "note": "全屏压暗遮罩"
+    },
+    "backdrop_opa": {
+      "value": 170,
+      "verified": false,
+      "note": "遮罩不透明度"
+    },
+    "shadow": {
+      "value": "#000000",
+      "verified": false,
+      "note": "文字阴影"
+    },
+    "letterbox": {
+      "value": "#000000",
+      "verified": false,
+      "note": "4:3 内容区左右留黑"
+    },
+    "canvas_white": {
+      "value": "#FFFFFF",
+      "verified": false,
+      "note": "★ M43 观察用全白底（`dlg.canvas_white`，z=2）——纯观察辅助、非成品美术；**纯白是定义值、无「取样源」可实测**，故按本文件 `verified` 语义（= 已用 PIL 从取样源实测）保持 **false**，不要因「值确定」而置 true"
+    },
+    "node_locked": {
+      "value": "#4A4A56",
+      "verified": false,
+      "note": "流程图未解锁节点"
+    },
+    "node_visited": {
+      "value": "#5AA06A",
+      "verified": false,
+      "note": "流程图已读节点"
+    },
+    "node_available": {
+      "value": "#4A86C8",
+      "verified": false,
+      "note": "流程图可前往节点"
+    },
+    "node_current": {
+      "value": "#D8A83C",
+      "verified": false,
+      "note": "流程图当前节点"
+    },
+    "edge_line": {
+      "value": "#6A6A7A",
+      "verified": false,
+      "note": "流程图连线"
+    },
+    "edge_normal": {
+      "value": "#266080",
+      "verified": true,
+      "note": "★ 修正轮（2026-09-27 · 用户裁决，ISSUE-20260927-05）：**流程图连线 normal 线色改深蓝 #266080**＝参照作 noroute/query 色 `0xFF266080`（`图表加载器_未定名.txt:57/59`）。依据：原冰蓝 #65B1D4 与「选择支节点」底色 #5FABD2 的 ΔE76 仅 3.2 ⇒ 连线与节点几乎同色。`links[].color` 由此键解析为 0xFF266080。`edge_line`(#6A6A7A) 仍保留不动、全库零引用。"
+    },
+    "edge_visited": {
+      "value": "#3580A8",
+      "verified": false,
+      "note": "★ 第 2 步（2026-09-28 · ISSUE-20260928-02 · 接口冻结 §一.2）：**流程图连线 `state=visited`（已走）线色**。`links[].color` 由此键解析为 0xFF3580A8；同 state 的 `w=4`、`arrow=true`。**出处与选值依据**：① 线型分档照参照作 `图表加载器_未定名.txt:56-59` 的三线型（`normal` 5×0.75 / `nojump` 3×0.75 **无箭头** / `noroute`·`query` 4×0.75）；② **`visited` 不用参照作冰蓝 #65B1D4 的理由**＝该色与「选择支节点底色」#5FABD2 的 **ΔE76 仅 3.2**、肉眼不可分，**上轮已被用户否决**（同一理由把 `edge_normal` 定为 #266080）；故取登记在案的备选深蓝 **#3580A8**（对深底对比度 ≈4.35:1），与 `edge_normal` #266080 同色相、明度上调一档 ⇒ 两档可辨且都不与节点底色撞色。`verified:false` 沿用本文件语义（＝尚未用 PIL 从素材取样实测；本条是**配色选择**，非吸色结果）。**可推翻性**：改本键一个值 + 重跑 `工具\\gen_flow_layout.py` 即全局生效。"
+    },
+    "edge_noroute": {
+      "value": "#5A5A68",
+      "verified": false,
+      "note": "★ 第 2 步（2026-09-28 · ISSUE-20260928-02 · 接口冻结 §一.2）：**流程图连线 `state=noroute`（不可前往／未成立）线色**。`links[].color` 由此键解析为 0xFF5A5A68；同 state 的 **`w=3`**、**`arrow=false`（不画箭头）**。**出处**：原取第 1 步建的旧键 `edge_line` 的值（占位灰 `#6A6A7A`、当时全库零引用），接口冻结 §一.2 明写「值沿用旧 `edge_line` 的 `#6A6A7A`」。语义对齐参照作 `nojump`「无箭头」那一档（`图表加载器_未定名.txt:56-59` 三线型中的灰调无箭头档）。★ **第 7 批（2026-09-28 · 依 vision 实测调暗）**：`#6A6A7A` → **`#5A5A68`**。★ **第 8 批订正（同日 · HTML 侧一审）**：原文写的「引擎深底 (39,45,59)」**是错的**——引擎巡演 PNG 为 RGBA，`(39,45,59)` 是**未计入 alpha 的原始 RGB**（α≈93），合成黑底后**真实显示底是 `(14,16,22)`**（与 HTML 复刻的 `(14,17,22)` 差 ≤1/255，**两端一致**；错误来源＝`ISSUE-20260927-07` 的取色脚本 `Image.open(...).convert(\"RGB\")` 丢 alpha）。**按真实显示底复算**：旧 `#6A6A7A` **3.56:1**、`normal` #266080 **2.76:1**、`visited` #3580A8 **4.33:1**、新 `#5A5A68` **2.79:1** ⇒ **相对结论仍成立**（旧值确比 `normal` 更亮 ⇒ 调暗方向对），但**调暗后 2.79 仍微高于 normal 的 2.76（差 1%）**，故「三档亮度与语义完全同序」这句**不严格**——如实登记；如需严格同序，把 `noroute` 再压到约 `#55555F`（约 2.6:1）即可（一行改动）。「三档色两两不同」「色值可在 palette 找到同值键」两条断言仍过（`test_flow_links.py` ⑥）。`verified:false` 沿用本文件语义（非吸色实测，本条是**配色裁决**）。"
+    }
+  }
+}

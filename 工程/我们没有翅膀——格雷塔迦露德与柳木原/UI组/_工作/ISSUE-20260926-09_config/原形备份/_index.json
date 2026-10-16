@@ -1,0 +1,245 @@
+{
+ "_comment": "屏清单（主代理维护）。owner = 写权限归属模块；file = 相对 layout/screens/ 的文件名。 ★ M45（2026-09-23，用户裁定）：`sysmenu`（系统菜单，20_sysmenu.json）**已废除**（19 → 18 屏）—— 系统功能由右端竖排快捷条（quickbar，「药丸按钮系统」）承担；屏数据快照见 _工作\\M45_旧素材归档\\。 ★ M46（2026-09-23，用户裁定）：`sysbar`（系统条，34_sysbar.json）**已删除**（18 → 17 屏）—— 用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」；该屏自 M34 建立以来**从未可达**（无任何动作能打开它），屏数据快照见 _工作\\M46_旧素材归档\\；**本屏 4 组素材一律保留原位不归档**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用，删之即冲突；其余件同理不删）。",
+ "screens": [
+  {
+   "id": "title",
+   "file": "01_title.json",
+   "title_cn": "标题画面",
+   "owner": "M13",
+   "required": [
+    "满幅背景图（x_bg_system，不留黑边）",
+    "标题 logo",
+    "主菜单 7 项 = **圆形功能图标热区（96×96，state_assets 两态）+ 独立的合成层文字图**；两者同属一个 state_group（title.menu_<key>）⇒ 悬停/按下任一方，两者同步换态（M34 建立 → M35b 改为「图标 + 文字」结构，原「图上烘焙中英文，439×122 的 image + hit 各 7」已过时）",
+    "署名行"
+   ]
+  },
+  {
+   "id": "dialog",
+   "file": "10_dialog.json",
+   "title_cn": "对话框（无框画布方案·文字四向描边）/名字框/选择肢",
+   "owner": "M13",
+   "required": [
+    "留黑底（letterbox）",
+    "剧情背景层（dlg.content，dynamic:story_background）",
+    "★ M38 无框方案（用户 2026-09-23 裁决）：**无对话窗底图、无右下功能图标九宫格** —— 原 required 项「对话窗底（x_gen_dialog2，1628×319）」「系统条 9 键」「文本光标」**均已退场**（窗底与 9 件图标素材已入 `_工作\\M38_旧素材归档\\`；功能改由右端竖排快捷条 quickbar 承担）。本屏现 7 件：letterbox / content / name / text / choices / mode_tag / hint",
+    "角色名文本（dlg.name，**黑描边白字**：outline 2px + outline_color #000000；主色仍 @palette.text_name，shadow 关）",
+    "正文文本区（打字机，dlg.text，**同参数四向描边**；折行/截断仍只按正文度量，描边不参与布局）",
+    "选择肢列表（dlg.choices，M38 视觉验收追修：font 同为 outline 2px + shadow 关；高亮项金字由 `highlight_font_color` 决定、描边由 font 统一生效）",
+    "自动·快进状态标签（dlg.mode_tag）",
+    "右键功能提示行（dlg.hint：「右键：功能图标　空格：快进　Esc：返回　右缘：快捷条」）"
+   ]
+  },
+  {
+   "id": "confirm",
+   "file": "21_confirm.json",
+   "title_cn": "确认框",
+   "owner": "M5",
+   "required": [
+    "九宫格边框",
+    "提示文本",
+    "是/否 按钮"
+   ]
+  },
+  {
+   "id": "loading",
+   "file": "22_loading.json",
+   "title_cn": "加载提示",
+   "owner": "M5",
+   "required": [
+    "居中提示图 320×120",
+    "全屏遮罩"
+   ]
+  },
+  {
+   "id": "save",
+   "file": "23_save.json",
+   "title_cn": "存档",
+   "owner": "M5",
+   "required": [
+    "底图",
+    "槽列表 8 槽",
+    "槽内缩略图/日期/摘要",
+    "翻页",
+    "返回"
+   ]
+  },
+  {
+   "id": "load",
+   "file": "24_load.json",
+   "title_cn": "读档",
+   "owner": "M5",
+   "required": [
+    "底图",
+    "槽列表 8 槽",
+    "翻页",
+    "返回"
+   ]
+  },
+  {
+   "id": "config",
+   "file": "25_config.json",
+   "title_cn": "配置",
+   "owner": "M5",
+   "required": [
+    "底图",
+    "设置项列表 ≥12 项",
+    "说明栏",
+    "返回"
+   ]
+  },
+  {
+   "id": "backlog",
+   "file": "26_backlog.json",
+   "title_cn": "回想",
+   "owner": "M5",
+   "required": [
+    "底板",
+    "文本列表",
+    "滚动条",
+    "返回"
+   ]
+  },
+  {
+   "id": "gallery",
+   "file": "27_gallery.json",
+   "title_cn": "CG 鉴赏（鉴赏模式第 1 页）",
+   "owner": "M2",
+   "required": [
+    "24 栏网格 list（6×4，item_variants 差分翻页 n/N）× 12 页 = 286 栏（M2 重写，ISSUE-20260924-08）",
+    "栏位底板逐项三态（x_ui_gal_cell_*）+ 差分缩略图（x_gal_c*_，映射.tsv 顺序）",
+    "页码控件（上一页 / x / 12 / 下一页，gallery_page_prev/next）",
+    "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+   ]
+  },
+  {
+   "id": "music",
+   "file": "28_music.json",
+   "title_cn": "BGM 鉴赏（鉴赏模式第 2 页）",
+   "owner": "M3",
+   "required": [
+    "3×10 曲目网格 list（30 栏/页，逐项三态 + 行内播放键，M3 重绘，ISSUE-20260924-08）",
+    "播放控制 8 键 + 音量滑块（bgm_* 动作，播放留编程组）",
+    "页码控件（上一页 / x / 2 / 下一页）",
+    "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+   ]
+  },
+  {
+   "id": "ending",
+   "file": "29_ending.json",
+   "title_cn": "片尾（STAFF/歌词）",
+   "owner": "M5",
+   "required": [
+    "滚动区",
+    "歌词条",
+    "跳过"
+   ]
+  },
+  {
+   "id": "fragment",
+   "file": "31_fragment.json",
+   "title_cn": "番外（Fragment）选择",
+   "owner": "M4",
+   "required": [
+    "满幅底图（x_gen_fragpage，自带标题与面板边框）",
+    "40 个格子（每格一个热区 action=fragment_enter + 一个标题文本，几何取自底图实测 5×8）",
+    "已收集环",
+    "选中框",
+    "底部收集计数",
+    "返回"
+   ]
+  },
+  {
+   "id": "flowchart",
+   "file": "32_flowchart.json",
+   "title_cn": "剧情流程图",
+   "owner": "M4",
+   "required": [
+    "13 个节点方框图（562–584×108–112，1:1 无缩放、无 nine，居中于 584×112 槽位）",
+    "节点标签（幕名/分歧点名 + 来源·规模）",
+    "节点热区（action=flow_node_<id>）",
+    "三态色环（已读/可前往/未解锁）",
+    "当前节点标记 + 键盘选中框",
+    "连线（同列纵向连接条 / 跨列续接线 / E02 左侧旁路 / 汇流总线与短横条）",
+    "4 行方框类型图例",
+    "节点详情行",
+    "返回"
+   ]
+  },
+  {
+   "id": "sysicons",
+   "file": "33_sysicons.json",
+   "title_cn": "右键图标浮层",
+   "owner": "M13",
+   "required": [
+    "全屏压暗遮罩",
+    "点击空白收起热区",
+    "9 个功能图标（qsave/qload/skip/prev/save/load/config/close/repeat；统一 351×234，3×3 网格 1:1）",
+    "每项点击热区"
+   ]
+  },
+  {
+   "id": "quickbar",
+   "file": "35_quickbar.json",
+   "title_cn": "系统菜单快捷条",
+   "owner": "M34",
+   "required": [
+    "收起态条（63×513）",
+    "展开态条（63×888）",
+    "说明气泡（197×876）",
+    "12 个功能热区"
+   ]
+  },
+  {
+   "id": "choices",
+   "file": "36_choices.json",
+   "title_cn": "选择支",
+   "owner": "M34",
+   "required": [
+    "选择支条 1113×83（三态整图）",
+    "选项文字（引擎绘制）",
+    "选项热区"
+   ]
+  },
+  {
+   "id": "dress",
+   "file": "37_dress.json",
+   "title_cn": "立绘鉴赏（鉴赏模式第 3 页）",
+   "owner": "M4",
+   "required": [
+    "角色名列表 11 行（第 12 行已删：参考作只有 11 行且原行越出底图，M4 对齐）",
+    "▼ 选中指示 + 差分名槽（dr.sel_mark / dr.face_tx，M4 补）",
+    "服装/姿势/差分/大小 换装控件（保留原位，action 留空待编程组）",
+    "时间图标 / 控制条 11 热区 / 初始化键",
+    "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+   ]
+  },
+  {
+   "id": "replay",
+   "file": "38_replay.json",
+   "title_cn": "情景回想（鉴赏模式第 4 页）",
+   "owner": "M4",
+   "required": [
+    "两页 5×5 = 50 栏网格 list（scroll.page_size 25，gallery_page_prev/next 翻页）",
+    "第一页 25 情景栏占位（labels 占位文本/actions 空/frames 空数组——内容待填）",
+    "第二页 10 件动画（replay_play:<行号> 派发即止留编程组）+ 15 空栏（越界留空）",
+    "选中情景预览板（rp.preview，运行期贴画面，占位底板）",
+    "页码控件（上一页 / x / 2 / 下一页）",
+    "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+   ]
+  },
+  {
+   "id": "gal_shell",
+   "file": "39_gal_shell.json",
+   "title_cn": "鉴赏模式共享外壳（页签条 + 标题 + 返回）",
+   "owner": "M1",
+   "required": [
+    "页签条底板（冰蓝磨砂玻璃九宫格）",
+    "四个页签热区（action = gallery_tab_1..4，矩形取参考作 `エクストラ共通` 实测）",
+    "四个页签标签文字（引擎绘制）",
+    "当前页签选中指示（`vis_flag=gal_tab` + `vis_when=<承载屏 id>`，派生出口见 ui_screens.tjs）",
+    "标题「鉴赏模式」（引擎绘制）",
+    "返回键（action = close）"
+   ]
+  }
+ ]
+}

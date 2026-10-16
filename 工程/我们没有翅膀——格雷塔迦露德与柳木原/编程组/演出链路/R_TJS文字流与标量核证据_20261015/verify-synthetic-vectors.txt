@@ -1,0 +1,15 @@
+from pathlib import Path
+import sys,json,hashlib
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-target-byteflow-20261015';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具')]
+from r_tjs_numeric_vectors import numeric_cases
+from r_tjs_case_lines import numeric_line,literal_line
+from lucifen_literal_run_reference import literal_run
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir();lines=[numeric_line(v)for v in numeric_cases()]
+old=g/'演出链路/R_原字节流与独立表达式证据_20261012/native-literal-unit-fixtures.json';native=json.loads(old.read_text(encoding='utf8'));assert native['cases']==434
+for row in native['rows']:
+ data=bytes.fromhex(row['input_hex']);lines.append(literal_line(data,0,literal_run(data,0,len(data))))
+for data,base in [(b'',0),(b'abc',10),(b'\0',0),(b'[',10),(b'\x81\0[',12),(b'\x81[\0',20),(b'\x80\xa0\xdf\xfd\xff',50)]:
+ data=data.decode('unicode_escape').encode('latin1')if b'\\'in data else data
+ res=literal_run(data,0,len(data));res['end']+=base;res['units']=[(p+base,n)for p,n in res['units']];lines.append(literal_line(data,base,res))
+rejects=['RValueOp(999,1,2);','RValueOp(13,"x",0);','RValueOp(13,1,1.5);','RLiteralRun(function(q){return 0x81;},0,1);','RLiteralRun(function(q){return 256;},0,1);','RLiteralRun(function(q){return -1;},0,1);','RLiteralRun(function(q){return 1.5;},0,1);','RLiteralRun(function(q){return 1;},-1,1);','RLiteralRun(function(q){return 1;},2,1);','RLiteralRun(function(q){return 1;},0,4294967296);','RLiteralRun(void,0,1);']
+lines+=['RCheckReject(function(){'+s+'});'for s in rejects];assert len(lines)==1830;p=out/'synthetic.tjs';p.write_text('\n'.join(lines)+'\n',encoding='utf8');print(json.dumps({'cases':len(lines),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}))

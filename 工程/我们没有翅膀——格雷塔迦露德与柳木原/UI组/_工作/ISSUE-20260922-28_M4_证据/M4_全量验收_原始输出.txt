@@ -1,0 +1,218 @@
+############ 验收 1 · verify_ui.py ############
+==============================================================================
+verify_ui.py · UI 组 M1 一致性校验
+  layout : E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout
+  assets : E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\assets\ui
+  game   : E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\game
+  canvas : 1920x1080（canvas_baseline=1920x1080）  ← 读自 layout/_root.json
+==============================================================================
+  [1] 引用完整性      ：770 条引用 / 151 条唯一 → 通过
+  [2] 尺寸一致性      ：301 个 image（其中九宫格 271）→ 通过
+  [3] 三处数据一致    ：json 17239 键 / tjs 17239 键 / js 17239 键 → 通过
+  [4] 硬编码坐标扫描  ：扫 12 个 .tjs（排除自动生成的 ui_layout.tjs）→ 可疑清单为空，通过
+      白名单：W1 值∈{0,1,2,3} ｜ W2 值==255 ｜ W3 行含 interval/Timer/period ｜ W4 疑似数组下标 ｜ W5 十六进制字面量 ｜ W6 行含 UILayout/uiTheme/uiAsset
+  [5] PNG 合法性      ：435 件 → 通过
+      P 模式（索引色）清单：无
+      L 模式（灰度）清单  ：无
+  [6] 体积预算        ：435 件 / 39.64 MB（56 MB 预算）→ 通过
+------------------------------------------------------------------------------
+汇总：引用 0 ｜ 尺寸 0 ｜ 三处一致 0 ｜ 硬编码可疑 0 行 ｜ PNG 0 ｜ 预算 0 处
+资产：435 件 / 39.64 MB
+结果：**全部通过**（退出码 0）
+==============================================================================
+rc=0
+
+############ 验收 1b · test_verify_asset_refs.py ############
+========================================================================
+verify_ui.iter_asset_refs 覆盖性自测（state_assets）
+========================================================================
+  OK   state_assets.normal 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.hover 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   state_assets.pressed 被收集  —— {'state_assets.hover': 'ui/h.png', 'state_assets.normal': 'ui/n.png', 'state_assets.pressed': 'ui/p.png'}
+  OK   空串/None 不产生引用  —— ['ui/n.png']
+  OK   asset 与 state_assets 并存  —— ['ui/bg.png', 'ui/n.png']
+  OK   item_frame/asset 未回归  —— ['ui/a.png', 'ui/f.png']
+  OK   深层 list 下标路径  —— ['screens.s.elements[0].state_assets.pressed']
+  OK   真实 layout 上收到 state_assets 引用（>0）  —— state_assets=162 / 总 770
+  OK   非三键的自定义态也被收集（Minor-10）  —— ['ui/dis.png', 'ui/focus.png', 'ui/n.png']
+  OK   state_assets 非字典 -> 计入引用表（供 [1] 报缺件）  —— [('ui/typo.png', 'state_assets')]
+------------------------------------------------------------------------
+结果：**全部通过**
+rc=0
+
+############ 验收 2 · test_state_targets.py ############
+==========================================================================
+状态目标可达性验证 ｜ 数据=E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+
+[1] 判据指纹（ui_screens.tjs ↔ 本文件复算）
+  uiScreenElementVisible     sha256=a985f281284603ae27ec9f3468b403a8217072e38c2708a9813062d3901a259d  (319 字节)
+  uiScreenHoverAtIn          sha256=316b402dd04f5e18bd4b33d96f4cb7e41c3c60f9ccf8a8f8c3af0f658d6524f2  (528 字节)
+
+[2] 判据令牌（成对一致性）
+  ✓ 候选并集·带 state_assets 的任何元素
+  ✓ 候选并集·缺态图时只认 kind==hit
+  ✓ 候选并集·热区必须带非空 state_group
+  ✓ 可见性·visible_default 前置
+  ✓ 可见性·vis_flag / vis_when 成对
+  ✓ 可见性·vis_when 通配 "*" = 非空即显示
+  ✓ 平票·z 相等时声明更晚者胜
+
+[3] 可达性（几何中心）
+  覆盖：态图+组 25 件 ｜ 纯组热区 11 件 ⇒ 合计 36 件（按各自可见所需的 flag 取值复算）
+  – 跳过 25_config.json :: cfg.mute_off（visible_default=false）
+  – 跳过 25_config.json :: cfg.mute_hit（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay（visible_default=false）
+  – 跳过 25_config.json :: cfg.replay_hit（visible_default=false）
+
+==========================================================================
+结果：**全部通过**（判据指纹一致 + 36 件元素几何中心可达）
+rc=0
+
+############ 验收 2b · test_state_targets.py --selfcheck ############
+==========================================================================
+状态目标守门 · 反向自证（内存内构造，不改磁盘）
+==========================================================================
+【A 注入 z=999 异组遮挡（盖住 title.menu_hit_1 的中心）】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ 01_title.json :: title.menu_hit_1 中心(104,408) 胜出 zz.occluder（组 zz.other），期望同组 title.menu_start
+
+【B 把 TJS 判据临时放宽（删掉「必须带非空组」守卫）】指纹检查必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ 判据指纹：uiScreenHoverAtIn() 正文已被改写（期望 316b402dd04f…，实际 574f6e1e7c82…）—— 先核对新判据，再更新本文件的 JUDGE_FINGERPRINT
+    ✗ 判据令牌·候选并集·热区必须带非空 state_group：ui_screens.tjs 里找不到 if(uiWidgetStateGroup(el)=="")continue;
+
+【C 把本文件 python 判据换回**收紧前的宽松版**（候选并集去掉「必须有组」）】令牌检查必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ 判据令牌·候选并集·热区必须带非空 state_group：本文件 python 复算里找不到 group_of(e) != ""
+
+自证结果：三项均按预期 FAIL ✓
+rc=0
+
+############ 验收 3 · test_quickbar_reach.py ############
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 29 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ① 收起态：竖条区域 70044 点，胜出者全部是 quick.hit_toggle；12 项不可见（不可达）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致；quick.hit_toggle 胜出 0 点 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致；quick.hit_toggle 胜出 0 点 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态把手独占 / 展开态 12 项各自可达且 action 正确）
+rc=0
+
+############ 验收 3b · test_quickbar_reach.py --selfcheck ############
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 29 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ① 收起态：竖条区域 70044 点，胜出者全部是 quick.hit_toggle；12 项不可见（不可达）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致；quick.hit_toggle 胜出 0 点 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致；quick.hit_toggle 胜出 0 点 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态把手独占 / 展开态 12 项各自可达且 action 正确）
+
+==========================================================================
+反向自证（全部在内存里做，**不动磁盘**）
+==========================================================================
+  ① 收起态：竖条区域 70044 点，胜出者全部是 quick.hit_toggle；12 项不可见（不可达）✓
+
+【A 把手改回可见（修复前的状态）】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ ② 中心(1882.5,43.5) 被 **quick.hit_toggle**(z=96) 吞掉 —— 期望 quick.hit_lock(z=95)；两者重叠 5475 点
+    ✗ ② 中心(1882.5,118.5) 被 **quick.hit_toggle**(z=96) 吞掉 —— 期望 quick.hit_save(z=95)；两者重叠 5475 点
+    ✗ ② 中心(1882.5,193.5) 被 **quick.hit_toggle**(z=96) 吞掉 —— 期望 quick.hit_load(z=95)；两者重叠 5475 点
+    ✗ ② 中心(1882.5,268.5) 被 **quick.hit_toggle**(z=96) 吞掉 —— 期望 quick.hit_qsave(z=95)；两者重叠 5475 点
+    ✗ ② 中心(1882.5,343.5) 被 **quick.hit_toggle**(z=96) 吞掉 —— 期望 quick.hit_qload(z=95)；两者重叠 5475 点
+    ✗ ② 中心(1882.5,418.5) 被 **quick.hit_toggle**(z=96) 吞掉 —— 期望 quick.hit_auto(z=95)；两者重叠 5475 点
+    …共 26 项
+
+【B 注入 z=999 异组遮挡】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ ① 收起态：竖条区域被非把手元素抢走命中：{'quick.zz_occluder': 5475}
+    ✗ ② 中心(1882.5,43.5) 被 **quick.zz_occluder**(z=999) 吞掉 —— 期望 quick.hit_lock(z=95)；两者重叠 5475 点
+    ✗ ③ 中心(1882.5,43.5) 被 **quick.zz_occluder**(z=999) 吞掉 —— 期望 quick.hit_lock(z=95)；两者重叠 5475 点
+
+自证结果：两项均按预期 FAIL ✓
+rc=0
+
+############ 验收 4 · test_gate_field_granularity.py ############
+==============================================================================
+守门字段粒度反向自证 ｜ 被审原文件 E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\01_title.json
+  跑前 md5 = 0ef9529488e320ee9ae071e47ba924cb
+==============================================================================
+
+───── C1_only_state_assets_lost（元素 title.menu_hit_1 只丢 state_assets）─────
+   | ==============================================================================
+   | 编辑器导出件检验 ｜ 1 个屏
+   | ==============================================================================
+   | 
+   | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C1_only_state_assets_lost\01_title.json
+   |    元素数 17 → 17
+   |    * 改属性 title.menu_hit_1         state_assets
+   | 
+   | 调色板引用还原：无需还原（无「旧源是引用、导出变字面值」的字段）
+   | 
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | !! 守门拦截：导出件会造成静默流失，**未落盘**
+   |    · 状态字段丢失：01_title.json —— 1 处（逐条明细见下）
+   |    —— 逐条丢失明细（元素 id + 字段名）——
+   |      · 元素 title.menu_hit_1               丢失字段 state_assets
+   |    （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets` 分别判定**，任一字段丢失即拦截。
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ⇒ 退出码 1（期望 ≠0）；原文件 md5 0ef9529488e320ee9ae071e47ba924cb（未变）⇒ 符合预期 ✓
+
+───── C2_only_state_group_lost（元素 title.menu_txt_start 只丢 state_group）─────
+   | ==============================================================================
+   | 编辑器导出件检验 ｜ 1 个屏
+   | ==============================================================================
+   | 
+   | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C2_only_state_group_lost\01_title.json
+   |    元素数 17 → 17
+   |    * 改属性 title.menu_txt_start     state_group
+   | 
+   | 调色板引用还原：无需还原（无「旧源是引用、导出变字面值」的字段）
+   | 
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | !! 守门拦截：导出件会造成静默流失，**未落盘**
+   |    · 状态字段丢失：01_title.json —— 1 处（逐条明细见下）
+   |    —— 逐条丢失明细（元素 id + 字段名）——
+   |      · 元素 title.menu_txt_start           丢失字段 state_group
+   |    （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets` 分别判定**，任一字段丢失即拦截。
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ⇒ 退出码 1（期望 ≠0）；原文件 md5 0ef9529488e320ee9ae071e47ba924cb（未变）⇒ 符合预期 ✓
+
+───── C3 = C1 + --allow-drop --dry（放行开关）─────
+   | ==============================================================================
+   | 编辑器导出件检验 ｜ 1 个屏
+   | ==============================================================================
+   | 
+   | ## 01_title.json   ←  E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260922-28_M4_证据\t1_gate\C1_only_state_assets_lost\01_title.json
+   |    元素数 17 → 17
+   |    * 改属性 title.menu_hit_1         state_assets
+   | 
+   | 调色板引用还原：无需还原（无「旧源是引用、导出变字面值」的字段）
+   | 
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | !! 守门告警（**--allow-drop 已放行，将继续落盘**）：导出件会造成静默流失
+   |    · 状态字段丢失：01_title.json —— 1 处（逐条明细见下）
+   |    —— 逐条丢失明细（元素 id + 字段名）——
+   |      · 元素 title.menu_hit_1               丢失字段 state_assets
+   |    （`@palette.` 引用数只允许持平或增加；**每一件元素的 `state_group` 与 `state_assets` 分别判定**，任一字段丢失即拦截。
+   |      多为「编辑器页面用的是旧 ui_layout.js」→ 请在编辑器里点『重载』或刷新页面后重新导出；
+   |      确认要强行入库时加 --allow-drop）
+   | !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   | （--allow-drop：已放行，上述逐条明细仍全部打印，**请据此核对后再提交**）
+   |      · 放行项 元素 title.menu_hit_1               丢失字段 state_assets
+   | 
+   | （--dry：未落盘、未跑校验）
+   ⇒ 退出码 0（期望 0）；逐条明细已打印=True；原文件 md5 0ef9529488e320ee9ae071e47ba924cb ⇒ 符合预期 ✓
+
+==============================================================================
+结果：三项全部符合预期 ✓
+（被审原文件 01_title.json md5 始终 = 0ef9529488e320ee9ae071e47ba924cb）
+rc=0
+
+############ 验收 5a · gen_layout.py（幂等）############
+
+[OK] 已生成：
+  layout\ui_layout.json  (20 屏)
+  krkr\game\ui_layout.tjs
+  复刻\ui_layout.js
+rc=0

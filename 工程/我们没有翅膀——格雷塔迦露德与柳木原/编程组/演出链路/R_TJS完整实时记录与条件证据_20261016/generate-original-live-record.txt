@@ -1,0 +1,198 @@
+"""Root local native experiment: complete predispatch record flow, no OS game load."""
+from pathlib import Path
+import hashlib
+import json
+import struct
+import sys
+
+r=Path.cwd().resolve();g=r/"工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+sys.path[:0]=[str(r/"工具/unicorn-2.1.4-py314"),str(g/"工具"),str(g/"逆向引擎")]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_cdecl_observer import observe_cdecl_until
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_READ,UC_HOOK_MEM_WRITE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_EBX,UC_X86_REG_EDX,UC_X86_REG_ESI,UC_X86_REG_EDI,UC_X86_REG_ESP
+
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/"临时/ISSUE-20261011-02")and not out.exists();out.mkdir()
+path=r/"备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE";pe=PE(path)
+digest=hashlib.sha256(pe.data).hexdigest();assert digest=="b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33"
+source,normal_ctx,params,sb=0x3000000,0x1002000,0x1020000,0x1028000
+cur_c,cur_p=0x2007ea8,0x2007eac
+result,altptr,altdesc,altvec,altparams,frame,app=0x1090000,0x1090400,0x1040100,0x1088000,0x1024000,0x1090a00,0x10e0000
+u32=lambda x:struct.pack("<I",x&0xffffffff)
+def ex(words,relocs=()):return{"kind":"expr","words":words,"relocs":list(relocs)}
+def literal(v):return{"kind":"literal","value":v}
+def array(bank=0,element=2):return{"kind":"array","bank":bank,"element":element}
+always={"kind":"always"};empty={"kind":"empty"}
+cases=[]
+def add(label,condition=always,items=(),opcode=4,calls=2,declared=None,poison=None,bad_ctx=False,param_override=None,app_flag=1):
+    cases.append(dict(label=label,condition=condition,items=list(items),opcode=opcode,calls=calls,declared=declared,poison=poison,bad_ctx=bad_ctx,param_override=param_override,app_flag=app_flag))
+add("accepted-zero-parameters",items=[])
+add("accepted-zero-count-poison-param-pointer",items=[],param_override=0xdeadbeef)
+add("declined-opcode-zero-always-poison-count",opcode=0,poison=255,bad_ctx=True)
+add("declined-literal-zero-bad-context",literal(0),poison=255,bad_ctx=True)
+add("declined-length-wrap",literal(0),declared=0xffffffff,poison=255,bad_ctx=True)
+add("inverse-literal-zero-accepts",literal(0),[literal(0x11223344)],opcode=0)
+add("inverse-nonzero-declines",literal(0xffffffff),opcode=0,poison=255,bad_ctx=True)
+add("literal-high-bit-truth",literal(0x80000000),[literal(0xabcdef01)])
+add("array-condition",array(0,2),[literal(7)])
+add("array-parameter",always,[array(0,2)])
+add("mixed-literal-inline-array",always,[empty,literal(0x89abcdef),{"kind":"selected","value":0x12345678},{"kind":"inline","data":b"\xaa\0\xff"},array(0,2)])
+add("inline-empty",always,[{"kind":"inline","data":b""}])
+add("literal-flags-alias-payload",always,[literal(0x89abcdef)],param_override="p0.payload")
+add("inline-flags-alias-length",always,[{"kind":"inline","data":b"\1\0\xff"}],param_override="p0.length")
+add("array-flags-alias-element",always,[array(0,2)],param_override="p0.element")
+add("parameter-flags-write-guest-global",always,[literal(0x10203040)],param_override=0x5355f0)
+add("condition-expression-true",ex([31,1,"RESULT",1]),[literal(9)])
+add("condition-expression-false-skips-poison-count",ex([31,0,"RESULT",1]),poison=255)
+add("condition-expression-inverse",ex([31,0,"RESULT",1]),[literal(10)],opcode=0)
+add("condition-and-two-parameter-expressions",ex([31,1,"RESULT",1]),[ex([31,0x11111111,"RESULT",1]),ex([31,0x22222222,"RESULT",1])])
+add("parameter-pause-restarts-VM",always,[ex([0])])
+add("condition-changes-ctx-param-base",ex([31,"ALTPARAM","CTX434",31,1,"RESULT",1]),[literal(0x55667788)])
+add("condition-zeroes-parameter-count",ex([31,0,"COUNT",31,1,"RESULT",1]),[literal(1),literal(2)])
+add("condition-changes-length-before-decline",ex([31,0xffffffff,"LENGTH",31,0,"RESULT",1]),poison=255)
+add("condition-rewrites-opcode-next-call",ex([31,0,"OPCODE",31,1,"RESULT",1]),[literal(3)])
+add("condition-rewrites-next-tag",ex([31,0x44332202,"p0.start",31,1,"RESULT",1]),[empty,{"kind":"padding-literal","value":0xaabbccdd}],calls=1)
+add("parameter-VM-rewrites-following-tag",always,[ex([31,0x44332202,0,1],[(4,8,"p1.start")]),empty,{"kind":"padding-literal","value":0xaabbccdd}],calls=1)
+add("parameter-result-vector-change",always,[ex([31,"ALTPTR","VECTOR",1])])
+add("condition-global-result-change",ex([31,"ALTDESC","GLOBAL",1]),[literal(4)])
+add("parameter-flag-cleared-rebinds",always,[ex([31,0,0,1],[(4,8,"SELF.FLAG")])])
+for op,a,b in((13,0xffffffff,2),(19,0xf0f0,0x0ff0),(20,0x100,0x20),(41,0xffffffff,0),(44,0xffffffff,0),(45,77,77)):
+    add("condition-scalar-op-"+str(op),ex([op,a,b,"RESULT",1]),[literal(5)])
+add("condition-unary-not",ex([23,0,"RESULT",1]),[literal(6)])
+add("parameter-copy-word",always,[ex([32,"ALTPTR","RESULT",1])])
+add("parameter-increment-word",always,[ex([26,"RESULT",1])])
+add("parameter-stack-relative",always,[ex([40,4,"RESULT",1])])
+add("condition-stack-push-adjust",ex([8,0x12345678,12,4,1]),[literal(7)])
+for truth in(0,1):add("condition-branch-"+str(truth),ex([30,truth,"SELF+28",31,0,"RESULT",1,31,1,"RESULT",1]),[literal(8)])
+for flag in(0,1):add("condition-real-readonly-native-"+str(flag),ex([5,0x411c40,"FRAME","RESULT",1]),[literal(9)],app_flag=flag)
+
+def build(case,record_ctx):
+    data=bytearray(b"[ "+u32(case["opcode"]));symbols={"OPCODE":source+2};expressions=[];fixes=[]
+    def write_expr(item,key):
+        p=source+len(data);n=4*len(item["words"]);code=p+2;flag=code+n;table=flag+1
+        meta=dict(kind="C"if key=="c"else"P",p=p,code=code,flag=flag,table=table)
+        symbols.update({key+".code":code,key+".flag":flag,key+".table":table});expressions.append(meta)
+        data.extend(struct.pack("<H",n))
+        for value in item["words"]:
+            fixes.append((len(data),value,meta,False));data.extend(b"\0"*4)
+        data.append(0);size=7+8*len(item["relocs"]);data.extend(struct.pack("<H",size))
+        for group in range(5):
+            rows=[(slot,index)for gr,slot,index in item["relocs"]if gr==group];data.append(len(rows))
+            for slot,index in rows:
+                data.extend(u32(slot));fixes.append((len(data),index,meta,True));data.extend(b"\0"*4)
+    cond=case["condition"];tags={"literal":0,"always":1,"array":2,"expr":3};data.append(tags[cond["kind"]])
+    if cond["kind"]=="literal":data.extend(u32(cond["value"]))
+    elif cond["kind"]=="array":data.extend(u32(cond["bank"])+u32(cond["element"]))
+    elif cond["kind"]=="expr":write_expr(cond,"c")
+    length_pos=len(data);symbols["LENGTH"]=source+length_pos;data.extend(b"\0"*4)
+    count=sum(item["kind"]!="padding-literal"for item in case["items"])
+    symbols["COUNT"]=source+len(data);data.append(case["poison"]if case["poison"]is not None else count)
+    for i,item in enumerate(case["items"]):
+        key="p"+str(i);symbols[key+".start"]=source+len(data)
+        kind=item["kind"]
+        if kind=="empty":data.append(0)
+        elif kind=="padding-literal":data.extend(u32(item["value"]))
+        elif kind=="literal":data.append(2);symbols[key+".payload"]=source+len(data);data.extend(u32(item["value"]))
+        elif kind=="selected":data.extend(b"\7\0"+u32(item["value"]))
+        elif kind=="inline":data.extend(b"\5\1");symbols[key+".length"]=source+len(data);data.extend(struct.pack("<H",len(item["data"]))+item["data"])
+        elif kind=="array":data.extend(b"\11\2"+u32(item["bank"]));symbols[key+".element"]=source+len(data);data.extend(u32(item["element"]))
+        elif kind=="expr":data.extend(b"\7\3");write_expr(item,key)
+    symbols.update(RESULT=result,ALTPTR=altptr,ALTDESC=altdesc,ALTVEC=altvec,GLOBAL=0x5355e8,VECTOR=0x1085000,ALTPARAM=altparams,CTX434=record_ctx+0x434,FRAME=frame)
+    for offset,value,meta,relative in fixes:
+        if isinstance(value,str):
+            if value=="SELF.FLAG":value=meta["flag"]
+            elif value.startswith("SELF+"):value=meta["code"]+int(value[5:])
+            else:value=symbols[value]
+            if relative:value-=meta["code"]
+        data[offset:offset+4]=u32(value)
+    data[length_pos:length_pos+4]=u32(case["declared"]if case["declared"]is not None else len(data)-length_pos)
+    assert len(data)<=512,(case["label"],len(data))
+    param=case["param_override"];param=symbols[param]if isinstance(param,str)else params if param is None else param
+    return bytes(data)+b"\xcc"*(512-len(data)),param
+
+specs,reports=[],[]
+for case in cases:
+    ctx=0x7f000000 if case["bad_ctx"]else normal_ctx;vmctx=ctx+0x651c;data,param=build(case,ctx)
+    uc=map_pe(pe);uc.mem_map(source,4096);uc.mem_map(0,4096);uc.mem_write(source,data);initial=[]
+    def seed(a,v):uc.mem_write(a,u32(v));initial.append([a,v&0xffffffff])
+    for group,glob,desc,vec,count,width in((0,0x5355f0,0x1040000,0x1050000,8,12),(1,0x5355ec,0x1040040,0x1075000,8,4),(2,0x5355e8,0x1040080,0x1085000,3,12)):
+        seed(glob,desc);seed(desc+4,vec);seed(desc+8,vec+count*width)
+        for i in range(count):seed(vec+i*width,(result+i*16)if group==2 else(0x411c40 if group==1 else 0x1090800+i*64))
+    seed(0x5355e4,0x10d0000);seed(altdesc+4,altvec);seed(altdesc+8,altvec+36);seed(altvec,altptr)
+    seed(result,1);seed(altptr,0xcafebabe)
+    for bank in range(8):
+        for element in range(16):seed(0x1090800+bank*64+element*4,0x1000+bank*16+element)
+    seed(0x530c94,app);seed(app+0xf1f,case["app_flag"]);seed(frame,0);seed(frame+4,13)
+    if not case["bad_ctx"]:seed(ctx+0x434,param);seed(vmctx+4,sb);seed(vmctx+12,sb)
+    state={"phase":"pre","binding":False,"kind":"C"};segments=[]
+    def normal_watch(a):return source<=a<source+4096 or 0x1000000<=a<0x1100000 or 0x530000<=a<0x540000 or 0<=a<4096
+    def cursor_watch(a,ip):return(a in(cur_c,cur_p))and(state["binding"]or ip in(0x42fc07,0x42fd6c))
+    def on_code(machine,a,n,user):
+        if a in(0x42fbe2,0x42fd44):
+            kind="C"if a==0x42fbe2 else"P";cp=cur_c if kind=="C"else cur_p;p=machine.reg_read(UC_X86_REG_ESI)
+            state["kind"]=kind;current["expr_preps"].append([kind,p,cp,int.from_bytes(machine.mem_read(cp,4),"little")])
+        if a==0x430090:
+            state["binding"]=True;sp=machine.reg_read(UC_X86_REG_ESP);entry=int.from_bytes(machine.mem_read(sp+8,4),"little");current["bindings"].append([state["kind"],entry])
+        if a in(0x42fc13,0x42fd75):state["binding"]=False
+        if a==0x4a7a30:
+            state["phase"]="vm";entry=int.from_bytes(machine.mem_read(machine.reg_read(UC_X86_REG_ESP)+4,4),"little");current["vm_runs"].append([state["kind"],entry,None,0])
+        if a==0x4a7a75:
+            pc=int.from_bytes(machine.mem_read(vmctx+8,4),"little");op=int.from_bytes(machine.mem_read(pc,4),"little");idx=len(current["vm_runs"])-1;current["vm_runs"][-1][3]+=1;current["vm_trace"].append([idx,pc,op])
+        if a in(0x42fc1f,0x42fd81):current["vm_runs"][-1][2]=machine.reg_read(UC_X86_REG_EAX)&0xffffffff;state["phase"]="post"
+        if a==0x42fc44:current["condition_value"]=machine.reg_read(UC_X86_REG_EAX)&0xffffffff
+        if a==0x42fc52:current["param_base"]=machine.reg_read(UC_X86_REG_EBX)&0xffffffff
+        if a==0x42fc5e:current["param_count"]=machine.reg_read(UC_X86_REG_EAX)&255
+        if a==0x411c40:
+            f=int.from_bytes(machine.mem_read(machine.reg_read(UC_X86_REG_ESP)+4,4),"little");current["calls"].append([a,f,*struct.unpack("<4I",machine.mem_read(f,16))])
+    def on_read(machine,access,a,size,value,user):
+        ip=machine.reg_read(0x1a)if False else None
+        if state["phase"]=="vm":return
+        from unicorn.x86_const import UC_X86_REG_EIP
+        ip=machine.reg_read(UC_X86_REG_EIP)
+        if normal_watch(a)or cursor_watch(a,ip):current["events"].append([state["phase"],"r",a,size,int.from_bytes(machine.mem_read(a,size),"little")])
+    def on_write(machine,access,a,size,value,user):
+        from unicorn.x86_const import UC_X86_REG_EIP
+        ip=machine.reg_read(UC_X86_REG_EIP);row=[a,size,value&((1<<(8*size))-1)]
+        if state["phase"]=="vm":
+            if normal_watch(a)or pe.image_base<=a<pe.image_base+pe.size_image:current["vm_writes"].append(row);current["_all"].append(row)
+            elif not 0x2000000<=a<0x2010000:current["unexpected"].append(row)
+        elif normal_watch(a)or cursor_watch(a,ip):current["events"].append([state["phase"],"w",*row]);current["_all"].append(row)
+        elif not 0x2000000<=a<0x2010000:current["unexpected"].append(row)
+    uc.hook_add(UC_HOOK_CODE,on_code);uc.hook_add(UC_HOOK_MEM_READ,on_read);uc.hook_add(UC_HOOK_MEM_WRITE,on_write)
+    for call in range(case["calls"]):
+        current={"events":[],"vm_writes":[],"vm_runs":[],"vm_trace":[],"bindings":[],"calls":[],"expr_preps":[],"_all":[],"unexpected":[],"param_count":0,"param_base":None}
+        current["opcode"]=int.from_bytes(uc.mem_read(source+2,4),"little");state.update(phase="pre",binding=False,kind="C")
+        before_heap=bytearray(uc.mem_read(0x1000000,0x100000));before_pe=bytearray(uc.mem_read(pe.image_base,pe.size_image))
+        observed=observe_cdecl_until(uc,0x42fb50,source+1,0x42fdc2,0,{"ecx":ctx},count=20000,timeout=200000)
+        assert not observed["error"]and(observed["returned"]or observed["stop_reached"])and not current["unexpected"],(case["label"],call,observed,current["unexpected"])
+        accepted=observed["stop_reached"]
+        for a,size,value in current["_all"]:
+            raw=value.to_bytes(size,"little")
+            if 0x1000000<=a<0x1100000:before_heap[a-0x1000000:a-0x1000000+size]=raw
+            if pe.image_base<=a<pe.image_base+pe.size_image:before_pe[a-pe.image_base:a-pe.image_base+size]=raw
+        assert bytes(uc.mem_read(0x1000000,0x100000))==bytes(before_heap)and bytes(uc.mem_read(pe.image_base,pe.size_image))==bytes(before_pe)
+        keys=sorted({a for a,size,value in current["_all"]if size==4 and not 0x2000000<=a<0x2010000})
+        current.update(accepted=accepted,next_cursor=uc.reg_read(UC_X86_REG_ESI)if accepted else observed["eax"],param_end=uc.reg_read(UC_X86_REG_EDI)if accepted else None,
+                       final_words=[[a,int.from_bytes(uc.mem_read(a,4),"little")]for a in keys],source_final=list(uc.mem_read(source,512)),passed=True)
+        current.pop("_all");segments.append(current)
+        if not accepted:assert observed["esp"]==0x2008008 and current["condition_value"]==0
+    spec={"label":case["label"],"source":source,"data":list(data),"initial_words":initial,"ctx":ctx,"vmctx":vmctx,"cursor_c":cur_c,"cursor_p":cur_p,"segments":segments}
+    specs.append(spec)
+    report_segments=[]
+    for seg in segments:
+        summary={k:v for k,v in seg.items()if k!="source_final"};summary["source_final_sha256"]=hashlib.sha256(bytes(seg["source_final"])).hexdigest();report_segments.append(summary)
+    reports.append({"label":case["label"],"passed":True,"segments":report_segments})
+assert path.read_bytes()==pe.data
+files=[]
+for index,start in enumerate(range(0,len(specs),8)):
+    p=out/f"cases-{index:03d}.tjs";p.write_text("\n".join("RLiveRecordCheck("+lit(spec)+");"for spec in specs[start:start+8])+"\n",encoding="utf-8")
+    files.append({"source":p.relative_to(r).as_posix(),"sha256":hashlib.sha256(p.read_bytes()).hexdigest()})
+segments=[seg for report in reports for seg in report["segments"]]
+counts={"cases":len(reports),"records":len(segments),"caller_events":sum(len(seg["events"])for seg in segments),"vm_writes":sum(len(seg["vm_writes"])for seg in segments),"vm_steps":sum(len(seg["vm_trace"])for seg in segments),"vm_runs":sum(len(seg["vm_runs"])for seg in segments),"native_calls":sum(len(seg["calls"])for seg in segments)}
+receipt={"passed":True,**counts,"original_sha256":digest,"results":reports,"scope":"original full42FB50 predispatch/decline; exact caller pre/post events includingctx434/bank descriptor order, ordered VM writes and grouped runs/trace/binds/readonly native frames; VM reads/internal native stack except binder-visible cursor cells excluded; no bank growth/dispatch/full game proof"}
+(out/"original-results.json").write_text(json.dumps(receipt,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
+manifest={**counts,"original_result_sha256":hashlib.sha256((out/"original-results.json").read_bytes()).hexdigest(),"files":files}
+(out/"manifest.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
+print(json.dumps({"passed":True,**counts,"native_results_bytes":(out/"original-results.json").stat().st_size}))

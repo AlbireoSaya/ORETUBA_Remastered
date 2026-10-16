@@ -1,0 +1,49 @@
+from pathlib import Path
+import ctypes as C,sys,struct,json,uuid,hashlib
+r=Path.cwd();w=g/'工具';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(w),str(g/'工具')]
+from lucifen_host_gdi_object_bindings import CreateCompatibleDC,CreateDIBSection,SelectObject,DeleteObject
+from lucifen_host_monitor_bindings import DeleteDC
+from lucifen_host_bitblt import BitBlt
+from lucifen_host_stretchblt import StretchBlt
+from lucifen_host_setdibits import SetDIBitsToDevice
+from lucifen_host_getpixel import GetPixel
+from lucifen_host_text_extent_a import GetTextExtentPoint32A
+from lucifen_host_text_extent_w import SIZE
+from lucifen_host_glyph_types import MAT2,GLYPHMETRICS,FIXED
+from lucifen_host_glyph_outline import GetGlyphOutlineA
+from lucifen_host_logfont_a import LOGFONTA
+from lucifen_host_font_create import CreateFontIndirectA
+guard=b'\xa5'*32;owned=[];font=None;oldfont=None;rows={}
+header=struct.pack('<IiiHHIIiiII',40,4,-4,1,32,0,64,0,0,0,0)
+def make_dc():
+ dc=CreateCompatibleDC(None);assert dc
+ hb=C.create_string_buffer(guard+header+guard,104);ob=C.create_string_buffer(guard+bytes(C.sizeof(C.c_void_p))+guard,64+C.sizeof(C.c_void_p));op=C.cast(C.byref(ob,32),C.POINTER(C.c_void_p))
+ bmp=CreateDIBSection(dc,C.byref(hb,32),0,op,None,0);assert bmp and op.contents.value
+ assert hb.raw==guard+header+guard and ob.raw[:32]==ob.raw[-32:]==guard
+ old=SelectObject(dc,bmp);assert old and old!=bmp;owned.append((dc,bmp,old,op.contents.value));return owned[-1]
+try:
+ src,dst=make_dc(),make_dc();pattern=bytes((0x30,0x20,0x10,0))*16;C.memmove(src[3],pattern,64)
+ assert BitBlt(dst[0],0,0,4,4,src[0],0,0,0xcc0020)
+ assert C.string_at(dst[3],64)==pattern and GetPixel(dst[0],3,3)==0x302010;rows['BitBlt_exact_bytes_and_COLORREF']=True
+ C.memset(dst[3],0,64);assert StretchBlt(dst[0],0,0,4,4,src[0],0,0,2,2,0xcc0020)
+ assert GetPixel(dst[0],0,0)==GetPixel(dst[0],3,3)==0x302010;rows['StretchBlt_2_to_4']=True
+ pix=bytes((0x99,0x55,0x22,0))*16;pb=C.create_string_buffer(guard+pix+guard,128);hb=C.create_string_buffer(guard+header+guard,104)
+ assert SetDIBitsToDevice(dst[0],0,0,4,4,0,0,0,4,C.byref(pb,32),C.byref(hb,32),0)==4
+ assert GetPixel(dst[0],1,1)==0x995522 and pb.raw==guard+pix+guard and hb.raw==guard+header+guard;rows['SetDIBits_exact_scanlines_guards']=True
+ lf=LOGFONTA();lf.lfHeight=-16;lf.lfWeight=400;lf.lfFaceName=b'Tahoma';font=CreateFontIndirectA(C.byref(lf));assert font;oldfont=SelectObject(src[0],font);assert oldfont
+ sb=C.create_string_buffer(guard+b'ABC\0'+guard,68);szb=C.create_string_buffer(guard+bytes(8)+guard,72)
+ assert GetTextExtentPoint32A(src[0],C.byref(sb,32),3,C.cast(C.byref(szb,32),C.POINTER(SIZE)))
+ assert sb.raw==guard+b'ABC\0'+guard and szb.raw[:32]==szb.raw[-32:]==guard
+ sz=SIZE.from_buffer_copy(szb.raw[32:-32]);assert sz.cx>0 and sz.cy>0;rows['ANSI_extent']=[sz.cx,sz.cy]
+ assert C.sizeof(FIXED)==4 and C.sizeof(MAT2)==16 and C.sizeof(GLYPHMETRICS)==20 and GLYPHMETRICS.gmCellIncY.offset==18
+ mat=MAT2();mat.eM11.value=mat.eM22.value=1;mb=C.create_string_buffer(guard+bytes(mat)+guard,80);mp=C.cast(C.byref(mb,32),C.POINTER(MAT2));gm=C.create_string_buffer(guard+bytes(20)+guard,84);gp=C.cast(C.byref(gm,32),C.POINTER(GLYPHMETRICS))
+ n=int(GetGlyphOutlineA(src[0],65,1,gp,0,None,mp));assert 0<n<=65536;gb=C.create_string_buffer(guard+bytes(n)+guard,n+64)
+ assert GetGlyphOutlineA(src[0],65,1,gp,n,C.byref(gb,32),mp)==n
+ assert gm.raw[:32]==gm.raw[-32:]==guard and gb.raw[:32]==gb.raw[-32:]==guard and mb.raw==guard+bytes(mat)+guard
+ rows['GlyphOutline_query_and_bitmap']={'bytes':n,'sha256':hashlib.sha256(gb.raw[32:-32]).hexdigest()}
+finally:
+ if oldfont:assert SelectObject(src[0],oldfont)==font
+ if font:assert DeleteObject(font)
+ for dc,bmp,old,bits in reversed(owned):assert SelectObject(dc,old)==bmp and DeleteObject(bmp) and DeleteDC(dc)
+out={'bits':C.sizeof(C.c_void_p)*8,'passed':True,'checks':rows,'owned_cleanup_pass':True,'scope':'owned synthetic SDK, not original frame or glyph reference'}
+p=w/('sdk-render-'+str(out['bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(out,indent=2)+'\n',encoding='utf-8');print(json.dumps({'file':str(p),'passed':True}))

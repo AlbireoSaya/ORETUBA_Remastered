@@ -1,0 +1,7 @@
+function RVMExtraMem27(rd, wr, ctx, p) {
+    var ptr = rd(p & 0xffffffff) & 0xffffffff;
+    var v = rd(ptr & 0xffffffff) & 0xffffffff;
+    wr(ptr & 0xffffffff, (v - 1) & 0xffffffff);
+    var pc = rd((ctx + 8) & 0xffffffff) & 0xffffffff;
+    wr((ctx + 8) & 0xffffffff, (pc + 4) & 0xffffffff);
+}

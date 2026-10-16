@@ -1,0 +1,6 @@
+function RParseInlineExpression(rb, limit, start)
+{
+    var h = RInlineExprHeader(rb, limit, start);
+    h.relocations = RInlineExprRelocations(rb, limit, h);
+    return h;
+}

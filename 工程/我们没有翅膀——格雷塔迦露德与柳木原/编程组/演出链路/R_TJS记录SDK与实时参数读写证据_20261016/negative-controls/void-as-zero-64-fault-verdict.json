@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "fault": "void-as-zero",
+  "bits": 64,
+  "expected_diagnostic": "RG_MISSING_DIRTY_NOT_REJECTED:",
+  "failed_test_receipt_preserved": true,
+  "test_exit_code": 1,
+  "test_process": {
+    "returncode": 0,
+    "timed_out": false,
+    "cleanup_ok": true,
+    "pid": 31500
+  },
+  "original_candidate_unchanged_sha256": "13005becea63e735a441f0e658e8541cc8d6b0b4b7a3b1be20bd1fe74b5ec79c",
+  "injections": [
+    {
+      "path": "临时/ISSUE-20261011-02/r-target-runtime-fault-void-as-zero-64-20261016-01/game/r_memory_read.tjs",
+      "sha256": "91c4122d8e1e65abb3c2e379ccfde945b78b14d7a881c79ca69425493055f89c"
+    }
+  ],
+  "scope": "negative checker test only; mutated game copy, not production/candidate/original files"
+}

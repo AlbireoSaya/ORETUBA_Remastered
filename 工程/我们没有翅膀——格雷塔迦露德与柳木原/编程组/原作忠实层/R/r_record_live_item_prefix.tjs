@@ -1,0 +1,7 @@
+function RRecordLiveItemPrefix(rb, wr, p, dest) {
+	var tag = rb(p & 0xffffffff);
+	var value = (tag == 2) ? 0 : tag;
+	wr(dest & 0xffffffff, value);
+	var next = (p + 1) & 0xffffffff;
+	return %["tag" => tag, "payload_cursor" => next];
+}

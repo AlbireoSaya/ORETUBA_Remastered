@@ -1,0 +1,12 @@
+// r_record_live_prefix.tjs
+// RRecordLivePrefix(rd, rb, start)
+// 仅读取：opcode = rd(start+2)，condition_tag = rb(start+6)；不读 magic/长度/参数，不调用 strict parser。
+function RRecordLivePrefix(rd, rb, start) {
+    var opcode = rd((start + 2) & 0xffffffff) & 0xffffffff;
+    var tag = rb((start + 6) & 0xffffffff);
+    return %[
+        "opcode" => opcode,
+        "condition_tag" => tag,
+        "condition_cursor" => (start + 7) & 0xffffffff
+    ];
+}

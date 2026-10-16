@@ -1,0 +1,1064 @@
+// ============================================================
+// startup.tjs —— 《我们没有翅膀——格雷塔迦露德与柳木原》UI 演示工程入口
+//                （M2 · UI 组 · ISSUE-20260919-11）
+//
+// 这是什么：
+//   UI 组的 TJS2 自研 UI 组件库（不用 KAG3——本工作区没有 KAG3 框架，
+//   见 .zcode\skills\kirikiri-unpack\SKILL.md 与 引擎工作原理.md §8）。
+//   本文件只做「窗口 + 图层 + 脚本装载 + 输入 + 驱动」，画面全部交给
+//   ui_screens.tjs / ui_widget.tjs / ui_dialog.tjs。
+//
+// 运行方式（详见 krkr\README_运行方式.md）：
+//   普通演示   krkr\run_loose.bat
+//   自动巡演   krkr\run_autotour.bat        （无人值守：逐屏切换 + 日志 + 可选 PNG）
+//
+// 关键实测约束（每条都有依据，改代码前请先读）：
+//   ① 子层 visible 默认 false，只有 primary 自动置真（引擎工作原理.md:191-198）
+//      ⇒ stageLayer.visible = true 必须显式写。
+//   ② Timer 必须被引用持有（引擎工作原理.md:225）⇒ 全部存成窗口成员变量。
+//   ③ 写档必须用绝对存储名 file://./<盘符>/…（引擎工作原理.md:84-95）
+//      ⇒ 见 ui_state.tjs；本工程用 -datapath= 把 savedata 指到证据目录。
+//   ④ 素材在工程根之外（krkr\assets\ 是 game\ 的兄弟目录），
+//      相对名带 ".." 越根会失败 ⇒ 用 -assetdir= + Storages.addAutoPath（见 ui_asset.tjs）。
+//   ⑤ 窗口显示 = visible = true（**没有** Window.show()）。
+//   ⑥ 没有 System.exit；退出 = 主窗口 close()。
+// ============================================================
+
+// ------------------------------------------------------------
+// 0. 日志（先开，后面每一步都能取证）
+// ------------------------------------------------------------
+try { Debug.startLogToFile(); } catch(e) { }
+Debug.message("[UI] ================================================");
+Debug.message("[UI] startup.tjs begin  (M2 · UI 组 · ISSUE-20260919-11)");
+Debug.message("[UI] Debug.logLocation = " + Debug.logLocation);
+try { Debug.message("[UI] System.dataPath    = " + System.dataPath); } catch(e) { }
+
+// ------------------------------------------------------------
+// 1. 可调参数（时序参数，非坐标；几何一律来自 UILayoutData）
+// ------------------------------------------------------------
+var UI_BOOT_START_TICK = 0;
+try { UI_BOOT_START_TICK = System.getTickCount(); } catch(e) { }
+
+var UIBlinkTicks = 0;   // ★ M13 诊断：闪烁计时器触发次数（核查光标相位用）
+
+var UI_IGNORE_INPUT_MS = 8000;   // 启动后静默期（防"窗口恰在鼠标下弹出被顺手点关"，SKILL.md §9.3）
+var UI_TYPE_TICK_MS    = 60;     // 打字机节拍
+var UI_BLINK_TICK_MS   = 120;    // 光标闪烁 / 状态重画节拍
+// 窗口化尺寸（主代理 2026-09-20）：按资源组《1920 画布与双分辨率方案》§2.1/§6.2，
+// 窗口化 = 客户区 1280x720 + setZoom(2,3)（画布 1920 缩放 2/3 呈现，精确有理数）；
+// 全屏 = 客户区 1920x1080（倍率退化为 1）。这样在 1920x1080 显示器上窗口不会被切掉。
+var UI_WIN_W           = 1280;
+var UI_WIN_H           = 720;
+var UI_TOUR_STEP_MS    = 2000;   // 自动巡演每屏停留（M2 验收：约 2 秒）
+var UI_TOUR_PNG        = true;   // 巡演时是否尝试离屏导出 PNG
+
+// 转场参数（rule 遮罩；素材由 ui_asset 解析，缺件自动降级 crossfade）
+// ★ M8 修复（D6-转场遮罩）：原值 "ui/rule000.png" **资产集里根本不存在**
+//   （资产集里的遮罩实名为 x_mask_rule000_1x.png / x_mask_rule000_full.png，
+//    见 UI清单.md），故每屏都报 [UI][TRANS][MISS] 并降级 crossfade。
+//   ★ M17 更名：满屏遮罩件原名后缀 `_1280`（1280 基线时代遗留，实际已 1920x1080）
+//     改为 `_full`，故下方常量取值文件名亦随之变更（该族 = x_mask_ruleNNN_1x / _full）。
+//     画布 1920x1080，取 _full 那件（1920x1080，RGBA 带 alpha）与之同尺寸。
+//   实测结论（能否用带 alpha 的 RGBA 遮罩做 rule 转场）见 README_运行方式.md 与 M8 报告。
+var UI_TRANS_RULE      = "ui/x_mask_rule000_full.png";
+var UI_TRANS_MS        = 420;
+var UI_TRANS_VAGUE     = 64;
+var UI_TRANS_ENABLE    = true;
+
+// 窗口标题（AGENTS.md §六 署名规则）：中文标题 + 空格 + 署名串（署名串取自布局数据）
+var UI_TITLE_MAIN      = "我们没有翅膀——格雷塔迦露德与柳木原";
+
+// ★ D-02（2026-10-01 · ISSUE-20261001-11）：顶层句柄 —— `onTransitionCompleted` 是引擎
+//   **投递到 Layer 对象**上的事件，处理函数**须用顶层函数**（本工程实测：写在方法内部用
+//   function 表达式做闭包取不到该方法的局部量，会抛「未找到 Member」并中断整份脚本；
+//   ⚠ 严格说实测只证明「取不到**方法局部量**」——本工程一律按顶层函数写，避免踩同类坑）；
+//   而结算要写回窗口成员 `stageLayer`/`snapLayer` ⇒ 用下面这个顶层变量指回窗口实例，
+//   再走成员方法 `uiTransSettle()`。见 ui_transition.tjs 头部的 ★D-02 段。
+var uiWinInstance = void;
+
+function uiTransOnCompleted()
+{
+	try
+	{
+		if(uiWinInstance === void || uiWinInstance === null) return;
+		uiWinInstance.uiTransSettle();
+	}
+	catch(e) { Debug.message("[UI][TRANS] onTransitionCompleted 处理异常（忽略）：" + e.message); }
+}
+
+// ------------------------------------------------------------
+// 1.5 鼠标键码（★ M13：右键呼出图标浮层）
+//   实测依据（源码，非猜测）：
+//     ① 枚举顺序：visual/tvpinputdefs.h:20-26  enum tTVPMouseButton { mbLeft, mbRight, mbMiddle, mbX1, mbX2 };
+//     ② TJS 全局常量注册：base/ScriptMgnIntf.cpp:65  "mbLeft=0, mbRight=1, mbMiddle=2, mbX1=3, mbX2=4"
+//     ③ 消息映射：environ/win32/TVPWindow.cpp:110  WM_RBUTTONDOWN → OnMouseDown( mbRight, … )
+//     ⇒ **右键 = 1**（任务书原述「1=左 2=右」与源码不符，以源码与枚举顺序为准）。
+//   注意：这里**直接写字面量**而不用 `mbRight` 全局常量——TJS2 里引用未注册的标识符会抛
+//   「未找到 Member」，而该异常**即使被 catch 引擎仍会打整段 dump**（引擎工作原理.md §5.7），
+//   会把「EXCEPTION 计数 = 0」的验收条件打破。源码已确认取值，写字面量更稳。
+var UI_MOUSE_LEFT   = 0;
+var UI_MOUSE_RIGHT  = 1;
+var UI_MOUSE_MIDDLE = 2;
+
+function uiInputMuted()
+{
+	if(UI_IGNORE_INPUT_MS <= 0) return false;
+	if(UI_BOOT_START_TICK <= 0) return false;
+	try { return (System.getTickCount() - UI_BOOT_START_TICK) < UI_IGNORE_INPUT_MS; }
+	catch(e) { return false; }
+}
+
+// ------------------------------------------------------------
+// 2. 装载 UI 组件库（依赖顺序；顶层 var 落在 global，跨脚本可见）
+//    ——与 POC flow demo 同款做法（Scripts.execStorage + context=NULL）
+// ------------------------------------------------------------
+function uiExec(name)
+{
+	try
+	{
+		Scripts.execStorage(name);
+		Debug.message("[UI] execStorage OK   : " + name);
+		return true;
+	}
+	catch(e)
+	{
+		Debug.message("[UI] execStorage FAIL : " + name + " : " + e.message);
+		return false;
+	}
+}
+
+var uiBootOK = true;
+// 注意：krkr 只自动执行 startup.tjs，其它 .tjs 必须显式 execStorage。
+// 依赖顺序：布局数据 → 主题/素材 → 渲染 → 演示台词 → 对话 → 存档 → 转场 → 屏调度
+if(!uiExec("ui_layout.tjs"))      uiBootOK = false;
+if(!uiExec("ui_theme.tjs"))       uiBootOK = false;
+if(!uiExec("ui_asset.tjs"))       uiBootOK = false;
+// ★ M47：设置仓必须排在 ui_widget.tjs / ui_screens.tjs **之前** —— 滑块绘制分支
+//   （ui_widget.tjs 的 uiWidgetDrawSlider）要读本文件声明的 `UIScrSliderVal`
+//   与 UISettingGet/uiSettingHas；顶层 var 落在 global，装载顺序只决定「谁先声明」。
+if(!uiExec("ui_settings.tjs"))    uiBootOK = false;
+if(!uiExec("ui_widget.tjs"))      uiBootOK = false;
+if(!uiExec("ui_demo_script.tjs")) uiBootOK = false;
+if(!uiExec("ui_dialog.tjs"))      uiBootOK = false;
+if(!uiExec("ui_state.tjs"))       uiBootOK = false;
+if(!uiExec("ui_transition.tjs"))  uiBootOK = false;
+if(!uiExec("ui_screens.tjs"))     uiBootOK = false;
+// M4 模块（流程图 / 番外 Fragment / 章节选择）—— 必须排在 ui_screens.tjs 之后，
+// 它通过 uiFlowInstall() 包装 uiScreenDraw/uiActionDispatch/uiScreenKey（见 _工作\M4_报告.md §R1）
+if(!uiExec("ui_flow_data.tjs"))   uiBootOK = false;
+if(!uiExec("ui_flow.tjs"))        uiBootOK = false;
+// ★ ISSUE-20260928-06（2026-09-28，用户裁定）：`fragment` 屏**已整体删除**，但本模块**按裁定保留**
+//   （用户「只删屏、保留动作/素材」）⇒ **这一行必须留着**：删掉 `ui_fragment.tjs` 或本行会让
+//   `uiBootOK=false` 走下面的 FATAL。该模块现**无触发路径**（屏永不为 current），详见其文件头。
+if(!uiExec("ui_fragment.tjs"))    uiBootOK = false;
+
+if(!uiBootOK)
+{
+	Debug.message("[UI] FATAL : UI 组件库装载失败，请看上面的 execStorage FAIL 行");
+	try { System.inform("UI 组件库装载失败，请看 krkr.console.log"); } catch(e2) { }
+}
+
+// 画布尺寸一律来自布局数据
+var UI_W = 0, UI_H = 0;
+try { UI_W = uiThemeCanvasW(); UI_H = uiThemeCanvasH(); }
+catch(e) { UI_W = 0; UI_H = 0; }
+Debug.message("[UI] canvas = " + UI_W + "x" + UI_H);
+
+// ------------------------------------------------------------
+// 3. 主窗口
+// ------------------------------------------------------------
+class UiWindow extends Window
+{
+	var primLayer;    // primaryLayer（引擎自动置可见）；铺留边底色
+	var stageLayer;   // 全部 UI 元素合成到这里（ltAlpha，必须显式 visible=true）
+	var snapLayer;    // ★ D-02：转场**终点**缓冲层（乒乓双缓冲另一半；见 redraw / uiTransSettle）
+	var typeTimer;    // 打字机节拍（必须持引用）
+	var blinkTimer;   // 光标闪烁 / 重画节拍（必须持引用）
+	var tourTimer;    // 自动巡演节拍（必须持引用）
+	var frames;       // 重画次数（诊断）
+	var closing;
+	var lastScreen;   // 上一帧的屏 id（用于判断是否要起转场）
+	var tourOn;       // 自动巡演模式
+	var tourDone;
+	var tourLogged;   // 巡演已记录屏数
+	var pngOK;        // PNG 导出是否可用（实测结果）
+	var pngFail;
+	var pngDir;
+
+	function UiWindow()
+	{
+		super.Window();
+
+		frames = 0; closing = false; lastScreen = "";
+		tourOn = false; tourDone = false; tourLogged = 0;
+		pngOK = 0; pngFail = 0; pngDir = "";
+
+		borderStyle = bsSingle;
+		caption = UI_TITLE_MAIN + " " + UILayoutData.signature;
+		Debug.message("[UI] Window.caption = " + caption);
+
+		// ① primaryLayer（parent=null ⇒ 引擎自动 AttachPrimary + 置可见）
+		add(primLayer = new Layer(this, null));
+		primLayer.left = 0; primLayer.top = 0;
+
+		// ② 客户区尺寸：先请求，再读回实际值
+		setInnerSize(UI_WIN_W, UI_WIN_H);
+		try { setZoom(2, 3); } catch(e) { Debug.message("[UI] setZoom 失败（忽略）：" + e.message); }
+		var w = innerWidth, h = innerHeight;
+		if(w <= 0) w = UI_WIN_W;
+		if(h <= 0) h = UI_WIN_H;
+
+		// ★ 画布尺寸 = UI_W x UI_H（1920x1080）；客户区是 w x h（1280x720），
+		//   由 setZoom(2,3) 把画布缩到客户区。层按**画布**尺寸建，坐标一律画布坐标。
+		primLayer.setImageSize(UI_W, UI_H);
+		primLayer.setSizeToImageSize();
+		primLayer.type = ltOpaque;
+		// 留边底色（D1：4:3 内容 1:1 居中，四周露出的就是这层）
+		// 注意：fillRect 是"连 alpha 一起写入"，色板 letterbox 的 alpha 是 0，
+		//       必须显式把 alpha 补满，否则 primary 层会变透明。
+		var lbCol = uiThemePalette("letterbox");
+		primLayer.fillRect(0, 0, UI_W, UI_H, (0xff << 24) | (lbCol & 0xffffff));
+
+		// ③ 合成层：全部 UI 画在这里
+		add(stageLayer = new Layer(this, primLayer));
+		stageLayer.left = 0; stageLayer.top = 0;
+		stageLayer.setImageSize(UI_W, UI_H);
+		stageLayer.setSizeToImageSize();
+		stageLayer.type = ltAlpha;
+		stageLayer.visible = true;          // ★ 不写这句就永远看不见（引擎工作原理.md §6.2）
+
+		// ④ 转场快照层（不可见，只当图片容器）
+		add(snapLayer = new Layer(this, primLayer));
+		snapLayer.left = 0; snapLayer.top = 0;
+		snapLayer.setImageSize(UI_W, UI_H);
+		snapLayer.setSizeToImageSize();
+		snapLayer.type = ltAlpha;
+		snapLayer.visible = false;
+
+		// ★ D-02：把「转场交换结算」挂到**两层各自**的 onTransitionCompleted 上——
+		//   引擎 ttExchange 语义会在转场结束时把两层整体互换 ⇒ **下一轮起转是在另一个对象上**，
+		//   只挂一层则每隔一轮收不到事件（靠超时兜底也能活，但会白等 120ms）。
+		uiWinInstance = this;
+		try { stageLayer.onTransitionCompleted = uiTransOnCompleted; }
+		catch(eA) { Debug.message("[UI][TRANS] 挂 onTransitionCompleted(stage) 失败：" + eA.message); }
+		try { snapLayer.onTransitionCompleted = uiTransOnCompleted; }
+		catch(eB) { Debug.message("[UI][TRANS] 挂 onTransitionCompleted(snap) 失败：" + eB.message); }
+
+		Debug.message("[UI] client size = " + w + "x" + h + "  (canvas " + UI_W + "x" + UI_H + ", zoom 2/3)");
+
+		// ⑤ 字体探测（不假设任何字体存在）
+		uiThemeProbeFace(stageLayer);
+		Debug.message("[UI][FONT] Font.getList(0) -> " + UIThemeFaceCount + " faces"
+			+ " | 选用 = [" + UIThemeFace + "] | 依据 = " + UIThemeFaceSource);
+
+		// ⑥ 素材系统 + 存档路径 + 巡演计划
+		uiAssetInit(this, primLayer);
+		uiStateInit();
+		uiStateLoad();
+		uiTourCollectScreenIds();
+		Debug.message("[UI][SCREENS] layout 已登记屏数 = " + UIScrTourIdList.count
+			+ " [" + UIScrTourIdList.join(", ") + "]");
+
+		// ⑦ 状态文件写一次（证明可写 + 落点）
+		uiStateSave();
+
+// ⑧ 起始屏
+			uiDialogReset();
+			uiScreenReset("title");
+
+			// ⑧.5 ★ M13：把本窗口登记到 ui_screens.tjs，供巡演的「合成鼠标事件」步骤
+			//      调用 onMouseDown（自动巡演不产生真实鼠标事件，右键浮层无法被覆盖）。
+			UIScrMouseSink = this;
+			Debug.message("[UI][MOUSE] UIScrMouseSink 已登记 = " + ((UIScrMouseSink === null) ? "null" : "窗口实例"));
+
+		// ⑨ 自动巡演判定
+		tourOn = uiDetectTour();
+		Debug.message("[UI][TOUR] autotour = " + (tourOn ? "ON" : "OFF")
+			+ " | 触发方式见 README_运行方式.md");
+		if(tourOn) uiTourReset();
+
+		// ⑨b ★ M35：按下态验收探针（默认关闭；走项目根 press_probe.tjs，见 uiInitPressProbe 注释）
+		uiInitPressProbe();
+
+		// ⑨c ★ M2：竖排快捷条的**强制 flag 覆盖**（默认关闭；走项目根 quick_flags.tjs，
+		//      见 uiInitQuickFlags 注释）—— 供巡演 / 无头验收强制展开竖条。
+		uiInitQuickFlags();
+
+		// ⑩ 计时器（全部存成员变量，否则会被回收、静默停止）
+		try
+		{
+			typeTimer = new Timer(onTypeTimer, '');
+			typeTimer.interval = UI_TYPE_TICK_MS;
+			typeTimer.enabled  = true;
+		}
+		catch(e) { Debug.message("[UI] typeTimer init FAILED : " + e.message); }
+
+		try
+		{
+			blinkTimer = new Timer(onBlinkTimer, '');
+			blinkTimer.interval = UI_BLINK_TICK_MS;
+			blinkTimer.enabled  = true;
+		}
+		catch(e) { Debug.message("[UI] blinkTimer init FAILED : " + e.message); }
+
+		if(tourOn)
+		{
+			try
+			{
+				tourTimer = new Timer(onTourTimer, '');
+				tourTimer.interval = UI_TOUR_STEP_MS;
+				tourTimer.enabled  = true;
+				Debug.message("[UI][TOUR] tourTimer armed : " + UI_TOUR_STEP_MS + " ms/屏");
+			}
+			catch(e) { Debug.message("[UI][TOUR] tourTimer init FAILED : " + e.message); }
+		}
+
+		// ⑪ 首帧
+		this.redraw();
+
+		visible = true;
+		Debug.message("[UI] window visible = " + visible + " | 输入静默期 " + UI_IGNORE_INPUT_MS + " ms");
+		Debug.message("[UI] ===== startup.tjs finished =====");
+	}
+
+	function finalize()
+	{
+		try { if(typeTimer  !== void) invalidate typeTimer;  } catch(e) { }
+		try { if(blinkTimer !== void) invalidate blinkTimer; } catch(e) { }
+		try { if(tourTimer  !== void) invalidate tourTimer;  } catch(e) { }
+		super.finalize(...);
+	}
+
+	// ---------------- 重画 ----------------
+	//   ★ D-02（2026-10-01 · ISSUE-20261001-11）：转场改**乒乓双缓冲**。
+	//     源码依据（visual/TransIntf.cpp:502 与 LayerIntf.cpp 的 InternalStopTransition）：
+	//     内建 universal/crossfade 都报 `TransType = ttExchange`，且混合方向是
+	//     「Phase 0 显示目标层自己的内容 → PhaseMax 显示 transsrc 的内容」，**结束后两层整体互换**。
+	//     ⇒ transsrc 是**终点**（要显示出来的新画面）。旧写法把旧画面拷进 snap、再把 snap 当 transsrc
+	//       ⇒ 方向反 + 结束后可见的仍是旧画面 + 还在往那层上清屏重画 ⇒ **画面恒停旧屏**（用户实报）。
+	//     现写法：前层 `stageLayer` ＝屏上正显示的**旧**画面（转场起点，期间不碰）；
+	//             后层 `snapLayer`  ＝把**新**画面画进去（转场终点，不可见）；
+	//             `stageLayer.beginTransition("universal", true, snapLayer, …)` ⇒ 动画 旧→新；
+	//             结束后由 `uiTransSettle()` 把两个成员引用跟着互换。
+	function redraw()
+	{
+		if(closing) return;
+		frames++;
+
+		var w = innerWidth, h = innerHeight;
+		if(w <= 0) w = UI_W;
+		if(h <= 0) h = UI_H;
+
+		var cur = uiScreenCurrent();
+
+		// ① 转场在场 ⇒ 两层都被引擎锁着（前层＝动画起点、后层＝动画终点），**一律不碰**；
+		//    只有"屏又变了"才强制终止（引擎会立刻做交换）后继续走下面的切屏。
+		if(UI_TRANS_ENABLE && uiTransInFlight())
+		{
+			if(cur == lastScreen) return 0;
+			try { stageLayer.stopTransition(); }
+			catch(eS) { Debug.message("[UI][TRANS] stopTransition 失败（忽略）：" + eS.message); }
+		}
+		// ② 结算上一轮（事件已到；或已超时由 uiTransInFlight() 放行后落到这里兜底）。幂等。
+		this.uiTransSettle();
+
+		// ③ 屏变了 ⇒ 新屏画进**后层**，前层保持旧画面，再起「旧→新」转场
+		if(UI_TRANS_ENABLE && lastScreen != "" && cur != lastScreen)
+		{
+			try
+			{
+				// ★ 清屏必须按**画布尺寸**（客户区 1280x720 ≠ 画布 1920x1080），否则只清左上角、留残影。
+				snapLayer.fillRect(0, 0, UI_W, UI_H, 0x00000000);
+				var drewNew = uiScreenDraw(snapLayer);
+				lastScreen = cur;
+				if(uiTransStart(stageLayer, snapLayer, UI_TRANS_RULE, UI_TRANS_MS, UI_TRANS_VAGUE))
+					return drewNew;      // 转场已起：本帧到此为止（前层原样，动画由引擎推进）
+				// 转场没起（rule 缺件且 crossfade 也失败）⇒ 退化为**瞬时切屏**：
+				// 必须把新屏搬到**前层**，否则画面会停在旧屏（这正是 D-02 的病象）。
+				Debug.message("[UI][TRANS] 转场未起 ⇒ 退化瞬时切屏（新屏直接画进前层）");
+				stageLayer.fillRect(0, 0, UI_W, UI_H, 0x00000000);
+				var drewF = uiScreenDraw(stageLayer);
+				return drewF;
+			}
+			catch(eT)
+			{
+				Debug.message("[UI] redraw(trans) EXCEPTION : " + eT.message
+					+ " | trace = " + (("" + eT.trace).substring(0, 200)));
+				return -1;
+			}
+		}
+
+		lastScreen = cur;
+
+		try
+		{
+			// 清屏：整层置为全透明（Fill 的 color=0 ⇒ RGBA=0）
+			stageLayer.fillRect(0, 0, UI_W, UI_H, 0x00000000);
+			var drawn = uiScreenDraw(stageLayer);
+			return drawn;
+		}
+		catch(e)
+		{
+			Debug.message("[UI] redraw EXCEPTION : " + e.message
+				+ " | trace = " + (("" + e.trace).substring(0, 200)));
+			return -1;
+		}
+	}
+
+	// ---------------- ★ D-02：转场结算（幂等） ----------------
+	//   依据引擎**可观测的交换事实**判定，不依赖事件是否到达：
+	//   ttExchange 结束后 原 stageLayer.visible=false、原 snapLayer.visible=true
+	//   ⇒ 满足即互换两个成员引用（此后 `stageLayer` 恒为"可见且装当前画面"的那一层，
+	//     编程组 `UISaveWin.stageLayer` / `UIStoryWin.stageLayer` 的既有用法因此照旧成立）。
+	//   事件（onTransitionCompleted）与超时两条路都调它；两条都到也只换一次（换完判据即不成立）。
+	function uiTransSettle()
+	{
+		uiTransMarkSettled();
+		var exchanged = false;
+		try { exchanged = ((stageLayer.visible != true) && (snapLayer.visible == true)); }
+		catch(eV) { exchanged = false; }
+		if(!exchanged) return false;
+		var t = stageLayer; stageLayer = snapLayer; snapLayer = t;
+		UITransSwapN++;
+		Debug.message("[UI][TRANS] 交换结算 OK：stageLayer ⇄ snapLayer 已互换（可见层＝新画面）");
+		// ★ D-02 附带：把「层上的一次性 font 设置」镜像到**新前层**。
+		//   编程组 `uiStoryFontSetFile()`（编程组/krkr/game/ui_boot.tjs）只对 stageLayer/primLayer
+		//   置了 `faceIsFileName = true`（内嵌字体兜底：无系统中文字体时把 face 当文件名打开）；
+		//   乒乓交换后新前层若没置位，该层上的中文会退回引擎默认字体 ⇒ 方块。
+		//   **交换之后、该层下一次绘制之前**是安全时机 —— UI 绘制链每次 `uiThemeApplyFont()`
+		//   都重新取 `layer.font`，不跨调用持有引用。
+		try
+		{
+			if(stageLayer.font.faceIsFileName !== true && snapLayer.font.faceIsFileName === true)
+			{
+				stageLayer.font.faceIsFileName = true;
+				Debug.message("[UI][TRANS] 已把 faceIsFileName 镜像到新前层（内嵌字体兜底）");
+			}
+		}
+		catch(eF) { Debug.message("[UI][TRANS] faceIsFileName 镜像失败（忽略）：" + eF.message); }
+		return true;
+	}
+
+	// ---------------- ★ D-02 自证：转场结束后**可见层必须是 stageLayer** ----------------
+	//   判据能失败：结算缺席时引擎已把两层互换 ⇒ 可见的是 snapLayer、而我们仍在往不可见的
+	//   stageLayer 上清屏重画 ⇒ 画面恒停旧屏（用户 2026-10-01 实报的现象）。
+	function uiTransOscCheck()
+	{
+		if(UI_TRANS_ENABLE && uiTransInFlight()) return "";
+		var sv = false, nv = false;
+		try { sv = (stageLayer.visible == true); nv = (snapLayer.visible == true); } catch(e) { }
+		if(sv && !nv)
+		{
+			UITransOscPass++;
+			return "★TRANSOSC★ PASS ｜ 可见层=stageLayer（" + UITransOscPass + "/"
+				+ (UITransOscPass + UITransOscFail) + "）";
+		}
+		UITransOscFail++;
+		return "★TRANSOSC★ FAIL ｜ stageLayer.visible=" + sv + " snapLayer.visible=" + nv
+			+ "（引擎已交换但未结算 ⇒ 画面会恒停旧屏）";
+	}
+	// ---------------- 退出 ----------------
+	function uiQuit(reason)
+	{
+		if(closing) return;
+		closing = true;
+		Debug.message("[UI] quit (" + reason + ") : frames=" + frames
+			+ " | " + uiScreenStackText()
+			+ " | " + uiAssetSummary()
+			+ " | " + uiWidgetDiagSummary()
+			+ " | " + uiTransSummary()
+			+ " | " + uiFlowSummary()
+			+ " | " + uiStateSummary());
+		try { UIStateLastScreen = uiScreenCurrent(); UIStateDialogLine = UIDlgLine; uiStateSave(); }
+		catch(e) { Debug.message("[UI] final save EXCEPTION : " + e.message); }
+		try { close(); } catch(e2) { Debug.message("[UI] close EXCEPTION : " + e2.message); }
+	}
+
+	// ---------------- 计时器回调 ----------------
+	// 打字机
+	function onTypeTimer()
+	{
+		if(closing) return;
+		if(tourOn && tourDone) return;
+		if(uiScreenCurrent() != "dialog") return;
+		if(!UIDlgTyping) return;
+		uiDialogTickType();
+		this.redraw();
+	}
+
+	// 闪烁 / 状态重画
+	function onBlinkTimer()
+	{
+		if(closing) return;
+		UIBlinkTicks++;
+		UIScrBlinkPhase = (UIScrBlinkPhase > 0.5) ? 0.0 : 1.0;
+		UIDlgCursorOn   = (UIScrBlinkPhase < 0.5);
+		if(tourOn && tourDone) return;
+		// ★ M2（契约③）：竖排快捷条的**延时收起倒计时搭这个节拍**（120ms），不新建 Timer。
+		//   本回调本就无条件重画，故 tick 的结果无需另行判断（状态变了下一帧就会体现）。
+		uiScreenRevealTick();
+		this.redraw();
+	}
+
+	// 自动巡演
+	function onTourTimer()
+	{
+		if(closing) return;
+		this.tourTick();
+	}
+
+	// ---------------- 自动巡演 ----------------
+	function tourTick()
+	{
+		// 1) 先给"当前已画好的这一屏"记账 + 导图
+		//    ★ M8 修复（D6-计数）：原实现把 redraw() 的返回值丢掉、硬写 0，
+		//      导致日志里"实绘元素"恒为 0。这里把真实计数透传给记账行。
+		var drawn = 0;
+		try { drawn = this.redraw(); } catch(e) { }
+		this.tourRecord(drawn);
+
+		// 2) 再走下一步
+		var st = uiTourStep();
+		if(st.done)
+		{
+			tourDone = true;
+			Debug.message("[UI][TOUR] ===== 巡演结束 =====");
+			Debug.message("[UI][TOUR] 共记录 " + tourLogged + " 屏 | " + uiAssetSummary());
+			Debug.message("[UI][TOUR] " + uiWidgetDiagSummary());
+			Debug.message("[UI][TOUR] " + uiTransSummary());
+			Debug.message("[UI][TOUR] ★TRANSOSC★ 汇总：PASS " + UITransOscPass + " / FAIL " + UITransOscFail);
+			// ★ E2d（ISSUE-20260928-02 收尾 · 主代理 2026-09-28 裁决）：把**连线/环**两模块的摘要
+			//   并入巡演收尾汇总（此前 `uiFlowLinkSummary()` / `uiFlowLayerSummary()` 无任何调用方）。
+			//   模块未装载时不调用（flag 由 ui_screens.tjs 装载段置位）——本工程纪律：不用抛异常当控制流。
+			if(UIScrFlowLinksOK) Debug.message("[UI][TOUR] " + uiFlowLinkSummary());
+			if(UIScrFlowLayerOK) Debug.message("[UI][TOUR] " + uiFlowLayerSummary());
+			Debug.message("[UI][TOUR] PNG 导出 成功 " + pngOK + " / 失败 " + pngFail
+				+ " | 目录 " + ((pngDir == "") ? "(未启用)" : pngDir));
+			try { UIStateTourRuns = UIStateTourRuns + 1; } catch(e) { }
+			this.uiQuit("autotour done");
+			return;
+		}
+		Debug.message("[UI][TOUR] -> 下一步：" + st.label + "  屏=" + st.screen
+			+ (st.note != "" ? ("  说明=" + st.note) : ""));
+		this.redraw();
+	}
+
+	function tourRecord(drawn)
+	{
+		tourLogged++;
+		if(drawn === void || drawn === null) drawn = 0;
+		// ★ M13 诊断：光标闪烁相位与导出时刻的对照（用于核查 dlg.cursor 是否只是"恰好灭"）
+		Debug.message("[UI][DBG] 导出前 屏=" + uiScreenCurrent() + " blinkTicks=" + UIBlinkTicks
+			+ " phase=" + UIScrBlinkPhase + " UIDlgCursorOn=" + UIDlgCursorOn);
+		Debug.message(uiTourLogLine(uiTourPlanLabel(), drawn));
+		var oscLine = this.uiTransOscCheck();
+		if(oscLine != "") Debug.message("[UI][TOUR] " + oscLine);
+		// ★ E2d：**逐步**记录「本帧 links 实绘 / 环实绘」——用于锁定「导出帧与步的一格偏移」口径。
+		//   口径：这两行紧跟 `uiTourLogLine(...)`，即**与刚导出的那一帧同刻**（`Last` 系列由本帧绘制写入）
+		//   ⇒ 日志里的 links/环计数与 shot_NN 的像素内容应严格同帧，可据此判定取帧是否有偏移。
+		Debug.message("[UI][TOUR][FLOW] " + ((UIScrFlowLinksOK) ? uiFlowLinkSummary() : "links module absent")
+			+ " ｜ " + ((UIScrFlowLayerOK) ? uiFlowLayerSummary() : "layer module absent"));
+		if(UI_TOUR_PNG) this.exportPng(uiScreenCurrent(), tourLogged);
+	}
+
+	function exportPng(screenId, seq)
+	{
+		var name = "shot_" + uiPad2(seq) + "_" + (("" + screenId) == "" ? "none" : ("" + screenId)) + ".png";
+		var dir = "";
+		try { dir = "" + Debug.logLocation; } catch(e) { dir = ""; }
+		if(dir == "") { pngFail++; Debug.message("[UI][PNG][MISS] Debug.logLocation 为空，无法导出"); return false; }
+
+		try
+		{
+			var bmp = new Bitmap();
+			stageLayer.copyToBitmapFromMainImage(bmp);
+			bmp.save(dir + name, "png");
+			pngOK++;
+			pngDir = dir;
+			Debug.message("[UI][PNG] OK " + dir + name);
+			return true;
+		}
+		catch(e)
+		{
+			pngFail++;
+			Debug.message("[UI][PNG][MISS] 离屏导出失败（" + name + "）：" + e.message);
+			return false;
+		}
+	}
+
+	// ---------------- 输入 ----------------
+	function onKeyDown(key, shift)
+	{
+		if(closing) return;
+		if(uiInputMuted())
+		{
+			Debug.message("[UI] onKeyDown " + key + " ignored（启动静默期）");
+			return;
+		}
+		if(tourOn)
+		{
+			Debug.message("[UI] onKeyDown " + key + " ignored（巡演模式）");
+			return;
+		}
+		Debug.message("[UI] onKeyDown key=" + key + " shift=" + shift);
+		this.handleKey(key);
+	}
+
+	function handleKey(key)
+	{
+		// Q / q = 退出
+		if(key == 81 || key == 113) { this.uiQuit("key Q"); return; }
+
+		var r = uiScreenKey(key);
+		if(r.handled)
+		{
+			if(r.action == "quit_game") { this.uiQuit("key Esc at title"); return; }
+			if(r.action == "close")     { uiScreenPop(); }
+			else if(r.action != "move" && r.action != "choice_move")
+			{
+				var res = uiActionDispatch(r.action, (r.index === void) ? -1 : r.index);
+				if(res.effect == "quit") { this.uiQuit("action quit_game"); return; }
+				if(res.effect == "hide_window") { this.visible = !this.visible; }
+				Debug.message("[UI] key " + key + " -> " + res.msg);
+			}
+			this.redraw();
+			return;
+		}
+		Debug.message("[UI] key " + key + " ignored");
+	}
+
+	// ---------------- 鼠标按下（★ M13：右键呼出图标浮层） ----------------
+	// 为什么左键**不在这里**处理：引擎在 WM_LBUTTONDOWN 发 onMouseDown，在 WM_LBUTTONUP
+	// 另发 onClick（environ/win32/TVPWindow.cpp:89,95）。若此处也处理左键，一次左键会
+	// 触发两遍 → 这里只处理右键/中键，左键照旧走 onClick。
+	// Window 事件路径的鼠标坐标是**客户区像素**；画布坐标需换算。
+	// 换算因子由 Window.innerWidth 动态求（不得硬编码 1.5）——见资源组《1920 画布与双分辨率方案》§6.4。
+	// 窗口化 1280 客户区 -> 因子 1.5；全屏 1920 客户区 -> 因子 1（自动正确）。
+	function uiMouseCanvasX(x)
+	{
+		try { var iw = innerWidth; if(iw > 0 && primLayer !== void) return x * primLayer.width / iw; }
+		catch(e) { }
+		return x;
+	}
+	function uiMouseCanvasY(y)
+	{
+		try { var ih = innerHeight; if(ih > 0 && primLayer !== void) return y * primLayer.height / ih; }
+		catch(e) { }
+		return y;
+	}
+
+	function onMouseDown(x, y, mb, flags)
+	{
+		x = uiMouseCanvasX(x); y = uiMouseCanvasY(y);   // 客户区 -> 画布坐标
+		if(closing) return;
+		Debug.message("[UI][MOUSE] onMouseDown x=" + x + " y=" + y + " mb=" + mb + " flags=" + flags
+			+ "（键码表 mbLeft=" + UI_MOUSE_LEFT + " mbRight=" + UI_MOUSE_RIGHT
+			+ " mbMiddle=" + UI_MOUSE_MIDDLE + "）");
+		// ★ M13：巡演的「合成鼠标事件」走的是同一入口，但它不是真人操作，
+		//   故跳过静默期与巡演模式判定（否则合成事件会被自己拦掉，永远测不到）。
+		if(UIScrSynthMouse === true)
+		{
+			Debug.message("[UI][MOUSE] 合成事件：跳过静默期/巡演模式判定");
+		}
+		else
+		{
+			if(uiInputMuted())
+			{
+				Debug.message("[UI][MOUSE] 忽略（启动静默期）");
+				return;
+			}
+			if(tourOn)
+			{
+				Debug.message("[UI][MOUSE] 忽略（巡演模式）");
+				return;
+			}
+		}
+		if(mb == UI_MOUSE_RIGHT)
+		{
+			this.toggleSysIcons();
+			return;
+		}
+		if(mb == UI_MOUSE_MIDDLE)
+		{
+			Debug.message("[UI][MOUSE] 中键：未绑定动作");
+			return;
+		}
+		if(mb == UI_MOUSE_LEFT)
+		{
+			// ★ M35：左键按下 —— **只置「按下目标」（纯视觉态）**，动作仍由 onClick 执行。
+			//   为什么动作不在这里做：源码 TVPWindow.cpp:89/95 说明一次左键会先后触发
+			//   onMouseDown 与 onClick（WM_LBUTTONDOWN / WM_LBUTTONUP），在此也处理动作会**双触发**
+			//   （M13 已据此把左键留给 onClick）。此处只写状态，不碰动作分发，故无双触发风险。
+			if(uiScreenPressUpdate(x, y))
+			{
+				Debug.message("[UI][MOUSE] 按下态：" + UIScrPressMsg);
+				this.redraw();
+			}
+			return;
+		}
+		// 其余键码：不处理
+	}
+
+	// ---------------- 鼠标移动（★ M20：悬停高亮） ----------------
+	// 目的：把「鼠标当前悬停在哪个带 state_assets 的 hit 上」写进渲染 ctx（UIScrHoverHit），
+	//   使 ui_widget.tjs 的 uiWidgetDrawHit 能画 hover 图（标题屏菜单银白 → 金色）。
+	//
+	// 坐标口径（与 onClick / handleClick → uiScreenClick **完全一致**，不得分叉）：
+	//   引擎的 Window 事件给的是**客户区像素**（资源组\04_1920画布与双分辨率方案.md §6.4）。
+	//   ★ **现行配置（第 16 批订正，2026-09-30）**：窗口化 `setInnerSize(UI_WIN_W, UI_WIN_H)`
+	//   （1280×720 客户区）＋ `setZoom(2,3)`（把 1920×1080 画布缩到客户区，见 :186-198）
+	//   ⇒ **客户区尺寸 ≠ 画布尺寸**。本函数与 `ui_screens.tjs` 的 `uiScreenClick` 都**直接
+	//   把引擎传入的 x,y 当画布坐标**（不由调用方乘 1.5）。
+	//   ⚠ **开口项（如实登记，勿当已验证）**：「引擎事件坐标是否已按 `setZoom` 换算」本工程
+	//   **从未实测** —— 巡演与全部闸门走的都是**合成指针**，不经 Window 事件。判定方法：
+	//   窗口化模式下把鼠标移到任一按钮上，看 hover 高亮/按下态是否跟手；**若不跟手**，
+	//   本函数与 `uiScreenClick` 必须**一起**改为按 zoom 换算（两者不得分叉）。
+	//   ⟶ 旧注释称「用 setInnerSize(1920,1080) 且**未调用 setZoom**，客户区 = 画布」，
+	//     该前提与 :187-188 的实际代码**相反**，已作废。
+	//
+	// 性能：只在悬停目标**变化**时重画（uiScreenHoverUpdate 返回 true），不每帧全屏重画。
+	// 容错：整段 try/catch —— 悬停是纯视觉增强，任何异常都不得冒进引擎事件分发
+	//   （本工程已因异常冒进导致引擎冻结一次，见 _工作\M18_报告.md）。
+	function onMouseMove(x, y, flags)
+	{
+		x = uiMouseCanvasX(x); y = uiMouseCanvasY(y);   // 客户区 -> 画布坐标
+		if(closing) return;
+		if(tourOn) return;              // 巡演不产生真实鼠标移动，且巡演期间不重画
+		try
+		{
+			// ★ M2（契约③）：把「展开态 / 收起态 / 气泡 tip 变化」并入「变化才重画」的判定。
+			//   两个更新函数各自返回「是否有变化」；任一变化才 redraw()（沿用既有策略）。
+			var changed = uiScreenHoverUpdate(x, y);
+			var rvChanged = uiScreenRevealUpdate(x, y);
+			if(changed)
+				Debug.message("[UI][HOVER] " + UIScrHoverMsg);
+			if(rvChanged)
+				Debug.message("[UI][QBAR] " + UIScrRevealMsg);
+			if(changed || rvChanged) this.redraw();
+		}
+		catch(e)
+		{
+			Debug.message("[UI][HOVER][ERR] 悬停跟踪异常（已忽略，不影响画面）：" + e.message);
+		}
+	}
+
+	// 右键图标浮层（sysicons）的开关：
+	//   dialog 屏上按右键 → 呼出；sysicons 屏上再按右键 → 收起；
+	//   其它屏不支持（浮层语义是「游戏内」的功能菜单）。
+	function toggleSysIcons()
+	{
+		var cur = uiScreenCurrent();
+		if(cur == "sysicons")
+		{
+			uiScreenPop();
+			Debug.message("[UI][SYSICON] 右键 -> 收起浮层，回到 " + uiScreenCurrent()
+				+ "（栈 " + uiScreenStackText() + "）");
+			this.redraw();
+			return;
+		}
+		// 主代理 2026-09-20 修正：原实现只允许 dialog 屏呼出，用户实测在其它屏右键无反应。
+		// 改为**除标题屏外全屏可用**（标题屏上「存档/快进」等功能无意义）。
+		if(cur == "title")
+		{
+			Debug.message("[UI][SYSICON] 标题屏不呼出图标浮层（功能项无意义）");
+			return;
+		}
+		if(!uiScreenExists("sysicons"))
+		{
+			Debug.message("[UI][SYSICON] layout 缺 sysicons 屏，右键忽略");
+			return;
+		}
+		uiScreenPush("sysicons");
+		Debug.message("[UI][SYSICON] 右键 -> 呼出 9 图标浮层（栈 " + uiScreenStackText() + "）");
+		this.redraw();
+	}
+
+	function onClick(x, y)
+	{
+		x = uiMouseCanvasX(x); y = uiMouseCanvasY(y);   // 客户区 -> 画布坐标
+		// ★ M35：左键抬起 = 清除按下态。
+		//   **位置必须在下面「静默期 / 巡演模式」两个早退之前** —— 否则这两个分支会把
+		//   按下态一直粘住（用户松了鼠标但图还是按下态），这正是 HTML 侧旧实现的老毛病。
+		//   onClick 是左键抬起的入口：源码 TVPWindow.cpp:95 WM_LBUTTONUP → OnClick。
+		var wasPressed = uiScreenPressClear();
+		if(closing) return;
+		if(wasPressed)
+		{
+			Debug.message("[UI][MOUSE] " + UIScrPressMsg);
+			this.redraw();
+		}
+		if(uiInputMuted())
+		{
+			Debug.message("[UI] onClick " + x + "," + y + " ignored（启动静默期）");
+			return;
+		}
+		if(tourOn)
+		{
+			Debug.message("[UI] onClick " + x + "," + y + " ignored（巡演模式）");
+			return;
+		}
+		this.handleClick(x, y);
+	}
+
+	function onTouchDown(x, y, cx, cy, id)
+	{
+		if(closing) return;
+		if(uiInputMuted()) return;
+		if(tourOn) return;
+		this.handleClick(x, y);
+	}
+
+	// ★ M18 新增：带护栏的命中判定。
+	//   实测依据（_工作\M18_证据\console_cr1.utf8.log）：被包装的 uiScreenClick 一旦抛错并
+	//   **冒进引擎事件分发**，引擎会**冻结**——日志停止增长、进程常驻不退出（我实测冻结
+	//   在 05:06:09 后再无一行日志，进程一直活着；这种状态下任何外部 `taskkill /F` 都会
+	//   得到 **EXIT=1**，正是 M14 报告的「收起浮层时静默退出 EXIT=1」）。根因已定位并修在
+	//   ui_fragment.tjs（TJS2 匿名函数取不到外层局部变量 `orig`），本函数是**第二道防线**：
+	//   命中判定无论如何都不得把异常漏给引擎。
+	function uiSafeScreenClick(x, y)
+	{
+		try
+		{
+			var r = uiScreenClick(stageLayer, x, y);
+			if(r === void || r === null) return %[ action: "", hit: false ];
+			return r;
+		}
+		catch(e)
+		{
+			Debug.message("[UI][CLICK][ERR] uiScreenClick 异常（已按“未命中”处理，防引擎冻结）："
+				+ e.message + " | trace = " + (("" + e.trace).substring(0, 160)));
+			return %[ action: "", hit: false ];
+		}
+	}
+
+	function handleClick(x, y)
+	{
+		// ★ M13：右键图标浮层（sysicons）——点任意处都收起；点图标则收起后执行其动作
+		if(uiScreenCurrent() == "sysicons")
+		{
+			// ★ M18：命中判定走 uiSafeScreenClick；且**先收起浮层**——「点哪儿都收起」是
+			//   M13 定下的语义，不得因命中判定异常而丢失（原实现在 uiScreenClick 抛错时
+			//   uiScreenPop() 永不执行 → 浮层点不掉）。
+			var r0 = this.uiSafeScreenClick(x, y);
+			var a0 = (r0.action === void) ? "" : ("" + r0.action);
+			Debug.message("[UI][SYSICON] click " + x + "," + y + " -> "
+				+ ((a0 == "") ? "(空白，收起浮层)" : a0));
+			uiScreenPop();     // 无论点哪儿，浮层都收起
+			if(a0 == "" || a0 == "close")
+			{
+				this.redraw();
+				return;
+			}
+			var res0 = uiActionDispatch(a0, (r0.index === void) ? -1 : r0.index);
+			if(res0.effect == "quit") { this.uiQuit("sysicons action quit_game"); return; }
+			if(res0.effect == "hide_window") { this.visible = !this.visible; }
+			Debug.message("[UI][SYSICON] " + res0.msg);
+			this.redraw();
+			return;
+		}
+
+		var r = this.uiSafeScreenClick(x, y);
+		if(r.action === void || r.action == "")
+		{
+			Debug.message("[UI] click " + x + "," + y + " -> 空区域（当前屏 " + uiScreenCurrent() + "）");
+			this.redraw();
+			return;
+		}
+		Debug.message("[UI] click " + x + "," + y + " -> " + r.action
+			+ ((r.index === void) ? "" : (" idx=" + r.index)));
+		var res = uiActionDispatch(r.action, (r.index === void) ? -1 : r.index);
+		if(res.effect == "quit") { this.uiQuit("action quit_game"); return; }
+		if(res.effect == "hide_window") { this.visible = !this.visible; }
+		this.redraw();
+	}
+
+	function onMouseWheel(shift, delta, x, y)
+	{
+		if(closing || tourOn || uiInputMuted()) return;
+		var act = (delta > 0) ? "page_prev" : "page_next";
+		var res = uiActionDispatch(act, -1);
+		Debug.message("[UI] wheel delta=" + delta + " -> " + res.msg);
+		this.redraw();
+	}
+
+	function onResize(w, h)
+	{
+		if(closing) return;
+		Debug.message("[UI] onResize " + w + "x" + h + "（画面按固定画布绘制，不随窗口缩放）");
+	}
+}
+
+function uiPad2(n)
+{
+	return (n < 10) ? ("0" + n) : ("" + n);
+}
+
+function uiTourPlanLabel()
+{
+	if(UIScrTourPlan === null) return "(未建计划)";
+	var i = UIScrTourIndex - 1;
+	if(i < 0) i = 0;
+	if(i >= UIScrTourPlan.count) return "(已结束)";
+	return "" + UIScrTourPlan[i].label;
+}
+
+// ------------------------------------------------------------
+// 4. 巡演触发判定（三种方式，README 有说明）
+//    ① 命令行 -autotour=1
+//    ② <datapath>\autotour.flag 存在
+//    ③ 项目根 autotour.txt 存在
+// ------------------------------------------------------------
+function uiDetectTour()
+{
+	var v = void;
+	try { v = System.getArgument("autotour"); } catch(e) { v = void; }
+	if(v !== void && v !== null)
+	{
+		var s = "" + v;
+		if(s != "" && s != "0" && s != "no" && s != "false")
+		{
+			Debug.message("[UI][TOUR] 触发方式 ①：命令行 -autotour=" + s);
+			return true;
+		}
+	}
+
+	var flag = "";
+	try { flag = "" + Debug.logLocation + "autotour.flag"; } catch(e) { flag = ""; }
+	if(flag != "")
+	{
+		var ok = false;
+		try { ok = Storages.isExistentStorage(flag); } catch(e2) { ok = false; }
+		if(ok) { Debug.message("[UI][TOUR] 触发方式 ②：" + flag); return true; }
+	}
+
+	var ok2 = false;
+	try { ok2 = Storages.isExistentStorage("autotour.txt"); } catch(e3) { ok2 = false; }
+	if(ok2) { Debug.message("[UI][TOUR] 触发方式 ③：项目根 autotour.txt"); return true; }
+
+	return false;
+}
+
+// ------------------------------------------------------------
+// 4b. 按下态验收探针（★ M35）
+//   目的：无人值守时也要能导出「按下态（pressed）」的截图——真实按下需要鼠标一直按住，
+//   巡演做不到，故给一个**强制按下目标**的探针（写进渲染 ctx 的 pressHit，见 ui_screens.tjs
+//   的 uiScreenCtx：探针非空时优先于真实按下目标）。
+//
+//   ★★ 机制为什么是「flag 文件」而不是命令行参数 —— **本轮实测结论，推翻既有文档** ★★
+//     用已知名字做对照实验（2026-09-22）：命令行传 `-autotour=1` 并抽掉 autotour.txt，
+//     引擎日志把该参数记入「已声明设置： -autotour=1」，但脚本里
+//     `System.getArgument("autotour")` 仍返回 void ⇒ 日志打出 `autotour = OFF`，巡演根本没起来。
+//     **即：本 krkrz 1.4.0.8 构建下，脚本读不到命令行参数**（`-about` 之类的引擎自身参数除外）。
+//     ⇒ 本项目一切「外部开关」只能走**项目根 flag 文件**（autotour.txt 即此法，实测可用）。
+//       README_运行方式.md 里写的「方式① 命令行 -autotour=1」**实测不可用**，已在上游文档标注。
+//
+//   探针沿用**同一已验证机制**：项目根存在 `press_probe.tjs` → 用已验证的
+//   `Scripts.execStorage` 执行它（与 startup.tjs 加载其余模块同一 API）。
+//   该文件由 krkr\run_pressprobe.bat 生成，内容是一行 TJS：`UIScrPressProbe = "<元素id>";`
+//   ⚠️ 必须在 ui_screens.tjs **之后** exec —— 否则 ui_screens.tjs 的 `var UIScrPressProbe = ""`
+//      会把它覆盖掉。本函数在 UiWindow 构造期调用（本轮所有 .tjs 已在文件头 exec 完毕），
+//      顺序自然正确；但若日后调整模块加载顺序，须复核这一点。
+//   ⚠️ 探针只用于导出截图与自检，**不参与真实命中测试**：它在下方 exec 的 press_probe.tjs 里
+//      只赋值 `UIScrPressProbe`（不写 `UIScrPressHit`）；探针非空时 ui_screens.tjs 的
+//      `uiScreenPressUpdate()` 会用探针值接管按下目标（并跳过规则③的移出取消），
+//      `uiScreenCtx()` 也以探针优先。缺该文件即整个机制关闭（默认关闭，零影响）。
+//      （一审 Minor-1：旧注释写成「它不写 UIScrPressHit」→ 与代码不符，已改正。）
+// ------------------------------------------------------------
+function uiInitPressProbe()
+{
+	var ok = false;
+	try { ok = Storages.isExistentStorage("press_probe.tjs"); } catch(e) { ok = false; }
+	if(!ok)
+	{
+		Debug.message("[UI][PRESS] pressprobe = (关闭：项目根无 press_probe.tjs)");
+		return;
+	}
+	try { Scripts.execStorage("press_probe.tjs"); }
+	catch(e2)
+	{
+		Debug.message("[UI][PRESS] press_probe.tjs 执行失败（已忽略）：" + e2.message);
+		return;
+	}
+	Debug.message("[UI][PRESS] pressprobe = '" + UIScrPressProbe + "'（来自项目根 press_probe.tjs）");
+}
+
+// ------------------------------------------------------------
+// 4c. 竖排快捷条「强制展开」开关（★ M2 · 契约⑦）
+//   目的：自动巡演不产生鼠标移动 ⇒ 贴边呼出（reveal.in_x）走不到，展开态无法被无头验收覆盖。
+//   机制与 press_probe 完全同款（**本轮已实测的唯一可用外部开关**：命令行参数在本 krkrz
+//   1.4.0.8 构建下脚本读不到，见 uiInitPressProbe 的注释）：项目根放 `quick_flags.tjs`，
+//   内容形如（**名字取自数据**，此处仅为示例——`reveal.pin_flag` 即 `qbar_pin`，
+//   见 layout/screens/35_quickbar.json 与 layout/_schema.md §四）：
+//       UIScrFlagForce["quickbar"] = "expanded";
+//       UIScrFlagForce["qbar_tip"] = "lock";
+//       UIScrFlagForce["qbar_pin"] = "1";
+//   由本函数用 Scripts.execStorage 执行，填进 ui_screens.tjs 的 UIScrFlagForce 表；
+//   uiScreenFlagsInitFor 在填完 flags_default 后套用它 ⇒ **换屏也不会把强制值冲掉**。
+//   ⚠️ 必须在 ui_screens.tjs **之后** exec —— 否则 ui_screens.tjs 的 `var UIScrFlagForce = %[];`
+//      会把它覆盖掉。本函数在 UiWindow 构造期调用（所有 .tjs 已在文件头 exec 完毕），
+//      顺序自然正确；日后若调整模块加载顺序须复核（与 uiInitPressProbe 同一约束）。
+//   缺该文件即整个机制关闭（默认关闭，零影响）。
+// ------------------------------------------------------------
+function uiInitQuickFlags()
+{
+	var ok = false;
+	try { ok = Storages.isExistentStorage("quick_flags.tjs"); } catch(e) { ok = false; }
+	if(!ok)
+	{
+		Debug.message("[UI][QBAR] quickflags = (关闭：项目根无 quick_flags.tjs)");
+		return;
+	}
+	try { Scripts.execStorage("quick_flags.tjs"); }
+	catch(e2)
+	{
+		Debug.message("[UI][QBAR] quick_flags.tjs 执行失败（已忽略）：" + e2.message);
+		return;
+	}
+	// 回报：按**数据引用的 flag 名集合**逐个查强制值，脚本里不写死任何 flag 名
+	//   （Dictionary 无枚举接口 ⇒ 不能遍历强制表本身；名字来源 = 各已登记屏的
+	//     vis_flag ∪ reveal.{flag,tip_flag,pin_flag}，见 uiScreenFlagNamesForOwn）
+	Debug.message("[UI][QBAR] quickflags 已生效：" + uiScreenFlagForceReport());
+}
+
+// 汇总「被强制了的 flag 名 → 值」；扫描 UIScrTourIdList 里各屏数据引用的名字（去重）
+function uiScreenFlagForceReport()
+{
+	var out = "";
+	var seen = %[];
+	for(var i = 0; i < UIScrTourIdList.count; i++)
+	{
+		var names = uiScreenFlagNamesForOwn(UIScrTourIdList[i]);
+		for(var j = 0; j < names.count; j++)
+		{
+			var fn = names[j];
+			if(fn === void || fn === null || ("" + fn) == "") continue;
+			var k = "" + fn;
+			if(seen[k] === true) continue;
+			seen[k] = true;
+			if(uiScreenFlagForced(k))
+				out = out + " " + k + "='" + uiScreenFlagGetForce(k) + "'";
+		}
+	}
+	return (out == "") ? "(无)" : out;
+}
+
+// 读强制表（诊断用；ui_screens.tjs 侧另有 uiScreenFlagForced 供逻辑判断）
+function uiScreenFlagGetForce(name)
+{
+	var v = UIScrFlagForce["" + name];
+	return (v === void || v === null) ? "(未强制)" : ("" + v);
+}
+
+// ------------------------------------------------------------
+// 5. 启动
+// ------------------------------------------------------------
+try
+{
+	var uiWindow = new UiWindow();
+}
+catch(e)
+{
+	Debug.message("[UI] FATAL : " + e.message);
+	Debug.message("[UI] trace : " + e.trace);
+	try { System.inform("UI 演示工程启动失败：" + e.message + "\n请看 krkr.console.log"); } catch(e2) { }
+}

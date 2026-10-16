@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--font-chain: &quot;微软雅黑&quot;,&quot;Microsoft YaHei&quot;,&quot;黑体&quot;,&quot;SimHei&quot;,&quot;宋体&quot;,&quot;SimSun&quot;,&quot;MS Gothic&quot;,sans-serif;"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title> 来自个人汉化者AlbireoSaya 模型&amp;工具:Deepseek v4.1 flash+ZCode</title>
+
+<!-- ==========================================================================
+     《我们没有翅膀——格雷塔迦露德与柳木原》UI 1:1 HTML 复刻
+     M3 建立 ｜ M15 扩展（画布 1920×1080 · 16 屏 · 右键图标浮层）
+     Issue: ISSUE-20260919-11 ｜ 分支: issue/ISSUE-20260919-11-greta-ui
+
+     M43 变更（2026-09-23，用户裁定）：`chapter`（主线·章节选择）屏**已删除** ——
+       剧情入口改由 `flowchart` 屏的既有按钮 `fc.jump_hit`（新动作 `flow_enter`）承担；
+       本页因此加载 `flow_data.js`（节点数据），屏数标签改为按目录实测（不再硬编码）。
+
+     用法：双击本文件即可（file:// 协议可用，不依赖网络、不依赖 CDN、不使用 fetch）
+     数据：ui_layout.js（window.UI_LAYOUT）—— 与 krkr 侧 krkr/game/ui_layout.tjs
+           由 UI组/工具/gen_layout.py 从**同一份** layout/screens/*.json 生成
+     贴图：../krkr/assets/ui/*.png —— M1/M17 产出的 krkr 资产集，**同一份，不复制**
+
+     M15 变更：① 画布基线 1280×720 → 1920×1080（总纲 D1 修订注·第三条）；
+               ② 屏数 15 → 16，新增 `sysicons` 右键图标浮层（overlay 屏）；
+               ③ **画面右键 = 呼出/收起功能图标浮层**（原先绑的是「回想」）；
+               ④ 新增 AI 派生素材已全部接入（9 功能图标 / 新对话窗 / 流程图四种方框 /
+                  Fragment 整页底图 / 鉴赏整页底图 / 系统屏满幅背景）。
+
+     M3 变更（ISSUE-20260922-28）：系统菜单改为「鼠标贴屏幕右端呼出、平时收起」的竖排快捷条。
+       ① 屏级 `attach` 附加层（dialog 叠画 quickbar）——与 krkr 侧 M2 同契约；
+       ② 画布级 mousemove/mouseleave 驱动呼出 / 延时收起 / 钉住，数值全部读 `reveal`；
+       ③ `open_sysmenu`（收起态把手）改为「展开竖条」，不再换屏（`20_sysmenu` 数据保留）；
+          **Esc = 返回上一层／退出**（与 krkr 一致，H1 裁决后**不再**触发 `open_sysmenu`）；
+       ④ 新增 `quick_pin`（钉住）与 `next_choice` 动作；
+       ⑤ 深链 `?flags=<名>:<值>[,…]` 覆盖屏级 flag 后渲染（无头单帧截图用）。
+       契约与逐条落点见 `layout/_schema.md` §四「屏级状态 flag」与 `README_复刻说明.md` §九。
+     ========================================================================== -->
+
+<link rel="stylesheet" href="replica.css">
+</head>
+<body class=""><pre id="selftest-out">SELFTEST total=41 fail=0
+PASS	canvas-1920	1920pxx1080px
+PASS	dialog.screen	dialog
+PASS	dialog.under=null	null
+PASS	dialog.overlay-empty	0
+PASS	sysicons.open	sysicons
+PASS	sysicons.under=dialog	dialog
+PASS	sysicons.base-painted	57
+PASS	sysicons.base-DOM-preserved	
+PASS	sysicons.overlay-children	20
+PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+PASS	sysicons.icons-9	9
+PASS	sysicons.dismiss-click	dialog
+PASS	sysicons.overlay-cleared	0
+PASS	sysicons.back-to-dialog-DOM-preserved	
+PASS	sysicons.reopen	sysicons
+PASS	sysicons.icon-dispatch	save
+PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 15 件（数据推导）
+PASS	zeronine.img-not-borderimage	15/15（主语 = 数据推导的全集） 
+PASS	zeronine.no-placeholder	
+PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+PASS	overlay.close-overlay	dialog
+PASS	flags.attach-rendered-on-dialog	attachId=quickbar，quick.ic_lock/hit_lock/pin_mark 齐备=true/true/true
+PASS	flags.old-structure-gone	M37 退场四件都不在 DOM：tgl/btn/tips/hit_toggle = false/false/false/false
+PASS	flags.collapsed-by-default	quickbar=collapsed，ic_lock.display=none，hit_lock.display=none，pin_mark.display=none
+PASS	flags.expanded-shows-icons-and-items-not-pin	ic_lock=，hit_lock=，pin_mark=none
+PASS	flags.tip-follows-item	hit_lock 中心→"lock"，hit_option 中心→"option"，项外空白→""
+PASS	flags.icon-hover-material-via-group	悬停前 save/load=x_ui_qbicon_save.png/x_ui_qbicon_load.png；悬停存档热区后=x_ui_qbicon_save_on.png/x_ui_qbicon_load.png；移出后=x_ui_qbicon_save.png
+PASS	flags.open_sysmenu-expands-not-navigates	screen dialog → dialog（未换屏），quickbar=expanded，20_sysmenu 数据保留=true
+PASS	flags.pin-toggle	钉住 flag 名（reveal.pin_flag）=qbar_pin，解除后 pin_mark.display=none
+PASS	flags.attach-absent-on-title	title 上 attachId=null，quick.ic_lock 存在=false
+PASS	flags.item-subject-count	快捷条「项」热区（quick.hit_&lt;key&gt; 且有 action）12 件（应为 12）
+PASS	flags.item-N-click-dispatch-N	12/12 项：命中该项 且 该 action 的可辨副作用出现
+PASS	flags.tip-halfopen-boundary	x=w-1→"lock" / x=w→"" / y=h-1→"lock" / y=h→""（半开区间，项=lock）
+PASS	esc.back-to-previous-screen	save（history=1）→ Esc → screen=dialog（应 dialog），提示=""（应无）
+PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+PASS	zeronine.all-subjects-stretched-to-element-box	15/15（主语 = ⑤ 的全集） 
+PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+RESULT=OK</pre></body></html>

@@ -1,0 +1,36 @@
+import threading
+from lucifen_host_tls import current_thread_id
+
+class WorkerStepState:
+    def __init__(self):
+        self._owner_tid = current_thread_id()
+        self._condition = threading.Condition(threading.RLock())
+        self._generation = 0
+        self._parked = False
+        self._released_generation = 0
+        self._command = None
+        self._worker_tid = None
+        self._payload = None
+
+    def park(self, payload):
+        tid = current_thread_id()
+        with self._condition:
+            if tid == self._owner_tid:
+                raise RuntimeError("owner cannot park")
+            if self._worker_tid is None:
+                self._worker_tid = tid
+            elif self._worker_tid != tid:
+                raise RuntimeError("worker tid mismatch")
+            if self._parked:
+                raise RuntimeError("already parked")
+            self._generation += 1
+            localgen = self._generation
+            self._payload = payload
+            self._parked = True
+            self._condition.notify_all()
+            self._condition.wait_for(lambda: self._released_generation >= localgen)
+            return (self._command, localgen)
+
+    @property
+    def worker_tid(self):
+        return self._worker_tid

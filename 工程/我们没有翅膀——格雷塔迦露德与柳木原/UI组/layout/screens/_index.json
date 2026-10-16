@@ -1,0 +1,223 @@
+{
+  "_comment": "屏清单（主代理维护）。owner = 写权限归属模块；file = 相对 layout/screens/ 的文件名。 ★ M45（2026-09-23，用户裁定）：`sysmenu`（系统菜单，20_sysmenu.json）**已废除**（19 → 18 屏）—— 系统功能由右端竖排快捷条（quickbar，「药丸按钮系统」）承担；屏数据快照见 _工作\\M45_旧素材归档\\。 ★ M46（2026-09-23，用户裁定）：`sysbar`（系统条，34_sysbar.json）**已删除**（18 → 17 屏）—— 用户原话「把系统条 sysbar 页删了，但底条素材保留（防冲突）」；该屏自 M34 建立以来**从未可达**（无任何动作能打开它），屏数据快照见 _工作\\M46_旧素材归档\\；**本屏 4 组素材一律保留原位不归档**（`x_ui_sysbar.png` 与流程图屏 `fc.sysbar` 共用，删之即冲突；其余件同理不删）。 ★ ISSUE-20260928-06（2026-09-28，用户裁定）：`fragment`（番外·Fragment 选择，31_fragment.json）**已删除**（19 → 18 屏）—— 番外 6 组内容已由**流程图屏的独立层**（`flow_layer` + `layer:\"frag1\"..\"frag6\"`）承载（实测原页 40 格 ⊂ 流程图层 45 格、文案 40/40 一致）；**动作 `open_fragment`/`fragment_enter`、素材 `x_gen_fragpage.png`、数据 `fragments`、模块 `ui_fragment.tjs` 一律保留**。 ★ ISSUE-20260928-07（2026-09-28，用户裁定）：`ending`（片尾·STAFF/歌词，29_ending.json）**已删除**（18 → 17 屏）—— 用户原话「片尾页直接删掉，我们未来会制作一段视频来代替它」；该屏原本无模块、无 `open_ending` 类动作、无 `startup.tjs` 加载行、无跨屏入口；**素材 `x_ui_ending_bg.png` 与 `x_gen_ed_char.png` 保留原位**（作将来做视频的参考/来源）。",
+  "screens": [
+    {
+      "id": "title",
+      "file": "01_title.json",
+      "title_cn": "标题画面",
+      "owner": "M13",
+      "required": [
+        "满幅背景图（x_bg_system，不留黑边）",
+        "标题 logo",
+        "主菜单 7 项 = **圆形功能图标热区（96×96，state_assets 两态）+ 独立的合成层文字图**；两者同属一个 state_group（title.menu_<key>）⇒ 悬停/按下任一方，两者同步换态（M34 建立 → M35b 改为「图标 + 文字」结构，原「图上烘焙中英文，439×122 的 image + hit 各 7」已过时）",
+        "署名行"
+      ]
+    },
+    {
+      "id": "dialog",
+      "file": "10_dialog.json",
+      "title_cn": "对话框（无框画布方案·文字四向描边）/名字框/选择肢",
+      "owner": "M13",
+      "required": [
+        "留黑底（letterbox）",
+        "剧情背景层（dlg.content，dynamic:story_background）",
+        "★ M38 无框方案（用户 2026-09-23 裁决）：**无对话窗底图、无右下功能图标九宫格** —— 原 required 项「对话窗底（x_gen_dialog2，1628×319）」「系统条 9 键」「文本光标」**均已退场**（窗底与 9 件图标素材已入 `_工作\\M38_旧素材归档\\`；功能改由右端竖排快捷条 quickbar 承担）。本屏现 7 件：letterbox / content / name / text / choices / mode_tag / ~~hint~~ ⟶ ⚠ **作废（2026-09-29 · `ISSUE-20260929-05`）**：`dlg.hint` 已删（用户裁决：不需要操作提示），现行 **6 类**（同上，去掉 `hint`）",
+        "角色名文本（dlg.name，**黑描边白字**：outline 2px + outline_color #000000；主色仍 @palette.text_name，shadow 关）",
+        "正文文本区（打字机，dlg.text，**同参数四向描边**；折行/截断仍只按正文度量，描边不参与布局）",
+        "选择肢列表（dlg.choices，M38 视觉验收追修：font 同为 outline 2px + shadow 关；高亮项金字由 `highlight_font_color` 决定、描边由 font 统一生效）",
+        "自动·快进状态标签（dlg.mode_tag）",
+        "~~右键功能提示行（dlg.hint：「右键：功能图标　空格：快进　Esc：返回　右缘：快捷条」）~~ ⚠ **作废（2026-09-29 · `ISSUE-20260929-05`）**：`dlg.hint` 已删（用户裁决：不需要操作提示）"
+      ]
+    },
+    {
+      "id": "confirm",
+      "file": "21_confirm.json",
+      "title_cn": "确认框",
+      "owner": "M5",
+      "required": [
+        "九宫格边框",
+        "提示文本",
+        "是/否 按钮"
+      ]
+    },
+    {
+      "id": "loading",
+      "file": "22_loading.json",
+      "title_cn": "加载提示",
+      "owner": "M5",
+      "required": [
+        "全屏压暗遮罩（`ld.dim`：满幅 rect、`@palette.backdrop` ×100）",
+        "居中提示文字（`ld.text`：引擎绘「载入中…」，白字 + 蓝描边 `#3E63B8` 3px）",
+        "★ ISSUE-20260929-02（2026-09-29 · 用户指令 6）：满幅底元素 `ld.bg` **已删除**（素材 `ui/x_ui_backlog_bg.png` **保留不删**）⇒ 本屏现 **2 件**，屏下衬什么由屏栈决定"
+      ]
+    },
+    {
+      "id": "save",
+      "file": "23_save.json",
+      "title_cn": "存档",
+      "owner": "M5",
+      "required": [
+        "底图",
+        "槽列表 8 槽",
+        "槽内缩略图/日期/摘要",
+        "翻页",
+        "返回"
+      ]
+    },
+    {
+      "id": "load",
+      "file": "24_load.json",
+      "title_cn": "读档",
+      "owner": "M5",
+      "required": [
+        "底图",
+        "槽列表 8 槽",
+        "翻页",
+        "返回"
+      ]
+    },
+    {
+      "id": "config",
+      "file": "25_config.json",
+      "title_cn": "配置",
+      "owner": "M5",
+      "required": [
+        "底图",
+        "设置项列表 ≥12 项（★ M47 重设后现行口径：两页〔系统 / 声音〕；枚举行 12 ＋ 滑条 9 ＋ 静音 toggle 6；★ 第 16 批 `ISSUE-20260930-06` 删死行「播放影片」3 件 ⇒ 本屏 470 → 467 件）",
+        "说明栏",
+        "返回"
+      ]
+    },
+    {
+      "id": "backlog",
+      "file": "26_backlog.json",
+      "title_cn": "回想",
+      "owner": "M5",
+      "required": [
+        "底板",
+        "文本列表",
+        "滚动条",
+        "返回"
+      ]
+    },
+    {
+      "id": "gallery",
+      "file": "27_gallery.json",
+      "title_cn": "CG 鉴赏（鉴赏模式第 1 页）",
+      "owner": "M2",
+      "required": [
+        "24 栏网格 list（6×4，item_variants 差分翻页 n/N）× 12 页 = 286 栏（M2 重写，ISSUE-20260924-08）",
+        "栏位底板逐项三态（x_ui_gal_cell_*）+ 差分缩略图（x_gal_c*_，映射.tsv 顺序）",
+        "页码控件（上一页 / x / 12 / 下一页，gallery_page_prev/next）",
+        "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+      ]
+    },
+    {
+      "id": "music",
+      "file": "28_music.json",
+      "title_cn": "BGM 鉴赏（鉴赏模式第 2 页）",
+      "owner": "M3",
+      "required": [
+        "3×10 曲目网格 list（30 栏/页，逐项三态 + 行内播放键，M3 重绘，ISSUE-20260924-08）",
+        "播放控制 8 键 + 音量滑块（bgm_* 动作，播放留编程组）",
+        "页码控件（上一页 / x / 2 / 下一页）",
+        "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+      ]
+    },
+    {
+      "id": "flowchart",
+      "file": "32_flowchart.json",
+      "title_cn": "剧情流程图",
+      "owner": "M4",
+      "required": [
+        "**第 2 步（2026-09-28 · ISSUE-20260928-02）后的现行口径**（旧第 1 步条目已作废；细节见 `_工作\\ISSUE-20260928-02_第2步\\接口冻结.md` 与 `layout\\_schema.md`）",
+        "由 `工具\\gen_flow_layout.py` 从真实剧情数据生成（**禁手工摆版**）：具名预设 `screen1`（**无参＝交付样例**）/`screen2`/`ref150`/`states`/`frag`，另有 `--preset full` 只产**几何与数据**（不含 `elements`）。**落盘前自检**：越视口拒绝、文字四判据、金标 md5 不符即拒绝",
+        "结构：**总 289 件 ＝ 外壳 61（不带层旗标）＋ 图内容层 228**（主干 63 ＋ 6 组独立层节点 135 ＋ 每组顶栏 30） ⟶ ⚠ **作废（2026-09-29 · `ISSUE-20260929-05`）**：`screen1` ＝ **外壳 40 ＋ 图内容 222 ＝ 总 262**（`fc.mtab*` 12 件与 `fc.fusen_*` 6 件退场、`fc.mode_*` 6 件新增）⟶ ⚠ **再作废（2026-09-30 · `ISSUE-20260930-02` 第 15 批 · 第 2 轮 · 用户裁定 5/6/7）**：**现行 `screen1` ＝ 外壳 50 ＋ 图内容 222 ＝ 总 272**（章节详情加 10 件外壳元素：加号按钮 2 ＋ 详情浮层 8〔基座 6 ＋ 关闭件 `fc.intro_close`/`fc.intro_close_hit` 2〕；五档 **272 / 116 / 95 / 109 / 128**；17 屏合计 **1401**）—— 上面的「总 289 / 总 262」**均已作废** ⟶ ⚠ **再作废（2026-09-30 · `ISSUE-20260930-06` 第 16 批 · 用户裁定 5）**：**现行 `screen1` ＝ 外壳 50 ＋ 图内容 246 ＝ 总 296**（番外独立层改**纵向流水**、组内 53 章全量产出 ⇒ 独立层节点 135 → **159**；五档 **296 / 116 / 95 / 109 / 128**；17 屏合计 **1422**（★ **D-01 2026-10-01**〔`ISSUE-20261001-11`〕：`title` 屏 18→24 ⇒ **现行 1428**），另含 `config` 删死行「播放影片」3 件 470 → **467**）—— 上面的「总 289 / 总 262 / 总 272」**均已作废**，以屏数据与 `layout/_schema.md` §六 第 16 批块为准",
+        "节点 `fc.node.<NNNN>`（+`_tx`/`_hit`）：底图 296×65（**可见实体面仅 283×48，判容量一律以它为准**）；文字 **19px／元素级 `line_spacing` 1.0／盒宽 240／`x=x_node+28`／`max_lines:2`**；三类 section/select/frag；可选 **`flow_state`**（locked/available/visited/current/new）",
+        "运行态叠加件：`fc.node.<NNNN>_dim`（locked 压暗 rect，实测 42.9–43.3%）与 `_new`（NEW 角标 `x_ui_new.png` 50×17 @(node.x,node.y−12)）；`current` 由**两端程序化画环**（r=16／线宽 3／内缩 1px／`@palette.node_current`），**不产元素**",
+        "顶层键 `links[]`：程序化正交折线（直线／VZ／VL 三形态、整数 `pts`、箭头＝显式三角多边形）；**`state ∈ {normal, visited, noroute}`** ⇒ `#266080` w4 有箭头 ／ `#3580A8` w4 ／ **`#5A5A68` w3 无箭头**；**色/宽/箭头由生成器解析后写进数据**",
+        "层机制：屏级 `flags_default {fc_layer:\"main\"}`；**外壳不参与层旗标、跨层常驻**；图内容层 `vis_flag:\"fc_layer\"` + `vis_when`（`main` 或 `frag1..frag6`）",
+        "番外独立层：`fc.frag<G>.*`/`_tx`/`_hit`（3 个/行、横步 375／纵步 192／行首偏移 90、**行数＝ceil(章数/3)、无 12 格上限**〔第 16 批纵向流水〕、**不画连线**；★ 冻结 §7.2：**溢出格（元素下沿 > 视口底 1017）三件一律 `visible_default:false`**〔数据完整、默认不画；纵滚到位时置真〕⇒ G6 产出 20 格中 **默认可见 12 格（4 行）／纵滚置真 8 格**）＋顶栏 `fc.frag<G>_title_bg`（**专用硬边件 444×52**，1:1 无 nine）／`_title`／`_back`／`_back_tx`（「返回主干」）／`_back_hit`；入口热区 `fc.entry.<NNNN>_hit`（`action:\"flow_layer\"`、`layer:\"frag<G>\"`，**只在该组独立层产出时才产**）",
+        "静态件（原样透传、id 与几何不动）：视口／迷你地图／缩放平移滚条／~~页签~~／标题牌／关闭／~~付箋~~／`fc.pbkick`（回放键三态）／~~`fc.pbk_panel`~~／`fc.jump`（「进入本章」）；**`fc.sep` 不再透传** ⟶ ⚠ **作废（2026-09-29 · `ISSUE-20260929-05`）**：**页签**与**付箋（备注功能）**本批已删、`fc.pbk_panel` 更早已退场 ⇒ 现行静态件 ＝ 视口／迷你地图／缩放平移滚条／标题牌／关闭／`fc.pbkick`（回放键三态）／`fc.jump`／本批新增 `fc.mode_*`（两枚模式入口）",
+        "本屏**主干与外壳**产出元素完整落在图表视口内（x∈[60,1295]、y∈[190,1017]）；**独立层元素是有意例外**：只判 `x` 完整落视口且 `y ≥ 190`、**允许纵向溢出**（第 16 批纵向流水；G6 末行下沿 1503，需编程组纵滚才可见；**其溢出格 ×3 件 `visible_default:false`** —— 冻结 §7.2）—— 判据落点 `工具/gen_flow_layout.py` 的 `frag_layer_rect_ok()`（`inside()` 与落盘前总断言均已按此分派，主干判据一字未改）；`full` 预设的几何全量数据在 `_工作\\ISSUE-20260928-02_第2步\\全量布局.json`（712 lane 节点，**元素化渲染与纵滚/横移属编程组**）",
+        "金标（五组，**2026-09-30 · `ISSUE-20260930-06` 第 16 批 现行**）：`screen1` `1c6496e7b3efff589c4fd09c613e3ef3`（**LF 规范化值**；盘面 CRLF 因 `core.autocrlf=true`）／`screen2` `3cd4e92d91d197d2847e30442124860c`／`ref150` `43a5b40ab3bea83d57cbd053c895a535`／`states` `74392cc9b5d3f632cc693afa95b24a89`／`frag` `4ed7585a16ea700343328a962a9eb95a`（真值来源＝`工具/gen_flow_layout.py` 的 `GOLDEN` 与 `--help` 预设表；**第 15 批五值 `a41ffd35…` / `affd6dfc…` / `8a22d83c…` / `e31ebb37…` / `879f264a…` 、**第 16 批首轮五值 `26c5413f…`／`a2118ffb…`／`9083daab…`／`8966a1aa…`／`9150e17d…`**（未含冻结 §7.2 字段）与第 11–15 批首轮各值一律作废**）"
+      ]
+    },
+    {
+      "id": "sysicons",
+      "file": "33_sysicons.json",
+      "title_cn": "右键图标浮层",
+      "owner": "M13",
+      "required": [
+        "全屏压暗遮罩",
+        "点击空白收起热区",
+        "9 个功能图标（qsave/qload/skip/prev/save/load/config/close/repeat；统一 351×234，3×3 网格 1:1）",
+        "每项点击热区"
+      ]
+    },
+    {
+      "id": "quickbar",
+      "file": "35_quickbar.json",
+      "title_cn": "系统菜单快捷条",
+      "owner": "M34",
+      "required": [
+        "收起态条（63×513）",
+        "展开态条（63×888）",
+        "说明气泡（197×876）",
+        "12 个功能热区"
+      ]
+    },
+    {
+      "id": "choices",
+      "file": "36_choices.json",
+      "title_cn": "选择支",
+      "owner": "M34",
+      "required": [
+        "选择支条 1113×83（三态整图）",
+        "选项文字（引擎绘制）",
+        "选项热区"
+      ]
+    },
+    {
+      "id": "dress",
+      "file": "37_dress.json",
+      "title_cn": "立绘鉴赏（鉴赏模式第 3 页）",
+      "owner": "M4",
+      "required": [
+        "角色名列表 11 行（第 12 行已删：参考作只有 11 行且原行越出底图，M4 对齐）",
+        "▼ 选中指示 + 差分名槽（dr.sel_mark / dr.face_tx，M4 补）",
+        "服装/姿势/差分/大小 换装控件（保留原位，action 留空待编程组）",
+        "时间图标 / 控制条 11 热区 / 初始化键",
+        "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+      ]
+    },
+    {
+      "id": "replay",
+      "file": "38_replay.json",
+      "title_cn": "情景回想（鉴赏模式第 4 页）",
+      "owner": "M4",
+      "required": [
+        "两页 5×5 = 50 栏网格 list（scroll.page_size 25，gallery_page_prev/next 翻页）",
+        "第一页 25 情景栏占位（labels 占位文本/actions 空/frames 空数组——内容待填）",
+        "第二页 10 件动画（replay_play:<行号> 派发即止留编程组）+ 15 空栏（越界留空）",
+        "选中情景预览板（rp.preview，运行期贴画面，占位底板）",
+        "页码控件（上一页 / x / 2 / 下一页）",
+        "attach gal_shell（页签条/标题/返回键在外壳，屏内不出）"
+      ]
+    },
+    {
+      "id": "gal_shell",
+      "file": "39_gal_shell.json",
+      "title_cn": "鉴赏模式共享外壳（页签条 + 标题 + 返回）",
+      "owner": "M1",
+      "required": [
+        "页签条底板（冰蓝磨砂玻璃九宫格）",
+        "四个页签热区（action = gallery_tab_1..4，矩形取参考作 `エクストラ共通` 实测）",
+        "四个页签标签文字（引擎绘制）",
+        "当前页签选中指示（`vis_flag=gal_tab` + `vis_when=<承载屏 id>`，派生出口见 ui_screens.tjs）",
+        "标题「鉴赏模式」（引擎绘制）",
+        "返回键（action = close）"
+      ]
+    }
+  ]
+}

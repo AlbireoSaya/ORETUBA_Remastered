@@ -1,0 +1,22 @@
+function RRecordLiveGate(rd, rb, opcode, conditionValue, lengthCursor) {
+    var c = conditionValue & 0xffffffff;
+    if (opcode == 0) {
+        c = (c == 0) ? 1 : 0;
+    }
+    if (c == 0) {
+        var skip = rd(lengthCursor & 0xffffffff);
+        return %[
+            "accepted" => false,
+            "condition_value" => 0,
+            "next_cursor" => (lengthCursor + skip) & 0xffffffff
+        ];
+    }
+    var countAddr = (lengthCursor + 4) & 0xffffffff;
+    var count = rb(countAddr);
+    return %[
+        "accepted" => true,
+        "condition_value" => c,
+        "item_count" => count,
+        "items_cursor" => (countAddr + 1) & 0xffffffff
+    ];
+}

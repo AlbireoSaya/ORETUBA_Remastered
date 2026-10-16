@@ -1,0 +1,130 @@
+from pathlib import Path
+import sys,struct,json,hashlib,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';b=g/'演出链路/R_TOB动态绑定与无损IR证据_20261011';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎'),str(b)]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_tob_binding_reference import relocation_writes
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');assert hashlib.sha256(pe.data).hexdigest()=='b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33'
+meta=json.loads((root/'子代理工作区/ISSUE-20261011-02/r-literal-run-01/inline-expression-metadata.json').read_text(encoding='utf-8'));grouped=collections.defaultdict(list)
+for e in meta:grouped[e['path']].append(e)
+ctx,cursor,buffer=0x1002000,0x1023000,0x3000000
+def prepare(data,seed):
+ u=map_pe(pe);u.mem_map(buffer,(len(data)+4095)&~4095);u.mem_write(buffer,data);maps={0:{},1:{},2:{}}
+ for group,glob,desc,vector,count,width in [(0,0x5355f0,0x1040000,0x1050000,768,12),(1,0x5355ec,0x1040040,0x1075000,809,4),(2,0x5355e8,0x1040080,0x1085000,3,12)]:
+  u.mem_write(glob,struct.pack('<I',desc));u.mem_write(desc,struct.pack('<III',0,vector,vector+count*width))
+  for i in range(count):
+   value=(0x1090000+seed*0x10000+i*16) if group==0 else ((0x411c40 if seed==0 else 0x418650) if group==1 else 0x10c0000+seed*0x1000+i*16)
+   maps[group][i]=value
+   u.mem_write(vector+i*width,struct.pack('<I',value)+b'\0'*(width-4))
+ u.mem_write(0x5355e4,struct.pack('<I',0x10d0000+seed*0x1000))
+ return u,maps
+
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EIP,UC_X86_REG_ESP,UC_X86_REG_EAX
+stage=root/'临时/ISSUE-20261011-02/r-inline-vm-chain-replay-01'
+stage.mkdir(exist_ok=False)
+for name in ['lucifen_host_string_bridge.py','lucifen_inline_vm_reference03.py']:(stage/name).write_bytes((root/'子代理工作区/ISSUE-20261011-02/r-inline-vm-chain-01'/name).read_bytes())
+table=json.loads((g/'演出链路/R接口证据_20261011/R_注册顺序.json').read_text(encoding='utf-8'))['static_vector_candidate']
+native={int(row['handler_va']):i for i,row in enumerate(table)}
+sb,app,kbd,parent=0x1028000,0x10e0000,0x10e4000,0x100a000
+states=[
+ {'id':0,'vars':'zero','setting':0,'flags':[0,0],'keymode':0,'active':0,'pressed':[],'wrong':[],'parent':True},
+ {'id':1,'vars':'ones','setting':1,'flags':[1,0],'keymode':1,'active':1,'pressed':[0x9d],'wrong':[],'parent':True},
+ {'id':2,'vars':'linear','setting':255,'flags':[0,255],'keymode':0,'active':1,'pressed':[0x2a],'wrong':[],'parent':True},
+ {'id':3,'vars':'alternate','setting':2,'flags':[255,128],'keymode':1,'active':0,'pressed':[],'wrong':[0x1d],'parent':True},
+ {'id':4,'vars':'one','setting':0,'flags':[0,0],'keymode':0,'active':1,'pressed':[0x36],'wrong':[],'parent':True},
+ {'id':5,'vars':'xor','setting':127,'flags':[0,0],'keymode':1,'active':0,'pressed':[0x1d],'wrong':[],'parent':False}]
+def varvalue(i,s):
+ return 0 if s['vars']=='zero' else 0xffffffff if s['vars']=='ones' else (i*11+3) if s['vars']=='linear' else (0x80000000 if i&1 else 0) if s['vars']=='alternate' else 1 if s['vars']=='one' else (i^0x55)
+def initialize(u,maps,data,s):
+ u.mem_write(buffer,data);u.mem_write(ctx,b'\0'*64);u.mem_write(ctx+4,struct.pack('<I',sb));u.mem_write(ctx+12,struct.pack('<I',sb));u.mem_write(sb,b'\x92'*4096)
+ for i,a in maps[0].items():u.mem_write(a,struct.pack('<I',varvalue(i,s))+b'\x85'*12)
+ for a in maps[2].values():u.mem_write(a,b'\x55'*16)
+ u.mem_write(app,b'\0'*0x2000);u.mem_write(app+0xf1f,bytes([s['setting']]));u.mem_write(app+0xf92,bytes([s['keymode']]))
+ u.mem_write(parent,b'\0'*0x8000);u.mem_write(parent+0x4f4,bytes(s['flags']))
+ u.mem_write(kbd,b'\0'*0x210);u.mem_write(kbd,struct.pack('<I',0x518704));u.mem_write(kbd+4,bytes([s['active']]))
+ for key in s['pressed']:u.mem_write(kbd+5+((s['active']^1)<<8)+key,b'\x80')
+ for key in s['wrong']:u.mem_write(kbd+5+(s['active']<<8)+key,b'\xff')
+ u.mem_write(app+0x1ab8,struct.pack('<I',0x10e8000));keys=[] if s['id'] in (0,5) else [maps[0][i] for i in range(768)] if s['id']==1 else [maps[0][i] for i in reversed(range(768))] if s['id']==2 else [maps[0][9],maps[0][9]] if s['id']==3 else [maps[0][i] for i in range(0,768,2)];u.mem_write(0x10e8000+0x5c,struct.pack('<II',0x10e9000,0x10e9000+12*len(keys)));u.mem_write(0x10e9000,b''.join(struct.pack('<III',k,0xabababab,0xbcbcbcbc) for k in keys));u.mem_write(0x531098,struct.pack('<I',0x10ec000));u.mem_write(0x10ec000+0x1f4,struct.pack('<I',0));u.mem_write(0x5355c0,b'\0'*4);u.mem_write(0x5354bc,b'\xd3'*260);u.mem_write(0x530c94,struct.pack('<I',app));u.mem_write(0x530ca4,struct.pack('<I',kbd));u.mem_write(0x530eb4,struct.pack('<I',parent if s['parent'] else 0))
+def vectorize(u,maps):
+ for i,row in enumerate(table):u.mem_write(0x1075000+i*4,struct.pack('<I',int(row['handler_va'])));maps[1][i]=int(row['handler_va'])
+
+sys.path.insert(0,str(stage))
+from lucifen_inline_vm_reference03 import run_vm,inline_native
+from lucifen_host_string_bridge import bridge_lstrcpyA
+resume_results=[]
+results=[];all_opcodes=collections.Counter();call_counts=collections.Counter()
+for fi,(path,exprs) in enumerate(grouped.items()):
+ data=(root/path).read_bytes();u,maps=prepare(data,0);vectorize(u,maps);u.mem_write(0x5181dc,struct.pack("<I",0x200e000));u.mem_write(0x200e000,b"\xc2\x08\x00")
+ trace=[];calls=[];unknown=[];copies=[]
+ def hook(uc,a,n,x):
+  if a==0x200e000:
+   esp=uc.reg_read(UC_X86_REG_ESP);dst,srcptr=struct.unpack('<II',uc.mem_read(esp+4,8));assert dst==0x5354bc
+   value=bridge_lstrcpyA(lambda p,n:bytes(uc.mem_read(p,n)),lambda p,v:uc.mem_write(p,v),dst,srcptr,260)
+   assert value==dst;uc.reg_write(UC_X86_REG_EAX,value);copies.append({'destination':dst,'source':srcptr})
+  if a==0x4a7a75:
+   pc=struct.unpack('<I',uc.mem_read(ctx+8,4))[0];op=struct.unpack('<I',uc.mem_read(pc,4))[0]
+   trace.append({'pc':pc,'opcode':op});all_opcodes[op]+=1
+  if a in native:
+   slot=native[a]
+   if slot not in (0,9,58,571,676):unknown.append(slot);uc.emu_stop();return
+   esp=uc.reg_read(UC_X86_REG_ESP);fp=struct.unpack('<I',uc.mem_read(esp+4,4))[0]
+   calls.append({'handler':a,'frame':list(struct.unpack('<4I',uc.mem_read(fp,16)))});call_counts[slot]+=1
+ handle=u.hook_add(UC_HOOK_CODE,hook)
+ try:
+  for s in states:
+   for e in exprs:
+    initialize(u,maps,data,s);trace.clear();calls.clear();unknown.clear();copies.clear()
+    u.mem_write(cursor,struct.pack('<I',buffer+e['reloc_start']+4));invoke_thiscall_args(u,0x430090,ctx,[cursor,buffer+e['code_start'],0],timeout=0)
+    lo=bytearray(u.mem_read(0x1000000,0x100000));src=bytearray(u.mem_read(buffer,len(data)));pe_initial=bytes(u.mem_read(pe.image_base,pe.size_image));pe_shadow=bytearray(pe_initial);rcalls=[]
+    def locate(a,n):
+     a&=0xffffffff
+     if 0x1000000<=a and a+n<=0x1100000:return lo,a-0x1000000
+     if buffer<=a and a+n<=buffer+len(src):return src,a-buffer
+     if pe.image_base<=a and a+n<=pe.image_base+len(pe_shadow):return pe_shadow,a-pe.image_base
+     raise ValueError(('shadow unmapped',a,n))
+    def rd(a):
+     mem,off=locate(a,4);return struct.unpack_from('<I',mem,off)[0]
+    def rb(a):
+     mem,off=locate(a,1);return mem[off]
+    def wr(a,v):
+     mem,off=locate(a,4);assert isinstance(mem,bytearray)
+     if mem is pe_shadow:assert 0x5354bc<=a and a+4<=0x5355c4,('unexpected PE global write',a)
+     struct.pack_into('<I',mem,off,v&0xffffffff)
+    def wb(a,v):
+     mem,off=locate(a,1);assert isinstance(mem,bytearray)
+     if mem is pe_shadow:assert 0x5354bc<=a<0x5355c0,('unexpected PE byte write',a)
+     mem[off]=v&255
+    def native_ref(h,f):
+     rcalls.append({'handler':h,'frame':[rd(f+i*4) for i in range(4)]})
+     return inline_native(rd,wr,rb,wb,h,f)
+    expected=run_vm(rd,wr,rb,ctx,buffer+e['code_start'],native_ref,10000)
+    got=invoke_thiscall_args(u,0x4a7a30,ctx,[buffer+e['code_start']],count=50000,timeout=0)
+    assert not unknown and got==expected['return_code'],(path,e['code_start'],s['id'])
+    assert trace==expected['trace'],(path,e['code_start'],s['id'],'trace')
+    assert calls==rcalls,(path,e['code_start'],s['id'],'calls')
+    assert bytes(u.mem_read(0x1000000,0x100000))==bytes(lo),(path,e['code_start'],s['id'],'whole live memory')
+    assert bytes(u.mem_read(buffer,len(data)))==bytes(src),(path,e['code_start'],s['id'],'whole source self modification')
+    assert bytes(u.mem_read(pe.image_base,pe.size_image))==bytes(pe_shadow),(path,e['code_start'],s['id'],'PE globals mismatch')
+    assert (rd(ctx+12)==sb if got==0 else sb<=rd(ctx+12)<=sb+4096)
+    results.append({'path':path,'code_start':e['code_start'],'state':s['id'],'steps':expected['steps'],'calls':len(calls),'result':rd(maps[2][0]),'return_code':got,'vm_stack_pointer':rd(ctx+12),'vm_pc':rd(ctx+8)-buffer,'actual_host_copy_calls':len(copies),'control_code':rd(0x5355c0),'pe_shadow_sha256':hashlib.sha256(pe_shadow).hexdigest(),'live_sha256':hashlib.sha256(lo).hexdigest(),'source_guest_sha256':hashlib.sha256(src).hexdigest(),'passed':True})
+    segment=0
+    while got==1:
+     segment+=1
+     if segment>8:raise RuntimeError(('resume segment budget',path,e['code_start'],s['id']))
+     trace.clear();calls.clear();copies.clear();unknown.clear();rcalls.clear()
+     expected=run_vm(rd,wr,rb,ctx,buffer+e['code_start'],native_ref,10000,resume=True)
+     got=invoke_thiscall_args(u,0x4a7a50,ctx,[],count=100000,timeout=0)
+     assert not unknown and got==expected['return_code'] and trace==expected['trace'] and calls==rcalls,(path,e['code_start'],s['id'],segment,'resume trace/frame')
+     assert bytes(u.mem_read(0x1000000,0x100000))==bytes(lo) and bytes(u.mem_read(buffer,len(data)))==bytes(src) and bytes(u.mem_read(pe.image_base,pe.size_image))==bytes(pe_shadow),(path,e['code_start'],s['id'],segment,'resume whole memory')
+     resume_results.append({'path':path,'code_start':e['code_start'],'state':s['id'],'segment':segment,'steps':expected['steps'],'return_code':got,'vm_sp':rd(ctx+12),'vm_pc':rd(ctx+8)-buffer,'control_code':rd(0x5355c0),'actual_host_copy_calls':len(copies),'live_sha256':hashlib.sha256(lo).hexdigest(),'pe_shadow_sha256':hashlib.sha256(pe_shadow).hexdigest(),'source_guest_sha256':hashlib.sha256(src).hexdigest(),'passed':True})
+    assert got==0 and rd(ctx+12)==sb,(path,e['code_start'],s['id'],'chain final stack')
+ finally:u.hook_del(handle)
+ assert (root/path).read_bytes()==data
+ if (fi+1)%50==0:print(json.dumps({'files':fi+1,'cases':len(results)}),flush=True)
+(stage/'independent-resume-results.json').write_text(json.dumps(resume_results,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+summary={'resume_segments':len(resume_results),'resume_return_codes':dict(collections.Counter(x['return_code'] for x in resume_results)),'all_chains_completed_with_balanced_stack':True,'expressions':len(meta),'cases':len(results),'states':len(states),'passed':True,'executed_opcodes':dict(sorted(all_opcodes.items())),'actual_native_calls':dict(sorted(call_counts.items())),'return_codes':dict(collections.Counter(r['return_code'] for r in results)),'actual_host_copy_calls':sum(r['actual_host_copy_calls'] for r in results),'scope':'independent original VM first activation and preserved-PC/SP resumption until controlled completion; external scene/input control itself not executed; all standalone wide-format expressions in six controlled states, controlled empty/full ascending/full reversed/duplicate/even-subset address lists and zero channel count; independent editor VM versus original VM plus actual native0/58/676 and actual host64 lstrcpyA; exact trace/frame/full live/source and expected PE global writes; not original x86 kernel faults, valid channel lifecycle, full scripts/render/audio'}
+(stage/'independent-vm-results.json').write_text(json.dumps(results,ensure_ascii=False,separators=(',',':')),encoding='utf-8')
+(stage/'independent-vm-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(summary,ensure_ascii=False),flush=True)

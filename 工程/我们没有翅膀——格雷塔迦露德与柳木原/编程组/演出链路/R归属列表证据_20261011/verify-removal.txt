@@ -1,0 +1,58 @@
+from pathlib import Path
+import sys,struct,json,importlib.util,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-owner-list-replay-01';g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')];b.mkdir(parents=True,exist_ok=True);from pe_min import PE;from lucifen_vm_micro import map_pe;from lucifen_thiscall_probe import invoke_thiscall_args
+from unicorn.x86_const import UC_X86_REG_ESI,UC_X86_REG_EBX,UC_X86_REG_ESP,UC_X86_REG_EIP
+spec=importlib.util.spec_from_file_location('observer',g/'工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');outer,src,aux,frame,pix=0x1002000,0x1004000,0x1006000,0x1008000,0x100a000;records=[]
+def word(u,p):return struct.unpack('<I',u.mem_read(p,4))[0]
+def prepare(kind=9,link=False):
+ u=map_pe(pe);u.mem_map(0,0x1000);u.mem_write(outer,b'\xa5'*0xd8);u.reg_write(UC_X86_REG_ESI,outer);u.reg_write(UC_X86_REG_EBX,0);u.reg_write(UC_X86_REG_ESP,0x2008000)
+ a,z,vt,ivt=(0x4ba6df,0x4ba70a,0x519038,0x519094) if kind==9 else (0x4ba7ff,0x4ba82a,0x518f7c,0x518fd8)
+ u.emu_start(a,z,count=10000,timeout=1000000);assert u.reg_read(UC_X86_REG_EIP)==z and word(u,outer)==vt and word(u,outer+0x30)==ivt and word(u,outer+0xbc)==0
+ invoke_thiscall_args(u,0x4540b0,src,());invoke_thiscall_args(u,0x459dc0,aux,());assert word(u,aux)==0x5199ec and word(u,aux+8)==0
+ u.mem_write(src+0x3c,struct.pack('<I',pix));u.mem_write(pix,b'\x12'*64)
+ if link:u.mem_write(outer+0xbc,struct.pack('<I',aux))
+ return u
+
+import itertools
+spec=importlib.util.spec_from_file_location('owner_reference',g/'工具/lucifen_owner_list_reference.py');ref=importlib.util.module_from_spec(spec);spec.loader.exec_module(ref)
+owner=0x101e000;children=[0x1010000+i*0x100 for i in range(4)];nodes=[0x1018000+i*0x100 for i in range(4)];missing=0x1014000
+def fixture(n=4):
+ u=prepare();assert invoke_thiscall_args(u,0x459620,owner,())==owner
+ keys=dict(zip(children[:n],[10,20,20,30][:n]));keys[missing]=99
+ for i in range(n):
+  child=children[i];node=nodes[i];assert invoke_thiscall_args(u,0x456800,child,())==child
+  u.mem_write(child+0x18,struct.pack('<I',owner));u.mem_write(node,b'\xaa'*0x24);u.mem_write(node,struct.pack('<II',child,0xffffffff));u.mem_write(node+0x14,struct.pack('<4I',keys[child],0x76543210,nodes[i-1] if i else 0,nodes[i+1] if i+1<n else 0))
+ u.mem_write(owner+4,struct.pack('<II',nodes[0] if n else 0,nodes[n-1] if n else 0))
+ return u,keys
+def check(u,order,keys,n):
+ actual=[];prev=0;p=word(u,owner+4);seen=set()
+ while p:
+  assert p in nodes[:n] and p not in seen;seen.add(p)
+  child=word(u,p);assert word(u,p+0x1c)==prev and word(u,p+0x14)==keys[child] and word(u,p+0x18)==0x76543210
+  assert bytes(u.mem_read(p+8,12))==b'\xaa'*12
+  actual.append(child);prev=p;p=word(u,p+0x20)
+ assert actual==order and word(u,owner+8)==prev and word(u,owner+0xc)==0
+ assert all(word(u,c+0x18)==owner for c in children[:n]);return actual
+
+rows=[]
+for state,n,child in [('null',4,0),('missing',4,missing),('head',4,children[0]),('middle',4,children[1]),('tail',4,children[3]),('single',1,children[0])]:
+ u,keys=fixture(n);owner_before=bytes(u.mem_read(owner,16));node_before=[bytes(u.mem_read(p,0x24)) for p in nodes[:n]]
+ r=m.observe_cdecl_until(u,0x459ab0,child,0x44b6b0,register_seeds={'ecx':owner},count=10000)
+ assert r['error'] is None
+ if state in ['null','missing']:assert r['returned'] and (r['eax']&255)==0 and not r['stop_reached']
+ else:
+  idx=children[:n].index(child);assert r['stop_reached'] and not r['returned'] and r['stack_words'][1]==nodes[idx] and word(u,child+0x18)==owner
+ assert bytes(u.mem_read(owner,16))==owner_before and all(bytes(u.mem_read(p,0x24))==node_before[i] for i,p in enumerate(nodes[:n]))
+ rows.append({'mode':'remove','state':state,'snapshot':r,'owner_and_nodes_unchanged_at_stop':True})
+for n in [0,4]:
+ u,keys=fixture(n);r=m.observe_cdecl_until(u,0x459670,0,0x44b6b0,register_seeds={'ecx':owner},count=10000)
+ assert r['error'] is None
+ if n:assert r['stop_reached'] and r['stack_words'][1]==nodes[0] and word(u,children[0]+0x18)==0 and all(word(u,c+0x18)==owner for c in children[1:n])
+ else:assert r['returned'] and word(u,owner+4)==0 and word(u,owner+8)==0
+ rows.append({'mode':'clear','count':n,'snapshot':r,'child_owner_values':[word(u,c+0x18) for c in children[:n]]})
+for idx,flag in itertools.product([0,1,3],[0,1]):
+ u,keys=fixture(4);child=children[idx];r=m.observe_cdecl_until(u,0x456850,flag,0x44b6b0,register_seeds={'ecx':child},count=10000)
+ assert r['stop_reached'] and not r['returned'] and r['error'] is None and r['stack_words'][1]==nodes[idx] and word(u,child)==0x519980 and word(u,child+0x18)==owner
+ rows.append({'mode':'owned-child-destruction','selected_index':idx,'flag':flag,'snapshot':r,'vtable':word(u,child),'owner':word(u,child+0x18),'node_free_stops_before_object_free':True})
+p=b/'owner-remove-clear-destructor-boundaries.json';assert not p.exists();p.write_text(json.dumps({'scope':'no free body executed, genuine original node-free boundary rather than fake success; original node unlink AFTER delete remains unexecuted','cases':rows},indent=2),encoding='utf-8');print('PASS',len(rows),'owner remove/clear/owned destructor cases; stop before actual node free')

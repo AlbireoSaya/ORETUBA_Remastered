@@ -1,0 +1,8 @@
+function RDynamicParsedCheck(data, start, limit, spec)
+{
+    var rb = RRecordFixtureByte incontextof (%["data" => data, "base" => start]);
+    var got = RParseRecord(rb, limit, start);
+    RVMFCompareRows(RRecordFixtureFlat(got), RRecordFixtureFlat(spec.record), "parsed-record");
+    spec.record = got;
+    return RDynamicCheck(spec);
+}

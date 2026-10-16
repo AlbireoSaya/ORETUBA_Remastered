@@ -1,0 +1,26 @@
+from pathlib import Path
+import sys,json,hashlib,shutil,uuid,time
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-target-byteflow-20261015';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path.insert(0,str(g/'工具'))
+from performance_runtime import execute
+bits=int(sys.argv[1]);tag=sys.argv[2];cases=json.loads(Path(sys.argv[3]).read_text(encoding='utf8'));timeout=float(sys.argv[4])if len(sys.argv)>4 else 30
+assert bits in(32,64)and 0<timeout<=60 and '/'not in tag and '\\'not in tag
+out=r/'临时/ISSUE-20261011-02'/tag;assert not out.exists();game=out/'game';save=out/'savedata';ev=out/'evidence'
+for p in [game,save,ev]:p.mkdir(parents=True)
+provenance=[]
+for name in ['r_u32.tjs','r_literal_run.tjs','r_byteflow_verify.tjs']:
+ src=(g/'原作忠实层/R'/name)if name!='r_byteflow_verify.tjs'else(g/'演出链路/R_TJS文字流与标量核证据_20261015'/name);dest=game/name;shutil.copyfile(src,dest);provenance.append({'name':name,'SHA256':hashlib.sha256(src.read_bytes()).hexdigest()})
+mutation=sys.argv[5]if len(sys.argv)>5 else None
+if mutation:
+ name='r_u32.tjs'if mutation=='wrong-add'else'r_literal_run.tjs';p=game/name;body=p.read_text(encoding='utf8')
+ old,new=('res = (a + b) & 0xffffffff;','res = 0;')if mutation=='wrong-add'else('(b >= 0x81 && b <= 0x9f)','(b >= 0x82 && b <= 0x9f)')
+ assert body.count(old)==1;p.write_text(body.replace(old,new),encoding='utf8')
+ provenance.append({'fault_injection_only':True,'mutation':mutation,'file':name,'mutated_SHA256':hashlib.sha256(p.read_bytes()).hexdigest()})
+nonce=uuid.uuid4().hex;commands=['Debug.startLogToFile();','try {',f'Debug.message("RBF_BEGIN {nonce} {cases["expected"]}");']+[f'Scripts.execStorage("{name}");'for name in ['r_u32.tjs','r_literal_run.tjs','r_byteflow_verify.tjs']]
+for i,row in enumerate(cases['files']):
+ src=r/row['source'];dest=game/f'cases-{i:04d}.tjs';shutil.copyfile(src,dest);sha=hashlib.sha256(src.read_bytes()).hexdigest();assert sha==row['sha256'];provenance.append({'name':dest.name,'SHA256':sha,'source':row['source']});commands.append(f'Scripts.execStorage("{dest.name}");')
+ commands.append(f'Debug.message("RBF_BATCH {nonce} {i} "+RBFChecks);')
+commands += [f'if(RBFChecks !== {cases["expected"]}) throw new Exception("wrong check count "+RBFChecks);',f'Debug.message("RBF_PASS {nonce} "+RBFChecks);','} catch(e) {',f'Debug.message("RBF_EXCEPTION {nonce} "+e.message);','}','System.exit();']
+(game/'startup.tjs').write_text('\n'.join(commands)+'\n',encoding='utf8');engine=r/f'工具/krkrz/krkrz_20171225/tvpwin{bits}.exe';argv=[str(engine),str(game),'-datapath='+str(save)+'/', '-readencoding=UTF-8','-startup=startup.tjs','-userconf=no'];start=time.time_ns();process=execute(argv,out,timeout,ev);log=save/'krkr.console.log';raw=log.read_bytes()if log.exists()else b'';text=raw.decode('utf-16')if raw.startswith(b'\xff\xfe')else raw.decode('utf-16-le',errors='replace');fresh=log.exists()and log.stat().st_mtime_ns>=start
+passed=process['returncode']==0 and not process['timed_out']and process['cleanup_ok']and fresh and f'RBF_PASS {nonce} {cases["expected"]}'in text and f'RBF_EXCEPTION {nonce}'not in text
+receipt={'passed':passed,'bits':bits,'nonce':nonce,'expected_checks':cases['expected'],'fresh_log':fresh,'process':process,'engine_SHA256':hashlib.sha256(engine.read_bytes()).hexdigest(),'sources':provenance,'console_SHA256':hashlib.sha256(raw).hexdigest(),'data_manifest':str(Path(sys.argv[3])),'all_game_fidelity_proven':False}
+(ev/'verdict.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf8');(ev/'console.utf8.txt').write_text(text,encoding='utf8');print(json.dumps({k:receipt[k]for k in ['passed','bits','expected_checks','process']}));print('\n'.join(line for line in text.splitlines()if 'RBF_'in line)[-3500:]);sys.exit(0 if passed else 1)

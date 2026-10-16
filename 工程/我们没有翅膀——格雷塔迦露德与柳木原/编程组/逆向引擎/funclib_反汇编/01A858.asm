@@ -1,0 +1,35 @@
+; V=0x1A858  core=0x1A858..0x1A874（3 条）  过程=0x1A858..0x1A96C（3 块/31 条，段数 1）
+; native=-
+; 内嵌串 core=-
+; 库内 CALL -> ['0x9ef4', '0x1d4bc', '0x19a68', '0x1a31c']
+0001A858  MOV_D         0x183E1B8[var#905] 0x1859038[L_1A868]    ★ V 入口
+0001A864  JZ            0x0[-] 0x1859044[L_1A874]                
+0001A870  RET                                                    
+0001A874  LD_STK        0x18[-] 0x1859054[L_1A884]               
+0001A880  PUSH          0x0[-]                                   
+0001A888  PUSH          0x1[-]                                   
+0001A890  CALL          0x18486C4[L_9EF4]                        
+0001A898  SP_DROP       0x8[-]                                   
+0001A8A0  STORE_RETVAL  0x1869F06[str@""]                        
+0001A8A8  LD_STK        0xC[-] 0x1859088[L_1A8B8]                
+0001A8B4  JZ            0x0[-] 0x18590C4[L_1A8F4]                
+0001A8C0  LD_STK        0xC[-] 0x18590A0[L_1A8D0]                
+0001A8CC  PUSH          0x0[-]                                   
+0001A8D4  PUSH          0x1[-]                                   
+0001A8DC  CALL          0x185BC8C[L_1D4BC]                       
+0001A8E4  SP_DROP       0x8[-]                                   
+0001A8EC  STORE_RETVAL  0x1869F06[str@""]                        
+0001A8F4  PUSH          0x1[-]                                   
+0001A8FC  CALL          0x1858238[L_19A68]                       
+0001A904  SP_DROP       0x4[-]                                   
+0001A90C  STORE_RETVAL  0x1869F06[str@""]                        
+0001A914  LD_STK        0x14[-] 0x18590F4[L_1A924]               
+0001A920  PUSH          0x0[-]                                   
+0001A928  LD_STK        0x14[-] 0x1859108[L_1A938]               
+0001A934  PUSH          0x0[-]                                   
+0001A93C  LD_STK        0x10[-] 0x185911C[L_1A94C]               
+0001A948  PUSH          0x0[-]                                   
+0001A950  CALL          0x1858AEC[L_1A31C]                       
+0001A958  SP_DROP       0xC[-]                                   
+0001A960  STORE_RETVAL  0x1869F06[str@""]                        
+0001A968  RET                                                    

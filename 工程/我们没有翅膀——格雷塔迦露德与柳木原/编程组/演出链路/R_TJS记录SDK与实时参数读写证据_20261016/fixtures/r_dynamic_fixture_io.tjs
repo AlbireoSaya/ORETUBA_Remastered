@@ -1,0 +1,17 @@
+function RDynamicRD(q) {
+    return RMemoryRead32(this.memory, q);
+}
+
+function RDynamicRB(q) {
+    return RMemoryRead8(this.memory, q);
+}
+
+function RDynamicWR(q, v) {
+    RMemoryWrite32(this.memory, q, v);
+    this.writes.add([4, q, v & 0xffffffff]);
+}
+
+function RDynamicWB(q, v) {
+    RMemoryWrite8(this.memory, q, v);
+    this.writes.add([1, q, v & 255]);
+}

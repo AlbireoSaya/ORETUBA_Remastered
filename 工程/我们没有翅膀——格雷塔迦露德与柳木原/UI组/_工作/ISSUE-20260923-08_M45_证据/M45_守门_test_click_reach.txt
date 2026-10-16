@@ -1,0 +1,79 @@
+==============================================================================
+全屏点击可达性守门（复算 uiScreenClick / uiDialogClick / uiScreenAttachClick 口径）
+  屏数 18 ｜ 目录 E:\ZCode Workspace\Galgame\临时\wt-m45-sysmenu\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens
+  豁免表 4 条（DESIGN 3 / REVIEW 1）—— 逐条打印可达面积以证明不是死件
+==============================================================================
+
+── _index.json（屏清单）OK —— 登记 18 屏，文件齐、id 一致、无未登记的屏
+
+── 01_title.json    OK  元素  17（可点   7）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 7
+
+── 10_dialog.json   OK  元素  10（可点   1）｜ 状态 2 ｜ 重叠对 0 ｜ 中心检查 1
+
+── 21_confirm.json  OK  元素   9（可点   2）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 2
+
+── 22_loading.json  OK  元素   7（可点   0）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 0
+
+── 23_save.json     OK  元素 118（可点  32）｜ 状态 1 ｜ 重叠对 2 ｜ 中心检查 32
+   [23_save.json·默认态] 重叠：sv.mov(z=97) 覆盖 sv.hit_back(z=96)  2379 px（占被覆盖者 10.9%）
+   [23_save.json·默认态] 重叠：sv.cpy(z=97) 覆盖 sv.hit_back(z=96)  9516 px（占被覆盖者 43.7%）
+   [豁免·DESIGN] sv.hit_back 可达面积 56.3%（被覆盖 43.7%）被 sv.cpy 吞掉中心
+       理由：**铁律二（schema §四）规定的合法重叠**：本件是「整块区域热区」（x1560 y960 w320 h68，**无对应美术**），块内的具体控件 `sv.cpy/del/mod/mov`（PSB `エディット/#*` 156×61，z=97）按「更具体者赢」压过它 —— 故本件的**几何中心**(1720,994)落在 `sv.cpy` 里、中心不归它。这不是缺陷：铁律二明确**选择抬 z 而不是收窄区域热区**（收窄＝凭空决定边界并把让出的区域变成死区），代价就是区域热区**在控件之外**的面积才归它 —— 实测仍有 **56.3%** 归本件（左 63px 带 x1560–1623 + 右 101px 带 x1779–1880，本脚本打印实测值），且 z=97 的 4 件合计只吃掉 43.7%。**真缺陷另有其形**：修前 `sv.cpy` 被本件 100% 吞掉（9516/9516）—— 那才是铁律二要消灭的方向，本脚本的 `--selfcheck` 案例 A 仍能复现并 FAIL。
+
+── 24_load.json     OK  元素 118（可点  32）｜ 状态 1 ｜ 重叠对 2 ｜ 中心检查 32
+   [24_load.json·默认态] 重叠：sv.mov(z=97) 覆盖 sv.hit_back(z=96)  2379 px（占被覆盖者 10.9%）
+   [24_load.json·默认态] 重叠：sv.cpy(z=97) 覆盖 sv.hit_back(z=96)  9516 px（占被覆盖者 43.7%）
+   [豁免·DESIGN] sv.hit_back 可达面积 56.3%（被覆盖 43.7%）被 sv.cpy 吞掉中心
+       理由：同存档屏（读档屏的 `sv.hit_back` 与 `sv.cpy` 几何相同，同属铁律二的合法重叠）。
+
+── 25_config.json   OK  元素 121（可点  44）｜ 状态 1 ｜ 重叠对 5 ｜ 中心检查 36
+   [25_config.json·默认态] 重叠：cfg.hit_reset(z=95) 覆盖 cfg.sys_end_hit(z=95)  121 px（占被覆盖者 2.4%）
+   [25_config.json·默认态] 重叠：cfg.on_hit(z=96) 覆盖 cfg.it_facewindow_hit(z=95)  3068 px（占被覆盖者 20.3%）
+   [25_config.json·默认态] 重叠：cfg.off_hit(z=96) 覆盖 cfg.it_facewindow_hit(z=95)  3717 px（占被覆盖者 24.6%）
+   [25_config.json·默认态] 重叠：cfg.it_allskip_hit(z=95) 覆盖 cfg.autospeed_hit(z=95)  138 px（占被覆盖者 0.6%）
+   [25_config.json·默认态] 重叠：cfg.it_textcolchg_hit(z=95) 覆盖 cfg.char2(z=95)  1168 px（占被覆盖者 9.7%）
+
+── 26_backlog.json  OK  元素  15（可点   7）｜ 状态 1 ｜ 重叠对 4 ｜ 中心检查 7
+   [26_backlog.json·默认态] 重叠：bl.jump_hit(z=95) 覆盖 bl.list(z=20)  28448 px（占被覆盖者 2.9%）
+   [26_backlog.json·默认态] 重叠：bl.spk_hit(z=95) 覆盖 bl.list(z=20)  273728 px（占被覆盖者 28.2%）
+   [26_backlog.json·默认态] 重叠：bl.close_hit(z=95) 覆盖 bl.up_hit(z=95)  196 px（占被覆盖者 4.5%）
+   [26_backlog.json·默认态] 重叠：bl.jump_hit(z=95) 覆盖 bl.spk_hit(z=95)  224 px（占被覆盖者 0.1%）
+   [豁免·REVIEW] bl.list 可达面积 100.0%（被覆盖 0.0%）  项 2/3 各自中心可达
+       理由：回想消息块列表（x208 y108 w1349 item_h240×3）的**第 1 块**被 `bl.spk_hit`（z=95、x334 y117 w1222 h224 —— PSB `#rects/speaker` 规定「整条消息行可点=语音重播」）盖住，故第 1 块中心不派发列表项（第 2/3 块可达，本脚本会打印实测「项 2/3 可达」）。两件**今天都无害**：`bl.list.actions` 全为空串（schema §六「动作表未覆盖的控件允许空 action，待编程组定义」）⇒ 点列表项本就没有动作；`bl.spk_hit` 按 PSB 就是整条消息行。▲ 与铁律二的关系：本条**不是**「区域热区 vs 块内具体控件」（那个方向是具体控件赢、由铁律二制度化），而是**两个各自都有 PSB 依据的交互区在争同一块像素**（消息块列表 vs 语音重播行），究竟该谁赢属**产品/设计裁决**，故只能登记 REVIEW 而不能援引铁律二消掉。★ 待裁决（且**不得**靠抬 `bl.list` 的 z 了事 —— 那会把整条语音重播行吃掉，正是铁律二要避免的方向）：可选项是「列表项点击限制到文本区 1143×179」或「语音重播热区缩到喇叭 `bl.spk` 25×35 @(349,138)」，两者都改交互区几何，须先取得裁定。
+       ★ **待裁决**（见豁免表 REVIEW 类）
+          （豁免项内的列表项失配）[26_backlog.json·默认态] bl.list 的**第 0 项**中心(882.5,228) 被 **bl.spk_hit** 吞掉（列表项不可达）
+
+── 27_gallery.json  OK  元素  19（可点   7）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 7
+
+── 28_music.json    OK  元素 128（可点  44）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 44
+
+── 29_ending.json   OK  元素   7（可点   1）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 1
+
+── 31_fragment.json OK  元素  83（可点  41）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 41
+
+── 32_flowchart.json OK  元素  74（可点  12）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 12
+
+── 33_sysicons.json OK  元素  20（可点  10）｜ 状态 1 ｜ 重叠对 9 ｜ 中心检查 10
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_01_qsave(z=30) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_02_qload(z=31) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_03_skip(z=32) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_04_prev(z=33) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_05_save(z=34) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_06_load(z=35) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_07_config(z=36) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_08_close(z=37) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [33_sysicons.json·默认态] 重叠：sysicons.hit_09_repeat(z=38) 覆盖 sysicons.dismiss(z=1)  82134 px（占被覆盖者 4.0%）
+   [豁免·DESIGN] sysicons.dismiss 可达面积 96.0%（被覆盖 4.0%）被 sysicons.hit_05_save 吞掉中心
+       理由：浮层的「点击空白关闭」全屏热区，**铁律二 / schema §六 规定的做法**：「整块区域热区（低 z）+ 块内具体控件（高 z，此处为 9 个功能图标 z30..38）」⇒ 具体控件赢，正是「点图标不关屏」想要的。它本身**不是**被吞死的元素：矩形 1920×1080、被 9 个图标合计覆盖仅 ~4%，其余 96% 面积仍是它的命中区（本脚本打印实测值 96.0%）。
+
+── 34_sysbar.json   OK  元素   8（可点   4）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 4
+
+── 35_quickbar.json OK  元素  49（可点  12）｜ 状态 13 ｜ 重叠对 0 ｜ 中心检查 144
+
+── 36_choices.json  OK  元素   9（可点   3）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 3
+
+── 37_dress.json    OK  元素 107（可点  42）｜ 状态 1 ｜ 重叠对 0 ｜ 中心检查 42
+
+------------------------------------------------------------------------------
+合计：屏 18 ｜ 重叠对 22 ｜ 中心可达性检查 425 次 ｜ 豁免命中 4 条
+结果：**全部通过**（无未登记的可达性缺陷；豁免项均已在表中写明理由）

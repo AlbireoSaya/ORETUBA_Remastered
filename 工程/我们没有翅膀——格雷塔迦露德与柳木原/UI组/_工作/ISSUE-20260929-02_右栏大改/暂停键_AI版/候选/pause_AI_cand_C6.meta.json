@@ -1,0 +1,20 @@
+{
+ "tag": "C6",
+ "model": "gpt-image-2",
+ "size": "1024x1024",
+ "ref": "ref_4x.png",
+ "ref_scale": 4.0,
+ "http": 200,
+ "sec": 28.4,
+ "prompt_sha1": "c425f8118093",
+ "prompt": "You are given one image: a small round pause/play button sprite from a Japanese visual novel UI. It is a perfectly circular disc: a very pale ice-blue to near-white vertical gradient fill (about #E7F0FD), a 3-pixel grey-blue ring border (about #929FB7) around the rim, and a soft cyan-blue outer glow halo (about #7AB0E8) fading out past the rim. In the middle of the disc there is a single solid light-blue triangle (a PLAY arrow, about #A7CBF1).\nTASK: change ONLY the symbol in the middle. Replace the PLAY triangle with a PAUSE symbol made of exactly TWO vertical rounded bars (a double vertical bar, like the pause icon ||). Do not touch anything else.\nKEEP COMPLETELY UNCHANGED - redraw them exactly as in the input image, same position, same size, same radius, same thickness, same colours, same soft anti-aliased edges: the circular pale-blue disc, the grey-blue ring border, and the feathered outer glow halo. The disc must stay centred in the canvas with the same margin as the input image.\nPAUSE SYMBOL GEOMETRY (proportions measured on the input image; follow them closely): the two bars are vertical, rectangular with small rounded corners (corner radius about 2 pixels at this size), parallel, identical in size, separated by a gap. Bar height is about 50% of the disc diameter (i.e. about 54 px on a 108 px disc). The two bars plus the gap together are about 44% of the disc diameter (about 48 px on a 108 px disc), so each bar is about 16 px wide and the gap between them is about 16 px - the gap is as wide as a bar. The whole two-bar group is centred in the disc (do not shift it left or right). The bars are filled with the same flat light-blue colour as the play triangle (about #A7CBF1) with clean anti-aliased edges, no outline, no shadow, no gradient, no glow on the bars themselves.\nTRANSPARENT BACKGROUND: this is a game UI sprite; it MUST have a real alpha channel. Everything outside the soft feathered glow around the disc is fully transparent. Do not add any square plate, card, panel, frame, border, box, rounded rectangle, background wash, drop shadow rectangle or watermark. Do not add any text, letters, numbers smiley, logo or decorative element. Output only the single round button sprite, centred, nothing else.\n",
+ "note": "换模型 gpt-image-2（原生 1024×1024）+ 几何规格段",
+ "out": "pause_AI_cand_C6.png",
+ "err": null,
+ "bytes": 645286,
+ "actual_size": [
+  1024,
+  1024
+ ],
+ "actual_mode": "RGBA"
+}

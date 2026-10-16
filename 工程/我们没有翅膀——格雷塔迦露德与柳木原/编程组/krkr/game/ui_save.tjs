@@ -1,0 +1,397 @@
+// ============================================================
+// ui_save.tjs —— 编程组 · 存档 / 读档（12 槽 + 缩略图）
+//
+// 依赖 UI 组既有设施：
+//   * 写档必须是**绝对存储名** `file://./<盘符>/…`；datapath 取 `Debug.logLocation`
+//     （写法与 `ui_state.tjs` 同款：`Array.save(name,"w")` 写、`Array.load(name)` 读）。
+//   * 离屏导出画面用 `stageLayer.copyToBitmapFromMainImage(bmp)` + `bmp.save(dir+name,"png")`
+//     （同 `startup.tjs` 的 `exportPng`）。
+//
+// 与 UI 组的接线（**不改 UI 组文件**）：
+//   * 屏数据 `23_save.json` / `24_load.json` 各有 12 槽：热区 `sv.hit<N>`（action `slot_<N>`）、
+//     缩略窗 `sv.thumb<N>`（122×73）、槽号 `sv.num<N>`、信息 `sv.info<N>`、空态 `sv.nodata<N>`。
+//   * 本模块**直接改这些元素的数据字段**（`asset` / `sample` / `visible_default`）——
+//     与 UI 组的渲染路径一致（`ui_widget.tjs` 的 image 用 `el.asset`、text 用 `ctx.textOverride`→`el.sample`）。
+//
+// 已知边界（如实登记）：
+//   * 缩略图取自**对话框屏**最近一帧（`uiSaveCaptureLive`，行推进时节流抓取）；
+//     若从未在对话框屏抓过，则退化为「存档当刻的当前画面」。
+//   * `page_<N>`（存/读档屏页码，20 处占位动作）**已接线**（ISSUE-20261003-06）：
+//     本屏按 UI 组设计是 **12 槽/页 × 10 页 = 120 槽**，`sv.pgnum_01..10` 靠屏级 flag `sv_page` 互斥显示页号。
+// ============================================================
+
+var UISaveWin      = null;
+var UISaveDir      = "";        // datapath 存储名（以 "/" 结尾）
+// ★ 翻页（ISSUE-20261003-06）：UI 组屏数据是 **12 槽/页 × 10 页 = 120 槽** 的设计
+//   （`sv.slot/pg/pgnum` 三族各 10 件 + `flags_default.sv_page = "1"`），
+//   原实现只做「12 槽单页」⇒ **9 个页码按钮点了没反应**（`page_1..page_10` 共 20 处占位动作）。
+//   现按设计实现：槽号 ＝ (页-1)×12 ＋ 页内序号（1 基），页码写进屏级 flag `sv_page`（`sv.pgnum_01..10` 靠它互斥显示）。
+var UISavePerPage  = 12;
+var UISavePages    = 10;
+var UISaveSlots    = 120;       // = UISavePerPage × UISavePages
+var UISavePage     = 1;         // 当前页（1 基）；模块级持有，屏级 flag 每次刷新时重写
+var UISaveExists   = [];        // 每槽 bool（1 基，索引 0 占位）
+var UISaveInfo     = [];        // 每槽摘要（"" = 空）
+var UISaveThumb    = [];        // 每槽缩略图存储名（"" = 无）
+var UISaveLast     = "就绪";
+var UISaveCount    = 0;
+var UISaveLivePath = "";        // 对话框屏「当前画面」暂存图（存档次缩略图的源）
+var UISaveSeq      = 0;         // 写档序号：缩略图文件名带序号 ⇒ asset 串变化 ⇒ 绕开 ui_asset 缓存
+
+function uiSavePad(n)
+{
+	var v = 0 + n;
+	return (v < 10) ? ("0" + v) : ("" + v);
+}
+
+// 页内序号(1..12) → 全局槽号(1..120)；反之亦然。翻页的全部实现只经这两个函数。
+function uiSaveSlotOf(n)   { return (UISavePage - 1) * UISavePerPage + (0 + n); }
+function uiSavePageOf(slot)
+{
+	var s = 0 + slot;
+	if(s < 1) s = 1;
+	return Math.floor((s - 1) / UISavePerPage) + 1;
+}
+
+// ------------------------------------------------------------
+// 「最近存档槽」标记 + 标题屏「继续」（ISSUE-20261003-06）
+//   原实现：标题屏「继续」走 UI 组的演示逻辑（读回演示台词序号），**与真实存档无关**。
+//   现改为：读最近一次写入的槽，回到该场景/该行接着玩。
+// ------------------------------------------------------------
+var UISaveLastSlot = 0;          // 最近写入/读取的**全局槽号**（0＝未知）
+function uiSaveLastMarker()  { return UISaveDir + "greta_last.txt"; }
+
+function uiSaveLastMarkerWrite(slot)
+{
+	if(UISaveDir == "") return false;
+	try
+	{
+		var a = ["# greta last-slot marker v1", "slot=" + slot];
+		a.save(uiSaveLastMarker(), "w");
+	}
+	catch(e) { Debug.message("[SAVE][warn] 最近存档标记写入失败：" + e.message); return false; }
+	return true;
+}
+
+function uiSaveLastMarkerRead()
+{
+	if(UISaveDir == "") return 0;
+	var p = uiSaveLastMarker();
+	var ex = false;
+	try { ex = Storages.isExistentStorage(p); } catch(e0) { ex = false; }
+	if(!ex) return 0;
+	try
+	{
+		var a = new Array();
+		a.load(p);
+		for(var i = 0; i < a.count; i++)
+		{
+			var ln = "" + a[i];
+			if(ln.indexOf("slot=") == 0) return 1 * ln.substring(5);   // ★ 必须用 1*：TJS2 里  得到字符串 "07"
+		}
+	}
+	catch(e1) { Debug.message("[SAVE][warn] 最近存档标记读取失败：" + e1.message); }
+	return 0;
+}
+
+// 标题屏「继续」：停在最近存档 → 回对话框接着玩。**找不到任何档 ⇒ 返回 false**（调用方退回原逻辑）。
+function uiSaveContinue()
+{
+	uiSaveRefreshAll();
+	var slot = uiSaveLastMarkerRead();
+	if(!(slot >= 1 && slot <= UISaveSlots) || UISaveExists[slot] !== true)
+	{
+		slot = 0;
+		for(var i = 1; i <= UISaveSlots; i++)
+			if(UISaveExists[i] === true) { slot = i; break; }
+		Debug.message("[SAVE] 续玩：无标记或标记槽无档 ⇒ 退化为第一个有档的槽 = " + slot);
+	}
+	if(!(slot >= 1) || UISaveExists[slot] !== true)
+	{
+		Debug.message("[SAVE] 续玩：没有任何存档");
+		return false;
+	}
+	UISavePage = uiSavePageOf(slot);   // 同步页码：玩家之后进存/读档屏就停在该槽所在页
+	Debug.message("[SAVE] 续玩 → 槽 " + slot + "（第 " + UISavePage + " 页）");
+	return uiSaveRead(slot);
+}
+
+// `page_<N>` 动作（UI 组 20 处占位动作的接线口）：切页并立刻重绘当前屏。
+function uiSaveSetPage(p)
+{
+	var v = 0 + p;
+	if(v < 1 || v > UISavePages)
+	{
+		Debug.message("[SAVE] page_" + p + " 越界（合法 1.." + UISavePages + "），忽略");
+		return false;
+	}
+	UISavePage = v;
+	// ★ 页码写进屏级 flag（**不依赖屏是否存在**——机检在无屏状态下也要能读到；屏在时 apply 会再写一次，幂等）
+	try { uiScreenFlagSet("sv_page", "" + UISavePage); } catch(ePF) { }
+	var scr = "" + uiScreenCurrent();
+	if(scr == "save" || scr == "load") uiSaveApplyToScreen(scr);
+	Debug.message("[SAVE] 翻页 → 第 " + UISavePage + " 页（槽 " + uiSaveSlotOf(1) + ".." + uiSaveSlotOf(UISavePerPage) + "）");
+	return true;
+}
+
+function uiSaveInit(win)
+{
+	UISaveWin = win;
+	UISaveDir = "";
+	try { UISaveDir = "" + Debug.logLocation; } catch(e) { UISaveDir = ""; }
+	if(UISaveDir != "")
+	{
+		var last = UISaveDir.charAt(UISaveDir.length - 1);
+		if(last != "/" && last != "\\") UISaveDir = UISaveDir + "/";
+	}
+	UISaveExists = []; UISaveInfo = []; UISaveThumb = [];
+	for(var i = 0; i <= UISaveSlots; i++) { UISaveExists.push(false); UISaveInfo.push(""); UISaveThumb.push(""); }
+	UISaveLivePath = (UISaveDir == "") ? "" : (UISaveDir + "greta_thumb_live.png");
+	Debug.message("[SAVE] init : dir=" + ((UISaveDir == "") ? "(空!)" : UISaveDir) + " 槽数=" + UISaveSlots);
+	uiSaveRefreshAll();
+}
+
+function uiSaveFile(slot)   { return UISaveDir + "greta_slot" + uiSavePad(slot) + ".txt"; }
+function uiSaveThumbPath(slot, seq)
+{
+	// ★ 一审重要-3：UI 组 `uiAssetGet` 按 **asset 串**缓存 Layer 且无失效 API ⇒ 同一路径覆盖后
+	//   屏上仍显示旧图（无异常、无日志）。故每次写档换唯一名，旧件顺手删。
+	var s2 = (seq === void) ? UISaveSeq : (0 + seq);
+	return UISaveDir + "greta_thumb" + uiSavePad(slot) + "_" + s2 + ".png";
+}
+
+// ★ TJS2 的 `Date` **没有 `getFullYear`**（实机抛「未找到 Member」并打整段 dump）。
+//   可用方法（源码 `tjs2/tjsDate.cpp` 实测）：getYear/getMonth/getDate/getDay/
+//   getHours/getMinutes/getSeconds/getTime/getTimezoneOffset。
+//   **且 `getYear()` 返回的是完整年份**（`tm_year + 1900`），不是 JS 的「年份-1900」。
+function uiSaveNowText()
+{
+	var s = "";
+	try
+	{
+		var d = new Date();
+		s = d.getYear() + "-" + uiSavePad(d.getMonth() + 1) + "-" + uiSavePad(d.getDate())
+			+ " " + uiSavePad(d.getHours()) + ":" + uiSavePad(d.getMinutes());
+	}
+	catch(e) { s = ""; }
+	return s;
+}
+
+// 抓「当前画面」到暂存缩略图（只在对话框屏调用才是有意义的剧情画面）
+function uiSaveCaptureLive()
+{
+	if(UISaveWin === null || UISaveLivePath == "") return false;
+	try
+	{
+		var bmp = new Bitmap();
+		UISaveWin.stageLayer.copyToBitmapFromMainImage(bmp);
+		bmp.save(UISaveLivePath, "png");
+		return true;
+	}
+	catch(e) { Debug.message("[SAVE] 暂存缩略图失败：" + e.message); return false; }
+}
+
+// ------------------------------------------------------------
+// 写档
+// ------------------------------------------------------------
+function uiSaveWrite(slot)
+{
+	if(UISaveDir == "") { UISaveLast = "存档失败：无 datapath"; Debug.message("[SAVE][ERR] " + UISaveLast); return false; }
+	// 缩略图：优先用对话框屏的暂存帧；没有就现抓（会拍到当前屏，属退化情形）
+	var oldThumb = UISaveThumb[slot];
+	UISaveSeq++;
+	var tp = uiSaveThumbPath(slot, UISaveSeq);
+	var okThumb = false;
+	try
+	{
+		var b2 = new Bitmap();
+		if(UISaveLivePath != "")
+		{
+			var liveEx = false;
+			try { liveEx = Storages.isExistentStorage(UISaveLivePath); } catch(e0) { liveEx = false; }
+			if(liveEx) { b2.load(UISaveLivePath); okThumb = true; }
+		}
+		if(!okThumb)
+		{
+			UISaveWin.stageLayer.copyToBitmapFromMainImage(b2);
+			okThumb = true;
+			Debug.message("[SAVE][warn] 无对话框暂存帧，缩略图退化为存档当刻画面");
+		}
+		b2.save(tp, "png");
+	}
+	catch(e) { Debug.message("[SAVE] 缩略图写入失败：" + e.message); okThumb = false; }
+
+	var a = [
+		"# greta story save v1 (Array.save -> UTF-16LE; Array.load 读回)",
+		"scene=" + UIStoryCur,
+		"line=" + UIDlgLine,
+		"played=" + UIStoryPlayed,
+		"count=" + UIDemoLineCount,
+		"title=" + ((UIStoryScene === void) ? "" : ("" + UIStoryScene.title)),
+		"when=" + uiSaveNowText(),
+		"thumb=" + (okThumb ? tp : ""),
+		"hist=" + UIStoryHist.join(",")
+	];
+	try { a.save(uiSaveFile(slot), "w"); }
+	catch(e2) { UISaveLast = "写档失败：" + e2.message; Debug.message("[SAVE][ERR] " + UISaveLast); return false; }
+	// ★ 「最近存档槽」标记（ISSUE-20261003-06）：标题屏「继续」靠它**停在玩家最后存的档**上。
+	//   为什么不扫描全部 120 槽挑"最新"：存档文件里只有**格式化过的时间串**（`当=`），
+	//   在 TJS2 里解析比较既脆又慢；写一个只含槽号的小文件最稳。丢失时退化为「第一个有档的槽」。
+	UISaveLastSlot = slot;
+	uiSaveLastMarkerWrite(slot);
+	// ⚠️ 旧缩略图**不删**：krkrz 的 `Storages` 无 `remove`（成员表见 `base/StorageIntf.cpp`：
+	//    addAutoPath/removeAutoPath/getFullPath/getPlacedPath/isExistentStorage/extract*/chop*/clearArchiveCache），
+	//    硬删会抛「未找到 Member」并被 catch 后仍打 dump。代价＝缩略图按唯一名累积（每张约 1.4 MB，
+	//    成品部署时 savedata 会整体清空）。
+	UISaveCount++;
+	UISaveLast = "已存档：槽 " + slot + "（" + UIStoryCur + " 行 " + UIDlgLine + "）";
+	Debug.message("[SAVE] " + UISaveLast + " ｜ 缩略图=" + (okThumb ? tp : "无"));
+	uiSaveRefreshAll();
+	uiSaveApplyToScreen(uiScreenCurrent());
+	return true;
+}
+
+// ------------------------------------------------------------
+// 读档
+// ------------------------------------------------------------
+function uiSaveRead(slot)
+{
+	var path = uiSaveFile(slot);
+	var ex = false;
+	try { ex = Storages.isExistentStorage(path); } catch(e0) { ex = false; }
+	if(!ex) { UISaveLast = "槽 " + slot + " 无存档"; Debug.message("[SAVE] " + UISaveLast); return false; }
+	var a = [];
+	try { a.load(path); }
+	catch(e) { UISaveLast = "读档失败：" + e.message; Debug.message("[SAVE][ERR] " + UISaveLast); return false; }
+
+	var scene = "", line = 0, title = "", when = "", hist = "", played = 0;
+	for(var i = 0; i < a.count; i++)
+	{
+		var s = "" + a[i];
+		if(s == "" || s.charAt(0) == "#") continue;
+		var eq = s.indexOf("=");
+		if(eq < 0) continue;
+		var k = s.substring(0, eq);          // ★ substring(起点, 长度)：这里 len=eq ⇒ 取前 eq 个字符
+		var v = s.substring(eq + 1);         // 从 eq+1 到串尾
+		if(k == "scene") scene = v;
+		else if(k == "line") line = 0 + v;
+		else if(k == "title") title = v;
+		else if(k == "when") when = v;
+		else if(k == "hist") hist = v;
+		else if(k == "played") played = 0 + v;
+	}
+	if(scene == "") { UISaveLast = "存档无场景字段"; Debug.message("[SAVE][ERR] " + UISaveLast); return false; }
+	if(!uiStoryLoad(scene))
+	{
+		UISaveLast = "存档场景不可载入：" + scene;
+		Debug.message("[SAVE][ERR] " + UISaveLast);
+		return false;
+	}
+	if(line < 0) line = 0;
+	if(line >= UIDemoLineCount) line = UIDemoLineCount - 1;
+	if(played > 0) UIStoryPlayed = played;
+	if(hist != "") UIStoryHist = hist.split(",");
+	UIDlgLine = line; UIDlgTyped = 0; UIDlgTyping = true; UIDlgChoicesOpen = false;
+	// ★ 一审重要-1：读档后必须**重算 BGM 切换点**（否则 otv/np 的 cue 场景停在开场曲）
+	try { UIStoryCuePos = 0; uiStoryApplyCues(); } catch(eCue) { Debug.message("[SAVE] cue 重算失败：" + eCue.message); }
+	uiStoryApplyFace("" + UIStoryScene.lines[line].sp);
+	UISaveLast = "已读档：槽 " + slot + " → " + scene + " 行 " + line + "（" + when + "）";
+	UISaveLastSlot = slot;             // ★ 最近使用槽（「继续」据此续玩）
+	Debug.message("[SAVE] " + UISaveLast);
+	return true;
+}
+
+// ------------------------------------------------------------
+// 槽摘要扫描（供存/读档屏显示）
+// ------------------------------------------------------------
+function uiSaveReadMeta(slot)
+{
+	var path = uiSaveFile(slot);
+	var ex = false;
+	try { ex = Storages.isExistentStorage(path); } catch(e0) { ex = false; }
+	if(!ex) { UISaveExists[slot] = false; UISaveInfo[slot] = ""; UISaveThumb[slot] = ""; return false; }
+	var a = [];
+	try { a.load(path); } catch(e) { UISaveExists[slot] = false; return false; }
+	var title = "", when = "", line = "0", thumb = "";
+	for(var i = 0; i < a.count; i++)
+	{
+		var s = "" + a[i];
+		if(s == "" || s.charAt(0) == "#") continue;
+		var eq = s.indexOf("=");
+		if(eq < 0) continue;
+		var k = s.substring(0, eq), v = s.substring(eq + 1);
+		if(k == "title") title = v; else if(k == "when") when = v;
+		else if(k == "line") line = v; else if(k == "thumb") thumb = v;
+	}
+	UISaveExists[slot] = true;
+	// 槽位信息框仅 232×75 / 最多 3 行 ⇒ 两行短文本（标题截断 + 行号/时间），避免被截
+	var t = title;
+	if(t == "") t = "(无标题)";
+	if(t.length > 10) t = t.substring(0, 10) + "…";     // ★ substring(起点, 长度)
+	var when2 = when;
+	if(when2.length >= 16) when2 = when2.substring(11);  // 只留 "MM-DD HH:MM"
+	UISaveInfo[slot] = t + "\n行 " + line + " ｜ " + when2;
+	UISaveThumb[slot] = thumb;
+	return true;
+}
+
+function uiSaveRefreshAll()
+{
+	var n = 0;
+	for(var i = 1; i <= UISaveSlots; i++) if(uiSaveReadMeta(i)) n++;
+	UISaveCount = n;           // ★ 供日志/摘要用（原实现只 return，调用点再算一遍 ⇒ 120 槽下白读一轮）
+	UISaveLast = UISaveLast;   // 保持
+	return n;
+}
+
+// ------------------------------------------------------------
+// 把槽状态写进「存/读档屏」的元素字段（不改布局文件，只改内存数据）
+// ------------------------------------------------------------
+function uiSaveApplyToScreen(screenId)
+{
+	var sid = "" + screenId;
+	if(sid != "save" && sid != "load") return false;
+	if(UILayoutData === void || UILayoutData.screens === void) return false;
+	var sc = UILayoutData.screens[sid];
+	if(sc === void || sc.elements === void) return false;
+	uiSaveRefreshAll();          // ★ 一审重要-4：本函数必须自洽——先刷新再渲染
+	// ★ 翻页（ISSUE-20261003-06）：本屏可显示的 12 个槽位 = 当前页的 12 个全局槽。
+	//   页码写进屏级 flag `sv_page`（`sv.pgnum_01..10` 的 `vis_when` 靠它互斥显示当前页号）。
+	try { uiScreenFlagSet("sv_page", "" + UISavePage); } catch(eP) { }
+	// ★ 按 **id 直接取元素**，不用 `0 + "8"` 那类下标记法：
+	//   TJS2 的 `+` 在数字与字符串混合时行为易猜错，而数组用字符串键会变成「属性」而非元素
+	//   （实测该写法会让空槽的占位文本清不掉）。
+	for(var i = 1; i <= UISavePerPage; i++)
+	{
+		var slot = uiSaveSlotOf(i);
+		var has = (UISaveExists[slot] === true);
+
+		var te = uiStoryFindEl(sc, "sv.info" + i);
+		if(te !== void)
+		{
+			te.visible_default = has;              // 空槽显式隐藏（布局 sample 是 UI 组占位文本）
+			te.sample = has ? ("" + UISaveInfo[slot]) : "";
+		}
+		// 槽号文本：显示**全局槽号**（第 2 页应是 13..24，否则玩家分不清存到了哪）
+		var nu = uiStoryFindEl(sc, "sv.num" + i);
+		if(nu !== void) nu.sample = "" + slot;
+		// ★ 缩略图必须**三态对称**（ISSUE-20261003-12，一审 Major-1）：有档有图 → 写图；
+		//   否则**写回占位件**。原实现只有「有图才写」⇒ 翻页后空槽会残留**上一页**的截图
+		//   （`sv.thumb<N>` 无 `vis_flag` 门控、直接可见；`sv.nodata<N>` 只有 61×19 盖不住 122×73）。
+		var th = uiStoryFindEl(sc, "sv.thumb" + i);
+		if(th !== void)
+			th.asset = (has && ("" + UISaveThumb[slot]) != "")
+				? UISaveThumb[slot]                              // 绝对存储名 → ui_asset 候选①可解析
+				: "ui/x_ui_psv_slot_thumbwin.png";               // 占位件名取自 23_save.json 的初值
+		// `sv.nodata<N>` 由屏级 flag `sv_s<N>` 门控（vis_when:"off"）：无档 → "off"（显示）
+		try { uiScreenFlagSet("sv_s" + i, has ? "on" : "off"); } catch(eF) { }
+	}
+	Debug.message("[SAVE] 已刷新 " + sid + " 屏槽位显示（第 " + UISavePage + "/" + UISavePages
+		+ " 页 ｜ 有档 " + UISaveCount + "/" + UISaveSlots + "）");
+	return true;
+}
+
+function uiSaveSummary()
+{
+	return "存档 " + UISaveCount + " 次 | " + UISaveLast;
+}

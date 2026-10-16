@@ -1,0 +1,32 @@
+replaytoggle_巡演摘录.txt
+========================================================================================================
+来源：E:/ZCode Workspace/Galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata\krkr.console.log
+引擎：krkr Z 1.4.0.8 （UI组\krkr\runtime\tvpwin32.exe）｜ 巡演：UI组\krkr\run_autotour.bat（无参，每步 2s）
+生成：2026-09-29 03:41:23
+
+口径：本文件是**逐字摘录**（未改一字），只挑出本模块相关行 + 总账行。
+  · [UI][REPLAY] …                    = 动作 flow_replay_toggle 的生产日志（ui_flow.tjs；行内纯 ASCII）
+  · ★REPLAYTOGGLE★ / -REJECT★ / -SKIP★ = 巡演步判词（ui_screens.tjs；含负向对照与 SKIP 实测）
+  · 末尾总账 = 缺件 / 异常 / 转场 的收官计数
+  · 注：巡演 PNG 有**一格偏移**（既有约定，见 startup.tjs 的 E2d 注）：shot_NN 的像素 = 第 NN-1 步之后的状态；
+        故「切到暂停态」的效果落在 shot_100，而日志行号是 99/112。
+
+========================================================================================================
+03:39:48 [UI][REPLAY] flow_replay_toggle : fc_replay play -> pause (changed) | screen=flowchart | visible=fc.pbkick_pause (1) | redraw=caller (handleClick / uiTourStep) | playback=not implemented (programming group)
+03:39:48 [UI][REPLAY] flow_replay_toggle : fc_replay pause -> play (changed) | screen=flowchart | visible=fc.pbkick (1) | redraw=caller (handleClick / uiTourStep) | playback=not implemented (programming group)
+03:39:48 [UI][TOUR] -> 下一步：★REPLAYTOGGLE★ 真实点击 fc.pbkick_hit：四断言（点击前值 / 已翻转 / 一键可见 / 幂等闭环）  屏=flowchart  说明=★REPLAYTOGGLE★ PASS  目标=fc.pbkick_hit[auto(数据推:action)] 中心=1637,363  ①点击前 fc_replay=play  ②点击=flow_replay_toggle -> pause（期望 pause，命中参数 layer=(空)）  ③引擎谓词复算 fc.pbkick(play)=x fc.pbkick_pause(pause)=V ⇒ 可见 1 件、与 flag 相符=是  ④再点=flow_replay_toggle -> play（应回 play）  键数=2 flag=fc_replay  重绘=下一步 tourTick（本步骤返回后由巡演统一 redraw）  播放实现=未接（编程组）  msg=回放切换 play -> pause
+03:39:49 [UI][TOUR] 95/112  屏=flowchart  中文名=剧情流程图  元素数=280  实绘元素=114  字体=微软雅黑  缺件=0  占位=无  标签=★REPLAYTOGGLE★ 真实点击 fc.pbkick_hit：四断言（点击前值 / 已翻转 / 一键可见 / 幂等闭环）
+03:39:50 [UI][TOUR] -> 下一步：★REPLAYTOGGLE-REJECT★ 负向①：目标元素不存在（显式拒绝、不改状态）  屏=flowchart  说明=★REPLAYTOGGLE-REJECT★ fc.pbkick_hit__no_such__ 不在当前屏 flowchart 的元素表里（『元素不存在』守卫）
+03:39:51 [UI][TOUR] 96/112  屏=flowchart  中文名=剧情流程图  元素数=280  实绘元素=114  字体=微软雅黑  缺件=0  占位=无  标签=★REPLAYTOGGLE-REJECT★ 负向①：目标元素不存在（显式拒绝、不改状态）
+03:39:52 [UI][TOUR] -> 下一步：★REPLAYTOGGLE-REJECT★ 负向②：目标不是 hit（无派发入口）  屏=flowchart  说明=★REPLAYTOGGLE-REJECT★ fc.pbkick 不是 hit（kind=image）⇒ 它没有派发入口，点不出动作
+03:39:53 [UI][TOUR] 97/112  屏=flowchart  中文名=剧情流程图  元素数=280  实绘元素=114  字体=微软雅黑  缺件=0  占位=无  标签=★REPLAYTOGGLE-REJECT★ 负向②：目标不是 hit（无派发入口）
+03:39:54 [UI][TOUR] -> 下一步：★REPLAYTOGGLE-REJECT★ 负向③：是 hit 但不是 flow_replay_toggle 热区  屏=flowchart  说明=★REPLAYTOGGLE-REJECT★ fc.jump_hit 的 action=flow_enter，不是 flow_replay_toggle 热区
+03:39:55 [UI][TOUR] 98/112  屏=flowchart  中文名=剧情流程图  元素数=280  实绘元素=114  字体=微软雅黑  缺件=0  占位=无  标签=★REPLAYTOGGLE-REJECT★ 负向③：是 hit 但不是 flow_replay_toggle 热区
+03:39:56 [UI][REPLAY] flow_replay_toggle : fc_replay play -> pause (changed) | screen=flowchart | visible=fc.pbkick_pause (1) | redraw=caller (handleClick / uiTourStep) | playback=not implemented (programming group)
+03:39:58 [UI][REPLAY] flow_replay_toggle : fc_replay pause -> play (changed) | screen=flowchart | visible=fc.pbkick (1) | redraw=caller (handleClick / uiTourStep) | playback=not implemented (programming group)
+03:40:05 [UI][TOUR] -> 下一步：★REPLAYTOGGLE-SKIP★ 前台屏=loading（无该机制）⇒ 必须明确跳过、不改状态  屏=loading  说明=★REPLAYTOGGLE-SKIP★ 当前屏=loading（本步骤只在流程图屏有效，跳过）
+03:40:07 [UI][TOUR] 104/112  屏=loading  中文名=加载提示  元素数=2  实绘元素=2  字体=微软雅黑  缺件=0  占位=无  标签=★REPLAYTOGGLE-SKIP★ 前台屏=loading（无该机制）⇒ 必须明确跳过、不改状态
+03:40:23 [UI][TOUR] ===== 巡演结束 =====
+03:40:23 [UI][TOUR] 共记录 113 屏 | 已载入 203 件 / 缺件 0 件
+03:40:23 [UI][TOUR] 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 0 处 | 未知 kind 0 处 | item_buttons/item_text 拒绝 5 处 [★M06ITEMBTN-REJECT★ bl.list[jump] action 为空 ; ★M06ITEMBTN-REJECT★ bl.list[jump] 矩形出块（局部 1300,190 200×60 不在 1526×188 内） ; ★M06ITEMBTN-REJECT★ bl.list[jump] 矩形零/负面积（0×0） ; ★M06ITEMBTN-REJECT★ bl.list[#0] 第 0 项缺 key ; ★M06ITEMBTN-REJECT★ bl.list[#0] 第 0 项不是对象]
+03:40:23 [UI] quit (autotour done) : frames=2119 | gal_shell | 已载入 203 件 / 缺件 0 件 | 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 0 处 | 未知 kind 0 处 | item_buttons/item_text 拒绝 5 处 [★M06ITEMBTN-REJECT★ bl.list[jump] action 为空 ; ★M06ITEMBTN-REJECT★ bl.list[jump] 矩形出块（局部 1300,190 200×60 不在 1526×188 内） ; ★M06ITEMBTN-REJECT★ bl.list[jump] 矩形零/负面积（0×0） ; ★M06ITEMBTN-REJECT★ bl.list[#0] 第 0 项缺 key ; ★M06ITEMBTN-REJECT★ bl.list[#0] 第 0 项不是对象] | 转场 成功 32 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64 | flow=N01 已读 1/13 碎片 0/53 | state=file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/ui_flow_state.txt | install=(已安装：uiScreenDraw / uiActionDispatch / uiScreenKey 已包装) | 包装器异常=0 | 旧机制已退场 11 个函数 | state=file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run/runtime/savedata/ui_state.txt | tour_runs=1 | seen=17[title,dialog,choices,sysicons,save,load,config,backlog,gallery,music,dress,replay,flowchart,loading,confirm,quickbar,gal_shell] | settings=dlg_winopac:90,text_speed:60,auto_speed:50,vol_master:80,vol_bgm:80,vol_se:80,vol_sysse:80,vol_voice:80,vol_char:80,display:window,facewindow:on,drama:on,effect:on,voicecut:off,curhide:off,savedialog:on,loaddialog:on,allskip:off,textcolchg:on,mute_vol_master:off,mute_vol_bgm:off,mute_vol_se:off,mute_vol_sysse:off,mute_vol_voice:off,mute_vol_char:off

@@ -1,0 +1,18 @@
+from pathlib import Path
+import sys,json,hashlib
+r=Path.cwd();w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015';sys.path.insert(0,str(r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具'))
+from r_vm_tjs_literal import tjs_literal
+out=Path(sys.argv[1]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+strings=['','abc','翼','\n\r\t\b\f','翼abcDEF012',r'\u1234','"\\','☺😀','\ud800','\u2028']
+lines=[]
+for i,s in enumerate(strings):
+ raw=s.encode('utf-16-le','surrogatepass');units=[int.from_bytes(raw[k:k+2],'little')for k in range(0,len(raw),2)]
+ lines.extend(['var RVMSer='+tjs_literal(s)+';var RVMUnits='+tjs_literal(units)+';',f'if(RVMSer.length!==RVMUnits.count)throw new Exception("UNICODE_LENGTH {i}");',f'for(var RVMUI=0;RVMUI<RVMUnits.count;RVMUI++)if((#(RVMSer.charAt(RVMUI)))!==RVMUnits[RVMUI])throw new Exception("UNICODE_VALUE {i}");RVMFCaseCount++;'])
+for v in[-2**63,2**63-1,0,4294967295]:
+ lines.append('var RVMInt='+tjs_literal(v)+';if(typeof RVMInt!="Integer" || (""+RVMInt)!='+tjs_literal(str(v))+')throw new Exception("INT64_ROUNDTRIP");RVMFCaseCount++;')
+for v in['\0','a\0b',{'\0':1},['\0'],2**63,-2**63-1,1.5,{1:2},object()]:
+ try:tjs_literal(v)
+ except ValueError:pass
+ else:raise AssertionError('invalid serializer input accepted')
+assert tjs_literal(True)=='true'and tjs_literal(False)=='false'
+p=out/'unicode.tjs';p.write_text('\n'.join(lines)+'\n',encoding='utf8');manifest={'files':[{'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'cases':14,'segments':0}]};(out/'manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf8');(out/'python-guards.json').write_text(json.dumps({'passed':True,'reject_cases':9,'bool_branches':True,'NUL_silently_dropped':False}),encoding='utf8');print('SERIALIZER_GUARDS_PASS 9; TJS cases14 prepared')

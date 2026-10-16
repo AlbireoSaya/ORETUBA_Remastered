@@ -1,0 +1,198 @@
+// ============================================================
+// ui_verify15.tjs —— 【诊断专用 · ISSUE-20261002-09 验证脚手架】
+//
+// 用途：把用户 2026-10-02 的三项要求做成**可失败**的机检：
+//   ① SAVE/LOAD 顶部三按钮（返回游戏 / 返回标题画面 / 退出游戏）动作是否**已注入且正确**；
+//   ② SAVE/LOAD 右下「返回」是否**直接回对话框**（而不是只关一层）；
+//   ③ backlog/save/load/config/flowchart 五屏**右键是否回对话框**（含「栈内无 dialog」的退化分支）。
+//
+// ★ 开关：`game\verify15.txt`（由 `ui_boot.tjs` 的窗口交接末尾读取并装载）。
+//   成品不含该开关 ⇒ 本文件根本不被装载、零开销、零行为改变（与 uidiag.txt/verify14.txt 同套路）。
+//
+// ★ 只「驱动 + 观察」，不改任何行为。
+// ★ 判定线：日志出现 `★RETURNDLG★ PASS n/n`；任一不符 ⇒ `★RETURNDLG★ FAIL`（可失败，不是空跑）。
+// ★ Timer 必须由**全局**引用持有，否则回调被回收、静默停止（交接 §六.14）。
+// ============================================================
+
+var UIVerify15Timer = null;
+var UIVerify15Phase = 0;
+var UIVerify15Fail0 = 0;
+var UIVerify15FailN = 0;
+var UIVerify15Log2 = [];
+
+function uiVerify15Log(m) { Debug.message("[VERIFY15] " + m); }
+
+function uiVerify15Expect(tag, want)
+{
+	var got = "";
+	try { got = "" + uiScreenCurrent(); } catch(e) { got = "(异常)"; }
+	if(got == want) { UIVerify15Fail0++; uiVerify15Log("  OK   " + tag + " 屏=" + got); }
+	else { UIVerify15FailN++; uiVerify15Log("  FAIL " + tag + " 屏=" + got + "，期望 " + want); }
+}
+
+// 在当前屏上按**引擎同一命中规则**求某元素中心的命中动作（调用 uiScreenClick；有清层副作用，无状态改动）
+//   ⚠️ uiScreenClick 会执行 hit 列表的副作用（清 hitLayer）——诊断模式下可接受；**不执行**返回的动作
+function uiVerify15HitAction(elId)
+{
+	var id = "";
+	try { id = "" + uiScreenCurrent(); } catch(e) { return "(屏异常)"; }
+	var sc = null;
+	try { sc = UILayoutData.screens[id]; } catch(e2) { sc = null; }
+	if(sc === void || sc === null) return "(无屏对象)";
+	var el = uiStoryFindEl(sc, "" + elId);
+	if(el === void || el === null) return "(元素缺失:" + elId + ")";
+	var cx = Math.floor((0 + el.x) + (0 + el.w) / 2);
+	var cy = Math.floor((0 + el.y) + (0 + el.h) / 2);
+	var r = null;
+	try { r = uiScreenClick(UIStoryWin, cx, cy); } catch(e3) { return "(命中异常:" + e3.message + ")"; }
+	if(r === void || r === null) return "(无返回)";
+	return "" + ((r.action === void) ? "" : r.action);
+}
+
+function uiVerify15ClickExpect(tag, elId, want)
+{
+	var got = uiVerify15HitAction(elId);
+	if(got == want) { UIVerify15Fail0++; uiVerify15Log("  OK   " + tag + " 命中动作=" + got); }
+	else { UIVerify15FailN++; uiVerify15Log("  FAIL " + tag + " 命中动作=" + got + "，期望 " + want); }
+}
+
+function uiVerify15Dispatch(tag, act)
+{
+	var r = null;
+	try { r = uiActionDispatch("" + act, -1); } catch(e) { uiVerify15Log("  FAIL " + tag + " 派发异常：" + e.message); UIVerify15FailN++; return; }
+	var h = (r === void || r === null) ? "?" : ("" + r.handled);
+	uiVerify15Log("  ·  " + tag + " 派发 " + act + " handled=" + h);
+}
+
+// 模拟右键（**直接调用右键的唯一落点**，与引擎派发链到达时同一函数）
+function uiVerify15RightClick(tag)
+{
+	try { uiStoryRightClickDisabled(); }
+	catch(e) { UIVerify15FailN++; uiVerify15Log("  FAIL " + tag + " 右键异常：" + e.message); return; }
+}
+
+function uiVerify15Start()
+{
+	if(UIVerify15Timer !== null) return false;
+	UIVerify15Phase = 0; UIVerify15Fail0 = 0; UIVerify15FailN = 0;
+	// ★ ISSUE-20261004-09：**本回归与影片解耦**。槽① 启动片与槽② 片头 OP 会在 `game_start` 时
+	//   接管流程（"播完/跳过后才进序章"），使本套的「开局 → 期望 dialog」当场失败，并连带把
+	//   后面的「SAVE 顶部按钮/页脚命中动作」判错（栈从 title 起而非 dialog）。**这是影片功能
+	//   与旧断言的口径冲突，不是缺陷**；影片路径有它自己的验证（`movietest.txt` 四路径自检 +
+	//   `run_storytest.py --entry/--skip-movie` 场景级实走）。此处直接关掉影片模块，让本回归
+	//   回到它本来要验的东西（UI 接线与屏栈）。
+	UIMovieEnabled = false;
+	uiVerify15Log("已关闭影片模块（UIMovieEnabled=false）——本回归不验影片");
+	// ⚠️ 只关开关不够：槽① 启动片可能**已在播**，而「影片在播 ⇒ 场景末判定不推进」的闸
+	//   （ISSUE-20261004-09）会让剧情一直进不去 ⇒ 这里把它收掉，保证本回归从干净状态起跑。
+	try { if(UIMovieActive === true) uiMovieClose(); } catch(eMC) { }
+	try
+	{
+		UIVerify15Timer = new Timer(uiVerify15Tick, '');
+		UIVerify15Timer.interval = 600;      // > UI 组 420ms 转场 ⇒ 每拍都在转场结束后再动作
+		UIVerify15Timer.enabled = true;
+	}
+	catch(e2) { Debug.logger.error("[VERIFY15] Timer 建立失败：" + e2.message); return false; }
+	uiVerify15Log("开始（600ms/拍）；开关 game\\verify15.txt");
+	return true;
+}
+
+function uiVerify15Tick()
+{
+	if(UIVerify15Timer === null) return;
+	UIVerify15Phase++;
+	var p = UIVerify15Phase;
+
+	if(p == 1)
+	{
+		// ① 元素动作接线（静态，精确）+ 右键屏集合
+		try { uiVerify15Log("★SYSBTN★ " + uiSysReturnSelfCheck()); }
+		catch(e) { UIVerify15FailN++; uiVerify15Log("★SYSBTN★ FAIL 自检异常：" + e.message); }
+		return;
+	}
+	if(p == 2) { uiVerify15Dispatch("开局", "game_start"); uiVerify15Expect("开局", "dialog"); return; }
+
+	// ---- ② 右下「返回」：save / load 两屏各验一次（命中动作 + 实际回到 dialog）----
+	if(p == 3)
+	{
+		uiVerify15Dispatch("开存档屏", "open_save"); uiVerify15Expect("开存档屏", "save");
+		uiVerify15ClickExpect("SAVE 返回游戏按钮", "sv.sys_game_hit", "return_to_dialog");
+		uiVerify15ClickExpect("SAVE 页脚返回", "sv.hit_back", "return_to_dialog");
+		return;
+	}
+	if(p == 4)
+	{
+		uiVerify15Dispatch("SAVE 返回", "return_to_dialog"); uiVerify15Expect("SAVE 返回", "dialog");
+		uiVerify15Dispatch("开读档屏", "open_load"); uiVerify15Expect("开读档屏", "load");
+		uiVerify15ClickExpect("LOAD 返回游戏按钮", "sv.sys_game_hit", "return_to_dialog");
+		uiVerify15ClickExpect("LOAD 页脚返回", "sv.hit_back", "return_to_dialog");
+		return;
+	}
+	if(p == 5) { uiVerify15Dispatch("LOAD 返回", "return_to_dialog"); uiVerify15Expect("LOAD 返回", "dialog"); return; }
+
+	// ---- ③ 右键：config / flowchart / save / load 四屏 ----
+	if(p == 6)
+	{
+		uiVerify15Dispatch("开设置屏", "open_config"); uiVerify15Expect("开设置屏", "config");
+		uiVerify15RightClick("config 右键"); uiVerify15Expect("config 右键", "dialog");
+		return;
+	}
+	if(p == 7)
+	{
+		uiVerify15Dispatch("开流程图", "open_flowchart"); uiVerify15Expect("开流程图", "flowchart");
+		uiVerify15RightClick("flowchart 右键"); uiVerify15Expect("flowchart 右键", "dialog");
+		return;
+	}
+	if(p == 8)
+	{
+		uiVerify15Dispatch("再开存档屏", "open_save"); uiVerify15Expect("再开存档屏", "save");
+		uiVerify15RightClick("save 右键"); uiVerify15Expect("save 右键", "dialog");
+		return;
+	}
+	if(p == 9)
+	{
+		uiVerify15Dispatch("开读档屏2", "open_load"); uiVerify15Expect("开读档屏2", "load");
+		uiVerify15Dispatch("再开存档屏2", "open_save"); uiVerify15Expect("再开存档屏2", "save");
+		uiVerify15RightClick("SAVE 右键（栈内两层）");
+		uiVerify15Expect("SAVE 右键（栈内两层）", "dialog");   // 一次弹两层，而不是只关一层
+		return;
+	}
+	if(p == 10)
+	{
+		// ---- 「栈内无 dialog」的退化分支：从标题屏进读档屏 ----
+		uiVerify15Dispatch("回标题", "open_title"); uiVerify15Expect("回标题", "title");
+		uiVerify15Dispatch("标题进读档", "open_load"); uiVerify15Expect("标题进读档", "load");
+		uiVerify15RightClick("无 dialog 时右键");
+		uiVerify15Expect("无 dialog 时右键（应退化为关一层→title）", "title");
+		return;
+	}
+	if(p == 11)
+	{
+		// ---- 另两个按钮的命中动作 + 退出动作的可观察性 ----
+		uiVerify15Dispatch("回标题2", "open_title"); uiVerify15Expect("回标题2", "title");
+		uiVerify15Dispatch("标题进存档", "open_save"); uiVerify15Expect("标题进存档", "save");
+		uiVerify15ClickExpect("SAVE 返回标题画面按钮", "sv.sys_title_hit", "open_title");
+		uiVerify15ClickExpect("SAVE 退出游戏按钮", "sv.sys_end_hit", "quit_game");
+		uiVerify15Dispatch("退出动作", "quit_game");
+		// ⚠️ TJS2：布尔转字符串是 "1"/"0"（不是 "true"/"false"）⇒ 一律用**数值化**比较，别比字符串
+		var qv = 0;
+		try { qv = 0 + UIScrQuitRequest; } catch(e4) { qv = -1; }
+		if(qv != 0) { UIVerify15Fail0++; uiVerify15Log("  OK   quit_game ⇒ UIScrQuitRequest=" + qv + "（已复位，不真退出）"); }
+		else { UIVerify15FailN++; uiVerify15Log("  FAIL quit_game ⇒ UIScrQuitRequest=" + qv + "，期望非 0"); }
+		try { UIScrQuitRequest = false; } catch(e5) { }
+		return;
+	}
+	if(p == 12)
+	{
+		var tot = UIVerify15Fail0 + UIVerify15FailN;
+		Debug.message("[VERIFY15] ★RETURNDLG★ " + ((UIVerify15FailN == 0) ? "PASS " : "FAIL ")
+			+ UIVerify15Fail0 + "/" + tot + "（失败 " + UIVerify15FailN + "）");
+		if(UIVerify15Timer !== null) { try { UIVerify15Timer.enabled = false; } catch(e6) { } }
+		if(UIStoryWin !== null && UIStoryWin !== void)
+		{
+			try { UIStoryWin.redraw(); } catch(e7) { }
+			try { UIStoryWin.uiQuit("verify15 done"); } catch(e8) { }
+		}
+		return;
+	}
+}

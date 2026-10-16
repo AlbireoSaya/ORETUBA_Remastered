@@ -1,0 +1,23 @@
+global.RVMExtraValueStep = function(rd, wr, ctx, op, p) {
+    var t = global.RVMExtraOperands(rd, op, p);
+    var a = t[0];
+    var b = t[1];
+    var d = t[2];
+    var advance = t[3];
+
+    var v;
+    if (op == 14 || op == 15) {
+        v = global.RValueExtraArithmetic(op, a, b);
+    } else if (op == 21 || op == 22 || op == 24 || op == 25) {
+        v = global.RValueExtraBits(op, a, b);
+    } else if (op == 42 || op == 43 || op == 46) {
+        v = global.RValueExtraCompare(op, a, b);
+    } else {
+        throw new Error("RVMExtraValueStep: unknown op " + op);
+    }
+
+    wr(d & 0xFFFFFFFF, v & 0xFFFFFFFF);
+
+    var pc = rd((ctx + 8) & 0xFFFFFFFF);
+    wr((ctx + 8) & 0xFFFFFFFF, (pc + advance) & 0xFFFFFFFF);
+};

@@ -1,0 +1,568 @@
+from pathlib import Path
+import sys,json,hashlib,struct,collections
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';candidate=root/'子代理工作区/ISSUE-20261011-02/r-native-allocator-01'
+sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(root/'工程/我们没有翅膀R/工具'),str(g/'工具'),str(g/'逆向引擎')]
+from lucifen_host_format_bridge import bridge_wsprintf_two
+from lucifen_sob_loader import parse_sob1,bind_sob1,parse_container,relocate_buffer
+import ctypes,subprocess,os
+from lucifen_host_case_bindings import CharLowerA,CharUpperA
+from lucifen_host_fileenum_bindings import FindFirstFileA,FindNextFileA,FindClose
+from lucifen_guest_x87_reset import guest_x87_reset_stub
+from lucifen_host_clock_bindings import GetTickCount
+from lucifen_guest_module_path import registered_module_filename_a
+from lucifen_host_compare import lstrcmpA
+from lucifen_host_monitor_bindings import MONITORENUMPROC,EnumDisplayMonitors,GetMonitorInfoA,CreateDCA,DeleteDC,EnumDisplayDevicesA
+from lucifen_host_display_bindings import GetSystemMetrics,GetDC,GetDeviceCaps,ReleaseDC
+from lucifen_host_registry_bindings import RegOpenKeyExA,RegQueryValueExA,RegCloseKey,HKLM,KEY_READ_32
+from lucifen_host_locale import host_locale_info_a
+from lucifen_host_format_version import host_format_version3
+from lucifen_host_version156 import host_version156
+from lucifen_host_event import HostEvents
+from lucifen_host_com import HostCOM
+from lucifen_host_heap_size import host_heap_size
+from lucifen_host_critical import HostCritical,guest_interlocked_exchange_stub
+from lucifen_host_memory import HostMemory
+from lucifen_host_tls import HostTLS,current_thread_id,get_last_error,set_last_error
+from lucifen_guest_unwind import plan_current_frame_unwind
+from lucifen_host_read_probe import host_bad_read_bytes,host_bad_read_null
+from lucifen_host_write_probe import host_bad_write_bytes,host_bad_write_null
+from lucifen_host_version import host_version_ex_a,host_upper_ascii_z
+from lucifen_guest_memory_bridge import GuestMemoryBlocks
+from lucifen_readonly_io_bridge import ReadOnlyFiles
+from lucifen_readonly_io_guest import bridge_ReadFile,bridge_SetFilePointer,bridge_CloseHandle
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_cdecl_probe import invoke_cdecl
+from pe_min import PE
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_ESP,UC_X86_REG_EIP,UC_X86_REG_ESI,UC_X86_REG_EBP,UC_X86_REG_EBX,UC_X86_REG_ECX,UC_X86_REG_EDX,UC_X86_REG_EDI,UC_X86_REG_EFLAGS
+import lpk_media as M
+
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+from lucifen_host_path_bridge import bridge_lstrcatA,bridge_CharLowerA,host_open_missing_readonly
+from lucifen_host_string_bridge import bridge_lstrcpyA,read_z
+from lucifen_host_path_bridge import bridge_lstrlenA
+stage=(root/(sys.argv[1]if len(sys.argv)>1 else '临时/ISSUE-20261011-02/r-WinMain-storage-final-10')).resolve();assert stage.is_relative_to((root/'临时/ISSUE-20261011-02').resolve());stage.mkdir(exist_ok=False)
+pe=PE(root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE')
+stem='SCRIPT'
+fixture=root/'_game_ascii/ISSUE-20261011-02-resource-empty-01';fixture.mkdir(parents=True,exist_ok=True);assert not list(fixture.iterdir());baseprefix=(str(fixture)+'\\').encode('ascii')
+path=root/'备份/我们没有翅膀R-安装介质/SET_UP'/ (stem+'.LPK');lp=M.load(str(path))
+hx=struct.unpack_from('<I',lp['mm'],4)[0]^lp['k2'];flags=hx>>24;ts=hx&0xffffff
+if flags&1:ts=(ts<<11)-8
+index=bytearray(lp['mm'][8:8+ts]);M.X.decrypt_table(index,lp['k2'],M.X.ROTATE_PATTERN)
+plen=index[4];mode=int(index[5+plen]!=0);trie_start=10+plen;trie_bytes=struct.unpack_from('<I',index,6+plen)[0];entry_start=trie_start+trie_bytes;esize=13 if flags&8 else 9
+entries=list(M.X.traverse_index(index,trie_start,4 if mode else 2,entry_start,esize));assert len(entries)==len(lp['ents'])
+u=map_pe(pe);u.mem_map(0,4096);u.mem_map(0x1fe0000,0x20000);u.mem_write(0,b'\xff'*4)
+u.mem_write(0x100c000,(stem+'.LPK').encode('ascii')+b'\0');u.mem_write(0x100c800,b'\xd5'*4)
+aux=M.aux_for(str(path)) or (0,0);u.mem_write(0x5357f0,struct.pack('<I',aux[0]));u.mem_write(0x5357f8,struct.pack('<I',aux[1]));u.mem_write(0x5357f4,b'\0')
+proxy={0x200e200:('HeapCreate',0x518104,12),0x200e210:('HeapDestroy',0x518108,4),0x200e220:('HeapAlloc',0x51814c,12),0x200e230:('HeapFree',0x518168,12),0x200e240:('GlobalAlloc',0x5181cc,8),0x200e250:('GlobalFree',0x518194,4),0x200e260:('GetVersionExA',0x518278,4),0x200e270:('ReadFile',0x518248,20),0x200e280:('SetFilePointer',0x518244,16)}
+proxy.update({0x200e2d0:('lstrcatA',0x5181c8,8),0x200e2e0:('CharLowerA',0x5182e8,4),0x200e2f0:('CreateFileA',0x51824c,28),0x200e290:('lstrcpyA',0x5181dc,8),0x200e2a0:('lstrlenA',0x5181c4,4),0x200e2b0:('CharUpperA',0x5182ec,4),0x200e2c0:('CloseHandle',0x5181bc,4)})
+for addr,(name,iat,argc)in proxy.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+counts=collections.Counter();events=[];rows=[];heap_handles={};versions=[]
+resource_expected={name:(root/'工程/我们没有翅膀R/语料/R版SCRIPT'/name).read_bytes()for name in('ll_app.sys','ll_app.inf')};resource_matches=[]
+with HostMemory()as memory,ReadOnlyFiles([p for p in (root/'备份/我们没有翅膀R-安装介质/SET_UP').iterdir()if p.is_file()])as files:
+ storage_files=None;storage_cfg_reads=[]
+ mirror=GuestMemoryBlocks(u,memory,stop=0x10000000);token,err=files.open(path);assert err==0
+ tls=HostTLS(memory);tlsindex,err=tls.alloc();assert err==0 and tlsindex!=0xffffffff
+ u.mem_write(0x52d970,struct.pack('<I',tlsindex))
+ def hook(uc,a,n,ud):
+  name,iat,argc=proxy[a];esp=uc.reg_read(UC_X86_REG_ESP);ra=struct.unpack('<I',uc.mem_read(esp,4))[0];args=struct.unpack('<%dI'%(argc//4),uc.mem_read(esp+4,argc));event={'api':name,'args':list(args),'native_return_address':ra};rd=lambda q,k:bytes(uc.mem_read(q,k));wr=lambda q,b:uc.mem_write(q,b)
+  if name=='HeapCreate':
+   assert ra==0x50a131;actual=memory.heap_create(*args);assert actual!=0;value=0x68000000+len(heap_handles);heap_handles[value]=actual
+  elif name=='HeapDestroy':
+   actual=heap_handles[args[0]];value=int(memory.heap_destroy(actual));assert value==1;del heap_handles[args[0]]
+  elif name=='HeapAlloc':
+   assert ra in(0x507630,0x50bfba);actual=memory.heap_alloc(heap_handles[args[0]],args[1],args[2]);assert actual!=0;value=mirror.bind(actual);event['rounded_allocation_size']=memory.size(actual)
+  elif name=='HeapFree':
+   assert ra==0x506668;mirror.sync(args[2]);actual=mirror.host_pointer(args[2]);value=int(memory.heap_free(heap_handles[args[0]],args[1],actual));assert value==1;mirror.unmap(args[2])
+  elif name=='GlobalAlloc':
+   assert ra==0x491e44;actual=memory.global_alloc(*args);assert actual!=0;value=mirror.bind(actual);event['allocation_size']=memory.size(actual)
+  elif name=='GlobalFree':
+   assert ra in(0x491e62,0x4f8687);data=mirror.sync(args[0])
+   for label,expected in resource_expected.items():
+    if data==expected:resource_matches.append({'name':label,'where':'original_GlobalFree_before_release','guest_pointer':args[0],'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'exact_source_bytes':True})
+   actual=mirror.host_pointer(args[0]);assert memory.global_free(actual)==0;value=0;mirror.unmap(args[0])
+  elif name=='GetVersionExA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;size=struct.unpack('<I',rd(args[0],4))[0];assert size in(148,156);ok,data,err=(host_version_ex_a if size==148 else host_version156)(rd(args[0],size));assert ok and err==0;wr(args[0],data);value=int(ok);versions.append(list(struct.unpack('<5I',data[:20])));event['observed_version']=versions[-1]
+  elif name=='ReadFile':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value,err=bridge_ReadFile(storage_files if storage_files is not None and args[0]in storage_files._handles else files,rd,wr,*args);assert value==1 and err==0;event['actual_bytes_read']=struct.unpack('<I',uc.mem_read(args[3],4))[0];assert event['actual_bytes_read']<=args[2];mirror.sync(args[1])if args[1]in mirror._by_guest else None
+   if storage_files is not None and args[0]in storage_files._handles:
+    data=rd(args[1],event['actual_bytes_read']);source=root/'备份/我们没有翅膀R-安装介质/SET_UP/USER.CFG';expected=source.read_bytes();assert data==expected and len(data)==111
+    storage_cfg_reads.append({'original_ReadFile_return_address':ra,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'exact_copied_USER_CFG':True,'actual_readonly_host_file_IO':True})
+
+  elif name=='SetFilePointer':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value,err=bridge_SetFilePointer(storage_files if storage_files is not None and args[0]in storage_files._handles else files,rd,wr,*args);assert err==0
+  elif name=='lstrcpyA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrcpyA(rd,wr,args[0],args[1],256)
+  elif name=='lstrlenA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;value=bridge_lstrlenA(rd,args[0],256)
+  elif name=='CharUpperA':
+   assert pe.image_base<=ra<pe.image_base+pe.size_image;data=read_z(rd,args[0],256);guard=b'\xa5'*32;raw=data+b'\0'+b'\xa5'*(256-len(data)-1);buf=ctypes.create_string_buffer(guard+raw+guard,320);host=CharUpperA(ctypes.byref(buf,32));assert host==ctypes.addressof(buf)+32 and buf.raw[:32]==guard and buf.raw[-32:]==guard
+   out=buf.raw[32:-32].split(b'\0')[0];assert len(out)<256;wr(args[0],out+b'\0');value=args[0];event['genuine_ANSI_case_current_host_ACP_not_original_locale']=True;event['input_bytes']=len(data)
+  elif name=='CloseHandle':
+   if args[0] in event_handles:
+    assert pe.image_base<=ra<pe.image_base+pe.size_image;host_events.close(event_handles[args[0]]);del event_handles[args[0]];value,err=1,0;event['actual_owned_event_closed']=True
+   else:assert pe.image_base<=ra<pe.image_base+pe.size_image;value,err=bridge_CloseHandle(storage_files if storage_files is not None and args[0]in storage_files._handles else files,args[0]);assert value==1 and err==0
+  elif name=='lstrcatA':
+   value=bridge_lstrcatA(rd,wr,args[0],args[1],260)
+  elif name=='CharLowerA':
+   data=read_z(rd,args[0],260);guard=b'\xa5'*32;raw=data+b'\0'+b'\xa5'*(260-len(data)-1);buf=ctypes.create_string_buffer(guard+raw+guard,324);host=CharLowerA(ctypes.byref(buf,32));assert host==ctypes.addressof(buf)+32 and buf.raw[:32]==guard and buf.raw[-32:]==guard
+   out=buf.raw[32:-32].split(b'\0')[0];assert len(out)<260;wr(args[0],out+b'\0');value=args[0];event['genuine_ANSI_case_current_host_ACP_not_original_locale']=True;event['input_bytes']=len(data)
+  elif name=='CreateFileA':
+   payload=read_z(rd,args[0],260);requested=Path(payload.decode('mbcs')).resolve()
+   if payload in storage_allowed:
+    assert storage_files is not None and args[1:]==(0x80000000,1,0,3,0x80,0)
+    requested=mapped_storage(payload);value,err=storage_files.open(requested);assert value!=0xffffffff and err==0;event['source_relative_path']=str(requested.relative_to(stage));event['explicit_mapped_storage_readonly_CreateFileW']=True
+   elif requested.is_file()and requested.is_relative_to((root/'备份/我们没有翅膀R-安装介质/SET_UP').resolve()):
+    assert args[1:]==(0x80000000,1,0,3,0x80,0);value,err=files.open(requested);assert value!=0xffffffff and err==0;event['source_relative_path']=str(requested.relative_to(root));event['genuine_CreateFileW_readonly_equivalent_ACP_path']=True
+   else:
+    assert requested.is_relative_to((root/'备份/我们没有翅膀R-安装介质/SET_UP').resolve())or (payload.startswith(baseprefix) and payload.upper().endswith((b'.DAT',b'.SOB')));assert not requested.exists();value,err=host_open_missing_readonly(payload,*args[1:]);assert value==0xffffffff and err in(2,3);event['source_relative_path']=str(requested.relative_to(root))
+   event['actual_error']=err
+  counts[name]+=1;event['guest_result']=value;events.append(event);uc.reg_write(UC_X86_REG_EAX,value)
+
+
+ capture={}
+ def stop_raise(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);v=list(struct.unpack('<5I',uc.mem_read(sp,20)))
+  params=list(struct.unpack('<%dI'%v[3],uc.mem_read(v[4],v[3]*4))) if v[3] else []
+  chain=[];p=struct.unpack('<I',uc.mem_read(0,4))[0];seen=set()
+  while p!=0xffffffff and p not in seen and len(chain)<32:
+   seen.add(p);nxt,handler=struct.unpack('<2I',uc.mem_read(p,8));chain.append({'frame':p,'next':nxt,'handler':handler,'frame_words':list(struct.unpack('<8I',uc.mem_read(p,32)))});p=nxt
+  capture.update({'api':'RaiseException','intercept_only_no_dispatch':True,'original_return_address':v[0],'exception_code':v[1],'flags':v[2],'parameter_count':v[3],'parameters':params,'SEH_chain':chain,'original_boot_entry':0x4a67e0,'actual_resource_request_missing':'SCRIPT/SOB_INIT.DAT','not_original_boot_success':True})
+  capture['CPU_registers']={k:uc.reg_read(v) for k,v in [('EAX',UC_X86_REG_EAX),('EBX',UC_X86_REG_EBX),('ECX',UC_X86_REG_ECX),('EDX',UC_X86_REG_EDX),('ESI',UC_X86_REG_ESI),('EDI',UC_X86_REG_EDI),('EBP',UC_X86_REG_EBP),('ESP',UC_X86_REG_ESP),('EIP',UC_X86_REG_EIP),('EFLAGS',UC_X86_REG_EFLAGS)]}
+  uc.emu_stop()
+ raise_import=[r[1] for dll,funcs in pe.imports() for r in funcs if r[0]=='RaiseException'];assert raise_import==[0x12770c]
+ candidates=[]
+ for sec in pe.sections:
+  raw=pe.data[sec['rawptr']:sec['rawptr']+sec['rawsize']]
+  for q in range(0,len(raw)-4,4):
+   if struct.unpack_from('<I',raw,q)[0]==raise_import[0]:candidates.append(pe.image_base+sec['vaddr']+q)
+ assert candidates
+ for iat in candidates:u.mem_write(iat,struct.pack('<I',0x200e310))
+ capture['RaiseException_IAT_candidates']=candidates;u.mem_write(0x200e310,b'\x90')
+ u.hook_add(UC_HOOK_CODE,stop_raise,begin=0x200e310,end=0x200e310)
+ handle=u.hook_add(UC_HOOK_CODE,hook,begin=0x200e200,end=0x200e2ff)
+ seh=bytes(u.mem_read(0,4));assert invoke_cdecl(u,0x50a11a,[1],timeout=0)==1
+ cs=HostCritical()
+ critical_proxies={0x200e3b0:('init',0x518218),0x200e3c0:('enter',0x518214),0x200e3d0:('leave',0x518224),0x200e3e0:('delete',0x518220)}
+ def critical_proxy(uc,a,n,ud):
+  if a not in critical_proxies:return
+  name,iat=critical_proxies[a];sp=uc.reg_read(UC_X86_REG_ESP);ra,key=struct.unpack('<2I',uc.mem_read(sp,8))
+  getattr(cs,name)(key);counts['Critical_'+name]+=1;events.append({'api':'Critical_'+name,'key':key,'return_address':ra,'actual_host_API_surrogate':True,'guest_layout_not_written':True})
+ for addr,(name,iat)in critical_proxies.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2\x04\x00')
+ u.hook_add(UC_HOOK_CODE,critical_proxy,begin=0x200e3b0,end=0x200e3ef)
+ u.mem_write(0x51821c,struct.pack('<I',0x200e3f0));u.mem_write(0x200e3f0,guest_interlocked_exchange_stub())
+ def exchange_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,key,value=struct.unpack('<3I',uc.mem_read(sp,12));old=struct.unpack('<I',uc.mem_read(key,4))[0];counts['InterlockedExchange_guest_CPU']+=1;events.append({'api':'InterlockedExchange_guest_CPU','old':old,'new':value,'key':key,'return_address':ra,'not_genuine_host_InterlockedExchange':True})
+ u.hook_add(UC_HOOK_CODE,exchange_probe,begin=0x200e3f0,end=0x200e3f0)
+ u.mem_write(0x518148,struct.pack('<I',0x200e400));u.mem_write(0x200e400,b'\xc2\x0c\x00')
+ def heap_size_proxy(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,h,flags,p=struct.unpack('<4I',uc.mem_read(sp,16));actual_heap=heap_handles[h];actual_ptr=mirror.host_pointer(p);value,err=host_heap_size(actual_heap,flags,actual_ptr);assert err==0 and value>=mirror.size(p) and value<0xffffffff
+  counts['HeapSize']+=1;events.append({'api':'HeapSize','args':[h,flags,p],'actual_size':value,'return_address':ra,'actual_Windows_API':True});uc.reg_write(UC_X86_REG_EAX,value)
+ u.hook_add(UC_HOOK_CODE,heap_size_proxy,begin=0x200e400,end=0x200e400)
+ assert invoke_cdecl(u,0x5085c5,[],timeout=0,count=100000)==u.reg_read(UC_X86_REG_EAX)
+ bootstrap_return=invoke_cdecl(u,0x505370,[],timeout=0,count=200000)
+ recent=collections.deque(maxlen=30)
+ def recent_probe(uc,a,n,ud):
+  if a<pe.image_base:
+   uc.emu_stop();return
+  recent.append({'pc':a,'esp':uc.reg_read(UC_X86_REG_ESP),'eax':uc.reg_read(UC_X86_REG_EAX),'ecx':uc.reg_read(UC_X86_REG_ECX)})
+ u.hook_add(UC_HOOK_CODE,recent_probe)
+ u.mem_write(0x5181e0,struct.pack('<I',0x200e410));u.mem_write(0x200e410,b'\xc3')
+ def tid_proxy(uc,a,n,ud):
+  value=current_thread_id();counts['GetCurrentThreadId']+=1;events.append({'api':'GetCurrentThreadId','actual_Windows_API':True,'value':value});uc.reg_write(UC_X86_REG_EAX,value)
+ u.hook_add(UC_HOOK_CODE,tid_proxy,begin=0x200e410,end=0x200e410)
+ invoke_cdecl(u,0x4f9b20,[],timeout=0,count=300000)
+ invoke_cdecl(u,0x4f9c70,[],timeout=0,count=300000)
+ com=HostCOM();u.mem_write(0x518498,struct.pack('<I',0x200e420));u.mem_write(0x200e420,b'\xc2\x04\x00')
+ def com_proxy(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,arg=struct.unpack('<2I',uc.mem_read(sp,8));assert arg==0;hr=com.init();assert hr>=0;counts['CoInitialize']+=1;events.append({'api':'CoInitialize','HRESULT':hr,'return_address':ra,'actual_host_COM_only':True});uc.reg_write(UC_X86_REG_EAX,hr & 0xffffffff)
+ u.hook_add(UC_HOOK_CODE,com_proxy,begin=0x200e420,end=0x200e420)
+ host_events=HostEvents();event_handles={};u.mem_write(0x518208,struct.pack('<I',0x200e430));u.mem_write(0x200e430,b'\xc2\x10\x00')
+ def event_proxy(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,security,manual,initial,name=struct.unpack('<5I',uc.mem_read(sp,20));assert security==0 and name==0
+  host=host_events.create(manual,initial);value=0x69000000+len(event_handles);event_handles[value]=host;counts['CreateEventA']+=1;events.append({'api':'CreateEventA','manual':manual,'initial':initial,'mapped_guest_handle':value,'actual_host_handle':host,'return_address':ra,'actual_Windows_API':True});uc.reg_write(UC_X86_REG_EAX,value)
+ u.hook_add(UC_HOOK_CODE,event_proxy,begin=0x200e430,end=0x200e430)
+ u.mem_write(0x518394,struct.pack('<I',0x200e440));u.mem_write(0x200e440,b'\xc3')
+ one_format_scope={};exec(compile((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_format_one_binding.py').read_text(encoding='utf-8'),'format-one-binding','exec'),one_format_scope)
+ one_format_events=[]
+ def format_proxy(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,dst,fmt,x,y,z=struct.unpack('<6I',uc.mem_read(sp,24));pattern=read_z(lambda p,n:bytes(uc.mem_read(p,n)),fmt,64)
+  if pattern.count(b'%s')==1 and b'%'not in pattern.replace(b'%s',b''):
+   value=read_z(lambda p,n:bytes(uc.mem_read(p,n)),x,512);head,tail=pattern.split(b'%s');expected=head+value+tail;capacity=260;assert len(expected)+1<=capacity
+   before=bytes(uc.mem_read(dst,capacity));guard=b'\xa5'*32
+   outbuf=ctypes.create_string_buffer(guard+before+guard,capacity+64);fmtbuf=ctypes.create_string_buffer(guard+pattern+b'\0'+guard,len(pattern)+65);valuebuf=ctypes.create_string_buffer(guard+value+b'\0'+guard,len(value)+65)
+   count=int(one_format_scope['wsprintfA_one_string'](ctypes.byref(outbuf,32),ctypes.byref(fmtbuf,32),ctypes.byref(valuebuf,32)))
+   assert count==len(expected) and outbuf.raw[32:-32]==expected+b'\0'+before[len(expected)+1:]
+   for buf in(outbuf,fmtbuf,valuebuf):assert buf.raw[:32]==guard and buf.raw[-32:]==guard
+   uc.mem_write(dst,outbuf.raw[32:-32]);uc.reg_write(UC_X86_REG_EAX,count);counts['wsprintfA_one_string_actual_host']+=1
+   event={'api':'wsprintfA_one_string_actual_host','return_address':ra,'format_bytes':len(pattern),'input_bytes':len(value),'actual_result_bytes':count,'exact_expected_bytes':True,'all_host_buffers_guarded':True};events.append(event);one_format_events.append(event)
+  else:
+   result=host_format_version3(pattern,[x,y,z]);uc.mem_write(dst,result+b'\0');uc.reg_write(UC_X86_REG_EAX,len(result));counts['wsprintfA_version']+=1;events.append({'api':'wsprintfA_version','result_bytes':len(result),'values':[x,y,z],'return_address':ra,'actual_host_API':True})
+ u.hook_add(UC_HOOK_CODE,format_proxy,begin=0x200e440,end=0x200e440)
+ registry_handles={};registry_proxies={0x200e450:('RegOpenKeyExA',0x518004,20),0x200e460:('RegQueryValueExA',0x518000,24),0x200e470:('RegCloseKey',0x51800c,4)}
+ def registry_probe(uc,a,n,ud):
+  if a not in registry_proxies:return
+  name,iat,argc=registry_proxies[a];sp=uc.reg_read(UC_X86_REG_ESP);words=struct.unpack('<%dI'%(1+argc//4),uc.mem_read(sp,4+argc));ra=words[0];args=words[1:];record={'api':name,'return_address':ra,'args':list(args),'actual_Windows_API':True,'host64_HKEY_owned':True}
+  if name=='RegOpenKeyExA':
+   key,q,opts,access,out=args;assert key==0x80000002 and opts==0 and access==0x20019
+   pathkey=read_z(lambda p,n:bytes(uc.mem_read(p,n)),q,256);assert pathkey in(b'SOFTWARE\\Microsoft\\DirectX',b'HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0')
+   hk=ctypes.c_void_p();value=int(RegOpenKeyExA(HKLM,pathkey,0,KEY_READ_32,ctypes.byref(hk)))
+   if value==0:
+    guest=0x69100000+len(registry_handles);registry_handles[guest]=int(hk.value);uc.mem_write(out,struct.pack('<I',guest));record['actual_host_HKEY']=int(hk.value)
+   record['key']=pathkey.decode('ascii');record['actual_access_32_view']=KEY_READ_32
+  elif name=='RegQueryValueExA':
+   key,q,reserved,typ,data,sz=args;assert key in registry_handles and reserved==0 and sz!=0
+   label=read_z(lambda p,n:bytes(uc.mem_read(p,n)),q,256) if q else None
+   capacity=struct.unpack('<I',uc.mem_read(sz,4))[0];assert capacity<=4096
+   ct=ctypes.c_uint32(struct.unpack('<I',uc.mem_read(typ,4))[0] if typ else 0);cb=ctypes.c_uint32(capacity)
+   before=bytes(uc.mem_read(data,capacity)) if data and capacity else b'';guard=b'\xa5'*32
+   buf=ctypes.create_string_buffer(guard+before+guard,len(before)+64) if before else None
+   value=int(RegQueryValueExA(ctypes.c_void_p(registry_handles[key]),label,None,ctypes.byref(ct) if typ else None,ctypes.byref(buf,32) if buf is not None else None,ctypes.byref(cb)))
+   if buf is not None:
+    assert buf.raw[:32]==guard and buf.raw[-32:]==guard;uc.mem_write(data,buf.raw[32:-32])
+   if typ:uc.mem_write(typ,struct.pack('<I',ct.value))
+   uc.mem_write(sz,struct.pack('<I',cb.value));record.update({'value_name':label.decode('ascii') if label else None,'capacity':capacity,'actual_type':ct.value if typ else None,'actual_length':cb.value})
+  else:
+   key=args[0];assert key in registry_handles;value=int(RegCloseKey(ctypes.c_void_p(registry_handles[key])))
+   if value==0:del registry_handles[key]
+  counts[name]+=1;record['actual_status']=value;events.append(record);uc.reg_write(UC_X86_REG_EAX,value & 0xffffffff)
+ for addr,(name,iat,argc)in registry_proxies.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+ u.hook_add(UC_HOOK_CODE,registry_probe,begin=0x200e450,end=0x200e47f)
+ system_proxies={0x200e480:('GetSystemInfo',0x518274,36),0x200e490:('GlobalMemoryStatus',0x518240,32)}
+ def system_probe(uc,a,n,ud):
+  if a not in system_proxies:return
+  name,iat,size=system_proxies[a];sp=uc.reg_read(UC_X86_REG_ESP);ra,pointer=struct.unpack('<2I',uc.mem_read(sp,8))
+  task_temp=stage/('host32-'+name+'-'+str(counts[name]));task_temp.mkdir(exist_ok=False);env=os.environ.copy();env['TEMP']=str(task_temp);env['TMP']=str(task_temp)
+  script=g/'工具/collect_host32_system.ps1'
+  child_args=[r'C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe','-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',str(script),'-TaskTemp',str(task_temp)]
+  if name=='GlobalMemoryStatus':child_args+=['-MemoryLengthBefore',str(struct.unpack('<I',uc.mem_read(pointer,4))[0])]
+  child=subprocess.run(child_args,cwd=root,env=env,capture_output=True,text=True,timeout=45)
+  assert child.returncode==0,child.stderr
+  data=json.loads(child.stdout);assert data['pointer_size']==4 and data['actual_32bit_Windows_API']
+  payload=bytes.fromhex(data['system_info_hex' if name=='GetSystemInfo' else 'memory_status_hex']);assert len(payload)==size
+  event={'api':name,'return_address':ra,'actual_32bit_Windows_API':True,'raw_result_hex':payload.hex(),'no_host64_struct_truncation':True,'separate_host_process_not_original_OS_start':True}
+  if name=='GlobalMemoryStatus':event['guest_dwLength_before']=struct.unpack('<I',uc.mem_read(pointer,4))[0]
+  uc.mem_write(pointer,payload);counts[name]+=1;events.append(event);(task_temp/'result.json').write_text(json.dumps(data,indent=2),encoding='utf-8')
+ for addr,(name,iat,size)in system_proxies.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2\x04\x00')
+ u.hook_add(UC_HOOK_CODE,system_probe,begin=0x200e480,end=0x200e49f)
+ u.mem_write(0x518270,struct.pack('<I',0x200e500));u.mem_write(0x200e500,b'\xc2\x10\x00')
+ def locale_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,locale,lctype,dst,capacity=struct.unpack('<5I',uc.mem_read(sp,20));assert locale==0x800 and lctype==2 and capacity<=1024
+  before=bytes(uc.mem_read(dst,capacity)) if capacity else b'';value,data,err=host_locale_info_a(locale,lctype,before);assert value>0 and err==0
+  if dst and capacity:uc.mem_write(dst,data)
+  uc.reg_write(UC_X86_REG_EAX,value);counts['GetLocaleInfoA']+=1;events.append({'api':'GetLocaleInfoA','locale':locale,'lctype':lctype,'capacity':capacity,'result_count':value,'actual_error':err,'return_address':ra,'actual_Windows_API':True})
+ u.hook_add(UC_HOOK_CODE,locale_probe,begin=0x200e500,end=0x200e500)
+ display_handles={};display_proxies={0x200e510:('GetSystemMetrics',0x518338,4),0x200e520:('GetDC',0x518370,4),0x200e530:('GetDeviceCaps',0x518064,8),0x200e540:('ReleaseDC',0x518374,8)}
+ def display_probe(uc,a,n,ud):
+  if a not in display_proxies:return
+  name,iat,argc=display_proxies[a];sp=uc.reg_read(UC_X86_REG_ESP);v=struct.unpack('<%dI'%(1+argc//4),uc.mem_read(sp,4+argc));ra=v[0];args=v[1:]
+  if name=='GetSystemMetrics':
+   assert args[0] in(0,1);value=GetSystemMetrics(args[0]);assert value>0
+  elif name=='GetDC':
+   assert args[0]==0;host=GetDC(None);assert host;value=0x69200000+len(display_handles);display_handles[value]=host
+  elif name=='GetDeviceCaps':
+   key,index=args;assert key in(display_handles.keys()|device_dc_handles.keys()) and index in(12,116);value=GetDeviceCaps((display_handles|device_dc_handles)[key],index)
+  else:
+   window,key=args;assert window==0 and key in display_handles;value=ReleaseDC(None,display_handles[key]);assert value==1;del display_handles[key]
+  counts[name]+=1;events.append({'api':name,'args':list(args),'return_address':ra,'actual_result':value,'actual_host_Windows_API':True,'host_process_DPI_not_original_manifest_verified':True});uc.reg_write(UC_X86_REG_EAX,value & 0xffffffff)
+ for addr,(name,iat,argc)in display_proxies.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+ u.hook_add(UC_HOOK_CODE,display_probe,begin=0x200e510,end=0x200e54f)
+ u.mem_map(0x3000000,0x10000)
+ monitor_handles={};device_dc_handles={};enum_pending=[];enum_completed=False
+ u.mem_write(0x518420,struct.pack('<I',0x200e550));u.mem_write(0x200e550,b'\xc2\x10\x00')
+ def enum_stop(uc,a,n,ud):
+  global enum_completed
+  if enum_completed:enum_completed=False;return
+  sp=uc.reg_read(UC_X86_REG_ESP);v=struct.unpack('<5I',uc.mem_read(sp,20));assert v[1]==0 and v[2]==0 and v[3]==0x4ecfb0
+  enum_pending.append(v);uc.emu_stop()
+ u.hook_add(UC_HOOK_CODE,enum_stop,begin=0x200e550,end=0x200e550)
+ monitor_proxies={0x200e560:('GetMonitorInfoA',0x5183c4,8),0x200e570:('CreateDCA',0x51807c,16),0x200e580:('DeleteDC',0x518038,4),0x200e590:('EnumDisplayDevicesA',0x518424,16)}
+ def monitor_probe(uc,a,n,ud):
+  if a not in monitor_proxies:return
+  name,iat,argc=monitor_proxies[a];sp=uc.reg_read(UC_X86_REG_ESP);v=struct.unpack('<%dI'%(1+argc//4),uc.mem_read(sp,4+argc));ra=v[0];args=v[1:];record={'api':name,'return_address':ra,'args':list(args),'actual_host_Windows_API':True}
+  if name=='GetMonitorInfoA':
+   key,dst=args;assert key in monitor_handles;size=struct.unpack('<I',uc.mem_read(dst,4))[0];assert size==72
+   before=bytes(uc.mem_read(dst,size));guard=b'\xa5'*32;buf=ctypes.create_string_buffer(guard+before+guard,size+64);value=int(GetMonitorInfoA(ctypes.c_void_p(monitor_handles[key]),ctypes.byref(buf,32)));assert buf.raw[:32]==guard and buf.raw[-32:]==guard and value==1;uc.mem_write(dst,buf.raw[32:-32]);record['exact_bytes']=size
+  elif name=='CreateDCA':
+   driver,device,output,init=args;assert driver and device==0 and output==0 and init==0;label=read_z(lambda q,n:bytes(uc.mem_read(q,n)),driver,64);host=CreateDCA(label,None,None,None);assert host;value=0x69300000+len(device_dc_handles);device_dc_handles[value]=host;record['driver']=label.decode('ascii')
+  elif name=='DeleteDC':
+   key=args[0];assert key in device_dc_handles;value=int(DeleteDC(ctypes.c_void_p(device_dc_handles[key])));assert value==1;del device_dc_handles[key]
+  else:
+   device,index,dst,flags=args;assert device==0 and flags==0 and index<256;size=struct.unpack('<I',uc.mem_read(dst,4))[0];assert size==424
+   before=bytes(uc.mem_read(dst,size));guard=b'\xa5'*32;buf=ctypes.create_string_buffer(guard+before+guard,size+64);value=int(EnumDisplayDevicesA(None,index,ctypes.byref(buf,32),flags));assert buf.raw[:32]==guard and buf.raw[-32:]==guard;uc.mem_write(dst,buf.raw[32:-32]);record['exact_bytes']=size
+  counts[name]+=1;record['actual_result']=value;events.append(record);uc.reg_write(UC_X86_REG_EAX,value & 0xffffffff)
+ for addr,(name,iat,argc)in monitor_proxies.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+ u.hook_add(UC_HOOK_CODE,monitor_probe,begin=0x200e560,end=0x200e59f)
+ u.mem_write(0x518184,struct.pack('<I',0x200e600));u.mem_write(0x200e600,b'\xc2\x08\x00')
+ def compare_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,x,y=struct.unpack('<3I',uc.mem_read(sp,12));left=read_z(lambda q,n:bytes(uc.mem_read(q,n)),x,256);right=read_z(lambda q,n:bytes(uc.mem_read(q,n)),y,256)
+  value=int(lstrcmpA(left,right));counts['lstrcmpA']+=1;events.append({'api':'lstrcmpA','return_address':ra,'actual_result':value,'actual_host_Windows_API':True});uc.reg_write(UC_X86_REG_EAX,value & 0xffffffff)
+ u.hook_add(UC_HOOK_CODE,compare_probe,begin=0x200e600,end=0x200e600)
+ u.mem_write(0x518298,struct.pack('<I',0x200e610));u.mem_write(0x200e610,b'\xc2\x0c\x00')
+ def module_path_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,module,dst,capacity=struct.unpack('<4I',uc.mem_read(sp,16));assert dst==0x5357fc and capacity==260 and module==0 and bytes(uc.mem_read(pe.image_base,2))==b'MZ'
+  original_path=root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE';assert original_path.is_file();path_bytes=str(original_path).encode('mbcs',errors='strict');assert path_bytes.decode('mbcs')==str(original_path)
+  length,data=registered_module_filename_a(module,pe.image_base,path_bytes,capacity);uc.mem_write(dst,data);uc.reg_write(UC_X86_REG_EAX,length);counts['GetModuleFileNameA_guest_registered_metadata']+=1;events.append({'api':'GetModuleFileNameA_guest_registered_metadata','return_address':ra,'length':length,'source_relative_path':str(original_path.relative_to(root)),'actual_mapped_PE_base':pe.image_base,'not_host_Windows_API':True,'not_installed_game_directory_verified':True})
+ u.hook_add(UC_HOOK_CODE,module_path_probe,begin=0x200e610,end=0x200e610)
+ u.mem_write(0x5181ec,struct.pack('<I',0x200e620));u.mem_write(0x200e620,b'\xc3')
+ def clock_probe(uc,a,n,ud):
+  value=int(GetTickCount());assert 0<=value<=0xffffffff;counts['GetTickCount']+=1;events.append({'api':'GetTickCount','actual_value':value,'actual_host_Windows_API':True,'volatile_live_time_not_original_OS_start':True});uc.reg_write(UC_X86_REG_EAX,value)
+ u.hook_add(UC_HOOK_CODE,clock_probe,begin=0x200e620,end=0x200e620)
+ u.mem_write(0x518204,struct.pack('<I',0x200e630));u.mem_write(0x200e630,b'\xc2\x04\x00')
+ def set_event_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,key=struct.unpack('<2I',uc.mem_read(sp,8));assert key in event_handles
+  host_events.set(event_handles[key]);counts['SetEvent']+=1;events.append({'api':'SetEvent','return_address':ra,'actual_owned_host_handle_signaled':True,'guest_handle':key});uc.reg_write(UC_X86_REG_EAX,1)
+ u.hook_add(UC_HOOK_CODE,set_event_probe,begin=0x200e630,end=0x200e630)
+ u.mem_write(0x51849c,struct.pack('<I',0x200e640));u.mem_write(0x200e640,b'\xc3')
+ def com_uninit_probe(uc,a,n,ud):
+  assert com.live_count>0;ra=struct.unpack('<I',uc.mem_read(uc.reg_read(UC_X86_REG_ESP),4))[0];com.uninit();counts['CoUninitialize']+=1;events.append({'api':'CoUninitialize','return_address':ra,'actual_host_COM_balanced':True,'void_return_not_fabricated':True})
+ u.hook_add(UC_HOOK_CODE,com_uninit_probe,begin=0x200e640,end=0x200e640)
+ from unicorn.x86_const import UC_X86_REG_FPCW
+ guest_fpcw_initial=u.reg_read(UC_X86_REG_FPCW);u.mem_write(0x200e650,guest_x87_reset_stub());invoke_cdecl(u,0x200e650,[],timeout=0,count=100)
+ assert u.reg_read(UC_X86_REG_FPCW)==0x37f
+ precision_return=invoke_cdecl(u,0x5080b1,[],timeout=0,count=10000);guest_fpcw_before=u.reg_read(UC_X86_REG_FPCW);assert guest_fpcw_before==0x23f and (guest_fpcw_before>>8)&3==2 and guest_fpcw_before&0x3f==0x3f
+ (stage/'x87-setup.json').write_text(json.dumps({'guest_initial_FPCW':guest_fpcw_initial,'controlled_guest_CPU_FNINIT_not_original_OS_start':True,'FNINIT_FPCW':0x37f,'original_CRT_precision_entry':0x5080b1,'original_CRT_controlfp_entry':0x50c0b2,'original_CRT_precision_return':precision_return,'FPCW_after_original_precision':guest_fpcw_before,'full_FPinit_not_executed':True},indent=2),encoding='utf-8')
+ def immutable_iat(name):
+  hint=[v for dll,fs in pe.imports() for n,v in fs if n==name];assert len(hint)==1
+  iats=[q for q in range(0x518000,0x518500,4)if struct.unpack('<I',pe.read_rva(q-pe.image_base,4))[0]==hint[0]];assert len(iats)==1;return iats[0]
+ find_handles={};find_tokens=iter(range(0x69500000,0x69600000));find_proxies={0x200e660:('FindFirstFileA',immutable_iat('FindFirstFileA'),8),0x200e670:('FindNextFileA',immutable_iat('FindNextFileA'),8),0x200e680:('FindClose',immutable_iat('FindClose'),4)}
+ def find_probe(uc,a,n,ud):
+  if a not in find_proxies:return
+  name,iat,argc=find_proxies[a];sp=uc.reg_read(UC_X86_REG_ESP);v=struct.unpack('<%dI'%(1+argc//4),uc.mem_read(sp,4+argc));ra=v[0];args=v[1:];record={'api':name,'return_address':ra,'args':list(args),'actual_Windows_API':True,'only_readonly_enumeration':True}
+  if name=='FindClose':
+   key=args[0];assert key in find_handles;ctypes.set_last_error(0);value=int(FindClose(ctypes.c_void_p(find_handles[key])));err=ctypes.get_last_error()
+   if value:del find_handles[key]
+  else:
+   key,dst=args;before=bytes(uc.mem_read(dst,320));guard=b'\xa5'*32;buf=ctypes.create_string_buffer(guard+before+guard,384);ctypes.set_last_error(0)
+   if name=='FindFirstFileA':
+    pattern=read_z(lambda q,n:bytes(uc.mem_read(q,n)),key,260);text=pattern.decode('mbcs');base=root/'备份/我们没有翅膀R-安装介质/SET_UP'
+    if pattern in storage_allowed:
+     mapped=mapped_storage(pattern);pattern=str(mapped).encode('mbcs',errors='strict');assert pattern.decode('mbcs')==str(mapped);record.update({'explicit_guest_storage_mapping':True,'mapped_relative_target':str(mapped.relative_to(stage))});text=pattern.decode('mbcs')
+    else:assert Path(text).resolve().is_relative_to(base.resolve()),text
+    host=FindFirstFileA(pattern,ctypes.byref(buf,32));err=ctypes.get_last_error()
+    if host is None or host==ctypes.c_void_p(-1).value:value=0xffffffff
+    else:value=next(find_tokens);find_handles[value]=int(host)
+    record['pattern']=text
+   else:
+    assert key in find_handles;value=int(FindNextFileA(ctypes.c_void_p(find_handles[key]),ctypes.byref(buf,32)));err=ctypes.get_last_error()
+   assert buf.raw[:32]==guard and buf.raw[-32:]==guard;uc.mem_write(dst,buf.raw[32:-32]);record['WIN32_FIND_DATAA_bytes']=320
+  record.update({'actual_error':err,'guest_result':value});counts[name]+=1;events.append(record);set_last_error(err);uc.reg_write(UC_X86_REG_EAX,value & 0xffffffff)
+ for addr,(name,iat,argc)in find_proxies.items():u.mem_write(iat,struct.pack('<I',addr));u.mem_write(addr,b'\xc2'+struct.pack('<H',argc))
+ u.hook_add(UC_HOOK_CODE,find_probe,begin=0x200e660,end=0x200e68f)
+ parent=0x2003000;u.mem_write(parent,b'\xa5'*0x1c18);u.mem_write(0x10e0800,b'\0')
+ try:
+  try:result=invoke_thiscall_args(u,0x40a0a0,parent,[],timeout=0,count=3000000)
+  except RuntimeError:
+   if not enum_pending:raise
+  for turn in range(8):
+   if not enum_pending:break
+   ra,hdc,clip,callback,param=enum_pending.pop(0);saved=u.context_save();snapshot=[];callback_errors=[]
+   @MONITORENUMPROC
+   def collect(hmon,h,rect,lparam):
+    try:
+     assert hmon and not h and rect and lparam==0
+     snapshot.append((int(hmon),[rect.contents.left,rect.contents.top,rect.contents.right,rect.contents.bottom]));return 1
+    except BaseException as err:callback_errors.append(repr(err));return 0
+   status=int(EnumDisplayMonitors(None,None,collect,0));assert status==1 and snapshot and not callback_errors
+   guest_results=[]
+   for host,rect in snapshot:
+    key=0x69400000+len(monitor_handles);monitor_handles[key]=host;u.mem_write(0x3001000,struct.pack('<4i',*rect));call_sp=0x3008000;sentinel=0x300f000
+    u.mem_write(call_sp,struct.pack('<5I',sentinel,key,0,0x3001000,param));u.reg_write(UC_X86_REG_ESP,call_sp)
+    u.emu_start(callback,sentinel,timeout=0,count=300000)
+    assert u.reg_read(UC_X86_REG_EIP)==sentinel and u.reg_read(UC_X86_REG_ESP)==call_sp+20
+    value=u.reg_read(UC_X86_REG_EAX);assert value==1;guest_results.append({'guest_handle':key,'rect':rect,'actual_guest_callback_return':value})
+   u.context_restore(saved);u.reg_write(UC_X86_REG_EAX,status);enum_completed=True;counts['EnumDisplayMonitors']+=1;events.append({'api':'EnumDisplayMonitors','actual_host_status':status,'guest_callback':callback,'actual_guest_callbacks':guest_results,'snapshot_then_guest_callbacks_not_full_OS_callback_timing':True})
+   u.emu_start(0x200e550,0x200f000,timeout=0,count=3000000)
+  assert not enum_pending and u.reg_read(UC_X86_REG_EIP)==0x200f000 and u.reg_read(UC_X86_REG_ESP)==0x2008004
+  result=u.reg_read(UC_X86_REG_EAX)
+  print('PARENT_RESULT',hex(result),flush=True)
+ except Exception as e:
+  result=None;print('PARENT_BOUNDARY',type(e).__name__,str(e),hex(u.reg_read(UC_X86_REG_EIP)),flush=True)
+ report={'constructor':0x40a0a0,'storage':parent,'storage_bytes':0x1c18,'constructor_args':[],'caller_WinMain_args_not_executed':True,'result':result,'eip':u.reg_read(UC_X86_REG_EIP),'global_parent':struct.unpack('<I',u.mem_read(0x530c94,4))[0],'api_counts':dict(counts),'last_events':events[-8:],'recent':list(recent),'boundary_stack_8':list(struct.unpack('<8I',u.mem_read(u.reg_read(UC_X86_REG_ESP),32)))}
+ (stage/'parent-constructor-boundary.json').write_text(json.dumps(report,indent=2),encoding='utf-8');print('CONSTRUCTOR_SUMMARY',report['result'],report['global_parent'],flush=True)
+
+ assert result==parent and report['global_parent']==parent and bytes(u.mem_read(0,4))==seh
+ from lucifen_guest_pe_sections import map_sections
+ from lucifen_host_crt_bootstrap_bindings import GetVersion,GetACP,GetOEMCP,GetModuleHandleA,GetProcAddress,IsProcessorFeaturePresent,GetCommandLineA,GetCPInfo,GetStartupInfoA,GetStdHandle,GetFileType,GetEnvironmentStringsW,FreeEnvironmentStringsW
+ from lucifen_host_encoding_bindings import WideCharToMultiByte,MultiByteToWideChar,GetStringTypeW,GetStringTypeA,LCMapStringW,LCMapStringA
+ from lucifen_host_handle_count import SetHandleCount
+ from lucifen_guest_exception_filter import GuestExceptionFilter
+ plugin_path=root/'备份/我们没有翅膀R-安装介质/SET_UP/wuvorbis.dll';plugin_pe=PE(plugin_path);assert hashlib.sha256(plugin_pe.data).hexdigest()=='302b1eb97ed0f6110904e84c11bf7436e4cdddd414f4d24d105aba687f32b47f'
+ for start,end,prot in u.mem_regions():assert end<plugin_pe.image_base or start>=plugin_pe.image_base+plugin_pe.size_image
+ assert plugin_pe.machine==0x14c and plugin_pe.magic==0x10b and plugin_pe.size_image==0x33000
+ assert plugin_pe.image_base%4096==0 and plugin_pe.size_image>0 and plugin_pe.size_headers<=len(plugin_pe.data)and plugin_pe.size_headers<=plugin_pe.size_image
+ image_ranges=[(0,plugin_pe.size_headers)]
+ for sec in plugin_pe.sections:
+  assert sec['rawptr']+sec['rawsize']<=len(plugin_pe.data)and sec['vaddr']+max(sec['vsize'],sec['rawsize'])<=plugin_pe.size_image
+  if max(sec['vsize'],sec['rawsize']):image_ranges.append((sec['vaddr'],sec['vaddr']+max(sec['vsize'],sec['rawsize'])))
+ image_ranges.sort();assert all(x[1]<=y[0]for x,y in zip(image_ranges,image_ranges[1:]))
+ map_sections(u,plugin_pe)
+ for s in plugin_pe.sections:assert bytes(u.mem_read(plugin_pe.image_base+s['vaddr'],s['rawsize']))==plugin_pe.data[s['rawptr']:s['rawptr']+s['rawsize']]
+ plugin_scope=dict(globals());plugin_scope.update({'pe':plugin_pe,'main_pe':pe,'exe_path':root/'备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE'})
+ exec((g/'演出链路/R_原版音频DLL装载与WinMain预初始化证据_20261012/wuvorbis-shared-setup.txt').read_text(encoding='utf-8'),plugin_scope)
+ plugin_exports=json.loads((g/'演出链路/R_原版音频DLL装载与WinMain预初始化证据_20261012/DLL-source-inventory.json').read_text(encoding='utf-8'))['files'][0]['exports'];assert len(plugin_exports)==40
+ dll_pending=[];dll_attached=False;module_events=[];export_entries=[]
+ def export_observe(uc,a,n,ud):
+  name=next((k for k in('Query_sizeof_OggVorbis_File','wu_DetectCPU','wu_SetCPUType')if plugin_exports[k]['va']==a),None)
+  if name:
+   sp=uc.reg_read(UC_X86_REG_ESP);entry={'name':name,'guest_va':a,'native_return_address':struct.unpack('<I',uc.mem_read(sp,4))[0]}
+   if name=='wu_SetCPUType':entry['actual_guest_CPU_type_arg']=struct.unpack('<I',uc.mem_read(sp+4,4))[0]
+   export_entries.append(entry)
+  if a==plugin_exports['Query_sizeof_OggVorbis_File']['va']+5:export_entries.append({'name':'Query_sizeof_OggVorbis_File_return_instruction','actual_EAX':uc.reg_read(UC_X86_REG_EAX)})
+ u.hook_add(UC_HOOK_CODE,export_observe,begin=plugin_pe.image_base+0x10f00,end=plugin_pe.image_base+0x11310)
+ u.mem_write(immutable_iat('LoadLibraryA'),struct.pack('<I',0x200e690));u.mem_write(0x200e690,b'\xc2\x04\x00')
+ u.mem_write(immutable_iat('GetProcAddress'),struct.pack('<I',0x200e6a0));u.mem_write(0x200e6a0,b'\xc2\x08\x00')
+ def module_probe(uc,a,n,ud):
+  global dll_attached
+  sp=uc.reg_read(UC_X86_REG_ESP);ra=struct.unpack('<I',uc.mem_read(sp,4))[0]
+  if a==0x200e690:
+   q=struct.unpack('<I',uc.mem_read(sp+4,4))[0];label=read_z(lambda q,n:bytes(uc.mem_read(q,n)),q,260);assert Path(label.decode('mbcs')).resolve()==plugin_path.resolve()
+   if not dll_attached:dll_pending.append((ra,q));uc.emu_stop();return
+   uc.reg_write(UC_X86_REG_EAX,plugin_pe.image_base);counts['LoadLibraryA_guest_actual_DLL_attach']+=1;module_events.append({'api':'LoadLibraryA_guest_actual_DLL_attach','return_address':ra,'guest_module':plugin_pe.image_base,'OS_LoadLibrary_original_DLL_not_called':True})
+  else:
+   module,q=struct.unpack('<2I',uc.mem_read(sp+4,8));assert module==plugin_pe.image_base and dll_attached;label=read_z(lambda q,n:bytes(uc.mem_read(q,n)),q,128).decode('ascii');assert label in plugin_exports
+   entry=plugin_exports[label];assert not entry['forwarded'];uc.reg_write(UC_X86_REG_EAX,entry['va']);counts['GetProcAddress_guest_original_export']+=1;module_events.append({'api':'GetProcAddress_guest_original_export','return_address':ra,'name':label,'guest_va':entry['va']})
+ u.hook_add(UC_HOOK_CODE,module_probe,begin=0x200e690,end=0x200e6a0)
+ shell_binding={};exec(compile((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_shell_folder_binding.py').read_text(encoding='utf-8'),'shell-candidate','exec'),shell_binding)
+ shell_query_events=[];storage_scope={};exec(compile((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_guest_storage_exact.py').read_text(encoding='utf-8'),'storage-exact','exec'),storage_scope)
+ storage_binding={};exec(compile((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_storage_bindings.py').read_text(encoding='utf-8'),'storage-API','exec'),storage_binding)
+ storage_root=stage/'guest-storage'/'AppData';storage_root.mkdir(parents=True,exist_ok=False);assert not list(storage_root.iterdir());storage_allowed={};storage_operations=[]
+ def mapped_storage(request):
+  mapped=storage_scope['resolve_exact_guest_path'](request,storage_allowed,root);assert mapped.is_relative_to(storage_root.resolve());return mapped
+
+ u.mem_write(immutable_iat('SHGetSpecialFolderPathA'),struct.pack('<I',0x200e6b0));u.mem_write(0x200e6b0,b'\xc2\x10\x00')
+ def shell_query_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,hwnd,dst,csidl,create=struct.unpack('<5I',uc.mem_read(sp,20));assert ra==0x47e3a4 and hwnd==0 and csidl in(26,5)and create==1
+  guard=b'\xa5'*32;buf=ctypes.create_string_buffer(guard+bytes(uc.mem_read(dst,260))+guard,324);ctypes.set_last_error(0)
+  value=int(shell_binding['SHGetSpecialFolderPathA'](None,ctypes.byref(buf,32),csidl,0));err=ctypes.get_last_error();assert value and buf.raw[:32]==guard and buf.raw[-32:]==guard
+  data=buf.raw[32:-32].split(b'\0')[0];assert data and len(data)<260 and Path(data.decode('mbcs')).is_dir()
+  if csidl==26:
+   title_pointer=struct.unpack('<I',uc.mem_read(parent+0xde1,4))[0];override=struct.unpack('<I',uc.mem_read(parent+0xdf1,4))[0];assert title_pointer and override==0
+   title=read_z(lambda q,n:bytes(uc.mem_read(q,n)),title_pointer,200);assert title and b'\\'not in title
+   save_name=title+b' SaveData';save_path=data+b'\\'+save_name;cfg_path=save_path+b'\\USER.CFG'
+   storage_allowed.update({data:storage_root,save_path:storage_root/save_name.decode('mbcs'),cfg_path:storage_root/save_name.decode('mbcs')/'USER.CFG'})
+  uc.mem_write(dst,buf.raw[32:-32]);uc.reg_write(UC_X86_REG_EAX,value);set_last_error(err)
+  counts['SHGetSpecialFolderPathA_readonly_existing_host_query']+=1;shell_query_events.append({'guest_return_address':ra,'guest_csidl':csidl,'guest_fCreate':create,'host_fCreate':0,'actual_result':value,'existing_host_folder_confirmed':True,'path_bytes':len(data),'no_host_directory_creation':True,'creation_branch_not_verified':True})
+ u.hook_add(UC_HOOK_CODE,shell_query_probe,begin=0x200e6b0,end=0x200e6b0)
+ u.mem_write(immutable_iat('CreateDirectoryA'),struct.pack('<I',0x200e6c0));u.mem_write(0x200e6c0,b'\xc2\x08\x00')
+ def create_storage_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,q,security=struct.unpack('<3I',uc.mem_read(sp,12));assert ra==0x40b36e and security==0
+  request=read_z(lambda q,n:bytes(uc.mem_read(q,n)),q,260);mapped=mapped_storage(request);buffer=ctypes.create_unicode_buffer(str(mapped));ctypes.set_last_error(0)
+  value=int(storage_binding['CreateDirectoryW'](buffer,None));err=ctypes.get_last_error();assert value==1 and mapped.is_dir()
+  uc.reg_write(UC_X86_REG_EAX,value);set_last_error(err);counts['CreateDirectoryA_mapped_storage_actual_CreateDirectoryW']+=1
+  storage_operations.append({'guest_api':'CreateDirectoryA','original_return_address':ra,'mapped_relative_target':str(mapped.relative_to(stage)),'host_API':'CreateDirectoryW','actual_result':value,'actual_error':err,'requested_ACP_path_preserved_by_unicode_mapping':True,'within_workspace':True})
+ u.hook_add(UC_HOOK_CODE,create_storage_probe,begin=0x200e6c0,end=0x200e6c0)
+ u.mem_write(immutable_iat('CopyFileA'),struct.pack('<I',0x200e6d0));u.mem_write(0x200e6d0,b'\xc2\x0c\x00')
+ def copy_storage_probe(uc,a,n,ud):
+  global storage_files
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,source,destination,fail=struct.unpack('<4I',uc.mem_read(sp,16));assert ra==0x40b3dd and fail==0
+  source_request=read_z(lambda q,n:bytes(uc.mem_read(q,n)),source,260);source_path=Path(source_request.decode('mbcs')).resolve();assert source_path==root/'备份/我们没有翅膀R-安装介质/SET_UP/USER.CFG'and source_path.is_file()
+  target_request=read_z(lambda q,n:bytes(uc.mem_read(q,n)),destination,260);target_path=mapped_storage(target_request);assert not target_path.exists();source_hash=hashlib.sha256(source_path.read_bytes()).hexdigest()
+  source_buffer=ctypes.create_unicode_buffer(str(source_path));target_buffer=ctypes.create_unicode_buffer(str(target_path));ctypes.set_last_error(0)
+  value=int(storage_binding['CopyFileW'](source_buffer,target_buffer,fail));err=ctypes.get_last_error();assert value==1 and target_path.read_bytes()==source_path.read_bytes()and hashlib.sha256(source_path.read_bytes()).hexdigest()==source_hash
+  assert storage_files is None
+  storage_files=ReadOnlyFiles([target_path]);storage_files._next_token=0x69600000
+  uc.reg_write(UC_X86_REG_EAX,value);set_last_error(err);counts['CopyFileA_mapped_storage_actual_CopyFileW']+=1
+  storage_operations.append({'guest_api':'CopyFileA','original_return_address':ra,'host_API':'CopyFileW','actual_result':value,'actual_error':err,'source_relative_path':str(source_path.relative_to(root)),'mapped_relative_target':str(target_path.relative_to(stage)),'bytes':target_path.stat().st_size,'source_target_sha256':source_hash,'source_unchanged':True,'within_workspace':True})
+ u.hook_add(UC_HOOK_CODE,copy_storage_probe,begin=0x200e6d0,end=0x200e6d0)
+ u.mem_write(immutable_iat('SetFileAttributesA'),struct.pack('<I',0x200e6e0));u.mem_write(0x200e6e0,b'\xc2\x08\x00')
+ def attrs_storage_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,pathq,attributes=struct.unpack('<3I',uc.mem_read(sp,12));assert ra==0x40b3ef and attributes==0x80
+  request=read_z(lambda q,n:bytes(uc.mem_read(q,n)),pathq,260);mapped=mapped_storage(request);buf=ctypes.create_unicode_buffer(str(mapped));ctypes.set_last_error(0);value=int(storage_binding['SetFileAttributesW'](buf,attributes));err=ctypes.get_last_error();assert value==1
+  uc.reg_write(UC_X86_REG_EAX,value);set_last_error(err);counts['SetFileAttributesA_mapped_storage_actual_SetFileAttributesW']+=1
+  storage_operations.append({'guest_api':'SetFileAttributesA','original_return_address':ra,'host_API':'SetFileAttributesW','actual_result':value,'actual_error':err,'mapped_relative_target':str(mapped.relative_to(stage)),'within_workspace':True})
+ u.hook_add(UC_HOOK_CODE,attrs_storage_probe,begin=0x200e6e0,end=0x200e6e0)
+ u.mem_write(immutable_iat('GetFileSize'),struct.pack('<I',0x200e6f0));u.mem_write(0x200e6f0,b'\xc2\x08\x00')
+ def filesize_probe(uc,a,n,ud):
+  sp=uc.reg_read(UC_X86_REG_ESP);ra,key,highp=struct.unpack('<3I',uc.mem_read(sp,12));owner=storage_files if storage_files is not None and key in storage_files._handles else files;assert key in owner._handles
+  high=ctypes.c_uint32(0);guard=b'\xa5'*32;buf=ctypes.create_string_buffer(guard+b'\xa5'*4+guard,68);ctypes.set_last_error(0)
+  value=int(storage_binding['GetFileSize'](ctypes.c_void_p(owner._live_handle(key)),ctypes.byref(buf,32)if highp else None));err=ctypes.get_last_error();assert value!=0xffffffff or err==0
+  assert buf.raw[:32]==guard and buf.raw[-32:]==guard
+  if highp:uc.mem_write(highp,buf.raw[32:36])
+  if owner is storage_files:assert value==111 and(highp==0 or struct.unpack('<I',buf.raw[32:36])[0]==0)
+  uc.reg_write(UC_X86_REG_EAX,value);set_last_error(err);counts['GetFileSize_actual_owned_host_file']+=1
+  storage_operations.append({'guest_api':'GetFileSize','original_return_address':ra,'actual_result':value,'actual_error':err,'owned_host_file_handle_mapping':True,'is_mapped_USER_CFG':owner is storage_files,'high_pointer_supplied':bool(highp)})
+ u.hook_add(UC_HOOK_CODE,filesize_probe,begin=0x200e6f0,end=0x200e6f0)
+ desktop_scope={};exec(compile((root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_host_desktop_window_binding.py').read_text(encoding='utf-8'),'desktop-binding','exec'),desktop_scope)
+ borrowed_desktop={}
+ u.mem_write(immutable_iat('GetDesktopWindow'),struct.pack('<I',0x200e700));u.mem_write(0x200e700,b'\xc3')
+ def desktop_probe(uc,a,n,ud):
+  ra=struct.unpack('<I',uc.mem_read(uc.reg_read(UC_X86_REG_ESP),4))[0];host=desktop_scope['GetDesktopWindow']();assert host and desktop_scope['IsWindow'](ctypes.c_void_p(host))==1
+  guest=0x69800000;borrowed_desktop[guest]=int(host);uc.reg_write(UC_X86_REG_EAX,guest);counts['GetDesktopWindow_actual_borrowed_HWND']+=1
+  events.append({'api':'GetDesktopWindow_actual_borrowed_HWND','return_address':ra,'guest_token':guest,'actual_IsWindow':True,'full_host_handle_preserved':True,'borrowed_not_closed':True})
+ u.hook_add(UC_HOOK_CODE,desktop_probe,begin=0x200e700,end=0x200e700)
+
+
+
+
+ u.mem_write(0x100d000,b'\0');start_events=len(events)
+ try:
+  try:result=invoke_thiscall_args(u,0x452cf0,parent,[pe.image_base,0,0x100d000,10],timeout=0,count=5000000)
+  except RuntimeError:
+   if not dll_pending:raise
+  if dll_pending:
+   assert len(dll_pending)==1 and not dll_attached;ra,q=dll_pending.pop();saved=u.context_save()
+   stop=0x300f100;call_sp=0x3008000;u.mem_write(call_sp,struct.pack('<4I',stop,plugin_pe.image_base,1,0));u.reg_write(UC_X86_REG_ESP,call_sp)
+   u.emu_start(plugin_pe.image_base+plugin_pe.entry_rva,stop,timeout=0,count=2000000)
+   assert u.reg_read(UC_X86_REG_EIP)==stop and u.reg_read(UC_X86_REG_ESP)==call_sp+16 and u.reg_read(UC_X86_REG_EAX)==1
+   import unicorn.x86_const as xregs
+   fp_names=['FPCW','FPSW','FPTAG','FIP','FDP','FCS','FDS','FOP']+['FP'+str(i)for i in range(8)]
+   fp_state={getattr(xregs,'UC_X86_REG_'+name):u.reg_read(getattr(xregs,'UC_X86_REG_'+name))for name in fp_names}
+   dll_attached=True;module_events.append({'original_DLL_CRT_attach_entry':plugin_pe.image_base+plugin_pe.entry_rva,'actual_return':1,'live_DLL_blocks':plugin_scope['mirror'].live_count,'owned_DLL_TLS':len(plugin_scope['tls'].owned),'DLL_CS':plugin_scope['cs'].live_count,'controlled_guest_filter':plugin_scope['guest_filter'].current,'FPCW':u.reg_read(UC_X86_REG_FPCW)})
+   u.context_restore(saved)
+   for reg,value in fp_state.items():u.reg_write(reg,value)
+   u.emu_start(0x200e690,0x200f000,timeout=0,count=5000000)
+   if u.reg_read(UC_X86_REG_EIP)!=0x200f000:raise RuntimeError('WinMain did not return')
+   result=u.reg_read(UC_X86_REG_EAX)
+  print('WINMAIN_RETURNED',result,flush=True);failure=None
+ except Exception as exc:
+  result=None;failure=repr(exc);print('WINMAIN_BOUNDARY',failure,hex(u.reg_read(UC_X86_REG_EIP)),flush=True)
+ pc=u.reg_read(UC_X86_REG_EIP);name=pe.read_rva(pc+2,80).split(b'\0')[0].decode('ascii',errors='replace')if 0<pc<pe.image_base else None
+ state={'entry':0x452cf0,'result':result,'failure':failure,'unresolved_import':name,'EIP':pc,'args':[pe.image_base,0,0x100d000,10],'parent':parent,'parent_HWND':struct.unpack('<I',u.mem_read(parent+0x150,4))[0],'API_counts':dict(counts),'WinMain_API_events':events[start_events:],'recent':list(recent),'stack8':list(struct.unpack('<8I',u.mem_read(u.reg_read(UC_X86_REG_ESP),32))),'not_original_OS_start':True,'module_events':module_events,'original_export_execution':export_entries,'DLL_attached_before_original_GetProcAddress':dll_attached,'not_native_CRT_or_WinMain_shutdown':True}
+ assert counts['SHGetSpecialFolderPathA_readonly_existing_host_query']==2 and [row['guest_csidl']for row in shell_query_events]==[26,5]
+ state['shell_folder_query_events']=shell_query_events;state['storage_operations']=storage_operations;state['storage_USER_CFG_reads']=storage_cfg_reads;state['one_string_formatter_events']=one_format_events
+ assert counts['CreateDirectoryA_mapped_storage_actual_CreateDirectoryW']==counts['CopyFileA_mapped_storage_actual_CopyFileW']==counts['SetFileAttributesA_mapped_storage_actual_SetFileAttributesW']==1
+ assert len(storage_cfg_reads)==1
+ assert len(one_format_events)==1
+ assert name=='SHGetMalloc'and state['result']is None and state['parent_HWND']==0 and counts['GetDesktopWindow_actual_borrowed_HWND']==1
+ assert counts['LoadLibraryA_guest_actual_DLL_attach']==1 and counts['GetProcAddress_guest_original_export']==15
+ assert dll_attached and module_events[0]['actual_return']==1 and any(e.get('actual_EAX')==704 for e in export_entries)
+ state.update({'finite_phase_assertions_passed':True,'no_external_directory_creation':True,'SHGetSpecialFolderPathA_host_call_fCreate0_only':True})
+ assert state['stack8'][0]==0x47e291
+ state['SHGetMalloc_boundary']={'original_return_address':state['stack8'][0],'guest_output_pointer':state['stack8'][1],'allocator_not_acquired':True,'original_browse_dialog_not_entered':True,'folder_selection_not_injected':True}
+ if name=='SHBrowseForFolderA':
+  info=state['stack8'][1];words=list(struct.unpack('<8I',u.mem_read(info,32)));state['native_BROWSEINFOA_32']={'guest_pointer':info,'hwndOwner':words[0],'pidlRoot':words[1],'pszDisplayName':words[2],'lpszTitle':words[3],'ulFlags':words[4],'lpfn':words[5],'lParam':words[6],'iImage':words[7],'system_dialog_not_opened':True,'no_selection_injected':True,'borrowed_desktop_token_valid':words[0]in borrowed_desktop,'original_callback_is_mapped_code':pe.image_base<=words[5]<pe.image_base+pe.size_image}
+ if name in('FindFirstFileA','LoadLibraryA')or pc==0x200e2f0:
+  sp=u.reg_read(UC_X86_REG_ESP);ra,pattern,dst=struct.unpack('<3I',u.mem_read(sp,12));state['unresolved_string_API_args']={'api':name,'return_address':ra,'name_bytes_hex':read_z(lambda q,n:bytes(u.mem_read(q,n)),pattern,260).hex(),'name_text':read_z(lambda q,n:bytes(u.mem_read(q,n)),pattern,260).decode('mbcs'),'third_stack_word':dst}
+ for q in mirror._by_guest:
+  data=mirror.sync(q)
+  for label,expected in resource_expected.items():
+   if data==expected:resource_matches.append({'name':label,'where':'actual_live_original_allocation_at_boundary','guest_pointer':q,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'exact_source_bytes':True})
+ assert {r['name']for r in resource_matches}==set(resource_expected)
+ (stage/'native-initialization-data.json').write_text(json.dumps({'passed':True,'files':resource_matches,'no_original_plaintext_serialized':True},indent=2),encoding='utf-8')
+ (stage/'WinMain-boundary.json').write_text(json.dumps(state,ensure_ascii=False,indent=2),encoding='utf-8');print('STATE_SUMMARY',json.dumps({k:state[k]for k in('EIP','unresolved_import','failure','parent_HWND','storage_operations','storage_USER_CFG_reads','one_string_formatter_events','SHGetMalloc_boundary')}),flush=True)
+ for key,(_,depth)in list(cs._sections.items()):
+  for i in range(depth):cs.leave(key)
+ cs.close_all();tls.close_all();com.close_all();host_events.close_all()
+ for key,(_,depth)in list(plugin_scope['cs']._sections.items()):
+  for i in range(depth):plugin_scope['cs'].leave(key)
+ plugin_scope['cs'].close_all();assert plugin_scope['tls'].close_all()==[]
+ for q in list(plugin_scope['mirror']._by_guest):plugin_scope['mirror'].sync(q);plugin_scope['mirror'].unmap(q)
+ plugin_scope['memory'].close_all()
+ for host,sz in plugin_scope['environments'].values():assert FreeEnvironmentStringsW(ctypes.c_void_p(host))
+ (stage/'DLL_API_events.json').write_text(json.dumps(plugin_scope['events'],indent=2),encoding='utf-8')
+ for host in registry_handles.values():assert RegCloseKey(ctypes.c_void_p(host))==0
+ for host in display_handles.values():assert ReleaseDC(None,host)==1
+ for host in device_dc_handles.values():assert DeleteDC(ctypes.c_void_p(host))==1
+ for host in find_handles.values():assert FindClose(ctypes.c_void_p(host))
+
+ for q in list(mirror._by_guest):mirror.sync(q);mirror.unmap(q)
+ memory.close_all();assert files.close_all()==[]
+ assert storage_files is not None and storage_files.close_all()==[] and not storage_files._handles
+ plugin_scope['std_handles'].clear();plugin_scope['host_modules'].clear();plugin_scope['startup_strings'].clear();borrowed_desktop.clear()
+ assert mirror.live_count==plugin_scope['mirror'].live_count==cs.live_count==plugin_scope['cs'].live_count==len(tls.owned)==len(plugin_scope['tls'].owned)==com.live_count==host_events.live_count==0
+ assert not memory._blocks and not memory._heaps and not plugin_scope['memory']._blocks and not plugin_scope['memory']._heaps and not files._handles
+ cleanup={'passed':True,'original_WinMain_or_DLL_shutdown_executed':False,'explicit_host_fixture_cleanup_not_original_destructors':True,'guest_mapped_heap_blocks':0,'host_registered_blocks':0,'host_owned_heaps':0,'owned_TLS':0,'owned_CS':0,'owned_file_handles':0,'owned_host_events':0,'owned_COM':0,'borrowed_standard_handles_not_closed':True,'environment_and_commandline_content_not_persisted':True,'guest_filter_retained_until_guest_context_discard':plugin_scope['guest_filter'].current,'original_guest_module_not_OS_loaded':True}
+ (stage/'host-fixture-cleanup.json').write_text(json.dumps(cleanup,indent=2),encoding='utf-8');print('HOST_FIXTURE_CLEANUP_PASS',flush=True)

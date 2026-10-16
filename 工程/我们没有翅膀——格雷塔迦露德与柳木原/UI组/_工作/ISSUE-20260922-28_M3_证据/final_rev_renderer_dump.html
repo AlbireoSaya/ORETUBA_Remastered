@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--font-chain: &quot;微软雅黑&quot;,&quot;Microsoft YaHei&quot;,&quot;黑体&quot;,&quot;SimHei&quot;,&quot;宋体&quot;,&quot;SimSun&quot;,&quot;MS Gothic&quot;,sans-serif;"><head>
+<meta charset="utf-8">
+<title> 来自个人汉化者AlbireoSaya 模型&amp;工具:Deepseek v4.1 flash+ZCode</title>
+<!-- ==========================================================================
+     M3 / C1 反向验证夹具：**故意把渲染器与数据改坏**，证明修好后的断言真的会 FAIL。
+     与 复刻/index.html 用的是同一份 ui_layout.js + 打好补丁的 replica.js 副本（replica_rev.js）：
+       · ?selftest=1            → 渲染器退化（sv.tab_a 走 border-image）⇒ 断言应 FAIL
+       · ?selftest=1&revhack=drop → 数据退化（save 屏少一件）⇒ 旧写法 FAIL、新写法 PASS
+     仅作证据；正式交付不含本目录。
+     ========================================================================== -->
+<link rel="stylesheet" href="../../复刻/replica.css">
+</head>
+<body class=""><pre id="selftest-out">SELFTEST total=41 fail=4
+PASS	canvas-1920	1920pxx1080px
+PASS	dialog.screen	dialog
+PASS	dialog.under=null	null
+PASS	dialog.overlay-empty	0
+PASS	sysicons.open	sysicons
+PASS	sysicons.under=dialog	dialog
+PASS	sysicons.base-painted	55
+PASS	sysicons.base-DOM-preserved	
+PASS	sysicons.overlay-children	20
+PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+PASS	sysicons.icons-9	9
+PASS	sysicons.dismiss-click	dialog
+PASS	sysicons.overlay-cleared	0
+PASS	sysicons.back-to-dialog-DOM-preserved	
+PASS	sysicons.reopen	sysicons
+PASS	sysicons.icon-dispatch	save
+PASS	zeronine.subject-nonempty	save 屏 nine 全零的 image 元素 15 件（数据推导）
+FAIL	zeronine.img-not-borderimage	14/15（主语 = 数据推导的全集） sv.tab_a(走了 border-image)
+FAIL	zeronine.no-placeholder	sv.tab_a(走了 border-image)
+PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+PASS	overlay.close-overlay	dialog
+PASS	flags.attach-rendered-on-dialog	attachId=quickbar，quick.btn/quick.tgl/quick.hit_lock 齐备=true/true/true
+PASS	flags.collapsed-by-default	quickbar=collapsed，btn.display=none，tgl.display=，hit_lock.display=none
+PASS	flags.expanded-shows-bar-items-not-pin	btn=，hit_lock=，pin_mark=none
+PASS	flags.tip-follows-item	hit_lock 中心→"lock"，hit_option 中心→"option"，把手内空白→""
+PASS	flags.open_sysmenu-expands-not-navigates	screen dialog → dialog（未换屏），quickbar=expanded，20_sysmenu 数据保留=true
+PASS	flags.pin-toggle	钉住 flag 名（reveal.pin_flag）=qbar_pin，解除后 pin_mark.display=none
+PASS	flags.attach-absent-on-title	title 上 attachId=null，quick.btn 存在=false
+PASS	flags.item-subject-count	快捷条「项」热区（有 action 且非整条把手）12 件（应为 12）
+PASS	flags.item-N-click-dispatch-N	12/12 项：命中该项 且 该 action 的可辨副作用出现
+PASS	flags.tip-halfopen-boundary	x=w-1→"lock" / x=w→"" / y=h-1→"lock" / y=h→""（半开区间，项=lock）
+PASS	esc.back-to-previous-screen	save（history=1）→ Esc → screen=dialog（应 dialog），提示=""（应无）
+PASS	esc.closes-overlay	浮层打开=true → Esc → screen=dialog/under=null，提示=""（应关浮层且无提示）
+PASS	esc.bottom-goes-title-with-toast	栈底（Esc 前 history=0，当前屏 save）→ Esc → screen=title，提示="复刻端无进程可退出：已返回标题"
+FAIL	zeronine.all-subjects-stretched-to-element-box	14/15（主语 = ⑤ 的全集） sv.tab_a(未走 &lt;img&gt; / 已切屏)
+PASS	REV-old-stretch-self-referential	旧写法 stretched(14) === znImgs.length(14) ⇒ PASS（**假通过**：被破坏的那件不在 znImgs 里）
+FAIL	REV-old-hardcoded-13	旧写法 znOk(14) === 硬编码 13（实际主语 15 件）
+PASS	zeronine.size-differs-from-png-still-rendered	13/15 张 PNG 实宽(181) ≠ 元素宽(181)，仍正常绘制
+RESULT=NG</pre></body></html>

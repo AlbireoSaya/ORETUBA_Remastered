@@ -1,0 +1,17 @@
+# 字形隔离法：成品 − 无字形同底盘逐像素取差（α 差 >6 或 RGB 差 >12）⇒ 只留字形，不受环 / 板沿干扰
+判据	读数	结论
+pbkick_off 字形 bbox 48×54（▶ 期望 ≈48×54）	48×54	PASS
+pbkick_off 朝向：左列高 54 vs 右列高 2（▶ 左>右×3）	52	PASS
+pbkick_off 面积比 0.52（▶ 期望 ≈0.50）	0.52	PASS
+pbkick_over 字形 bbox 48×54（▶ 期望 ≈48×54）	48×54	PASS
+pbkick_over 朝向：左列高 54 vs 右列高 2（▶ 左>右×3）	52	PASS
+pbkick_over 面积比 0.52（▶ 期望 ≈0.50）	0.52	PASS
+pbkick_on 字形 bbox 45×45（■ 期望 ≈44×44）	45×45	PASS
+pbkick_on 面积比 1.00（■ 期望 >0.92）	1.0	PASS
+pbkick_on 左右对称（左列 44 vs 右列 41）	3	PASS
+zoomout   字形 16×5 面积比 0.90（左2 右2 上14 下12）	minus	PASS
+zoomin    字形 16×16 面积比 0.46（左2 右2 上2 下2）	plus	PASS
+shift_lf  字形 11×12 面积比 0.61（左2 右12 上2 下3）	tri_lf	PASS
+shift_rg  字形 11×12 面积比 0.58（左12 右1 上2 下2）	tri_rg	PASS
+scroll_up 字形 14×11 面积比 0.56（左1 右1 上2 下14）	tri_up	PASS
+scroll_dn 字形 14×11 面积比 0.55（左1 右1 上14 下2）	tri_dn	PASS

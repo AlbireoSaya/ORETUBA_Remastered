@@ -1,0 +1,55 @@
+"""Root negative control: mutate private copies only, require exact comparison failure."""
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+import sys
+
+root=Path.cwd().resolve()
+work=root/"子代理工作区/ISSUE-20261011-02/r-target-live-bind-20261016"
+bits,kind=int(sys.argv[1]),sys.argv[2]
+assert bits in(32,64)and kind in("count-before-read","late-index-cursor","stale-string-base")
+out=root/"临时/ISSUE-20261011-02"/f"r-live-bind-fault-input-{kind}-{bits}-20261016-01"
+assert not out.exists()
+override=out/"override";override.mkdir(parents=True)
+reference=root/"临时/ISSUE-20261011-02/r-live-bind-original-input-20261016-02"
+labels={"count-before-read":"empty-compact","late-index-cursor":"cursor-cell-aliases-index-1","stale-string-base":"earlier-group-changes-string-global"}
+label=labels[kind]
+line=next(l for l in(reference/"cases.tjs").read_text(encoding="utf-8").splitlines()if '"label"=>"'+label+'"'in l)
+target=out/"case.tjs";target.write_text(line+"\n",encoding="utf-8")
+result=json.loads((reference/"original-results.json").read_text(encoding="utf-8"))
+original_case=next(row for row in result["results"]if row["label"]==label)
+name={"count-before-read":"r_live_relocation_count.tjs","late-index-cursor":"r_live_relocation_row.tjs","stale-string-base":"r_live_relocation_value.tjs"}[kind]
+source=work/name
+baseline=hashlib.sha256(source.read_bytes()).hexdigest()
+if kind=="count-before-read":
+    mutant=(work/"r_live_relocation_count-run-01/candidate.txt").read_text(encoding="utf-8").strip()
+else:
+    mutant=source.read_text(encoding="utf-8")
+    if kind=="late-index-cursor":
+        old="    wr(cursorPtr, (q + 4) & 0xffffffff);\n    var index = rd((q + 4) & 0xffffffff) & 0xffffffff;"
+        new="    var index = rd((q + 4) & 0xffffffff) & 0xffffffff;\n    wr(cursorPtr, (q + 4) & 0xffffffff);"
+    else:
+        old="var base = rd(0x5355e4);"
+        new=old+"\n        base = 0x10d0000;"
+    assert mutant.count(old)==1
+    mutant=mutant.replace(old,new)
+(override/name).write_text(mutant+"\n",encoding="utf-8")
+manifest={"cases":1,"events":len(original_case["events"]),"original_result_source":(reference/"original-results.json").relative_to(root).as_posix(),
+          "original_result_sha256":hashlib.sha256((reference/"original-results.json").read_bytes()).hexdigest(),
+          "files":[{"source":target.relative_to(root).as_posix(),"sha256":hashlib.sha256(target.read_bytes()).hexdigest()}]}
+mp=out/"manifest.json";mp.write_text(json.dumps(manifest,indent=2),encoding="utf-8")
+tag=f"r-live-bind-fault-{kind}-{bits}-20261016-01"
+run=subprocess.run([sys.executable,"-X","utf8","-B",str(work/"verify-live-bind-runtime.txt"),str(bits),tag,str(mp),str(override)],capture_output=True,timeout=60)
+receipt_path=root/"临时/ISSUE-20261011-02"/tag/"evidence/verdict.json"
+receipt=json.loads(receipt_path.read_text(encoding="utf-8"))
+console=(receipt_path.parent/"console.utf8.txt").read_text(encoding="utf-8")
+detected=run.returncode==1 and not receipt["passed"] and "RVM_COMPARE"in console and receipt["process"]["returncode"]==0 and receipt["process"]["cleanup_ok"]
+assert hashlib.sha256(source.read_bytes()).hexdigest()==baseline
+verdict={"passed":detected,"fault":kind,"bits":bits,"case":label,"failed_test_receipt":receipt_path.relative_to(root).as_posix(),
+         "production_candidate_unchanged_sha256":baseline,"mutant_sha256":hashlib.sha256((override/name).read_bytes()).hexdigest(),
+         "expected_diagnostic":"RVM_COMPARE","scope":"checker negative control on private copy; not a game failure or positive source case"}
+(receipt_path.parent/"fault-verdict.json").write_text(json.dumps(verdict,indent=2)+"\n",encoding="utf-8")
+print(json.dumps(verdict))
+if not detected:print(console[-1800:])
+sys.exit(0 if detected else 1)

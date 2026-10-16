@@ -1,0 +1,12 @@
+function RMemoryFind(s, q, n, writing = false)
+{
+	RMemoryAccessCheck(q, n, writing);
+	for (var i = 0; i < s.regions.count; i++) {
+		var r = s.regions[i];
+		if (r.base <= q && q + n <= r.base + r.size) {
+			if (writing && !r.writable) throw new Exception("READONLY_MEMORY");
+			return r;
+		}
+	}
+	throw new Exception("UNMAPPED_MEMORY");
+}

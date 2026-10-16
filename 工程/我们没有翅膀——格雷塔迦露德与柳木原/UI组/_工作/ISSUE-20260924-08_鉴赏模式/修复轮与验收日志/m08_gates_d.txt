@@ -1,0 +1,39 @@
+=== test_gen_sync ===
+  29_ending.json       来源：早期直接写盘（无生成器；改动无回写对象）
+  31_fragment.json     来源：_工作/M14_gen_screens.py
+  33_sysicons.json     来源：_工作/M23_gen.py
+  39_gal_shell.json    来源：ISSUE-20260924-08 · M1 新建的鉴赏外壳浮层屏（手工维护；无生成器）
+
+------------------------------------------------------------------------------
+覆盖：生成器产出屏 9 个 ｜ 登记表 ACK 命中 4 条 ｜ 失效生成器待处置 3 条
+警告（不致命）：
+  ~ [23_save.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+  ~ [24_load.json] 与生成器有 78 处值差异（不丢数据；重跑会改写它们）
+落盘自证：运行前后 layout/screens/*.json 的 md5 **完全一致** ✓（19 个文件）
+结果：**全部通过**（没有「重跑即抹」的未登记风险；已知不同步均已登记并列出会丢什么）
+EXIT=0
+
+=== m47 pagescope probe ===
+      · 可见的声音页角色元素：cfg.ch_asu_tx_sel, cfg.ch_asu_pill, cfg.pv_name_asu, cfg.pv_face_asu
+   [A1 系统页] 名单里当前可见：系统页值元素 17/17 件、声音页角色元素 0/5 件
+      · 可见的系统页值元素：cfg.o_display_on_tx_sel, cfg.o_display_on, cfg.o_facewindow_on_tx_sel, cfg.o_facewindow_on, cfg.o_drama_on_tx_sel, cfg.o_drama_on, cfg.o_effect_on_tx_sel, cfg.o_effect_on, cfg.o_voicecut_on_tx, cfg.o_curhide_on_tx, cfg.o_savedialog_on_tx_sel, cfg.o_savedialog_on, cfg.o_loaddialog_on_tx_sel, cfg.o_loaddialog_on, cfg.o_allskip_on_tx, cfg.o_textcolchg_on_tx_sel, cfg.o_textcolchg_on
+      · 可见的声音页角色元素：（无）
+   [D 手选非页 flag：cfg_v_display=full（raw 口径）] replica 值=full | full 件可见=true / window 件可见=false | 判据 full=true window=false
+★CHECK★ tag=D rawprobe=1 hit=1 dom=1
+   [E 非设置屏零副作用] title（派生返回=0，重渲染后可见集不变=true）；dialog（派生返回=0，重渲染后可见集不变=true）；quickbar（派生返回=0，重渲染后可见集不变=true）；dress（派生返回=0，重渲染后可见集不变=true）；sysicons（派生返回=0，重渲染后可见集不变=true）
+★CHECK★ tag=E screens=5 fails=0
+③ 机制侧派生（按当前页= snd 派生，返回值=17 项发生变化）之后：
+   [B 机制侧派生后：cfg_page=snd（只看 DOM）] 可见总数=187 | cfg_page 页元素 sys=0 snd=166 | 本页值/选中元素=4 | **跨页残留=0**
+★CHECK★ tag=B total=187 residual=0 dom=1
+   ⇒ 跨页残留 0 件
+③b 机制侧派生（按当前页= sys 派生，返回值=17 项发生变化）之后：
+   [C 机制侧派生后：cfg_page=sys（只看 DOM）] 可见总数=115 | cfg_page 页元素 sys=81 snd=0 | 本页值/选中元素=17 | **跨页残留=0**
+★CHECK★ tag=C total=115 residual=0 dom=1
+   ⇒ 跨页残留 0 件
+④ 判据出处：editor_core.js 的「按 flag 预览」= 写 flag 表 → 按当前 cfg_page 跑机制侧派生（页变更走 configDerivePageFlags＝config_tab_* 的同一出口；换屏/开预览/重载走 configFlagsInitFor＝进屏语义、captureMemo=false）→ 回读 R.getFlag 进 ED.flagVals → applyFlagVisibility()；isVisible() 仍读 ED.flagVals，故判据与 DOM 同源。
+PAGESCOPEEND
+■ 判定（正常模式｜期望 {'A1': (115, 0), 'A2': (187, 0), 'B': (187, 0), 'C': (115, 0)}）
+   全部断言通过
+RESULT=OK
+★ 退出码： 0
+EXIT=0

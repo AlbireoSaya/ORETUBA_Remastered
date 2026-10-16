@@ -1,0 +1,380 @@
+{
+  "source_Cinit": 5271496,
+  "cold_loader_events": [
+    {
+      "api": "GetModuleHandleA",
+      "source_return_address": 5275916,
+      "source_name": "KERNEL32",
+      "actual_host_borrowed_module": 1961426944,
+      "actual_error": 0,
+      "guest_module": 1775304704,
+      "borrowed_not_FreeLibrary": true
+    },
+    {
+      "api": "GetProcAddress",
+      "source_return_address": 5275932,
+      "source_name": "IsProcessorFeaturePresent",
+      "actual_host_procedure": 1961541920,
+      "full_pointer_not_truncated": true,
+      "exact_declared_system_function_verified": true,
+      "actual_error": 0
+    },
+    {
+      "api": "IsProcessorFeaturePresent",
+      "source_return_address": 5275940,
+      "feature": 0,
+      "actual_OS_BOOL": 0
+    }
+  ],
+  "cold_codepage_events": [
+    {
+      "api": "GetACP",
+      "source_return_address": 5300541,
+      "actual_OS_codepage": 936,
+      "not_forced_to_932": true
+    },
+    {
+      "api": "GetCPInfo",
+      "source_return_address": 5301138,
+      "codepage": 936,
+      "actual_BOOL": 1,
+      "actual_error": 0,
+      "actual_MaxCharSize": 2,
+      "CPINFO_bytes": 20,
+      "exact_OS_bytes_copied": true,
+      "both_guards_preserved": true
+    }
+  ],
+  "source_Cxx_table": [
+    5406720,
+    5407164
+  ],
+  "source_C_table": [
+    5407168,
+    5407188
+  ],
+  "source_initializer_entries_observed": [
+    5264240,
+    5301501
+  ],
+  "source_initializer_unique_count": 2,
+  "source_expected_nonzero_count": 114,
+  "result": null,
+  "next_EIP": 1210824,
+  "next_import": "GetStringTypeW",
+  "failure": "UcError: Invalid memory fetch (UC_ERR_FETCH_UNMAPPED)",
+  "stack12": [
+    5294406,
+    1,
+    5361452,
+    1,
+    33585756,
+    5669340,
+    256,
+    5440304,
+    0,
+    0,
+    0,
+    0
+  ],
+  "recent": [
+    {
+      "pc": 5301256,
+      "esp": 33585804,
+      "eax": 33585824,
+      "ecx": 0
+    },
+    {
+      "pc": 5301262,
+      "esp": 33585804,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5301263,
+      "esp": 33585800,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5301264,
+      "esp": 33585796,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5301266,
+      "esp": 33585792,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5294337,
+      "esp": 33585788,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5294338,
+      "esp": 33585784,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5294340,
+      "esp": 33585784,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5294342,
+      "esp": 33585780,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5294347,
+      "esp": 33585776,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5294352,
+      "esp": 33585772,
+      "eax": 33586848,
+      "ecx": 0
+    },
+    {
+      "pc": 5294358,
+      "esp": 33585772,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294359,
+      "esp": 33585768,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294366,
+      "esp": 33585768,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294369,
+      "esp": 33585744,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294370,
+      "esp": 33585740,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294371,
+      "esp": 33585736,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294372,
+      "esp": 33585732,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294375,
+      "esp": 33585732,
+      "eax": 4294967295,
+      "ecx": 0
+    },
+    {
+      "pc": 5294380,
+      "esp": 33585732,
+      "eax": 0,
+      "ecx": 0
+    },
+    {
+      "pc": 5294382,
+      "esp": 33585732,
+      "eax": 0,
+      "ecx": 0
+    },
+    {
+      "pc": 5294384,
+      "esp": 33585732,
+      "eax": 0,
+      "ecx": 0
+    },
+    {
+      "pc": 5294386,
+      "esp": 33585732,
+      "eax": 0,
+      "ecx": 0
+    },
+    {
+      "pc": 5294389,
+      "esp": 33585732,
+      "eax": 33585756,
+      "ecx": 0
+    },
+    {
+      "pc": 5294390,
+      "esp": 33585728,
+      "eax": 33585756,
+      "ecx": 0
+    },
+    {
+      "pc": 5294392,
+      "esp": 33585724,
+      "eax": 33585756,
+      "ecx": 0
+    },
+    {
+      "pc": 5294393,
+      "esp": 33585728,
+      "eax": 33585756,
+      "ecx": 0
+    },
+    {
+      "pc": 5294394,
+      "esp": 33585724,
+      "eax": 33585756,
+      "ecx": 0
+    },
+    {
+      "pc": 5294399,
+      "esp": 33585720,
+      "eax": 33585756,
+      "ecx": 0
+    },
+    {
+      "pc": 5294400,
+      "esp": 33585716,
+      "eax": 33585756,
+      "ecx": 0
+    }
+  ],
+  "new_API_tail": [
+    {
+      "api": "HeapCreate",
+      "args": [
+        0,
+        4096,
+        0
+      ],
+      "native_return_address": 5284145,
+      "guest_result": 1744830464
+    },
+    {
+      "api": "GetVersionExA",
+      "args": [
+        33587040
+      ],
+      "native_return_address": 5283831,
+      "observed_version": [
+        148,
+        10,
+        0,
+        22621,
+        2
+      ],
+      "guest_result": 1
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664392,
+      "return_address": 5277140,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664440,
+      "return_address": 5277148,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664416,
+      "return_address": 5277156,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664368,
+      "return_address": 5277164,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        128
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 128,
+      "guest_result": 117440640
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        128
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 128,
+      "guest_result": 117444736
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        32
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 32,
+      "guest_result": 117448832
+    },
+    {
+      "api": "Critical_enter",
+      "key": 5664392,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 117448832,
+      "return_address": 5277233,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_leave",
+      "key": 5664392,
+      "return_address": 5277282,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_enter",
+      "key": 117448832,
+      "return_address": 5277260,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    }
+  ],
+  "all_initializers_not_assumed_complete": true,
+  "original_WinMain_not_entered": true
+}

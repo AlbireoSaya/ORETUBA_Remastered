@@ -1,0 +1,514 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "scope": "source expression parsing/relocation plans and isolated record primitives, not full binder/VM/game",
+  "base_main": "1cecd5a2071fd6383c0c0f46b2025f3c224db6d0",
+  "base_issue": "b2db989073774a885bd510dc47f3db4e55f159a3",
+  "hashes": "UTF8 LF Git blob, manifest self excluded",
+  "files": [
+    {
+      "path": "Galgame.md",
+      "bytes": 63712,
+      "sha256": "7687582d1ff61d39ba059096a4dfbdfbcb443f50474171bef4ea4a9ebd050e96"
+    },
+    {
+      "path": "工程/我们没有翅膀R/作品skill/SKILL.md",
+      "bytes": 136581,
+      "sha256": "87ec6df3b4a0edea8dd644a3e33ff1a0c1a4fcdb20b1ea12d641072b7fb6432c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/作品skill/SKILL.md",
+      "bytes": 145080,
+      "sha256": "ba33dd27c7850505ff34a40abebdf0f52e67169b2be4ec075efb1f4feb7a66b5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_expr_header.tjs",
+      "bytes": 765,
+      "sha256": "e8c5ecc6fc1af7983846afefbc3dd23f9814b4973ae13415491356d7e97b6286"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_expr_read.tjs",
+      "bytes": 1230,
+      "sha256": "a6ee0869d097dac2865c25c25c20ec17072e309bbe6e577f1d502a9361ac707b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_expr_relocations.tjs",
+      "bytes": 1034,
+      "sha256": "d093692b45be401831dcab4af391bfe7a464abd4929eb3535c241cd219b34835"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_inline_expr_header.tjs",
+      "bytes": 853,
+      "sha256": "d84553159c51f03e924c0025385b5ad4efd63522ecc092d78215e4a1b8fbfbad"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_inline_expr_relocations.tjs",
+      "bytes": 1271,
+      "sha256": "e28d46fa0bfb0b87d182a8e5b4e2a17aabef50c7b9727358a091c66647b216cc"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_parse_expression.tjs",
+      "bytes": 413,
+      "sha256": "8c80fb378512f1ec4b2f6fecfb785dc9fba12c36acf6bd3a655b4f8dedc43b07"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_parse_inline_expression.tjs",
+      "bytes": 175,
+      "sha256": "a1f7c71582c2ccfb92483a9c15b4c252363b1b390ffa4f8adc7cc6934265901b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_record_arguments.tjs",
+      "bytes": 624,
+      "sha256": "a9e0cf41747505ae3c6dd0f427f1af691b9ff88c8e21e3db653452a682cda045"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_record_value.tjs",
+      "bytes": 960,
+      "sha256": "e8ad99138725d7fc7e9f118b449305e2a8296c2b9e93310e76d1dce3413ef1ed"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_relocation_pair.tjs",
+      "bytes": 711,
+      "sha256": "05b9cc26d9ae1bbb6daf8c2d8d9fd35dbf3cdaffab7f97f0048734877bd2afea"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/原作忠实层/R/r_relocation_writes.tjs",
+      "bytes": 807,
+      "sha256": "e70ab363d852a4da830c9f23ac7e2905bcccf6a219082951ffb57038e7cd5be9"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/ISSUE-20261011-02_四版本原作还原长程目标.md",
+      "bytes": 61689,
+      "sha256": "39356cf1c915029f4725f630517d649bcf4497f7469e824ff61d4d9a36198d47"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/README.md",
+      "bytes": 3327,
+      "sha256": "609a9ef1ca06ce13819173dd46666392388f7226d5a39f7d4fb1ba30d9b2c81e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/api-receipts.json",
+      "bytes": 13988,
+      "sha256": "2ba71bf91ff09f886887bf3e5ba1c41adfde73ec5b8b0c0f502128ce5df2431d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/candidate-provenance.json",
+      "bytes": 5096,
+      "sha256": "4337c939ade0ddd01991b340db604b73d6a72e141ffac74dc721b8b13d46f447"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/document-provenance.json",
+      "bytes": 1364,
+      "sha256": "8269217a5256cc7e1765a7dc71a614a8236286d138d6ed55cef93fdf93416d53"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/inline-0.json",
+      "bytes": 1265,
+      "sha256": "93e41b0d975f953ffaf1afb871927cd2c1b2da3bf8e95389a098dcb78acd738f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/inline-1.json",
+      "bytes": 1265,
+      "sha256": "86fd9ae4cdf2c40d0c76d18bca0ebb7e01bb2f096b76ec4afbd9a0306722cac0"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/inline-2.json",
+      "bytes": 1265,
+      "sha256": "d5d030ebe5403b25ffc228d7204fb4f86057f308300e6118778ce215f8dcb6b3"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/inline-3.json",
+      "bytes": 1264,
+      "sha256": "f45a3f6a5ffd15c84e8a0c4282745c4f8c46b0c6abcb418d5ccacf56587addfd"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/parameter-0.json",
+      "bytes": 3398,
+      "sha256": "1c57638897b3e371b421466dc8b1b3d18f993ed1846a0ae372ebe7e1c20af90a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/parameter-1.json",
+      "bytes": 3631,
+      "sha256": "19903c51816670b35c519390255d145d702a6c9fa3f556c451e8569888ef168c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/parameter-2.json",
+      "bytes": 3632,
+      "sha256": "70a87736cf2ed749321e3bcc7708cbc505e4447e81b54a824a988ea11944a76c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/group-manifests/parameter-3.json",
+      "bytes": 3398,
+      "sha256": "f6be0bf6e31c091be75244d275d8862e5cd63b38dce395069820f752596fdeaa"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/inline-0.json",
+      "bytes": 147925,
+      "sha256": "9d3caaaa9c4afafb255d5818bf75e218a1ad297de78851da057ce601cd7d71e4"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/inline-1.json",
+      "bytes": 146201,
+      "sha256": "7f6397b73324a22c263c813653f4415c0b1334f33d7aa52c5b86c67daf21f9c4"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/inline-2.json",
+      "bytes": 145589,
+      "sha256": "9ee37cc572f1dc8ae7aa59e54d019a337fa81876c171f487450631db76d1b01b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/inline-3.json",
+      "bytes": 148541,
+      "sha256": "8d2adb4def22dd76d890a31b1cfba241a99525b2f3ff810dc0690aaa353dfb60"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/parameter-0.json",
+      "bytes": 492489,
+      "sha256": "2f0dfa567ac58e667bff23749da5f6d9fbf44f9d08083783a4418031998513f3"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/parameter-1.json",
+      "bytes": 499855,
+      "sha256": "bb24f001be05a2eb5cc6021657383ce76daa2209fc2c4109d04bb4f9508eb96e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/parameter-2.json",
+      "bytes": 508205,
+      "sha256": "70af5e2d27c7d49ad17cd040e50085674c56c1693017a49f2de8987bbeedc6ae"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/native-results/parameter-3.json",
+      "bytes": 491993,
+      "sha256": "95851ae307b44b9e84131dbbaccd7fe5082c36891cf95260ac858c3ec0fafd70"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/norm-hashes.json",
+      "bytes": 179,
+      "sha256": "42608bff56f99682400f2bdad4fd23d78bfa50dc86d84b4c1eb51042ce90a8ae"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/phase-plan.json",
+      "bytes": 1627,
+      "sha256": "5b1dfa2f2a4826a4170cfc7ed2a71f7b420c2f24592ac8e664ebde567b7114f6"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-group4-fault-01.json",
+      "bytes": 4058,
+      "sha256": "020614e136940dfb8daabb9798fd1d8dc2f73d0c5bd0407d9947e8d616e3c889"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-group4-fault-01.markers.txt",
+      "bytes": 163,
+      "sha256": "c6081658b83e19be4ad59182c7e4b8db42c56c2d29785832181106f982716d51"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group0-01.json",
+      "bytes": 4391,
+      "sha256": "d37e2e528cdd0ada5e853a19d2abd28823cf168563c474c18d7d2e45c92a0a25"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group0-01.markers.txt",
+      "bytes": 378,
+      "sha256": "826390a6299504502e75beb983d52c8b17363c614cce1df5861fd0d1db219bef"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group1-01.json",
+      "bytes": 4392,
+      "sha256": "534f089693f31d622acfa5a20f9ee72750f509883c38a9afbdddc9cf45dbcb81"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group1-01.markers.txt",
+      "bytes": 378,
+      "sha256": "32dfd1461c15e6b43c80343e18b6fcca0c2fec0c5219dc6d81eec5dee232517a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group2-01.json",
+      "bytes": 4392,
+      "sha256": "b53c7d49c55cb1a0eee2caecda5bfa7e3cfe4613f8ff34726b94e75ff72542a2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group2-01.markers.txt",
+      "bytes": 378,
+      "sha256": "7a3b09e0c8db62f03e9619e4341eb30540b36f3f3583b385a662d1da8026b927"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group3-01.json",
+      "bytes": 4392,
+      "sha256": "a205a859072fbc2eb45b91dcb44d526ea82ac78970a1c07490e72d4cf486a5d7"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-32-group3-01.markers.txt",
+      "bytes": 378,
+      "sha256": "02a562766c3956807ec88b58bc75aa62b6d2dddce667acb81a99e1e92f358686"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group0-01.json",
+      "bytes": 4392,
+      "sha256": "c5f438ee681d517dfe0e15219492166896ed149069f2c61a8b1853c1f1b23d85"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group0-01.markers.txt",
+      "bytes": 378,
+      "sha256": "8024e46d713f72a26253f017a12f513a22a3d1901991b8535fe85ad2695b5c79"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group1-01.json",
+      "bytes": 4391,
+      "sha256": "012552881b80fdf24b0fc0084e248eb6f3a626891b81d855fcac30909020e4e9"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group1-01.markers.txt",
+      "bytes": 378,
+      "sha256": "417d394d5831972ef043ab8efc34ce025b5967f899740381e3d6e4fa42671dc3"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group2-01.json",
+      "bytes": 4392,
+      "sha256": "be5a81cd2a4438b2d0d773f29c5009d3052a79d04865b100683936b563a9185b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group2-01.markers.txt",
+      "bytes": 378,
+      "sha256": "46a66736e18f17085a4ec1e216ada56aa87a5c7d793fe320832e24ea786ad3c2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group3-01.json",
+      "bytes": 4392,
+      "sha256": "54b4e451fbcb3d0963c42a9000e3fd2ef1a9cd781147daab54ee47bf85b7fb39"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-inline-64-group3-01.markers.txt",
+      "bytes": 378,
+      "sha256": "1858f11035df6433d31eca5dd0d196c3fccd3daf9edbcf144f4af7125c4b408d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-inline-32-01.json",
+      "bytes": 4834,
+      "sha256": "77b3e8f7ae6da3c35a31cf183ed5946ca8207d103d5c17040adf9e99e5c8939f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-inline-32-01.markers.txt",
+      "bytes": 378,
+      "sha256": "95e553f6d8a108200d045005c81b58984b9e601920aa27ab62d66d738e4bf533"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-inline-64-01.json",
+      "bytes": 4834,
+      "sha256": "1afaa3ec72375675cb4b0565f9180d4a4a5c193aa22ea2920fa63c65b5344680"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-inline-64-01.markers.txt",
+      "bytes": 378,
+      "sha256": "6d73af754fd6cdaefd09a55a4032ca94aaef242b7eb6e2dcde53695570d4967f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-parameter-32-01.json",
+      "bytes": 6839,
+      "sha256": "a8743b616eece8f3634d3d587376491822c34263f1ce691adf33e9db6011342d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-parameter-32-01.markers.txt",
+      "bytes": 965,
+      "sha256": "5de722f0a8edcf129ea17a748eca655e1c9e13b0420e064e64eca2751f55ac5c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-parameter-64-01.json",
+      "bytes": 6839,
+      "sha256": "3d0d3ea0fa51dac9f94d469f9c9fe30144ff0dbdcd83fe4a732f0e4d543f45be"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-parameter-64-01.markers.txt",
+      "bytes": 965,
+      "sha256": "abe1c1d9a484115cee1348baf4466f3d16c7e43b89690d9e0f244a2591faf2a9"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-synthetic-32-01.json",
+      "bytes": 4169,
+      "sha256": "ac93716a48f5e2833e31486a31a127bec9027c54c309235457277bf7f5f50e77"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-synthetic-32-01.markers.txt",
+      "bytes": 181,
+      "sha256": "be2e02f5c86d9885d4dca177d472563fcf0b5ca6fb0755544b398dc3d9bbd04c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-synthetic-64-01.json",
+      "bytes": 4169,
+      "sha256": "1bfd609f06aaa9eff012611eaedd09b70ebc3b30e2f282a3f81b4789f1ba5316"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-installed-synthetic-64-01.markers.txt",
+      "bytes": 181,
+      "sha256": "deed50b6f276b476da642beffabbbf85aba311e988e3488594af4d99634fa9f6"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-invert-fault-01.json",
+      "bytes": 4064,
+      "sha256": "c8a196e551bd0b8da87916b9d7660e26d80e45c9fe1c847694ed63a7984bf2ac"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-invert-fault-01.markers.txt",
+      "bytes": 135,
+      "sha256": "af669484a089d7058d6f3d0b7cf59d1a33a9cefe21e68535b11927ac57227f3c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group0-01.json",
+      "bytes": 6397,
+      "sha256": "4fc9e9f6a2b034d13dac159a4e3df4b8b632326d7a37f38628281af1d76cb726"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group0-01.markers.txt",
+      "bytes": 965,
+      "sha256": "b6b71601343520bd5f0c3b0a3bd20aa53aeba7316fe0e824101f680a1bd368bf"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group1-01.json",
+      "bytes": 6618,
+      "sha256": "6a289f2de13a25ea7e9e6bbbee3f5d91c59650827c0e7c6b4d4004fc9ada4be4"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group1-01.markers.txt",
+      "bytes": 1031,
+      "sha256": "510fa6b0b7778b631e2203e948478fdc5111eb34351170bb4cd58eb369877d0d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group2-01.json",
+      "bytes": 6618,
+      "sha256": "bdfc08d6d611471e3ba7a27927a81210ebce234c3cf9f9c1cdabd38df4a06633"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group2-01.markers.txt",
+      "bytes": 1031,
+      "sha256": "9bbfb866679397e144cf6d52cf9c3ee0e39adff64cc9b1c6fe76b1d2de52ea01"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group3-01.json",
+      "bytes": 6396,
+      "sha256": "f4c1bafa2c1d06f05fa132cc2d894728c413c453a1f58ef0f56bb10f333675d5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-32-group3-01.markers.txt",
+      "bytes": 965,
+      "sha256": "8611be172a08f38ce06f9c25d3f97052db2f562da6898b27573359c409fbc71a"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group0-01.json",
+      "bytes": 6397,
+      "sha256": "ef0cdc1a49df68328e96ed97c8ee3b7a5fc38e32d445662921c6114c81639e46"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group0-01.markers.txt",
+      "bytes": 965,
+      "sha256": "913de49ffaab2047d2aa65528f9dc15d34f069417072e8973766990ca9a18881"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group1-01.json",
+      "bytes": 6618,
+      "sha256": "77bcc074e0eaaf262599a30deab4bb84913c708bbc08cdcb53aa88be8d1bea8f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group1-01.markers.txt",
+      "bytes": 1031,
+      "sha256": "de56139df2b1f9b56bc12f3a4875277a019a1a3033044331ee75159eb4044025"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group2-01.json",
+      "bytes": 6618,
+      "sha256": "967fb4727b507d5f4efebb7a2626c0c196108bcbeb6a2c88759633bd0c9ee888"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group2-01.markers.txt",
+      "bytes": 1031,
+      "sha256": "6373d842e510f4d34374d2e3a93ad6183b01cd4dd9ec1db3c9ba63a8935b38a2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group3-01.json",
+      "bytes": 6397,
+      "sha256": "aa13b9682ad9ad1c3582195635a75624a0ab53501a97c68fb530ca6b55603c7f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-parameter-64-group3-01.markers.txt",
+      "bytes": 965,
+      "sha256": "caffff03b9e6fb224c33c47d502cfbdd3791e32b89dc704b00c8241150371266"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-synthetic-32-02.json",
+      "bytes": 3727,
+      "sha256": "1d3d99db0fbcca60189836a0c21d23d1805102471be7ec97f61cb3d6a7a5d51d"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-synthetic-32-02.markers.txt",
+      "bytes": 181,
+      "sha256": "4a59c37614ae380fc41d4e8b1d7cf3436df6ba8a8fce81e4834a77bcb6a54985"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-synthetic-64-02.json",
+      "bytes": 3727,
+      "sha256": "8d9929840845bd95eb75649400eafaf393ae4ac680312a2c7535815b5bcf6984"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/receipts/r-target-bind-synthetic-64-02.markers.txt",
+      "bytes": 181,
+      "sha256": "2985e8b93cf833e457037d6f8d6478a36841607f5fc828f54f384d7721aa2ff3"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/reference-provenance.json",
+      "bytes": 683,
+      "sha256": "244e6378c50becb56ae52630f480821ce018b0073e8eff13ee7d33bc4e5c11d0"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/root-audit.json",
+      "bytes": 765,
+      "sha256": "44821e8a15cdc06970f5b2836707afe34527e007b5859c22c081d5a261f2b3ff"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/root-source-integrity.json",
+      "bytes": 2264,
+      "sha256": "5210e0ef8c1f593cdb0dda9695d129e13998ab9632d16115405fe6f3eb9dc896"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/skill-increment.md",
+      "bytes": 1602,
+      "sha256": "934fbf7b66ab50b87e0d2697e51e747aa27902f1ed78605d8d4cb542858b35eb"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/source-runtime-summary.json",
+      "bytes": 3805,
+      "sha256": "55b564ae6ff9437930651b3fe5ef6aadf1997479e4d04177c622d7983733faa9"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/synthetic-manifest.json",
+      "bytes": 3231,
+      "sha256": "4f5026976097b368fec4c15571c997b4eb3b8a7af0ad02ec2ea7b99920f73c6f"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/verification-audit.json",
+      "bytes": 5870,
+      "sha256": "8d874ff4d09d00580e5b52903f4824085c13661695ab2d0fa64e7dde17c65ab8"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/verify-bind-faults.txt",
+      "bytes": 4553,
+      "sha256": "c10d2c2f9d1504cb979f52ed48d285d8d6b92f309ef1334dd9712ce58206376b"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/verify-bind-runtime.txt",
+      "bytes": 4025,
+      "sha256": "d52f36e23bf5d1c49cc3af10bb9f9cd006484f399839f453d11700d7a1151283"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/verify-bind-synthetic.txt",
+      "bytes": 6026,
+      "sha256": "74c71414236a1f75d2a228f7a3cf7ea2797f51d85683b3f690efc378a9603a36"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式解析与重定位证据_20261015/verify-source-bind-vectors.txt",
+      "bytes": 6809,
+      "sha256": "fbeb788209585fdbd78f6f851b7da6080b77b6e971f71fc688b9b721adc9aca6"
+    },
+    {
+      "path": "工程记录/2026-10-15_对于R版TJS表达式解析与重定位的修改.md",
+      "bytes": 6981,
+      "sha256": "4b81545a3d24cffef05dcd3d10bb7645f4c2d5a27bada7e7526baf13d8cab6a7"
+    }
+  ]
+}

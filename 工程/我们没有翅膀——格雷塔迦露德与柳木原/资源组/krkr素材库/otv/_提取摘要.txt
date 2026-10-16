@@ -1,0 +1,46 @@
+# otv UI/系统素材 提取摘要
+# 生成: 2026-09-18 23:35:36
+# 源: E:\ZCode Workspace\Galgame\工程\我们没有翅膀PSV\解密\PCSG00299\media
+# 映射文件: E:/ZCode Workspace/Galgame/子代理工作区/ISSUE-20260918-06/W3/content_notes.json
+
+archive          outdir      entries     ok   fail      out_bytes
+SystemData.cpk   otv/sys         182    182      0       55453860
+ETC.cpk          otv/etc         124    124      0       12079834
+TOTAL            otv/            306    306      0       67533694
+
+失败项: 0
+
+总耗时: 0.47 s
+
+====================================================================
+# [W4b] PSV 美咲线素材补充归集摘要（追加）
+# 生成: 2026-09-19 03:03:09
+# 源（只读）: E:\ZCode Workspace\Galgame\工程\我们没有翅膀PSV\素材\美咲线
+# 说明: 原 W3 仅归集 UI/系统素材 306（SystemData.cpk 182 + ETC.cpk 124）。
+#       本段补归集 D7 裁决采用的 PSV 美咲线素材；脚本 collect_psv_route_assets.py
+#       （可复跑、可审计）。script\ 33 个文件属脚本，不属素材库，未归集。
+
+来源子目录                        计划       新增           新增字节
+----------------------------------------------------------
+images/chr -> chr           253      253       53914007
+images/cg -> pic            108      108       88004846
+images/eyecatch -> pic       11       11        3445356
+audio/voice -> voice       1737     1737       39663176
+audio/bgm -> bgm             28       28       45146038
+audio/se -> se               72       72        3409506
+video -> movie                2        2       44533741
+----------------------------------------------------------
+合计                            -     2211      278116670
+
+etc 专项（与既有 ETC.cpk 产物同名比对）：
+  black.png      -> etc/otv_black.png      已存在=True 逐字节相同=True（不重复归集/登记）
+  RULE000.PNG    -> etc/otv_rule000.png    已存在=True 逐字节相同=True（不重复归集/登记）
+  white.png      -> etc/otv_white.png      已存在=True 逐字节相同=True（不重复归集/登记）
+
+同名去重：pic/otv_ec28.png <= E:\ZCode Workspace\Galgame\工程\我们没有翅膀PSV\素材\美咲线\images/cg\EC28.png
+同名不同内容冲突：0 
+清单：原 306 条 + 新增 2211 条 = 2517 条（保序合并，原条目不丢）
+磁盘文件：2517（== 清单条数 True）
+命名不合规：0；零字节：0；字节保真不符：0
+总耗时 17.4 秒
+====================================================================

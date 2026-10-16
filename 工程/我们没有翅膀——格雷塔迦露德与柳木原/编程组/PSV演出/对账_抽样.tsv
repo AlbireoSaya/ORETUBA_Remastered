@@ -1,0 +1,453 @@
+scene_id	seq	task	type	op	name	delivery	params	raw_line
+ot_s01_01a	3	100	SceneJumpDialog	control			x=,y=,p=,t=,rule=	
+ot_s01_01a	3	110	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_01a	3	120	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_01a	3	130	SpriteBG	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_01a	3	140	SceneJumpDialogEnd	control			x=,y=,p=,t=,rule=	
+ot_s01_01a	3	150	FadeOut	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_01a	3	160	Sprite	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_01a	3	170	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_01a	3	180	Sprite	bg	EF05A	CG背景/ef05a.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	546	// EF05A	//	置換しました<<ef05a>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_01a	3	190	EffectStart	effect			x=,y=,p=9,t=,rule=	:Priority		9
+ot_s01_01a	3	200	SpriteDelete	bg_remove	BG_BLACK	CG背景/bg_black.jpg	x=,y=,p=,t=120,rule=	:SpriteNumber	0	// BG_BLACK	//	置換しました<<bg_black>> | :Time			120
+ot_s01_01a	3	210	BgmPlay	bgm	BGM52	bgm/ot_bgm52.ogg	x=,y=,p=,t=,rule=	:BGM	52		// bgm 53
+ot_s01_01a	54	740	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_01a	54	750	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_01a	54	760	FadeOut	effect			x=,y=,p=,t=72,rule=	:Time	72
+ot_s01_01a	54	770	EffectEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_01a	54	780	Sprite	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	1	// BG_BLACK	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_01a	54	790	FadeIn	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_01a	54	800	TimeWait	wait			x=,y=,p=,t=30,rule=	:Time		30
+ot_s01_01a	54	810	NextScene	control			x=,y=,p=,t=,rule=	
+ot_s01_01a	54	820	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_01a	54	830	NextScene	control			x=,y=,p=,t=,rule=	
+ot_s01_01a	54	840	End	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	100	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	110	SceneJumpDialog	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	120	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	130	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	140	SpriteBG	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02a	3	150	SceneJumpDialogEnd	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	160	FadeOut	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_02a	3	170	Sprite	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=2,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	2		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02a	3	180	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_02a	3	190	EyeCatch	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	200	TimeWait	wait			x=,y=,p=,t=60,rule=	:Time	60
+ot_s01_02a	3	210	EyeCatchEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	3	220	TimeWait	wait			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	4	240	SePlay	se	SE049	se/ot_se049.ogg	x=,y=,p=,t=,rule=	:SE 687		// SE049	//	置換しました<<se049l>>
+ot_s01_02a	5	260	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_02a	5	270	Flash	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	5	280	SpriteBG	bg	EF01	CG背景/ef01.jpg	x=640,y=360,p=10,t=12,rule=35	:Texture	533	// EF01	//	置換しました<<ef01>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		12		// フェード時間(1s = 60fps) | :Rule		35		// 0=Simple 1=RULE000...
+ot_s01_02a	5	290	SePlay	se	SE051	se/ot_se051.ogg	x=,y=,p=,t=,rule=	:SE 72		// SE051	//	置換しました<<se051>>
+ot_s01_02a	5	300	TimeWait	wait			x=,y=,p=,t=6,rule=	:Time	6
+ot_s01_02a	5	310	SpriteBG	bg	BLD21	CG背景/bld21.jpg	x=640,y=360,p=10,t=6,rule=	:Texture	505	// BLD21	//	置換しました<<bld21>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		6		// フェード時間(1s = 60fps)
+ot_s01_02a	5	320	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	5	330	SpriteMove	bg_move	BLD21	CG背景/bld21.jpg	x=640,y=240,p=,t=12,rule=	:SpriteNumber	505	//	置換しました<<bld21>> | :Position	640,240,0,1 | :Time		12
+ot_s01_02a	5	340	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	5	350	SePlay	se	SE050	se/ot_se050.ogg	x=,y=,p=,t=,rule=	:SE 71		// SE050	//	置換しました<<se050>>
+ot_s01_02a	5	360	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	5	370	TimeWait	wait			x=,y=,p=,t=24,rule=	:Time	24
+ot_s01_02a	5	380	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	5	390	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	5	400	SpriteBG	bg	EF02	CG背景/ef02.jpg	x=640,y=360,p=10,t=6,rule=100	:Texture	539	// EF02	//	置換しました<<ef02_c>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		6		// フェード時間(1s = 60fps) | :Rule		100		// 0=Simple 1=RULE000...
+ot_s01_02a	5	410	SePlay	se	SE052	se/ot_se052.ogg	x=,y=,p=,t=,rule=	:SE 73		// SE052	//	置換しました<<se052>>
+ot_s01_02a	5	420	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	5	430	SpriteBG	bg	BLD31	CG背景/bld31.jpg	x=640,y=360,p=10,t=6,rule=	:Texture	513	// BLD31	//	置換しました<<bld31>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		6		// フェード時間(1s = 60fps)
+ot_s01_02a	5	440	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	5	450	SpriteMove	bg_move	BLD31	CG背景/bld31.jpg	x=640,y=480,p=,t=12,rule=	:SpriteNumber	513	//	置換しました<<bld31>> | :Position	640,480,0,1 | :Time		12
+ot_s01_02a	5	460	SePlay	se	SE052	se/ot_se052.ogg	x=,y=,p=,t=,rule=	:SE 73		// SE052	//	置換しました<<se052>>
+ot_s01_02a	5	470	SpriteMoveEnd	bg_move_end	BLD31	CG背景/bld31.jpg	x=,y=,p=,t=,rule=	
+ot_s01_02a	5	480	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	5	490	SpriteBG	bg	BLD30	CG背景/bld30.jpg	x=640,y=360,p=10,t=30,rule=	:Texture	509	// BLD30	//	置換しました<<bld30>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps)
+ot_s01_02a	5	500	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	5	510	FadeOut	effect			x=,y=,p=,t=60,rule=	:Time	60
+ot_s01_02a	5	520	Sprite	bg	BG_WHITE	CG背景/bg_white.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	1	// BG_WHITE	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02a	5	530	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_02a	5	540	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	5	550	Sprite	bg	BG41F	CG背景/bg41f.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	934	// BG41F	//	置換しました<<bg41f>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02a	5	560	EffectStart	effect			x=,y=,p=4,t=,rule=	:Priority		4
+ot_s01_02a	5	570	SpriteDelete	bg_remove	BG_WHITE	CG背景/bg_white.jpg	x=,y=,p=,t=48,rule=	:SpriteNumber	1	// BG_WHITE	//	置換しました<<bg_white>> | :Time			48
+ot_s01_02a	5	580	BgmPlay	bgm	BGM4		x=,y=,p=,t=,rule=	:BGM  4		// bgm 5
+ot_s01_02a	8	620	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	8	630	EffectStart	effect			x=,y=,p=4,t=,rule=	:Priority		4
+ot_s01_02a	11	670	EffectStart	effect			x=,y=,p=4,t=,rule=	:Priority		4
+ot_s01_02a	14	710	EffectStart	effect			x=,y=,p=4,t=,rule=	:Priority		4
+ot_s01_02a	17	750	EffectStart	effect			x=,y=,p=4,t=,rule=	:Priority		4
+ot_s01_02a	20	790	EffectEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	30	900	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	30	910	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	30	920	SePlay	se	SE001	se/ot_se001.ogg	x=,y=,p=,t=,rule=	:SE 0		// SE001	//	置換しました<<se001>>
+ot_s01_02a	31	940	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	33	970	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置 | :Priority	9		// [前] 0 <-> 10 [後]
+ot_s01_02a	34	990	BgmPlay	bgm	BGM0		x=,y=,p=,t=,rule=	:BGM  0		// bgm 1
+ot_s01_02a	37	1030	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	39	1060	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	43	1110	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	46	1150	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	50	1200	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	51	1220	SePlay	se	SE666	se/ot_se666.ogg	x=,y=,p=,t=,rule=	:SE 423		// SE666	//	置換しました<<se666>>
+ot_s01_02a	52	1240	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	52	1250	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	53	1270	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	57	1320	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	60	1360	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	61	1380	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	62	1400	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	64	1430	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	64	1440	CharacterAction	chr_expr	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ	//	置換しました<<st_kaz01b>>
+ot_s01_02a	65	1460	CharacterActionEnd	chr_expr_end	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	
+ot_s01_02a	68	1500	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	640,0		// 位置
+ot_s01_02a	70	1530	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	73	1570	CharacterDelete	chr_remove			x=,y=,p=,t=,rule=	
+ot_s01_02a	74	1590	SePlay	se	SE324	se/ot_se324.ogg	x=,y=,p=,t=,rule=	:SE 275		// SE324	//	置換しました<<se324>>
+ot_s01_02a	76	1620	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_02a	76	1630	EyeCatch	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	76	1640	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	76	1650	SpriteDelete	bg_remove	BG41D	CG背景/bg41d.jpg	x=,y=,p=,t=0,rule=	:SpriteNumber	197	//	置換しました<<bg41d>> | :Time			0
+ot_s01_02a	76	1660	Sprite	bg	EF01	CG背景/ef01.jpg	x=640,y=360,p=10,t=0,rule=0	:Texture	201	// EF01	//	置換しました<<bg43>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps) | :Rule		0		// 0=Simple 1=RULE000...
+ot_s01_02a	76	1670	SePlay	se	SE809	se/ot_se809.ogg	x=,y=,p=,t=,rule=	:SE 600		// SE809	//	置換しました<<se809>>
+ot_s01_02a	76	1680	EyeCatchEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	77	1700	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	83	1770	CharacterOpen	chr_add	CIN027	CG背景/cin027.png	x=,y=,p=,t=,rule=	:Number		300,13,0,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_cin027>> | :Position	1500,0		// 位置
+ot_s01_02a	83	1780	CharacterMove	chr_move	CIN027	CG背景/cin027.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		300,13,0,0,0	//	置換しました<<st_cin027>> | :Position	640,0,0,0		// 位置
+ot_s01_02a	83	1790	SePlay	se	SE623	se/ot_se623.ogg	x=,y=,p=,t=,rule=	:SE 367		// SE623	//	置換しました<<se623>>
+ot_s01_02a	84	1810	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02a	84	1820	CharacterMove	chr_move	CIN027	CG背景/cin027.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		300,13,0,0,0	//	置換しました<<st_cin027>> | :Position	-220,0,0,0		// 位置
+ot_s01_02a	85	1840	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02a	91	1910	SpriteBG	bg	BG_WHITE	CG背景/bg_white.jpg	x=640,y=360,p=2,t=30,rule=41	:Texture	1	// BG_WHITE	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	2		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps) | :Rule		41		// 0=Simple 1=RULE000...
+ot_s01_02a	91	1920	SpriteBG	bg	BG42D	CG背景/bg42d.jpg	x=640,y=360,p=10,t=30,rule=41	:Texture	200	// BG42D	//	置換しました<<bg42c>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps) | :Rule		41		// 0=Simple 1=RULE000...
+ot_s01_02a	95	1970	SpriteBG	bg	BG_WHITE	CG背景/bg_white.jpg	x=640,y=360,p=2,t=30,rule=40	:Texture	1	// BG_WHITE	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	2		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps) | :Rule		40		// 0=Simple 1=RULE000...
+ot_s01_02a	95	1980	SpriteBG	bg	BG43	CG背景/bg43.jpg	x=640,y=360,p=10,t=30,rule=40	:Texture	201	// BG43	//	置換しました<<bg43>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps) | :Rule		40		// 0=Simple 1=RULE000...
+ot_s01_02a	95	1990	CharacterOpen	chr_add	CIN027	CG背景/cin027.png	x=,y=,p=,t=,rule=	:Number		300,13,0,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_cin027>> | :Position	-220,0		// 位置
+ot_s01_02a	95	2000	CharacterMove	chr_move	CIN027	CG背景/cin027.png	x=,y=,p=,t=20,rule=	:Time		20 | :Number		300,13,0,0,0	//	置換しました<<st_cin027>> | :Position	640,0,0,0		// 位置
+ot_s01_02a	96	2020	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02a	97	2040	SePlay	se	SE623	se/ot_se623.ogg	x=,y=,p=,t=,rule=	:SE 367		// SE623	//	置換しました<<se623>>
+ot_s01_02a	107	2150	SePlay	se	SE623	se/ot_se623.ogg	x=,y=,p=,t=,rule=	:SE 367		// SE623	//	置換しました<<se623>>
+ot_s01_02a	114	2230	SePlay	se	SE623	se/ot_se623.ogg	x=,y=,p=,t=,rule=	:SE 367		// SE623	//	置換しました<<se623>>
+ot_s01_02a	115	2250	CharacterMove	chr_move	CIN027	CG背景/cin027.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		300,13,0,0,0	//	置換しました<<st_cin027>> | :Position	1500,0,0,0		// 位置
+ot_s01_02a	116	2270	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02a	121	2330	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	121	2340	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_02a	121	2350	EyeCatch	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	121	2360	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	121	2370	BgmPlay	bgm	BGM4		x=,y=,p=,t=,rule=	:BGM  4		// bgm 5
+ot_s01_02a	121	2380	SePlay	se	SE809	se/ot_se809.ogg	x=,y=,p=,t=,rule=	:SE 600		// SE809	//	置換しました<<se809>>
+ot_s01_02a	121	2390	SpriteBG	bg	BG41F	CG背景/bg41f.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	934	// BG41F	//	置換しました<<bg41f>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02a	121	2400	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	121	2410	EyeCatchEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	122	2430	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	125	2470	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	128	2510	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	129	2530	CharacterDelete	chr_remove			x=,y=,p=,t=,rule=	
+ot_s01_02a	132	2570	CharacterOpen	chr_add	KAZ01G	立绘/kaz01g.png	x=,y=,p=,t=,rule=	:Number		200,0,1,7,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01g>> | :Position	640,0		// 位置
+ot_s01_02a	134	2600	SePlay	se	SE620	se/ot_se620.ogg	x=,y=,p=,t=,rule=	:SE 363		// SE620	//	置換しました<<se620>>
+ot_s01_02a	135	2620	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	137	2650	CharacterOpen	chr_add	KAZ01D	立绘/kaz01d.png	x=,y=,p=,t=,rule=	:Number		200,0,1,4,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01d>> | :Position	640,0		// 位置
+ot_s01_02a	139	2680	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	141	2710	SePlay	se	SE309	se/ot_se309.ogg	x=,y=,p=,t=,rule=	:SE 258		// SE309	//	置換しました<<se309>>
+ot_s01_02a	145	2760	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	146	2780	CharacterOpen	chr_add	KAZ01G	立绘/kaz01g.png	x=,y=,p=,t=,rule=	:Number		200,0,1,7,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01g>> | :Position	640,0		// 位置
+ot_s01_02a	148	2810	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	152	2860	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	156	2910	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	156	2920	CharacterAction	chr_expr	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ	//	置換しました<<st_kaz01b>>
+ot_s01_02a	156	2930	SePlay	se	SE105	se/ot_se105.ogg	x=,y=,p=,t=,rule=	:SE 110		// SE105	//	置換しました<<se105>>
+ot_s01_02a	158	2960	CharacterActionEnd	chr_expr_end	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	
+ot_s01_02a	161	3000	SePlay	se	SE620	se/ot_se620.ogg	x=,y=,p=,t=,rule=	:SE 363		// SE620	//	置換しました<<se620>>
+ot_s01_02a	163	3030	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	168	3090	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	174	3160	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	176	3190	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	180	3240	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	184	3290	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	191	3370	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	196	3430	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	200	3480	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	207	3560	CharacterOpen	chr_add	KAZ01G	立绘/kaz01g.png	x=,y=,p=,t=,rule=	:Number		200,0,1,7,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01g>> | :Position	640,0		// 位置
+ot_s01_02a	209	3590	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	211	3620	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	217	3690	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	640,0		// 位置
+ot_s01_02a	217	3710	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	218	3730	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	219	3750	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	222	3790	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	224	3820	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	225	3840	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	228	3880	CharacterOpen	chr_add	KAZ01C	立绘/kaz01c.png	x=,y=,p=,t=,rule=	:Number		200,0,1,3,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01c>> | :Position	640,0		// 位置
+ot_s01_02a	228	3890	CharacterAction	chr_expr	KAZ01C	立绘/kaz01c.png	x=,y=,p=,t=,rule=	:Number		200,0,1,3,0	// キャラ	//	置換しました<<st_kaz01c>>
+ot_s01_02a	229	3910	CharacterActionEnd	chr_expr_end	KAZ01C	立绘/kaz01c.png	x=,y=,p=,t=,rule=	
+ot_s01_02a	229	3920	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	640,0		// 位置
+ot_s01_02a	232	3960	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	232	3970	BgmPlay	bgm	BGM7		x=,y=,p=,t=,rule=	:BGM  7		// bgm 8
+ot_s01_02a	234	4000	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	238	4050	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	240	4080	CharacterOpen	chr_add	KAZ01I	立绘/kaz01i.png	x=,y=,p=,t=,rule=	:Number		200,0,1,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01i>> | :Position	640,0		// 位置
+ot_s01_02a	243	4120	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	246	4160	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	248	4190	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	252	4240	CharacterOpen	chr_add	KAZ01G	立绘/kaz01g.png	x=,y=,p=,t=,rule=	:Number		200,0,1,7,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01g>> | :Position	640,0		// 位置
+ot_s01_02a	258	4310	CharacterOpen	chr_add	KAZ01	立绘/kaz01.png	x=,y=,p=,t=,rule=	:Number		200,0,1,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01>> | :Position	640,0		// 位置
+ot_s01_02a	262	4360	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	267	4420	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	267	4430	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置
+ot_s01_02a	268	4450	SePlay	se	SE815	se/ot_se815.ogg	x=,y=,p=,t=,rule=	:SE 608		// SE815	//	置換しました<<se815>>
+ot_s01_02a	269	4470	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_02a	269	4480	SpriteBG	bg	BG_WHITE	CG背景/bg_white.jpg	x=640,y=360,p=2,t=18,rule=49	:Texture	1	// BG_WHITE	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	2		// [前] 0 <-> 10 [後] | :Time		18		// フェード時間(1s = 60fps) | :Rule		49		// 0=Simple 1=RULE000...
+ot_s01_02a	269	4490	SpriteBG	bg	ASU01	CG背景/cg_asu01.jpg	x=640,y=480,p=5,t=30,rule=49	:Texture	588	// ASU01	//	置換しました<<asu01>> | :Position	640,480 | :Priority	5		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps) | :Rule		49		// 0=Simple 1=RULE000...
+ot_s01_02a	269	4500	BgmPlay	bgm	BGM8		x=,y=,p=,t=,rule=	:BGM  8		// bgm 9
+ot_s01_02a	271	4530	SpriteBG	bg	ASU01A	CG背景/cg_asu01a.jpg	x=640,y=480,p=5,t=30,rule=	:Texture	589	// ASU01A	//	置換しました<<asu01a>> | :Position	640,480 | :Priority	5		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps)
+ot_s01_02a	280	4630	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	280	4640	SpriteBS	bg	BG41F	CG背景/bg41f.jpg	x=640,y=360,p=10,t=,rule=	:Texture	934	// BG41F	//	置換しました<<bg41f>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後]
+ot_s01_02a	280	4650	CharacterOpenBS	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	640,0		// 位置 | :Priority	9
+ot_s01_02a	280	4660	InOut	effect			x=,y=,p=,t=30,rule=	:Time		30
+ot_s01_02a	280	4670	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	281	4690	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	281	4700	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	283	4730	BgmPlay	bgm	BGM6		x=,y=,p=,t=,rule=	:BGM  6		// bgm 7
+ot_s01_02a	290	4810	CharacterDelete	chr_remove			x=,y=,p=,t=,rule=	
+ot_s01_02a	290	4820	CharacterOpen	chr_add	ASU08	立绘/asu08.png	x=,y=,p=,t=,rule=	:Number		0,0,8,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08>> | :Position	640,0		// 位置
+ot_s01_02a	298	4910	CharacterOpen	chr_add	ASU08D	立绘/asu08d.png	x=,y=,p=,t=,rule=	:Number		0,0,8,4,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08d>> | :Position	640,0		// 位置
+ot_s01_02a	300	4940	CharacterMove	chr_move	ASU08	立绘/asu08.png	x=,y=,p=,t=30,rule=	:Time		30 | :Number		0,0,8,0,0	//	置換しました<<st_asu08>> | :Position	944,0,0,0		// 位置
+ot_s01_02a	300	4950	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	336,0		// 位置
+ot_s01_02a	300	4960	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	301	4980	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	302	5000	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	336,0		// 位置
+ot_s01_02a	307	5060	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	336,0		// 位置
+ot_s01_02a	309	5090	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	336,0		// 位置
+ot_s01_02a	310	5110	CharacterOpen	chr_add	ASU08I	立绘/asu08i.png	x=,y=,p=,t=,rule=	:Number		0,0,8,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08i>> | :Position	944,0		// 位置
+ot_s01_02a	315	5170	CharacterOpen	chr_add	KAZ01B	立绘/kaz01b.png	x=,y=,p=,t=,rule=	:Number		200,0,1,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01b>> | :Position	336,0		// 位置
+ot_s01_02a	318	5210	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	336,0		// 位置
+ot_s01_02a	319	5230	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	319	5240	BgmPlay	bgm	BGM9		x=,y=,p=,t=,rule=	:BGM  9		// bgm 10
+ot_s01_02a	321	5270	EffectStart	effect			x=,y=,p=1,t=,rule=	:Priority		1
+ot_s01_02a	322	5290	EffectEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	323	5310	CharacterOpen	chr_add	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	:Number		200,0,1,8,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01h>> | :Position	336,0		// 位置
+ot_s01_02a	324	5330	CharacterDelete	chr_remove	ASU08I	立绘/asu08i.png	x=,y=,p=,t=,rule=	:Number		0,0,8,9,0	//	置換しました<<st_asu08i>>
+ot_s01_02a	324	5340	CharacterMove	chr_move	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=30,rule=	:Time		30 | :Number		200,0,1,8,0	//	置換しました<<st_kaz01h>> | :Position	640,0,0,0		// 位置
+ot_s01_02a	325	5360	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02a	325	5370	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	640,0		// 位置
+ot_s01_02a	326	5390	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	640,0		// 位置
+ot_s01_02a	327	5410	SePlay	se	SE131	se/ot_se131.ogg	x=,y=,p=,t=,rule=	:SE 141		// SE131	//	置換しました<<se131>>
+ot_s01_02a	328	5430	Flash	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	328	5440	CharacterOpen	chr_add	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	:Number		200,0,1,8,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01h>> | :Position	640,0		// 位置
+ot_s01_02a	328	5450	SpriteQuake	effect	BG41D	CG背景/bg41d.jpg	x=,y=,p=,t=30,rule=	:Texture	197	//	置換しました<<bg41d>> | :Time	30
+ot_s01_02a	328	5480	CharacterAction	chr_expr	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	:Number		200,0,1,8,0	// キャラ	//	置換しました<<st_kaz01h>>
+ot_s01_02a	329	5500	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	329	5510	CharacterActionEnd	chr_expr_end	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	
+ot_s01_02a	330	5530	SePlay	se	SE207	se/ot_se207.ogg	x=,y=,p=,t=,rule=	:SE 191		// SE207	//	置換しました<<se207>>
+ot_s01_02a	330	5540	Flash	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	330	5550	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	640,0		// 位置
+ot_s01_02a	330	5560	CharacterMove	chr_move	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		200,0,1,6,0	//	置換しました<<st_kaz01f>> | :Position	490,150,0,0		// 位置
+ot_s01_02a	332	5590	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	333	5610	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02a	333	5620	CharacterOpen	chr_add	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	:Number		200,0,1,8,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01h>> | :Position	490,150		// 位置
+ot_s01_02a	333	5670	CharacterAction	chr_expr	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	:Number		200,0,1,8,0	// キャラ	//	置換しました<<st_kaz01h>>
+ot_s01_02a	334	5690	CharacterActionEnd	chr_expr_end	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	
+ot_s01_02a	336	5720	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	640,0		// 位置
+ot_s01_02a	336	5740	CharacterAction	chr_expr	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ	//	置換しました<<st_kaz01f>>
+ot_s01_02a	336	5750	SpriteQuake	effect	BG41D	CG背景/bg41d.jpg	x=,y=,p=,t=30,rule=	:Texture	197	//	置換しました<<bg41d>> | :Time	30
+ot_s01_02a	337	5770	CharacterActionEnd	chr_expr_end	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	
+ot_s01_02a	337	5780	SpriteQuake	effect	BG41D	CG背景/bg41d.jpg	x=,y=,p=,t=0,rule=	:Texture	197	//	置換しました<<bg41d>> | :Time		0
+ot_s01_02a	340	5820	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	342	5850	CharacterDelete	chr_remove			x=,y=,p=,t=,rule=	
+ot_s01_02a	342	5860	TimeWait	wait			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	342	5870	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	342	5880	SePlay	se	SE014	se/ot_se014.ogg	x=,y=,p=,t=,rule=	:SE 25		// SE014	//	置換しました<<se014>>
+ot_s01_02a	343	5900	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	343	5910	CharacterDelete	chr_remove			x=,y=,p=,t=,rule=	
+ot_s01_02a	343	5920	CharacterOpen	chr_add	ASU08A	立绘/asu08a.png	x=,y=,p=,t=,rule=	:Number		0,0,8,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08a>> | :Position	944,0		// 位置 | :Number		200,0,1,8,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01h>> | :Position	336,0		// 位置
+ot_s01_02a	343	5920	CharacterOpen	chr_add	KAZ01H	立绘/kaz01h.png	x=,y=,p=,t=,rule=	:Number		0,0,8,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08a>> | :Position	944,0		// 位置 | :Number		200,0,1,8,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01h>> | :Position	336,0		// 位置
+ot_s01_02a	346	5960	CharacterOpen	chr_add	ASU08	立绘/asu08.png	x=,y=,p=,t=,rule=	:Number		0,0,8,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08>> | :Position	944,0		// 位置
+ot_s01_02a	346	5970	BgmPlay	bgm	BGM1		x=,y=,p=,t=,rule=	:BGM  1		// bgm 2
+ot_s01_02a	347	5990	CharacterOpen	chr_add	KAZ01G	立绘/kaz01g.png	x=,y=,p=,t=,rule=	:Number		200,0,1,7,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01g>> | :Position	336,0		// 位置
+ot_s01_02a	350	6030	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	336,0		// 位置
+ot_s01_02a	350	6040	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	352	6070	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	352	6080	CharacterOpen	chr_add	ASU08A	立绘/asu08a.png	x=,y=,p=,t=,rule=	:Number		0,0,8,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08a>> | :Position	944,0		// 位置
+ot_s01_02a	354	6110	CharacterOpen	chr_add	KAZ01A	立绘/kaz01a.png	x=,y=,p=,t=,rule=	:Number		200,0,1,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01a>> | :Position	336,0		// 位置
+ot_s01_02a	356	6140	CharacterOpen	chr_add	ASU08I	立绘/asu08i.png	x=,y=,p=,t=,rule=	:Number		0,0,8,9,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu08i>> | :Position	944,0		// 位置
+ot_s01_02a	358	6170	CharacterOpen	chr_add	KAZ01G	立绘/kaz01g.png	x=,y=,p=,t=,rule=	:Number		200,0,1,7,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01g>> | :Position	336,0		// 位置
+ot_s01_02a	363	6230	CharacterOpen	chr_add	KAZ01F	立绘/kaz01f.png	x=,y=,p=,t=,rule=	:Number		200,0,1,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz01f>> | :Position	336,0		// 位置
+ot_s01_02a	363	6240	EffectQuake	effect			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02a	363	6250	SePlay	se	SE314	se/ot_se314.ogg	x=,y=,p=,t=,rule=	:SE 263		// SE314	//	置換しました<<se314>>
+ot_s01_02a	364	6270	EffectQuakeEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6310	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6320	EyeCatch	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6330	SePlay	se	SE809	se/ot_se809.ogg	x=,y=,p=,t=,rule=	:SE 600		// SE809	//	置換しました<<se809>>
+ot_s01_02a	366	6340	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6350	FadeOut	effect			x=,y=,p=,t=72,rule=	:Time	72
+ot_s01_02a	366	6360	EyeCatchEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6370	Sprite	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02a	366	6380	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_02a	366	6390	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6400	NextScene	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6410	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6420	NextScene	control			x=,y=,p=,t=,rule=	
+ot_s01_02a	366	6430	End	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	100	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	110	SceneJumpDialog	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	120	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	130	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	140	SpriteBG	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02c	3	150	SceneJumpDialogEnd	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	160	FadeOut	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_02c	3	170	Sprite	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02c	3	180	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s01_02c	3	190	EyeCatch	effect			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	200	TimeWait	wait			x=,y=,p=,t=60,rule=	:Time	60
+ot_s01_02c	3	210	EyeCatchEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02c	3	220	TimeWait	wait			x=,y=,p=,t=30,rule=	:Time	30
+ot_s01_02c	9	290	BgmPlay	bgm	BGM83		x=,y=,p=,t=,rule=	:BGM 83		// bgm 84
+ot_s01_02c	9	300	Sprite	bg	BG67	CG背景/bg67.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	249	// BG67	//	置換しました<<bg67>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02c	9	310	SpriteMove	bg_move	BG67	CG背景/bg67.jpg	x=640,y=360,p=,t=30,rule=	:Texture	249	// BG67	//	置換しました<<bg67>> | :Position	640,360,0 | :Time		30
+ot_s01_02c	9	320	SpriteDelete	bg_remove	BG_BLACK	CG背景/bg_black.jpg	x=,y=,p=,t=30,rule=	:SpriteNumber	0	// BG_BLACK	//	置換しました<<bg_black>> | :Time			30
+ot_s01_02c	9	330	SpriteMoveEnd	bg_move_end	BG67	CG背景/bg67.jpg	x=,y=,p=,t=,rule=	
+ot_s01_02c	9	340	TimeWait	wait			x=,y=,p=,t=6,rule=	:Time	6
+ot_s01_02c	9	350	SpriteBG	bg	BG67	CG背景/bg67.jpg	x=640,y=360,p=10,t=18,rule=	:Texture	249	// BG67	//	置換しました<<bg67>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		18		// フェード時間(1s = 60fps)
+ot_s01_02c	14	410	SePlay	se	SE207	se/ot_se207.ogg	x=,y=,p=,t=,rule=	:SE 191		// SE207	//	置換しました<<se207>>
+ot_s01_02c	16	440	SePlay	se	SE207	se/ot_se207.ogg	x=,y=,p=,t=,rule=	:SE 191		// SE207	//	置換しました<<se207>>
+ot_s01_02c	17	460	SePlay	se	SE783	se/ot_se783.ogg	x=,y=,p=,t=,rule=	:SE 567		// SE783	//	置換しました<<se783>>
+ot_s01_02c	21	510	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	33	640	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	33	650	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_02c	33	660	SpriteBG	bg	BG_WHITE	CG背景/bg_white.jpg	x=640,y=360,p=2,t=30,rule=49	:Texture	1	// BG_WHITE	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	2		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps) | :Rule		49		// 0=Simple 1=RULE000...
+ot_s01_02c	33	670	BgmPlay	bgm	BGM81		x=,y=,p=,t=,rule=	:BGM 81		// bgm 82
+ot_s01_02c	33	680	SpriteBG	bg	ASU03	CG背景/cg_asu03.jpg	x=640,y=360,p=5,t=60,rule=49	:Texture	591	// ASU03	//	置換しました<<asu03>> | :Position	640,360		// 位置[画面中央] | :Priority	5		// [前] 0 <-> 10 [後] | :Time		60		// フェード時間(1s = 60fps) | :Rule		49		// 0=Simple 1=RULE000...
+ot_s01_02c	33	690	SpriteMove	bg_move	ASU03	CG背景/cg_asu03.jpg	x=640,y=480,p=,t=30,rule=	:SpriteNumber	591	//	置換しました<<asu03>> | :Position	640,480 | :Time		30
+ot_s01_02c	35	720	SpriteMoveEnd	bg_move_end	ASU03	CG背景/cg_asu03.jpg	x=,y=,p=,t=,rule=	
+ot_s01_02c	44	820	SpriteBS	bg	BG67	CG背景/bg67.jpg	x=640,y=360,p=10,t=,rule=	:Texture	249	// BG67	//	置換しました<<bg67>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後]
+ot_s01_02c	44	830	CharacterOpenBS	chr_add	ASU05	立绘/asu05.png	x=,y=,p=,t=,rule=	:Number		0,0,5,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05>> | :Position	640,0		// 位置 | :Priority	9
+ot_s01_02c	44	840	InOut	effect			x=,y=,p=,t=30,rule=	:Time		30
+ot_s01_02c	46	870	CharacterOpen	chr_add	ASU05H	立绘/asu05h.png	x=,y=,p=,t=,rule=	:Number		0,0,5,8,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05h>> | :Position	640,0		// 位置
+ot_s01_02c	51	930	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	51	940	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	51	950	Window	ui			x=,y=,p=,t=,rule=	
+ot_s01_02c	51	960	EyeCatch	effect			x=,y=,p=,t=,rule=	
+ot_s01_02c	51	970	SePlay	se	SE107	se/ot_se107.ogg	x=,y=,p=,t=,rule=	:SE 113		// SE107	//	置換しました<<se107>>
+ot_s01_02c	51	980	BgmPlay	bgm	BGM83		x=,y=,p=,t=,rule=	:BGM 83		// bgm 84
+ot_s01_02c	51	990	CharacterDelete	chr_remove			x=,y=,p=,t=,rule=	
+ot_s01_02c	51	1000	CharacterOpen	chr_add	ASU05	立绘/asu05.png	x=,y=,p=,t=,rule=	:Number		0,0,5,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05>> | :Position	640,0		// 位置
+ot_s01_02c	51	1010	EyeCatchEnd	effect			x=,y=,p=,t=,rule=	
+ot_s01_02c	52	1030	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	52	1040	CharacterOpen	chr_add	ASU05A	立绘/asu05a.png	x=,y=,p=,t=,rule=	:Number		0,0,5,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05a>> | :Position	640,0		// 位置
+ot_s01_02c	54	1070	CharacterOpen	chr_add	ASU05M	立绘/asu05m.png	x=,y=,p=,t=,rule=	:Number		0,0,5,13,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05m>> | :Position	640,0		// 位置
+ot_s01_02c	56	1100	CharacterOpen	chr_add	ASU05N	立绘/asu05n.png	x=,y=,p=,t=,rule=	:Number		0,0,5,14,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05n>> | :Position	640,0		// 位置
+ot_s01_02c	59	1140	CharacterOpen	chr_add	ASU05	立绘/asu05.png	x=,y=,p=,t=,rule=	:Number		0,0,5,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05>> | :Position	640,0		// 位置
+ot_s01_02c	61	1170	CharacterOpen	chr_add	ASU05N	立绘/asu05n.png	x=,y=,p=,t=,rule=	:Number		0,0,5,14,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05n>> | :Position	640,0		// 位置
+ot_s01_02c	64	1210	CharacterOpen	chr_add	ASU05E	立绘/asu05e.png	x=,y=,p=,t=,rule=	:Number		0,0,5,5,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05e>> | :Position	640,0		// 位置
+ot_s01_02c	68	1260	CharacterOpen	chr_add	KAZ05F		x=,y=,p=,t=,rule=	:Number		200,0,5,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz05f>> | :Position	336,0		// 位置 | :Priority	6
+ot_s01_02c	68	1270	SePlay	se	SE315	se/ot_se315.ogg	x=,y=,p=,t=,rule=	:SE 265		// SE315	//	置換しました<<se315>>
+ot_s01_02c	69	1290	CharacterMove	chr_move	ASU05	立绘/asu05.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		0,0,5,0,0	//	置換しました<<st_asu05>> | :Position	944,0,0,0		// 位置
+ot_s01_02c	70	1310	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02c	72	1340	CharacterOpen	chr_add	KAZ05B		x=,y=,p=,t=,rule=	:Number		200,0,5,2,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz05b>> | :Position	336,0		// 位置
+ot_s01_02c	72	1350	CharacterAction	chr_expr	KAZ05B		x=,y=,p=,t=,rule=	:Number		200,0,5,2,0	// キャラ	//	置換しました<<st_kaz05b>>
+ot_s01_02c	73	1370	CharacterActionEnd	chr_expr_end	KAZ05B		x=,y=,p=,t=,rule=	
+ot_s01_02c	73	1380	SePlay	se	SE204	se/ot_se204.ogg	x=,y=,p=,t=,rule=	:SE 187		// SE204	//	置換しました<<se204>>
+ot_s01_02c	74	1400	CharacterOpen	chr_add	ASU05H	立绘/asu05h.png	x=,y=,p=,t=,rule=	:Number		0,0,5,8,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05h>> | :Position	944,0		// 位置
+ot_s01_02c	75	1420	CharacterDelete	chr_remove	KAZ05B		x=,y=,p=,t=,rule=	:Number		200,0,5,2,0	//	置換しました<<st_kaz05b>>
+ot_s01_02c	76	1440	CharacterOpen	chr_add	ASU05N	立绘/asu05n.png	x=,y=,p=,t=,rule=	:Number		0,0,5,14,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05n>> | :Position	944,0		// 位置
+ot_s01_02c	76	1450	CharacterMove	chr_move			x=,y=,p=,t=18,rule=	:Time		18 | :Number		0 | :Position	640,0,0,0		// 位置
+ot_s01_02c	77	1470	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02c	77	1480	CharacterOpen	chr_add	ASU05F	立绘/asu05f.png	x=,y=,p=,t=,rule=	:Number		0,0,5,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05f>> | :Position	640,0		// 位置
+ot_s01_02c	79	1510	CharacterOpen	chr_add	ASU05N	立绘/asu05n.png	x=,y=,p=,t=,rule=	:Number		0,0,5,14,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05n>> | :Position	640,0		// 位置
+ot_s01_02c	80	1530	CharacterOpen	chr_add	ASU05	立绘/asu05.png	x=,y=,p=,t=,rule=	:Number		0,0,5,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05>> | :Position	640,0		// 位置
+ot_s01_02c	81	1550	CharacterOpen	chr_add	ASU05F	立绘/asu05f.png	x=,y=,p=,t=,rule=	:Number		0,0,5,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05f>> | :Position	640,0		// 位置
+ot_s01_02c	83	1580	CharacterOpen	chr_add	ASU05A	立绘/asu05a.png	x=,y=,p=,t=,rule=	:Number		0,0,5,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05a>> | :Position	640,0		// 位置
+ot_s01_02c	84	1600	CharacterOpen	chr_add	CIN056	CG背景/cin056.png	x=,y=,p=,t=,rule=	:Number		300,44,0,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_cin056>> | :Position	1500,0		// 位置
+ot_s01_02c	84	1610	CharacterMove	chr_move	CIN056	CG背景/cin056.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		300,44,0,0,0	//	置換しました<<st_cin056>> | :Position	640,0,0,0		// 位置
+ot_s01_02c	84	1620	SePlay	se	SE503	se/ot_se503.ogg	x=,y=,p=,t=,rule=	:SE 320		// SE503	//	置換しました<<se503>>
+ot_s01_02c	85	1640	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02c	87	1670	CharacterOpen	chr_add	ASU05C	立绘/asu05c.png	x=,y=,p=,t=,rule=	:Number		0,0,5,3,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_asu05c>> | :Position	640,0		// 位置
+ot_s01_02c	88	1690	CharacterMove	chr_move	CIN056	CG背景/cin056.png	x=,y=,p=,t=20,rule=	:Time		20 | :Number		300,44,0,0,0	//	置換しました<<st_cin056>> | :Position	-220,0,0,0		// 位置
+ot_s01_02c	89	1710	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02c	89	1720	CharacterOpen	chr_add	KAZ05F		x=,y=,p=,t=,rule=	:Number		200,0,5,6,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz05f>> | :Position	336,0		// 位置 | :Priority	5
+ot_s01_02c	89	1730	CharacterDelete	chr_remove	CIN056	CG背景/cin056.png	x=,y=,p=,t=,rule=	:Number		300,44,0,0,0	//	置換しました<<st_cin056>>
+ot_s01_02c	90	1750	CharacterMove	chr_move	ASU05C	立绘/asu05c.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		0,0,5,3,0	//	置換しました<<st_asu05c>> | :Position	960,0,0,0		// 位置
+ot_s01_02c	91	1770	CharacterWait	chr_wait			x=,y=,p=,t=,rule=	
+ot_s01_02c	93	1800	CharacterOpen	chr_add	KAZ05A		x=,y=,p=,t=,rule=	:Number		200,0,5,1,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz05a>> | :Position	336,0		// 位置
+ot_s01_02c	95	1830	CharacterOpen	chr_add	KAZ05C		x=,y=,p=,t=,rule=	:Number		200,0,5,3,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_kaz05c>> | :Position	336,0		// 位置
+ot_s01_02c	95	1840	CharacterAction	chr_expr	KAZ05C		x=,y=,p=,t=,rule=	:Number		200,0,5,3,0	// キャラ	//	置換しました<<st_kaz05c>>
+ot_s01_02c	95	1860	SePlay	se	SE783	se/ot_se783.ogg	x=,y=,p=,t=,rule=	:SE 567		// SE783	//	置換しました<<se783>>
+ot_s01_02c	96	1880	CharacterActionEnd	chr_expr_end	KAZ05C		x=,y=,p=,t=,rule=	
+ot_s01_02c	96	1890	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	96	1900	SpriteBG	bg	BG72	CG背景/bg72.jpg	x=640,y=360,p=10,t=30,rule=42	:Texture	256	// BG72	//	置換しました<<bg72>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps) | :Rule		42		// 0=Simple 1=RULE000...
+ot_s01_02c	96	1910	SePlay	se	SE204	se/ot_se204.ogg	x=,y=,p=,t=,rule=	:SE 187		// SE204	//	置換しました<<se204>>
+ot_s01_02c	98	1940	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	98	1950	SpriteBG	bg	BG_WHITE	CG背景/bg_white.jpg	x=640,y=360,p=2,t=48,rule=41	:Texture	1	// BG_WHITE	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	2		// [前] 0 <-> 10 [後] | :Time		48		// フェード時間(1s = 60fps) | :Rule		41		// 0=Simple 1=RULE000...
+ot_s01_02c	98	1960	Sprite	bg	BG63	CG背景/bg63.jpg	x=560,y=360,p=10,t=0,rule=	:Texture	245	// BG63	//	置換しました<<bg63_x>> | :Position	560,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s01_02c	98	1970	SpriteDeleteBG	bg_remove	BG_WHITE	CG背景/bg_white.jpg	x=,y=,p=,t=30,rule=40	:SpriteNumber	1	// BG_WHITE	//	置換しました<<bg_white>> | :Time			30 | :Rule		40
+ot_s01_02c	98	1980	SpriteMove	bg_move	BG63_X		x=720,y=360,p=,t=300,rule=	:SpriteNumber	245	//	置換しました<<bg63_x>> | :Position	720,360,0,0.0 | :Time		300
+ot_s01_02c	98	1990	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	98	2000	SePlay	se	SE833	se/ot_se833.ogg	x=,y=,p=,t=,rule=	:SE 630		// SE833	//	置換しました<<se833l>>
+ot_s01_02c	101	2040	SeStop	se_stop			x=,y=,p=,t=,rule=	
+ot_s01_02c	101	2050	BgmPlay	bgm	BGM81		x=,y=,p=,t=,rule=	:BGM 81		// bgm 82
+ot_s01_02c	102	2070	CharacterOpen	chr_add	CIN058	CG背景/cin058.png	x=,y=,p=,t=,rule=	:Number		300,46,0,0,0	// キャラ、ポーズ、服装、表情、サイズ	//	置換しました<<st_cin058>> | :Position	640,800		// 位置
+ot_s01_02c	102	2080	CharacterMove	chr_move	CIN058	CG背景/cin058.png	x=,y=,p=,t=18,rule=	:Time		18 | :Number		300,46,0,0,0	//	置換しました<<st_cin058>> | :Position	640,0,0,0		// 位置
+ot_s01_02c	102	2090	SePlay	se	SE518	se/ot_se518.ogg	x=,y=,p=,t=,rule=	:SE 335		// SE518	//	置換しました<<se518>>
+ot_s01_02c	104	2120	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	104	2130	MessageSwitch_Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	104	2140	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	104	2150	BacklogMessage	control			x=,y=,p=,t=,rule=	:Message 		"国と民衆のために"
+ot_s01_02c	104	2160	NextScene	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	104	2170	Tag	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	104	2180	BacklogMessage	control			x=,y=,p=,t=,rule=	:Message 		"アスカ姫のために"
+ot_s01_02c	104	2190	NextScene	control			x=,y=,p=,t=,rule=	
+ot_s01_02c	104	2200	End	control			x=,y=,p=,t=,rule=	
+ot_s03_01a	3	100	SceneJumpDialog	control			x=,y=,p=,t=,rule=	
+ot_s03_01a	3	110	Tag	control			x=,y=,p=,t=,rule=	
+ot_s03_01a	3	120	SpriteBG	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=10,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s03_01a	3	130	SceneJumpDialogEnd	control			x=,y=,p=,t=,rule=	
+ot_s03_01a	3	140	FadeOut	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s03_01a	3	150	FadeOut	effect			x=,y=,p=,t=48,rule=	:Time	48
+ot_s03_01a	3	160	Sprite	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s03_01a	3	170	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s03_01a	3	180	Sprite	bg	EF05C	CG背景/ef05c.jpg	x=640,y=360,p=10,t=30,rule=	:Texture	548	// EF05C	//	置換しました<<ef05c>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後] | :Time		30		// フェード時間(1s = 60fps)
+ot_s03_01a	3	190	EffectStart	effect			x=,y=,p=9,t=,rule=	:Priority		9
+ot_s03_01a	3	200	SpriteDelete	bg_remove	BG_BLACK	CG背景/bg_black.jpg	x=,y=,p=,t=120,rule=	:SpriteNumber	0	// BG_BLACK	//	置換しました<<bg_black>> | :Time			120
+ot_s03_01a	3	210	BgmPlay	bgm	BGM52	bgm/ot_bgm52.ogg	x=,y=,p=,t=,rule=	:BGM 52		// bgm 53
+ot_s03_01a	56	820	Window	ui			x=,y=,p=,t=,rule=	
+ot_s03_01a	56	830	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+ot_s03_01a	56	840	FadeOut	effect			x=,y=,p=,t=72,rule=	:Time	72
+ot_s03_01a	56	850	EffectEnd	effect			x=,y=,p=,t=,rule=	
+ot_s03_01a	56	860	Sprite	bg	BG_WHITE	CG背景/bg_white.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	1	// BG_WHITE	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+ot_s03_01a	56	870	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+ot_s03_01a	56	880	Tag	control			x=,y=,p=,t=,rule=	
+ot_s03_01a	56	890	NextScene	control			x=,y=,p=,t=,rule=	
+ot_s03_01a	56	900	End	control			x=,y=,p=,t=,rule=	
+otv_M01_01	2	100	SceneJumpDialog	control			x=,y=,p=,t=,rule=	
+otv_M01_01	2	110	Tag	control			x=,y=,p=,t=,rule=	
+otv_M01_01	2	120	SpriteBG	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=10,t=,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後]
+otv_M01_01	2	130	SpriteBS	bg	MIS71	CG背景/mis71.jpg	x=640,y=480,p=1,t=,rule=	:Texture	910	// MIS71	//	置換しました<<mis71>> | :Position	640,480		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後]
+otv_M01_01	2	140	EffectStart	effect			x=,y=,p=1,t=,rule=	:Priority		1
+otv_M01_01	2	150	InOut	effect			x=,y=,p=,t=30,rule=	:Time		30
+otv_M01_01	2	160	SceneJumpDialogEnd	control			x=,y=,p=,t=,rule=	
+otv_M01_01	3	180	BgmPlay	bgm	BGM13	bgm/otv_bgm013.ogg	x=,y=,p=,t=,rule=	:BGM 13		// bgm 14
+otv_M01_01	9	250	EffectStart	effect			x=,y=,p=1,t=,rule=	:Priority		1
+otv_M01_01	15	320	EffectStart	effect			x=,y=,p=1,t=,rule=	:Priority		1
+otv_M01_01	21	390	EffectStart	effect			x=,y=,p=1,t=,rule=	:Priority		1
+otv_M01_01	23	420	EffectStart	effect			x=,y=,p=1,t=,rule=	:Priority		1
+otv_M01_01	25	450	SpriteBS	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=1,t=,rule=	:Texture	1	// BG_BLACK	//	置換しました<<bg_white>> | :Position	640,360		// 位置[画面中央] | :Priority	2		// [前] 0 <-> 10 [後] | :Priority	1		// [前] 0 <-> 10 [後]
+otv_M01_01	25	460	InOut_Act	effect			x=,y=,p=,t=60,rule=	:Time		60
+otv_M01_01	25	470	EffectEnd	effect			x=,y=,p=,t=,rule=	
+otv_M01_01	27	500	SpriteBS	bg	MIS71A	CG背景/mis71a.jpg	x=640,y=480,p=1,t=,rule=	:Texture	911	// MIS71a	//	置換しました<<mis71a>> | :Position	640,480		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後]
+otv_M01_01	27	510	InOut_Act	effect			x=,y=,p=,t=60,rule=	:Time		60
+otv_M01_01	40	650	Window	ui			x=,y=,p=,t=,rule=	
+otv_M01_01	40	660	SpriteBS	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=10,t=,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後]
+otv_M01_01	40	670	InOut_Act	effect			x=,y=,p=,t=30,rule=	:Time		30
+otv_M01_01	40	680	TimeWait	wait			x=,y=,p=,t=60,rule=	:Time	60
+otv_M01_01	40	690	SpriteBS	bg	BG69	CG背景/bg69.jpg	x=640,y=360,p=10,t=,rule=	:Texture	251	// BG69	//	置換しました<<bg69>> | :Position	640,360		// 位置[画面中央] | :Priority	10		// [前] 0 <-> 10 [後]
+otv_M01_01	40	700	InOut_Act	effect			x=,y=,p=,t=30,rule=	:Time		30
+otv_M01_01	59	910	Window	ui			x=,y=,p=,t=,rule=	
+otv_M01_01	59	920	EyeCatch	effect			x=,y=,p=,t=,rule=	
+otv_M01_01	59	930	SePlay	se	SE809		x=,y=,p=,t=,rule=	:SE 600		// SE809	//	置換しました<<se809>>
+otv_M01_01	59	940	BgmStop	bgm_stop			x=,y=,p=,t=,rule=	
+otv_M01_01	59	950	FadeOut	effect			x=,y=,p=,t=72,rule=	:Time	72
+otv_M01_01	59	960	EyeCatchEnd	effect			x=,y=,p=,t=,rule=	
+otv_M01_01	59	970	Sprite	bg	BG_BLACK	CG背景/bg_black.jpg	x=640,y=360,p=1,t=0,rule=	:Texture	0	// BG_BLACK	//	置換しました<<bg_black>> | :Position	640,360		// 位置[画面中央] | :Priority	1		// [前] 0 <-> 10 [後] | :Time		0		// フェード時間(1s = 60fps)
+otv_M01_01	59	980	FadeIn	effect			x=,y=,p=,t=0,rule=	:Time	0
+otv_M01_01	59	990	SeStop	se_stop			x=,y=,p=,t=,rule=	
+otv_M01_01	59	1000	Tag	control			x=,y=,p=,t=,rule=	
+otv_M01_01	59	1010	NextScene	control			x=,y=,p=,t=,rule=	
+otv_M01_01	59	1020	End	control			x=,y=,p=,t=,rule=	
+otp_02_01a								（未匹配）

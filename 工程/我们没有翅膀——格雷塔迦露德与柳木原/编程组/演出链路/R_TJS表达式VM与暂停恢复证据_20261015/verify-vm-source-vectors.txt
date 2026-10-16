@@ -1,0 +1,66 @@
+from pathlib import Path
+import sys,json,hashlib,struct,ast,runpy,collections,time
+r=Path.cwd();g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';w=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R_TJS表达式VM与暂停恢复证据_20261015'
+sys.path[:0]=[str(w),str(g/'工具'),str(g/'逆向引擎'),str(r/'工具/unicorn-2.1.4-py314')]
+from lucifen_inline_vm_reference import expression_native,inline_native
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from r_vm_shadow_read import read32
+from r_vm_tjs_literal import tjs_literal
+env=runpy.run_path(str(w/'verify-vm-synthetic.txt'),run_name='capture_definitions');capture=env['capture'];pe=env['pe'];ctx=env['ctx'];sb=env['sb'];buffer=env['buffer'];cursor=0x1023000;app,kbd,parent=0x10e0000,0x10e4000,0x100a000
+kind=sys.argv[1];group=int(sys.argv[2]);groups=int(sys.argv[3]);limit=int(sys.argv[5])if len(sys.argv)>5 else 0
+assert kind in('inline','parameter')and 0<=group<groups<=16
+out=Path(sys.argv[4]).resolve();assert out.is_relative_to(r/'临时/ISSUE-20261011-02')and not out.exists();out.mkdir()
+evidence=g/'演出链路/R_VM暂停恢复与控制请求证据_20261012';recipe=evidence/('verify-chain.txt'if kind=='inline'else'verify-legacy-regression.txt');tree=ast.parse(recipe.read_text(encoding='utf8'))
+functions=[node for node in tree.body if isinstance(node,ast.FunctionDef)and node.name in('prepare','varvalue','initialize','vectorize')]
+assert len(functions)==4
+states=ast.literal_eval(next(node.value for node in tree.body if isinstance(node,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='states'for t in node.targets)))
+table=json.loads((g/'演出链路/R接口证据_20261011/R_注册顺序.json').read_text(encoding='utf8'))['static_vector_candidate']
+scope={'root':r,'struct':struct,'pe':pe,'map_pe':map_pe,'ctx':ctx,'cursor':cursor,'buffer':buffer,'sb':sb,'app':app,'kbd':kbd,'parent':parent,'table':table}
+exec(compile(ast.Module(body=functions,type_ignores=[]),str(recipe)+'-verified-functions','exec'),scope)
+metadata_path=r/'子代理工作区/ISSUE-20261011-02/r-literal-run-01/inline-expression-metadata.json'if kind=='inline'else g/'演出链路/R_TOB动态绑定与无损IR证据_20261011/expression-reference-metadata.json';metadata=json.loads(metadata_path.read_text(encoding='utf8'));grouped=collections.defaultdict(list)
+for row in metadata:grouped[row['path']].append(row)
+oracle_dir=r/'临时/ISSUE-20261011-02'/('r-inline-vm-chain-replay-01'if kind=='inline'else'r-inline-vm-regression-replay-01');oracle_bytes=(oracle_dir/'independent-vm-results.json').read_bytes();oracle=json.loads(oracle_bytes);lookup=collections.defaultdict(collections.deque)
+def key(path,code_start,state):return(path.replace('\\','/').casefold(),code_start,state)
+for row in oracle:lookup[key(row['path'],row['code_start'],row['state'])].append(row)
+resume_bytes=(oracle_dir/'independent-resume-results.json').read_bytes()if kind=='inline'else b'[]';resume_lookup=collections.defaultdict(collections.deque)
+for row in json.loads(resume_bytes):resume_lookup[key(row['path'],row['code_start'],row['state'])+(row['segment'],)].append(row)
+start=time.time();rows=[];lines=[];line_segments=0;count=segments_total=files_count=words_total=write_total=0;rcs=collections.Counter();opcodes=collections.Counter();resume_matched=0
+def flush():
+    global line_segments
+    if not lines:return
+    p=out/f'batch-{len(rows):04d}.tjs';p.write_text('\n'.join(lines)+'\n',encoding='utf8');rows.append({'source':p.relative_to(r).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'cases':len(lines),'segments':line_segments,'bytes':p.stat().st_size});lines.clear();line_segments=0
+def parameter_model(rd,wr,rb,wb,h,f):return expression_native(rd,rb,h,f)
+stop=False
+for file_index,(path,exprs)in enumerate(grouped.items()):
+    if file_index%groups!=group:continue
+    data=(r/path).read_bytes();u,maps=scope['prepare'](data,0);scope['vectorize'](u,maps)
+    if kind=='inline':u.mem_write(0x5181dc,struct.pack('<I',0x200e000));u.mem_write(0x200e000,b'\xc2\x08\x00')
+    for state in states:
+        for expr in exprs:
+            scope['initialize'](u,maps,data,state);u.mem_write(cursor,struct.pack('<I',buffer+expr['reloc_start']+(4 if kind=='inline'else 2)));invoke_thiscall_args(u,0x430090,ctx,[cursor,buffer+expr['code_start'],0 if kind=='inline'else 1],timeout=0)
+            initial=[(0x1000000,bytes(u.mem_read(0x1000000,0x100000))),(buffer,bytes(u.mem_read(buffer,len(data)))),(pe.image_base,bytes(u.mem_read(pe.image_base,pe.size_image)))];wranges=[[0x1000000,0x1100000],[buffer,buffer+len(data)]]+([[0x5354bc,0x5355c4]]if kind=='inline'else[])
+            spec,full,mem=capture(initial,wranges,buffer+expr['code_start'],inline_native if kind=='inline'else parameter_model,f'{kind}-{file_index}-{state["id"]}-{expr["code_start"]}')
+            old=lookup[key(path,expr['code_start'],state['id'])].popleft();first=spec['segments'][0]
+            assert old['passed']and old['steps']==first['steps']and old['calls']==len(first['calls']),(kind,path,expr['code_start'],state['id'],'steps/calls')
+            assert old['live_sha256']==hashlib.sha256(full[0][0]).hexdigest()and old['source_guest_sha256']==hashlib.sha256(full[0][1]).hexdigest(),(kind,path,expr['code_start'],state['id'],'old native memory hashes')
+            assert old['result']==read32([(base,bytearray(payload))for(base,_),payload in zip(initial,full[0])],maps[2][0])
+            if kind=='inline':
+                assert(old['return_code'],old['vm_stack_pointer'],old['vm_pc'])==(first['return_code'],first['sp'],first['pc']-buffer)
+                assert old['pe_shadow_sha256']==hashlib.sha256(full[0][2]).hexdigest()
+            else:assert first['return_code']==0 and full[0][2]==initial[2][1]
+            for segment,row in enumerate(spec['segments']):
+                if segment:
+                    before=resume_lookup[key(path,expr['code_start'],state['id'])+(segment,)].popleft();assert(before['steps'],before['return_code'],before['vm_sp'],before['vm_pc'])==(row['steps'],row['return_code'],row['sp'],row['pc']-buffer)
+                    assert before['live_sha256']==hashlib.sha256(full[segment][0]).hexdigest()and before['source_guest_sha256']==hashlib.sha256(full[segment][1]).hexdigest()and before['pe_shadow_sha256']==hashlib.sha256(full[segment][2]).hexdigest();resume_matched+=1
+                opcodes.update(op for pc,op in row['trace']);write_total+=len(row['writes'])
+            count+=1;segments_total+=len(spec['segments']);words_total+=len(spec['initial']);rcs[first['return_code']]+=1;lines.append('RVMFRunCase('+tjs_literal(spec)+');');line_segments+=len(spec['segments'])
+            if len(lines)==32:flush()
+            if limit and count>=limit:stop=True;break
+        if stop:break
+    files_count+=1;assert(r/path).read_bytes()==data
+    if files_count%20==0:print(json.dumps({'kind':kind,'group':group,'files':files_count,'cases':count,'elapsed_seconds':round(time.time()-start,2)}),flush=True)
+    if stop:break
+flush()
+summary={'kind':kind,'group':group,'groups':groups,'limited_probe':bool(limit),'source_files':files_count,'expressions_total_in_source':len(metadata),'cases':count,'segments':segments_total,'resume_native_rows_matched':resume_matched,'initial_words_total':words_total,'writes_total':write_total,'first_return_codes':dict(rcs),'opcodes':dict(sorted(opcodes.items())),'fixture_bytes':sum(row['bytes']for row in rows),'old_original_results_SHA256':hashlib.sha256(oracle_bytes).hexdigest(),'old_original_resume_results_SHA256':hashlib.sha256(resume_bytes).hexdigest()if kind=='inline'else None,'source_metadata_SHA256':hashlib.sha256(metadata_path.read_bytes()).hexdigest(),'elapsed_seconds':round(time.time()-start,2),'scope':'six controlled states; fresh original binding; prior full original-VM memory oracle reconciled; native callbacks remain explicit fixture models; not complete game/native lifecycle'}
+(out/'manifest.json').write_text(json.dumps({**summary,'files':rows},indent=2),encoding='utf8');(out/'summary.json').write_text(json.dumps(summary,indent=2),encoding='utf8');print(json.dumps(summary),flush=True)

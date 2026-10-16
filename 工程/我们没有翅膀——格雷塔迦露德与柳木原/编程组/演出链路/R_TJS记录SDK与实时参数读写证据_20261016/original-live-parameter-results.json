@@ -1,0 +1,818 @@
+{
+  "passed": true,
+  "cases": 11,
+  "original_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "results": [
+    {
+      "label": "zero-count",
+      "passed": true,
+      "count": 0,
+      "destination": 16908288,
+      "source_cursor": 50331660,
+      "param_end": 16908288,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          0
+        ]
+      ],
+      "source_initial_sha256": "ace6d60c22275301861e23e6664549b63df25129ff93299bf3fb08b29b8d640c",
+      "source_final_sha256": "ace6d60c22275301861e23e6664549b63df25129ff93299bf3fb08b29b8d640c",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 0,
+        "ecx": 16785409,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "empty",
+      "passed": true,
+      "count": 1,
+      "destination": 16908288,
+      "source_cursor": 50331661,
+      "param_end": 16908296,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          0
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          0
+        ],
+        [
+          "w",
+          16908292,
+          4,
+          0
+        ]
+      ],
+      "source_initial_sha256": "a17679ab3518d883e61fd6c0d3f07ff288cfedb659e08ef82ec9f8e662b94e32",
+      "source_final_sha256": "a17679ab3518d883e61fd6c0d3f07ff288cfedb659e08ef82ec9f8e662b94e32",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "simple-literal",
+      "passed": true,
+      "count": 1,
+      "destination": 16908288,
+      "source_cursor": 50331665,
+      "param_end": 16908296,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          2
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          0
+        ],
+        [
+          "r",
+          50331661,
+          4,
+          2309737967
+        ],
+        [
+          "w",
+          16908292,
+          4,
+          2309737967
+        ]
+      ],
+      "source_initial_sha256": "25951dcee255e52b67dda48862fbae21bc0aa6328410e2858d6ce1d60dd2eb38",
+      "source_final_sha256": "25951dcee255e52b67dda48862fbae21bc0aa6328410e2858d6ce1d60dd2eb38",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "selected-literal",
+      "passed": true,
+      "count": 1,
+      "destination": 16908288,
+      "source_cursor": 50331666,
+      "param_end": 16908296,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          7
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          7
+        ],
+        [
+          "r",
+          50331661,
+          1,
+          0
+        ],
+        [
+          "r",
+          50331662,
+          4,
+          305419896
+        ],
+        [
+          "w",
+          16908292,
+          4,
+          305419896
+        ]
+      ],
+      "source_initial_sha256": "04cf6a5595a1494f18a846743e0bbfb4d5595d5cab5e78605587472af1bb0602",
+      "source_final_sha256": "04cf6a5595a1494f18a846743e0bbfb4d5595d5cab5e78605587472af1bb0602",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "inline-zero",
+      "passed": true,
+      "count": 1,
+      "destination": 16908288,
+      "source_cursor": 50331664,
+      "param_end": 16908296,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          5
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          5
+        ],
+        [
+          "r",
+          50331661,
+          1,
+          1
+        ],
+        [
+          "r",
+          16908288,
+          4,
+          5
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          7
+        ],
+        [
+          "r",
+          50331662,
+          2,
+          0
+        ],
+        [
+          "w",
+          16908292,
+          4,
+          0
+        ]
+      ],
+      "source_initial_sha256": "bd21253e70ab70d2b433e6db3c0e463323817510af7547f499f3c4abcce06276",
+      "source_final_sha256": "bd21253e70ab70d2b433e6db3c0e463323817510af7547f499f3c4abcce06276",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "inline-data",
+      "passed": true,
+      "count": 1,
+      "destination": 16908288,
+      "source_cursor": 50331667,
+      "param_end": 16908296,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          5
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          5
+        ],
+        [
+          "r",
+          50331661,
+          1,
+          1
+        ],
+        [
+          "r",
+          16908288,
+          4,
+          5
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          7
+        ],
+        [
+          "r",
+          50331662,
+          2,
+          3
+        ],
+        [
+          "w",
+          16908292,
+          4,
+          50331664
+        ]
+      ],
+      "source_initial_sha256": "ce2182aa963f7ba49b40b9ec9bb1884ac31216d578b8e5943fe4baf256916db3",
+      "source_final_sha256": "ce2182aa963f7ba49b40b9ec9bb1884ac31216d578b8e5943fe4baf256916db3",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "array-existing-bank",
+      "passed": true,
+      "count": 1,
+      "destination": 16908288,
+      "source_cursor": 50331670,
+      "param_end": 16908296,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          9
+        ],
+        [
+          "w",
+          16908288,
+          4,
+          9
+        ],
+        [
+          "r",
+          50331661,
+          1,
+          2
+        ],
+        [
+          "r",
+          50331662,
+          4,
+          0
+        ],
+        [
+          "r",
+          50331666,
+          4,
+          2
+        ],
+        [
+          "r",
+          17367048,
+          4,
+          1432748546
+        ],
+        [
+          "w",
+          16908292,
+          4,
+          1432748546
+        ]
+      ],
+      "source_initial_sha256": "4322c178e927b53821294c0d05798f68f125922bd8ca013e0b52892245561dc3",
+      "source_final_sha256": "4322c178e927b53821294c0d05798f68f125922bd8ca013e0b52892245561dc3",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "flags-alias-literal",
+      "passed": true,
+      "count": 1,
+      "destination": 50331661,
+      "source_cursor": 50331665,
+      "param_end": 50331669,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          2
+        ],
+        [
+          "w",
+          50331661,
+          4,
+          0
+        ],
+        [
+          "r",
+          50331661,
+          4,
+          0
+        ],
+        [
+          "w",
+          50331665,
+          4,
+          0
+        ]
+      ],
+      "source_initial_sha256": "25951dcee255e52b67dda48862fbae21bc0aa6328410e2858d6ce1d60dd2eb38",
+      "source_final_sha256": "62c49fba66b551c2e616a51d9c1e678673f9f758c4928f21f9609cb067749a25",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "inline-flags-alias-length",
+      "passed": true,
+      "count": 1,
+      "destination": 50331662,
+      "source_cursor": 50331671,
+      "param_end": 50331670,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          5
+        ],
+        [
+          "w",
+          50331662,
+          4,
+          5
+        ],
+        [
+          "r",
+          50331661,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331662,
+          4,
+          5
+        ],
+        [
+          "w",
+          50331662,
+          4,
+          7
+        ],
+        [
+          "r",
+          50331662,
+          2,
+          7
+        ],
+        [
+          "w",
+          50331666,
+          4,
+          50331664
+        ]
+      ],
+      "source_initial_sha256": "ce2182aa963f7ba49b40b9ec9bb1884ac31216d578b8e5943fe4baf256916db3",
+      "source_final_sha256": "ed579cd5f9f0ca90605954276de00bf8c2d2b31b9fb9f88aac15e0d028eedd95",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "first-parameter-rewrites-next-tag",
+      "passed": true,
+      "count": 2,
+      "destination": 50331665,
+      "source_cursor": 50331666,
+      "param_end": 50331681,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          2
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          2
+        ],
+        [
+          "w",
+          50331665,
+          4,
+          0
+        ],
+        [
+          "r",
+          50331661,
+          4,
+          287454020
+        ],
+        [
+          "w",
+          50331669,
+          4,
+          287454020
+        ],
+        [
+          "r",
+          50331665,
+          1,
+          0
+        ],
+        [
+          "w",
+          50331673,
+          4,
+          0
+        ],
+        [
+          "w",
+          50331677,
+          4,
+          0
+        ]
+      ],
+      "source_initial_sha256": "d2fd10d0ded71e154e874ae9743a81c86a19256c7bafcac5ed2c359e7f81b2a8",
+      "source_final_sha256": "429046f718e58b5558e88873b9cef6b301f67eb380eb19fccd735633e98fcb9d",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 2,
+        "ecx": 2,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    },
+    {
+      "label": "flags-alias-array-index",
+      "passed": true,
+      "count": 1,
+      "destination": 50331666,
+      "source_cursor": 50331670,
+      "param_end": 50331674,
+      "events": [
+        [
+          "r",
+          50331650,
+          4,
+          4
+        ],
+        [
+          "r",
+          50331654,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331659,
+          1,
+          1
+        ],
+        [
+          "r",
+          50331660,
+          1,
+          9
+        ],
+        [
+          "w",
+          50331666,
+          4,
+          9
+        ],
+        [
+          "r",
+          50331661,
+          1,
+          2
+        ],
+        [
+          "r",
+          50331662,
+          4,
+          0
+        ],
+        [
+          "r",
+          50331666,
+          4,
+          9
+        ],
+        [
+          "r",
+          17367076,
+          4,
+          1432750345
+        ],
+        [
+          "w",
+          50331670,
+          4,
+          1432750345
+        ]
+      ],
+      "source_initial_sha256": "4322c178e927b53821294c0d05798f68f125922bd8ca013e0b52892245561dc3",
+      "source_final_sha256": "4ee971199ba58a11fb7d0adfd21067da109c0a4c762cd78f257408f033d2f452",
+      "other_heap_PE_writes": [],
+      "observer": {
+        "stop_reached": true,
+        "returned": false,
+        "eip": 4390338,
+        "esp": 33586840,
+        "eax": 1,
+        "ecx": 1,
+        "edx": 4,
+        "stack_words": [],
+        "error": null
+      }
+    }
+  ],
+  "scope": "source page, parameter buffer, existing bank value events only; context/descriptor/stack reads outside scope; no growth, expression VM, dispatcher, native lifecycle or game proof"
+}

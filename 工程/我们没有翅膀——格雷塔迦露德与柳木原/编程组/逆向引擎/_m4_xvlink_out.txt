@@ -1,0 +1,31 @@
+== xvlink.py  src=ot  W_main=0x1000 ==
+语料 maps[1] 表项 = 63241（不同 handler 下标 = 341，max=788）
+func_lib ss=175052 maps[1] 项=805；V 数（去 SPECIAL）= 92
+L1 直接窗口：op0x05 = 1758，bad = 0（应为 0）；被直接关联的 handler = 147
+L2 闭包关联的 handler = 166
+
+== 语料引用计数 top 0 handler（VA / 直接关联 V / 闭包关联 V）==
+
+== 高特异性候选（core 窗 W=0x200 恰关联 1 个 V，且语料 refs≥10）共 12 ==
+  h433  0x004302D0 refs=94     → V=0x1EF58@-（扩窗后 15 个 V）
+  h729  0x004210F0 refs=68     → V=0x22FDC@-（扩窗后 7 个 V）
+  h719  0x00420DD0 refs=62     → V=0x22FDC@-（扩窗后 8 个 V）
+  h228  0x00426920 refs=57     → V=0x1E634@SYS\%s.ELG（扩窗后 15 个 V）
+  h209  0x00426580 refs=42     → V=0x21B50@-（扩窗后 7 个 V）
+  h4    0x00417F50 refs=40     → V=0x22704@-（扩窗后 6 个 V）
+  h727  0x00420EF0 refs=31     → V=0x214D8@-（扩窗后 11 个 V）
+  h432  0x004302B0 refs=25     → V=0x1EF58@-（扩窗后 9 个 V）
+  h197  0x00426390 refs=25     → V=0x21770@-（扩窗后 10 个 V）
+  h705  0x00420A60 refs=23     → V=0x24F1C@SYS/SM_BG2.GMP（扩窗后 6 个 V）
+  h229  0x00426950 refs=19     → V=0x1E45C@SYS\RULE%03d.ELG（扩窗后 8 个 V）
+  h227  0x004268F0 refs=11     → V=0xEFF0@-（扩窗后 15 个 V）
+
+[写] v_regions.tsv
+[写] handler_vlink.tsv
+
+== 自证 ==
+  A) L1 归属自证：窗口内 op0x05 操作数不在 maps[1] 的次数 = 0（应 0）
+  B) handler 集合一致性：窗口并集 = 147，h2v 键 = 147，相等 = True
+  C) 变异自证：maps[1]→空表，V=0x1F600 handler 引用条数 31 → 0  OK（有牙齿）
+  D) 窗口敏感度（h9，core 关联 45 个 V）：0x200=23 / 0x1000=45 / 0x4000=61
+  E) 负向对照：空 V 集合的关联 handler 数 = 0（应 0）

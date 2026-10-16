@@ -1,0 +1,16 @@
+@'
+from pathlib import Path
+import sys,importlib.util,struct,json,hashlib
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(root/'工具/unicorn-2.1.4-py314'),str(g/'工具'),str(g/'逆向引擎')];from pe_min import PE;from lucifen_vm_micro import map_pe
+spec=importlib.util.spec_from_file_location('observer',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+pe=PE('备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE');cases=[];frame=0x1004000;manager=0x1009000
+values=[(640,480,0x11223320,0x66778802),(0xffffffff,0x80000000,0xaabbcc08,0xdeadbe00),(0,0,0xff000010,0x000001ff),(1,1,32,1)]
+for slot,entry,callee in [(238,0x41e850,0x4ba6a0),(239,0x41e880,0x4ba7c0)]:
+ for words in values:
+  for ecx,edx in [(0xa1b2c3d4,0xf1f2f3f4),(0x11111111,0x22222222)]:
+   u=map_pe(pe);raw=struct.pack('<4I',*words);u.mem_write(frame,raw);u.mem_write(0x530c9c,struct.pack('<I',manager));r=m.observe_cdecl_until(u,entry,frame,callee,8,{'ecx':ecx,'edx':edx})
+   expected=[entry+0x23,0x2008004,words[0],words[1],(edx&0xffffff00)|(words[2]&255),(ecx&0xffffff00)|(words[3]&255),0x200f000,frame]
+   assert r['stop_reached'] and not r['returned'] and not r['error'];assert r['stack_words']==expected;assert r['ecx']==manager and r['eax']==0x2008004;assert bytes(u.mem_read(frame,16))==raw
+   cases.append({'slot_candidate':slot,'entry':entry,'factory_entry':callee,'frame_words':words,'seed_ecx':ecx,'seed_edx':edx,'snapshot':r,'expected_stack':expected,'frame_unchanged':True})
+p=b/'native238239-call-boundary.json';assert not p.exists();p.write_text(json.dumps({'source_sha256':hashlib.sha256(pe.data).hexdigest(),'scope':'original wrappers executed until original factory entry, factory body NOT executed, no allocator fake return','cases':cases},indent=2),encoding='utf-8');print('PASS',len(cases),'native238/239 original call-boundary snapshots')
+'@ | python -X utf8 -B -

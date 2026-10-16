@@ -1,0 +1,282 @@
+{
+  "source_Cinit": 5271496,
+  "source_Cxx_table": [
+    5406720,
+    5407164
+  ],
+  "source_C_table": [
+    5407168,
+    5407188
+  ],
+  "source_initializer_entries_observed": [],
+  "source_initializer_unique_count": 0,
+  "source_expected_nonzero_count": 114,
+  "result": null,
+  "next_EIP": 1209444,
+  "next_import": "GetModuleHandleA",
+  "failure": "UcError",
+  "stack12": [
+    5275916,
+    5360332,
+    5265303,
+    5271507,
+    33615872,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "recent": [
+    {
+      "pc": 5292197,
+      "esp": 33587156,
+      "eax": 575,
+      "ecx": 65536
+    },
+    {
+      "pc": 5292198,
+      "esp": 33587160,
+      "eax": 575,
+      "ecx": 589855
+    },
+    {
+      "pc": 5292201,
+      "esp": 33587160,
+      "eax": 575,
+      "ecx": 589855
+    },
+    {
+      "pc": 5292202,
+      "esp": 33587164,
+      "eax": 575,
+      "ecx": 895
+    },
+    {
+      "pc": 5292205,
+      "esp": 33587164,
+      "eax": 575,
+      "ecx": 895
+    },
+    {
+      "pc": 5292207,
+      "esp": 33587164,
+      "eax": 589855,
+      "ecx": 895
+    },
+    {
+      "pc": 5292208,
+      "esp": 33587168,
+      "eax": 589855,
+      "ecx": 895
+    },
+    {
+      "pc": 5292209,
+      "esp": 33587176,
+      "eax": 589855,
+      "ecx": 895
+    },
+    {
+      "pc": 5292229,
+      "esp": 33587180,
+      "eax": 589855,
+      "ecx": 895
+    },
+    {
+      "pc": 5292230,
+      "esp": 33587184,
+      "eax": 589855,
+      "ecx": 65536
+    },
+    {
+      "pc": 5292231,
+      "esp": 33587188,
+      "eax": 589855,
+      "ecx": 575
+    },
+    {
+      "pc": 5275840,
+      "esp": 33587192,
+      "eax": 589855,
+      "ecx": 575
+    },
+    {
+      "pc": 5275841,
+      "esp": 33587196,
+      "eax": 589855,
+      "ecx": 65536
+    },
+    {
+      "pc": 5275842,
+      "esp": 33587200,
+      "eax": 589855,
+      "ecx": 196608
+    },
+    {
+      "pc": 5271496,
+      "esp": 33587200,
+      "eax": 589855,
+      "ecx": 196608
+    },
+    {
+      "pc": 5271501,
+      "esp": 33587200,
+      "eax": 5265293,
+      "ecx": 196608
+    },
+    {
+      "pc": 5271503,
+      "esp": 33587200,
+      "eax": 5265293,
+      "ecx": 196608
+    },
+    {
+      "pc": 5271505,
+      "esp": 33587200,
+      "eax": 5265293,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265293,
+      "esp": 33587196,
+      "eax": 5265293,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265317,
+      "esp": 33587192,
+      "eax": 5265293,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265322,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265332,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265337,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265347,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265357,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265367,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265372,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5265298,
+      "esp": 33587196,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5275905,
+      "esp": 33587192,
+      "eax": 5276890,
+      "ecx": 196608
+    },
+    {
+      "pc": 5275910,
+      "esp": 33587188,
+      "eax": 5276890,
+      "ecx": 196608
+    }
+  ],
+  "new_API_tail": [
+    {
+      "api": "HeapCreate",
+      "args": [
+        0,
+        4096,
+        0
+      ],
+      "native_return_address": 5284145,
+      "guest_result": 1744830464
+    },
+    {
+      "api": "GetVersionExA",
+      "args": [
+        33587040
+      ],
+      "native_return_address": 5283831,
+      "observed_version": [
+        148,
+        10,
+        0,
+        22621,
+        2
+      ],
+      "guest_result": 1
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664392,
+      "return_address": 5277140,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664440,
+      "return_address": 5277148,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664416,
+      "return_address": 5277156,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "Critical_init",
+      "key": 5664368,
+      "return_address": 5277164,
+      "actual_host_API_surrogate": true,
+      "guest_layout_not_written": true
+    },
+    {
+      "api": "HeapAlloc",
+      "args": [
+        1744830464,
+        0,
+        128
+      ],
+      "native_return_address": 5273136,
+      "rounded_allocation_size": 128,
+      "guest_result": 117440640
+    }
+  ],
+  "all_initializers_not_assumed_complete": true,
+  "original_WinMain_not_entered": true
+}

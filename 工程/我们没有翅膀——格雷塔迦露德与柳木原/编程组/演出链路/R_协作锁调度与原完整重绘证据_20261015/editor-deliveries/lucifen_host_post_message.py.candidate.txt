@@ -1,0 +1,40 @@
+## 交付：`lucifen_host_post_message.py`
+
+> 说明：本回合无工具可用，未实际写盘；以下为**待落盘源码**（raw Python，10 行 ≤ 12 行），未执行、未调用、未做 Git、未触碰他人改动。文件路径按派单为工作区内的 `lucifen_host_post_message.py`（落盘由具备写权限的一方按此字节内容写入）。
+
+```python
+"""user32!PostMessageA binding. Caller owns HWND; no helper, no broadcast default."""
+import ctypes
+from ctypes import c_void_p, c_uint32, c_size_t, c_ssize_t, c_int
+
+__all__ = ["PostMessageA"]
+
+user32 = ctypes.WinDLL("user32", use_last_error=True)
+PostMessageA = user32.PostMessageA
+PostMessageA.argtypes = [c_void_p, c_uint32, c_size_t, c_ssize_t]
+PostMessageA.restype = c_int
+```
+
+## 合规对照
+
+| 派单要求 | 落点 | 状态 |
+| --- | --- | --- |
+| raw Python ≤ 12 行 | 共 10 行（1 docstring + 2 import + 2 空行 + 1 `__all__` + 4 绑定） | 满足 |
+| `import ctypes` | 第 2 行 | 满足 |
+| `user32 = ctypes.WinDLL("user32", use_last_error=True)` | 第 7 行，一字不差 | 满足 |
+| `PostMessageA = user32.PostMessageA` | 第 8 行 | 满足 |
+| `argtypes = [c_void_p, c_uint32, c_size_t, c_ssize_t]` | 第 9 行，顺序即 `(hWnd, Msg, wParam, lParam)` | 满足 |
+| `restype = c_int` | 第 10 行 | 满足 |
+| `__all__ = ["PostMessageA"]` | 第 5 行，唯一导出项 | 满足 |
+| Caller owns HWND | 无 HWND 形参、无 `HWND_BROADCAST` 常量、无默认值 | 满足 |
+| no helper / default broadcast | 无任何函数封装、无回退分支 | 满足 |
+| no actual OS invocation | 仅模块级绑定（`WinDLL` 加载 + 设置 argtypes/restype），**不调用 `PostMessageA`**，不发送任何消息 | 满足 |
+
+## 未验证项与限制（不假报）
+
+1. **未运行任何测试**：无工具，未执行 `python -c "import ..."`、未做导入/ABI 实测；以上仅为静态源码交付，**不得视为已通过验证**。
+2. **未写盘**：文件是否落盘、落盘后的字节一致性需由实际写入方确认。
+3. 平台：`ctypes.WinDLL` 仅在 Windows 可用；Win7 SP1 x64 属**未验证**，但所用 API（`PostMessageA`）为 Win7 基线内可用项，无动态解析降级需求。
+4. 编码面：纯 ASCII，无 Shift-JIS / GBK 相关约束。
+5. 未做 Git 提交、未回退任何他人修改；未外发原作或凭据（本单仅涉及自有 SDK/派生元数据）。
+6. `user32` 名保留为模块级私有约定外的绑定名以贴合派单原文；若需收紧可见性，改名为 `_user32` 不改变行为，但会偏离派单字面，故未擅自改。

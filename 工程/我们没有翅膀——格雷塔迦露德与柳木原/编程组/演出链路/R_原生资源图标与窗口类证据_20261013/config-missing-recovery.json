@@ -1,0 +1,290 @@
+{
+  "controlled_EXCEPTION_RECORD_bytes": 80,
+  "controlled_CONTEXT_bytes": 716,
+  "rounds": [
+    {
+      "index": 0,
+      "original_exception": {
+        "RaiseException_IAT_candidates": [
+          5341680,
+          5400588
+        ],
+        "api": "RaiseException",
+        "intercept_only_no_dispatch": true,
+        "original_return_address": 5265832,
+        "exception_code": 3765269347,
+        "flags": 1,
+        "parameter_count": 3,
+        "parameters": [
+          429065504,
+          33581220,
+          5386040
+        ],
+        "SEH_chain": [
+          {
+            "frame": 33581256,
+            "next": 33581312,
+            "handler": 5332064,
+            "frame_words": [
+              33581312,
+              5332064,
+              0,
+              33584572,
+              4711726,
+              33582120,
+              4791840,
+              4791888
+            ]
+          },
+          {
+            "frame": 33581312,
+            "next": 33584560,
+            "handler": 5329515,
+            "frame_words": [
+              33584560,
+              5329515,
+              4294967295,
+              4241630,
+              33582120,
+              0,
+              0,
+              33566720
+            ]
+          },
+          {
+            "frame": 33584560,
+            "next": 33587140,
+            "handler": 5318054,
+            "frame_words": [
+              33587140,
+              5318054,
+              1,
+              33566720,
+              4729159,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "frame": 33587140,
+            "next": 4294967295,
+            "handler": 5330216,
+            "frame_words": [
+              4294967295,
+              5330216,
+              4294967295,
+              4533532,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "native_entry": 4533488,
+        "actual_resource_request_missing": "guest-storage\\AppData\\selected-game-data\\\u58cc\u5068\u506a\u5075\u68bc\u507c\u5074\u5044\u4ffc SaveData\\APP_CFG.DAT",
+        "not_original_WinMain_success": true,
+        "CPU_registers": {
+          "EAX": 33580636,
+          "EBX": 33567080,
+          "ECX": 0,
+          "EDX": 33580963,
+          "ESI": 5359960,
+          "EDI": 33580648,
+          "EBP": 33580648,
+          "ESP": 33580588,
+          "EIP": 33612560,
+          "EFLAGS": 6
+        }
+      },
+      "handler": 5332064,
+      "frame": 33581256,
+      "native_catch_events_so_far": [
+        {
+          "entry": 4794205,
+          "ESP": 33549924,
+          "original_typed_catch_machine_code": true
+        }
+      ],
+      "failure": "native continuation stopped at guarded boundary",
+      "EIP": 33612560,
+      "new_exception_captured": true
+    },
+    {
+      "index": 1,
+      "original_exception": {
+        "RaiseException_IAT_candidates": [
+          5341680,
+          5400588
+        ],
+        "api": "RaiseException",
+        "intercept_only_no_dispatch": true,
+        "original_return_address": 5265832,
+        "exception_code": 3765269347,
+        "flags": 1,
+        "parameter_count": 3,
+        "parameters": [
+          429065504,
+          33581252,
+          5386040
+        ],
+        "SEH_chain": [
+          {
+            "frame": 33581280,
+            "next": 33584560,
+            "handler": 5332054,
+            "frame_words": [
+              33584560,
+              5332054,
+              0,
+              33584572,
+              4712169,
+              5409680,
+              33583672,
+              33581320
+            ]
+          },
+          {
+            "frame": 33584560,
+            "next": 33587140,
+            "handler": 5318054,
+            "frame_words": [
+              33587140,
+              5318054,
+              1,
+              33566720,
+              4729159,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "frame": 33587140,
+            "next": 4294967295,
+            "handler": 5330216,
+            "frame_words": [
+              4294967295,
+              5330216,
+              4294967295,
+              4533532,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "native_entry": 4533488,
+        "actual_resource_request_missing": "\u5907\u4efd\\\u6211\u4eec\u6ca1\u6709\u7fc5\u8180R-\u5b89\u88c5\u4ecb\u8d28\\SET_UP\\SET_UP.IFG",
+        "not_original_WinMain_success": true,
+        "CPU_registers": {
+          "EAX": 33580672,
+          "EBX": 0,
+          "ECX": 0,
+          "EDX": 63,
+          "ESI": 5359960,
+          "EDI": 33580684,
+          "EBP": 33580684,
+          "ESP": 33580624,
+          "EIP": 33612560,
+          "EFLAGS": 6
+        }
+      },
+      "handler": 5332054,
+      "frame": 33581280,
+      "native_catch_events_so_far": [
+        {
+          "entry": 4794205,
+          "ESP": 33549924,
+          "original_typed_catch_machine_code": true
+        }
+      ],
+      "failure": "native continuation stopped at guarded boundary",
+      "EIP": 50376720,
+      "new_exception_captured": false
+    }
+  ],
+  "API_counts_after_handler": {
+    "HeapCreate": 1,
+    "GetVersionExA": 2,
+    "Critical_init": 13,
+    "HeapAlloc": 128,
+    "InterlockedExchange_guest_CPU": 1,
+    "Critical_enter": 6,
+    "HeapSize": 1,
+    "Critical_leave": 6,
+    "GetCurrentThreadId": 5,
+    "CoInitialize": 1,
+    "CreateEventA": 2,
+    "lstrcpyA": 50,
+    "lstrcatA": 35,
+    "lstrlenA": 26,
+    "wsprintfA_version": 1,
+    "RegOpenKeyExA": 1,
+    "RegQueryValueExA": 1,
+    "RegCloseKey": 1,
+    "GetSystemInfo": 1,
+    "GetLocaleInfoA": 2,
+    "GlobalMemoryStatus": 1,
+    "GetSystemMetrics": 2,
+    "GetDC": 2,
+    "GetDeviceCaps": 4,
+    "ReleaseDC": 2,
+    "EnumDisplayMonitors": 1,
+    "GetMonitorInfoA": 1,
+    "CreateDCA": 1,
+    "DeleteDC": 1,
+    "EnumDisplayDevicesA": 47,
+    "lstrcmpA": 3,
+    "HeapFree": 13,
+    "GetModuleFileNameA_guest_registered_metadata": 1,
+    "GetTickCount": 1,
+    "FindFirstFileA": 8,
+    "LoadLibraryA_guest_actual_DLL_attach": 1,
+    "GetProcAddress_guest_original_export": 15,
+    "FindClose": 1,
+    "CreateFileA": 8,
+    "CharUpperA": 2,
+    "ReadFile": 5,
+    "CharLowerA": 7,
+    "SetFilePointer": 2,
+    "GlobalAlloc": 3,
+    "GlobalFree": 3,
+    "SHGetSpecialFolderPathA_readonly_existing_host_query": 3,
+    "CreateDirectoryA_mapped_storage_actual_CreateDirectoryW": 2,
+    "CopyFileA_mapped_storage_actual_CopyFileW": 1,
+    "SetFileAttributesA_mapped_storage_actual_SetFileAttributesW": 1,
+    "GetFileSize_actual_owned_host_file": 1,
+    "CloseHandle": 3,
+    "wsprintfA_one_string_actual_host": 2,
+    "GetDesktopWindow_actual_borrowed_HWND": 1,
+    "SHGetMalloc_actual_host_COM": 1,
+    "SHBrowseForFolderA_explicit_controlled_selection_input": 1,
+    "SHGetPathFromIDListA_actual_owned_PIDLIST": 1,
+    "IMalloc_Free_actual_host": 1,
+    "IMalloc_Release_actual_host": 1,
+    "wsprintfA_two_strings_actual_host": 2,
+    "RaiseException_controlled_capture": 2,
+    "IsBadReadPtr": 2,
+    "IsBadWritePtr": 2,
+    "RtlUnwind_guest_emulation": 2,
+    "GetLastError": 12,
+    "TlsGetValue": 12,
+    "TlsSetValue": 1,
+    "SetLastError": 12,
+    "WriteFile_actual_exact_mapped_USER_CFG": 10,
+    "GetDriveTypeA_actual_host_query": 1,
+    "OpenMutexA_actual_host_named_mutex": 1,
+    "CreateMutexA_actual_host_named_mutex": 1,
+    "SetRect_actual_host_rect": 1,
+    "AdjustWindowRectEx_actual_host_rect": 1,
+    "LoadLibraryA_exact_system_ddraw_actual_LoadLibraryW": 1,
+    "GetProcAddress_actual_system_ddraw": 2
+  },
+  "failure": "native continuation stopped at guarded boundary",
+  "EIP": 50376720,
+  "RtlUnwind_scope": "explicit current-head-only guest OS adapter; not host OS SEH or all-frame unwind",
+  "WinMain_returned": false
+}

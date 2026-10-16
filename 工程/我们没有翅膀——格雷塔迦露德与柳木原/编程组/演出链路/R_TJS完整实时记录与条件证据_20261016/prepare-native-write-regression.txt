@@ -1,0 +1,21 @@
+"""Root validation recipe assembly: add original CPU write witness, retain old files."""
+from pathlib import Path
+import json,hashlib
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-target-live-record-20261016';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组'
+p=w/'python-control-patch-run-09/candidate.txt';patches=json.loads(p.read_text(encoding='utf-8-sig'));assert len(patches)==1
+t=(g/'工具/lucifen_inline_vm_reference.py').read_text(encoding='utf-8-sig')
+for patch in patches:
+ assert patch['file']=='lucifen_inline_vm_reference.py'and t.count(patch['old'])==patch['count']==1;t=t.replace(patch['old'],patch['new'])
+(w/'lucifen_inline_vm_reference.py').write_text(t,encoding='utf-8')
+source=g/'演出链路/R_TJS表达式VM与暂停恢复证据_20261015/verify-vm-synthetic.txt';t=source.read_text(encoding='utf-8-sig')
+changes=[
+ ('from lucifen_inline_vm_reference import run_vm,inline_native,expression_native',"sys.path.insert(0,str(r/'子代理工作区/ISSUE-20261011-02/r-target-live-record-20261016'))\nfrom lucifen_inline_vm_reference import run_vm,inline_native,expression_native"),
+ ('from unicorn import UC_HOOK_CODE','from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_WRITE'),
+ ("    hook=u.hook_add(UC_HOOK_CODE,fetch,begin=0x4a7a75,end=0x4a7a75)","    hook=u.hook_add(UC_HOOK_CODE,fetch,begin=0x4a7a75,end=0x4a7a75)\n    native_writes=[]\n    def wrote(uc,access,a,size,value,user):\n        if not 0x2000000<=a<0x2010000:native_writes.append([size,a,value&((1<<(8*size))-1)])\n    write_hook=u.hook_add(UC_HOOK_MEM_WRITE,wrote)"),
+ ("                trace.clear();got=invoke_thiscall_args", "                trace.clear();native_writes.clear();got=invoke_thiscall_args"),
+ ("                for (base,data),shadow in zip(initial,full[i]):", "                assert native_writes==expected['writes'],(identity,i,'native ordered writes',native_writes,expected['writes'])\n                for (base,data),shadow in zip(initial,full[i]):"),
+ ('    finally:u.hook_del(hook)','    finally:u.hook_del(hook);u.hook_del(write_hook)'),
+ ("'original_full_memory_and_trace_matches':True", "'original_full_memory_and_trace_matches':True,'fresh_original_ordered_writes_match':True,'opcode30_zero_includes_intermediate_PC_write':True")]
+for old,new in changes:assert t.count(old)==1,(old,t.count(old));t=t.replace(old,new)
+(w/'generate-vm-native-write-regression.txt').write_text(t,encoding='utf-8')
+print(json.dumps(dict(python_patch_applied=True,original_native_ordered_write_check_added=True)))

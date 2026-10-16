@@ -1,0 +1,188 @@
+"""Root local original-code experiment; owned synthetic bytes, no corpus export."""
+from pathlib import Path
+import hashlib
+import json
+import struct
+import sys
+
+root = Path.cwd().resolve()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+sys.path[:0] = [str(root / "工具/unicorn-2.1.4-py314"), str(group / "工具"), str(group / "逆向引擎")]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_thiscall_probe import invoke_thiscall_args
+from lucifen_cdecl_observer import observe_cdecl_until
+from r_vm_tjs_literal import tjs_literal as lit
+from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE
+from unicorn.x86_const import UC_X86_REG_ESP, UC_X86_REG_ESI
+
+out = Path(sys.argv[1]).resolve()
+assert out.is_relative_to(root / "临时/ISSUE-20261011-02") and not out.exists()
+out.mkdir()
+path = root / "备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE"
+pe = PE(path)
+digest = hashlib.sha256(pe.data).hexdigest()
+assert digest == "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33"
+source, normal_code, table, ctx, normal_cursor = 0x3000000, 0x3000020, 0x3000080, 0x1002000, 0x1023000
+u32 = lambda n: struct.pack("<I", n & 0xffffffff)
+
+def table_bytes(groups, compact):
+    data = bytearray()
+    counts, indices = [], {}
+    for group_id, rows in enumerate(groups):
+        counts.append(len(data))
+        data += bytes([len(rows)]) if compact & 255 else u32(len(rows))
+        for i, (slot, index) in enumerate(rows):
+            data += u32(slot)
+            indices[group_id, i] = len(data)
+            data += u32(index)
+    return data, counts, indices
+
+def blank():
+    return [[] for _ in range(5)]
+
+cases = []
+def direct(label, groups, compact=1, string_base=0x10d0000, code=normal_code, cursor=normal_cursor):
+    payload, _, _ = table_bytes(groups, compact)
+    data = bytearray(b"\xcc" * 512)
+    data[table-source:table-source+len(payload)] = payload
+    cases.append({"label": label, "kind": "direct", "compact": compact, "code": code, "table": table, "cursor": cursor, "string_base": string_base, "data": data})
+
+direct("empty-compact", blank())
+direct("empty-wide", blank(), 0)
+all_groups = [[(0, 2)], [(4, 3)], [(8, 1)], [(12, 4)], [(16, 5)]]
+for compact in (1, 0, 0x100, 0x10001):
+    direct("all-five-mode-" + str(compact), all_groups, compact)
+g = blank(); g[0] = [(3, 1), (3, 2)]
+direct("duplicate-unaligned", g)
+g = blank(); g[3] = [(0, 9), (12, 7)]
+_, _, ix = table_bytes(g, 1)
+g[3][0] = (table + ix[3, 1] - normal_code, 9)
+direct("write-future-index", g)
+for compact in (1, 0):
+    g = blank(); g[3] = [(0, 0)]; g[4] = [(0, 5)]
+    _, positions, _ = table_bytes(g, compact)
+    g[3][0] = (table + positions[4] - normal_code, 0)
+    direct("zero-next-group-count-" + str(compact), g, compact, string_base=0)
+g = blank(); g[0] = [(4, 0)]
+direct("relocation-overwrites-cursor-cell", g, cursor=normal_code+4)
+g = blank(); g[4] = [(8, 9)]
+direct("u32-address-and-value-wrap", g, code=0xfffffffc)
+g = blank(); g[0] = [((0x5355e4-normal_code)&0xffffffff, 2)]; g[3] = [(0, 9)]
+direct("earlier-group-changes-string-global", g)
+for compact in (1, 0):
+    g = blank(); g[4] = [(8, 1)]
+    _, _, ix = table_bytes(g, compact)
+    direct("cursor-cell-aliases-index-" + str(compact), g, compact, cursor=table+ix[4,0])
+cases.append({"label":"cursor-cell-aliases-first-count", "kind":"direct", "compact":1, "code":source+0x100,
+              "table":source, "cursor":source, "string_base":0, "data":bytearray(512)})
+
+def wrapper(label, groups, flag=0, code_size=64, declared_size=None):
+    payload, _, _ = table_bytes(groups, 1)
+    size = 2 + len(payload) if declared_size is None else declared_size
+    expression = struct.pack("<H", code_size) + b"\0" * code_size + bytes([flag]) + struct.pack("<H", size) + payload
+    body = b"\1\x07\x03" + expression
+    record = b"[ " + u32(4) + b"\1" + u32(4+len(body)) + body
+    cases.append({"label": label, "kind": "wrapper", "compact": 1, "code": source+16, "expression": source+14,
+                  "cursor": None, "string_base": 0x10d0000, "data": bytearray(record + b"\xcc"*(512-len(record)))})
+wrapper("cold-empty", blank())
+wrapper("cold-all-five", all_groups)
+wrapper("warm-flag-one-poison-table", [[(0, i) for i in range(5)] for _ in range(5)], flag=1, declared_size=0)
+wrapper("warm-flag-two", blank(), flag=2)
+wrapper("cold-declared-size-zero-still-binds", all_groups, declared_size=0)
+g = blank(); g[4] = [(64, (-(source+16))&0xffffffff)]
+wrapper("relocation-clears-just-set-flag", g)
+wrapper("zero-code-length-cold", blank(), code_size=0)
+assert len(cases) == 23
+
+specs, results = [], []
+for case in cases:
+    uc = map_pe(pe)
+    uc.mem_map(source, 4096)
+    uc.mem_map(0, 4096)
+    uc.mem_write(source, bytes(case["data"]))
+    initial = []
+    def seed(addr, value):
+        uc.mem_write(addr, u32(value)); initial.append([addr, value & 0xffffffff])
+    for group_id, glob, desc, vector, count, width in ((0,0x5355f0,0x1040000,0x1050000,8,12),
+                                                     (1,0x5355ec,0x1040040,0x1075000,8,4),
+                                                     (2,0x5355e8,0x1040080,0x1085000,3,12)):
+        seed(glob, desc); seed(desc+4, vector); seed(desc+8, vector+count*width)
+        for i in range(count):
+            seed(vector+i*width, 0x411c40+i*16 if group_id == 1 else 0x1090000+group_id*0x100+i*16)
+    seed(0x5355e4, case["string_base"])
+    if case["kind"] == "direct":
+        seed(case["cursor"], case["table"])
+    else:
+        seed(ctx+0x434, 0x1020000)
+    state = {"active": case["kind"] == "direct", "cursor": case["cursor"], "binder_calls": 0}
+    events, unexpected_writes = [], []
+    snapshots = {}
+    def snapshot():
+        snapshots["heap"] = bytes(uc.mem_read(0x1000000,0x100000))
+        snapshots["pe"] = bytes(uc.mem_read(pe.image_base,pe.size_image))
+        snapshots["source"] = bytes(uc.mem_read(source,512))
+        snapshots["cursor_initial"] = int.from_bytes(uc.mem_read(state["cursor"],4),"little")
+    def watched(addr):
+        return (source <= addr < source+4096 or 0x1000000 <= addr < 0x1100000 or 0x5355e4 <= addr < 0x5355f4 or
+                (state["cursor"] is not None and state["cursor"] <= addr < state["cursor"]+4) or 0 <= addr < 4096)
+    def on_code(machine, addr, size, user):
+        if case["kind"] == "wrapper" and addr == 0x42fd44:
+            state["cursor"] = machine.reg_read(UC_X86_REG_ESP)+0x14
+            state["active"] = True
+            snapshot()
+        if state["active"] and addr == 0x430090:
+            arg = int.from_bytes(machine.mem_read(machine.reg_read(UC_X86_REG_ESP)+4,4),"little")
+            assert arg == state["cursor"]
+            state["binder_calls"] += 1
+    def on_read(machine, access, addr, size, value, user):
+        if state["active"] and watched(addr):
+            events.append(["r",addr,size,int.from_bytes(machine.mem_read(addr,size),"little")])
+    def on_write(machine, access, addr, size, value, user):
+        if not state["active"]:
+            return
+        if watched(addr):
+            events.append(["w",addr,size,value&((1<<(size*8))-1)])
+        elif not (0x2000000 <= addr < 0x2010000):
+            unexpected_writes.append([addr,size,value])
+    uc.hook_add(UC_HOOK_CODE,on_code)
+    uc.hook_add(UC_HOOK_MEM_READ,on_read)
+    uc.hook_add(UC_HOOK_MEM_WRITE,on_write)
+    if case["kind"] == "direct":
+        snapshot()
+        returned = invoke_thiscall_args(uc,0x430090,ctx,[state["cursor"],case["code"],case["compact"]],count=10000,timeout=200000)
+        outcome = {"returned": True, "eax": returned}
+    else:
+        outcome = observe_cdecl_until(uc,0x42fb50,source+1,0x42fd75,0,{"ecx":ctx},count=10000,timeout=200000)
+        assert outcome["stop_reached"] and not outcome["error"]
+    assert snapshots and not unexpected_writes
+    expected_heap, expected_pe = bytearray(snapshots["heap"]), bytearray(snapshots["pe"])
+    for op,addr,size,value in events:
+        if op != "w": continue
+        raw=value.to_bytes(size,"little")
+        if 0x1000000<=addr<0x1100000: expected_heap[addr-0x1000000:addr-0x1000000+size]=raw
+        if pe.image_base<=addr<pe.image_base+pe.size_image: expected_pe[addr-pe.image_base:addr-pe.image_base+size]=raw
+    assert bytes(uc.mem_read(0x1000000,0x100000)) == bytes(expected_heap)
+    assert bytes(uc.mem_read(pe.image_base,pe.size_image)) == bytes(expected_pe)
+    observed = sorted({addr for op,addr,size,value in events if op=="w" and size==4} | {state["cursor"]})
+    final_words = [[addr,int.from_bytes(uc.mem_read(addr,4),"little")] for addr in observed]
+    if case["kind"] == "wrapper":
+        initial += [[0x1020000,7],[state["cursor"],snapshots["cursor_initial"]]]
+    spec = {"label":case["label"],"kind":case["kind"],"source":source,"data":list(snapshots["source"]),"initial_words":initial,
+            "code":case["code"],"table":case.get("table",0),"expression":case.get("expression",0),"compact":case["compact"],"cursor":state["cursor"],
+            "events":events,"source_final":list(uc.mem_read(source,512)),"final_words":final_words,
+            "bound":bool(state["binder_calls"]),"binder_calls":state["binder_calls"]}
+    specs.append(spec)
+    results.append({"label":case["label"],"kind":case["kind"],"passed":True,"events":events,"binder_calls":state["binder_calls"],
+                    "cursor":state["cursor"],"final_words":final_words,"outcome":outcome,"heap_and_PE_match_ordered_writes":True,
+                    "final_source_sha256":hashlib.sha256(bytes(spec["source_final"])).hexdigest()})
+assert path.read_bytes()==pe.data
+target=out/"cases.tjs"
+target.write_text("\n".join("RLiveBindCheck("+lit(spec)+");" for spec in specs)+"\n",encoding="utf-8")
+receipt={"passed":True,"original_sha256":digest,"cases":len(results),"events":sum(len(r["events"])for r in results),"results":results,
+         "scope":"synthetic 16 direct binders + seven parameter callers before VM; scoped memory event/value/order, whole original heap and guest PE against writes; no bank growth, live VM, inline caller or full game proof"}
+(out/"original-results.json").write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+manifest={"cases":len(results),"events":receipt["events"],"original_sha256":digest,"original_result_sha256":hashlib.sha256((out/"original-results.json").read_bytes()).hexdigest(),
+          "files":[{"source":target.relative_to(root).as_posix(),"sha256":hashlib.sha256(target.read_bytes()).hexdigest()}]}
+(out/"manifest.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
+print(json.dumps({"passed":True,"fresh_original_cases":len(results),"scoped_events":receipt["events"],"cases":[[r["label"],len(r["events"]),r["binder_calls"]]for r in results]}))

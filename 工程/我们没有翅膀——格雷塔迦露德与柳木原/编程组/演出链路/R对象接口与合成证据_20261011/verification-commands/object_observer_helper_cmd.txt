@@ -1,0 +1,22 @@
+@'
+from pathlib import Path
+import sys,importlib.util,json
+root=Path.cwd();b=root/'临时/ISSUE-20261011-02/r-object-evidence-replay-01';b.mkdir(parents=True,exist_ok=True);sys.path.insert(0,str(root/'工具/unicorn-2.1.4-py314'));from unicorn import Uc,UC_ARCH_X86,UC_MODE_32
+spec=importlib.util.spec_from_file_location('observer',root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_cdecl_observer.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+def cpu(code):
+ u=Uc(UC_ARCH_X86,UC_MODE_32);u.mem_map(0x400000,0x1000);u.mem_write(0x400000,code);u.mem_map(0x2000000,0x10000);u.mem_map(0x1000000,0x10000);return u
+rows=[]
+u=cpu(bytes.fromhex('b878563412c3'));r=m.observe_cdecl_until(u,0x400000,0x1000000,0x400005);assert r['stop_reached'] and not r['returned'] and r['eip']==0x400005 and r['eax']==0x12345678;rows.append({'name':'stop_before_ret','result':r})
+r=m.observe_cdecl_until(u,0x400000,0x1000000,0x400090);assert r['returned'] and not r['stop_reached'] and r['esp']==0x2008004;rows.append({'name':'true_return_and_hook_removed','result':r})
+u=cpu(bytes.fromhex('e805000000c390909090c3'));r=m.observe_cdecl_until(u,0x400000,0x1000000,0x40000a);assert r['stop_reached'] and not r['returned'] and r['esp']==0x2007ffc and r['stack_words'][:3]==[0x400005,0x200f000,0x1000000];rows.append({'name':'actual_call_push_no_fake_return','result':r})
+u=cpu(bytes.fromhex('ebfe'));r=m.observe_cdecl_until(u,0x400000,0x1000000,0x400010,count=30);assert not r['stop_reached'] and not r['returned'];rows.append({'name':'budget_loop_not_return','result':r})
+u=cpu(bytes.fromhex('a100000003c3'));r=m.observe_cdecl_until(u,0x400000,0x1000000,0x400010);assert r['error'] and not r['returned'] and not r['stop_reached'];rows.append({'name':'unmapped_read_recorded','result':r})
+for bad in [True,-1,0x100000000]:
+ u=cpu(b'\xc3');before=bytes(u.mem_read(0x2008000,8))
+ try:m.observe_cdecl_until(u,bad,0x1000000,0x400010)
+ except ValueError:pass
+ else:raise AssertionError('invalid u32 accepted')
+ assert bytes(u.mem_read(0x2008000,8))==before
+rows.append({'name':'three_invalid_u32_no_write'})
+p=b/'observer-helper-check.json';assert not p.exists();p.write_text(json.dumps({'cases':rows,'scope':'synthetic original-call-boundary observer, no engine behavior claim'},indent=2),encoding='utf-8');print('PASS observer',len(rows),'groups')
+'@ | python -X utf8 -B -

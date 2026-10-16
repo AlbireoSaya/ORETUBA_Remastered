@@ -1,0 +1,37 @@
+E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\_工作\ISSUE-20260923-01_M39_证据\复现脚本\m39_make_dlgmask.py:63: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  aa = list(a.getdata())[::W]          # 每行首像素 = 该行 alpha（逐行同值）
+==============================================================================
+M39 遮罩素材生成：E:\ZCode Workspace\Galgame\临时\wt-qbicons\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\krkr\assets\ui\x_ui_dlgmask_bottom.png
+==============================================================================
+  [OK ] 模式 = RGBA（PNG-32）                              RGBA
+  [OK ] 尺寸 = 1920×400                                  (1920, 400)
+  [OK ] RGB 全为纯黑 #000000                               R(0, 0) G(0, 0) B(0, 0)
+  [OK ] alpha 自顶 0 → 底 255                             0 → 255
+  [OK ] alpha 纵向单调不减（平滑剖面，无台阶）                         最小步进 0 / 最大步进 1
+  [OK ] 是**渐变**而非硬边矩形（中段既非 0 也非 255）                   中段 alpha=84
+  [OK ] 剖面偏底（中线处 < 线性）                                 t^1.6 中线 84 < 线性 128（低 44）
+  [OK ] 素材本身做到最大 255（强度交给 opacity）                     max=255
+
+  剖面采样（行号 → alpha）：
+    y=  0  t=0.000  alpha=  0
+    y= 40  t=0.100  alpha=  6
+    y= 80  t=0.201  alpha= 19
+    y=120  t=0.301  alpha= 37
+    y=160  t=0.401  alpha= 59
+    y=200  t=0.501  alpha= 84
+    y=240  t=0.602  alpha=113
+    y=280  t=0.702  alpha=145
+    y=320  t=0.802  alpha=179
+    y=360  t=0.902  alpha=216
+    y=399  t=1.000  alpha=255
+
+  对照线性剖面（t^1.0）在同点位的值，量化「偏底」程度：
+    y=  0  线性=  0  本素材=  0  差=+0
+    y=100  线性= 64  本素材= 28  差=-36
+    y=200  线性=128  本素材= 84  差=-44
+    y=300  线性=192  本素材=162  差=-30
+    y=399  线性=255  本素材=255  差=+0
+
+  md5 = 4f1696ed06bfea52810a753209516db8
+
+RESULT=OK 全部自证通过

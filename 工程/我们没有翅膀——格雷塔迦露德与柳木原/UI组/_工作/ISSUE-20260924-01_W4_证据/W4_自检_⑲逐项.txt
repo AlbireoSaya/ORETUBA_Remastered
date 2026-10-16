@@ -1,0 +1,15 @@
+  SELFTEST OK   ⑰ 前置：主语确为纯热区（无 state_assets / state_group）  —— cfg.tab1_hit 带 ui-hit-hasstate=false
+  SELFTEST OK   ⑰ ?chrome=0 压掉纯热区的点击瞬闪叠色（computedStyle 实测）  —— 默认=rgba(122, 176, 232, 0.34)　→　chrome=0=rgba(0, 0, 0, 0)
+  SELFTEST OK   ⑲a 初值渲染：data-ui-kind/data-ui-slider-value 齐备且手柄 x 比例正确（误差 ≤1px，且落在轨道内）  —— kind=slider，data-ui-slider-value=90，运行值=90（期望 90），手柄中心 x=635.5000027950293（期望 634.6，误差 0.90px），轨道 x..x+w=307..671（命中=true）
+  SELFTEST OK   ⑲a 手柄常态用 handle.state_assets.normal  —— x_ui_cfg_knob.png（期望 x_ui_cfg_knob.png）
+  SELFTEST OK   ⑲b 拖动到 40 ⇒ 值=40 且 state.settings.dlg_winopac=40 且 cfg.pv_mask 的 opacity=102/255  —— 值=40，data-ui-slider-value=40，settings.dlg_winopac=40，cfg.pv_mask.style.opacity=0.4（期望 0.4 = 102/255）
+  SELFTEST OK   ⑲b 拖动中手柄用 hover 图 / 拖出轨道右侧仍不中断且 clamp 到 max / 抬起后回常态图  —— 按下后手柄=x_ui_cfg_knob_over.png（期望 x_ui_cfg_knob_over.png），拖动目标=cfg.sl_winopac，拖出右侧后值=100（期望 max=100）且拖动仍在=true；抬起后 drag="" hover="" 手柄=x_ui_cfg_knob.png（期望 x_ui_cfg_knob.png）
+  SELFTEST OK   ⑲c 切到 dialog 屏后 dlg.mask_bottom 的 opacity 同样 = 102/255（实时生效穿透）  —— dlg.mask_bottom.style.opacity=0.4（期望 0.4）
+  SELFTEST OK   ⑲c 换屏返回保留运行期值（config → dialog → config 后仍为 40）  —— data-ui-slider-value=40
+  SELFTEST OK   ⑲d 默认 cfg_page=sys（系统页全可见 / 声音页 0 可见），点页签 2 后互斥反转  —— 初始 cfg_page=sys：sys 可见 81/81、snd 可见 0；点 cfg.tab2_hit 后 cfg_page=snd：snd 可见 166/166、sys 可见 0
+  SELFTEST OK   ⑲d 切页值 flag 派生：非本页值元素 display:none（0 件残留）+ 每件值元素显隐与 flag 值一致 + **进屏那一刻同样已派生**（cfg_vchar 组在系统页可见数 = 0）  —— 切到声音页后：模型不符 0 件、**非本页仍可见 0 件**；切回系统页后：模型不符 0 件、非本页仍可见 0 件；★ **进屏那一刻**（默认系统页）：模型不符 0 件、非本页仍可见 0 件；cfg_vchar 组在系统页可见 0 件；点页签前（同一进屏态）非本页可见 0 件
+  SELFTEST OK   ⑲e 点 cfg.ch_hiy_hit ⇒ cfg_vchar=hiy，该族 _pill 与 _tx_sel 可见、其它族全不可见（且声音页上**系统页的值元素 0 件可见**）  —— cfg_page=snd（声音页前置）；cfg_vchar asu → hiy；该族 pill/sel 可见=true；**其它族误显 0 件**；声音页上非本页值元素可见 0 件；点击前旧选中族（asu）可见 2 件（预期：它是切换前的选中项）
+  SELFTEST OK   ⑲e 系统页上派发 config_char_kob ⇒ **不上屏**（该族 pill/tx_sel 可见 0 件、cfg_vchar 置空），值只进记忆  —— cfg_page=sys；cfg_vchar=""（期望空串）；该族 pill/tx_sel 可见 0 件（期望 0）；记忆 cfg_vchar=kob（期望 kob）
+  SELFTEST OK   ⑲e 切回声音页 ⇒ 记忆取回：cfg_vchar=kob，该族 pill/tx_sel 各可见 1 件  —— cfg_vchar=kob（期望 kob）；该族 pill/tx_sel 可见 2 件（期望 2）
+  SELFTEST OK   ⑲e 跨屏往返（config → dialog → config → 声音页）后仍是 kob（记忆层生效；若进屏捕获记忆会被默认值 asu 冲掉）  —— 往返后 cfg_page=snd，cfg_vchar=kob（期望 kob；默认值 asu 表示记忆被冲掉）；进屏那一刻 flag=""（期望空串：非本页不上屏）
+  SELFTEST OK   ⑲f 初始化：改「全屏」→ 切声音页 → 点初始化 ⇒ 回窗口模式（仓 25 键复位 + 派生回 window + 页签回系统页；记忆重捕获后也是默认值）  —— 改后 cfg_v_display=full（期望 full）；初始化后 cfg_v_display=window（期望 window）、仓 display=window、cfg_page=sys、窗口模式胶囊可见=true；记忆重捕获 17 键（cfg_v_display=window，应 window —— 仓复位后记忆已不可能压过默认值）

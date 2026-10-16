@@ -1,0 +1,19 @@
+function RLFWrite32(q, v)
+{
+    if (!RLFWatched(this, q)) {
+        throw new Exception("UNEXPECTED_LIVE_BIND_WRITE");
+    }
+    v = v & 0xffffffff;
+    this.events.add(["w", q, 4, v]);
+    RMemoryWrite32(this.memory, q, v);
+}
+
+function RLFWrite8(q, v)
+{
+    if (!RLFWatched(this, q)) {
+        throw new Exception("UNEXPECTED_LIVE_BIND_WRITE");
+    }
+    v = v & 255;
+    this.events.add(["w", q, 1, v]);
+    RMemoryWrite8(this.memory, q, v);
+}

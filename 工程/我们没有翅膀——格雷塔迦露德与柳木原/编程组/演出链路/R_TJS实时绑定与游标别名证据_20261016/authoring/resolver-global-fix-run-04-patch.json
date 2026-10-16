@@ -1,0 +1,26 @@
+[
+  {
+    "file": "r_live_bind_fixture_resolver.tjs",
+    "old": "var rd = RLFRead32 incontextof this;",
+    "new": "var rd = global.RLFRead32 incontextof this;",
+    "count": 2
+  },
+  {
+    "file": "r_live_bind_fixture_resolver.tjs",
+    "old": "var bank = RLFBankWord incontextof this;",
+    "new": "var bank = global.RLFBankWord incontextof this;",
+    "count": 1
+  },
+  {
+    "file": "r_live_bind_fixture_resolver.tjs",
+    "old": "return RLiveRelocationValue(",
+    "new": "return global.RLiveRelocationValue(",
+    "count": 1
+  },
+  {
+    "file": "r_live_bind_fixture_resolver.tjs",
+    "old": "new Exception(",
+    "new": "new global.Exception(",
+    "count": 2
+  }
+]

@@ -1,0 +1,49 @@
+function RGAtomicZero(offset) {
+    return 0;
+}
+
+function RGMemoryAtomic() {
+    var msg = "";
+    var s1 = RMemoryCreate([
+        %["base" => 4096, "size" => 2, "read_byte" => RGAtomicZero, "writable" => 1],
+        %["base" => 4098, "size" => 2, "read_byte" => RGAtomicZero, "writable" => 0]
+    ]);
+    msg = "";
+    try {
+        RMemoryWrite32(s1, 4096, 0x04030201);
+    } catch(e) {
+        msg = e.message;
+    }
+    if (msg !== "READONLY_MEMORY") throw new Exception("ASSERT_READONLY_MEMORY_MESSAGE");
+    if (typeof s1.dirty["4096"] !== "undefined" || typeof s1.dirty["4097"] !== "undefined" || RMemoryRead8(s1, 4096) !== 0 || RMemoryRead8(s1, 4097) !== 0) throw new Exception("ASSERT_READONLY_MEMORY_DIRTY_AND_ZERO");
+
+    var s2 = RMemoryCreate([
+        %["base" => 8192, "size" => 2, "read_byte" => RGAtomicZero, "writable" => 1]
+    ]);
+    msg = "";
+    try {
+        RMemoryWrite32(s2, 8192, 0x04030201);
+    } catch(e) {
+        msg = e.message;
+    }
+    if (msg !== "UNMAPPED_MEMORY") throw new Exception("ASSERT_UNMAPPED_MEMORY_MESSAGE");
+    if (typeof s2.dirty["8192"] !== "undefined" || typeof s2.dirty["8193"] !== "undefined" || RMemoryRead8(s2, 8192) !== 0 || RMemoryRead8(s2, 8193) !== 0) throw new Exception("ASSERT_UNMAPPED_MEMORY_DIRTY_AND_ZERO");
+
+    msg = "";
+    try {
+        RMemoryWrite32(s2, 0xfffffffe, 1);
+    } catch(e) {
+        msg = e.message;
+    }
+    if (msg !== "INVALID_MEMORY_ACCESS") throw new Exception("ASSERT_INVALID_MEMORY_ACCESS_MESSAGE");
+
+    msg = "";
+    try {
+        RMemoryRead8(s2, 8200);
+    } catch(e) {
+        msg = e.message;
+    }
+    if (msg !== "UNMAPPED_MEMORY") throw new Exception("ASSERT_READ8_UNMAPPED_MEMORY_MESSAGE");
+
+    return 6;
+}

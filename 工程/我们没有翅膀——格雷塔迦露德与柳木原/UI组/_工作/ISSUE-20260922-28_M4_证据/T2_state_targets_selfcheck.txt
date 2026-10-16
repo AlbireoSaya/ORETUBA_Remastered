@@ -1,0 +1,14 @@
+==========================================================================
+状态目标守门 · 反向自证（内存内构造，不改磁盘）
+==========================================================================
+【A 注入 z=999 异组遮挡（盖住 title.menu_hit_1 的中心）】必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ 01_title.json :: title.menu_hit_1 中心(104,408) 胜出 zz.occluder（组 zz.other），期望同组 title.menu_start
+
+【B 把 TJS 判据临时放宽（删掉「必须带非空组」守卫）】指纹检查必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ 判据指纹：uiScreenHoverAtIn() 正文已被改写（期望 316b402dd04f…，实际 574f6e1e7c82…）—— 先核对新判据，再更新本文件的 JUDGE_FINGERPRINT
+    ✗ 判据令牌·候选并集·热区必须带非空 state_group：ui_screens.tjs 里找不到 if(uiWidgetStateGroup(el)=="")continue;
+
+【C 把本文件 python 判据换回**收紧前的宽松版**（候选并集去掉「必须有组」）】令牌检查必须 FAIL ⇒ FAIL（符合预期）✓
+    ✗ 判据令牌·候选并集·热区必须带非空 state_group：本文件 python 复算里找不到 group_of(e) != ""
+
+自证结果：三项均按预期 FAIL ✓

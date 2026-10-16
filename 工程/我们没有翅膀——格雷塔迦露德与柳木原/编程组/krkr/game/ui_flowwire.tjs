@@ -1,0 +1,249 @@
+// ============================================================
+// ui_flowwire.tjs —— 编程组 · 流程图屏取数接线
+//
+// 接线对象（UI 组屏数据 `32_flowchart.json`）：
+//   * 右栏摘要 `fc.p_text_tx`（300×138 / max_lines 4）——取当前节点的说明
+//   * 详情浮层 `fc.intro_title_tx` / `fc.intro_text_tx`（开合由 UI 组 `fc_intro` 旗标实现）
+//   * 画面窗 `fc.play_view`（`dynamic:"flow_scene_frames"`）——取该幕首场景的背景
+//
+// 数据（生成物 `story/_intro.tjs`，由 `工具\build_story.py` 从
+// `资源组\剧本\章节简介.tsv`（仅 `采用==是`，按 `场景id` 去重）与 `剧本\spine.json` 得出）：
+//   `UIIntro*`（449 条场景简介）与 `UIAct*`（11 幕：名/场景数/首场景标题与简介/首场景背景）。
+//
+// 节点↔内容的口径（UI 组把「节点↔场景粒度映射」留给编程组，此处定如下并记录）：
+//   * 流程图的**幕级节点**（`UIFlowData.nodes[].act`，即 `N01..N11`）→ 对应幕的
+//     `UIAct*`（名 / 场景数 / 首场景标题 / 首场景章节简介 / 首场景背景）；
+//   * 其余节点（分歧点等无 `act` 者）→ 退回该节点自身的 `label` / `sub`。
+//   ⇒ 幕级粒度是本数据的**先天粒度**（`nodes[]` 只有 `N01..N11` 带 `act`，其余无场景号），
+//     不是漏做；章节级简介表（449 条）已随生成物备好，将来若流程图给出**场景级节点**可直接改用。
+// ============================================================
+
+var UIIntroKeys   = [];
+var UIIntroTitles = [];
+var UIIntroTexts  = [];
+var UIActNums     = [];
+var UIActLabels   = [];
+var UIActCounts   = [];
+var UIActTitles   = [];
+var UIActIntros   = [];
+var UIActBgs      = [];
+var UIActFirsts   = [];       // 各幕首个场景 id（供「进入本章」直接开局）
+var UIActSceneIds = [];       // ★ 场景→幕：场景 id（平行数组；**只含幕内场景**，番外/序文不在此表）
+var UIActSceneActs= [];       // ★ 场景→幕：幕号（1 起）
+var UIFlowWireInstalled = false;
+var UIFlowWireMsg = "";
+
+function uiFlowWireInstall()
+{
+	if(UIFlowWireInstalled) return true;
+	try { Scripts.execStorage("story/_intro.tjs"); }
+	catch(e) { Debug.message("[FLOWWIRE][ERR] 简介表载入失败：" + e.message); }
+	UIFlowWireInstalled = true;
+	Debug.message("[FLOWWIRE] 简介 " + UIIntroKeys.count + " 条 / 幕 " + UIActLabels.count + " 个");
+	return true;
+}
+
+// 按场景 id 取章节简介（供将来场景级节点使用；现阶段幕级取数不经过它）
+function uiFlowIntroOf(sceneId)
+{
+	var s = "" + sceneId;
+	for(var i = 0; i < UIIntroKeys.count; i++)
+		if(("" + UIIntroKeys[i]) == s) return i;
+	return -1;
+}
+
+function uiFlowWireFindEl(sc, elId)
+{
+	if(sc === void || sc.elements === void) return void;
+	for(var i = 0; i < sc.elements.count; i++)
+	{
+		var e = sc.elements[i];
+		if(e === void || e.id === void) continue;
+		if(("" + e.id) == ("" + elId)) return e;
+	}
+	return void;
+}
+
+// 计算「当前节点 → 标题 / 说明 / 背景」
+function uiFlowWireResolve()
+{
+	var title = "", body = "", bg = "";
+	var cur = "" + UIFlowCursor;
+	if(cur == "")
+	{
+		return %[ title: "剧情流程图", body: "点选一个节点查看说明。", bg: "" ];
+	}
+	var n = UIFlowNodeIndex[cur];
+	if(n !== void && n.act !== void)
+	{
+		var ai = (0 + n.act) - 1;
+		if(ai >= 0 && ai < UIActLabels.count)
+		{
+			title = "" + UIActLabels[ai];
+			var tx = "" + UIActIntros[ai];
+			body = "第 " + (ai + 1) + " 幕 ｜ 场景 " + UIActCounts[ai] + " 个"
+				+ ((UIActTitles[ai] == "") ? "" : ("\n首章：" + UIActTitles[ai]))
+				+ ((tx == "") ? "" : ("\n" + tx));
+			bg = "" + UIActBgs[ai];
+			return %[ title: title, body: body, bg: bg ];
+		}
+	}
+	// 非幕级节点（分歧点 / 汇流等）→ 用节点自身字段
+	if(n !== void)
+	{
+		title = "" + n.label;
+		body = ((n.sub === void) ? "" : ("" + n.sub))
+			+ ((n.box_reason === void) ? "" : ("\n" + n.box_reason));
+	}
+	else
+	{
+		title = cur;
+		body = "（该节点无附注数据）";
+	}
+	return %[ title: title, body: body, bg: "" ];
+}
+
+// 写进流程图屏的元素字段（与存档屏同法：改数据，不新增绘制路径）
+function uiFlowWireApply()
+{
+	if(UILayoutData === void || UILayoutData.screens === void) return false;
+	var sc = UILayoutData.screens["flowchart"];
+	if(sc === void) return false;
+	var r = uiFlowWireResolve();
+	UIFlowWireMsg = "" + r.title;
+
+	var t1 = uiFlowWireFindEl(sc, "fc.p_text_tx");
+	if(t1 !== void) t1.sample = r.body;
+	var t2 = uiFlowWireFindEl(sc, "fc.intro_title_tx");
+	if(t2 !== void) t2.sample = r.title;
+	var t3 = uiFlowWireFindEl(sc, "fc.intro_text_tx");
+	if(t3 !== void) t3.sample = r.body;
+	// 画面窗：有背景才填（否则保留 UI 组占位底色）
+	var pv = uiFlowWireFindEl(sc, "fc.play_view");
+	if(pv !== void && ("" + r.bg) != "") pv.asset = "" + r.bg;
+
+	Debug.message("[FLOWWIRE] 节点=" + UIFlowCursor + " → 标题=" + r.title
+		+ " ｜ 说明 " + ("" + r.body).length + " 字 ｜ 画面=" + (("" + r.bg) == "" ? "(占位)" : r.bg));
+	return true;
+}
+
+// ------------------------------------------------------------
+// 流程图「切集」（flow_mode_main / flow_mode_frag）
+//   口径（编程组定）：两个集＝**幕级主干节点**（`fc.node*`）与**番外独立层件**（`fc.frag*`）。
+//   命名前缀即集合划分依据（屏数据里两类元素前缀区分明确），不改 UI 组数据文件。
+// ------------------------------------------------------------
+function uiFlowWireMode(mode)
+{
+	if(UILayoutData === void || UILayoutData.screens === void) return false;
+	var sc = UILayoutData.screens["flowchart"];
+	if(sc === void || sc.elements === void) return false;
+	// ★ 用户 2026-10-03 裁决（Q1①）：自绘启用时 `fc_layer` 族由 `ui_flowfull` **整族隐藏**
+	//   （屏级 flag 被逐帧写成哨兵值 `selfdraw`）。此时若照写 `main`/`frag1`，会被下一帧覆盖
+	//   ⇒ 白闪一帧 UI 节点。故**自绘开启时本函数不写 flag**，只记一行。
+	//   （自绘一次把本篇 + 番外全画出来 ⇒ 切集页签在本模式下**不再改变画面**，
+	//     即该页签在自绘态是「可见但无作用」的控件 —— 已登记在 `ui_flowfull.tjs` 的代价清单里。）
+	//   返回 `true` 的语义＝**"已处理"（不再往下切层）**，不是"已切换成功"。
+	//   两个调用点（`ui_story.tjs` 的 `flow_mode_main`/`flow_mode_frag`）不使用返回值，故无歧义风险。
+	try
+	{
+		if(UIFullHookEnabled === true)
+		{
+			Debug.message("[FLOWWIRE] 自绘已启用 ⇒ 切集不写 fc_layer（自绘一次画全，页签不再改变画面）");
+			return true;
+		}
+	}
+	catch(eSH) { }
+	// ★★ 一审阻断修复：流程图的节点/番外显隐**不是**由 `visible_default` 决定，而是屏级 flag
+	//   `fc_layer`（`ui_layout.tjs` 的 flags_default = `fc_layer:"main"`；主干 `vis_when:"main"`、
+	//   番外 `vis_when:"frag1".."frag6"`；判据 `ui_screens.tjs` 的 `uiScreenElementVisible`）。
+	//   原实现改 `visible_default` ⇒ 主干被真藏掉、番外仍不显示（**空屏**，且日志无异常）。
+	//   正解＝设置该 flag；`flow_layer` 动作（番外层「返回主干」热区）走的也是这条路。
+	var showFrag = (("" + mode) == "frag");
+	var val = showFrag ? "frag1" : "main";
+	try { uiScreenFlagSet("fc_layer", val); }
+	catch(eF) { Debug.message("[FLOWWIRE][ERR] 切集写 flag 失败：" + eF.message); return false; }
+	Debug.message("[FLOWWIRE] 切集 → " + ((showFrag) ? "番外故事(frag1)" : "本篇集合(main)")
+		+ "（屏级 flag fc_layer=" + val + "）");
+	return true;
+}
+
+// 「进入本章」（UI 组既有动作 `flow_enter`，两端已实现旗标与屏跳转）——
+// 本函数补上**取数**：当前节点所属幕的首场景 → 交给剧情引擎开局。
+function uiFlowWireEnter()
+{
+	var cur = "" + UIFlowCursor;
+	var n = UIFlowNodeIndex[cur];
+	if(n === void || n.act === void)
+	{
+		Debug.message("[FLOWWIRE] flow_enter：当前节点非幕级（" + cur + "），不改变开局");
+		return false;
+	}
+	var ai = (0 + n.act) - 1;
+	if(ai < 0 || ai >= UIActFirsts.count)
+	{
+		Debug.message("[FLOWWIRE] flow_enter：幕号越界 " + n.act);
+		return false;
+	}
+	var first = "" + UIActFirsts[ai];
+	if(first == "")
+	{
+		Debug.message("[FLOWWIRE] flow_enter：该幕无首场景数据");
+		return false;
+	}
+	Debug.message("[FLOWWIRE] flow_enter → 第 " + (ai + 1) + " 幕首场景 " + first);
+	return uiStoryStart(first);
+}
+
+// ------------------------------------------------------------
+// 剧情进度 → 流程图「已读 / 当前节点」（ISSUE-20261003-03）
+//   缺口：UI 组 `ui_flow.tjs` 只在**玩家点击流程图节点**时推进已读状态（`uiFlowEnterNode`）
+//         ⇒ 顺着剧情打完一整章、从没开过流程图的玩家，流程图会一直显示「全部未读」。
+//   本函数把**剧情进度**也写回去。口径（保守，只做加法）：
+//     · 只动**幕级节点**（`UIFlowNodeTable[].act`）的 `UIFlowVisited` / `UIFlowCurrent`；
+//     · **不碰**番外收集（`UIFragCollected*`）与 UI 组其它状态；
+//     · 场景不在幕内（番外 / 序文 / np）⇒ 该场景不对应幕级节点，**不改流程图**；
+//     · 任何异常一律吞掉并记一行 —— 绝不因为流程图而打断剧情。
+//   `UIActSceneIds`/`UIActSceneActs` 由 `story/_intro.tjs` 装载（见 `build_story.py` 的 `build_intro_table`）。
+// ------------------------------------------------------------
+var UIFlowWireFlowReady = -1;        // -1 未探测 ｜ 0 不可用 ｜ 1 可用
+
+function uiFlowWireFlowProbe()
+{
+	if(UIFlowWireFlowReady >= 0) return (UIFlowWireFlowReady == 1);
+	var ok = false;
+	try { ok = (UIFlowNodeTable !== void && UIFlowNodeTable.count > 0); }
+	catch(e) { ok = false; }
+	UIFlowWireFlowReady = ok ? 1 : 0;
+	Debug.message("[FLOWWIRE] 流程图模块探测：" + (ok ? "可用（节点 " + UIFlowNodeTable.count + " 个）"
+	                                                 : "不可用（ui_flow.tjs 未装载或无节点）"));
+	return ok;
+}
+
+function uiFlowWireMarkProgress(sceneId)
+{
+	if(!uiFlowWireFlowProbe()) return false;
+	var s = "" + sceneId;
+	if(s == "" || UIActSceneIds.count != UIActSceneActs.count) return false;
+	var ai = 0;
+	for(var i = 0; i < UIActSceneIds.count; i++)
+		if(("" + UIActSceneIds[i]) == s) { ai = 0 + UIActSceneActs[i]; break; }
+	if(ai <= 0) return false;                    // 番外 / 序文 / 不在幕内 ⇒ 不动
+	var nid = "";
+	for(var j = 0; j < UIFlowNodeTable.count; j++)
+	{
+		var n = UIFlowNodeTable[j];
+		if(n === void || n.act === void) continue;
+		if((0 + n.act) == ai) { nid = "" + n.id; break; }
+	}
+	if(nid == "") return false;
+	try
+	{
+		var changed = (UIFlowVisited[nid] !== true) || (("" + UIFlowCurrent) != nid);
+		UIFlowVisited[nid] = true;
+		UIFlowCurrent = nid;
+		if(changed) uiFlowSaveState();
+	}
+	catch(e2) { Debug.message("[FLOWWIRE][ERR] 进度落库失败：" + e2.message); return false; }
+	Debug.message("[FLOWWIRE] 剧情进度 → 第 " + ai + " 幕节点 " + nid + "（已读/当前）");
+	return true;
+}

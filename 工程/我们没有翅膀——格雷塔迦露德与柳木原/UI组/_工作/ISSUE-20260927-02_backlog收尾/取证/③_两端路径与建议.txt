@@ -1,0 +1,82 @@
+F 组（ISSUE-20260927-02）· ③「引擎 / HTML 按钮标签纵向口径差」——两端计算路径与建议（**不改代码**，供主代理裁决）
+
+■ 结论（一句话）
+同一枚 `item_buttons[].label` 相对**胶囊可见体中心**的高度，引擎与 HTML 不同：
+  引擎：标签墨迹中线比胶囊可见体中心 **高 6.0px**（改前改后都恒为 6.0，四块完全一致）
+  HTML：标签墨迹中线比胶囊可见体中心 **高 3.0px**（上一轮 M06 轮 HTML 导图实测值）
+  ⇒ **两端差 3.0px**，且两端都偏高（都不居中）；这是**按钮内部**的口径问题，与 `item_text` 无关。
+
+■ 引擎端（krkr）三段计算路径（一处数据、两处机制）
+
+  ① `krkr/game/ui_widget.tjs::uiWidgetDrawList`（`item_buttons` 支）——
+     给每个可见按钮的标签**现建一个文本元素**，`valign` 与 `h` 都是**引擎写死**的：
+        `var bt = %[ id: …, kind: "text", x: br.x, y: br.y, w: br.w, h: br.h,
+                     align: …, valign: "middle", wrap: false, max_lines: 1, sample: b.label ];`
+     同类写法见 `krkr/game/ui_widget.tjs::uiWidgetDrawHit`（`hit.label` 同款 `valign:"middle"` + `h=el.h`）。
+     ⇒ **数据层无端口**：`item_buttons[]` 没有标签纵向偏移字段；`b.font` 里的任何键也改不了它
+       （行距由 `ui_theme.tjs::uiThemeElementSpacing(el)` 读**元素自身**的 `line_spacing`，而该元素是引擎现建的，不带此键）。
+
+  ② `krkr/game/ui_theme.tjs::uiThemeLayoutText` —— `middle` 只对**行盒**居中，行盒高 = 1 行：
+        `var blockH = lines.count * lineH;` ／ `if(valign == "middle") y = el.y + Math.floor((el.h - blockH) / 2);`
+     标签为单行、`lineH = floor(20 × 1.4) = 28`、`h = 29` ⇒ `y = 元素顶 + floor((29−28)/2) = 元素顶`
+     ⇒ 标签**行盒顶端 = 按钮元素顶端**（行盒高 28 只占 29px 元素框的上 28px）。
+
+  ③ `krkr/game/ui_theme.tjs::uiThemeRenderText` —— 逐行把字形画在**行盒顶端**（`yy = layout.y` 起逐行 `uiThemeDrawLine`）：
+        `uiThemeDrawLine(layer, xx, yy, s, f, …)`（`yy` 初值 = `layout.y`）
+     实测：字号 20 的「跳转」墨迹落在 `元素顶 − 1 … 元素顶 + 18`（行盒顶上方 1px 起、共 20 行）
+     ⇒ 墨迹中线 = `元素顶 + 8.5`；胶囊可见体中心 = `元素顶 + 14.5` ⇒ **差 6.0px**。
+
+  ★ 一句话根因（引擎侧）：`uiThemeLayoutText` 的 middle 居中的是**行盒**，而 `uiThemeRenderText` 把墨迹画在**行盒顶端**；
+    行盒（28）比字形（20）高出的 8px 全部落在**行盒下方**，于是「行盒居中」被读成「墨迹偏高 halfLeading」。
+
+■ HTML 端（复刻层）两段计算路径
+
+  ① `复刻/replica.js::buildList`（`item_buttons` 支）—— 标签行盒高与「半行距补偿」都显式算：
+        `var blLh = blSize * lineSpacing(b, 'body');` ／ `var blHL = (blLh - blSize) / 2;`
+        `if (blHL) bl.style.transform = 'translateY(' + px(-blHL) + ')';`
+     （该段注释自述：未补偿时墨迹中心恒 +6.5px，其中 4px = (20×1.4−20)/2 的半行距；
+      补偿后余 ~2.5px = 「TJS/浏览器墨迹内边距差」，再加容器取整 ⇒ 实测 **+3.0px**）
+
+  ② `复刻/replica.css` 的 `.ui-list-item-btn-label` —— 容器**flex 居中**（把行盒在按钮框内垂直居中）：
+        `position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;`
+
+  ★ 两端差 3.0px 的本质：两端都「把行盒居中」，但**墨迹在行盒里的位置**不同 ——
+    引擎把墨迹画在行盒**顶端**（无半行距补偿），HTML 显式减掉了半行距（`translateY(−halfLeading)`）
+    再叠一个 ~1px 的取整/内边距差 ⇒ 引擎比 HTML 再多高 3px。
+
+■ 若要统一：改哪一端、改什么（**本轮未改任何一端**，等主代理裁决）
+
+  方案 A（推荐 · 只改引擎一处，两端即「一致」但标签仍不居中）
+    在 `krkr/game/ui_widget.tjs::uiWidgetDrawList` 的 `item_buttons` 标签支，把现建文本元素的 `y` 由 `br.y` 改为 `br.y + 3`
+    （同一处另需评估 `krkr/game/ui_widget.tjs::uiWidgetDrawHit` 的 `hit.label`，两者是同一口径的两个落点）。
+    结果：引擎标签墨迹中线 = 胶囊中心 − 3.0px = HTML 的现状 ⇒ **两端逐像素口径一致**；
+    代价：标签在胶囊内仍偏高 3px（但那是「设计口径」，两端一致，不再分叉）。
+
+  方案 B（推荐 · 两端各一处，做到「标签在胶囊内真正居中」）
+    引擎：`krkr/game/ui_widget.tjs::uiWidgetDrawList` 标签元素 `y = br.y + 6`（墨迹中线 8.5+6 = 14.5 = 胶囊可见体中心 14.5）
+        ＋ 同款落点 `krkr/game/ui_widget.tjs::uiWidgetDrawHit`（`hit.label`）按同量评估；
+    HTML：`复刻/replica.js::buildList` 的补偿项由 `translateY(−(blLh−blSize)/2)` 改为再 +3px（即 `−(blLh−blSize)/2 + 3`）。
+    结果：两端标签墨迹中线都落在胶囊可见体中心（差 0）；代价：两端各改一处（约 2 行），须两端同批改并出实机 + HTML 对照。
+    ★ 不要只改一端的一半：以上两个数值（引擎 +3/+6、HTML +3）是**同一把尺**下的两组解，混用会二次漂移。
+
+  方案 C（不推荐 · 数据层「垫高元素框」）
+    唯一的数据层端口是 `item_buttons[].h`（`uiThemeLayoutText` 的 middle 用 `floor((el.h − blockH)/2)`）：
+    把 `h` 由 29 垫到 40 并配 `nine {t:24,b:5}`（使 t+b = 素材高 29 ⇒ 中段为空、胶囊仍按 1:1 画在框顶），
+    可把标签墨迹下移 6px 且胶囊不动。**未采用**，三条硬理由：
+      · **命中矩形被撑大 11px**（热区 = 按钮矩形，`uiWidgetItemButtonAt` 与绘制共用同一几何）⇒ 交互面变化，须重跑可达性守门；
+      · **与 HTML 分叉更大**：HTML 的标签是容器 flex 居中 ⇒ 框变高会把它**往下**推（HTML 反而更差），而本轮禁止改 `replica.js`；
+      · 属「用九宫格切片的副作用去搬文字」，可读性与可维护性都差，且一旦方案 A/B 落地即成双重偏移。
+
+■ 本轮为何不动它
+  派单明确「不得改 tjs、不得改 replica.js」⇒ ③ 只做**查明 + 登记**。
+  ① 的「三者差 ≤2px」中**唯一卡住的就是这条 6px**（见 `bl.list` note ②③）：
+  位移按钮元素会同时搬动胶囊与标签，数据层无法把 6px 收掉 ⇒ ① 的最优解只能做到
+  「文案墨迹 ↔ 胶囊可见体」重合（本轮已达成，差 0.0 ~ 1.5px），标签那 6px 留给本项裁决。
+
+■ 数值出处与可复算
+  · 引擎 6.0px：`取证/改前/量测_改前.txt`、`取证/改后/量测_改后.txt`（四块的「标签−胶囊」列恒为 −6.0）
+  · HTML 3.0px：上一轮 `_工作/ISSUE-20260927-01_backlog/按钮漂移只读核查.txt` 第四节（M06 轮 HTML 导图 `m06_html_backlog.png`）
+    —— **★ 本数未经本轮复测**（本轮只允许跑引擎巡演；HTML 导图复测属另一模块，须由主代理或该模块复核后回填）
+  · 两端代码引用：`krkr/game/ui_widget.tjs::uiWidgetDrawList`、`uiWidgetDrawHit`；
+    `krkr/game/ui_theme.tjs::uiThemeLayoutText`、`uiThemeRenderText`、`uiThemeApplyFont`、`uiThemeElementSpacing`；
+    `复刻/replica.js::buildList`、`复刻/replica.css` 的 `.ui-list-item-btn-label`（按工程规约**只写函数名、不写行号**）

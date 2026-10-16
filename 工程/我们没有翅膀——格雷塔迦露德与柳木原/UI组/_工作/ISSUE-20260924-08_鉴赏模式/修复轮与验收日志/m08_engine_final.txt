@@ -1,0 +1,245 @@
+### INJECT ###
+运行目录： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1inject
+已注入测试数据：gallery 测试页 + 四承载屏 attach=gal_shell + replay 占位屏
+私有运行目录已建： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1inject （inject=True）
+引擎退出码=0，用时 159 秒
+
+===== M1 鉴赏机制判词（★M08*★）=====
+  ★M08TAB★ PASS  gallery_tab_2：gallery → music（期望 music）  栈 title > gallery ⇒ title > music  上一屏仍在栈里=否  目标屏元素数=26（期望 >0）  gal_tab=music（期望 music）  派发计数 0 -> 1  msg=鉴赏页签 -> music（gallery → music；同级换屏，栈深 2，栈内 title > music；清理该页 list 1 个；gal_tab=music）
+  ★M08TAB★ PASS  gallery_tab_3：music → dress（期望 dress）  栈 title > music ⇒ title > dress  上一屏仍在栈里=否  目标屏元素数=107（期望 >0）  gal_tab=dress（期望 dress）  派发计数 1 -> 2  msg=鉴赏页签 -> dress（music → dress；同级换屏，栈深 2，栈内 title > dress；清理该页 list 1 个；gal_tab=dress）
+  ★M08TAB★ PASS  gallery_tab_4：dress → replay（期望 replay）  栈 title > dress ⇒ title > replay  上一屏仍在栈里=否  目标屏元素数=1（期望 >0）  gal_tab=replay（期望 replay）  派发计数 2 -> 3  msg=鉴赏页签 -> replay（dress → replay；同级换屏，栈深 2，栈内 title > replay；清理该页 list 0 个；gal_tab=replay）
+  ★M08TAB★ PASS  gallery_tab_1：replay → gallery（期望 gallery）  栈 title > replay ⇒ title > gallery  上一屏仍在栈里=否  目标屏元素数=5（期望 >0）  gal_tab=gallery（期望 gallery）  派发计数 3 -> 4  msg=鉴赏页签 -> gallery（replay → gallery；同级换屏，栈深 2，栈内 title > gallery；清理该页 list 0 个；gal_tab=gallery）
+  ★M08PAGE★ PASS  gallery_page_next：gal.list 第 1/2 页 → 第 2/2 页（期望第 2 页）  每页 24 栏 / 共 30 栏  本页首栏全局序号=24（期望 24）  msg=鉴赏·页内翻页 gal.list -> 第 2/2 页（每页 24 栏，共 30 栏；本页 0..23）
+  ★M08PAGE★ PASS  gallery_page_prev：gal.list 第 2/2 页 → 第 1/2 页（期望第 1 页）  每页 24 栏 / 共 30 栏  本页首栏全局序号=0（期望 0）  msg=鉴赏·页内翻页 gal.list -> 第 1/2 页（每页 24 栏，共 30 栏；本页 24..29）
+  ★M08VAR★ PASS  gal.list 行=0 按钮=next(vnext) 中心=316,332  悬停态=hover（期望 hover）  按下态=pressed（期望 pressed）  命中令牌=gal.list:0:vnext（期望 gal.list:0:vnext）  派发=gallery_next:0（期望 gallery_next:0）  派发行号=0（期望 0）  缩略图 ui/x_ui_cfg_tab_on.png → ui/x_ui_cfg_name_sel.png（已换图）  n/N 1/3 → 2/3  序号 0 → 1（期望 1）  msg=鉴赏·栏位内差分 gal.list 行=0 -> 2/3（素材 ui/x_ui_cfg_name_sel.png）
+  ★M08VAR★ PASS  gal.list 行=0 按钮=prev(vprev) 中心=89,332  悬停态=hover（期望 hover）  按下态=pressed（期望 pressed）  命中令牌=gal.list:0:vprev（期望 gal.list:0:vprev）  派发=gallery_prev:0（期望 gallery_prev:0）  派发行号=0（期望 0）  缩略图 ui/x_ui_menuicon_gallery.png → ui/x_ui_cfg_name_sel.png（已换图）  n/N 3/3 → 2/3  序号 2 → 1（期望 1）  msg=鉴赏·栏位内差分 gal.list 行=0 -> 2/3（素材 ui/x_ui_cfg_name_sel.png）
+  ★M08GUARD★ PASS  gal.list 注入 12 例（内存副本，未写磁盘）→ item_variants 非对象→item_variants 不是对象 ✓ ｜ frames 非数组→frames 不是数组 ✓ ｜ frames[行] 非数组→第 0 栏差分列表不是数组 ✓ ｜ frames[行] 空素材→差分素材为空（第 1 张） ✓ ｜ prev 出块→矩形出块（局部 9999,9999 48×26 不在 291×166 内） ✓ ｜ prev 零面积→矩形零/负面积（0×0） ✓ ｜ prev 缺 key→缺 key ✓ ｜ prev action 为空→action 为空 ✓ ｜ prev 无 asset/态图→既无 asset 也无 state_assets ✓ ｜ text 出块→文本区出块（局部 9999,9999 291×166 不在 291×166 内） ✓ ｜ text 零面积→文本区零/负面积（0×0） ✓ ｜ edge 取值非法→edge 取值非法（只认 "clamp"）：wrap ✓  ｜ REJECT 判词新增 12 条（合计 12）
+  ★M08ATTACH★ PASS  承载屏 gallery：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=gallery（期望 gallery）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 music：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=music（期望 music）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 dress：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=dress（期望 dress）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 replay：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=replay（期望 replay）  命中件 id=gs.back_hit
+  ★M08TAB★ PASS  负向对照：派发 gallery_tab_9 ⇒ ★M08TAB-REJECT★ gallery_tab_9：未知页签（只认 gallery_tab_1..4）；当前屏仍=replay（期望 replay）；派发计数 8 -> 8（期望不变）
+
+----- 负向判词（★M08…-REJECT★）-----
+  ★M08VARIANT-REJECT★ gal.list[guard] item_variants 不是对象
+  ★M08VARIANT-REJECT★ gal.list[guard] frames 不是数组
+  ★M08VARIANT-REJECT★ gal.list[guard] 第 0 栏差分列表不是数组
+  ★M08VARIANT-REJECT★ gal.list[guard] 差分素材为空（第 1 张）
+  ★M08VARIANT-REJECT★ gal.list[guard] 矩形出块（局部 9999,9999 48×26 不在 291×166 内）
+  ★M08VARIANT-REJECT★ gal.list[guard] 矩形零/负面积（0×0）
+  ★M08VARIANT-REJECT★ gal.list[guard] 缺 key
+  ★M08VARIANT-REJECT★ gal.list[guard] action 为空
+  ★M08VARIANT-REJECT★ gal.list[guard] 既无 asset 也无 state_assets
+  ★M08VARIANT-REJECT★ gal.list[guard] 文本区出块（局部 9999,9999 291×166 不在 291×166 内）
+  ★M08VARIANT-REJECT★ gal.list[guard] 文本区零/负面积（0×0）
+  ★M08VARIANT-REJECT★ gal.list[guard] edge 取值非法（只认 "clamp"）：wrap
+  ★M08TAB-REJECT★）  屏=replay  说明=★M08TAB★ PASS  负向对照：派发 gallery_tab_9 ⇒ ★M08TAB-REJECT★ gallery_tab_9：未知页签（只认 gallery_tab_1..4）；当前屏仍=replay（期望 replay）；派发计数 8 -> 8（期望不变）
+  ★M08TAB-REJECT★）
+
+----- attach 四承载屏绘制见证（页签条区域 (23, 26, 951, 86)）-----
+  shot_57_gallery.png    页签条区非背景 0.438  ← 鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png      页签条区非背景 0.509  ← 鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png      页签条区非背景 0.633  ← 鉴赏·外壳复用③：承载屏 dress
+  shot_60_replay.png     页签条区非背景 0.510  ← 鉴赏·外壳复用④：承载屏 replay
+
+===== 判定 =====
+MODE=INJECT
+★M08TAB★ 判词：['PASS', 'PASS', 'PASS', 'PASS', 'PASS']
+★M08PAGE★ 判词：['PASS', 'PASS']
+★M08VAR★ 判词：['PASS', 'PASS']
+★M08GUARD★ 判词：['PASS']
+★M08ATTACH★ 判词：['PASS', 'PASS', 'PASS', 'PASS']
+负向判词条数：14（去重后 14）
+attach 四承载屏导图（页签条区非背景占比）：
+  shot_57_gallery.png	0.438	鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png	0.509	鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png	0.633	鉴赏·外壳复用③：承载屏 dress
+  shot_60_replay.png	0.510	鉴赏·外壳复用④：承载屏 replay
+
+全部断言通过
+RESULT=OK
+★ 退出码： 0
+INJECT_EXIT=0
+
+### REAL ###
+运行目录： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1real
+私有运行目录已建： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m1real （inject=False）
+引擎退出码=0，用时 156 秒
+
+===== M1 鉴赏机制判词（★M08*★）=====
+  ★M08TAB★ PASS  gallery_tab_2：gallery → music（期望 music）  栈 title > gallery ⇒ title > music  上一屏仍在栈里=否  目标屏元素数=26（期望 >0）  gal_tab=music（期望 music）  派发计数 0 -> 1  msg=鉴赏页签 -> music（gallery → music；同级换屏，栈深 2，栈内 title > music；清理该页 list 1 个；gal_tab=music）
+  ★M08TAB★ FAIL  gallery_tab_3：music → dress（期望 dress）  栈 title > music ⇒ title > dress  上一屏仍在栈里=否  目标屏元素数=107（期望 >0）  gal_tab=(空)（期望 dress）  派发计数 1 -> 2  msg=鉴赏页签 -> dress（music → dress；同级换屏，栈深 2，栈内 title > dress；清理该页 list 1 个；gal_tab=(空)）
+  ★M08ATTACH★ PASS  承载屏 gallery：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=gallery（期望 gallery）  命中件 id=gs.back_hit
+  ★M08ATTACH★ PASS  承载屏 music：attach=gal_shell  外壳元素=17 可见=14（期望 >0）  热区命中 5/5（期望全中）  gal_tab=music（期望 music）  命中件 id=gs.back_hit
+  ★M08ATTACH★ FAIL  承载屏 dress 的 attach=(无)（期望 gal_shell）
+
+----- 负向判词（★M08…-REJECT★）-----
+  ★M08TAB-REJECT★ 当前屏 dress 未挂鉴赏外壳（attach != gal_shell）⇒ 切屏步骤无意义（请先进入鉴赏模式）
+  ★M08PAGE-REJECT★ 当前屏 dress 没有可见的 list（auto 取不到）
+  ★M08VAR-REJECT★ 当前屏 dress 没有带 item_variants 的可见 list（auto 取不到）
+  ★M08GUARD-REJECT★ 当前屏 dress 没有带 item_variants 的可见 list（auto 取不到）
+  ★M08ATTACH-REJECT★ 屏 replay 未登记，无法定位
+  ★M08TAB-REJECT★）  屏=dress  说明=★M08TAB-REJECT★ 当前屏 dress 未挂鉴赏外壳（attach != gal_shell）⇒ 切屏步骤无意义（请先进入鉴赏模式）
+  ★M08TAB-REJECT★）
+
+----- attach 四承载屏绘制见证（页签条区域 (23, 26, 951, 86)）-----
+  shot_57_gallery.png    页签条区非背景 0.469  ← 鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png      页签条区非背景 0.509  ← 鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png      页签条区非背景 0.267  ← 鉴赏·外壳复用③：承载屏 dress
+  shot_60_dress.png      页签条区非背景 0.267  ← 鉴赏·外壳复用④：承载屏 replay
+
+===== 判定 =====
+MODE=REAL
+★M08TAB★ 判词：['PASS', 'FAIL']
+★M08PAGE★ 判词：[]
+★M08VAR★ 判词：[]
+★M08GUARD★ 判词：[]
+★M08ATTACH★ 判词：['PASS', 'PASS', 'FAIL']
+负向判词条数：10（去重后 7）
+attach 四承载屏导图（页签条区非背景占比）：
+  shot_57_gallery.png	0.469	鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  shot_58_music.png	0.509	鉴赏·外壳复用②：承载屏 music
+  shot_59_dress.png	0.267	鉴赏·外壳复用③：承载屏 dress
+  shot_60_dress.png	0.267	鉴赏·外壳复用④：承载屏 replay
+
+FAIL ★M08TAB★ 有 FAIL：['PASS', 'FAIL']
+FAIL 缺少判词 ★M08PAGE★（数据未落盘时会如实缺失，见脚本头部说明）
+FAIL 缺少判词 ★M08VAR★（数据未落盘时会如实缺失，见脚本头部说明）
+FAIL 缺少判词 ★M08GUARD★（数据未落盘时会如实缺失，见脚本头部说明）
+FAIL ★M08ATTACH★ 有 FAIL：['PASS', 'PASS', 'FAIL']
+FAIL 缺少负向判词 ★M08VARIANT-REJECT★（galguard 的 12 例必须逐条出现）
+FAIL attach 四承载屏导图的屏名不齐：实得 ['dress', 'gallery', 'music']（期望 dress/gallery/music/replay）
+RESULT=FAIL
+★ 退出码： 1
+REAL_EXIT=1
+
+### M47 COPY TOUR ###
+私有运行目录已建： E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m47copy
+引擎退出码=0，用时 156 秒
+
+===== 巡演判词（config 相关 + 收尾统计）=====
+  02:30:11 [UI][TOUR] 0/76  屏=title  中文名=标题画面  元素数=17  实绘元素=17  字体=微软雅黑  缺件=0  占位=无  标签=标题画面
+  02:30:13 [UI][TOUR] 1/76  屏=title  中文名=标题画面  元素数=17  实绘元素=17  字体=微软雅黑  缺件=0  占位=无  标签=标题画面
+  02:30:15 [UI][TOUR] 2/76  屏=dialog  中文名=对话框（无框画布方案·文字四向描边）/名字框/选择肢  元素数=11  实绘元素=9  字体=微软雅黑  缺件=0  占位=无  标签=对话框（真实台词）
+  02:30:17 [UI][TOUR] 3/76  屏=dialog  中文名=对话框（无框画布方案·文字四向描边）/名字框/选择肢  元素数=11  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=选择肢
+  02:30:19 [UI][TOUR] 4/76  屏=choices  中文名=选择支  元素数=1  实绘元素=1  字体=微软雅黑  缺件=0  占位=无  标签=选择支屏（全屏列表·项数自适应）
+  02:30:21 [UI][TOUR] 5/76  屏=choices  中文名=选择支  元素数=1  实绘元素=1  字体=微软雅黑  缺件=0  占位=无  标签=合成指针：悬停第 2 项（应取 hover 态图）
+  02:30:23 [UI][TOUR] 6/76  屏=choices  中文名=选择支  元素数=1  实绘元素=1  字体=微软雅黑  缺件=0  占位=无  标签=合成指针：按住第 3 项（应取 pressed 态图）
+  02:30:25 [UI][TOUR] 7/76  屏=sysicons  中文名=右键图标浮层  元素数=20  实绘元素=20  字体=微软雅黑  缺件=0  占位=无  标签=合成右键：呼出 9 图标浮层
+  02:30:27 [UI][TOUR] 8/76  屏=choices  中文名=选择支  元素数=1  实绘元素=1  字体=微软雅黑  缺件=0  占位=无  标签=合成右键：收起 9 图标浮层
+  02:30:29 [UI][TOUR] 9/76  屏=save  中文名=存档  元素数=118  实绘元素=118  字体=微软雅黑  缺件=0  占位=无  标签=存档
+  02:30:31 [UI][TOUR] 10/76  屏=load  中文名=读档  元素数=118  实绘元素=118  字体=微软雅黑  缺件=0  占位=无  标签=读档
+  02:30:31 [UI][TOUR] -> 下一步：配置  屏=config
+  02:30:33 [UI][TOUR] 11/76  屏=config  中文名=配置  元素数=435  实绘元素=115  字体=微软雅黑  缺件=0  占位=无  标签=配置
+  02:30:33 [UI][TOUR] -> 下一步：配置·拖动「文本窗口的不透明度」到 40%（期望遮罩用独立常量 102 判）  屏=config  说明=★M47DRAG★ PASS  cfg.sl_winopac_hit 目标=40  实际设置值=40  滑块=cfg.sl_winopac  设置键=dlg_winopac  预览遮罩 opacity=102（期望 102）  对话框遮罩 opacity=102（期望 102，取
+  02:30:35 [UI][TOUR] 12/76  屏=config  中文名=配置  元素数=435  实绘元素=115  字体=微软雅黑  缺件=0  占位=无  标签=配置·拖动「文本窗口的不透明度」到 40%（期望遮罩用独立常量 102 判）
+  02:30:35 [UI][TOUR] -> 下一步：配置·切到「声音」页（config_tab_2 -> cfg_page=snd）  屏=config  说明=配置页签 -> 声音（cfg_page=snd；值键派生 17 项）｜泄漏检查：cfg_v_display=(空) cfg_v_facewindow=(空) cfg_v_mute_vol_se=off cfg_vchar=asu
+  02:30:37 [UI][TOUR] 13/76  屏=config  中文名=配置  元素数=435  实绘元素=187  字体=微软雅黑  缺件=0  占位=无  标签=配置·切到「声音」页（config_tab_2 -> cfg_page=snd）
+  02:30:37 [UI][TOUR] -> 下一步：配置·点 MUTE（按在 MUTE 上：音量不得变、MUTE 取反）  屏=config  说明=★M47CLICK★ PASS  cfg.o_mute_vol_master_off_hit 中心=809,328  全局最高 z 命中的 id=cfg.o_mute_vol_master_off_hit  拖动未启动=1  动作=config_set_mute_vol_master  
+  02:30:39 [UI][TOUR] 14/76  屏=config  中文名=配置  元素数=435  实绘元素=188  字体=微软雅黑  缺件=0  占位=无  标签=配置·点 MUTE（按在 MUTE 上：音量不得变、MUTE 取反）
+  02:30:39 [UI][TOUR] -> 下一步：配置·拖动负向对照①（非滑块热区必须被守卫挡下）  屏=config  说明=★M47DRAG-REJECT★ cfg.tab2_hit 未带 slider 字段（不是滑块命中热区）
+  02:30:41 [UI][TOUR] 15/76  屏=config  中文名=配置  元素数=435  实绘元素=188  字体=微软雅黑  缺件=0  占位=无  标签=配置·拖动负向对照①（非滑块热区必须被守卫挡下）
+  02:30:41 [UI][TOUR] -> 下一步：配置·拖动负向对照②（不存在的 id 必须被守卫挡下）  屏=config  说明=★M47DRAG-REJECT★ 当前屏 config 无元素 cfg.sl_not_exist_hit（走『元素不存在』守卫）
+  02:30:43 [UI][TOUR] 16/76  屏=config  中文名=配置  元素数=435  实绘元素=188  字体=微软雅黑  缺件=0  占位=无  标签=配置·拖动负向对照②（不存在的 id 必须被守卫挡下）
+  02:30:43 [UI][TOUR] -> 下一步：配置·画面模式 -> 全屏（程序化派发 config_set_display:full）  屏=config  说明=配置项 display -> full（cfg_v_display=(空)）；★ 该键不属于当前页 ⇒ 值已存但**不显示**（切回该页才显示）
+  02:30:45 [UI][TOUR] 17/76  屏=config  中文名=配置  元素数=435  实绘元素=188  字体=微软雅黑  缺件=0  占位=无  标签=配置·画面模式 -> 全屏（程序化派发 config_set_display:full）
+  02:30:45 [UI][TOUR] -> 下一步：配置·切回系统页（config_tab_1 -> cfg_page=sys）  屏=config  说明=配置页签 -> 系统（cfg_page=sys；值键派生 17 项）｜泄漏检查：cfg_v_display=full cfg_v_facewindow=on cfg_v_mute_vol_se=(空) cfg_vchar=(空)
+  02:30:47 [UI][TOUR] 18/76  屏=config  中文名=配置  元素数=435  实绘元素=114  字体=微软雅黑  缺件=0  占位=无  标签=配置·切回系统页（config_tab_1 -> cfg_page=sys）
+  02:30:47 [UI][TOUR] -> 下一步：断言 cfg_v_display 仍为 full（切页往返不丢值）  屏=config  说明=★M47FLAG★ PASS  cfg_v_display=full（期望 full）  设置仓 display=full  切页记忆=full  页签=sys
+  02:30:49 [UI][TOUR] 19/76  屏=config  中文名=配置  元素数=435  实绘元素=114  字体=微软雅黑  缺件=0  占位=无  标签=断言 cfg_v_display 仍为 full（切页往返不丢值）
+  02:30:49 [UI][TOUR] -> 下一步：配置·初始化收尾（恢复默认 + 清空切页记忆）  屏=config  说明=初始化：恢复默认并回到系统页（25 项）＋清空切页记忆；全部恢复默认（25 项）：dlg_winopac=90 text_speed=60 auto_speed=50 vol_master=80 vol_bgm=80 vol_se=80 vol_sysse=80 vol_voice=80 vol_char=8
+  02:30:51 [UI][TOUR] 20/76  屏=config  中文名=配置  元素数=435  实绘元素=115  字体=微软雅黑  缺件=0  占位=无  标签=配置·初始化收尾（恢复默认 + 清空切页记忆）
+  02:30:51 [UI][TOUR] -> 下一步：配置·选角色「小鸠」（config_char_kob -> cfg_vchar=kob）  屏=config  说明=角色语音设定选中 -> kob（cfg_vchar=(空)，记忆=kob）
+  02:30:53 [UI][TOUR] 21/76  屏=config  中文名=配置  元素数=435  实绘元素=115  字体=微软雅黑  缺件=0  占位=无  标签=配置·选角色「小鸠」（config_char_kob -> cfg_vchar=kob）
+  02:30:53 [UI][TOUR] -> 下一步：配置·切到声音页（为选角色做准备）  屏=config  说明=配置页签 -> 声音（cfg_page=snd；值键派生 17 项）｜泄漏检查：cfg_v_display=(空) cfg_v_facewindow=(空) cfg_v_mute_vol_se=off cfg_vchar=kob
+  02:30:55 [UI][TOUR] 22/76  屏=config  中文名=配置  元素数=435  实绘元素=187  字体=微软雅黑  缺件=0  占位=无  标签=配置·切到声音页（为选角色做准备）
+  02:30:55 [UI][TOUR] -> 下一步：配置·声音页选中「小鸠」（cfg_vchar=kob，进记忆）  屏=config  说明=角色语音设定选中 -> kob（cfg_vchar=kob，记忆=kob）（原本已是选中项）
+  02:30:57 [UI][TOUR] 23/76  屏=config  中文名=配置  元素数=435  实绘元素=187  字体=微软雅黑  缺件=0  占位=无  标签=配置·声音页选中「小鸠」（cfg_vchar=kob，进记忆）
+  02:30:59 [UI][TOUR] 24/76  屏=load  中文名=读档  元素数=118  实绘元素=118  字体=微软雅黑  缺件=0  占位=无  标签=离开设置屏（换屏 ⇒ flag 被 flags_default 重置）
+  02:30:59 [UI][TOUR] -> 下一步：再次进入设置屏（进屏不捕获记忆）  屏=config
+  02:31:01 [UI][TOUR] 25/76  屏=config  中文名=配置  元素数=435  实绘元素=115  字体=微软雅黑  缺件=0  占位=无  标签=再次进入设置屏（进屏不捕获记忆）
+  02:31:01 [UI][TOUR] -> 下一步：配置·再切声音页  屏=config  说明=配置页签 -> 声音（cfg_page=snd；值键派生 17 项）｜泄漏检查：cfg_v_display=(空) cfg_v_facewindow=(空) cfg_v_mute_vol_se=off cfg_vchar=kob
+  02:31:03 [UI][TOUR] 26/76  屏=config  中文名=配置  元素数=435  实绘元素=187  字体=微软雅黑  缺件=0  占位=无  标签=配置·再切声音页
+  02:31:03 [UI][TOUR] -> 下一步：断言跨屏往返后 cfg_vchar 仍为 kob（记忆层生效）  屏=config  说明=★M47FLAG★ PASS  cfg_vchar=kob（期望 kob）  页签=snd
+  02:31:05 [UI][TOUR] 27/76  屏=config  中文名=配置  元素数=435  实绘元素=187  字体=微软雅黑  缺件=0  占位=无  标签=断言跨屏往返后 cfg_vchar 仍为 kob（记忆层生效）
+  02:31:07 [UI][TOUR] 28/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想
+  02:31:09 [UI][TOUR] 29/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 1 行「跳转」按钮中心（命中自身 + 派发 backlog_jump:0）
+  02:31:11 [UI][TOUR] 30/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 1 行「重新播放」按钮中心（命中自身 + 派发 backlog_replay:0）
+  02:31:13 [UI][TOUR] 31/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 2 行「跳转」按钮中心（派发行号必须 = 1）
+  02:31:15 [UI][TOUR] 32/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 2 行「重新播放」按住（pressed 图留在导图上）
+  02:31:17 [UI][TOUR] 33/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 3 行「跳转」按钮中心（派发行号必须 = 2）
+  02:31:19 [UI][TOUR] 34/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 3 行「重新播放」按钮中心（派发行号必须 = 2）
+  02:31:21 [UI][TOUR] 35/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 4 行「跳转」按住（pressed 图留在导图上）
+  02:31:23 [UI][TOUR] 36/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·第 4 行「重新播放」按钮中心（派发行号必须 = 3）
+  02:31:25 [UI][TOUR] 37/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·负向①：两按钮之间的空隙 ⇒ 必须命中整行（不是按钮）
+  02:31:27 [UI][TOUR] 38/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·负向②：块右侧文案区 ⇒ 必须命中整行（不是按钮）
+  02:31:29 [UI][TOUR] 39/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·负向③：不存在的按钮 key ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+  02:31:31 [UI][TOUR] 40/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·负向④：越界行号 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+  02:31:33 [UI][TOUR] 41/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·负向⑤：非 list 元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+  02:31:35 [UI][TOUR] 42/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·负向⑥：不存在的元素 ⇒ 必须被守卫挡下（★M06BTN-REJECT★）
+  02:31:37 [UI][TOUR] 43/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·负向⑦：item_buttons 5 种非法形态（内存副本）⇒ 机制守卫必须逐条 REJECT
+  02:31:39 [UI][TOUR] 44/76  屏=backlog  中文名=回想  元素数=10  实绘元素=10  字体=微软雅黑  缺件=0  占位=无  标签=回想·分页：max_rows 临时改 2 后第 2 页的按钮属于全局第 2 行（随块走）
+  02:31:41 [UI][TOUR] 45/76  屏=title  中文名=标题画面  元素数=17  实绘元素=17  字体=微软雅黑  缺件=0  占位=无  标签=回到标题（准备从入口进入鉴赏模式）
+  02:31:43 [UI][TOUR] 46/76  屏=gallery  中文名=CG 鉴赏  元素数=18  实绘元素=21  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏模式入口（open_gallery -> push gallery）
+  02:31:45 [UI][TOUR] 47/76  屏=music  中文名=音乐鉴赏  元素数=26  实绘元素=40  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·页签 2「BGM 鉴赏」（切屏：上一页不在栈里）
+  02:31:47 [UI][TOUR] 48/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·页签 3「立绘鉴赏」
+  02:31:49 [UI][TOUR] 49/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·页签 4「情景回想」
+  02:31:51 [UI][TOUR] 50/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·页签 1「CG 鉴赏」（回到默认页）
+  02:31:53 [UI][TOUR] 51/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·CG 页内翻页（下一页，栏位内容随页走）
+  02:31:55 [UI][TOUR] 52/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·CG 页内翻页（上一页，回到第 1 页）
+  02:31:57 [UI][TOUR] 53/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·栏位内差分翻页（挑第一栏 N≥2，翻下一张 ⇒ 缩略图换图 + n/N 变）
+  02:31:59 [UI][TOUR] 54/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·栏位内差分翻页（翻回上一张）
+  02:32:01 [UI][TOUR] 55/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·负向：item_variants 12 种非法形态（内存副本）⇒ 机制守卫必须逐条 REJECT
+  02:32:03 [UI][TOUR] 56/76  屏=gallery  中文名=CG 鉴赏  元素数=18  实绘元素=21  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·外壳复用①：承载屏 gallery（attach=gal_shell 绘制 + 命中）
+  02:32:05 [UI][TOUR] 57/76  屏=music  中文名=音乐鉴赏  元素数=26  实绘元素=40  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·外壳复用②：承载屏 music
+  02:32:07 [UI][TOUR] 58/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·外壳复用③：承载屏 dress
+  02:32:09 [UI][TOUR] 59/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·外壳复用④：承载屏 replay
+  02:32:11 [UI][TOUR] 60/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=鉴赏·负向：未知页签（gallery_tab_9）⇒ 必须被守卫挡下（★M08TAB-REJECT★）
+  02:32:13 [UI][TOUR] 61/76  屏=title  中文名=标题画面  元素数=17  实绘元素=17  字体=微软雅黑  缺件=0  占位=无  标签=外壳「返回」（close -> 回入口屏 title）
+  02:32:15 [UI][TOUR] 62/76  屏=gallery  中文名=CG 鉴赏  元素数=18  实绘元素=21  字体=微软雅黑  缺件=0  占位=无  标签=CG 鉴赏
+  02:32:17 [UI][TOUR] 63/76  屏=music  中文名=音乐鉴赏  元素数=26  实绘元素=40  字体=微软雅黑  缺件=0  占位=无  标签=BGM 鉴赏
+  02:32:19 [UI][TOUR] 64/76  屏=fragment  中文名=番外（Fragment）选择  元素数=83  实绘元素=85  字体=微软雅黑  缺件=0  占位=无  标签=番外 Fragment 占位
+  02:32:21 [UI][TOUR] 65/76  屏=flowchart  中文名=剧情流程图  元素数=74  实绘元素=72  字体=微软雅黑  缺件=0  占位=无  标签=剧情流程图占位
+  02:32:23 [UI][TOUR] 66/76  屏=ending  中文名=片尾（STAFF/歌词）  元素数=7  实绘元素=7  字体=微软雅黑  缺件=0  占位=无  标签=片尾
+  02:32:25 [UI][TOUR] 67/76  屏=loading  中文名=加载提示  元素数=4  实绘元素=4  字体=微软雅黑  缺件=0  占位=无  标签=加载提示
+  02:32:27 [UI][TOUR] 68/76  屏=title  中文名=标题画面  元素数=17  实绘元素=17  字体=微软雅黑  缺件=0  占位=无  标签=回到标题
+  02:32:29 [UI][TOUR] 69/76  屏=title  中文名=标题画面  元素数=17  实绘元素=17  字体=微软雅黑  缺件=0  占位=无  标签=合成指针：负向对照（非 list 必须被守卫挡下）
+  02:32:31 [UI][TOUR] 70/76  屏=confirm  中文名=确认框  元素数=9  实绘元素=9  字体=微软雅黑  缺件=0  占位=无  标签=追加：confirm
+  02:32:33 [UI][TOUR] 71/76  屏=fragment  中文名=番外（Fragment）选择  元素数=83  实绘元素=85  字体=微软雅黑  缺件=0  占位=无  标签=追加：fragment
+  02:32:35 [UI][TOUR] 72/76  屏=flowchart  中文名=剧情流程图  元素数=74  实绘元素=72  字体=微软雅黑  缺件=0  占位=无  标签=追加：flowchart
+  02:32:37 [UI][TOUR] 73/76  屏=sysicons  中文名=右键图标浮层  元素数=20  实绘元素=20  字体=微软雅黑  缺件=0  占位=无  标签=追加：sysicons
+  02:32:39 [UI][TOUR] 74/76  屏=quickbar  中文名=系统菜单快捷条  元素数=49  实绘元素=0  字体=微软雅黑  缺件=0  占位=无  标签=追加：quickbar
+  02:32:41 [UI][TOUR] 75/76  屏=dress  中文名=立绘鉴赏/换装  元素数=107  实绘元素=107  字体=微软雅黑  缺件=0  占位=无  标签=追加：dress
+  02:32:43 [UI][TOUR] 76/76  屏=gal_shell  中文名=鉴赏模式共享外壳（页签条 + 标题 + 返回）  元素数=17  实绘元素=14  字体=微软雅黑  缺件=0  占位=无  标签=追加：gal_shell
+  02:32:43 [UI][TOUR] ===== 巡演结束 =====
+  02:32:43 [UI][TOUR] 共记录 77 屏 | 已载入 153 件 / 缺件 0 件
+  02:32:43 [UI][TOUR] 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处 | item_buttons/item_text 拒绝 5 处 [★M06ITEMBTN-REJECT★ bl.list[jump] action 为空 ; ★M06ITEMBTN-REJECT★ bl.list[jump] 矩形出块（局部 1300,190 200×60 不在 
+  02:32:43 [UI][TOUR] 转场 成功 32 / 失败 0 / 降级 0 | 最近：universal+rule OK : assets/ui/x_mask_rule000_full.png time=420 vague=64
+  02:32:43 [UI][TOUR] PNG 导出 成功 77 / 失败 0 | 目录 file://./e/zcode workspace/galgame/临时/wt-qbicons/临时/ui_run_m08_m47copy/runtime/savedata/
+
+===== 配置屏导图（步骤标签 → PNG）=====
+  shot_12_config.png           配置
+  shot_13_config.png           配置·拖动「文本窗口的不透明度」到 40%（期望遮罩用独立常量 102 判）
+  shot_14_config.png           配置·切到「声音」页（config_tab_2 -> cfg_page=snd）
+  shot_15_config.png           配置·点 MUTE（按在 MUTE 上：音量不得变、MUTE 取反）
+  shot_16_config.png           配置·拖动负向对照①（非滑块热区必须被守卫挡下）
+  shot_17_config.png           配置·拖动负向对照②（不存在的 id 必须被守卫挡下）
+  shot_18_config.png           配置·画面模式 -> 全屏（程序化派发 config_set_display:full）
+  shot_19_config.png           配置·切回系统页（config_tab_1 -> cfg_page=sys）
+  shot_20_config.png           断言 cfg_v_display 仍为 full（切页往返不丢值）
+  shot_21_config.png           配置·初始化收尾（恢复默认 + 清空切页记忆）
+  shot_22_config.png           配置·选角色「小鸠」（config_char_kob -> cfg_vchar=kob）
+  shot_23_config.png           配置·切到声音页（为选角色做准备）
+  shot_24_config.png           配置·声音页选中「小鸠」（cfg_vchar=kob，进记忆）
+  shot_26_config.png           再次进入设置屏（进屏不捕获记忆）
+  shot_27_config.png           配置·再切声音页
+  shot_28_config.png           断言跨屏往返后 cfg_vchar 仍为 kob（记忆层生效）
+
+===== 区域量化（引擎自导 PNG）=====
+  shot_12_config.png           左列行区 非背景 0.116 | 角色区 非背景 0.180   ← 配置
+  shot_13_config.png           左列行区 非背景 0.116 | 角色区 非背景 0.180   ← 配置·拖动「文本窗口的不透明度」到 40%（期望遮罩用独立常量 102 判）
+  shot_14_config.png           左列行区 非背景 0.043 | 角色区 非背景 0.299   ← 配置·切到「声音」页（config_tab_2 -> cfg_page=snd）
+  shot_15_config.png           左列行区 非背景 0.043 | 角色区 非背景 0.299   ← 配置·点 MUTE（按在 MUTE 上：音量不得变、MUTE 取反）
+
+（引擎已退出；私有目录 E:\ZCode Workspace\Galgame\临时\wt-qbicons\临时\ui_run_m08_m47copy 保留供复核）
+M47COPY_EXIT=0

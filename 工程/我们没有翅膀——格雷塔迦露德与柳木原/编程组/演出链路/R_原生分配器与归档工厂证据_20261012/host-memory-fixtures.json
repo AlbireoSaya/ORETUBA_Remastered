@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "actual_memory_cases": [
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 0,
+      "flags": 8,
+      "size": 1,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 0,
+      "flags": 8,
+      "size": 16,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 0,
+      "flags": 8,
+      "size": 17,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 0,
+      "flags": 8,
+      "size": 4096,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 0,
+      "flags": 8,
+      "size": 1048576,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree/HeapDestroy",
+      "options": 0,
+      "flags": 0,
+      "size": 65
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 1,
+      "flags": 8,
+      "size": 1,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 1,
+      "flags": 8,
+      "size": 16,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 1,
+      "flags": 8,
+      "size": 17,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 1,
+      "flags": 8,
+      "size": 4096,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree",
+      "options": 1,
+      "flags": 8,
+      "size": 1048576,
+      "zeroed_actual": true,
+      "real_memory_write_read": true
+    },
+    {
+      "api": "HeapAlloc/HeapFree/HeapDestroy",
+      "options": 1,
+      "flags": 0,
+      "size": 65
+    },
+    {
+      "api": "GlobalAlloc/GlobalFree",
+      "flags": 0,
+      "size": 1
+    },
+    {
+      "api": "GlobalAlloc/GlobalFree",
+      "flags": 0,
+      "size": 4096
+    },
+    {
+      "api": "GlobalAlloc/GlobalFree",
+      "flags": 0,
+      "size": 1048576
+    },
+    {
+      "api": "actual close_all",
+      "all_ownership_released": true
+    }
+  ],
+  "unsupported_rejections": 37,
+  "observed_real_pointer_above_u32": true,
+  "actual_host_version": {
+    "major": 10,
+    "minor": 0,
+    "build": 22621,
+    "platform": 2,
+    "observed_from_host_process_manifest": true
+  },
+  "scope": "genuine current host64 Windows APIs with registered private heap/fixed global memory, strict unsupported rejection; not original x86 kernel, legacy SBH or forced Windows API failures"
+}

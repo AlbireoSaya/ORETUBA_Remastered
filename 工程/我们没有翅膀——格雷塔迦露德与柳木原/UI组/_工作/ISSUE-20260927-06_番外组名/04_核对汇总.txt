@@ -1,0 +1,68 @@
+ISSUE-20260927-06 · 番外组名中文化（流程图屏左栏组名标签）· 核对汇总
+工作树 E:\ZCode Workspace\Galgame\临时\wt-qbicons ｜ 分支 issue/ISSUE-20260927-06-flowchart-group-cn
+（本文件是证据台账，不是报告；报告以子代理最终答复为准）
+
+────────────────────────────────────────────────────────────
+一、三个预设的金标（重钉后现行值，实跑真值）
+  screen1  md5=2610cda1c7f8a36ff488dd8ef878ae0e
+           content-sha256=08ddbc7cb9bd19a40d8de072e155caa0f086c1b5c7c79438ef74fb3c47848161
+  screen2  md5=a30f0ecff508915f2f9bd8768da5bbcc
+           content-sha256=37f525675880347ba37596d0df543f548b75311be2874ff2793e870bca860730
+  ref150   md5=5aef003f020237865264a97c8be53069
+           content-sha256=8839c2442aad2d4c8d7a0ac8c01d85c68e3450a8a09639b7f07eb1b5ecfb444b
+  旧值（作废）：815e2d175b433e4eb109f2b428a7bd63 / e252ad9ba019fee930eeea94f511db19 /
+                360678badfac97e35900270eafe998df
+  盘上现状 = screen1（交付样例），md5 与金标一致（21:39 复核）。
+
+二、与改前的一致性自证（改前基线见 00_baseline_screen1_run.txt）
+              节点                               连线                     元素  四判据(A/B/C/D)
+  改前 screen1 13（section 11 / select 2）            13（直线 11/VZ 1/VL 1）  117  5 / 5 / 255.0px(62_1b) / 0
+  改后 screen1 13（section 11 / select 2）            13（直线 11/VZ 1/VL 1）  117  5 / 5 / 255.0px(62_1b) / 0
+  改后 screen2 18（section 4/select 5/frag 9）        14（直线 14）            132  5 / 5 / 255.0px(62_1b) / 0
+  ↑ 四判据只跑 DATA 节点标题（`check_text_criteria(load_data()["nodes"])`），组名标签不入判据。
+  入口标记 y（屏一/屏二一致，未变）：[190, 285, 380, 475, 570, 665]
+
+三、闸门（全部 EXIT=0）
+  test_flow_links.py        六条断言 + ⑦异参复跑 + ⑧变异自证 全部通过
+  verify_ui.py              引用/尺寸/三处一致/硬编码/PNG/预算/opacity 全 0 处；资产 1316 件 94.89 MB
+  test_gen_sync.py          全部通过；落盘自证 20 个屏文件 md5 前后完全一致
+  gen_layout.py → ui_layout.json / ui_layout.tjs / ui_layout.js（19 屏）
+  emit_asset_index.py → 复刻/asset_index.js（无素材变更 ⇒ 字节未变，故不在 git status）
+
+四、两屏巡演（★ 逐个跑，不并发）
+  屏一（交付样例）2026-09-27 21:36–21:39
+    [UI][TOUR] 76/88  屏=flowchart  元素数=117  实绘元素=115  缺件=0  标签=剧情流程图占位
+    [UI][TOUR] 83/88  屏=flowchart  元素数=117  实绘元素=115  缺件=0  标签=追加：flowchart
+    [UI][TOUR] 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处
+    [UI] quit (autotour done) : frames=1535 | 已载入 199 件 / 缺件 0 件 | 包装器异常=0
+    大写 EXCEPTION 0 次；转场 成功 34 / 失败 4 / 降级 0
+      └ 4 次失败 = `ui_transition.tjs(113)` 的「同一 Layer 并发 Transition」守卫，
+        发生在 config（21:37:33）与 music（21:38:16）步，**既有竞态、与本屏无关**
+        （`_工作\M20_报告.md:305` 已登记为既有缺陷）；屏二同轮 0 次 ⇒ 竞态取决于时序。
+  屏二（--preset screen2）2026-09-27 21:28–21:31
+    [UI][TOUR] 76/88  屏=flowchart  元素数=132  实绘元素=130  缺件=0
+    [UI][TOUR] 缺件元素 0 处 | 缩放元素 0 处 | 截断文本 1 处 [ed.staff : …] | 未知 kind 0 处
+    [UI] quit (autotour done) : frames=1648 | 缺件 0 件 | 包装器异常=0 | 转场 成功 36 / 失败 0 / 降级 0
+  两轮 PNG 导出一致：shot_77_flowchart.png（巡演walk）与 shot_84_flowchart.png（「追加：flowchart」步）
+    字节相同（屏一 407023 B、屏二各自同尺寸）⇒ 记录的是同一稳定态。
+  图：屏一_巡演图.png / 屏二_巡演图.png（+ 放大左栏 屏一_组名左栏_放大3x.png / 屏二_组名左栏_放大3x.png）
+
+五、6 个组名的实际渲染（引擎导图目视判读，两屏一致；均无假名）
+  fc.label.0001_tx  番外·阿雷克桑德平安夜（胸部系列）   ← 映射（原 おっぱい系列）
+  fc.label.0002_tx  番外·苍女X日                         ← 透传
+  fc.label.0003_tx  番外·各线 after                      ← 透传（after 为英文，既有裁决保留）
+  fc.label.0004_tx  番外·群像（新年行军 / 格兰玛尼耶）    ← 透传
+  fc.label.0005_tx  番外·没翅剧场                        ← 映射（原 おれつば剧场）
+  fc.label.0006_tx  番外·附赠（成人向）                  ← 映射（原 おまけ）
+  自警：生成器打印「组名中文化：映射 3/6 组；★ 组名标签已无日文假名 ✓」（KANA_RE 扫描 0 命中）
+
+六、未决 / 需主代理裁决（见最终答复 §未决点）
+  U1 `おまけ` → 附赠（本次新定）vs spine.json `side_stories[46].title_cn`「日和子附加Ｈ（后）」的「附加」
+  U2 `おっぱい` → 胸部（援引通用层 :171 叙述者轨）；同语料 `side_stories[6].title_cn`「我们的奶子啊直到永远」
+     反向证据 1 处（1:1）⇒ 资源组数据内部不一致
+  U3 `layout\_schema.md:353` 还写着节点文字「23px」（现行 19px），既有陈旧、非本 issue 引入。★ **一审 D4 订正（失实）**：该行**已由主代理在本轮顺手修正为 19px**（工作树 `_schema.md:353` 现为 19px、全文件 `23px` 0 命中），本文件原写「未改」与事实不符
+
+七、未动（核对通过）
+  资源组\剧本\spine.json ✓ 未改 ｜ 两层术语表.md ✓ 未改 ｜ krkr\assets\** ✓ 未改
+  复刻\replica.js ✓ 未改 ｜ 闸门脚本 ✓ 未改 ｜ krkr\game\* 仅 ui_layout.tjs（生成物）
+  另有 2 个 _工作\ISSUE-20260922-28_M4_证据\...\01_title.json 的 ' M' 为**开工前既有**（首次 git status 即在）

@@ -1,0 +1,157 @@
+// ============================================================
+// ui_audio.tjs —— 编程组 · 音频层（语音 / BGM / 音效）
+//
+// 引擎侧原本**没有任何音频代码**（UI 组交付的是 UI 外壳）；本模块补上：
+//   * OGG 走 `wuvorbis.dll`、Opus 走 `kropus.dll`（本 krkrz 构建**无内建 MP3**）；
+//   * 现实现 **voice / bgm 两路**独立缓冲（互不顶替）。
+//     **`se` 通道与播放留待 P2**——场景级 SE 无时机数据（C6/R1 演出语义未逆向），
+//     本切片里 `story_assets/se__*.ogg` 属**已取件未接线**，不是被消费的素材。
+//
+// ★ 语音不中断（用户 2026-10-01 要求；机制见
+//   `工程记录\2026-09-18_对于Applique语音不中断的分析.md`）：
+//   等价于 KAGEX 的 `voicestopbyclick = "no"` 档 ——
+//     「次の音声が再生されるまで停止しません」
+//   落地＝**只有本行有语音时才播放**（新语音自动顶掉旧语音）；
+//   本行**无语音时什么都不做** ⇒ 上一句继续播完。
+//   实现见 uiAudioPlayVoice()：**没有**任何「推进即停」的入口。
+// ============================================================
+
+var UIAudioVoice    = null;
+var UIAudioBgm      = null;
+var UIAudioVoiceOk  = false;
+var UIAudioBgmOk    = false;
+var UIAudioLastVoice = "";
+var UIAudioVoiceCount = 0;
+var UIAudioBgmCur    = "";
+var UIAudioLinked    = false;
+
+// 音量刻度：TJS 的 SoundBuffer.volume ∈ [0,100000]；设置仓里是 0..100。
+function uiAudioScaleVol(v)
+{
+	var x = 100;
+	try { x = 0 + v; } catch(e) { x = 100; }
+	if(x < 0) x = 0;
+	if(x > 100) x = 100;
+	return Math.floor(x * 1000);
+}
+
+function uiAudioVol(key)
+{
+	var v = 80;
+	try { v = UISettingGet(key); } catch(e) { v = 80; }
+	return v;
+}
+
+function uiAudioInit()
+{
+	// 插件：优先 OGG（本工程语音/ BGM 全为 .ogg）
+	try { Plugins.link("wuvorbis.dll"); UIAudioLinked = true; }
+	catch(e) { Debug.message("[AUDIO] wuvorbis.dll 链接失败（OGG 将不可播）：" + e.message); }
+	try { Plugins.link("kropus.dll"); } catch(e2) { }
+
+	try { UIAudioVoice = new WaveSoundBuffer(Window); UIAudioVoiceOk = true; }
+	catch(e3) { Debug.message("[AUDIO] voice 缓冲建立失败：" + e3.message); }
+	try { UIAudioBgm = new WaveSoundBuffer(Window); UIAudioBgmOk = true; }
+	catch(e4) { Debug.message("[AUDIO] bgm 缓冲建立失败：" + e4.message); }
+
+	uiAudioApplyVolume();
+	Debug.message("[AUDIO] init : linked=" + UIAudioLinked + " voice=" + UIAudioVoiceOk + " bgm=" + UIAudioBgmOk);
+}
+
+// 设置仓改动后调用（音量/静音实时生效）
+function uiAudioApplyVolume()
+{
+	var mute = false;
+	// ★★ 致命修复（一审阻断-1）：`mute_vol_*` 是 **enum 字符串**（"on"/"off"），
+	//   而 TJS2 的 `!=` 只要一侧是 String 就按**字符串**比 ⇒ `"off" != 0` 恒为 true
+	//   ⇒ 音量恒被设为 0（**全程无声**），而 open/play 全部成功、日志与自测都看不出来。
+	mute = (("" + UISettingGet("mute_vol_voice")) == "on");
+	if(UIAudioVoiceOk && UIAudioVoice !== null)
+	{
+		var v = mute ? 0 : uiAudioScaleVol(uiAudioVol("vol_voice"));
+		try { UIAudioVoice.volume = v; } catch(e2) { }
+		Debug.message("[AUDIO] voice 音量 = " + v + "（mute_vol_voice=" + UISettingGet("mute_vol_voice") + "）");
+	}
+	if(UIAudioBgmOk && UIAudioBgm !== null)
+	{
+		var mb = false;
+		try { mb = (("" + UISettingGet("mute_vol_bgm")) == "on"); } catch(e3) { mb = false; }
+		try { UIAudioBgm.volume = mb ? 0 : uiAudioScaleVol(uiAudioVol("vol_bgm")); } catch(e4) { }
+		Debug.message("[AUDIO] bgm 音量 = " + UIAudioBgm.volume + "（mute_vol_bgm=" + UISettingGet("mute_vol_bgm") + "）");
+	}
+}
+
+// ★ 语音：**只在本行有语音时调用**；无语音的行不调用本函数（这就是「不中断」）
+function uiAudioPlayVoice(rel)
+{
+	if(rel === void) return false;
+	var p = "" + rel;
+	if(p == "") return false;
+	if(!UIAudioVoiceOk || UIAudioVoice === null) return false;
+	// ★ 一审提示-8：先判存在再 open —— 不得用「抛异常再 catch」当控制流
+	//   （krkrz 对被 catch 的异常仍打整段 dump，会污染「EXCEPTION 0」判定）。
+	var ex = false;
+	try { ex = Storages.isExistentStorage(p); } catch(e0) { ex = false; }
+	if(!ex) { Debug.message("[AUDIO] 语音件不存在，跳过：" + p); return false; }
+	try
+	{
+		UIAudioVoice.stop();
+		UIAudioVoice.open(p);
+		UIAudioVoice.play();
+		UIAudioLastVoice = p;
+		UIAudioVoiceCount++;
+		Debug.message("[AUDIO] voice #" + UIAudioVoiceCount + " : " + p);
+		return true;
+	}
+	catch(e)
+	{
+		Debug.message("[AUDIO] 语音播放失败：" + p + " : " + e.message);
+		return false;
+	}
+}
+
+function uiAudioStopVoice()
+{
+	if(!UIAudioVoiceOk || UIAudioVoice === null) return;
+	try { UIAudioVoice.stop(); } catch(e) { }
+	UIAudioLastVoice = "";
+}
+
+function uiAudioPlayBgm(rel)
+{
+	if(rel === void) return false;
+	var p = "" + rel;
+	if(p == "") return false;
+	if(UIAudioBgmCur == p) return true;          // 同曲不重头
+	if(!UIAudioBgmOk || UIAudioBgm === null) return false;
+	var ex = false;
+	try { ex = Storages.isExistentStorage(p); } catch(e0) { ex = false; }
+	if(!ex) { Debug.message("[AUDIO] BGM 件不存在，跳过：" + p); return false; }
+	try
+	{
+		UIAudioBgm.stop();
+		UIAudioBgm.open(p);
+		UIAudioBgm.play();
+		UIAudioBgmCur = p;
+		Debug.message("[AUDIO] bgm : " + p);
+		return true;
+	}
+	catch(e)
+	{
+		Debug.message("[AUDIO] BGM 播放失败：" + p + " : " + e.message);
+		return false;
+	}
+}
+
+function uiAudioStopBgm()
+{
+	if(!UIAudioBgmOk || UIAudioBgm === null) return;
+	try { UIAudioBgm.stop(); } catch(e) { }
+	UIAudioBgmCur = "";
+}
+
+function uiAudioSummary()
+{
+	return "语音 " + UIAudioVoiceCount + " 次 | 末句 " + UIAudioLastVoice
+		+ " | BGM " + UIAudioBgmCur + " | linked=" + UIAudioLinked;
+}

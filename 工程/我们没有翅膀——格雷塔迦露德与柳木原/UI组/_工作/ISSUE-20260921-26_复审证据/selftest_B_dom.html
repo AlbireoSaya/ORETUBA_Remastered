@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--font-chain: &quot;微软雅黑&quot;,&quot;Microsoft YaHei&quot;,&quot;黑体&quot;,&quot;SimHei&quot;,&quot;宋体&quot;,&quot;SimSun&quot;,&quot;MS Gothic&quot;,sans-serif;"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title> 来自个人汉化者AlbireoSaya 模型&amp;工具:Deepseek v4.1 flash+ZCode</title>
+
+<!-- ==========================================================================
+     《我们没有翅膀——格雷塔迦露德与柳木原》UI 1:1 HTML 复刻
+     M3 建立 ｜ M15 扩展（画布 1920×1080 · 16 屏 · 右键图标浮层）
+     Issue: ISSUE-20260919-11 ｜ 分支: issue/ISSUE-20260919-11-greta-ui
+
+     用法：双击本文件即可（file:// 协议可用，不依赖网络、不依赖 CDN、不使用 fetch）
+     数据：ui_layout.js（window.UI_LAYOUT）—— 与 krkr 侧 krkr/game/ui_layout.tjs
+           由 UI组/工具/gen_layout.py 从**同一份** layout/screens/*.json 生成
+     贴图：../krkr/assets/ui/*.png —— M1/M17 产出的 krkr 资产集，**同一份，不复制**
+
+     M15 变更：① 画布基线 1280×720 → 1920×1080（总纲 D1 修订注·第三条）；
+               ② 屏数 15 → 16，新增 `sysicons` 右键图标浮层（overlay 屏）；
+               ③ **画面右键 = 呼出/收起功能图标浮层**（原先绑的是「回想」）；
+               ④ 新增 AI 派生素材已全部接入（9 功能图标 / 新对话窗 / 流程图四种方框 /
+                  Fragment 整页底图 / 鉴赏整页底图 / 系统屏满幅背景）。
+     ========================================================================== -->
+
+<link rel="stylesheet" href="replica.css">
+</head>
+<body><pre id="selftest-out">SELFTEST total=25 fail=0
+PASS	canvas-1920	1920pxx1080px
+PASS	dialog.screen	dialog
+PASS	dialog.under=null	null
+PASS	dialog.overlay-empty	0
+PASS	sysicons.open	sysicons
+PASS	sysicons.under=dialog	dialog
+PASS	sysicons.base-painted	26
+PASS	sysicons.base-DOM-preserved	
+PASS	sysicons.overlay-children	20
+PASS	sysicons.veil-dim	rgb(0, 0, 0) opa=0.666667
+PASS	sysicons.icons-9	9
+PASS	sysicons.dismiss-click	dialog
+PASS	sysicons.overlay-cleared	0
+PASS	sysicons.back-to-dialog-DOM-preserved	
+PASS	sysicons.reopen	sysicons
+PASS	sysicons.icon-dispatch	save
+PASS	zeronine.img-not-borderimage	13/13 
+PASS	zeronine.no-placeholder	
+PASS	dynamic.gallery_preview-placeholder	[占位] 动态层 | dynamic:gallery_preview
+SKIP	dynamic.slot_thumb-placeholder	主语 save.slot1_thumb 已在 M34 重建中移除（现为 sv.thumb1..12，非动态层）
+PASS	dom.no-leak	fragment 连切 1 次=169 节点，再切 3 次=169 节点
+PASS	overlay.no-history-entry	开浮层前 history=0，开浮层后=0
+PASS	overlay.close-overlay	dialog
+PASS	zeronine.stretched-to-element-box	13/13 
+PASS	zeronine.size-differs-from-png-still-rendered	12/13 张 PNG 实宽(243) ≠ 元素宽(217)，仍正常绘制
+RESULT=OK</pre></body></html>

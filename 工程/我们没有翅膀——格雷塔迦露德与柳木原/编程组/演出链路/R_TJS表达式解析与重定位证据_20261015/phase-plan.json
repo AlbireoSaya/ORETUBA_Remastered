@@ -1,0 +1,25 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "previous_goal_turn": "progress; main1cecd5a2 contains164 reviewed files",
+  "objective": "raw expression parsing -> relocation writes -> existing target VM; record argument/condition bridge; no fake native lifecycle",
+  "modules": [
+    "relocation-writes",
+    "record-value",
+    "record-arguments",
+    "expr-read",
+    "expr-header",
+    "expr-relocations",
+    "parse-expression",
+    "inline-header",
+    "inline-relocations",
+    "parse-inline-expression"
+  ],
+  "dependencies": "expr-read then header/relocations then parse; relocation independent; record-value before arguments; authors can run in parallel on fixed interfaces",
+  "acceptance": "all4339 source expression parse exact, original binder whole-byte/write-order comparisons and boundary vectors; record conditions lazy argument evaluation plus original old dynamic evidence; real TJS32/64 then phase review",
+  "source_boundary": "raw original game/expression bytes local only; API receives own norms/source/interfaces; no credentials",
+  "allow": "candidate files under this workdir only; platform root applies exact candidates",
+  "prohibit": "originals/backups/main/historical artifacts/outsideworkspace; paused roles; arbitrary OS execution",
+  "failure": "length split function/module; no noop or unknown success; retain incomplete candidates outside merge",
+  "rollback": "new phase excluded from main until whole phase root review; merge only on issue; record and index beforemerge",
+  "expression_format_fact": "parameter3349 usesu16code,size/u8counts; inline990 uses[s/u32code,size/counts; separate decoders"
+}

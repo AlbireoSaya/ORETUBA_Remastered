@@ -1,0 +1,7 @@
+function RRecordLiveItem(rd,rh,rb,wr,p,dest,resolveBank,evaluateExpr,arrayValue = void) {
+    var prefix = RRecordLiveItemPrefix(rb,wr,p,dest);
+    var pair = RRecordLivePayload(rd,rh,rb,wr,prefix.tag,prefix.payload_cursor,dest,resolveBank,evaluateExpr,arrayValue);
+    var value = pair[0] & 0xffffffff;
+    wr((dest+4) & 0xffffffff, value);
+    return %["value" => value, "next_cursor" => pair[1] & 0xffffffff, "param_end" => (dest+8) & 0xffffffff];
+}

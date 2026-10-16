@@ -1,0 +1,14 @@
+```tjs
+function RRExecute(spec, s)
+{
+	var rd = (global.RRRead32 incontextof s);
+	var wr = (global.RRWrite32 incontextof s);
+	var rh = (global.RRRead16 incontextof s);
+	var rb = (global.RRRead8 incontextof s);
+	var arr = (global.RRArray incontextof s);
+	var cond = (global.RRConditionExpr incontextof s);
+	var param = (global.RRParameterExpr incontextof s);
+
+	return global.RLiveRecord(rd, wr, rh, rb, spec.ctx, spec.source, arr, cond, param);
+}
+```

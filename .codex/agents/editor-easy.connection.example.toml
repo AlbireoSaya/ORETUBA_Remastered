@@ -1,0 +1,15 @@
+# editor-easy connection example.
+# Copy this file to 临时/editor-easy/connection.toml (that private user copy is ignored by Git),
+# then replace the placeholders. Extra / unknown keys are ignored.
+
+endpoint         = "https://YOUR_ENDPOINT/provider/v1"
+api_key          = "YOUR_API_KEY"
+model            = "deepseek/deepseek-v4.1-flash"
+reasoning_effort = "high"
+context_window   = 1000000
+protocol         = "responses"
+
+# Notes:
+# - api_key is a local secret: it is never written to report.md / manifest.json / status.json
+#   and never re-sent into the model input. Keep it out of --input-file contents too.
+# - context_window is a purely local input budget; it is not sent as an API field.

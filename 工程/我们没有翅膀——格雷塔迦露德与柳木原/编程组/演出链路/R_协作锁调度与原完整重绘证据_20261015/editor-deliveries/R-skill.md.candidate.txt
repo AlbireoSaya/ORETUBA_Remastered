@@ -1,0 +1,11 @@
+## R 作品 skill 增量（153／154／155／156）
+
+**153（实际锁释放＋原重绘整帧零差异）**：实际 key `02003B50`，worker 28996 leaves depth 0，actual native Leave `RA45214A`；parent 17084 CPU/FS 0 已恢复并 actual enter。原始 `WM_PAINT 49F860` 实测 `Begin RA40D6C3`／`End RA40D864` 返回 BOOL 1，同 worker 创建者仍存活，800×600 全帧 RGB 差异 0／`SHA07419b…`。**同时留存 153 恢复重入失败**：worker resume 旧 proxy ret 触发 repeat Leave 与 owned guard `RuntimeError`，root adapter 非 game。
+
+**154（精确 proxy）**：Stdcall 8 字节 `[ra,key]` pop，EIP=ra 先于 yield，无 fake unlock；worker 27012／parent 22492，gen13→14 多一片；16 logical parent rounds 无失败无错误，全帧 RGB 0／`SHAc303be1f…`，actual original `EndPaint` 1。
+
+**155（测试输入＋取证 cap 停）**：仅 owned `PostMessage` move/down/up `715385`，flags 0/1/0，非物理输入，在 actual source paint 之后；WndProc 512/513/514 返回 0，引擎／脚本字节未改。29 rounds 全帧 RGB 0／`SHAd14d…`，旧 root `SetRect` 取证 cap 2048 停；source `loosepic/bg64.elg` 查询缺失、可能 archive fallback，**不得声称完整 first story**。
+
+**156（待验）**：仅扩 root rect cap 至 8192，real guards 不变，pending 无结论。
+
+**100% 保留**：FullOT/OTA/OTV/OTR 100% goal active、未完成；**不得猜测 source 标题等于完整 GameInit**。Original GetFocus/SetFocus/async state 未知；source events／audio／routes／final TJS／full scheduler／Exit／loader／TEB 全部仍缺。原 PE／DLL 从未 OS 加载，写入全在 workspace，original backup 只读，source integrity 终验 pending；不称 all clipping fixed、不称 every blit sample pass，initial NULL negatives 保留。capture 3 未导入原 EXE（synthetic only）。

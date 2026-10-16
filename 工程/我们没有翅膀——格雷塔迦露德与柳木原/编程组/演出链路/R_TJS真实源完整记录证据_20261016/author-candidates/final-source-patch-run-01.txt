@@ -1,0 +1,8 @@
+[
+  {
+    "file": "r_live_record_fixture_final.tjs",
+    "op": "replace",
+    "find": "    var j;\n    for (j = 0; j < seg.final_words.count; j++) {",
+    "replace": "    if (typeof seg.source_checks == \"Object\") {\n        var k;\n        for (k = 0; k < seg.source_checks.count; k++) {\n            var check = seg.source_checks[k];\n            if (global.RMemoryRead8(s.memory, check[0]) !== check[1]) {\n                throw new global.Exception(\"LIVE_RECORD_SOURCE_CHECK\");\n            }\n        }\n    }\n\n    var j;\n    for (j = 0; j < seg.final_words.count; j++) {"
+  }
+]

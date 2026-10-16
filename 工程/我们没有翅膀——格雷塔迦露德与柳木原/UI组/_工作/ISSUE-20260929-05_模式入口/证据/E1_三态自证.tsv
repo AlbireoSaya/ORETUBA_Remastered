@@ -1,0 +1,45 @@
+编号	断言	实测	判定
+I-off	幂等：内存连造两次逐字节一致	md5 eeb5d8633637 == eeb5d8633637	PASS
+I-over	幂等：内存连造两次逐字节一致	md5 c838a1b574ae == c838a1b574ae	PASS
+I-press	幂等：内存连造两次逐字节一致	md5 198369e52c3e == 198369e52c3e	PASS
+L-1	**无既有素材被改写/删除**：除本批 3 件外零改动；新增项 ⊆ 本批 3 件	added=[] ｜ 本批外改动=[] ｜ 删除=[] ｜ 本批 3 件 md5 就位=True	PASS
+L-3	git 侧独立复核：assets/ui 下除本批 3 件（未跟踪 ??）外无任何 M/A/D	porcelain 3 行 ｜ 异常 无	PASS
+L-2	磁盘现值 == 本次生成值	x_ui_modetab_off.png eeb5d8633637; x_ui_modetab_over.png c838a1b574ae; x_ui_modetab_press.png 198369e52c3e	PASS
+S1-off	尺寸 180×60 / 模式 RGBA	(180, 60) / RGBA	PASS
+S2-off	PNG-32 真 alpha（IHDR 颜色类型 6 / 位深 8；无 PLTE / tRNS 索引色块）	colortype=6 bitdepth=8 chunks=IHDR,IDAT,IEND	PASS
+S3-off	最外 1px 帧 αmax == 0（frame 策略，剪后）	frame_amax=0	PASS
+S4-off	剪前最外 1px 帧 αmax ≤ 10（断言不空转）	raw_frame_amax=8  raw_amax=104	PASS
+S5-off	αmin == 0 且 αmax > 0	αmin=0 αmax=104	PASS
+S1-over	尺寸 180×60 / 模式 RGBA	(180, 60) / RGBA	PASS
+S2-over	PNG-32 真 alpha（IHDR 颜色类型 6 / 位深 8；无 PLTE / tRNS 索引色块）	colortype=6 bitdepth=8 chunks=IHDR,IDAT,IEND	PASS
+S3-over	最外 1px 帧 αmax == 0（frame 策略，剪后）	frame_amax=0	PASS
+S4-over	剪前最外 1px 帧 αmax ≤ 10（断言不空转）	raw_frame_amax=10  raw_amax=172	PASS
+S5-over	αmin == 0 且 αmax > 0	αmin=0 αmax=172	PASS
+S1-press	尺寸 180×60 / 模式 RGBA	(180, 60) / RGBA	PASS
+S2-press	PNG-32 真 alpha（IHDR 颜色类型 6 / 位深 8；无 PLTE / tRNS 索引色块）	colortype=6 bitdepth=8 chunks=IHDR,IDAT,IEND	PASS
+S3-press	最外 1px 帧 αmax == 0（frame 策略，剪后）	frame_amax=0	PASS
+S4-press	剪前最外 1px 帧 αmax ≤ 10（断言不空转）	raw_frame_amax=9  raw_amax=64	PASS
+S5-press	αmin == 0 且 αmax > 0	αmin=0 αmax=246	PASS
+D-1	悬停更亮：off 文字区均 α < over	off=104.00 over=172.00	PASS
+D-2	悬停更高：off 文字区峰 α < over	off=104 over=172	PASS
+D-3	悬停更「大」：off 全画布 α>8 面积 < over	off=8476 over=9488 (+11.9%)	PASS
+D-4	over 的「整体提亮」幅度可辨（≥1.5× 文字区均 α）	1.65×	PASS
+D-5	press 底色可见性：**近实底像素（α≥200，＝派单 3 的「不透明区」口径）press > 0，而 off/over 皆为 0**（光晕有意做成半透明白，故不产生近实底像素）	off=0 over=0 press=299	PASS
+D-6	press 实底面积与胶囊几何一致（α≥200 计数 ≈ 1px 亮边周长 299±60）	α≥200 n=299	PASS
+D-7	off/over 有意不出现近不透明白板（峰值 α < 180 ⇒ 白字与底板留亮度台阶）	off_max=104 over_max=172	PASS
+D-8	同一绝对 α 上 over 的展开 ≥ off（悬停「加大」，非仅调亮）	α>8 面积 off=8476 ≤ over=9488	PASS
+D-9	「整体发亮」不止在文字区：文字区外肩部（行 30 / 列 20）over 的 α ≥ 2.5× off	α: off=34 over=109（3.21×） press=30	PASS
+D-10	肩部在浅云底上的亮度提升（合成后）over ≥ 25 灰阶、off ≥ 5 灰阶（肉眼可辨的量级）	off +11.1 ｜ over +35.5 ｜ 云底 172（0.35/255 每级）	PASS
+K-1	off 底框上沿实测 == 10（平铺区首行，判据 α≥0.995×峰值）	top=10	PASS
+K-2	over 底框上沿实测 == 10（与 off 共用同一底框）	top=10	PASS
+K-3	press 的 α≥200 区（1px 亮边）bbox 上沿 == {'top': 11, 'bottom': 50, 'left': 30, 'right': 149, 'w': 120, 'h': 40, 'n': 299}	top=11	PASS
+K-4	**胶囊下沉 1px**：press_bbox.top == off 底框上沿 + 1 == over 底框上沿 + 1（±0）	press=11  off+1=11  over+1=11	PASS
+K-5	press 胶囊与底框**等宽等高**（下沉＝平移，不是缩放）	α≥200 bbox 120×40（底框 120×40）	PASS
+B-1	3 件合计 < 60 KiB	2.94 KiB（逐件 0.62 / 0.76 / 1.56 KiB）	PASS
+B-2	单件均 ≤ 24 KiB（任何一件都不吃掉预算）	max=1.56 KiB	PASS
+P-1	本批落盘后仍在 96 MB 预算内（余量 > 本批体积）	余量 62.41 KiB vs 本批 2.94 KiB	PASS
+C-1	白字本体未被底光改色：墨迹实心像素合成色恒为纯白 (255,255,255)（四栏皆然）	off=(255, 255, 255); over=(255, 255, 255); press=(255, 255, 255); none=(255, 255, 255)	PASS
+C-2	黑描边在各态下都清楚可辨（描边灰度中位=0、p90 ≤110、描边/底板 WCAG ≥4.0:1）	off 中位0 p90=36 对比13.21:1; over 中位0 p90=36 对比16.44:1; press 中位0 p90=36 对比8.90:1; none 中位0 p90=36 对比9.08:1	PASS
+C-3	**底光没有「吃掉」黑描边**：描边纯黑占比在四栏间极差 ≤3 个百分点（与底光无关）	极差 0.74 pp（73.8% / 73.7% / 73.8% / 74.5%）	PASS
+C-4	白淡光在浅云底上「可见而不过亮」：off/over 底板亮度提升落在 20~75 灰阶、且底板 <240	off +34.3 → 205 ｜ over +57.0 → 228 ｜ press 底板 172	PASS
+C-5	悬停「一眼可辨」（底板亮度差 ≥15 灰阶）	over − off = +22.7 灰阶	PASS

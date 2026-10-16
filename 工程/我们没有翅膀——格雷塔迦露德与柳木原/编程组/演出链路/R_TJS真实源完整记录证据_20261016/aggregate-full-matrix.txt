@@ -1,0 +1,22 @@
+"""Root coverage audit; only hashes/counts/cohort metadata suitable for version control."""
+from pathlib import Path
+import collections,hashlib,json
+r=Path.cwd().resolve();w=r/'子代理工作区/ISSUE-20261011-02/r-target-real-source-record-20261016';ip=r/'临时/ISSUE-20261011-02/r-expression-vm-replay-01/dynamic-record-index.json';index=json.loads(ip.read_text(encoding='utf-8-sig'));expected={(f['path'],off,state)for f in index for off in f['record_offsets']for state in range(6)}
+result=json.loads((w/'full-matrix-run-01/result.json').read_text());assert result['passed']and len(result['jobs'])==44
+totals=collections.Counter();perstate=collections.Counter();ops=collections.Counter();handlers=collections.Counter();sourcehashes={};seen=set();signatures=set();shards=[]
+keys=['cases','records','caller_events','vm_writes','vm_steps','vm_runs','native_calls']
+for i in range(16):
+ d=r/'临时/ISSUE-20261011-02'/f'r-source-live-full-original-{i}-20261016-01';raw=(d/'original-results.json').read_bytes();m=json.loads((d/'manifest.json').read_text());o=json.loads(raw);assert o['passed']and hashlib.sha256(raw).hexdigest()==m['original_result_sha256']and m['records']==m['cases']*2
+ for case in o['results']:
+  key=case['path'],case['offset'],case['state'];assert key in expected and key not in seen;seen.add(key);perstate[case['state']]+=1;signatures.add((case['signature'][0],tuple(case['signature'][1])));sourcehashes[case['path']]=case['source_sha256'];assert len(case['segments'])==2
+  for seg in case['segments']:
+   assert seg['passed']and not seg['unexpected'];ops.update(t[2]for t in seg['vm_trace']);handlers.update(c[0]for c in seg['calls'])
+ for k in keys:totals[k]+=m[k]
+ receipts=[]
+ for bits in(32,64):
+  p=r/'临时/ISSUE-20261011-02'/f'r-source-live-full-target-{i}-{bits}-20261016-01/evidence/verdict.json';v=json.loads(p.read_text());assert v['passed']and all(v[k]==m[k]for k in keys)and v['original_result_sha256']==m['original_result_sha256'];receipts.append(dict(bits=bits,path=p.relative_to(r).as_posix(),sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
+ shards.append(dict(group=i,**{k:m[k]for k in keys},original_results_path=(d/'original-results.json').relative_to(r).as_posix(),original_results_sha256=hashlib.sha256(raw).hexdigest(),target_receipts=receipts))
+assert seen==expected and len(seen)==22764 and len(sourcehashes)==418 and len(signatures)==10
+for path,sha in sourcehashes.items():assert hashlib.sha256((r/path).read_bytes()).hexdigest()==sha
+summary=dict(passed=True,source_files=418,dynamic_records=3794,states=6,cold_warm=True,signatures=10,per_arch=dict(totals),per_state_case_count=dict(perstate),actual_original_opcodes=dict(sorted(ops.items())),actual_original_native_handlers={hex(k):v for k,v in sorted(handlers.items())},coverage_exact_no_duplicates=True,original_sources_unchanged=True,source_bytes_only_local_ignored=True,VM_read_order_or_native_internal_stack_compared=False,target_final_source_proof='immutable exact original byte backing + all scoped caller/VM writes identical + all written-source-byte final values; not an independent whole-image TJS hash',source_sha256=sourcehashes,shards=shards,full_game_fidelity_proven=False,goal_status='active')
+(w/'full-matrix-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');print(json.dumps({k:summary[k]for k in ['passed','source_files','dynamic_records','states','signatures','per_arch','actual_original_opcodes','actual_original_native_handlers']},ensure_ascii=False))

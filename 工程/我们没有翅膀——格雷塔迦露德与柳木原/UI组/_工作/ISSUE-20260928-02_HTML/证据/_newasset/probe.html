@@ -1,0 +1,34 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel=stylesheet href="replica.css"></head>
+<body><div id="canvas" style="position:absolute;left:0;top:0"></div><pre id="out">run</pre>
+<script src="ui_layout.js"></script><script src="flow_data.js"></script><script src="replica.js"></script>
+<script>
+var IDS = ["fc.scr_up", "fc.scr_dn", "fc.zoom_minus", "fc.zoom_plus", "fc.shift_lf", "fc.shift_rg", "fc.fusen_edit", "fc.fusen_reset", "fc.pbkick", "fc.close", "fc.node.0001", "fc.node.0002", "fc.node.0003", "fc.node.0004", "fc.node.0005", "fc.node.0006", "fc.node.0007", "fc.node.0008", "fc.node.0009", "fc.node.0010", "fc.node.0011", "fc.node.0012", "fc.node.0013", "fc.frag1.0001", "fc.frag1.0002", "fc.frag1.0003", "fc.frag1.0004", "fc.frag1.0005", "fc.frag1.0006", "fc.frag1.0007", "fc.frag1_back", "fc.frag2.0001", "fc.frag2.0002", "fc.frag2.0003", "fc.frag2.0004", "fc.frag2.0005", "fc.frag2.0006", "fc.frag2.0007", "fc.frag2_back", "fc.frag3.0001", "fc.frag3.0002", "fc.frag3.0003", "fc.frag3.0004", "fc.frag3_back", "fc.frag4.0001", "fc.frag4.0002", "fc.frag4.0003", "fc.frag4.0004", "fc.frag4.0005", "fc.frag4.0006", "fc.frag4.0007", "fc.frag4.0008", "fc.frag4.0009", "fc.frag4.0010", "fc.frag4_back", "fc.frag5.0001", "fc.frag5.0002", "fc.frag5.0003", "fc.frag5.0004", "fc.frag5.0005", "fc.frag5_back", "fc.frag6.0001", "fc.frag6.0002", "fc.frag6.0003", "fc.frag6.0004", "fc.frag6.0005", "fc.frag6.0006", "fc.frag6.0007", "fc.frag6.0008", "fc.frag6.0009", "fc.frag6.0010", "fc.frag6.0011", "fc.frag6.0012", "fc.frag6_back"];
+function inner(id){var n=document.querySelector('[data-ui-id="'+id+'"]');
+  return n?(n.querySelector('.ui-stateimage')||n.querySelector('.ui-nine')):null;}
+function cur(id){var n=inner(id); if(!n) return '(无节点)';
+  var s=n.style.backgroundImage||n.style.borderImageSource||'';
+  var m=/url\("?([^")]+)"?\)/.exec(s);
+  return m?decodeURIComponent(m[1]).replace(/^.*\//,''):'(无)';}
+function fire(id,t,btn){var n=document.querySelector('[data-ui-id="'+id+'"]'); if(!n) return;
+  n.dispatchEvent(new MouseEvent(t,{bubbles:false,cancelable:true,view:window,button:(btn||0),buttons:1}));}
+window.addEventListener('load',function(){
+  try{
+    window.UI_REPLICA.renderScreen('flowchart',{noHistory:true});
+    var rows=[];
+    IDS.forEach(function(id){
+      fire(id,'mouseleave');
+      var normal=cur(id);
+      fire(id,'mouseenter');
+      var hover=cur(id);
+      fire(id,'mousedown',0);
+      var press=cur(id);
+      fire(id,'mouseup',0);
+      var back=cur(id);
+      fire(id,'mouseleave');
+      var out=cur(id);
+      rows.push({id:id,normal:normal,hover:hover,pressed:press,back:back,out:out});
+    });
+    document.getElementById('out').textContent='NEWASSET '+JSON.stringify(rows);
+  }catch(e){document.getElementById('out').textContent='NEWASSET-ERR '+e.message;}
+});
+</script></body></html>

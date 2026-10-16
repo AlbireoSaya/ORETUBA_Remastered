@@ -1,0 +1,124 @@
+{
+  "bridge_sha256": "09d1ef70eaa0921d1f98fe843b2c4b12bf05120d7a1deb65e90cf76d7c6a6cbb",
+  "checks": [
+    {
+      "name": "manual_five_fields",
+      "passed": true
+    },
+    {
+      "name": "existing_connection_model_high",
+      "passed": true
+    },
+    {
+      "name": "reject_endpoint_2",
+      "passed": true
+    },
+    {
+      "name": "reject_endpoint_3",
+      "passed": true
+    },
+    {
+      "name": "reject_endpoint_4",
+      "passed": true
+    },
+    {
+      "name": "reject_endpoint_5",
+      "passed": true
+    },
+    {
+      "name": "stages_only_and_read_input_not_write_allow",
+      "passed": true
+    },
+    {
+      "name": "reject_main_before_request",
+      "passed": true
+    },
+    {
+      "name": "reject_forbidden_target_0",
+      "passed": true
+    },
+    {
+      "name": "reject_forbidden_target_1",
+      "passed": true
+    },
+    {
+      "name": "reject_forbidden_target_2",
+      "passed": true
+    },
+    {
+      "name": "reject_forbidden_target_3",
+      "passed": true
+    },
+    {
+      "name": "reject_forbidden_target_4",
+      "passed": true
+    },
+    {
+      "name": "validate_all_before_candidate_write",
+      "passed": true
+    },
+    {
+      "name": "duplicate_output_rejected",
+      "passed": true
+    },
+    {
+      "name": "reject_secret_input_before_request",
+      "passed": true
+    },
+    {
+      "name": "stream_function_payload_delivery",
+      "passed": true
+    },
+    {
+      "name": "reject_incomplete_stream",
+      "passed": true
+    },
+    {
+      "name": "reject_secret_output",
+      "passed": true
+    },
+    {
+      "name": "actual_secret_not_persisted",
+      "passed": true
+    }
+  ],
+  "passed": 20,
+  "failed": 0,
+  "issue": "ISSUE-20261011-01",
+  "date": "2026-10-11",
+  "reviewer": "root (user-authorized phase review)",
+  "live": {
+    "status": "staged",
+    "model": "deepseek/deepseek-v4.1-flash",
+    "reasoning_effort": "high",
+    "usage": {
+      "input_tokens": 467,
+      "output_tokens": 144,
+      "total_tokens": 611,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 37
+      }
+    },
+    "candidates": 1,
+    "disclaimer": "Candidate output only; not review approved."
+  },
+  "native_cross_provider_fixed": false,
+  "delivery_mode": "streamed Responses; staged candidates only; no automatic commands",
+  "goal_state_observed": "paused",
+  "game_files_changed": false,
+  "legacy_change": "completion_scope text only",
+  "files_sha256": {
+    "AGENTS.md": "4366bde9962ba59bf7ce070127def5af5e55e680e0c520635ba28ad488a76050",
+    ".codex/agents/editor-easy.toml": "bebd61c750cba362f400328c855232ffefeda49fbfed6b136bcf97d308abfb46",
+    ".codex/agents/editor-hard.toml": "49597f67f82c15c4f50adee765129c7f8b5b6a2ea1c5278c2337a6f2e8b4c081",
+    ".codex/agents/README.md": "ad730a75897e850689f8c328d100dcf80fc49750905954990564a12209f415a4",
+    ".codex/agents/research.toml": "797bdeead057e87f4f1a70f72d0c3525a82df203ff2b54fccb0f1051428658eb",
+    ".codex/agents/reviewer.toml": "6b72664fecfed7b26903701197cc12a5c26ad30ec62b67e4aab4a2da240e7cde",
+    ".codex/agents/run-editor-easy-api.py": "09d1ef70eaa0921d1f98fe843b2c4b12bf05120d7a1deb65e90cf76d7c6a6cbb",
+    ".codex/agents/editor-easy.connection.example.toml": "704652b747c138ebd3a84b9683794767b5449d98e2dfe40cf0e5f2df9785e270",
+    ".codex/agents/run-editor-easy.py": "da3eca404e62cd02b652240577a303d2c152fe0f9789857fef0b8a133e99ae17"
+  }
+}

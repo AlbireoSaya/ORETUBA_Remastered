@@ -1,0 +1,10 @@
+ctrl	op	target_rule	x	src	evidence
+# 本表为「机制可用性演示 + 风险证据」，默认 off、不得并入生产、不得被下游当可用数据消费 —— 依据见 编程组\other语义接入\说明.md §九（主代理 2026-10-07 裁决）。
+# target_rule 一列在前置条件①②③全绿前「未定/演示」；右侧取值仅为让 demo 可复跑（详见 §九）。
+!l	chr_remove	concurrent（演示·未定）		ot,otp,otr	E5 §4.2 `!l`→`:Position.x<0`（−220×93 / −620×12 / −520×5）；R2 复核 §二.6 三路独立证据（`!l` 81/81→0x18b74；PSV 注释 `//chr_anime 3,"!l",300` 邻 CharacterMove 110/110）
+!r	chr_remove	concurrent（演示·未定）		ot,otp,otr	E5 §4.2 `!r`→`x≥1500`（1500×10 / 1800×6）；R2 复核 §二.6（`!r` 20/22→0x18b74，另 2 例 0x186c8）
+c	chr_place	concurrent（演示·未定）	640	ot,otp,otr	E5 §4.2 `c`→640（268 例，众数）
+l	chr_place	concurrent（演示·未定）	336	ot,otp,otr	E5 §4.2 `l`→336（49 例）；与 `chr_in` 关键字 left=336 一致
+r	chr_place	concurrent（演示·未定）	944	ot,otp,otr	E5 §4.2 `r`→944（59 例）；与 `chr_in` 关键字 right=944 一致
+re:^<[0-9]$	chr_place	concurrent（演示·未定）	236	ot,otp,otr	E5 §4.2 `<d`→236（13 例）；`l<d`→236/186
+re:^>[0-9]$	chr_place	concurrent（演示·未定）	1044	ot,otp,otr	E5 §4.2 `>d`→1044（19 例）；`r>d`→1044（17 例）

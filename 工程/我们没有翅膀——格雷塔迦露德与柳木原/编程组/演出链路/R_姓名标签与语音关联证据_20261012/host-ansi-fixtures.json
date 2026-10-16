@@ -1,0 +1,158 @@
+{
+  "host": "Windows-11-10.0.22621-SP0",
+  "python_pointer_bits": 64,
+  "copy_cases": [
+    {
+      "source_hex": "41",
+      "length": 1,
+      "destination_hex": "00",
+      "passed": true
+    },
+    {
+      "source_hex": "4142",
+      "length": 2,
+      "destination_hex": "4100",
+      "passed": true
+    },
+    {
+      "source_hex": "414243",
+      "length": 3,
+      "destination_hex": "414200",
+      "passed": true
+    },
+    {
+      "source_hex": "41424300e1e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 16,
+      "destination_hex": "41424300999999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "41424300e1e1e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 17,
+      "destination_hex": "4142430099999999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "00",
+      "length": 1,
+      "destination_hex": "00",
+      "passed": true
+    },
+    {
+      "source_hex": "00e1",
+      "length": 2,
+      "destination_hex": "0099",
+      "passed": true
+    },
+    {
+      "source_hex": "00e1e1",
+      "length": 3,
+      "destination_hex": "009999",
+      "passed": true
+    },
+    {
+      "source_hex": "00e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 16,
+      "destination_hex": "00999999999999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "00e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 17,
+      "destination_hex": "0099999999999999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "41",
+      "length": 1,
+      "destination_hex": "00",
+      "passed": true
+    },
+    {
+      "source_hex": "41ff",
+      "length": 2,
+      "destination_hex": "4100",
+      "passed": true
+    },
+    {
+      "source_hex": "41ff42",
+      "length": 3,
+      "destination_hex": "41ff00",
+      "passed": true
+    },
+    {
+      "source_hex": "41ff4200e1e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 16,
+      "destination_hex": "41ff4200999999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "41ff4200e1e1e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 17,
+      "destination_hex": "41ff420099999999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "82",
+      "length": 1,
+      "destination_hex": "00",
+      "passed": true
+    },
+    {
+      "source_hex": "82a0",
+      "length": 2,
+      "destination_hex": "8200",
+      "passed": true
+    },
+    {
+      "source_hex": "82a082",
+      "length": 3,
+      "destination_hex": "82a000",
+      "passed": true
+    },
+    {
+      "source_hex": "82a082a200e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 16,
+      "destination_hex": "82a082a2009999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "82a082a200e1e1e1e1e1e1e1e1e1e1e1e1",
+      "length": 17,
+      "destination_hex": "82a082a200999999999999999999999999",
+      "passed": true
+    },
+    {
+      "source_hex": "30",
+      "length": 1,
+      "destination_hex": "00",
+      "passed": true
+    },
+    {
+      "source_hex": "3031",
+      "length": 2,
+      "destination_hex": "3000",
+      "passed": true
+    },
+    {
+      "source_hex": "303132",
+      "length": 3,
+      "destination_hex": "303100",
+      "passed": true
+    },
+    {
+      "source_hex": "30313233343536373839616263646566",
+      "length": 16,
+      "destination_hex": "30313233343536373839616263646500",
+      "passed": true
+    },
+    {
+      "source_hex": "3031323334353637383961626364656667",
+      "length": 17,
+      "destination_hex": "3031323334353637383961626364656600",
+      "passed": true
+    }
+  ],
+  "guard_rejections": 6,
+  "scope": "actual current Windows host lstrcpynA using valid separately allocated buffers; not original x86 kernel execution, readable non-overlap subset only"
+}

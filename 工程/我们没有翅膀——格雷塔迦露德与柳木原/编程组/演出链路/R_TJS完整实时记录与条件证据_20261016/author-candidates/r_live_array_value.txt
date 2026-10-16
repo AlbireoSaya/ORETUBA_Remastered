@@ -1,0 +1,11 @@
+function RLiveArrayValue(rd, p, ensureBank)
+{
+    var desc = rd(0x5355f0) & 0xffffffff;
+    var bank = rd(p & 0xffffffff) & 0xffffffff;
+    var vector = ensureBank(desc, bank);
+    if (typeof vector != "Integer") throw new Exception("MISSING_LIVE_ARRAY_VECTOR");
+    var element = rd((p + 4) & 0xffffffff) & 0xffffffff;
+    var base = rd((vector + bank * 12) & 0xffffffff) & 0xffffffff;
+    var value = rd((base + element * 4) & 0xffffffff) & 0xffffffff;
+    return [value, (p + 8) & 0xffffffff];
+}

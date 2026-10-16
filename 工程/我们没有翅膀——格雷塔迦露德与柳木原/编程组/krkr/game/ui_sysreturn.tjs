@@ -1,0 +1,162 @@
+// ============================================================
+// ui_sysreturn.tjs —— 编程组 · 「返回对话框」接线（ISSUE-20261002-09）
+//
+// 用户 2026-10-02 三项要求：
+//   ① SAVE/LOAD 屏顶部三按钮（返回游戏 / 返回标题画面 / 退出游戏）接线，让它们真正可用；
+//   ② SAVE/LOAD 右下「返回」不再只回上一层，改为**直接返回对话框（游戏内）**；
+//   ③ SAVE/LOAD / CONFIG / FLOWCHART 四屏都支持**右键返回对话框**（与 backlog 同款）。
+//
+// 口径对齐（**不改 UI 组任何文件**）：
+//   · UI 组的 `25_config.json` **已经**把同类三按钮接好：`cfg.btn_game_hit→close`、
+//     `cfg.btn_title_hit→open_title`、`cfg.btn_end_hit→quit_game` ⇒ 本模块沿用同一套既有动作。
+//   · SAVE/LOAD 两屏的 `sv.sys_*_hit` 在布局数据里 action 是**空串**、右下 `sv.hit_back` 是 `close`
+//     ⇒ 本模块在**运行期改元素数据**（编程组既有模式：标题屏热区补丁 / 页脚返回热区同做法）：
+//         sv.sys_game_hit  → return_to_dialog    （返回游戏）
+//         sv.sys_title_hit → open_title          （返回标题画面，UI 组既有动作）
+//         sv.sys_end_hit   → quit_game           （退出游戏，UI 组既有动作）
+//         sv.hit_back      → return_to_dialog    （页脚返回：由「回上一层」改为「回对话框」）
+//       另把 CONFIG 的 `cfg.btn_game_hit`（原 `close`）一并对齐为 `return_to_dialog`——
+//       两者在「从对话框进设置」时**行为完全相同**，只有在多层栈时才见差别，且更贴合标签语义。
+//
+// ★ 新动作 `return_to_dialog`（编程组自定；**只存在于运行期注入，数据层不出现**）：
+//     · 屏栈里有 "dialog" ⇒ **弹到它**（不论中间压了几层）；
+//     · 屏栈里没有（例如从标题屏进读档/流程图/设置）⇒ **退化为 `close`（关一层）**：
+//       此时「返回对话框」没有对象，硬推一个 dialog 等于「从读档屏凭空开局」，更糟。
+//   动作分支在 `ui_story.tjs` 的 `uiStoryDispatchWrapper`（本文件只提供实现与安装）。
+//
+// ⚠️ 本文件**只包装/改数据**，不删任何 UI 元素、不改任何 UI 组文件；卸载＝去掉 ui_boot 的装载与调用。
+// ============================================================
+
+var UISysRetDone = false;            // 安装完成标记（幂等）
+var UISysRetLog  = [];               // 实际接线流水（供日志/自检复算）
+
+// 右键「返回对话框」适用的屏（要求③；backlog 原本已支持，统一到同一动作）
+var UISysRetRightScreens = ["backlog", "save", "load", "config", "flowchart"];
+
+// 当前屏是否属于「右键即返回对话框」的屏；是则返回屏名，否则空串
+function uiSysRightClickScreen()
+{
+	var s = "";
+	try { s = "" + uiScreenCurrent(); } catch(e0) { return ""; }
+	for(var i = 0; i < UISysRetRightScreens.count; i++)
+		if(("" + UISysRetRightScreens[i]) == s) return s;
+	return "";
+}
+
+// ------------------------------------------------------------
+// 把屏栈弹到 "dialog"。返回 true＝已回到对话框；false＝栈内无 dialog（已退化为关一层）
+// ------------------------------------------------------------
+function uiStoryReturnToDialog()
+{
+	var st = null;
+	try { st = UIScrStack; } catch(e0) { st = null; }
+	if(st === null || st === void || st.count === void)
+	{
+		Debug.message("[SYS][ERR] 取不到 UIScrStack —— return_to_dialog 未生效");
+		return false;
+	}
+	// 自栈顶向下找 "dialog"（TJS2 无 lastIndexOf，手工反向扫；不用 for...in）
+	var pos = -1;
+	for(var i = st.count - 1; i >= 0; i--)
+		if(("" + st[i]) == "dialog") { pos = i; break; }
+
+	if(pos < 0)
+	{
+		var okp = false;
+		try { okp = uiScreenPop(); } catch(e1) { okp = false; }
+		Debug.message("[SYS] return_to_dialog：栈内无 dialog（" + uiScreenStackText()
+			+ "）⇒ 退化为 close（" + (okp ? "已关一层" : "已在栈底，未动") + "）");
+		return false;
+	}
+
+	var n = 0;
+	while(st.count > (pos + 1))
+	{
+		var ok = false;
+		try { ok = uiScreenPop(); } catch(e2) { ok = false; }
+		if(!ok) break;
+		n++;
+	}
+	Debug.message("[SYS] return_to_dialog：弹 " + n + " 层 → " + uiScreenCurrent()
+		+ "（栈 " + uiScreenStackText() + "）");
+	return (uiScreenCurrent() == "dialog");
+}
+
+// ------------------------------------------------------------
+// 运行期把动作写进 SAVE/LOAD/CONFIG 的元素数据（幂等；按 id 命中，不改 UI 组文件）
+// ------------------------------------------------------------
+function uiSysReturnInstall()
+{
+	if(UISysRetDone) return true;
+	if(UILayoutData === void || UILayoutData.screens === void)
+	{
+		Debug.message("[SYS][ERR] 布局未就绪 —— 三按钮/返回接线**未安装**");
+		return false;
+	}
+	// ★ TJS2：内联字典**键不加引号**、数组字面量**不留尾逗号**
+	var T = [
+		%[ scr: "save",   id: "sv.sys_game_hit",  act: "return_to_dialog", why: "返回游戏" ],
+		%[ scr: "save",   id: "sv.sys_title_hit", act: "open_title",        why: "返回标题画面" ],
+		%[ scr: "save",   id: "sv.sys_end_hit",   act: "quit_game",         why: "退出游戏" ],
+		%[ scr: "save",   id: "sv.hit_back",      act: "return_to_dialog",  why: "页脚返回" ],
+		%[ scr: "load",   id: "sv.sys_game_hit",  act: "return_to_dialog", why: "返回游戏" ],
+		%[ scr: "load",   id: "sv.sys_title_hit", act: "open_title",        why: "返回标题画面" ],
+		%[ scr: "load",   id: "sv.sys_end_hit",   act: "quit_game",         why: "退出游戏" ],
+		%[ scr: "load",   id: "sv.hit_back",      act: "return_to_dialog",  why: "页脚返回" ],
+		%[ scr: "config", id: "cfg.btn_game_hit", act: "return_to_dialog",  why: "返回游戏（与 SAVE/LOAD 对齐）" ]
+	];
+	var n = 0;
+	var miss = [];
+	for(var i = 0; i < T.count; i++)
+	{
+		var row = T[i];
+		if(row === void || row === null) continue;
+		var sc = UILayoutData.screens["" + row.scr];
+		if(sc === void || sc === null) { miss.push("屏缺失:" + row.scr); continue; }
+		var el = uiStoryFindEl(sc, "" + row.id);
+		if(el === void || el === null) { miss.push(row.scr + "/" + row.id); continue; }
+		el.action = "" + row.act;
+		n++;
+		UISysRetLog.push(row.scr + "/" + row.id + "→" + row.act);
+	}
+	UISysRetDone = true;
+	Debug.message("[SYS] 三按钮与页脚返回接线完成 " + n + "/" + T.count + " 处："
+		+ UISysRetLog.join(" ｜ "));
+	if(miss.count > 0)
+		Debug.message("[SYS][ERR] 未命中 " + miss.count + " 处（UI 组改了元素 id？）：" + miss.join("、"));
+	return (miss.count == 0);
+}
+
+// ------------------------------------------------------------
+// 自检（供 ui_verify15.tjs 的 flag 门控模式复算；**不参与正常游玩**）
+//   逐条返回「期望 vs 实际」，任一条不符即 FAIL ⇒ 可失败，不是空跑
+// ------------------------------------------------------------
+function uiSysReturnSelfCheck()
+{
+	var bad = [];
+	var T = [
+		%[ scr: "save", id: "sv.sys_game_hit",  act: "return_to_dialog" ],
+		%[ scr: "save", id: "sv.sys_title_hit", act: "open_title" ],
+		%[ scr: "save", id: "sv.sys_end_hit",   act: "quit_game" ],
+		%[ scr: "save", id: "sv.hit_back",      act: "return_to_dialog" ],
+		%[ scr: "load", id: "sv.sys_game_hit",  act: "return_to_dialog" ],
+		%[ scr: "load", id: "sv.sys_title_hit", act: "open_title" ],
+		%[ scr: "load", id: "sv.sys_end_hit",   act: "quit_game" ],
+		%[ scr: "load", id: "sv.hit_back",      act: "return_to_dialog" ],
+		%[ scr: "config", id: "cfg.btn_game_hit", act: "return_to_dialog" ]
+	];
+	for(var i = 0; i < T.count; i++)
+	{
+		var row = T[i];
+		var sc = UILayoutData.screens["" + row.scr];
+		var el = (sc === void || sc === null) ? void : uiStoryFindEl(sc, "" + row.id);
+		if(el === void || el === null) { bad.push(row.scr + "/" + row.id + "=元素缺失"); continue; }
+		if(("" + el.action) != ("" + row.act))
+			bad.push(row.scr + "/" + row.id + "=" + el.action + "（期望 " + row.act + "）");
+	}
+	// 右键适用范围
+	var rs = UISysRetRightScreens.join(",");
+	if(rs != "backlog,save,load,config,flowchart") bad.push("右键屏集合=" + rs);
+	if(bad.count == 0) return "PASS 9/9 元素动作 + 右键屏集合";
+	return "FAIL " + bad.count + " 处：" + bad.join(" ｜ ");
+}

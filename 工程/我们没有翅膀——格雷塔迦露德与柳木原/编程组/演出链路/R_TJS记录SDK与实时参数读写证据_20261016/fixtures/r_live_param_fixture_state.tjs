@@ -1,0 +1,22 @@
+function RLPZero(offset)
+{
+	return 0;
+}
+
+function RLPCreate(spec)
+{
+	var m = RMemoryCreate([
+		%["base" => 0x1000000, "size" => 0x100000, "read_byte" => RLPZero, "writable" => 1],
+		%["base" => spec.source, "size" => 4096, "read_byte" => RLPZero, "writable" => 1]
+	]);
+	var i;
+	for (i = 0; i < spec.data.count; i = i + 1)
+	{
+		RMemoryWrite8(m, spec.source + i, spec.data[i]);
+	}
+	for (i = 0; i < spec.bank_values.count; i = i + 1)
+	{
+		RMemoryWrite32(m, spec.bank_base + 4 * i, spec.bank_values[i]);
+	}
+	return %["memory" => m, "events" => [], "source" => spec.source, "params" => spec.params, "bank" => spec.bank_base];
+}

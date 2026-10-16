@@ -1,0 +1,36 @@
+=== quickbar elements (29) ===
+quick.tgl  image  z=10  x=1845 y=12 w=63 h=513  action=''  vis_flag=None  vis_when=None  label=None
+quick.btn  image  z=11  x=1845 y=12 w=63 h=888  action=''  vis_flag='quickbar'  vis_when='expanded'  label=None
+quick.tips  image  z=12  x=1665 y=18 w=197 h=876  action=''  vis_flag='qbar_tip'  vis_when='*'  label=None
+quick.pin_mark  rect  z=31  x=1845 y=7 w=75 h=73  action=''  vis_flag='qbar_pin'  vis_when='1'  label=None
+quick.hit_lock  hit  z=95  x=1845 y=7 w=75 h=73  action='quick_pin'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_lock  text  z=30  x=1665 y=18 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='lock'  label=None
+quick.hit_save  hit  z=95  x=1845 y=82 w=75 h=73  action='do_save'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_save  text  z=30  x=1665 y=93 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='save'  label=None
+quick.hit_load  hit  z=95  x=1845 y=157 w=75 h=73  action='do_load'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_load  text  z=30  x=1665 y=168 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='load'  label=None
+quick.hit_qsave  hit  z=95  x=1845 y=232 w=75 h=73  action='do_quicksave'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_qsave  text  z=30  x=1665 y=243 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='qsave'  label=None
+quick.hit_qload  hit  z=95  x=1845 y=307 w=75 h=73  action='do_quickload'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_qload  text  z=30  x=1665 y=318 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='qload'  label=None
+quick.hit_auto  hit  z=95  x=1845 y=382 w=75 h=73  action='auto_on'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_auto  text  z=30  x=1665 y=393 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='auto'  label=None
+quick.hit_skip  hit  z=95  x=1845 y=457 w=75 h=73  action='skip_on'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_skip  text  z=30  x=1665 y=468 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='skip'  label=None
+quick.hit_next  hit  z=95  x=1845 y=532 w=75 h=73  action='next_choice'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_next  text  z=30  x=1665 y=543 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='next'  label=None
+quick.hit_prev  hit  z=95  x=1845 y=607 w=75 h=73  action='prev_choice'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_prev  text  z=30  x=1665 y=618 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='prev'  label=None
+quick.hit_log  hit  z=95  x=1845 y=682 w=75 h=73  action='open_backlog'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_log  text  z=30  x=1665 y=693 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='log'  label=None
+quick.hit_chart  hit  z=95  x=1845 y=757 w=75 h=73  action='open_flowchart'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_chart  text  z=30  x=1665 y=768 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='chart'  label=None
+quick.hit_option  hit  z=95  x=1845 y=832 w=75 h=73  action='open_config'  vis_flag='quickbar'  vis_when='expanded'  label=''
+quick.tx_option  text  z=30  x=1665 y=843 w=197 h=51  action=''  vis_flag='qbar_tip'  vis_when='option'  label=None
+quick.hit_toggle  hit  z=96  x=1842 y=7 w=78 h=898  action=''  vis_flag=None  vis_when=None  label=''
+
+=== dialog attach='quickbar' flags_default=None
+=== dialog elements with vis_flag:
+=== dialog reveal=None
+SCREEN dialog keys=['attach'] vis_flagged=0
+SCREEN quickbar keys=['flags_default', 'reveal'] vis_flagged=27

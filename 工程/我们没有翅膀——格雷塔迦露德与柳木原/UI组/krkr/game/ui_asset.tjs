@@ -1,0 +1,223 @@
+// ============================================================
+// ui_asset.tjs —— 贴图加载与缓存（M2 · UI 组）
+//
+// 职责（与其它 ui_*.tjs 分离）：
+//   * 把 ui_layout.tjs 里的 asset 字符串（形如 "ui/meswin.png"）解析成真实存储名；
+//   * 用 Layer.loadImages 载入，缓存成「隐藏的素材层」供 ui_widget.tjs 取用；
+//   * 缺件时**不抛异常、不崩**：登记进缺件清单 + 由 ui_widget.tjs 画占位方块。
+//
+// 素材根（三路解析，按序命中即止）：
+//   ① 项目根内 "ui/…"            —— 素材直接放进 game\ 的情形
+//   ② 项目根内 "assets/ui/…"     —— 素材放进 game\assets\ 的情形
+//   ③ -assetdir=<绝对路径> + "ui/…" —— 正式布局（krkr\assets\ui\ 在项目根之外，
+//      故 run_loose.bat 用 -assetdir 显式告知；同时 Storages.addAutoPath 登记它，
+//      使 "ui/…" 这一原始写法也能命中）
+//
+// 为什么素材不能靠相对路径 ../assets/ui/ 取：
+//   TVP 存储名的 ".." 越过工程根会报 TVPInvalidPathName（引擎工作原理.md §3.1），
+//   所以 krkr\assets\ 这种「项目根的兄弟目录」必须用 -assetdir + addAutoPath。
+//
+// TJS2 注意：Dictionary 无 count / 无枚举 → 缓存用「并行数组 + 下标线性查」。
+// ============================================================
+
+var UIAssetDirArg      = "";    // -assetdir= 的原始值
+var UIAssetDirNorm     = "";    // 规范化后的绝对存储名（以 / 结尾）
+var UIAssetWin         = null;  // 所属窗口
+var UIAssetHost        = null;  // 素材层的父层（隐藏层挂在这里）
+var UIAssetCacheKey    = [];    // 缓存键（asset 字符串）
+var UIAssetCacheLayer  = [];    // 缓存值（Layer）
+var UIAssetCacheW      = [];    // 缓存值（宽）
+var UIAssetCacheH      = [];    // 缓存值（高）
+var UIAssetMissList    = [];    // 缺件清单（去重，供日志/巡演）
+var UIAssetMissIndex   = %[];   // 缺件去重表
+var UIAssetLoadOK      = 0;
+var UIAssetLoadFail    = 0;
+var UIAssetPixModeNote = "";    // P 模式 PNG 支持性实测记录（见报告）
+
+// ------------------------------------------------------------
+// 初始化
+// ------------------------------------------------------------
+function uiAssetInit(win, hostParent)
+{
+	UIAssetWin  = win;
+	UIAssetHost = hostParent;
+
+	var arg = void;
+	try { arg = System.getArgument("assetdir"); } catch(e) { arg = void; }
+	if(arg !== void && arg !== null)
+	{
+		var s = "" + arg;
+		if(s != "")
+		{
+			UIAssetDirArg = s;
+			// 统一成 / 结尾（TVP 存储名一律用 /）
+			s = s.split("\\").join("/");
+			if(s.charAt(s.length - 1) != "/") s = s + "/";
+			UIAssetDirNorm = s;
+			try
+			{
+				Storages.addAutoPath(s);
+				Debug.message("[UI][ASSET] addAutoPath(" + s + ")");
+			}
+			catch(e)
+			{
+				uiThemeWarn("addAutoPath 失败：" + e.message);
+			}
+		}
+	}
+	if(UIAssetDirNorm == "")
+		Debug.message("[UI][ASSET] 未给 -assetdir，只试项目根内的 ui/ 与 assets/ui/");
+}
+
+// ------------------------------------------------------------
+// 候选存储名
+// ------------------------------------------------------------
+function uiAssetCandidates(path)
+{
+	var p = "" + path;
+	var out = [];
+	out.push(p);                                  // ① game\ui\…
+	out.push("assets/" + p);                      // ② game\assets\ui\…
+	if(UIAssetDirNorm != "") out.push(UIAssetDirNorm + p);  // ③ -assetdir 绝对路径
+	return out;
+}
+
+// 返回 %[ found: bool, name: string, tried: Array ]
+function uiAssetLocate(path)
+{
+	var cands = uiAssetCandidates(path);
+	var tried = [];
+	for(var i = 0; i < cands.count; i++)
+	{
+		var ok = false;
+		try { ok = Storages.isExistentStorage(cands[i]); } catch(e) { ok = false; }
+		tried.push(cands[i] + (ok ? " [命中]" : ""));
+		if(ok) return %[ found: true, name: cands[i], tried: tried ];
+	}
+	return %[ found: false, name: "", tried: tried ];
+}
+
+// ------------------------------------------------------------
+// 取素材层（带缓存）
+// ------------------------------------------------------------
+function uiAssetCacheIndex(path)
+{
+	var key = "" + path;
+	for(var i = 0; i < UIAssetCacheKey.count; i++)
+		if(UIAssetCacheKey[i] == key) return i;
+	return -1;
+}
+
+// 返回 Layer（成功）或 void（缺件/载入失败）。缺件只登记，不抛。
+function uiAssetGet(path)
+{
+	if(path === void || path === null || ("" + path) == "") return void;
+	var key = "" + path;
+
+	var idx = uiAssetCacheIndex(key);
+	if(idx >= 0)
+	{
+		var lay = UIAssetCacheLayer[idx];
+		if(lay === null) return void;    // 已知缺件
+		return lay;
+	}
+
+	// 新建素材层：隐藏，只当贴图容器用
+	var lay2 = null;
+	try
+	{
+		lay2 = new Layer(UIAssetWin, UIAssetHost);
+		lay2.visible = false;
+		lay2.type = ltAlpha;
+	}
+	catch(e)
+	{
+		UIAssetCacheKey.push(key);
+		UIAssetCacheLayer.push(null);
+		UIAssetCacheW.push(0);
+		UIAssetCacheH.push(0);
+		uiAssetMarkMissing(key, "建层失败：" + e.message);
+		return void;
+	}
+
+	var loc = uiAssetLocate(key);
+	if(!loc.found)
+	{
+		UIAssetCacheKey.push(key);
+		UIAssetCacheLayer.push(null);
+		UIAssetCacheW.push(0);
+		UIAssetCacheH.push(0);
+		uiAssetMarkMissing(key, "三个候选名都不存在");
+		return void;
+	}
+
+	var err = "";
+	try
+	{
+		lay2.loadImages(loc.name);
+		lay2.setSizeToImageSize();
+	}
+	catch(e2)
+	{
+		err = e2.message;
+	}
+
+	var w = 0, h = 0;
+	try { w = lay2.imageWidth; h = lay2.imageHeight; } catch(e3) { w = 0; h = 0; }
+
+	if(err != "" || w <= 0 || h <= 0)
+	{
+		UIAssetCacheKey.push(key);
+		UIAssetCacheLayer.push(null);
+		UIAssetCacheW.push(0);
+		UIAssetCacheH.push(0);
+		uiAssetMarkMissing(key, (err != "") ? ("loadImages 失败：" + err) : "载入后尺寸为 0");
+		return void;
+	}
+
+	UIAssetCacheKey.push(key);
+	UIAssetCacheLayer.push(lay2);
+	UIAssetCacheW.push(w);
+	UIAssetCacheH.push(h);
+	UIAssetLoadOK++;
+	Debug.message("[UI][ASSET] OK   " + key + "  <-  " + loc.name + "  (" + w + "x" + h + ")");
+	return lay2;
+}
+
+function uiAssetMarkMissing(key, why)
+{
+	UIAssetLoadFail++;
+	var line = key + "  (" + why + ")";
+	if(UIAssetMissIndex[key] !== true)
+	{
+		UIAssetMissIndex[key] = true;
+		UIAssetMissList.push(line);
+	}
+	Debug.message("[UI][MISS] " + line);
+}
+
+// 已载入素材的尺寸（供九宫格校验）；未载入返回 void
+function uiAssetSize(path)
+{
+	var idx = uiAssetCacheIndex("" + path);
+	if(idx < 0) return void;
+	if(UIAssetCacheLayer[idx] === null) return void;
+	return %[ w: UIAssetCacheW[idx], h: UIAssetCacheH[idx] ];
+}
+
+// ------------------------------------------------------------
+// 汇总（日志 / 巡演用）
+// ------------------------------------------------------------
+function uiAssetSummary()
+{
+	var s = "已载入 " + UIAssetLoadOK + " 件 / 缺件 " + UIAssetLoadFail + " 件";
+	if(UIAssetMissList.count > 0)
+	{
+		s = s + " | 缺件清单：";
+		for(var i = 0; i < UIAssetMissList.count; i++)
+			s = s + (i > 0 ? " ; " : " ") + UIAssetMissList[i];
+	}
+	return s;
+}
+
+function uiAssetMissCount() { return UIAssetMissList.count; }

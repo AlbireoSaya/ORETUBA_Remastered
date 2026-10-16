@@ -1,0 +1,97 @@
+# Root real OS alive-worker/GDI resource verification of exact editor-easy gate.
+from pathlib import Path
+import ctypes as C,sys,json,uuid,threading,traceback
+r=Path.cwd();w=r/'子代理工作区/ISSUE-20261011-02/r-live-worker-20261014';g=r/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';sys.path[:0]=[str(g/'工具'),str(w)]
+from lucifen_host_worker_step_gate import WorkerStepGate
+from lucifen_host_thread_create import CreateThread,HOST_THREADPROC
+from lucifen_host_thread_exit_code import GetExitCodeThread
+from lucifen_host_tls import current_thread_id
+from lucifen_host_gdi_object_bindings import CreateCompatibleDC,SelectObject,DeleteObject
+from lucifen_host_monitor_bindings import DeleteDC
+from lucifen_host_font_create import CreateFontIndirectA
+from lucifen_host_logfont_a import LOGFONTA
+from lucifen_host_gdi_object_query import GetObjectA
+from lucifen_host_text_extent_w import GetTextExtentPoint32W,SIZE
+gate=WorkerStepGate();errors=[];done=threading.Event();worker_tid=C.c_uint32();cleanup={}
+k=C.WinDLL('kernel32',use_last_error=True);k.WaitForSingleObject.argtypes=[C.c_void_p,C.c_uint32];k.WaitForSingleObject.restype=C.c_uint32;k.CloseHandle.argtypes=[C.c_void_p];k.CloseHandle.restype=C.c_int
+for invalid in [True,0,-1,float('nan'),float('inf'),61]:
+ try:gate.wait_park(1,invalid)
+ except ValueError:pass
+ else:raise AssertionError('invalid timeout accepted')
+for op in [lambda:gate.park({}),lambda:gate.release(1,'continue')]:
+ try:op()
+ except RuntimeError:pass
+ else:raise AssertionError('invalid owner/state accepted')
+@HOST_THREADPROC
+def worker(_):
+ dc=font=old=None
+ try:
+  try:gate.release(1,'continue')
+  except RuntimeError:pass
+  else:raise AssertionError('worker release accepted')
+  dc=CreateCompatibleDC(None);assert dc
+  lf=LOGFONTA();lf.lfHeight=-16;lf.lfFaceName=b'Tahoma';font=CreateFontIndirectA(C.byref(lf));assert font
+  old=SelectObject(dc,font);assert old
+  payload={'tid':current_thread_id(),'dc':int(dc),'font':int(font),'resources_owned_and_not_cleaned':True}
+  for generation in range(1,33):
+   command,actual_generation=gate.park(dict(payload,generation=generation))
+   assert actual_generation==generation and current_thread_id()==payload['tid']
+   assert command==('finish'if generation==32 else'continue')
+ finally:
+  try:
+   if old:assert SelectObject(dc,old)==font
+   if font:assert DeleteObject(font)
+   if dc:assert DeleteDC(dc)
+   cleanup['same_worker_tid']=current_thread_id();cleanup['objects_released']=True
+  except BaseException:errors.append(traceback.format_exc())
+  done.set()
+ return 0x55
+host=CreateThread(None,0,worker,None,0,C.byref(worker_tid));assert host
+try:
+ for generation in range(1,33):
+  payload=gate.wait_park(generation,10);assert payload and payload['generation']==generation and gate.worker_tid==worker_tid.value and not done.is_set()
+  exitcode=C.c_uint32();assert GetExitCodeThread(host,C.byref(exitcode)) and exitcode.value==259
+  if generation==1:
+   @HOST_THREADPROC
+   def alien(_):
+    for op in [lambda:gate.park({}),lambda:gate.wait_park(1,0.01),lambda:gate.release(1,'continue')]:
+     try:op()
+     except RuntimeError:pass
+     else:errors.append('alien accepted')
+    return 0x66
+   alien_tid=C.c_uint32();alien_handle=CreateThread(None,0,alien,None,0,C.byref(alien_tid));assert alien_handle and alien_tid.value!=worker_tid.value
+   try:assert k.WaitForSingleObject(alien_handle,5000)==0 and not errors
+   finally:assert k.CloseHandle(alien_handle)
+
+  guard=bytes([165])*32;buf=C.create_string_buffer(guard+bytes(60)+guard,124)
+  assert GetObjectA(payload['font'],60,C.byref(buf,32))==60 and buf.raw[:32]==buf.raw[-32:]==guard
+  out=SIZE();assert GetTextExtentPoint32W(payload['dc'],'ABC',3,C.byref(out)) and out.cx>0 and out.cy>0
+  for invalid_generation in [True,0,-1,1.0,generation+2]:
+   try:gate.wait_park(invalid_generation,0.001)
+   except (ValueError,RuntimeError):pass
+   else:raise AssertionError('invalid generation accepted')
+  if generation>1:
+   try:gate.wait_park(generation-1,0.001)
+   except RuntimeError:pass
+   else:raise AssertionError('stale generation accepted')
+  try:gate.release(generation,'bogus')
+  except ValueError:pass
+  else:raise AssertionError('invalid command accepted')
+  gate.release(generation,'finish'if generation==32 else'continue')
+  try:gate.release(generation,'continue')
+  except RuntimeError:pass
+  else:raise AssertionError('duplicate release accepted')
+ assert done.wait(10) and k.WaitForSingleObject(host,5000)==0
+ assert cleanup['objects_released'] and cleanup['same_worker_tid']==worker_tid.value and not errors
+ assert GetExitCodeThread(host,C.byref(exitcode)) and exitcode.value==0x55
+finally:
+ if not done.is_set() and gate.worker_tid is not None:
+  for generation in range(1,33):
+   if done.is_set():break
+   try:
+    payload=gate.wait_park(generation,0.01)
+    if payload:gate.release(generation,'finish'if generation==32 else'continue')
+   except RuntimeError:pass
+  assert done.wait(10)
+ assert k.CloseHandle(host)
+receipt={'bits':C.sizeof(C.c_void_p)*8,'passed':True,'generations':32,'actual_STILL_ACTIVE_while_parked':259,'creator_thread_alive_font_and_DC_functional':True,'opaque_payload_and_worker_tid_preserved':True,'owner_state_and_timeout_negatives_rejected':True,'same_worker_resource_cleanup_after_release':True,'scope':'owned synthetic OS worker, not complete original scheduler'};p=w/('sdk-worker-step-'+str(receipt['bits'])+'-'+uuid.uuid4().hex+'.json');p.write_text(json.dumps(receipt,indent=2),encoding='utf-8');print(json.dumps(receipt))

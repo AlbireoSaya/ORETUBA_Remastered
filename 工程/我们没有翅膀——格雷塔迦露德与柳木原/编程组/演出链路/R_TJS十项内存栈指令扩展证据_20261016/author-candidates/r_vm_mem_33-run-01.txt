@@ -1,0 +1,8 @@
+function RVMExtraMem33(rd, wr, ctx, p) {
+    var ptrSlot = rd((p + 4) & 0xffffffff);
+    var value = rd(p & 0xffffffff);
+    var dest = rd(ptrSlot & 0xffffffff);
+    wr(dest & 0xffffffff, value & 0xffffffff);
+    var pc = rd((ctx + 8) & 0xffffffff);
+    wr((ctx + 8) & 0xffffffff, (pc + 8) & 0xffffffff);
+}

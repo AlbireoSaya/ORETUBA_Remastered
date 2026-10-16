@@ -1,0 +1,40 @@
+=== /models (200) · 12 个 ===
+[
+"gpt-image-2-1k",
+"gemini-2.5-flash-image",
+"gpt-image-2",
+"gpt-image-2-adobe",
+"nano-banana-2",
+"gpt-image-2.5-sunburst",
+"gpt-image-2.5-flare-超分",
+"gpt-image-2-超分",
+"nano-banana-pro",
+"gpt-image-2.5-flare",
+"gpt-image-2.5-1k",
+"gpt-image-2.5-sunburst-超分"
+]
+
+POST /images/edits model=gpt-image-2.5-1k try1 -> 200 (23.2s)
+{"created":1790099030,"data":[{"url":"https://disk.aipais.de/2026%2F09%2F23%2F1790099029267070200_ead1f3118d47d7bf.jpg"}],"usage":{"input_tokens":9911,"output_tokens":16384,"total_tokens":26295}}
+
+
+POST /images/edits model=gpt-image-2-1k try1 -> 200 (39.1s)
+{"created":1790099069,"data":[{"url":"https://disk.aipais.de/2026%2F09%2F23%2F1790099068244952801_0ccf42badad08894.jpg"}],"usage":{"input_tokens":9911,"output_tokens":16384,"total_tokens":26295}}
+
+
+POST /chat/completions model=gemini-2.5-flash-image -> 503 (0.9s)
+{"error":{"message":"No available channel for model gemini-2.5-flash-image under group default (distributor) (request id: 202609221744301369462798268d9d6la7tDSKJ)","type":"new_api_error","param":"","code":"model_not_found"}}
+
+POST /chat/completions model=gemini-2.5-flash-image-preview -> 503 (0.2s)
+{"error":{"code":"model_not_found","message":"No available channel for model gemini-2.5-flash-image-preview under group vip分组 (distributor) (request id: 202609221744304412978138268d9d6wv3zT8kr)","type":"new_api_error"}}
+
+
+===== /images/edits alpha 能力 =====
+
+[A b64+png+transparent] FAIL 66.5s {'__err': "RemoteDisconnected('Remote end closed connection without response')"}
+
+[B b64+png] OK 67.1s <- b64  PNG RGBA  (134.8 KB)
+    alpha: min=0 max=255  alpha==0 占比 95.7%
+
+[C sunburst b64+png+transparent] OK 35.3s <- b64  PNG RGB  (866.9 KB)
+    **无 alpha 通道**

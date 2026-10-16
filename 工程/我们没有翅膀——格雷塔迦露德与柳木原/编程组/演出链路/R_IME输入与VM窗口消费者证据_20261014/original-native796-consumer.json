@@ -1,0 +1,159 @@
+{
+  "source_EXE_SHA256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "source_gameinit_SHA256": "a5eb7ab929fdd10de995b1e33a60c7f661819cbb022fa6c9d69f166484338a43",
+  "frame_source": "independent original scheduler snapshot at native796; source pointer remapped to exact GameInit body offset4484",
+  "frame_scalar_words": [
+    0,
+    4
+  ],
+  "mapped_payload_tail_bytes": 42,
+  "mapped_payload_tail_SHA256": "7739e53acb81c4abf92270e51aceacf0fb8d25eef8037cf9f879decb02602206",
+  "original_native796_executed_through_original_sender": true,
+  "actual_SendMessageA_not_invoked": true,
+  "original_WNDPROC_direct_replay_explicit_fixture": true,
+  "not_original_VM_normal_order_or_full_gameinit": true,
+  "trace": [
+    {
+      "site": 4277552,
+      "ESP": 58777600,
+      "ECX": 33569216
+    },
+    {
+      "site": 4533200,
+      "ESP": 58777580,
+      "ECX": 33566720
+    },
+    {
+      "site": 4621088,
+      "ESP": 58777552,
+      "ECX": 33566720
+    },
+    {
+      "site": 4847712,
+      "ESP": 58773504,
+      "ECX": 0
+    },
+    {
+      "site": 4847856,
+      "ESP": 58773460,
+      "ECX": 33567052
+    },
+    {
+      "site": 4847900,
+      "ESP": 58773436,
+      "ECX": 117883008,
+      "map_node": 117883008,
+      "receiver_object": 117878912,
+      "receiver_vtable": 5350436,
+      "receiver_slot4": 4741408
+    },
+    {
+      "site": 4741408,
+      "ESP": 58773428,
+      "ECX": 117878912,
+      "original_registered_adapter_words": [
+        5350436,
+        33566720,
+        4741888,
+        0
+      ]
+    },
+    {
+      "site": 4741888,
+      "ESP": 58773420,
+      "ECX": 33566720,
+      "actual_parent_vtable": 5343052,
+      "actual_parent_virtual_C8": 4726768
+    },
+    {
+      "site": 4726768,
+      "ESP": 58773420,
+      "ECX": 33566720
+    },
+    {
+      "site": 4532672,
+      "ESP": 58773396,
+      "ECX": 33566720
+    },
+    {
+      "site": 4532176,
+      "ESP": 58773380,
+      "ECX": 33566720
+    }
+  ],
+  "events": [
+    {
+      "api": "IsWindow",
+      "sp": 58777548,
+      "ra": 4533224,
+      "args": [
+        1777664000
+      ],
+      "actual_host_IsWindow": 1,
+      "full_host_HWND_mapped": true
+    },
+    {
+      "api": "SendMessageA",
+      "sp": 58777536,
+      "ra": 4533298,
+      "args": [
+        1777664000,
+        36865,
+        58777564,
+        0
+      ],
+      "original_packet_hex": "00000000000280030000000004010000",
+      "defined_offsets": {
+        "control0": 0,
+        "payload4": 58720768,
+        "payload8": 0,
+        "control12": 4,
+        "result13_initial": 1
+      },
+      "padding1_3_and14_15_not_semantic": true,
+      "actual_OS_SendMessage_not_invoked": true
+    },
+    {
+      "receiver_API": "GetWindowLongA",
+      "return_address": 4847769,
+      "actual_host_result_mapped": 33567052
+    },
+    {
+      "receiver_API": "IsWindow",
+      "return_address": 4848705,
+      "actual_host_result": 1
+    }
+  ],
+  "receiver_EIP": 58724368,
+  "receiver_unresolved_import": null,
+  "receiver_pending_API_name": "SendMessageA",
+  "receiver_pending_leaf": [
+    {
+      "api": "SendMessageA",
+      "sp": 58773356,
+      "ra": 4532252,
+      "args": [
+        1777664000,
+        36864,
+        1,
+        0
+      ]
+    }
+  ],
+  "receiver_error": null,
+  "receiver_return": null,
+  "receiver_stack8": [
+    4532252,
+    1777664000,
+    36864,
+    1,
+    0,
+    16,
+    4532764,
+    33567052
+  ],
+  "parent138_before": 1,
+  "parent138_after": 0,
+  "main_ShowWindow_not_invoked": true,
+  "native796_not_returned_to_VM": true
+}

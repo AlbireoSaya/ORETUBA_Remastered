@@ -1,0 +1,14 @@
+from lucifen_guest_mouse_message import pack_client_mouse
+
+a = pack_client_mouse(0x201, 715, 385, 1)
+assert a["message"] == 0x201 and a["wparam"] == 1 and a["lparam"] == 0x018102CB
+assert a["client_point"] == (715, 385) and a["synthetic_fixture_input"] is True
+b = pack_client_mouse(0x200, -1, -32768, 0)
+assert b["lparam"] == 0x8000FFFF and b["client_point"] == (-1, -32768)
+for case in ((0x200, True, 0, 0), (0x200, 0, 0, 128)):
+    try:
+        pack_client_mouse(*case)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError(f"expected ValueError: {case!r}")

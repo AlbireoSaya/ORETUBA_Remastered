@@ -1,0 +1,8 @@
+==========================================================================
+quickbar 端到端可达性守门（复算 uiScreenClick 口径）｜ E:\ZCode Workspace\Galgame\临时\wt-ui26\工程\我们没有翅膀——格雷塔迦露德与柳木原\UI组\layout\screens\35_quickbar.json
+  屏内元素 29 件 ｜ flags_default={"quickbar": "collapsed", "qbar_tip": "", "qbar_pin": ""}
+  ① 收起态：竖条区域 70044 点，胜出者全部是 quick.hit_toggle；12 项不可见（不可达）✓
+  ② 展开态：12 项中心各自胜出=自身、action 与数据一致；quick.hit_toggle 胜出 0 点 ✓
+  ③ 展开+气泡+钉住：12 项中心各自胜出=自身、action 与数据一致；quick.hit_toggle 胜出 0 点 ✓
+--------------------------------------------------------------------------
+结果：**全部通过**（收起态把手独占 / 展开态 12 项各自可达且 action 正确）

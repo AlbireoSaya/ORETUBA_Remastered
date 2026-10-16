@@ -1,0 +1,44 @@
+// r_inline_expr_relocations.tjs
+// Inline expression relocation table reader (5 groups).
+// NOTE: distinct from the parameter expression compact byte-count table:
+// here both size and count are u32.
+// Reads solely through the external reader; no local copy.
+// Preserves order, duplicates and unaligned slots; no extra index/flag checks.
+
+function RInlineExprRelocations(rb, limit, h)
+{
+    var rows = [];
+    var cur = h.reloc_start + 4;
+    var end = h.end;
+    var group, count, slot, index, i;
+
+    for (group = 0; group < 5; group++)
+    {
+        if (cur + 4 > end)
+            throw new Exception("INLINE_RELOC_TRUNCATED");
+
+        count = RExprU32(rb, limit, cur);
+        cur += 4;
+
+        for (i = 0; i < count; i++)
+        {
+            if (cur + 8 > end)
+                throw new Exception("INLINE_RELOC_TRUNCATED");
+
+            slot = RExprU32(rb, limit, cur);
+            cur += 4;
+            index = RExprU32(rb, limit, cur);
+            cur += 4;
+
+            if (slot + 4 > h.code_size)
+                throw new Exception("INLINE_SLOT_RANGE");
+
+            rows.add(%["group" => group, "slot_offset" => slot, "index" => index]);
+        }
+    }
+
+    if (cur != end)
+        throw new Exception("INLINE_RELOC_END_MISMATCH");
+
+    return rows;
+}

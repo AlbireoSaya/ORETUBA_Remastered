@@ -1,0 +1,30 @@
+
+from pathlib import Path
+import sys,json,ast
+r=Path.cwd();out=r/'临时/ISSUE-20261011-02/r-inline-vm-chain-replay-01';sys.path.insert(0,str(out))
+from lucifen_host_string_bridge import host_copy_z,bridge_lstrcpyA
+inputs=[b'',b'a',b'abcdefghi',bytes([0x81,0x5b]),bytes([0xe0,0xfc]),bytes(range(1,20))]
+rows=[]
+for payload in inputs:
+ for capacity in sorted(set([len(payload)+1,32,260])):
+  before=b'\xcd'*capacity;got=host_copy_z(payload,before);expected=payload+b'\0'+before[len(payload)+1:];assert got==expected
+  store={0x1000:bytearray(before),0x3000:bytearray(payload+b'\0')};writes=[]
+  def read(a,n):
+   for p,v in store.items():
+    if p<=a and a+n<=p+len(v):return bytes(v[a-p:a-p+n])
+   raise ValueError('unmapped fixture')
+  def write(a,v):writes.append((a,v));store[a][:]=v
+  assert bridge_lstrcpyA(read,write,0x1000,0x3000,capacity)==0x1000 and bytes(store[0x1000])==expected and len(writes)==1
+  rows.append({'payload_hex':payload.hex(),'capacity':capacity,'passed':True})
+bad=[(0,0x3000,4),(0x1000,0,4),(True,0x3000,4),(0x1000,0x3000,0),(0x1000,0x3000,4097),(0x1000,0x1000,260)]
+for dst,src,cap in bad:
+ try:bridge_lstrcpyA(lambda a,n:b'\0'*n,lambda a,b:(_ for _ in ()).throw(AssertionError('unexpected write')),dst,src,cap)
+ except ValueError:pass
+ else:raise AssertionError('unsafe input accepted')
+for payload,before in [(b'a\0',b'xx'),(b'xx',b'xx'),(b'',b''),(bytearray(),b'xx')]:
+ try:host_copy_z(payload,before)
+ except ValueError:pass
+ else:raise AssertionError('invalid host buffers accepted')
+summary={'actual_host_fixtures':len(rows),'guest_rejections':len(bad),'host_rejections':4,'rows':rows,'passed':True,'scope':'actual host64 KERNEL32.lstrcpyA success on bounded readable nonoverlapping buffers; not original x86 kernel fault behavior'}
+(out/'host-string-fixtures.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps({k:v for k,v in summary.items() if k!='rows'}))
+

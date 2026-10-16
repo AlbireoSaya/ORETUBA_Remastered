@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "SHGetMalloc_hresult": 0,
+      "host_interface_above_u32": true,
+      "actual_alloc_bytes": 17,
+      "actual_allocation_capacity": 17,
+      "actual_DidAlloc": 1,
+      "exact_payload": true,
+      "SHA256": "3e5718fea51a8f3f5baca61c77afab473c1810f8b9db330273b4011ce92c787e"
+    },
+    {
+      "actual_Free_executed": true
+    },
+    {
+      "actual_Free_null_executed": true
+    },
+    {
+      "actual_Release_return": 1,
+      "borrowed_other_shell_allocator_references_not_claimed_zero": true
+    }
+  ],
+  "original_software_not_used": true,
+  "host_interface_and_method_pointers_not_truncated": true,
+  "no_file_writes_by_allocator_operations": true
+}

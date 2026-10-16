@@ -1,0 +1,134 @@
+{
+  "issue": "ISSUE-20261011-02",
+  "reviewer": "root",
+  "stage": "R loader + controlled entry",
+  "verdict": "PASS",
+  "frequency": "single major-stage batch; no paused subagents invoked",
+  "covered_files": [
+    {
+      "path": ".zcode/skills/lucifen-unpack/SKILL.md",
+      "sha256": "062108cf69b8c0636b56196e1af65581b9846ae33149629458931eed4d9b00b2",
+      "verdict": "PASS",
+      "git_blob_sha256": "dd1b174a732649c3e06958eb0f6075b1dc06a2a02fbc60fe27fa8ffe8c1c6d7a"
+    },
+    {
+      "path": "Galgame.md",
+      "sha256": "558cfcc6300b8f3bc1c69404e676c8800521efe7ccdcfbf1a6359486f0827a65",
+      "verdict": "PASS",
+      "git_blob_sha256": "a2e3532b572c9bd17625cd7002a5178ce9157fb750143f6386178939fe58d0ad"
+    },
+    {
+      "path": "工程/我们没有翅膀R/作品skill/SKILL.md",
+      "sha256": "277924075b000e5123ebcf562ae99c41726da63e917ded335f9b9b7cb02264da",
+      "verdict": "PASS",
+      "git_blob_sha256": "04629e68f8a8a77d1d21ed3b5ec1613dd1ab74d040df99cda365cb615bb69cd5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_vm_micro.py",
+      "sha256": "7626c92820c9e148d061a1d6b4fe430d27abb34de91ffb2671549d0f3757df03",
+      "verdict": "PASS",
+      "git_blob_sha256": "3b4138210e9eecb98561461820c1bad20dedeba7cd6c9c6b84986ae7ac0a083e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/lucifen_sob_loader.py",
+      "sha256": "d3d5095728c6cc4077ab4e0182fc175e70796252481a4f3a3663c24b13672461",
+      "verdict": "PASS",
+      "git_blob_sha256": "d331730d7070ec3493f58526ed3d9fff4d0c3448badecac338990cc06b6eb57c"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/工具/test_lucifen_sob_loader.py",
+      "sha256": "261693ad84ee6d380a50517ecc7f850ecf0627add4243af073f579af448740db",
+      "verdict": "PASS",
+      "git_blob_sha256": "ca1799b6eeeb84b90f48302bfc7b594eb7f3fd763aa2a2cb956c5e5e3b0f2cb2"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/ISSUE-20261011-02_四版本原作还原长程目标.md",
+      "sha256": "a615e8bcc35b1abe6313a2a3966ead806bccdd93fc1a267a77de6eb2d1435f32",
+      "verdict": "PASS",
+      "git_blob_sha256": "7d036764017de27858a8a16397d63d342b3fcddffbcf198c0adc1362f215b836"
+    },
+    {
+      "path": "工程记录/2026-10-11_对于R版装载与系统入口的修改.md",
+      "sha256": "f7a145acc7a6bbaa14409301edbe89b1289406d11d64b48ee3a238d11592e24a",
+      "verdict": "PASS",
+      "git_blob_sha256": "24fca52732c3669e91ce91cab6b1a3e1a1d85d3e82c8e5365be39dd0a505151e"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/R_22容器原码重定位核验.json",
+      "sha256": "ee941242e6cd67f5d9de749d15bd6b2bce791aaa601338059efb2369d232b300",
+      "verdict": "PASS",
+      "git_blob_sha256": "9a610a2c119044512fc4a2dd2404d0de7ed8779e6fdf41d07012a1216d9d3739"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/R_main受控入口轨迹.json",
+      "sha256": "0b73dc917febf38d29b4ac271bbbcb1b6b53e29b4bba1de557a99a3929f50f9b",
+      "verdict": "PASS",
+      "git_blob_sha256": "40bbabe0054c05390d49fc21dd3e27cc3267a5743ab86daa00bc0a6545932186"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/R_SOB1声明与原码核验.json",
+      "sha256": "edaa1270ef0609ab65d602beb2c8f79c5a72eaf80b71068c9e76f56137df30d1",
+      "verdict": "PASS",
+      "git_blob_sha256": "9e0a65f3935a7f0fb9606d12a248529ceeb1970881b57adf04615aa2021713b8"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/R_控制栈原码核验.json",
+      "sha256": "33f8efd718a7ae01e56333080d7fbad0a80ced418756c15608e1aa184a0da215",
+      "verdict": "PASS",
+      "git_blob_sha256": "3f93c88c77cac32578e8e53330eefff928569ef682177bb73df9023a1dc3e7c6"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/README.md",
+      "sha256": "864a8bf4b3a7a2e76b8743404062c8cb04235fa883a9f66671e08702b610c920",
+      "verdict": "PASS",
+      "git_blob_sha256": "37eea33544ea885129e8872ef3de9d7ae2c4e4357e87eac79f4f2bbec57b7a35"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/交付来源.json",
+      "sha256": "bcfaf54bf6ba3d6f518c5268e460dd4efa0329ad4d656703a3df08b487b51f31",
+      "verdict": "PASS",
+      "git_blob_sha256": "cf01608a628d6bb9076849b7f136cb820d94cd4c9d42db45a61a661db8e523e5"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/装载器_回归与有效负控.json",
+      "sha256": "28bc3ccb29933e46ba0aeba410d5a86c57df2b06e802e6a049fad0d41d40ef92",
+      "verdict": "PASS",
+      "git_blob_sha256": "1d5612932ee1fb943595cb027efee55c7c54c08c2138f10da712e3da077ab199"
+    },
+    {
+      "path": "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组/演出链路/R装载证据_20261011/装载器_边界与负控.json",
+      "sha256": "77f43c6b5d1a043d41bd436e66ff9866cde1cbdedcc6375b6269cfed0c81149e",
+      "verdict": "PASS",
+      "git_blob_sha256": "daff8b2f9d8cc355b234903f37f1edd932fff5790391aa5eb73200d62976fb4e"
+    }
+  ],
+  "coverage_file_itself": "root administrative review; excluded from recursive self hash",
+  "verification": {
+    "original_cpu_relocations": {
+      "modules": 22,
+      "writes": 42690,
+      "byte_exact": true,
+      "data_unaligned": 84
+    },
+    "original_SOB1": {
+      "declarations": 768,
+      "initial_bytes": 3724,
+      "array_slots": 3,
+      "local_relocations": 2
+    },
+    "original_context_functions": 3,
+    "unit_tests": 4,
+    "bad_guard_negative_failures": 2,
+    "nonreturn_negative_rejected": true,
+    "main_native_bodies_executed": 0
+  },
+  "excluded": [
+    "full unreviewed B0/B1",
+    "C0/C1 production integration",
+    "original game binaries/scripts/media",
+    "portable third-party large binaries",
+    "unknown full render/audio contracts"
+  ],
+  "goal_complete": false,
+  "hash_policy": "sha256 is precommit worktree bytes; git_blob_sha256 is staged canonical blob; core.autocrlf=true may change checkout line endings"
+}

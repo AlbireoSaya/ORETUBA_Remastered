@@ -1,0 +1,18 @@
+// r_record_frame.tjs
+// 仅解析单条记录的 frame 字段（length / items 起止）；无 IO / UI / OS 调用。
+
+function RRecordFrame(rb, limit, lengthOffset) {
+    var declared_length = RExprU32(rb, limit, lengthOffset);
+    if (declared_length < 5) {
+        throw new Exception("RECORD_LENGTH_TOO_SMALL");
+    }
+    RExprNeed(limit, lengthOffset, declared_length);
+    var end = lengthOffset + declared_length;
+    var items_start = lengthOffset + 4;
+    return %[
+        "length_offset" => lengthOffset,
+        "declared_length" => declared_length,
+        "items_start" => items_start,
+        "end" => end
+    ];
+}

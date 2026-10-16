@@ -1,0 +1,29 @@
+**editor-easy 交付 · ISSUE-20261011-02（候选源码，无工具环境）**
+
+文件名：`lucifen_host_release_capture.py`（未获派单指定绝对路径，按派单原样交付文件名；如需落盘路径请给明确目录）
+
+```python
+"""Win32 user32.ReleaseCapture raw declaration only - no call at import."""
+import ctypes
+
+_user32 = ctypes.WinDLL("user32", use_last_error=True)
+ReleaseCapture = _user32.ReleaseCapture
+ReleaseCapture.argtypes = []
+ReleaseCapture.restype = ctypes.c_int
+```
+
+**改动清单**
+- 新增该模块（7 行，≤10 行上限）：`ctypes` 导入 → `WinDLL("user32", use_last_error=True)` → 取 `user32.ReleaseCapture` → `argtypes = []`（无参）→ `restype = ctypes.c_int`。
+
+**约束符合性自检**
+- **仅原始声明**：文件中不存在 `ReleaseCapture()` 调用，无 `atexit`、无模块级副作用函数调用，import 本模块不会释放任何捕获（无隐式全局 release）。
+- **无 invocation import**：只导入标准库 `ctypes`，不导入本工作区其他 host 模块，不触发任何宿主侧调用。
+- `argtypes=[]` 显式空列表、`restype=ctypes.c_int` 已按派单词面写死；`use_last_error=True` 已启用（配合调用方后续用 `ctypes.get_last_error()` 取错，本单不含该逻辑）。
+
+**验证方式与结果**
+- 本单为无工具环境，**未执行**任何解释器/导入/调用测试，无命令输出可报。行数与约束项为静态核对结果。
+
+**未决问题**
+- 落盘目录未指定，未落盘。
+- 变量名 `_user32` 为私有前缀（派单未指定符号名）；如需公开名 `user32` 请指示。
+- 是否需要 `GetLastError` 读取辅助、是否需在包 `__init__` 中导出，均超出本单范围，未做。

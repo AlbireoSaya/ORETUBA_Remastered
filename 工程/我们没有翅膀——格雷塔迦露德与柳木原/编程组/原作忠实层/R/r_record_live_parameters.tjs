@@ -1,0 +1,14 @@
+function RRecordLiveParameters(rd, rh, rb, wr, p, dest, count, resolveBank, evaluateExpr, arrayValue = void) {
+    if (typeof count !== "Integer") {
+        throw new Exception("INVALID_LIVE_PARAMETER_COUNT");
+    }
+    if (count < 0 || count > 255) {
+        throw new Exception("INVALID_LIVE_PARAMETER_COUNT");
+    }
+    for (var i = 0; i < count; i = i + 1) {
+        var row = RRecordLiveItem(rd, rh, rb, wr, p, dest, resolveBank, evaluateExpr, arrayValue);
+        p = row.next_cursor;
+        dest = row.param_end;
+    }
+    return %["next_cursor" => p & 0xffffffff, "param_end" => dest & 0xffffffff, "param_count" => count];
+}

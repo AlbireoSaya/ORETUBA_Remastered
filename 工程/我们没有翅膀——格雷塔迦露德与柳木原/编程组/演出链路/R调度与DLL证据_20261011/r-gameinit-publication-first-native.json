@@ -1,0 +1,64 @@
+{
+  "status": "PASS_ORIGINAL_GAMEINIT_PUBLICATION_TO_FIRST_NATIVE_BOUNDARY",
+  "exe_sha256": "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33",
+  "gameinit_source_sha256": "a5eb7ab929fdd10de995b1e33a60c7f661819cbb022fa6c9d69f166484338a43",
+  "publication": {
+    "entry_va": 4878714,
+    "stop_va": 4878735,
+    "parent_PC": 50332604,
+    "parent_PC_address": 16810000,
+    "new_null_return_address": 16810004,
+    "VM_PC": 67108864,
+    "VM_SP": 16810008,
+    "scope": "original publication block after supplied relocated buffer; no allocation/file-read/module-list or loader success return emulated"
+  },
+  "original_VM_trace": [
+    {
+      "module": "gameinit.sob",
+      "offset": 0,
+      "opcode": 6
+    },
+    {
+      "module": "gameinit.sob",
+      "offset": 8,
+      "opcode": 11
+    },
+    {
+      "module": "gameinit.sob",
+      "offset": 16,
+      "opcode": 40
+    },
+    {
+      "module": "gameinit.sob",
+      "offset": 28,
+      "opcode": 8
+    },
+    {
+      "module": "gameinit.sob",
+      "offset": 36,
+      "opcode": 5
+    }
+  ],
+  "first_native": {
+    "handler_va": 4265168,
+    "static_candidate_indices": [
+      6
+    ],
+    "argument_pointer": 16810280,
+    "raw_stack_word_window_8": [
+      21,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "execution": "stopped_before_native_body"
+  },
+  "unknown_native_bodies_executed": 0,
+  "input_scope": "reuses controlled main suspension state, declared variables and static vector; buffer relocation supplied by verified helper",
+  "loader_lifecycle_completed": false,
+  "real_scene_replay": false
+}

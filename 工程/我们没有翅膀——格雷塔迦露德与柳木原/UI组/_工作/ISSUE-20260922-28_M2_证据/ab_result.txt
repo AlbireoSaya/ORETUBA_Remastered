@@ -1,0 +1,40 @@
+A/B: baseline(run_autotour @M1 data, pre-M2-code)  vs  run_final(post-M2-code)
+screen       base     new      verdict
+backlog      6b3ac7   6b3ac7   IDENTICAL (md5)   n=1/1
+chapter      25746b   25746b   IDENTICAL (md5)   n=1/1
+choices      a1d43c   a1d43c   IDENTICAL (md5)   n=1/1
+config       264022   264022   IDENTICAL (md5)   n=1/1
+confirm      e806d2   e806d2   IDENTICAL (md5)   n=1/1
+dialog       ec1985   b55379   DIFFERENT   n=3/3
+dress        abd392   abd392   IDENTICAL (md5)   n=1/1
+ending       306c99   306c99   IDENTICAL (md5)   n=1/1
+flowchart    4a97aa   4a97aa   IDENTICAL (md5)   n=2/2
+fragment     a79e51   a79e51   IDENTICAL (md5)   n=2/2
+gallery      d897e1   d897e1   IDENTICAL (md5)   n=1/1
+load         a4cbe0   a4cbe0   IDENTICAL (md5)   n=1/1
+loading      2bd00b   2bd00b   IDENTICAL (md5)   n=1/1
+music        dd124a   dd124a   IDENTICAL (md5)   n=1/1
+quickbar     8cae4d   8cae4d   IDENTICAL (md5)   n=1/1
+save         1b1c89   1b1c89   IDENTICAL (md5)   n=1/1
+sysbar       59f08d   59f08d   IDENTICAL (md5)   n=1/1
+sysicons     9712f5   9712f5   IDENTICAL (md5)   n=2/2
+sysmenu      0f9371   -        DIFFERENT   n=1/0
+title        85d61e   85d61e   IDENTICAL (md5)   n=3/3
+identical screens=18  different=2
+baseline-only screens: ['sysmenu']  new-only: []
+
+== pixel diff of the only differing screen (dialog) ==
+shot_03_dialog: size=(1920, 1080) bbox=(1851, 18, 1902, 519) diffpx=24320 inside quick.tgl rect=True
+shot_04_dialog: size=(1920, 1080) bbox=(1851, 18, 1902, 519) diffpx=24320 inside quick.tgl rect=True
+shot_06_dialog: size=(1920, 1080) bbox=(1851, 18, 1902, 519) diffpx=24320 inside quick.tgl rect=True
+
+=== 差异屏逐像素归因（候选矩形 = 附加层把手 quick.tgl 的绘制矩形 (1845,12,63x513)）===
+  dialog    shot_03_dialog.png         bbox=(1851, 18, 1902, 519)    diffpx=24320  inside_handle_rect=True
+  dialog    shot_04_dialog.png         bbox=(1851, 18, 1902, 519)    diffpx=24320  inside_handle_rect=True
+  dialog    shot_06_dialog.png         bbox=(1851, 18, 1902, 519)    diffpx=24320  inside_handle_rect=True
+  sysicons  shot_05_sysicons.png       bbox=(1853, 20, 1900, 517)    diffpx=23263  inside_handle_rect=True
+
+=== 默认巡演 vs 强制展开巡演（逐屏 md5）===
+  dialog     默认=b55379   强制展开=80e823   → 差异（预期：挂附加层的屏）
+  quickbar   默认=8cae4d   强制展开=413833   → 差异（预期：挂附加层的屏）
+  sysicons   默认=2665b1   强制展开=90fb32   → 差异（预期：挂附加层的屏）

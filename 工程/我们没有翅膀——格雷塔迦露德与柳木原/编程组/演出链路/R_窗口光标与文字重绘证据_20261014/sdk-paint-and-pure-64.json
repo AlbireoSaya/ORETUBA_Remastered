@@ -1,0 +1,23 @@
+{
+  "bits": 64,
+  "passed": true,
+  "actual_Begin_End_in_owned_WM_PAINT": [
+    {
+      "actual_WM_PAINT": true,
+      "actual_BeginPaint_HDC_matches_native_PAINTSTRUCT": true,
+      "native_bytes": 72,
+      "guest_bytes": 64,
+      "rcPaint": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "both_guards_preserved": true
+    }
+  ],
+  "no_ReleaseDC_substitution": true,
+  "native_HDC_not_truncated_to_guest": true,
+  "reserved_and_flags_exact_pack": true,
+  "scope": "synthetic owned hidden window and own pure data tests, not complete original WM_PAINT or pixels"
+}

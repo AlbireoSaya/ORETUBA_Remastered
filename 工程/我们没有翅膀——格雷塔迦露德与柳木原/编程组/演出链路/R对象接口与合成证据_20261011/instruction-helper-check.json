@@ -1,0 +1,58 @@
+{
+  "cases": [
+    {
+      "name": "mem_sib_write_read",
+      "rows": 2,
+      "diagnostics": []
+    },
+    {
+      "name": "signed_imm_minus1",
+      "rows": 2,
+      "diagnostics": []
+    },
+    {
+      "name": "conditional_two_arms",
+      "rows": 6,
+      "diagnostics": []
+    },
+    {
+      "name": "loop_two_arms",
+      "rows": 2,
+      "diagnostics": []
+    },
+    {
+      "name": "indirect_call_continues",
+      "rows": 2,
+      "diagnostics": []
+    },
+    {
+      "name": "indirect_jump_stops",
+      "rows": 1,
+      "diagnostics": []
+    },
+    {
+      "name": "decode_error",
+      "rows": 0,
+      "diagnostics": [
+        {
+          "site": 4096,
+          "kind": "decode_error"
+        }
+      ]
+    },
+    {
+      "name": "limit_not_complete",
+      "rows": 1,
+      "diagnostics": [
+        {
+          "site": 4097,
+          "kind": "limit"
+        }
+      ]
+    },
+    {
+      "name": "regs_failure_preserved"
+    }
+  ],
+  "scope": "synthetic formatter/collector tests; full control walker already separate20"
+}

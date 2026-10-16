@@ -1,0 +1,18 @@
+function RRelocationPair(r, codeBase, groupMaps, stringBase) {
+    var g = r.group;
+    var o = r.slot_offset;
+    var i = r.index;
+    if (typeof g != "Integer" || typeof o != "Integer" || typeof i != "Integer") throw new Exception("BAD_RELOCATION");
+    if (g < 0 || g > 4 || o < 0 || o > 0xffffffff || i < 0 || i > 0xffffffff) throw new Exception("BAD_RELOCATION");
+    var value;
+    if (g < 3) {
+        var v = groupMaps[g]["" + i];
+        if (typeof v != "Integer") throw new Exception("MISSING_RELOCATION_BANK");
+        value = v;
+    } else if (g == 3) {
+        value = stringBase + i;
+    } else {
+        value = codeBase + i;
+    }
+    return [(codeBase + o) & 0xffffffff, value & 0xffffffff];
+}

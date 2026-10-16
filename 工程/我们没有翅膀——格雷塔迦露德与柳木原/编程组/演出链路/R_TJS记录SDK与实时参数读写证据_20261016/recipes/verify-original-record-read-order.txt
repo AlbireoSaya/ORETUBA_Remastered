@@ -1,0 +1,59 @@
+"""Root evidence recipe: three synthetic calls, original predispatch/decline paths only."""
+from pathlib import Path
+import hashlib
+import json
+import struct
+import sys
+
+root = Path.cwd()
+group = root / "工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组"
+work = root / "子代理工作区/ISSUE-20261011-02/r-target-record-bytes-20261015"
+sys.path[:0] = [str(root / "工具/unicorn-2.1.4-py314"), str(group / "工具"), str(group / "逆向引擎")]
+from pe_min import PE
+from lucifen_vm_micro import map_pe
+from lucifen_cdecl_observer import observe_cdecl_until
+from unicorn import UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE
+
+path = root / "备份/我们没有翅膀R-安装介质/SET_UP/ORETUBAR.EXE"
+pe = PE(path)
+digest = hashlib.sha256(pe.data).hexdigest()
+assert digest == "b26795b15a5b8a1f58102d30dcd60ae2b04cd19a6a936cd7024f55993a8ebf33"
+buffer, ctx, params = 0x3000000, 0x1002000, 0x1020000
+results = []
+for label, opcode, length, count, accepted in (
+        ("accepted-zero-declared-length", 4, 0, 0, True),
+        ("declined-valid-length-poison-count", 0, 5, 255, False),
+        ("declined-wrapping-length-poison-count", 0, 0xffffffff, 255, False)):
+    raw = b"[ " + struct.pack("<I", opcode) + b"\x01" + struct.pack("<I", length) + bytes([count])
+    uc = map_pe(pe)
+    uc.mem_map(buffer, 4096)
+    uc.mem_write(buffer, raw)
+    uc.mem_write(ctx + 0x434, struct.pack("<I", params))
+    heap = bytes(uc.mem_read(0x1000000, 0x100000))
+    reads, writes = [], []
+    def read_hook(_uc, _access, address, size, _value, _user):
+        if buffer <= address < buffer + len(raw):
+            reads.append([address - buffer, size])
+    def write_hook(_uc, _access, address, size, value, _user):
+        if buffer <= address < buffer + len(raw) or 0x1000000 <= address < 0x1100000 or pe.image_base <= address < pe.image_base + pe.size_image:
+            writes.append([address, size, value])
+    uc.hook_add(UC_HOOK_MEM_READ, read_hook)
+    uc.hook_add(UC_HOOK_MEM_WRITE, write_hook)
+    observed = observe_cdecl_until(uc, 0x42fb50, buffer + 1, 0x42fdc2, 0, {"ecx": ctx}, count=200, timeout=200000)
+    assert not observed["error"], (label, observed)
+    if accepted:
+        assert observed["stop_reached"] and not observed["returned"]
+        assert reads == [[2, 4], [6, 1], [11, 1]], (label, reads)
+    else:
+        assert observed["returned"] and not observed["stop_reached"] and observed["esp"] == 0x2008008
+        assert observed["eax"] == (buffer + 7 + length) & 0xffffffff
+        assert reads == [[2, 4], [6, 1], [7, 4]], (label, reads)
+    assert not writes and bytes(uc.mem_read(buffer, len(raw))) == raw and bytes(uc.mem_read(0x1000000, 0x100000)) == heap
+    results.append({"label": label, "opcode": opcode, "declared_length": length, "count_byte": count,
+                    "accepted_predispatch": accepted, "reads": reads, "writes": writes, "observed": observed, "passed": True})
+assert path.read_bytes() == pe.data
+with (work / "original-record-read-order-results.json").open("x", encoding="utf-8") as stream:
+    json.dump({"passed": True, "original_sha256": digest, "cases": results,
+               "scope": "three synthetic original42FB50 calls only; no dispatcher/native lifecycle/OS loading or game proof"}, stream, indent=2)
+    stream.write("\n")
+print(json.dumps({"passed": True, "synthetic_original_calls": len(results), "source_reads": [row["reads"] for row in results]}))

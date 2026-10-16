@@ -1,0 +1,8 @@
+function RVMNDispatch(rd, wr, rb, wb, h, f) {
+    if (h == 0x41b3a0) return RVMNControl(rd, wr, rb, wb, f);
+    if (h == 0x418650 && rd(f) == 10) return RVMNQuery(rd, f);
+    if (h == 0x426520) return RVMNChannel(rd, f);
+    if (h == 0x411c40 || h == 0x418650) return RVMNFlags(rd, rb, h, f);
+    if (h == 0x414160) return RVMNKeyboard(rd, rb, f);
+    throw new Exception("RVMNDispatch: unsupported h");
+}

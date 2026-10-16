@@ -1,0 +1,35 @@
+from pathlib import Path
+import sys,json
+root=Path.cwd();g=root/'工程/我们没有翅膀——格雷塔迦露德与柳木原/编程组';p=g/'工具';sys.path[:0]=[str(g/'工具'),str(p)]
+stage=root/'临时/ISSUE-20261011-02/r-resource-host-fixture-final-01';stage.mkdir(exist_ok=False)
+from lucifen_host_path_bridge import host_length_z,host_concat_z,host_lower_ascii_z,bridge_lstrlenA,bridge_lstrcatA,bridge_CharLowerA,host_open_missing_readonly
+rows=[]
+for value in [b'',b'a',b'\x82\xa0',b'x'*4095]:
+ assert host_length_z(value)==len(value);rows.append({'api':'lstrlenA','length':len(value)})
+for prefix,payload,capacity in [(b'',b'',1),(b'a',b'b',3),(b'ab',b'CD',16),(b'\x82\xa0',b'\xe0\x80',16),(b'x'*4094,b'y',4096)]:
+ before=prefix+b'\0'+b'\xd5'*(capacity-len(prefix)-1);out=host_concat_z(payload,before);expected=prefix+payload+b'\0';assert out==expected+before[len(expected):];rows.append({'api':'lstrcatA','length':len(expected)-1,'capacity':capacity})
+for value in [b'',b'AbC_DEF/XYZ.123',bytes(range(1,128)),b'A'*4095]:
+ assert host_lower_ascii_z(value)==value.lower();rows.append({'api':'CharLowerA','length':len(value)})
+mem=bytearray(b'\xd5'*8192);mem[100:104]=b'AbC\0';mem[200:264]=b'prefix\0'+b'\xd5'*57
+read=lambda a,n:bytes(mem[a:a+n]);write=lambda a,b:mem.__setitem__(slice(a,a+len(b)),b)
+assert bridge_lstrlenA(read,100,4)==3
+assert bridge_lstrcatA(read,write,200,100,64)==200 and mem[200:210]==b'prefixAbC\0'
+large={0x10000:b'A',0x10001:b'B',0x10002:b'C',0x10003:b'\0'}
+assert bridge_CharLowerA(lambda a,n:large.get(a,b''),lambda a,b:[large.__setitem__(a+i,bytes([c]))for i,c in enumerate(b)],0x10000,4)==0x10000 and b''.join(large[x]for x in range(0x10000,0x10004))==b'abc\0'
+rejected=0
+for fn,args in [(host_length_z,(b'a\0',)),(host_length_z,(b'a'*4096,)),(host_length_z,(bytearray(1),)),(host_concat_z,(b'ab',b'a\0')),(host_concat_z,(b'a\0',b'\0'*64)),(host_concat_z,(b'a',b'X'*64)),(host_lower_ascii_z,(b'\x80',)),(host_lower_ascii_z,(b'\0',)),(bridge_lstrlenA,(read,False,4)),(bridge_lstrcatA,(read,write,100,100,64)),(bridge_CharLowerA,(read,write,100,4))]:
+ try:fn(*args)
+ except (ValueError,TypeError):rejected+=1
+ else:raise AssertionError('must reject')
+fixture=root/'_game_ascii/ISSUE-20261011-02-resource-empty-01';assert fixture.resolve().is_relative_to(root.resolve());fixture.mkdir(parents=True,exist_ok=True);assert fixture.is_dir() and not list(fixture.iterdir());result=host_open_missing_readonly(str(fixture/'SCRIPT/MissingProbe.SOB').encode('ascii'),0x80000000,1,0,3,0x80,0);assert result==(0xffffffff,3)
+for args in [(b'x',0x40000000,1,0,3,0x80,0),(b'x',0x80000000,1,0,2,0x80,0),(b'x',0x80000000,True,0,3,0x80,0),(b'x\0',0x80000000,1,0,3,0x80,0)]:
+ try:host_open_missing_readonly(*args)
+ except ValueError:rejected+=1
+ else:raise AssertionError('must reject unsafe flags')
+try:host_open_missing_readonly(str(root/'AGENTS.md').encode('ascii'),0x80000000,1,0,3,0x80,0)
+except RuntimeError as exc:assert 'unexpected existing file' in str(exc)
+else:raise AssertionError('unexpected existing file not rejected')
+assert not list(fixture.iterdir())
+receipt={'passed':True,'actual_string_host_cases':rows,'actual_guest_cases':3,'unsupported_rejections':rejected,'actual_missing_path_error':result[1],'unexpected_existing_file_opened_readonly_then_closed_and_rejected':True,'scope':'actual host64 API, source/target guard and untouched tail checks; ASCII CharLowerA only; no original x86 kernel; file helper only supports missing READ/OPEN_EXISTING flags'}
+assert rejected==15
+(stage/'host-path-fixtures.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8');print({'string_host_successes':len(rows),'guest_successes':3,'rejections':rejected,'real_missing_path_error':result[1]})
